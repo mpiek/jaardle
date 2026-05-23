@@ -1,0 +1,15 @@
+# Backups & intermediate artifacts
+*.bak*
+*.pre-cleanup
+.translate-batches/batch_*.json
+
+# Python venvs
+.venv*/
+__pycache__/
+*.pyc
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

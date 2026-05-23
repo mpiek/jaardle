@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jaardle — raad het jaar</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+  <main>
+    <nav id="mode-tabs" role="tablist">
+      <button class="tab" data-mode="daily" role="tab" aria-selected="true">Dagelijkse Jaardle</button>
+      <button class="tab" data-mode="free" role="tab" aria-selected="false">Nieuw spel</button>
+    </nav>
+
+    <section id="event-card">
+      <p id="event-text">Laden…</p>
+    </section>
+
+    <section id="extra-hints" aria-label="Extra hints"></section>
+
+    <div id="hint-row">
+      <button id="hint-btn-text" type="button" hidden>💡 Extra hint</button>
+      <button id="hint-btn-direction" type="button" hidden>🧭 Richting</button>
+      <span id="hint-count" class="hint-count"></span>
+    </div>
+
+    <section id="guesses" aria-label="Pogingen"></section>
+
+    <section id="input-row">
+      <div id="year-input" aria-live="polite" aria-label="Ingevoerd jaar"></div>
+    </section>
+
+    <section id="keypad" aria-label="Numeriek toetsenbord">
+      <button class="key" type="button" data-digit="1">1</button>
+      <button class="key" type="button" data-digit="2">2</button>
+      <button class="key" type="button" data-digit="3">3</button>
+      <button class="key" type="button" data-digit="4">4</button>
+      <button class="key" type="button" data-digit="5">5</button>
+      <button class="key" type="button" data-digit="6">6</button>
+      <button class="key" type="button" data-digit="7">7</button>
+      <button class="key" type="button" data-digit="8">8</button>
+      <button class="key" type="button" data-digit="9">9</button>
+      <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="Voor Christus toggle">−</button>
+      <button class="key" type="button" data-digit="0">0</button>
+      <button class="key key-back" type="button" id="backspace-btn" aria-label="Wis laatste cijfer">⌫</button>
+      <button class="key key-wide" type="button" id="guess-btn">Gok</button>
+    </section>
+
+    <section id="result" hidden>
+      <p id="result-text"></p>
+      <div id="reveal-row" hidden></div>
+      <p id="event-source"></p>
+      <div id="result-actions">
+        <button id="share-btn">Deel resultaat</button>
+        <button id="next-btn" hidden>Nieuw rondje</button>
+      </div>
+    </section>
+
+    <section id="help">
+      <details>
+        <summary>Hoe werkt het?</summary>
+        <ul>
+          <li>Je krijgt 6 pogingen om het juiste jaar te raden.</li>
+          <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
+          <li>Per puzzel max <strong>2 extra tekst-hints</strong> (💡) en max <strong>2 richting-hints</strong> (🧭). Een richting-hint onthult pijl alleen op je laatste gok.</li>
+          <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
+          <li>Vast: max 2 extra hints op aanvraag. Je gedeelde score laat zien hoeveel hints je gebruikte (💡).</li>
+          <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
+          <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Gebeurtenissen + Nederlandse vertalingen onder
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a>,
+      afgeleid van
+      <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Engelstalige Wikipedia</a>
+      (machine-vertaald).
+      <span id="day-label"></span>
+    </p>
+  </footer>
+
+  <script src="game.js?v=2"></script>
+</body>
+</html>

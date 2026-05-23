@@ -1,0 +1,239 @@
+# Spoilers for manual review (distance 3-10)
+
+puzzle=-365  found=-368  dist=±3
+  Perdiccas III van Macedonië, zoon van Amyntas III en Eurydice II, doodt Ptolemaeus van Aloros, die regent van Macedonië is geweest sinds hij de moord op Perdiccas III's broer Alexander II in 368 v.Chr. arrangeerde. Met de dood van Ptolemaeus wordt Perdiccas III eigenhandig Koning van Macedonië.
+
+puzzle=-275  found=-278  dist=±3
+  Generaal Bai Qi van de staat Qin herstelt de orde in de opstandige provincies Wu en Qianzhong, die waren gevormd uit de gebieden die tussen 280 en 278 v.Chr. op de staat Chu waren veroverd.
+
+puzzle=1211  found=1208  dist=±3
+  Het Pauselijk Interdict van 1208 opgelegd door Innocentius III blijft van kracht nadat Jan weigert de benoeming van de paus te accepteren.
+
+puzzle=1298  found=1301  dist=±3
+  Keizer Fushimi doet afstand van de troon na een regeerperiode van 11 jaar. Hij wordt opgevolgd door zijn 10-jarige zoon Go-Fushimi als de 93e keizer van Japan (tot 1301).
+
+puzzle=1332  found=1329  dist=±3
+  Amda Seyon I, Keizer van Ethiopië, begint zijn veldtochten in de zuidelijke Moslimprovincie (mogelijk in 1329).
+
+puzzle=1459  found=1462  dist=±3
+  Oostenrijkse troepen, op bevel van Frederik III, vallen Hongarije binnen en starten de Oostenrijks-Hongaarse Oorlog. De oorlog duurt drie jaar voordat de Oostenrijkers zich in 1462 terugtrekken.
+
+puzzle=1668  found=1665  dist=±3
+  Hendrik Brouncker wordt uit het Engelse Huis van Afgevaardigden verwijderd wegens verraad tijdens de Slag bij Lowestoft in 1665 tijdens de Tweede Engels-Nederlandse Oorlog.
+
+puzzle=1705  found=1702  dist=±3
+  Anne, Koningin van Engeland ontbindt het Engelse Huis van Afgevaardigden dat in 1702 was gekozen, en beveelt nieuwe verkiezingen.
+
+puzzle=1733  found=1730  dist=±3
+  Engels vervangt Latijn en Juridisch Frans als officiële taal van Engelse en Schotse rechtbanken na handhaving van de Proceedings in Courts of Justice Act 1730.
+
+puzzle=1815  found=1812  dist=±3
+  Oorlog van 1812: Britse troepen veroveren Fort Peter in Sint-Marys, Georgia, de enige slag van de oorlog die in de staat plaatsvindt.
+
+puzzle=1815  found=1812  dist=±3
+  De Oorlog van 1812 tussen de Verenigde Staten en het Verenigd Koninkrijk (inclusief Canada) eindigt officieel, na bekrachtiging van het Verdrag van Gent (1814) in Washington, D.C.
+
+puzzle=-92  found=-88  dist=±4
+  Gaius Sentius wordt Romeins gouverneur van Macedonië. Hij dient tot 88 v.Chr.
+
+puzzle=1027  found=1031  dist=±4
+  Koning Robert II van Frankrijk ("de Vrome") zoekt vrede met zijn zonen. Hendrik I wordt gekroond tot medekoning van Frankrijk in de Kathedraal van Reims, maar heeft weinig macht om te regeren (tot 1031).
+
+puzzle=1095  found=1091  dist=±4
+  Het Tweede Graafschap Portugal wordt gesticht door graaf Hendrik van Bourgondië. De Almoraviden beginnen de troepen van koning Alfons VI ('de Brave') terug te dringen naar de posities die ze een decennium eerder bezetten. Dit offensief begint met de herovering van Lissabon, dat in 1091 aan Castilië was afgestaan.
+
+puzzle=1151  found=1155  dist=±4
+  Geconfronteerd met interne strijd, is de commune van Bologna de eerste Italiaanse republiek die zich wendt tot het bestuur van een podestà, Guido di Ranieri da Sasso (het eindigt in 1155).
+
+puzzle=1236  found=1232  dist=±4
+  Het Goryeo-hof in Korea beveelt de voorbereiding van een ander stel houtblokken voor het drukken van de Boeddhistische Tripitaka ("Driedubbele Mand") – bedoeld om bescherming tegen de Mongoolse invallers te verkrijgen en het eerdere 11e-eeuwse stel dat in 1232 door de Mongolen werd vernietigd, te vervangen.
+
+puzzle=1302  found=1298  dist=±4
+  De kroning van Martha van Denemarken, echtgenote van de Zweedse koning Birger sinds 1298, tot koningin-gemalin van Zweden vindt plaats tijdens een ceremonie in Söderköping.
+
+puzzle=1306  found=1310  dist=±4
+  De Hospitaalridders, geleid door Grootmeester Foulques de Villaret, landen met 600 man op het eiland Rhodos, een van de Dodekanesos-eilanden voor de kust van Byzantium, en beginnen een vier jaar durende oorlog om de versterkte stad Rhodos te veroveren (die pas op 15 augustus 1310 zal vallen).
+
+puzzle=1333  found=1337  dist=±4
+  Een hongersnood (duur tot 1337) breekt uit in China, doodend zes miljoen.
+
+puzzle=1502  found=1498  dist=±4
+  Dmitry Ivanovich Vnuk, die sinds 1498 medeheerser van het Groothertogdom Moskou was met zijn grootvader Ivan III, wordt gearresteerd samen met zijn moeder, Elena van Moldavië op verdenking van samenzwering. Ivan wijst zijn zoon (en Dmitry's oom) Vasili Ivanovich aan als de nieuwe erfgenaam van de troon van Moskou.
+
+puzzle=1610  found=1606  dist=±4
+  27 juli (17 juli O.S.) – Vasili Ivanovich Shuisky, die zichzelf op 19 mei 1606 tot Tsar van Rusland verklaarde, wordt als de Zeven Boyaren hem uit zijn ambt zetten om een nieuwe heerser te selecteren.
+
+puzzle=1681  found=1685  dist=±4
+  Het Bombardement van Chios tijdens de Frans-Tripolitaanse Oorlog (____-1685) maakt deel uit van een bredere campagne door Frankrijk tegen de Barbary-Piraten in de 1680s.
+
+puzzle=1714  found=1718  dist=±4
+  Venetische Oorlog (____–1718): Het Ottomaanse Imperium verklaart de oorlog aan de Republiek Venetië.
+
+puzzle=1735  found=1739  dist=±4
+  Turks-Russische Oorlog, ____-1739: Russische troepen mislukken de Krim in beslag te nemen, vanwege rasputitsa.
+
+puzzle=1770  found=1774  dist=±4
+  -jarige Maria Antoinette van Oostenrijk trouwt met Lodewijk-August (die in 1774 Koning Lodewijk XVI wordt) in het Paleis van Versailles.
+
+puzzle=1772  found=1768  dist=±4
+  Turks-Russische Oorlog (1768–1774): Eerste van twee Russische bezettingen van Beiroet, na een zeebombardement dat op 18 juni begon.
+
+puzzle=1832  found=1828  dist=±4
+  Nullificatiecrisis: De Amerikaanse staat South Carolina stelt de Ordinantie van Nullificatie vast en betwist daarmee de macht van de federale regering door te verklaren dat zij de nationale invoertarieven die in 1828 in wet werden omgezet niet zal handhaven en ____.
+
+puzzle=-364  found=-369  dist=±5
+  Filippus II van Macedonië, broer van de regerende koning van Macedonië, keert naar zijn geboorteland terug na als gijzelaar in Thebes te zijn vastgehouden sinds 369 v.Chr.
+
+puzzle=-361  found=-366  dist=±5
+  Plato keert nog eenmaal naar Syracuse terug om de jonge Syracusaanse tiran Dionysius II onderwijs te geven. Hij faalt erin de tiran met Dion te verzoenen, die Dionysius II in 366 v.Chr. verbannen. Hierdoor wordt Plato gedwongen Syracuse te ontvluchten om zijn leven te redden.
+
+puzzle=995  found=1000  dist=±5
+  Olaf Tryggvason wordt gekroond tot koning van Noorwegen (tot 1000) en bouwt de eerste christelijke kerk van het land.
+
+puzzle=1043  found=1038  dist=±5
+  Koning Hendrik III ('de Zwarte') trouwt met Agnes van Poitou (dochter van Willem V van Aquitanië) in het Keizerlijk Paleis te Ingelheim am Rhein. Zij is zijn tweede vrouw na de dood van Gunhilda aan malaria in 1038.
+
+puzzle=1078  found=1083  dist=±5
+  De Almoravidische emir, Yusuf ibn Tashfin, belegert Ceuta. Aangezien de stad hulp van zee kan ontvangen, zal het beleg duren tot 1083.
+
+puzzle=1153  found=1148  dist=±5
+  Geconfronteerd met aanzienlijke financiële moeilijkheden door de kosten van de Spaanse kruistocht, moet de Republiek Genua een derde van de stad Tortosa (die zij in 1148 hadden veroverd tijdens een expeditie tegen de Almoraviden) verkopen aan Ramon Berenguer IV, graaf van Barcelona.
+
+puzzle=1180  found=1185  dist=±5
+  Keizer Takakura wordt gedwongen af te treden door Taira no Kiyomori na een regering van 12 jaar. Hij wordt opgevolgd door zijn tweejarige zoon, Keizer Antoku, die tot 1185 zal regeren. Kiyomori neemt de controle over de regering op zich, regeerend als regent in de naam van de kinderkeizer.
+
+puzzle=1224  found=1229  dist=±5
+  Jacopo Tiepolo (later: Doge van de Republiek Venetië, 1229–1249), bereikt een overeenkomst in zijn rol als Podestà, met Robert I, Latijnse Keizer van Constantinopel, voor gunstige behandeling van de Venetianen in het Imperium.
+
+puzzle=1272  found=1277  dist=±5
+  Koning Stefanus V van Hongarije wordt ziek en wordt naar het eiland Csepel gebracht. Hij sterft en wordt opgevolgd door zijn 10-jarige zoon Ladislaus IV ('de Kumaan'), die gevangen wordt gehouden in de vesting Koprivnica in Noord-Kroatië. Zijn moeder, koningin Elizabeth, wordt regentes tijdens de minderjarigheid van haar zoon (tot 1277).
+
+puzzle=1337  found=1332  dist=±5
+  De hongersnood in China, die sinds 1332 duurde en 6.000.000 doodde, komt tot een einde.
+
+puzzle=1512  found=1507  dist=±5
+  Giano II di Campofregoso werd gekozen als de Doge van de Republiek Genua in Italië na de terugtrekking van Franse bezettingstroepen, waarmee een vacature wordt ingevuld die sinds 1507 bestaat.
+
+puzzle=1636  found=1641  dist=±5
+  Nimi a Lukeni a Nzenze a Ntumba wordt benoemd tot Koning Alvaro VI van Kongo, in het gebied dat nu wordt bezet door de Afrikaanse natie Angola, en regeert tot zijn dood op 22 februari 1641.
+
+puzzle=1754  found=1749  dist=±5
+  Karim Khan Zand, de Koning van Perzië (nu Iran) heroverd de stad Shiraz van Afghaanse krijgsheer Azad Khan Afghan, die sinds 1749 controle over veel van centraal Iran had.
+
+puzzle=1764  found=1769  dist=±5
+  Inwoners van Frans Louisiana worden voor het eerst geïnformeerd dat zij onder Spaans gezag zullen komen als gevolg van een geheim akkoord van 13 november 1762 waarbij Frankrijk al zijn Noord-Amerikaanse territorium ten westen van de Mississippi River heeft afgestaan. De Spanjaarden nemen echter pas op 17 augustus 1769 bezit.
+
+puzzle=1769  found=1774  dist=±5
+  Turks-Russische Oorlog (1768–1774): Russische troepen nemen het Ottomaanse fort Chocim in Boekovina in.
+
+puzzle=1773  found=1768  dist=±5
+  Turks-Russische Oorlog (1768–1774): Russische troepen mislukken Silistria in te nemen.
+
+puzzle=-141  found=-135  dist=±6
+  Het Seleucidische garnizoen onderhandelt over de overgave van Jeruzalem. Simon Maccabaeus neemt de controle over de stad over. Hij wordt prins (heerser) van Judea tot 135 v.Chr.
+
+puzzle=1214  found=1208  dist=±6
+  Het Pauselijk Interdict van 1208, opgelegd tegen het Koninkrijk Engeland, wordt opgeheven.
+
+puzzle=1384  found=1390  dist=±6
+  Antoniotto I Adorno wordt gekozen als Doge van de Republiek Genua na de dood van de Doge Leonardo Montaldo van de builepes de dag ervoor. Adorno dient als de chef-uitvoerder van de Republiek tot 1390.
+
+puzzle=1459  found=1453  dist=±6
+  Paus Pius II roept de deelnemers van de Raad van Mantua op fondsen in te zamelen en deel te nemen aan een Christelijke kruistocht om Constantinopel terug te veroveren op de Moslim-Osmanen, die het in 1453 hadden veroverd.
+
+puzzle=1491  found=1485  dist=±6
+  De Osmaans–Mamlukse Oorlog (1485–____) tussen het Osmaanse Rijk en de Egyptische Mamluks eindigt.
+
+puzzle=-142  found=-135  dist=±7
+  Simon Maccabaeus volgt zijn broer Jonathan op als hogepriester van Judea tot 135 v.Chr.
+
+puzzle=-49  found=-56  dist=±7
+  Belegering van Massilia: Caesar begint een belegering bij Massilia tegen de Pompeïaan Lucius Domitius Ahenobarbus. Hij laat de nieuw opgericte legioenen XVII, XVIII en XIX de belegering uitvoeren. Decimus Brutus – overwinnaar over de Veneti (zie 56 v.Chr.) – voert het bevel over de vloot om de haven te blokkeren.
+
+puzzle=1009  found=1002  dist=±7
+  Deense Vikingraiders onder leiding van Sven Vorkbaard vallen herhaaldelijk Zuid-Engeland aan, waarbij ze het land verwoesten om het bloedbad op St. Brice's Day van 1002 te wreken.
+
+puzzle=1098  found=1091  dist=±7
+  Fatimiden-troepen onder kalief Al-Musta'li heroveren Jeruzalem en bezetten Palestina. De Kruisvaarders bedreigen de grenzen van het Fatimidische Kalifaat, dat reeds het Emiraat Sicilië heeft verloren (zie 1091).
+
+puzzle=1133  found=1140  dist=±7
+  De bouw van de kapittelzaal van de Kathedraal van Durham, die in 1140 wordt voltooid.
+
+puzzle=1327  found=1334  dist=±7
+  Paus Johannes XXII benoemt 10 nieuwe Rooms-katholieke kardinalen, het grootste aantal tijdens zijn pontificaat, waaronder Jacques Fournier, die Paus Johannes zal opvolgen als Paus Benedictus XII in 1334.
+
+puzzle=1428  found=1435  dist=±7
+  Hanzeatenoorlog (1426–1435): Het bombardement van Kopenhagen, hoofdstad van Denemarken, door schepen van de Noord-Duitse Hanze vindt plaats en wordt door de Deense Marine afgewezen.
+
+puzzle=1545  found=1538  dist=±7
+  Pietro Lando, de Doge van de Republiek Venetië sinds 1538, sterft en Francesco Donato wordt in zijn plaats gekozen.
+
+puzzle=1668  found=1661  dist=±7
+  Tanger, een stad in Marokko die in 1661 onder controle van het Engelse koloniale imperium was gekomen, wordt door de Engelse kroon tot de status van 'vrije stad' verheven.
+
+puzzle=1689  found=1682  dist=±7
+  Ernstig ziek, wordt de Keizerin Xiaoyiren door haar echtgenoot, Chinas Kangxi-keizer, tot keizerin uitgeroepen, nadat zij sinds 1682 Keizerlijke Edele Gemalin is geweest. Ze sterft de volgende dag.
+
+puzzle=2009  found=2016  dist=±7
+  Het Internationaal Olympisch Comité geeft Rio de Janeiro het recht om de Zomerspelen van 2016 te organiseren.
+
+puzzle=-366  found=-358  dist=±8
+  In Perzië beginnen een aantal satrapen van Koning Artaxerxes II een opstand, in alliantie met Athene, Sparta en Egypte, die tot 358 v.Chr. duurt.
+
+puzzle=-236  found=-228  dist=±8
+  Koning Ying Zheng van de staat Qin begint een reeks campagnes tegen de staat Zhao die zullen eindigen met de verovering van Zhao in 228 v.Chr. De Qin-generaals Huan Yi en Wang Jian veroveren negen steden in de Yecheng-regio.
+
+puzzle=1013  found=1005  dist=±8
+  De Vier Grote Boeken van Song, de Chinese encyclopedie Prime Tortoise of the Record Bureau van de Song-dynastie die sinds 1005 is samengesteld, wordt voltooid in 1.000 delen van 9,4 miljoen geschreven Chinese karakters.
+
+puzzle=1111  found=1119  dist=±8
+  ____-jarige Boudewijn VII volgt zijn vader, Robert II, op als Graaf van Vlaanderen tot 1119.
+
+puzzle=1314  found=1322  dist=±8
+  Stefanus II wordt heerser (ban) van Bosnië na de dood van zijn vader Stefanus I Kotromanić. Hij regeert de landen van de rivier de Sava tot de Adriatische Zee, maar komt pas in 1322 effectief volledig aan de macht.
+
+puzzle=1561  found=1553  dist=±8
+  William Baldwin's Beware the Cat (geschreven begin 1553), een vroeg voorbeeld van uitgebreide horrorfictic in het Engels, wordt anoniem in Londen gepubliceerd. Deze druk lijkt te zijn onderdrukt en geen exemplaren zijn overgebleven.
+
+puzzle=1883  found=1875  dist=±8
+  In vijf burgerrechtenzaken verklaard het Hooggerechtshof van de Verenigde Staten deel van de Civil Rights Act van 1875 ongrondwettelijk, wat individuen en bedrijven toestaat te discrimineren op basis van ras.
+
+puzzle=1924  found=1916  dist=±8
+  De Amerikaanse bezetting van de Dominicaanse Republiek (1916–24) komt tot een einde. De grondwettelijke regering onder leiding van generaal Horacio Vázquez, gekozen in de verkiezingen gehouden in maart, wordt ingesteld.
+
+puzzle=-357  found=-366  dist=±9
+  De schoonbroer van Dionysius I, Dion, verbannen uit Syracuse in 366 v.Chr. door Dionysius II, stelt een macht van 1.500 huurlingen in Zakynthos samen en zeilt naar Sicilië. Dion rukt de macht af van de zwakke Dionysius II, die in ballingschap gaat en naar Locri vlucht.
+
+puzzle=1019  found=1028  dist=±9
+  De Japanse staatsman en regent Fujiwara no Michinaga trekt zich terug uit het openbare leven en installeert zijn zoon Yorimichi als regent. Michinaga blijft echter de staatszaken vanuit zijn pensioen leiden en blijft de de facto heerser van Japan, tot zijn dood in 1028.
+
+puzzle=1317  found=1308  dist=±9
+  In Duitsland wordt Waldemar de Grote de enige heerser van het herenigde Markgraafschap Brandenburg na de dood van zijn neef, Johan V, Markgraaf van Brandenburg-Salzwedel. Waldemar was sinds 1308 Markgraaf van Brandenburg-Stendal geweest.
+
+puzzle=1319  found=1328  dist=±9
+  Het Hertogdom Beieren, sinds 1294 verdeeld tussen twee broers, wordt herenigd na de dood van Rudolf de Stamelaar, Hertog van Opper-Beieren. Lodewijk de Beier, Koning der Romeinen en Hertog van Neder-Beieren. In 1328 zal Lodewijk later worden verkozen tot Heilige Roomse Keizer als Lodewijk IV.
+
+puzzle=1397  found=1388  dist=±9
+  Tran Thuan Tong, de Vietnamese Keizer van Dai Viet sinds 1388, verplaatst de keizerlijke hoofdstad van Thang Long naar Thanh Hóa.
+
+puzzle=1436  found=1427  dist=±9
+  De Universiteit van Turijn, oorspronkelijk opgericht in 1404, wordt opnieuw ingesteld in Turijn in Italië na afwezig te zijn geweest sinds 1427. Prins Ludovico van Savoye verleent hertogelijke licenties voor het opzetten van faculteiten van Recht, Kunsten en Geneeskunde, en Theologie.
+
+puzzle=1629  found=1620  dist=±9
+  Puriteinse migratie naar Nieuw-Engeland (1620–1640): Ongeveer 350 Engelse Puriteinen op zes schepen, onder leiding van Francis Higginson in de Lyon's Whelp, zeilen vanuit Yarmouth, Isle of Wight naar de Massachusetts Bay Colony in Amerika. Zij arriveren op 19 juni.
+
+puzzle=1755  found=1764  dist=±9
+  Anton, Patriarch van de Georgische Orthodoxe Kerk, wordt door zijn tegenstanders in de Kerkelijke Raad ontslagen en kortstondig 18 maanden gevangen gezet voordat hij naar Rusland mag verhuizen; in 1764 wordt Anton opnieuw gemaakt tot leider van de Georgische Orthodoxe Kerk.
+
+puzzle=-123  found=-133  dist=±10
+  Gaius Gracchus wordt voor het eerst verkozen tot Romeins tribuun. Hij wacht tot na zijn herverkiezing het volgende jaar voordat hij de verschillende burgerlijke en agrarische hervormingen doorvoert die zijn broer in 133 v.Chr. bepleitte.
+
+puzzle=-76  found=-66  dist=±10
+  Hyrcanus II wordt hogepriester van Jeruzalem voor het eerst, bij de dood van zijn vader Alexander Jannaeus, tot 66 v.Chr.
+
+puzzle=1318  found=1328  dist=±10
+  Het gearrangeerde huwelijk van de 6-jarige Johanna van Bourgondië en de 12-jarige Filips van Navarra wordt voltrokken als onderdeel van een contract voor Johanna en Filips om uiteindelijk de co-monarchen van Navarra te worden. De twee zullen in 1328 de monarchie opvolgen.
+
+puzzle=1549  found=1559  dist=±10
+  Giovanni Angelo Medici wordt door Paus Paulus III als Rooms-Katholieke kardinaal benoemd, met ingang van 10 mei. In 1559 wordt Medici gekozen als Paus Pius IV.
+
