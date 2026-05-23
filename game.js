@@ -306,7 +306,6 @@ function submitGuess() {
   renderGuesses();
   save();
   renderExtraHints();
-  updateTabsState();
   if (cls === "correct") {
     finishGame(true);
   } else if (state.guesses.length >= MAX_GUESSES) {
@@ -359,20 +358,21 @@ function shareText() {
 
 async function doShare() {
   const text = shareText();
+  const url = "https://jaardle.nl";
   if (navigator.share) {
     try {
-      await navigator.share({ text });
+      await navigator.share({ text: `${text}\n${url}` });
       return;
     } catch (e) {
       if (e.name === "AbortError") return;
     }
   }
   try {
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(`${text}\n${url}`);
     els.shareBtn.textContent = "Gekopieerd!";
     setTimeout(() => (els.shareBtn.textContent = "Deel resultaat"), 1500);
   } catch (e) {
-    prompt("Kopieer dit:", text);
+    prompt("Kopieer dit:", `${text}\n${url}`);
   }
 }
 
@@ -460,7 +460,6 @@ function startGame(mode, forceNew = false) {
   renderEvent();
   renderExtraHints();
   renderGuesses();
-  updateTabsState();
 
   if (state.done) {
     finishGame(state.won);
@@ -468,27 +467,11 @@ function startGame(mode, forceNew = false) {
 }
 
 function switchMode(mode) {
-  // Geen wissel naar nieuw spel als je nog niks hebt gegokt in het huidige spel
-  if (mode === "free" && state && state.guesses.length === 0 && !state.done) {
-    return;
-  }
   els.tabs.forEach((t) => {
     const selected = t.dataset.mode === mode;
     t.setAttribute("aria-selected", String(selected));
   });
   startGame(mode);
-}
-
-function updateTabsState() {
-  if (!state) return;
-  const canSwitchToFree = state.guesses.length > 0 || state.done;
-  els.tabs.forEach((t) => {
-    if (t.dataset.mode === "free" && state.mode === "daily") {
-      t.classList.toggle("disabled", !canSwitchToFree);
-    } else {
-      t.classList.remove("disabled");
-    }
-  });
 }
 
 function sourceFor(year) {
