@@ -2,6 +2,8 @@ const MAX_GUESSES = 6;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
 const EPOCH = new Date(Date.UTC(2026, 0, 1));
+const MIN_YEAR = -2000;
+const MAX_YEAR = new Date().getFullYear();
 
 const els = {
   eventText: document.getElementById("event-text"),
@@ -86,7 +88,53 @@ function setKeypadDisabled(disabled) {
 }
 
 let events = [];
+let eventHashes = [];
+let _hashToIdx = null;
 let state = null;
+
+// Content-hash per event: stabiel obv year + main text. 10 hex chars = 40 bit.
+// Verbergt ID-volgorde (lage ID → laag jaar) en blijft stabiel als nieuwe
+// events toegevoegd worden, zolang bestaande events ongewijzigd blijven.
+function eventHash(year, text) {
+  const s = `${year}|${text}`;
+  let h1 = 2166136261 | 0;
+  let h2 = 0x12345678 | 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 16777619);
+    h2 = Math.imul(h2 ^ c, 0x5bd1e995);
+  }
+  const hex = ((h1 >>> 0).toString(16).padStart(8, "0")
+             + (h2 >>> 0).toString(16).padStart(8, "0"));
+  return hex.slice(0, 10);
+}
+
+function buildEventHashes() {
+  eventHashes = new Array(events.length);
+  _hashToIdx = new Map();
+  let collisions = 0;
+  for (let i = 0; i < events.length; i++) {
+    const ev = events[i];
+    const txt = (ev.hints && ev.hints[0] && ev.hints[0].text) || ev.event || "";
+    const h = eventHash(ev.year, txt);
+    eventHashes[i] = h;
+    if (_hashToIdx.has(h)) {
+      collisions++;
+      // Eerste-wint: tweede event is niet deelbaar via URL, wel speelbaar.
+    } else {
+      _hashToIdx.set(h, i);
+    }
+  }
+  if (collisions > 0) {
+    console.warn(`eventHash: ${collisions} collisions in ${events.length} events`);
+  }
+}
+
+function findIdxByHash(h) {
+  if (_hashToIdx === null) return -1;
+  const i = _hashToIdx.get(h);
+  return i === undefined ? -1 : i;
+}
 
 function normalizeEvent(raw) {
   if (Array.isArray(raw.hints) && raw.hints.length > 0) {
@@ -119,8 +167,24 @@ function todayKey() {
 }
 
 function storageKey(mode) {
-  return mode === "daily" ? `yeardle-nl:daily:${todayKey()}` : `yeardle-nl:free:current`;
+  return mode === "daily" ? `jaardle:daily:${todayKey()}` : `jaardle:free:current`;
 }
+
+// Eenmalig: migreer state uit oude "yeardle-nl:" sleutels naar "jaardle:"
+(function migrateLegacyStorage() {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("yeardle-nl:")) {
+        const newKey = "jaardle:" + k.slice("yeardle-nl:".length);
+        if (localStorage.getItem(newKey) === null) {
+          localStorage.setItem(newKey, localStorage.getItem(k));
+        }
+        localStorage.removeItem(k);
+      }
+    }
+  } catch (e) { /* private browsing etc. */ }
+})();
 
 function classify(diff) {
   const abs = Math.abs(diff);
@@ -313,7 +377,7 @@ function submitGuess() {
     flashInput();
     return;
   }
-  if (year < -3000 || year > 2100) {
+  if (year < MIN_YEAR || year > MAX_YEAR) {
     flashInput();
     return;
   }
@@ -380,7 +444,7 @@ function shareText() {
 async function doShare() {
   const text = shareText();
   const url = state.mode === "free"
-    ? `https://jaardle.nl/?p=${state.eventIndex}`
+    ? `https://jaardle.nl/?p=${eventHashes[state.eventIndex]}`
     : "https://jaardle.nl/";
   if (navigator.share) {
     try {
@@ -497,7 +561,7 @@ function startGame(mode, forceNew = false, eventIndexOverride = null) {
 function syncUrl() {
   try {
     const target = state.mode === "free"
-      ? `${window.location.pathname}?p=${state.eventIndex}`
+      ? `${window.location.pathname}?p=${eventHashes[state.eventIndex]}`
       : window.location.pathname;
     history.replaceState(null, "", target);
   } catch (e) { /* sandbox / file:// */ }
@@ -517,13 +581,23 @@ function sourceFor(year) {
   return `https://en.wikipedia.org/wiki/${year}`;
 }
 
+const BUNDLE_KEY = "j7r4Td9xPq2nMv5W";
+
+async function loadBundle(url) {
+  const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
+  const key = new TextEncoder().encode(BUNDLE_KEY);
+  for (let i = 0; i < buf.length; i++) buf[i] ^= key[i % key.length];
+  const stream = new Response(buf).body.pipeThrough(new DecompressionStream("gzip"));
+  return JSON.parse(await new Response(stream).text());
+}
+
 async function init() {
-  const res = await fetch("events.min.json");
-  const raw = await res.json();
+  const raw = await loadBundle("bundle.bin");
   events = raw.map(([year, hints]) => normalizeEvent({
     year,
     hints: hints.map((text) => ({ text, source: sourceFor(year) })),
   }));
+  buildEventHashes();
 
   const dayNum = daysSince(EPOCH);
   els.dayLabel.textContent = `Dag #${dayNum + 1}`;
@@ -566,6 +640,12 @@ function getSharedEventIndex() {
   const params = new URLSearchParams(window.location.search);
   const p = params.get("p");
   if (p === null) return null;
+  // Content-hash (10 hex chars)
+  if (/^[0-9a-f]{10}$/.test(p)) {
+    const idx = findIdxByHash(p);
+    return idx >= 0 ? idx : null;
+  }
+  // Legacy numeric ?p=N — accepteer tijdelijk voor bestaande links
   const idx = parseInt(p, 10);
   if (!Number.isInteger(idx) || idx < 0 || idx >= events.length) return null;
   return idx;
