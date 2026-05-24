@@ -1,4 +1,5 @@
 const MAX_GUESSES = 6;
+const FACTS_PER_PUZZLE = 1;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
 const EPOCH = new Date(Date.UTC(2026, 0, 1));
@@ -10,7 +11,6 @@ const WEIGHT_ALPHA = 0.4;
 
 const els = {
   eventText: document.getElementById("event-text"),
-  extraHints: document.getElementById("extra-hints"),
   hintBtnText: document.getElementById("hint-btn-text"),
   hintBtnDir: document.getElementById("hint-btn-direction"),
   hintCount: document.getElementById("hint-count"),
@@ -141,6 +141,23 @@ function findLocByHash(h) {
   return _hashToLoc === null ? null : (_hashToLoc.get(h) || null);
 }
 
+// Concat de hashes van alle gepickte hints → opaque share token.
+function buildShareToken(yearIdx, hintIdxs) {
+  return hintIdxs.map((hi) => hashFor(yearIdx, hi)).join("");
+}
+
+// Parse share token (3×10 hex). Returns [yearIdx, hintIdxs] of null.
+function parseShareToken(token) {
+  if (!/^[0-9a-f]+$/.test(token) || token.length % 10 !== 0) return null;
+  const hashes = token.match(/.{10}/g);
+  const locs = hashes.map((h) => findLocByHash(h));
+  if (locs.some((l) => l === null)) return null;
+  const yearIdx = locs[0][0];
+  if (!locs.every((l) => l[0] === yearIdx)) return null;
+  const hintIdxs = locs.map((l) => l[1]).sort((a, b) => a - b);
+  return [yearIdx, hintIdxs];
+}
+
 function normalizeEvent(raw) {
   // Keep ALL hints; per-game we pick one as "main" and the rest as extras.
   if (Array.isArray(raw.hints) && raw.hints.length > 0) {
@@ -149,21 +166,45 @@ function normalizeEvent(raw) {
   return { year: raw.year, hints: [{ text: raw.event, source: raw.source }] };
 }
 
-// Build the {year, event, source, extras} that the UI renders from the
-// chosen (yearIdx, hintIdx). Extras are deterministically shuffled from the
-// remaining hints of the same year, capped at MAX_EXTRA_HINTS.
-function buildVisibleEvent(yearIdx, hintIdx, seed) {
+// Deterministisch FACTS_PER_PUZZLE indices uit ev.hints kiezen. Als jaar
+// minder hints heeft, geven we er minder terug.
+function pickHintIdxs(yearIdx, seed) {
   const ev = events[yearIdx];
-  const main = ev.hints[hintIdx];
-  const otherIdxs = [];
-  for (let i = 0; i < ev.hints.length; i++) if (i !== hintIdx) otherIdxs.push(i);
+  const n = Math.min(FACTS_PER_PUZZLE, ev.hints.length);
+  const idxs = ev.hints.map((_, i) => i);
   const rand = mulberry32(seed);
-  for (let i = otherIdxs.length - 1; i > 0; i--) {
+  for (let i = idxs.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
-    [otherIdxs[i], otherIdxs[j]] = [otherIdxs[j], otherIdxs[i]];
+    [idxs[i], idxs[j]] = [idxs[j], idxs[i]];
   }
-  const extras = otherIdxs.slice(0, MAX_EXTRA_HINTS).map((i) => ev.hints[i].text);
-  return { year: ev.year, event: main.text, source: main.source, extras };
+  return idxs.slice(0, n).sort((a, b) => a - b);
+}
+
+// Extras worden deterministisch afgeleid uit (year, factHintIdxs) zodat
+// share-URLs alleen de 3 fact-hashes hoeven te bevatten.
+function pickExtraHintIdxs(yearIdx, factHintIdxs) {
+  const ev = events[yearIdx];
+  const factSet = new Set(factHintIdxs);
+  const remaining = [];
+  for (let i = 0; i < ev.hints.length; i++) if (!factSet.has(i)) remaining.push(i);
+  if (remaining.length === 0) return [];
+  let seed = (ev.year * 2654435761) >>> 0;
+  for (const i of factHintIdxs) seed = (seed ^ Math.imul(i + 1, 1000003)) >>> 0;
+  const rand = mulberry32(seed);
+  for (let i = remaining.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+  }
+  return remaining.slice(0, MAX_EXTRA_HINTS).sort((a, b) => a - b);
+}
+
+// Build the {year, facts[], extras[], source} that de UI rendert.
+function buildVisibleEvent(yearIdx, hintIdxs) {
+  const ev = events[yearIdx];
+  const facts = hintIdxs.map((i) => ev.hints[i].text);
+  const extras = pickExtraHintIdxs(yearIdx, hintIdxs).map((i) => ev.hints[i].text);
+  const source = ev.hints[hintIdxs[0]]?.source;
+  return { year: ev.year, facts, extras, source };
 }
 
 function daysSince(epoch) {
@@ -230,41 +271,33 @@ function emojiFor(cls) {
 }
 
 function renderEvent() {
-  els.eventText.textContent = state.event.event;
-}
-
-function totalHintsUsed() {
-  return state.textHintsUsed + state.directionsRevealed.length;
-}
-
-function renderExtraHints() {
-  els.extraHints.innerHTML = "";
-  for (let i = 0; i < state.textHintsUsed; i++) {
-    const hint = state.event.extras[i];
-    if (!hint) continue;
-    const card = document.createElement("div");
-    card.className = "extra-hint";
-    const lbl = document.createElement("div");
-    lbl.className = "extra-hint-label";
-    lbl.textContent = "💡 Nog een gebeurtenis uit hetzelfde jaar";
+  els.eventText.innerHTML = "";
+  state.event.facts.forEach((text) => {
     const p = document.createElement("p");
-    p.textContent = hint;
-    card.append(lbl, p);
-    els.extraHints.appendChild(card);
+    p.className = "fact";
+    p.textContent = text;
+    els.eventText.appendChild(p);
+  });
+  for (let i = 0; i < state.textHintsUsed; i++) {
+    const text = state.event.extras[i];
+    if (!text) continue;
+    const p = document.createElement("p");
+    p.className = "fact fact-extra";
+    p.textContent = text;
+    els.eventText.appendChild(p);
   }
+}
 
+function renderHintStatus() {
   const availableExtras = Math.min(state.event.extras.length, MAX_EXTRA_HINTS);
   const textRemaining = availableExtras - state.textHintsUsed;
   const dirsLeft = MAX_DIRECTION_HINTS - state.directionsRevealed.length;
   const hasUnrevealedGuess =
     state.guesses.length > 0 &&
     !state.directionsRevealed.includes(state.guesses.length - 1);
-
   els.hintBtnText.hidden = state.done || textRemaining <= 0;
   els.hintBtnDir.hidden = state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
-
-  const txt = `💡 ${state.textHintsUsed}/${MAX_EXTRA_HINTS} hints · 🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} richtingen`;
-  els.hintCount.textContent = txt;
+  els.hintCount.textContent = `💡 ${state.textHintsUsed}/${MAX_EXTRA_HINTS} hints · 🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} richtingen`;
 }
 
 function requestTextHint() {
@@ -272,7 +305,8 @@ function requestTextHint() {
   const available = Math.min(state.event.extras.length, MAX_EXTRA_HINTS);
   if (state.textHintsUsed >= available) return;
   state.textHintsUsed += 1;
-  renderExtraHints();
+  renderEvent();
+  renderHintStatus();
   save();
 }
 
@@ -283,7 +317,7 @@ function requestDirectionHint() {
   const latestIdx = state.guesses.length - 1;
   if (state.directionsRevealed.includes(latestIdx)) return;
   state.directionsRevealed.push(latestIdx);
-  renderExtraHints();
+  renderHintStatus();
   renderGuesses();
   // Pop-animatie op het zojuist onthulde pijltje. Double-rAF zodat de
   // browser de fresh arrow eerst paint zonder class, dan de class als
@@ -360,6 +394,15 @@ function renderHelpConstants() {
   document.querySelectorAll("[data-penalty]").forEach((el) => {
     const key = el.dataset.penalty;
     if (key in map) el.textContent = `-${map[key]}`;
+  });
+  const helpMap = {
+    "max-guesses": MAX_GUESSES,
+    "max-text-hints": MAX_EXTRA_HINTS,
+    "max-dir-hints": MAX_DIRECTION_HINTS,
+  };
+  document.querySelectorAll("[data-help]").forEach((el) => {
+    const key = el.dataset.help;
+    if (key in helpMap) el.textContent = String(helpMap[key]);
   });
   const tiers = document.querySelector('[data-help="tiers"]');
   if (tiers) {
@@ -460,7 +503,7 @@ function finishGame(won, fresh = false) {
     ? `Bron: <a href="${ev.source}" target="_blank" rel="noopener">${displaySource(ev.source)}</a> · CC BY-SA`
     : "";
   els.nextBtn.hidden = state.mode !== "free";
-  renderExtraHints();
+  renderHintStatus();
   if (fresh && won) showConfetti();
 }
 
@@ -486,7 +529,7 @@ function submitGuess() {
   clearYear();
   renderGuesses();
   save();
-  renderExtraHints();
+  renderHintStatus();
   if (cls === "correct") {
     finishGame(true, true);
   } else if (state.guesses.length >= MAX_GUESSES) {
@@ -510,18 +553,20 @@ function save() {
       textHintsUsed: state.textHintsUsed,
       directionsRevealed: state.directionsRevealed,
       yearIdx: state.yearIdx,
-      hintIdx: state.hintIdx,
+      hintIdxs: state.hintIdxs,
     }));
   } catch (e) { /* storage may be unavailable */ }
 }
 
-function load(mode, expectedYearIdx, expectedHintIdx) {
+function load(mode, expectedYearIdx, expectedHintIdxs) {
   try {
     const raw = localStorage.getItem(storageKey(mode));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (mode === "free") {
-      if (parsed.yearIdx !== expectedYearIdx || parsed.hintIdx !== expectedHintIdx) return null;
+      if (parsed.yearIdx !== expectedYearIdx) return null;
+      const a = expectedHintIdxs, b = parsed.hintIdxs;
+      if (!Array.isArray(b) || a.length !== b.length || a.some((v, i) => v !== b[i])) return null;
     }
     return parsed;
   } catch (e) {
@@ -551,7 +596,7 @@ function shareText() {
 async function doShare() {
   const text = shareText();
   const url = state.mode === "free"
-    ? `https://jaardle.nl/?p=${hashFor(state.yearIdx, state.hintIdx)}`
+    ? `https://jaardle.nl/?p=${buildShareToken(state.yearIdx, state.hintIdxs)}`
     : "https://jaardle.nl/";
   if (navigator.share) {
     try {
@@ -600,17 +645,15 @@ function weightedYearOrder() {
   return expanded;
 }
 
-// Returns [yearIdx, hintIdx] for the given mode.
+// Returns [yearIdx, hintIdxs] for the given mode.
 function pickLocation(mode) {
   if (mode === "daily") {
     const order = weightedYearOrder();
     const dayNum = daysSince(EPOCH);
     const yearIdx = order[((dayNum % order.length) + order.length) % order.length];
-    // Pick a hint within the year, deterministic per (dayNum, year)
     const ev = events[yearIdx];
     const seed = (dayNum * 1000003) ^ (ev.year * 9001);
-    const hintIdx = Math.floor(mulberry32(seed)() * ev.hints.length);
-    return [yearIdx, hintIdx];
+    return [yearIdx, pickHintIdxs(yearIdx, seed)];
   }
   // Free mode: resume saved if not finished, else random
   try {
@@ -620,19 +663,17 @@ function pickLocation(mode) {
       if (
         !parsed.done &&
         Number.isInteger(parsed.yearIdx) &&
-        Number.isInteger(parsed.hintIdx) &&
+        Array.isArray(parsed.hintIdxs) && parsed.hintIdxs.length > 0 &&
         parsed.yearIdx >= 0 && parsed.yearIdx < events.length &&
-        parsed.hintIdx >= 0 && parsed.hintIdx < events[parsed.yearIdx].hints.length
+        parsed.hintIdxs.every((hi) => hi >= 0 && hi < events[parsed.yearIdx].hints.length)
       ) {
-        return [parsed.yearIdx, parsed.hintIdx];
+        return [parsed.yearIdx, parsed.hintIdxs];
       }
     }
   } catch (e) {}
-  // Random pick: weighted year, then random hint within it.
   const order = weightedYearOrder();
   const yearIdx = order[Math.floor(Math.random() * order.length)];
-  const hintIdx = Math.floor(Math.random() * events[yearIdx].hints.length);
-  return [yearIdx, hintIdx];
+  return [yearIdx, pickHintIdxs(yearIdx, Math.floor(Math.random() * 2147483647))];
 }
 
 function startGame(mode, forceNew = false, locationOverride = null) {
@@ -640,15 +681,14 @@ function startGame(mode, forceNew = false, locationOverride = null) {
   if (forceNew) {
     try { localStorage.removeItem(storageKey(mode)); } catch (e) {}
   }
-  const [yearIdx, hintIdx] = locationOverride !== null
+  const [yearIdx, hintIdxs] = locationOverride !== null
     ? locationOverride
     : pickLocation(mode);
-  const seed = (yearIdx * 31337) ^ (hintIdx * 2654435761) ^ events[yearIdx].year;
   state = {
     mode,
     yearIdx,
-    hintIdx,
-    event: buildVisibleEvent(yearIdx, hintIdx, seed),
+    hintIdxs,
+    event: buildVisibleEvent(yearIdx, hintIdxs),
     guesses: [],
     done: false,
     won: false,
@@ -657,16 +697,13 @@ function startGame(mode, forceNew = false, locationOverride = null) {
   };
 
   if (!forceNew) {
-    const saved = load(mode, yearIdx, hintIdx);
+    const saved = load(mode, yearIdx, hintIdxs);
     if (saved) {
       state.guesses = saved.guesses || [];
       state.done = !!saved.done;
       state.won = !!saved.won;
-      // Migratie: oude saves
-      state.textHintsUsed = saved.textHintsUsed ?? saved.hintsUsed ?? 0;
-      state.directionsRevealed = Array.isArray(saved.directionsRevealed)
-        ? saved.directionsRevealed
-        : (saved.directionRevealed ? [0] : []);
+      state.textHintsUsed = saved.textHintsUsed || 0;
+      state.directionsRevealed = Array.isArray(saved.directionsRevealed) ? saved.directionsRevealed : [];
     }
   }
 
@@ -676,7 +713,7 @@ function startGame(mode, forceNew = false, locationOverride = null) {
   els.nextBtn.hidden = true;
 
   renderEvent();
-  renderExtraHints();
+  renderHintStatus();
   renderGuesses();
   save();
   syncUrl();
@@ -689,7 +726,7 @@ function startGame(mode, forceNew = false, locationOverride = null) {
 function syncUrl() {
   try {
     const target = state.mode === "free"
-      ? `${window.location.pathname}?p=${hashFor(state.yearIdx, state.hintIdx)}`
+      ? `${window.location.pathname}?p=${buildShareToken(state.yearIdx, state.hintIdxs)}`
       : window.location.pathname;
     history.replaceState(null, "", target);
   } catch (e) { /* sandbox / file:// */ }
@@ -769,14 +806,14 @@ function getSharedLocation() {
   const params = new URLSearchParams(window.location.search);
   const p = params.get("p");
   if (p === null) return null;
-  // Content-hash (10 hex chars) → [yearIdx, hintIdx]
-  if (/^[0-9a-f]{10}$/.test(p)) {
-    return findLocByHash(p);
+  // Nieuwe vorm: concat van N hashes van 10 hex chars
+  if (/^[0-9a-f]+$/.test(p) && p.length % 10 === 0 && p.length >= 10) {
+    return parseShareToken(p);
   }
-  // Legacy numeric ?p=N — old links pointed to year-index; show hint 0
+  // Legacy numeric ?p=N — wijst naar yearIdx, pick hints deterministisch
   const idx = parseInt(p, 10);
   if (!Number.isInteger(idx) || idx < 0 || idx >= events.length) return null;
-  return [idx, 0];
+  return [idx, pickHintIdxs(idx, idx * 31337)];
 }
 
 init().catch((err) => {
