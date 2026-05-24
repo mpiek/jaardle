@@ -379,7 +379,9 @@ function shareText() {
 
 async function doShare() {
   const text = shareText();
-  const url = "https://jaardle.nl/";
+  const url = state.mode === "free"
+    ? `https://jaardle.nl/?p=${state.eventIndex}`
+    : "https://jaardle.nl/";
   if (navigator.share) {
     try {
       await navigator.share({ text: `${text}\n${url}` });
@@ -443,12 +445,14 @@ function pickEventIndex(mode) {
   return Math.floor(Math.random() * events.length);
 }
 
-function startGame(mode, forceNew = false) {
+function startGame(mode, forceNew = false, eventIndexOverride = null) {
   // Eerst clearen, anders pakt pickEventIndex de saved event weer op
   if (forceNew) {
     try { localStorage.removeItem(storageKey(mode)); } catch (e) {}
   }
-  const eventIndex = pickEventIndex(mode);
+  const eventIndex = eventIndexOverride !== null
+    ? eventIndexOverride
+    : pickEventIndex(mode);
   state = {
     mode,
     eventIndex,
@@ -483,10 +487,20 @@ function startGame(mode, forceNew = false) {
   renderExtraHints();
   renderGuesses();
   save();
+  syncUrl();
 
   if (state.done) {
     finishGame(state.won);
   }
+}
+
+function syncUrl() {
+  try {
+    const target = state.mode === "free"
+      ? `${window.location.pathname}?p=${state.eventIndex}`
+      : window.location.pathname;
+    history.replaceState(null, "", target);
+  } catch (e) { /* sandbox / file:// */ }
 }
 
 function switchMode(mode) {
@@ -536,7 +550,25 @@ async function init() {
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
 
-  switchMode("daily");
+  const sharedIdx = getSharedEventIndex();
+  if (sharedIdx !== null) {
+    // Open een door iemand gedeeld vrij spel.
+    els.tabs.forEach((t) => {
+      t.setAttribute("aria-selected", String(t.dataset.mode === "free"));
+    });
+    startGame("free", false, sharedIdx);
+  } else {
+    switchMode("daily");
+  }
+}
+
+function getSharedEventIndex() {
+  const params = new URLSearchParams(window.location.search);
+  const p = params.get("p");
+  if (p === null) return null;
+  const idx = parseInt(p, 10);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= events.length) return null;
+  return idx;
 }
 
 init().catch((err) => {
