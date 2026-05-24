@@ -258,7 +258,24 @@ function renderGuesses() {
   }
 }
 
-function finishGame(won) {
+function showConfetti() {
+  const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"];
+  const container = document.createElement("div");
+  container.className = "confetti-container";
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 0.6 + "s";
+    piece.style.animationDuration = 2.5 + Math.random() * 2 + "s";
+    container.appendChild(piece);
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 5000);
+}
+
+function finishGame(won, fresh = false) {
   state.done = true;
   state.won = won;
   save();
@@ -273,7 +290,7 @@ function finishGame(won) {
     document.createTextNode(`${intro} `),
   );
   const yearBadge = document.createElement("span");
-  yearBadge.className = "year-pill";
+  yearBadge.className = "year-pill" + (fresh && won ? " win-pop" : "");
   yearBadge.textContent = ev.year;
   els.resultText.append(yearBadge);
   els.source.innerHTML = ev.source
@@ -281,6 +298,7 @@ function finishGame(won) {
     : "";
   els.nextBtn.hidden = state.mode !== "free";
   renderExtraHints();
+  if (fresh && won) showConfetti();
 }
 
 function submitGuess() {
@@ -307,9 +325,9 @@ function submitGuess() {
   save();
   renderExtraHints();
   if (cls === "correct") {
-    finishGame(true);
+    finishGame(true, true);
   } else if (state.guesses.length >= MAX_GUESSES) {
-    finishGame(false);
+    finishGame(false, true);
   }
 }
 
@@ -347,18 +365,21 @@ function load(mode, expectedIndex) {
 
 function shareText() {
   const dayNum = daysSince(EPOCH) + 1;
-  const header = state.mode === "daily"
-    ? `Jaartal #${dayNum} — ${state.won ? state.guesses.length : "X"}/${MAX_GUESSES}`
-    : `Jaartal (vrij) — ${state.won ? state.guesses.length : "X"}/${MAX_GUESSES}`;
+  const score = state.won ? `${state.guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
+  const intro = state.won
+    ? `Ik kraakte Jaardle ${state.mode === "daily" ? `#${dayNum}` : "(vrij)"} in ${state.guesses.length} gokken!`
+    : `Ik faalde Jaardle ${state.mode === "daily" ? `#${dayNum}` : "(vrij)"}`;
+  const grid = state.guesses.map((g) => emojiFor(g.cls)).join("");
   const used = totalHintsUsed();
-  const hintBadge = used > 0 ? " " + "💡".repeat(used) : "";
-  const grid = state.guesses.map((g) => emojiFor(g.cls)).join("\n");
-  return `${header}${hintBadge}\n${grid}`;
+  const statsParts = [`🎯 ${score}`, `📊 ${grid}`];
+  if (state.textHintsUsed > 0) statsParts.push(`💡 ${state.textHintsUsed}`);
+  if (state.directionsRevealed.length > 0) statsParts.push(`🧭 ${state.directionsRevealed.length}`);
+  return `${intro}\n${statsParts.join(" | ")}`;
 }
 
 async function doShare() {
   const text = shareText();
-  const url = "https://jaardle.nl";
+  const url = "https://jaardle.nl/";
   if (navigator.share) {
     try {
       await navigator.share({ text: `${text}\n${url}` });
