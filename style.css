@@ -119,6 +119,14 @@ main {
 #hint-btn-text:hover,
 #hint-btn-direction:hover { background: rgba(255, 213, 79, 0.1); }
 
+#event-card.has-en {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+#event-card.has-en:active { background: rgba(255, 213, 79, 0.04); }
+
 .hint-count {
   color: var(--muted);
   font-size: 0.85rem;

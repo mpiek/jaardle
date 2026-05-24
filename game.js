@@ -11,6 +11,7 @@ const WEIGHT_ALPHA = 0.4;
 
 const els = {
   eventText: document.getElementById("event-text"),
+  eventCard: document.getElementById("event-card"),
   hintBtnText: document.getElementById("hint-btn-text"),
   hintBtnDir: document.getElementById("hint-btn-direction"),
   hintCount: document.getElementById("hint-count"),
@@ -199,10 +200,11 @@ function pickExtraHintIdxs(yearIdx, factHintIdxs) {
 }
 
 // Build the {year, facts[], extras[], source} that de UI rendert.
+// Elke fact/extra is { nl, en } zodat de "hold for EN" knop kan toggelen.
 function buildVisibleEvent(yearIdx, hintIdxs) {
   const ev = events[yearIdx];
-  const facts = hintIdxs.map((i) => ev.hints[i].text);
-  const extras = pickExtraHintIdxs(yearIdx, hintIdxs).map((i) => ev.hints[i].text);
+  const facts = hintIdxs.map((i) => ({ nl: ev.hints[i].text, en: ev.hints[i].en || "" }));
+  const extras = pickExtraHintIdxs(yearIdx, hintIdxs).map((i) => ({ nl: ev.hints[i].text, en: ev.hints[i].en || "" }));
   const source = ev.hints[hintIdxs[0]]?.source;
   return { year: ev.year, facts, extras, source };
 }
@@ -272,20 +274,36 @@ function emojiFor(cls) {
 
 function renderEvent() {
   els.eventText.innerHTML = "";
-  state.event.facts.forEach((text) => {
-    const p = document.createElement("p");
-    p.className = "fact";
-    p.textContent = text;
-    els.eventText.appendChild(p);
-  });
+  state.event.facts.forEach((f) => appendFact(f, false));
   for (let i = 0; i < state.textHintsUsed; i++) {
-    const text = state.event.extras[i];
-    if (!text) continue;
-    const p = document.createElement("p");
-    p.className = "fact fact-extra";
-    p.textContent = text;
-    els.eventText.appendChild(p);
+    const f = state.event.extras[i];
+    if (!f) continue;
+    appendFact(f, true);
   }
+  updateEnButton();
+}
+
+function appendFact(f, isExtra) {
+  const p = document.createElement("p");
+  p.className = "fact" + (isExtra ? " fact-extra" : "");
+  p.dataset.nl = f.nl;
+  p.dataset.en = f.en;
+  p.textContent = f.nl;
+  els.eventText.appendChild(p);
+}
+
+function updateEnButton() {
+  // Markeer card als "kan peeken" zolang er minstens één EN beschikbaar is.
+  const anyEn = Array.from(els.eventText.querySelectorAll(".fact"))
+    .some((p) => p.dataset.en && p.dataset.en.length > 0);
+  els.eventCard?.classList.toggle("has-en", anyEn);
+}
+
+function showFactsLang(lang) {
+  els.eventText.querySelectorAll(".fact").forEach((p) => {
+    const txt = lang === "en" ? p.dataset.en : p.dataset.nl;
+    if (txt) p.textContent = txt;
+  });
 }
 
 function renderHintStatus() {
@@ -760,7 +778,11 @@ async function init() {
   const raw = await loadBundle("bundle.bin");
   events = raw.map(([year, hints]) => normalizeEvent({
     year,
-    hints: hints.map((text) => ({ text, source: sourceFor(year) })),
+    hints: hints.map((h) => {
+      // h is [nl, en] vanaf bundle v2; oude bundles hadden plain string.
+      const [text, en] = Array.isArray(h) ? h : [h, ""];
+      return { text, en, source: sourceFor(year) };
+    }),
   }));
   buildEventHashes();
   renderHelpConstants();
@@ -789,6 +811,19 @@ async function init() {
   els.nextBtn.addEventListener("click", () => startGame("free", true));
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
+
+  // Houd de tekst-box ingedrukt om de Engelse bron te zien.
+  if (els.eventCard) {
+    const peekEn = (e) => { e.preventDefault(); showFactsLang("en"); };
+    const restoreNl = () => showFactsLang("nl");
+    els.eventCard.addEventListener("mousedown", peekEn);
+    els.eventCard.addEventListener("mouseup", restoreNl);
+    els.eventCard.addEventListener("mouseleave", restoreNl);
+    els.eventCard.addEventListener("touchstart", peekEn, { passive: false });
+    els.eventCard.addEventListener("touchend", restoreNl);
+    els.eventCard.addEventListener("touchcancel", restoreNl);
+    els.eventCard.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
 
   const sharedLoc = getSharedLocation();
   if (sharedLoc !== null) {
