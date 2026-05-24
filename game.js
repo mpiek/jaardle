@@ -431,6 +431,7 @@ function pickEventIndex(mode) {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (
+        !parsed.done &&
         Number.isInteger(parsed.eventIndex) &&
         parsed.eventIndex >= 0 &&
         parsed.eventIndex < events.length
