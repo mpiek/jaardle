@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jaardle — raad het jaar</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <main>
@@ -66,7 +66,8 @@
           <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
           <li>Per puzzel max <strong>2 extra tekst-hints</strong> (💡) en max <strong>2 richting-hints</strong> (🧭). Een richting-hint onthult pijl alleen op je laatste gok.</li>
           <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
-          <li>Vast: max 2 extra hints op aanvraag. Je gedeelde score laat zien hoeveel hints je gebruikte (💡).</li>
+          <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok afhankelijk van hoe ver eraf: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span> en 🧭 <span data-penalty="dir-hint"></span>. Wild-rond-tasten kost dus meer dan dichtbij komen. Verloren = 0.</li>
+          <li>Tiers: <span data-help="tiers"></span></li>
           <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
           <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
         </ul>
@@ -85,6 +86,6 @@
     </p>
   </footer>
 
-  <script src="game.js?v=3"></script>
+  <script src="game.js?v=5"></script>
 </body>
 </html>

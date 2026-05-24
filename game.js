@@ -4,6 +4,9 @@ const MAX_DIRECTION_HINTS = 2;
 const EPOCH = new Date(Date.UTC(2026, 0, 1));
 const MIN_YEAR = -2000;
 const MAX_YEAR = new Date().getFullYear();
+// Weighted daily order: years with more events appear vaker.
+// 0 = uniform, 1 = fully proportional. 0.4 = mild boost (1942 ~8x vs 200 BC).
+const WEIGHT_ALPHA = 0.4;
 
 const els = {
   eventText: document.getElementById("event-text"),
@@ -88,8 +91,7 @@ function setKeypadDisabled(disabled) {
 }
 
 let events = [];
-let eventHashes = [];
-let _hashToIdx = null;
+let _hashToLoc = null;  // hash → [yearIdx, hintIdx]
 let state = null;
 
 // Content-hash per event: stabiel obv year + main text. 10 hex chars = 40 bit.
@@ -110,49 +112,58 @@ function eventHash(year, text) {
 }
 
 function buildEventHashes() {
-  eventHashes = new Array(events.length);
-  _hashToIdx = new Map();
+  _hashToLoc = new Map();
+  let total = 0;
   let collisions = 0;
-  for (let i = 0; i < events.length; i++) {
-    const ev = events[i];
-    const txt = (ev.hints && ev.hints[0] && ev.hints[0].text) || ev.event || "";
-    const h = eventHash(ev.year, txt);
-    eventHashes[i] = h;
-    if (_hashToIdx.has(h)) {
-      collisions++;
-      // Eerste-wint: tweede event is niet deelbaar via URL, wel speelbaar.
-    } else {
-      _hashToIdx.set(h, i);
+  for (let yi = 0; yi < events.length; yi++) {
+    const ev = events[yi];
+    for (let hi = 0; hi < ev.hints.length; hi++) {
+      total++;
+      const h = eventHash(ev.year, ev.hints[hi].text);
+      if (_hashToLoc.has(h)) {
+        collisions++;
+        // First-wins: collisions are not URL-addressable but still playable.
+      } else {
+        _hashToLoc.set(h, [yi, hi]);
+      }
     }
   }
   if (collisions > 0) {
-    console.warn(`eventHash: ${collisions} collisions in ${events.length} events`);
+    console.warn(`eventHash: ${collisions} collisions in ${total} hints`);
   }
 }
 
-function findIdxByHash(h) {
-  if (_hashToIdx === null) return -1;
-  const i = _hashToIdx.get(h);
-  return i === undefined ? -1 : i;
+function hashFor(yearIdx, hintIdx) {
+  return eventHash(events[yearIdx].year, events[yearIdx].hints[hintIdx].text);
+}
+
+function findLocByHash(h) {
+  return _hashToLoc === null ? null : (_hashToLoc.get(h) || null);
 }
 
 function normalizeEvent(raw) {
+  // Keep ALL hints; per-game we pick one as "main" and the rest as extras.
   if (Array.isArray(raw.hints) && raw.hints.length > 0) {
-    const main = raw.hints[0];
-    const extras = raw.hints.slice(1, 1 + MAX_EXTRA_HINTS).map((h) => h.text);
-    return {
-      year: raw.year,
-      event: main.text,
-      source: main.source,
-      extras,
-    };
+    return { year: raw.year, hints: raw.hints };
   }
-  return {
-    year: raw.year,
-    event: raw.event,
-    source: raw.source,
-    extras: [],
-  };
+  return { year: raw.year, hints: [{ text: raw.event, source: raw.source }] };
+}
+
+// Build the {year, event, source, extras} that the UI renders from the
+// chosen (yearIdx, hintIdx). Extras are deterministically shuffled from the
+// remaining hints of the same year, capped at MAX_EXTRA_HINTS.
+function buildVisibleEvent(yearIdx, hintIdx, seed) {
+  const ev = events[yearIdx];
+  const main = ev.hints[hintIdx];
+  const otherIdxs = [];
+  for (let i = 0; i < ev.hints.length; i++) if (i !== hintIdx) otherIdxs.push(i);
+  const rand = mulberry32(seed);
+  for (let i = otherIdxs.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [otherIdxs[i], otherIdxs[j]] = [otherIdxs[j], otherIdxs[i]];
+  }
+  const extras = otherIdxs.slice(0, MAX_EXTRA_HINTS).map((i) => ev.hints[i].text);
+  return { year: ev.year, event: main.text, source: main.source, extras };
 }
 
 function daysSince(epoch) {
@@ -274,6 +285,17 @@ function requestDirectionHint() {
   state.directionsRevealed.push(latestIdx);
   renderExtraHints();
   renderGuesses();
+  // Pop-animatie op het zojuist onthulde pijltje. Double-rAF zodat de
+  // browser de fresh arrow eerst paint zonder class, dan de class als
+  // state-overgang detecteert. Class blijft staan — keyframes eindigen
+  // op scale(1) dus geen cleanup nodig.
+  const rows = els.guesses.querySelectorAll(".guess-row");
+  const arrow = rows[latestIdx]?.querySelector(".delta-badge .arrow");
+  if (arrow) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      arrow.classList.add("just-revealed");
+    }));
+  }
   save();
 }
 
@@ -286,11 +308,80 @@ const RANGE_LABELS = {
   distant: "200+",
 };
 
-function deltaLabel(diff, cls, showDirection) {
-  if (cls === "correct") return "✓";
-  if (!showDirection) return RANGE_LABELS[cls];
-  const arrow = diff > 0 ? "↑" : "↓";
-  return `${arrow} ${RANGE_LABELS[cls]}`;
+// Score: 100 - sum(penalty per wrong guess) - hint penalties.
+const GUESS_PENALTIES = {
+  correct: 0,
+  veryclose: 3,
+  close: 5,
+  warm: 8,
+  cool: 11,
+  far: 13,
+  distant: 15,
+};
+const TEXT_HINT_PENALTY = 5;
+const DIRECTION_HINT_PENALTY = 3;
+
+function computeScore() {
+  if (!state.won) return 0;
+  let s = 100;
+  for (const g of state.guesses) s -= GUESS_PENALTIES[g.cls] || 0;
+  s -= state.textHintsUsed * TEXT_HINT_PENALTY;
+  s -= state.directionsRevealed.length * DIRECTION_HINT_PENALTY;
+  return Math.max(0, s);
+}
+
+// Tiers: hoogste eerst. Eerste match wint.
+const SCORE_TIERS = [
+  { min: 100, label: "Perfect",            emoji: "🏆" },
+  { min: 80,  label: "Indrukwekkend",      emoji: "🥇" },
+  { min: 60,  label: "Goed",               emoji: "🥈" },
+  { min: 40,  label: "Solide",             emoji: "🥉" },
+  { min: 1,   label: "Net gehaald",        emoji: "😅" },
+  { min: 0,   label: "Volgende keer beter", emoji: "💀" },
+];
+
+function scoreTier(score) {
+  return SCORE_TIERS.find((t) => score >= t.min);
+}
+
+// Vul de uitleg-tekst met de actuele constanten (zo hoef je bij tweaks niks
+// in de HTML te wijzigen).
+function renderHelpConstants() {
+  const map = {
+    veryclose: GUESS_PENALTIES.veryclose,
+    close:     GUESS_PENALTIES.close,
+    warm:      GUESS_PENALTIES.warm,
+    cool:      GUESS_PENALTIES.cool,
+    far:       GUESS_PENALTIES.far,
+    distant:   GUESS_PENALTIES.distant,
+    "text-hint": TEXT_HINT_PENALTY,
+    "dir-hint": DIRECTION_HINT_PENALTY,
+  };
+  document.querySelectorAll("[data-penalty]").forEach((el) => {
+    const key = el.dataset.penalty;
+    if (key in map) el.textContent = `-${map[key]}`;
+  });
+  const tiers = document.querySelector('[data-help="tiers"]');
+  if (tiers) {
+    tiers.textContent = SCORE_TIERS.map((t) => {
+      const range = t.min === 100 ? "100" : (t.min === 0 ? "0" : `${t.min}+`);
+      return `${t.emoji} ${range}`;
+    }).join(" · ");
+  }
+}
+
+function renderDeltaBadge(badge, diff, cls, showDirection) {
+  badge.textContent = "";
+  if (cls === "correct") { badge.textContent = "✓"; return; }
+  if (showDirection) {
+    const arrow = document.createElement("span");
+    arrow.className = "arrow";
+    arrow.textContent = diff > 0 ? "↑" : "↓";
+    badge.appendChild(arrow);
+    badge.appendChild(document.createTextNode(` ${RANGE_LABELS[cls]}`));
+  } else {
+    badge.textContent = RANGE_LABELS[cls];
+  }
 }
 
 function renderGuesses() {
@@ -307,7 +398,7 @@ function renderGuesses() {
       const badge = document.createElement("span");
       badge.className = `delta-badge ${g.cls}`;
       const showDir = state.done || revealedSet.has(idx);
-      badge.textContent = deltaLabel(g.diff, g.cls, showDir);
+      renderDeltaBadge(badge, g.diff, g.cls, showDir);
       row.append(yr, badge);
       els.guesses.appendChild(row);
     } else {
@@ -357,6 +448,14 @@ function finishGame(won, fresh = false) {
   yearBadge.className = "year-pill" + (fresh && won ? " win-pop" : "");
   yearBadge.textContent = ev.year;
   els.resultText.append(yearBadge);
+  if (won) {
+    const score = computeScore();
+    const tier = scoreTier(score);
+    const scoreLine = document.createElement("div");
+    scoreLine.className = "score-line";
+    scoreLine.textContent = `${tier.emoji} ${tier.label} · ${score}/100`;
+    els.resultText.append(scoreLine);
+  }
   els.source.innerHTML = ev.source
     ? `Bron: <a href="${ev.source}" target="_blank" rel="noopener">${displaySource(ev.source)}</a> · CC BY-SA`
     : "";
@@ -410,17 +509,20 @@ function save() {
       won: state.won,
       textHintsUsed: state.textHintsUsed,
       directionsRevealed: state.directionsRevealed,
-      eventIndex: state.eventIndex,
+      yearIdx: state.yearIdx,
+      hintIdx: state.hintIdx,
     }));
   } catch (e) { /* storage may be unavailable */ }
 }
 
-function load(mode, expectedIndex) {
+function load(mode, expectedYearIdx, expectedHintIdx) {
   try {
     const raw = localStorage.getItem(storageKey(mode));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (mode === "free" && parsed.eventIndex !== expectedIndex) return null;
+    if (mode === "free") {
+      if (parsed.yearIdx !== expectedYearIdx || parsed.hintIdx !== expectedHintIdx) return null;
+    }
     return parsed;
   } catch (e) {
     return null;
@@ -429,13 +531,18 @@ function load(mode, expectedIndex) {
 
 function shareText() {
   const dayNum = daysSince(EPOCH) + 1;
-  const score = state.won ? `${state.guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
-  const intro = state.won
-    ? `Ik kraakte Jaardle ${state.mode === "daily" ? `#${dayNum}` : "(vrij)"} in ${state.guesses.length} gokken!`
-    : `Ik faalde Jaardle ${state.mode === "daily" ? `#${dayNum}` : "(vrij)"}`;
+  const tag = state.mode === "daily" ? `#${dayNum}` : "(vrij)";
+  const guessScore = state.won ? `${state.guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
   const grid = state.guesses.map((g) => emojiFor(g.cls)).join("");
-  const used = totalHintsUsed();
-  const statsParts = [`🎯 ${score}`, `📊 ${grid}`];
+  let intro;
+  if (state.won) {
+    const s = computeScore();
+    const tier = scoreTier(s);
+    intro = `Jaardle ${tag}: ${tier.emoji} ${tier.label} (${s}/100)`;
+  } else {
+    intro = `Jaardle ${tag}: 💀 Niet gekraakt`;
+  }
+  const statsParts = [`🎯 ${guessScore}`, `📊 ${grid}`];
   if (state.textHintsUsed > 0) statsParts.push(`💡 ${state.textHintsUsed}`);
   if (state.directionsRevealed.length > 0) statsParts.push(`🧭 ${state.directionsRevealed.length}`);
   return `${intro}\n${statsParts.join(" | ")}`;
@@ -444,7 +551,7 @@ function shareText() {
 async function doShare() {
   const text = shareText();
   const url = state.mode === "free"
-    ? `https://jaardle.nl/?p=${eventHashes[state.eventIndex]}`
+    ? `https://jaardle.nl/?p=${hashFor(state.yearIdx, state.hintIdx)}`
     : "https://jaardle.nl/";
   if (navigator.share) {
     try {
@@ -473,54 +580,75 @@ function mulberry32(seed) {
   };
 }
 
-let _dailyOrder = null;
-function dailyOrder() {
-  if (_dailyOrder) return _dailyOrder;
-  const rand = mulberry32(0x4A415254); // "JART" als seed — vaste volgorde voor iedereen
-  const order = events.map((_, i) => i);
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
+// Weighted order: years with more events appear multiple times (=more often).
+// Uses count^WEIGHT_ALPHA, then deterministic mulberry32 shuffle.
+let _weightedYearOrder = null;
+function weightedYearOrder() {
+  if (_weightedYearOrder) return _weightedYearOrder;
+  const expanded = [];
+  for (let i = 0; i < events.length; i++) {
+    const n = events[i].hints.length;
+    const w = Math.max(1, Math.round(Math.pow(n, WEIGHT_ALPHA)));
+    for (let k = 0; k < w; k++) expanded.push(i);
   }
-  _dailyOrder = order;
-  return order;
+  const rand = mulberry32(0x4A415254); // "JART" — vaste volgorde voor iedereen
+  for (let i = expanded.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [expanded[i], expanded[j]] = [expanded[j], expanded[i]];
+  }
+  _weightedYearOrder = expanded;
+  return expanded;
 }
 
-function pickEventIndex(mode) {
+// Returns [yearIdx, hintIdx] for the given mode.
+function pickLocation(mode) {
   if (mode === "daily") {
-    const order = dailyOrder();
+    const order = weightedYearOrder();
     const dayNum = daysSince(EPOCH);
-    return order[((dayNum % order.length) + order.length) % order.length];
+    const yearIdx = order[((dayNum % order.length) + order.length) % order.length];
+    // Pick a hint within the year, deterministic per (dayNum, year)
+    const ev = events[yearIdx];
+    const seed = (dayNum * 1000003) ^ (ev.year * 9001);
+    const hintIdx = Math.floor(mulberry32(seed)() * ev.hints.length);
+    return [yearIdx, hintIdx];
   }
+  // Free mode: resume saved if not finished, else random
   try {
     const raw = localStorage.getItem(storageKey("free"));
     if (raw) {
       const parsed = JSON.parse(raw);
       if (
         !parsed.done &&
-        Number.isInteger(parsed.eventIndex) &&
-        parsed.eventIndex >= 0 &&
-        parsed.eventIndex < events.length
+        Number.isInteger(parsed.yearIdx) &&
+        Number.isInteger(parsed.hintIdx) &&
+        parsed.yearIdx >= 0 && parsed.yearIdx < events.length &&
+        parsed.hintIdx >= 0 && parsed.hintIdx < events[parsed.yearIdx].hints.length
       ) {
-        return parsed.eventIndex;
+        return [parsed.yearIdx, parsed.hintIdx];
       }
     }
   } catch (e) {}
-  return Math.floor(Math.random() * events.length);
+  // Random pick: weighted year, then random hint within it.
+  const order = weightedYearOrder();
+  const yearIdx = order[Math.floor(Math.random() * order.length)];
+  const hintIdx = Math.floor(Math.random() * events[yearIdx].hints.length);
+  return [yearIdx, hintIdx];
 }
 
-function startGame(mode, forceNew = false, eventIndexOverride = null) {
-  // Eerst clearen, anders pakt pickEventIndex de saved event weer op
+function startGame(mode, forceNew = false, locationOverride = null) {
+  // Eerst clearen, anders pakt pickLocation de saved event weer op
   if (forceNew) {
     try { localStorage.removeItem(storageKey(mode)); } catch (e) {}
   }
-  const eventIndex = eventIndexOverride !== null
-    ? eventIndexOverride
-    : pickEventIndex(mode);
+  const [yearIdx, hintIdx] = locationOverride !== null
+    ? locationOverride
+    : pickLocation(mode);
+  const seed = (yearIdx * 31337) ^ (hintIdx * 2654435761) ^ events[yearIdx].year;
   state = {
     mode,
-    eventIndex,
-    event: events[eventIndex],
+    yearIdx,
+    hintIdx,
+    event: buildVisibleEvent(yearIdx, hintIdx, seed),
     guesses: [],
     done: false,
     won: false,
@@ -529,7 +657,7 @@ function startGame(mode, forceNew = false, eventIndexOverride = null) {
   };
 
   if (!forceNew) {
-    const saved = load(mode, eventIndex);
+    const saved = load(mode, yearIdx, hintIdx);
     if (saved) {
       state.guesses = saved.guesses || [];
       state.done = !!saved.done;
@@ -561,7 +689,7 @@ function startGame(mode, forceNew = false, eventIndexOverride = null) {
 function syncUrl() {
   try {
     const target = state.mode === "free"
-      ? `${window.location.pathname}?p=${eventHashes[state.eventIndex]}`
+      ? `${window.location.pathname}?p=${hashFor(state.yearIdx, state.hintIdx)}`
       : window.location.pathname;
     history.replaceState(null, "", target);
   } catch (e) { /* sandbox / file:// */ }
@@ -598,6 +726,7 @@ async function init() {
     hints: hints.map((text) => ({ text, source: sourceFor(year) })),
   }));
   buildEventHashes();
+  renderHelpConstants();
 
   const dayNum = daysSince(EPOCH);
   els.dayLabel.textContent = `Dag #${dayNum + 1}`;
@@ -624,31 +753,30 @@ async function init() {
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
 
-  const sharedIdx = getSharedEventIndex();
-  if (sharedIdx !== null) {
+  const sharedLoc = getSharedLocation();
+  if (sharedLoc !== null) {
     // Open een door iemand gedeeld vrij spel.
     els.tabs.forEach((t) => {
       t.setAttribute("aria-selected", String(t.dataset.mode === "free"));
     });
-    startGame("free", false, sharedIdx);
+    startGame("free", false, sharedLoc);
   } else {
     switchMode("daily");
   }
 }
 
-function getSharedEventIndex() {
+function getSharedLocation() {
   const params = new URLSearchParams(window.location.search);
   const p = params.get("p");
   if (p === null) return null;
-  // Content-hash (10 hex chars)
+  // Content-hash (10 hex chars) → [yearIdx, hintIdx]
   if (/^[0-9a-f]{10}$/.test(p)) {
-    const idx = findIdxByHash(p);
-    return idx >= 0 ? idx : null;
+    return findLocByHash(p);
   }
-  // Legacy numeric ?p=N — accepteer tijdelijk voor bestaande links
+  // Legacy numeric ?p=N — old links pointed to year-index; show hint 0
   const idx = parseInt(p, 10);
   if (!Number.isInteger(idx) || idx < 0 || idx >= events.length) return null;
-  return idx;
+  return [idx, 0];
 }
 
 init().catch((err) => {
