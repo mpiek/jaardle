@@ -482,6 +482,7 @@ function startGame(mode, forceNew = false) {
   renderEvent();
   renderExtraHints();
   renderGuesses();
+  save();
 
   if (state.done) {
     finishGame(state.won);
