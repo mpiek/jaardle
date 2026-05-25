@@ -638,7 +638,6 @@ function renderMenu() {
 
   if (auth.user) {
     section.innerHTML = `<span class="email">${auth.user.email}</span>Ingelogd`;
-    if (statsBtn) statsBtn.hidden = false;
     const out = document.createElement("button");
     out.className = "menu-item danger";
     out.role = "menuitem";
