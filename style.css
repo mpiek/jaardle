@@ -70,8 +70,8 @@ main {
   line-height: 1;
   cursor: pointer;
 }
-#menu-btn:hover { color: var(--fg); }
-#menu-btn[aria-expanded="true"] { background: var(--card-soft); color: var(--fg); }
+#menu-btn:hover { background: var(--card-soft); }
+#menu-btn[aria-expanded="true"] { background: var(--card-soft); }
 
 #menu-pop {
   position: absolute;
