@@ -16,3 +16,8 @@ __pycache__/
 .vscode/
 *.swp
 .mcp.json
+
+# Firebase wordt via CDN geladen — geen npm-install in deze repo.
+node_modules/
+package.json
+package-lock.json

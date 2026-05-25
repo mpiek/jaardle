@@ -29,7 +29,10 @@ from pathlib import Path
 import ctranslate2
 import transformers
 
-MODEL_PATH = "/home/matthijs/.cache/nllb-600m-int8"
+MODEL_PATH = os.environ.get(
+    "NLLB_MODEL_PATH",
+    str(Path.home() / ".cache" / "nllb-600m-int8"),
+)
 SENTINEL = "XX0XX"
 SRC_LANG = "eng_Latn"
 TGT_LANG = "nld_Latn"

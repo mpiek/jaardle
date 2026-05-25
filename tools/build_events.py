@@ -23,7 +23,7 @@ import urllib.request
 
 USER_AGENT = (
     "Jaardle-DataBuilder/2.0 "
-    "(https://github.com/mpiek/jaardle; matthijs.piek@easyflex.nl)"
+    "(https://github.com/mpiek/jaardle; algathonix@gmail.com)"
 )
 API_URL = "https://en.wikipedia.org/w/api.php"
 DEFAULT_DELAY = 0.2

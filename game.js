@@ -526,6 +526,239 @@ function finishGame(won, fresh = false) {
   els.nextBtn.hidden = state.mode !== "free";
   renderHintStatus();
   if (fresh && won) showConfetti();
+  if (fresh && state.mode === "daily") recordDailyResult(won);
+}
+
+// --- Daily history & stats ------------------------------------------------
+
+const HISTORY_KEY = "jaardle:history";
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+
+function saveHistory(arr) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); } catch (e) {}
+}
+
+function recordDailyResult(won) {
+  const date = todayKey();
+  const score = won ? computeScore() : 0;
+  const entry = {
+    date,
+    won,
+    score,
+    guesses: state.guesses.length,
+    hintsUsed: state.textHintsUsed,
+    dirsUsed: state.directionsRevealed.length,
+  };
+  const history = loadHistory().filter((e) => e.date !== date);
+  history.push(entry);
+  history.sort((a, b) => a.date.localeCompare(b.date));
+  saveHistory(history);
+}
+
+function computeStats(history) {
+  const total = history.length;
+  const wins = history.filter((e) => e.won);
+  const winsN = wins.length;
+  const winRate = total ? Math.round((winsN / total) * 100) : 0;
+  const avgScore = winsN ? Math.round(wins.reduce((s, e) => s + e.score, 0) / winsN) : 0;
+  // Streaks worden geteld op opeenvolgende kalenderdagen mét win.
+  const dateSet = new Set(wins.map((e) => e.date));
+  let best = 0, run = 0;
+  const sorted = [...wins].sort((a, b) => a.date.localeCompare(b.date));
+  let prev = null;
+  for (const e of sorted) {
+    if (prev && daysBetween(prev, e.date) === 1) run += 1;
+    else run = 1;
+    if (run > best) best = run;
+    prev = e.date;
+  }
+  // Current streak: tel terug vanaf vandaag (of gister als vandaag nog niet gespeeld).
+  let cur = 0;
+  let cursor = todayKey();
+  if (!dateSet.has(cursor)) cursor = shiftDay(cursor, -1);
+  while (dateSet.has(cursor)) { cur += 1; cursor = shiftDay(cursor, -1); }
+  return { total, won: winsN, winRate, avgScore, currentStreak: cur, bestStreak: best };
+}
+
+function shiftDay(yyyymmdd, delta) {
+  const [y, m, d] = yyyymmdd.split("-").map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d));
+  t.setUTCDate(t.getUTCDate() + delta);
+  return `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, "0")}-${String(t.getUTCDate()).padStart(2, "0")}`;
+}
+
+function daysBetween(a, b) {
+  const [ay, am, ad] = a.split("-").map(Number);
+  const [by, bm, bd] = b.split("-").map(Number);
+  const ta = Date.UTC(ay, am - 1, ad);
+  const tb = Date.UTC(by, bm - 1, bd);
+  return Math.round((tb - ta) / 86400000);
+}
+
+function renderStats() {
+  const body = document.getElementById("stats-body");
+  const history = loadHistory();
+  if (history.length === 0) {
+    body.innerHTML = '<p class="stats-empty">Nog geen dagelijkse puzzels afgerond.</p>';
+    return;
+  }
+  const s = computeStats(history);
+  body.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat"><div class="num">${s.total}</div><div class="lbl">Gespeeld</div></div>
+      <div class="stat"><div class="num">${s.winRate}%</div><div class="lbl">Win-rate</div></div>
+      <div class="stat"><div class="num">${s.currentStreak}</div><div class="lbl">Huidige streak</div></div>
+      <div class="stat"><div class="num">${s.bestStreak}</div><div class="lbl">Beste streak</div></div>
+      <div class="stat"><div class="num">${s.avgScore}</div><div class="lbl">Gem. score (gewonnen)</div></div>
+      <div class="stat"><div class="num">${s.won}</div><div class="lbl">Gewonnen</div></div>
+    </div>
+  `;
+}
+
+// --- Menu + modals --------------------------------------------------------
+
+// Auth-state placeholder; Firebase-wiring volgt zodra config klaarstaat.
+const auth = { user: null };
+
+function renderMenu() {
+  const section = document.getElementById("menu-account");
+  const items = document.getElementById("menu-pop");
+  const statsBtn = items.querySelector('[data-action="stats"]');
+  // Verwijder dynamische account-knoppen (action=login|logout) maar laat
+  // statische knoppen (stats) staan.
+  items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
+
+  if (auth.user) {
+    section.innerHTML = `<span class="email">${auth.user.email}</span>Ingelogd`;
+    if (statsBtn) statsBtn.hidden = false;
+    const out = document.createElement("button");
+    out.className = "menu-item danger";
+    out.role = "menuitem";
+    out.dataset.action = "logout";
+    out.textContent = "Uitloggen";
+    items.appendChild(out);
+  } else {
+    section.innerHTML = "";
+    if (statsBtn) statsBtn.hidden = true;
+    const inBtn = document.createElement("button");
+    inBtn.className = "menu-item";
+    inBtn.role = "menuitem";
+    inBtn.dataset.action = "login";
+    inBtn.textContent = "🔑 Inloggen";
+    items.insertBefore(inBtn, items.firstChild);
+  }
+}
+
+function toggleMenu(force) {
+  const pop = document.getElementById("menu-pop");
+  const btn = document.getElementById("menu-btn");
+  const open = force !== undefined ? force : pop.hidden;
+  pop.hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+}
+
+function openModal(id) {
+  document.getElementById(id).hidden = false;
+  if (id === "modal-stats") renderStats();
+  if (id === "modal-login") {
+    const err = document.getElementById("login-error");
+    if (err) err.hidden = true;
+    document.querySelector('#login-form input[name="email"]')?.focus();
+  }
+}
+
+function closeModal(id) {
+  document.getElementById(id).hidden = true;
+}
+
+function closeAllModals() {
+  document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+}
+
+async function doAuth(mode, e) {
+  e.preventDefault();
+  const form = document.getElementById("login-form");
+  const err = document.getElementById("login-error");
+  err.hidden = true;
+  err.textContent = "";
+  if (!window.fbAuth) {
+    err.textContent = "Firebase nog aan het laden, probeer het opnieuw.";
+    err.hidden = false;
+    return;
+  }
+  const email = form.email.value.trim();
+  const pw = form.password.value;
+  const submitBtns = form.querySelectorAll("button");
+  submitBtns.forEach((b) => (b.disabled = true));
+  try {
+    if (mode === "signup") await window.fbAuth.signUp(email, pw);
+    else await window.fbAuth.signIn(email, pw);
+    form.reset();
+    closeAllModals();
+  } catch (ex) {
+    err.textContent = friendlyAuthError(ex);
+    err.hidden = false;
+  } finally {
+    submitBtns.forEach((b) => (b.disabled = false));
+  }
+}
+
+function friendlyAuthError(ex) {
+  const code = ex?.code || "";
+  switch (code) {
+    case "auth/invalid-email":            return "Ongeldig e-mailadres.";
+    case "auth/missing-password":         return "Vul een wachtwoord in.";
+    case "auth/weak-password":            return "Wachtwoord te kort (minimaal 6 tekens).";
+    case "auth/email-already-in-use":     return "Dit e-mailadres heeft al een account — kies Inloggen.";
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":           return "E-mail of wachtwoord klopt niet.";
+    case "auth/too-many-requests":        return "Te veel pogingen — probeer het later opnieuw.";
+    case "auth/network-request-failed":   return "Netwerkfout, controleer je verbinding.";
+    case "auth/operation-not-allowed":    return "Deze inlogmethode staat niet aan in Firebase.";
+    case "auth/popup-blocked":            return "Je browser blokkeert de popup. Sta popups toe en probeer opnieuw.";
+    case "auth/account-exists-with-different-credential":
+                                          return "Dit e-mailadres is al gekoppeld aan een andere inlogmethode.";
+    default: return ex?.message || "Inloggen mislukt.";
+  }
+}
+
+async function doSignOut() {
+  if (window.fbAuth) {
+    try { await window.fbAuth.signOut(); } catch (e) {}
+  }
+}
+
+async function doGoogleSignIn() {
+  const err = document.getElementById("login-error");
+  err.hidden = true;
+  err.textContent = "";
+  if (!window.fbAuth?.signInWithGoogle) {
+    err.textContent = "Google-login niet beschikbaar.";
+    err.hidden = false;
+    return;
+  }
+  const btn = document.getElementById("login-google");
+  btn.disabled = true;
+  try {
+    await window.fbAuth.signInWithGoogle();
+    closeAllModals();
+  } catch (ex) {
+    if (ex?.code !== "auth/popup-closed-by-user" && ex?.code !== "auth/cancelled-popup-request") {
+      err.textContent = friendlyAuthError(ex);
+      err.hidden = false;
+    }
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function submitGuess() {
@@ -809,6 +1042,9 @@ async function init() {
   });
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+    // Niet onderscheppen wanneer iemand in een formulier-veld typt.
+    const tag = e.target?.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
     // Tab-shortcuts werken altijd, ook nadat de puzzel klaar is.
     if (e.key === "d" || e.key === "D") { switchMode("daily"); e.preventDefault(); return; }
     if (e.key === "n" || e.key === "N") { switchMode("free"); e.preventDefault(); return; }
@@ -828,6 +1064,44 @@ async function init() {
   els.nextBtn.addEventListener("click", () => startGame("free", true));
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
+
+  // Menu (⋮): toggle, items, en click-outside om te sluiten.
+  const menuBtn = document.getElementById("menu-btn");
+  const menuPop = document.getElementById("menu-pop");
+  menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(); });
+  menuPop.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    toggleMenu(false);
+    const action = btn.dataset.action;
+    if (action === "stats") openModal("modal-stats");
+    else if (action === "login") openModal("modal-login");
+    else if (action === "logout") doSignOut();
+  });
+  document.addEventListener("click", (e) => {
+    if (!menuPop.hidden && !menuPop.contains(e.target) && e.target !== menuBtn) {
+      toggleMenu(false);
+    }
+  });
+  renderMenu();
+
+  // Modals: backdrop / ✕ knop / Escape.
+  document.querySelectorAll(".modal [data-close]").forEach((el) => {
+    el.addEventListener("click", () => closeAllModals());
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAllModals();
+  });
+  const loginForm = document.getElementById("login-form");
+  loginForm.addEventListener("submit", (e) => doAuth("signin", e));
+  document.getElementById("login-register").addEventListener("click", (e) => doAuth("signup", e));
+  document.getElementById("login-google").addEventListener("click", doGoogleSignIn);
+
+  // Sync auth-state vanuit de Firebase module-bridge.
+  window.addEventListener("fb-auth-changed", (e) => {
+    auth.user = e.detail ? { email: e.detail.email, uid: e.detail.uid } : null;
+    renderMenu();
+  });
 
   // Houd de tekst-box ingedrukt om de Engelse bron te zien.
   if (els.eventCard) {
