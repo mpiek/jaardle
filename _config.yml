@@ -1,14 +1,8 @@
 # GitHub Pages (Jekyll) configuratie.
-# Exclude source-/intermediate-data zodat alleen bundle.bin gedeployd wordt.
-# Deze bestanden blijven in de repo voor backup/dev, maar zijn niet publiek
-# bereikbaar via jaardle.nl.
+# Sources en build-tooling staan in de aparte jaardle-tools repo;
+# deze repo bevat alleen de runtime (bundle.bin + statische assets).
 exclude:
-  - events.en.json
-  - events.nl.json
-  - events.nl.partial.json
-  - events.min.json
-  - tools/
-  - venvs/
-  - "*.py"
   - "*.log"
-  - LICENSE-DATA.md
+  - node_modules/
+  - package.json
+  - package-lock.json

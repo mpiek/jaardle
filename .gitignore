@@ -1,14 +1,6 @@
 # Backups & intermediate artifacts
 *.bak*
 *.pre-cleanup
-.translate-batches/batch_*.json
-events.nl.partial.json
-events.en.partial.json
-
-# Python venvs
-.venv*/
-__pycache__/
-*.pyc
 
 # Editors / OS
 .DS_Store

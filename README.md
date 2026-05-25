@@ -19,11 +19,7 @@ Elke dag krijg je één historische gebeurtenis en moet je raden in welk jaar he
 
 2.322 jaartallen (679 v.Chr. tot 2026), 40.138 historische feiten, Nederlands.
 
-| Bestand | Inhoud |
-|---|---|
-| `events.en.json` | Engelse bron, gescraped van Wikipedia |
-| `events.nl.json` | Nederlandse vertaling (canonical, met sources) |
-| `events.min.json` | Compacte runtime-versie voor de webapp |
+Runtime laadt `bundle.bin` (XOR+gzip van `events.min.json`). De ruwe bronbestanden (`events.en.json`, `events.nl.json`, `events.min.json`) en alle scrape/translate/build-scripts staan in een aparte (private) repo: **`mpiek/jaardle-tools`**.
 
 De vertaling is LLM-geassisteerd (Gemini 2.5 Flash + Claude). Jaartal-spoilers (vermeldingen binnen ±2 van het puzzle-jaar) zijn automatisch vervangen door `____`.
 
@@ -41,28 +37,20 @@ python3 -m http.server 8000
 Pure static HTML/CSS/JS. Geen build-stap, geen framework, geen backend. State in `localStorage`. Dagelijkse cyclus seeded vanaf 2026-01-01.
 
 ```
-index.html      — UI
-style.css       — Donkere thema + range-badges
-game.js         — Game logic, year-input, share, daily/free modes
-events.min.json — Runtime data (geladen via fetch)
-tools/          — Build- en cleanup-scripts
+index.html  — UI
+style.css   — Donkere thema + range-badges
+game.js     — Game logic, year-input, share, daily/free modes
+bundle.bin  — Geobfusceerde runtime data (geladen via fetch)
 ```
 
 ## Re-build de dataset
 
-```bash
-python3 tools/build_events.py        # scrape EN Wikipedia → events.en.json
-python3 tools/translate_batches.py   # split → .translate-batches/batch_NNN_in.json
-# (vertaal batches met LLM van keuze, output naar batch_NNN_out.json)
-python3 .translate-batches/merge.py  # merge → events.nl.json
-python3 tools/clean_spoilers.py      # remove year-spoilers
-python3 tools/build_compact.py       # build events.min.json
-```
+Build-scripts en ruwe data staan in `mpiek/jaardle-tools`. Daar genereer je een nieuwe `bundle.bin` en commit je 'm vervolgens hierheen.
 
 ## Licenties
 
-- **Code** (HTML, CSS, JS, Python): [MIT](LICENSE)
-- **Dataset** (`events.*.json`): [CC BY-SA 4.0](LICENSE-DATA.md), afgeleid van Engelse Wikipedia
+- **Code** (HTML, CSS, JS): [MIT](LICENSE)
+- **Dataset**: CC BY-SA 4.0 (zie `LICENSE-DATA.md` in `jaardle-tools`), afgeleid van Engelse Wikipedia
 
 ## Bijdragen
 
