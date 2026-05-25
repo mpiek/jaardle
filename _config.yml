@@ -1,6 +1,5 @@
 # GitHub Pages (Jekyll) configuratie.
-# Sources en build-tooling staan in de aparte jaardle-tools repo;
-# deze repo bevat alleen de runtime (bundle.bin + statische assets).
+# Deze repo bevat de runtime (bundle.bin + statische assets).
 exclude:
   - "*.log"
   - node_modules/

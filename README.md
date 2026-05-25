@@ -19,7 +19,7 @@ Elke dag krijg je één historische gebeurtenis en moet je raden in welk jaar he
 
 2.322 jaartallen (679 v.Chr. tot 2026), 40.138 historische feiten, Nederlands.
 
-Runtime laadt `bundle.bin` (XOR+gzip van `events.min.json`). De ruwe bronbestanden (`events.en.json`, `events.nl.json`, `events.min.json`) en alle scrape/translate/build-scripts staan in een aparte (private) repo: **`mpiek/jaardle-tools`**.
+Runtime laadt `bundle.bin` (XOR+gzip van een compacte vertaalde dataset). De ruwe bronbestanden en build-scripts maken geen onderdeel uit van deze repo.
 
 De vertaling is LLM-geassisteerd (Gemini 2.5 Flash + Claude). Jaartal-spoilers (vermeldingen binnen ±2 van het puzzle-jaar) zijn automatisch vervangen door `____`.
 
@@ -43,14 +43,10 @@ game.js     — Game logic, year-input, share, daily/free modes
 bundle.bin  — Geobfusceerde runtime data (geladen via fetch)
 ```
 
-## Re-build de dataset
-
-Build-scripts en ruwe data staan in `mpiek/jaardle-tools`. Daar genereer je een nieuwe `bundle.bin` en commit je 'm vervolgens hierheen.
-
 ## Licenties
 
 - **Code** (HTML, CSS, JS): [MIT](LICENSE)
-- **Dataset**: CC BY-SA 4.0 (zie `LICENSE-DATA.md` in `jaardle-tools`), afgeleid van Engelse Wikipedia
+- **Dataset**: CC BY-SA 4.0, afgeleid van Engelse Wikipedia
 
 ## Bijdragen
 
