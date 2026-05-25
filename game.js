@@ -809,11 +809,20 @@ async function init() {
   });
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+    // Tab-shortcuts werken altijd, ook nadat de puzzel klaar is.
+    if (e.key === "d" || e.key === "D") { switchMode("daily"); e.preventDefault(); return; }
+    if (e.key === "n" || e.key === "N") { switchMode("free"); e.preventDefault(); return; }
     if (state && state.done) return;
     if (/^[0-9]$/.test(e.key)) { appendDigit(e.key); e.preventDefault(); }
     else if (e.key === "Backspace") { backspaceYear(); e.preventDefault(); }
     else if (e.key === "Enter") { submitGuess(); e.preventDefault(); }
     else if (e.key === "-" || e.key === "+") { toggleSign(); e.preventDefault(); }
+    else if (e.key === "e" || e.key === "E") {
+      if (!els.hintBtnText.hidden) { requestTextHint(); e.preventDefault(); }
+    }
+    else if (e.key === "r" || e.key === "R") {
+      if (!els.hintBtnDir.hidden) { requestDirectionHint(); e.preventDefault(); }
+    }
   });
   els.shareBtn.addEventListener("click", doShare);
   els.nextBtn.addEventListener("click", () => startGame("free", true));

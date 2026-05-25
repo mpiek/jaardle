@@ -10,8 +10,8 @@
 <body>
   <main>
     <nav id="mode-tabs" role="tablist">
-      <button class="tab" data-mode="daily" role="tab" aria-selected="true">Dagelijkse Jaardle</button>
-      <button class="tab" data-mode="free" role="tab" aria-selected="false">Nieuw spel</button>
+      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D">Dagelijkse Jaardle</button>
+      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N">Nieuw spel</button>
     </nav>
 
     <section id="event-card" title="Houd ingedrukt voor de Engelse bron">
@@ -19,8 +19,8 @@
     </section>
 
     <div id="hint-row">
-      <button id="hint-btn-text" type="button" hidden>💡 Extra hint <span class="btn-cost" data-penalty="text-hint"></span></button>
-      <button id="hint-btn-direction" type="button" hidden>🧭 Richting <span class="btn-cost" data-penalty="dir-hint"></span></button>
+      <button id="hint-btn-text" type="button" hidden title="Toets: E">💡 Extra hint <span class="btn-cost" data-penalty="text-hint"></span></button>
+      <button id="hint-btn-direction" type="button" hidden title="Toets: R">🧭 Richting <span class="btn-cost" data-penalty="dir-hint"></span></button>
       <span id="hint-count" class="hint-count"></span>
     </div>
 
@@ -68,6 +68,7 @@
           <li>Tiers: <span data-help="tiers"></span></li>
           <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
           <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
+          <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>E</kbd> voor extra hint, <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om tussen Dagelijks en Nieuw spel te wisselen.</li>
         </ul>
       </details>
     </section>
@@ -85,5 +86,7 @@
   </footer>
 
   <script src="game.js?v=9"></script>
+  <script data-goatcounter="https://jaardle.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
