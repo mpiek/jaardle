@@ -119,6 +119,15 @@ main {
 #hint-btn-text:hover,
 #hint-btn-direction:hover { background: rgba(255, 213, 79, 0.1); }
 
+.btn-cost {
+  opacity: 0.7;
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.15em;
+}
+.btn-cost::before { content: "("; }
+.btn-cost::after  { content: ")"; }
+
 #event-card.has-en {
   cursor: pointer;
   user-select: none;
@@ -171,6 +180,31 @@ main {
   color: #111;
   letter-spacing: 0.02em;
   white-space: nowrap;
+}
+
+.penalty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  letter-spacing: 0.02em;
+}
+
+@keyframes penalty-pop {
+   0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+ 100% { transform: scale(1);    opacity: 1; }
+}
+
+.penalty.just-added {
+  animation: penalty-pop 0.5s cubic-bezier(.22, 1.4, .36, 1);
 }
 
 .delta-badge.correct   { background: var(--green); }

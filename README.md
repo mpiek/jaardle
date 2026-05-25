@@ -17,7 +17,7 @@ Elke dag krijg je één historische gebeurtenis en moet je raden in welk jaar he
 
 ## Dataset
 
-2.429 jaartallen (500 v.Chr. tot 2026), 7.083 historische feiten, Nederlands.
+2.447 jaartallen (753 v.Chr. tot 2026), 46.506 historische feiten, Nederlands.
 
 | Bestand | Inhoud |
 |---|---|

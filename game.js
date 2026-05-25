@@ -3,12 +3,8 @@ const FACTS_PER_PUZZLE = 1;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
 const EPOCH = new Date(Date.UTC(2026, 0, 1));
-const MIN_YEAR = -2000;
+const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
-// Weighted daily order: years with more events appear vaker.
-// 0 = uniform, 1 = fully proportional. 0.4 = mild boost (1942 ~8x vs 200 BC).
-const WEIGHT_ALPHA = 0.4;
-
 const els = {
   eventText: document.getElementById("event-text"),
   eventCard: document.getElementById("event-card"),
@@ -147,7 +143,7 @@ function buildShareToken(yearIdx, hintIdxs) {
   return hintIdxs.map((hi) => hashFor(yearIdx, hi)).join("");
 }
 
-// Parse share token (3×10 hex). Returns [yearIdx, hintIdxs] of null.
+// Parse share token (N × 10 hex, één hash per fact). Returns [yearIdx, hintIdxs] of null.
 function parseShareToken(token) {
   if (!/^[0-9a-f]+$/.test(token) || token.length % 10 !== 0) return null;
   const hashes = token.match(/.{10}/g);
@@ -182,7 +178,7 @@ function pickHintIdxs(yearIdx, seed) {
 }
 
 // Extras worden deterministisch afgeleid uit (year, factHintIdxs) zodat
-// share-URLs alleen de 3 fact-hashes hoeven te bevatten.
+// share-URLs alleen de fact-hashes hoeven te bevatten — de extras volgen.
 function pickExtraHintIdxs(yearIdx, factHintIdxs) {
   const ev = events[yearIdx];
   const factSet = new Set(factHintIdxs);
@@ -461,6 +457,13 @@ function renderGuesses() {
       const showDir = state.done || revealedSet.has(idx);
       renderDeltaBadge(badge, g.diff, g.cls, showDir);
       row.append(yr, badge);
+      const penalty = GUESS_PENALTIES[g.cls] || 0;
+      if (penalty > 0) {
+        const pen = document.createElement("span");
+        pen.className = "penalty";
+        pen.textContent = `−${penalty}`;
+        row.appendChild(pen);
+      }
       els.guesses.appendChild(row);
     } else {
       const row = document.createElement("div");
@@ -546,6 +549,15 @@ function submitGuess() {
   state.guesses.push({ year, diff, cls });
   clearYear();
   renderGuesses();
+  // Pop-animatie op de zojuist toegevoegde penalty (zelfde double-rAF
+  // truc als bij de richting-pijl).
+  const rows = els.guesses.querySelectorAll(".guess-row");
+  const pen = rows[state.guesses.length - 1]?.querySelector(".penalty");
+  if (pen) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      pen.classList.add("just-added");
+    }));
+  }
   save();
   renderHintStatus();
   if (cls === "correct") {
@@ -643,30 +655,26 @@ function mulberry32(seed) {
   };
 }
 
-// Weighted order: years with more events appear multiple times (=more often).
-// Uses count^WEIGHT_ALPHA, then deterministic mulberry32 shuffle.
-let _weightedYearOrder = null;
-function weightedYearOrder() {
-  if (_weightedYearOrder) return _weightedYearOrder;
-  const expanded = [];
-  for (let i = 0; i < events.length; i++) {
-    const n = events[i].hints.length;
-    const w = Math.max(1, Math.round(Math.pow(n, WEIGHT_ALPHA)));
-    for (let k = 0; k < w; k++) expanded.push(i);
-  }
-  const rand = mulberry32(0x4A415254); // "JART" — vaste volgorde voor iedereen
-  for (let i = expanded.length - 1; i > 0; i--) {
+// Uniforme dagvolgorde: elke jaar precies één keer, deterministisch geschud
+// zodat iedereen op dezelfde dag hetzelfde jaar krijgt.
+let _yearOrder = null;
+function yearOrder() {
+  if (_yearOrder) return _yearOrder;
+  const order = [];
+  for (let i = 0; i < events.length; i++) order.push(i);
+  const rand = mulberry32(0x4A415254); // "JART"
+  for (let i = order.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
-    [expanded[i], expanded[j]] = [expanded[j], expanded[i]];
+    [order[i], order[j]] = [order[j], order[i]];
   }
-  _weightedYearOrder = expanded;
-  return expanded;
+  _yearOrder = order;
+  return order;
 }
 
 // Returns [yearIdx, hintIdxs] for the given mode.
 function pickLocation(mode) {
   if (mode === "daily") {
-    const order = weightedYearOrder();
+    const order = yearOrder();
     const dayNum = daysSince(EPOCH);
     const yearIdx = order[((dayNum % order.length) + order.length) % order.length];
     const ev = events[yearIdx];
@@ -689,7 +697,7 @@ function pickLocation(mode) {
       }
     }
   } catch (e) {}
-  const order = weightedYearOrder();
+  const order = yearOrder();
   const yearIdx = order[Math.floor(Math.random() * order.length)];
   return [yearIdx, pickHintIdxs(yearIdx, Math.floor(Math.random() * 2147483647))];
 }
