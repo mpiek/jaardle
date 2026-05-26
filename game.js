@@ -5,6 +5,20 @@ const MAX_DIRECTION_HINTS = 2;
 const EPOCH = new Date(Date.UTC(2026, 0, 1));
 const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
+
+// Debug-flag onthult WIP-features (account-menu, stats) zonder ze voor
+// publieke users zichtbaar te maken. Aan op localhost, of via ?debug=1
+// (blijft daarna in localStorage staan tot ?debug=0).
+const DEBUG = (() => {
+  const params = new URLSearchParams(location.search);
+  if (params.get("debug") === "1") localStorage.setItem("jaardle:debug", "1");
+  if (params.get("debug") === "0") localStorage.removeItem("jaardle:debug");
+  return (
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1" ||
+    localStorage.getItem("jaardle:debug") === "1"
+  );
+})();
 const els = {
   eventText: document.getElementById("event-text"),
   eventCard: document.getElementById("event-card"),
@@ -625,7 +639,7 @@ function renderStats() {
 
 // --- Menu + modals --------------------------------------------------------
 
-// Auth-state placeholder; Firebase-wiring volgt zodra config klaarstaat.
+// Auth-state placeholder; Supabase-wiring zit in de module-bridge in index.html.
 const auth = { user: null };
 
 function renderMenu() {
@@ -638,6 +652,7 @@ function renderMenu() {
 
   if (auth.user) {
     section.innerHTML = `<span class="email">${auth.user.email}</span>Ingelogd`;
+    if (DEBUG && statsBtn) statsBtn.hidden = false;
     const out = document.createElement("button");
     out.className = "menu-item danger";
     out.role = "menuitem";
@@ -688,8 +703,8 @@ async function doAuth(mode, e) {
   const err = document.getElementById("login-error");
   err.hidden = true;
   err.textContent = "";
-  if (!window.fbAuth) {
-    err.textContent = "Firebase nog aan het laden, probeer het opnieuw.";
+  if (!window.sbAuth) {
+    err.textContent = "Supabase nog aan het laden, probeer het opnieuw.";
     err.hidden = false;
     return;
   }
@@ -698,8 +713,19 @@ async function doAuth(mode, e) {
   const submitBtns = form.querySelectorAll("button");
   submitBtns.forEach((b) => (b.disabled = true));
   try {
-    if (mode === "signup") await window.fbAuth.signUp(email, pw);
-    else await window.fbAuth.signIn(email, pw);
+    if (mode === "signup") {
+      const data = await window.sbAuth.signUp(email, pw);
+      // Met "Confirm email" aan retourneert signUp een user zonder session;
+      // de gebruiker moet eerst de bevestigingsmail klikken.
+      if (!data?.session) {
+        form.reset();
+        err.textContent = "Account aangemaakt — check je inbox om je e-mailadres te bevestigen.";
+        err.hidden = false;
+        return;
+      }
+    } else {
+      await window.sbAuth.signIn(email, pw);
+    }
     form.reset();
     closeAllModals();
   } catch (ex) {
@@ -712,27 +738,30 @@ async function doAuth(mode, e) {
 
 function friendlyAuthError(ex) {
   const code = ex?.code || "";
-  switch (code) {
-    case "auth/invalid-email":            return "Ongeldig e-mailadres.";
-    case "auth/missing-password":         return "Vul een wachtwoord in.";
-    case "auth/weak-password":            return "Wachtwoord te kort (minimaal 6 tekens).";
-    case "auth/email-already-in-use":     return "Dit e-mailadres heeft al een account — kies Inloggen.";
-    case "auth/invalid-credential":
-    case "auth/wrong-password":
-    case "auth/user-not-found":           return "E-mail of wachtwoord klopt niet.";
-    case "auth/too-many-requests":        return "Te veel pogingen — probeer het later opnieuw.";
-    case "auth/network-request-failed":   return "Netwerkfout, controleer je verbinding.";
-    case "auth/operation-not-allowed":    return "Deze inlogmethode staat niet aan in Firebase.";
-    case "auth/popup-blocked":            return "Je browser blokkeert de popup. Sta popups toe en probeer opnieuw.";
-    case "auth/account-exists-with-different-credential":
-                                          return "Dit e-mailadres is al gekoppeld aan een andere inlogmethode.";
-    default: return ex?.message || "Inloggen mislukt.";
-  }
+  const status = ex?.status || 0;
+  const msg = (ex?.message || "").toLowerCase();
+  if (code === "invalid_credentials" || msg.includes("invalid login credentials"))
+    return "E-mail of wachtwoord klopt niet.";
+  if (code === "email_not_confirmed")
+    return "E-mailadres nog niet bevestigd — check je inbox.";
+  if (code === "user_already_exists" || msg.includes("already registered"))
+    return "Dit e-mailadres heeft al een account — kies Inloggen.";
+  if (code === "weak_password" || msg.includes("password should be"))
+    return "Wachtwoord te kort (minimaal 6 tekens).";
+  if (code === "email_address_invalid" || msg.includes("invalid email") || msg.includes("invalid format"))
+    return "Ongeldig e-mailadres.";
+  if (code === "over_email_send_rate_limit" || code === "over_request_rate_limit" || status === 429)
+    return "Te veel pogingen — probeer het later opnieuw.";
+  if (code === "signup_disabled") return "Registreren is uitgeschakeld.";
+  if (code === "provider_disabled") return "Deze inlogmethode staat niet aan.";
+  if (msg.includes("failed to fetch") || msg.includes("networkerror"))
+    return "Netwerkfout, controleer je verbinding.";
+  return ex?.message || "Inloggen mislukt.";
 }
 
 async function doSignOut() {
-  if (window.fbAuth) {
-    try { await window.fbAuth.signOut(); } catch (e) {}
+  if (window.sbAuth) {
+    try { await window.sbAuth.signOut(); } catch (e) {}
   }
 }
 
@@ -740,7 +769,7 @@ async function doGoogleSignIn() {
   const err = document.getElementById("login-error");
   err.hidden = true;
   err.textContent = "";
-  if (!window.fbAuth?.signInWithGoogle) {
+  if (!window.sbAuth?.signInWithGoogle) {
     err.textContent = "Google-login niet beschikbaar.";
     err.hidden = false;
     return;
@@ -748,13 +777,12 @@ async function doGoogleSignIn() {
   const btn = document.getElementById("login-google");
   btn.disabled = true;
   try {
-    await window.fbAuth.signInWithGoogle();
-    closeAllModals();
+    // Supabase redirect (geen popup): browser navigeert weg, sessie wordt
+    // bij terugkomst door getSession() in index.html opgepikt.
+    await window.sbAuth.signInWithGoogle();
   } catch (ex) {
-    if (ex?.code !== "auth/popup-closed-by-user" && ex?.code !== "auth/cancelled-popup-request") {
-      err.textContent = friendlyAuthError(ex);
-      err.hidden = false;
-    }
+    err.textContent = friendlyAuthError(ex);
+    err.hidden = false;
   } finally {
     btn.disabled = false;
   }
@@ -1065,6 +1093,8 @@ async function init() {
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
+  // Wrapper is in HTML hidden tot account-features af zijn — DEBUG onthult 'm.
+  if (DEBUG) document.getElementById("menu-wrap").hidden = false;
   const menuBtn = document.getElementById("menu-btn");
   const menuPop = document.getElementById("menu-pop");
   menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(); });
@@ -1096,8 +1126,8 @@ async function init() {
   document.getElementById("login-register").addEventListener("click", (e) => doAuth("signup", e));
   document.getElementById("login-google").addEventListener("click", doGoogleSignIn);
 
-  // Sync auth-state vanuit de Firebase module-bridge.
-  window.addEventListener("fb-auth-changed", (e) => {
+  // Sync auth-state vanuit de Supabase module-bridge.
+  window.addEventListener("sb-auth-changed", (e) => {
     auth.user = e.detail ? { email: e.detail.email, uid: e.detail.uid } : null;
     renderMenu();
   });

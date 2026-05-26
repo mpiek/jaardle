@@ -4,6 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jaardle — raad het jaar</title>
+<meta name="description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis. Dagelijkse puzzel of vrij spel.">
+<link rel="canonical" href="https://jaardle.nl/">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jaardle.nl/">
+<meta property="og:title" content="Jaardle — raad het jaar van historische gebeurtenissen">
+<meta property="og:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis.">
+<meta property="og:image" content="https://jaardle.nl/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:site_name" content="Jaardle">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jaardle — raad het jaar van historische gebeurtenissen">
+<meta name="twitter:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl.">
+<meta name="twitter:image" content="https://jaardle.nl/og-image.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Jaardle",
+  "url": "https://jaardle.nl/",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "nl-NL",
+  "isAccessibleForFree": true,
+  "description": "Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis."
+}
+</script>
+
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="style.css?v=10">
 </head>
@@ -115,8 +147,8 @@
         </form>
         <p id="login-error" class="form-error" hidden></p>
         <p class="form-note">
-          Inloggen verloopt via <a href="https://firebase.google.com/docs/auth" target="_blank" rel="noopener">Firebase Authentication</a> (Google).
-          Wachtwoorden worden gehasht opgeslagen (scrypt), nooit als platte tekst,
+          Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google).
+          Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst,
           en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.
         </p>
       </div>
@@ -135,44 +167,43 @@
   </footer>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      createUserWithEmailAndPassword,
-      GoogleAuthProvider,
-      signInWithPopup,
-      onAuthStateChanged,
-      signOut,
-    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    // Firebase-config: publieke sleutels, beveiliging zit in de Security Rules.
-    // (Geen getAnalytics — die gebruikt cookies en GA4; we tracken via GoatCounter.)
-    const app = initializeApp({
-      apiKey: "AIzaSyDVW1TrROIau_89qvy3xnCWf-VX3ssxJX0",
-      authDomain: "jaardle.firebaseapp.com",
-      projectId: "jaardle",
-      storageBucket: "jaardle.firebasestorage.app",
-      messagingSenderId: "1080953890075",
-      appId: "1:1080953890075:web:c5cfd6ed9948ad515b9fbe",
-    });
-    const auth = getAuth(app);
+    // Publieke sleutels; beveiliging komt straks van Row Level Security in Postgres.
+    const supabase = createClient(
+      "https://xyvvkxbhkijjwcvpojru.supabase.co",
+      "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa",
+    );
 
-    // Brug naar game.js (geen module-scope). Functies retourneren een Promise
-    // die in de UI op het login-formulier wordt afgehandeld.
-    const googleProvider = new GoogleAuthProvider();
-    window.fbAuth = {
-      signIn: (email, pw) => signInWithEmailAndPassword(auth, email, pw),
-      signUp: (email, pw) => createUserWithEmailAndPassword(auth, email, pw),
-      signInWithGoogle: () => signInWithPopup(auth, googleProvider),
-      signOut: () => signOut(auth),
+    // Brug naar game.js. Supabase retourneert {data,error} zonder te throwen;
+    // we throwen zelf zodat de UI-laag try/catch kan blijven gebruiken.
+    const unwrap = async (p) => {
+      const { data, error } = await p;
+      if (error) throw error;
+      return data;
     };
-    onAuthStateChanged(auth, (user) => {
-      window.dispatchEvent(new CustomEvent("fb-auth-changed", { detail: user }));
-    });
-    window.dispatchEvent(new Event("fb-ready"));
+    window.sbAuth = {
+      signIn:  (email, password) => unwrap(supabase.auth.signInWithPassword({ email, password })),
+      signUp:  (email, password) => unwrap(supabase.auth.signUp({ email, password })),
+      signInWithGoogle: () => unwrap(supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: location.origin + location.pathname },
+      })),
+      signOut: () => unwrap(supabase.auth.signOut()),
+    };
+
+    const emit = (session) => {
+      const user = session?.user
+        ? { email: session.user.email, uid: session.user.id }
+        : null;
+      window.dispatchEvent(new CustomEvent("sb-auth-changed", { detail: user }));
+    };
+    // Sessie herstellen bij page-load (ook na Google OAuth-redirect).
+    supabase.auth.getSession().then(({ data }) => emit(data.session));
+    supabase.auth.onAuthStateChange((_event, session) => emit(session));
+    window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="game.js?v=9"></script>
+  <script src="game.js?v=11"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
