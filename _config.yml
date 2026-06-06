@@ -1,7 +1,8 @@
 # GitHub Pages (Jekyll) configuratie.
-# Deze repo bevat de runtime (bundle.bin + statische assets).
+# Deze repo bevat de runtime (statische assets).
 exclude:
   - "*.log"
   - node_modules/
   - package.json
   - package-lock.json
+  - tests/
