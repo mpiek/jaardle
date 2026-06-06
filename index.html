@@ -36,7 +36,7 @@
 </script>
 
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
   <main>
@@ -198,8 +198,12 @@
     };
 
     const emit = (session) => {
-      const user = session?.user
-        ? { email: session.user.email, uid: session.user.id }
+      const u = session?.user;
+      const m = u?.user_metadata || {};
+      const user = u
+        ? { email: u.email, uid: u.id,
+            avatar: m.avatar_url || m.picture || null,
+            name: m.full_name || m.name || null }
         : null;
       window.dispatchEvent(new CustomEvent("sb-auth-changed", { detail: user }));
     };
@@ -208,7 +212,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="game.js?v=19"></script>
+  <script src="game.js?v=20"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

@@ -612,20 +612,24 @@ function finishGame(won, fresh = false) {
   renderHintStatus();
   if (fresh && won) showConfetti();
   if (fresh && state.mode === "daily") recordDailyResult(won);
-  if (fresh) sendTelemetry();
-  showFactStats(state.hashes?.[0]);
+  // Bij een verse pot: eerst de play wegschrijven, DAARNA de globale stats ophalen,
+  // zodat je eigen zojuist gespeelde pot meetelt (en bij een fact zonder eerdere
+  // plays niet games:0 -> niks toont). Faalt het wegschrijven, toon dan alsnog.
+  const statsHash = state.hashes?.[0];
+  if (fresh) sendTelemetry().then(() => showFactStats(statsHash), () => showFactStats(statsHash));
+  else showFactStats(statsHash);
 }
 
 // Eén rij per afgerond spel naar de DB (fire-and-forget). Idempotent per puzzel
 // zodat herladen/heropenen niet dubbel telt. Geen PII — anon of JWT (server-side).
 function sendTelemetry() {
   const hash = state.hashes?.[0];
-  if (!hash) return;
+  if (!hash) return Promise.resolve();
   const sentKey = `jaardle:sent:${hash}:${state.mode === "daily" ? todayKey() : "free"}`;
-  if (localStorage.getItem(sentKey)) return;
+  if (localStorage.getItem(sentKey)) return Promise.resolve();
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
   const first = state.guesses[0];
-  rpc("record_play", {
+  return rpc("record_play", {
     p_fact_hash: hash,
     p_attempts: Math.min(6, Math.max(1, state.guesses.length)),
     p_won: state.won,
@@ -877,7 +881,33 @@ function renderCalendar(history) {
 // Auth-state placeholder; Supabase-wiring zit in de module-bridge in index.html.
 const auth = { user: null };
 
+// Het menu-knopje toont de account-staat: profielfoto (Google) / initiaal-cirkel
+// (e-mail) / silhouet + "Inloggen" (uitgelogd) — i.p.v. de vaste ⋮.
+function renderMenuButton() {
+  const btn = document.getElementById("menu-btn");
+  if (!btn) return;
+  const guest = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6Z"/></svg>';
+  if (auth.user) {
+    const initial = ((auth.user.name || auth.user.email || "?").trim().charAt(0) || "?").toUpperCase();
+    if (auth.user.avatar) {
+      btn.innerHTML = `<span class="avatar"><img alt="" referrerpolicy="no-referrer"></span>`;
+      const img = btn.querySelector("img");
+      img.addEventListener("error", () => {   // foto onbereikbaar -> initiaal
+        btn.innerHTML = `<span class="avatar initial">${initial}</span>`;
+      });
+      img.src = auth.user.avatar;
+    } else {
+      btn.innerHTML = `<span class="avatar initial">${initial}</span>`;
+    }
+    btn.setAttribute("aria-label", auth.user.email);
+  } else {
+    btn.innerHTML = `<span class="avatar">${guest}</span><span class="menu-label">${t("menu_login")}</span>`;
+    btn.setAttribute("aria-label", t("menu_login"));
+  }
+}
+
 function renderMenu() {
+  renderMenuButton();
   const section = document.getElementById("menu-account");
   const items = document.getElementById("menu-pop");
   const statsBtn = items.querySelector('[data-action="stats"]');
@@ -1308,7 +1338,9 @@ async function init() {
 
   // Sync auth-state vanuit de Supabase module-bridge.
   window.addEventListener("sb-auth-changed", (e) => {
-    auth.user = e.detail ? { email: e.detail.email, uid: e.detail.uid } : null;
+    auth.user = e.detail
+      ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null, name: e.detail.name || null }
+      : null;
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
     renderMenu();
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
