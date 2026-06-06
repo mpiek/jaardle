@@ -635,6 +635,7 @@ function sendTelemetry() {
     p_mode: state.mode,
     p_puzzle_date: state.mode === "daily" ? todayKey() : null,
     p_score: computeScore(),
+    p_guesses: state.guesses.map((g) => g.year),  // voor cross-device reconstructie
   })
     .then(() => { invalidateHistory(); })  // verse stats bij volgende opening
     .catch(() => { try { localStorage.removeItem(sentKey); } catch (e) {} });
@@ -693,6 +694,50 @@ function getMyHistory() {
 function invalidateHistory() {
   myHistoryCache = null;
   myHistoryPromise = null;
+}
+
+// Reconstrueer het AFGERONDE dagbord uit de DB (alleen ingelogd). De DB bewaart de
+// gegokte jaren (plays.guesses) + hint-aantallen; kleuren/afstanden leiden we af uit
+// het antwoordjaar. Geeft een board-object of null (anon / geen DB-rij voor vandaag).
+async function reconstructDailyBoard(answerYear) {
+  if (!auth.user) return null;
+  let row;
+  try { row = await rpc("get_my_daily", { d: todayKey() }); } catch (e) { return null; }
+  if (!row || !Array.isArray(row.guesses) || row.guesses.length === 0) return null;
+  const guesses = row.guesses.map((year) => {
+    const diff = answerYear - year;
+    return { year, diff, cls: classify(diff) };
+  });
+  const dir = Math.max(0, Math.min(2, row.dir_hints_used || 0));
+  return {
+    guesses,
+    done: true,
+    won: !!row.won,
+    textHintsUsed: Math.max(0, Math.min(2, row.text_hints_used || 0)),
+    // We kennen alleen het AANTAL richting-hints, niet welke rijen; leg ze op de
+    // laatste gokken. Voor de score telt enkel het aantal (.length).
+    directionsRevealed: guesses.map((_, i) => i).slice(-dir),
+  };
+}
+
+// Net ingelogd terwijl de dagpuzzel nog open/onafgerond op het scherm staat?
+// (logout → cache wissen → opnieuw inloggen.) Haal het afgeronde resultaat uit de DB.
+async function maybeRestoreDailyAfterLogin() {
+  if (!auth.user || !state || state.mode !== "daily" || state.done) return;
+  const answerYear = state.event?.year;
+  if (answerYear == null) return;
+  const board = await reconstructDailyBoard(answerYear);
+  if (!board) return;
+  // Race-guard: kan tijdens de fetch gewisseld/afgerond zijn.
+  if (!state || state.mode !== "daily" || state.done) return;
+  state.guesses = board.guesses;
+  state.textHintsUsed = board.textHintsUsed;
+  state.directionsRevealed = board.directionsRevealed;
+  setKeypadDisabled(true);
+  renderEvent();
+  renderHintStatus();
+  renderGuesses();
+  finishGame(board.won, false);  // fresh=false -> geen confetti/telemetrie/dubbeltelling
 }
 
 const HISTORY_KEY = "jaardle:history";
@@ -1109,7 +1154,10 @@ async function resolveRecord(mode, forceNew, sharedHashes) {
     if (cached) return { mode: "daily", ...cached };
     const p = await rpc("get_daily", { d: todayKey() });
     if (!p) return null;
-    return { mode: "daily", hashes: p.hashes, event: toEvent(p), board: null };
+    // Geen lokale cache (ander apparaat / cache gewist), maar ingelogd? Herstel het
+    // afgeronde bord uit de DB zodat de dagpuzzel niet opnieuw speelbaar lijkt.
+    const board = await reconstructDailyBoard(p.year);
+    return { mode: "daily", hashes: p.hashes, event: toEvent(p), board };
   }
   // free
   if (!forceNew) {
@@ -1266,6 +1314,8 @@ async function init() {
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();
+    // Net ingelogd terwijl de dagpuzzel nog open staat? Herstel 'm uit de DB.
+    if (auth.user) maybeRestoreDailyAfterLogin();
   });
 
   // Houd de tekst-box ingedrukt om de Engelse bron te zien.
