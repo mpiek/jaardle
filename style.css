@@ -744,3 +744,16 @@ footer {
 .cal-cell { width: 12px; height: 12px; border-radius: 3px; background: var(--card-soft); }
 .cal-cell.win  { background: var(--green); }
 .cal-cell.loss { background: var(--red); opacity: 0.65; }
+
+/* Taal-toggle (vlag) rechts in de optiebalk */
+.lang-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+}
+.lang-btn:hover { background: var(--card-soft); }

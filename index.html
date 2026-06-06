@@ -33,7 +33,7 @@
 </script>
 
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
   <main>
@@ -42,11 +42,12 @@
         <button id="menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu">⋮</button>
         <div id="menu-pop" role="menu" hidden>
           <div id="menu-account" class="menu-section"></div>
-          <button class="menu-item" role="menuitem" data-action="stats">📊 Statistieken</button>
+          <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Statistieken</button>
         </div>
       </div>
-      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D">Dagelijkse Jaardle</button>
-      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N">Nieuw spel</button>
+      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D" data-i18n="tab_daily">Dagelijkse Jaardle</button>
+      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">Nieuw spel</button>
+      <button id="lang-btn" type="button" class="lang-btn" aria-label="Taal"></button>
     </nav>
 
     <section id="event-card" title="Houd ingedrukt voor de Engelse bron">
@@ -54,8 +55,8 @@
     </section>
 
     <div id="hint-row">
-      <button id="hint-btn-text" type="button" hidden title="Toets: E">💡 Extra hint <span class="btn-cost" data-penalty="text-hint"></span></button>
-      <button id="hint-btn-direction" type="button" hidden title="Toets: R">🧭 Richting <span class="btn-cost" data-penalty="dir-hint"></span></button>
+      <button id="hint-btn-text" type="button" hidden title="Toets: E"><span data-i18n="hint_text">💡 Extra hint</span> <span class="btn-cost" data-penalty="text-hint"></span></button>
+      <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">🧭 Richting</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
       <span id="hint-count" class="hint-count"></span>
     </div>
 
@@ -78,7 +79,7 @@
       <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="Voor Christus toggle">−</button>
       <button class="key" type="button" data-digit="0">0</button>
       <button class="key key-back" type="button" id="backspace-btn" aria-label="Wis laatste cijfer">⌫</button>
-      <button class="key key-wide" type="button" id="guess-btn">Gok</button>
+      <button class="key key-wide" type="button" id="guess-btn" data-i18n="guess">Gok</button>
     </section>
 
     <section id="result" hidden>
@@ -86,15 +87,15 @@
       <div id="reveal-row" hidden></div>
       <p id="event-source"></p>
       <div id="result-actions">
-        <button id="share-btn">Deel resultaat</button>
-        <button id="next-btn" hidden>Nieuw rondje</button>
+        <button id="share-btn" data-i18n="share">Deel resultaat</button>
+        <button id="next-btn" hidden data-i18n="next">Nieuw rondje</button>
       </div>
     </section>
 
     <section id="help">
       <details>
-        <summary>Hoe werkt het?</summary>
-        <ul>
+        <summary data-i18n="help_summary">Hoe werkt het?</summary>
+        <ul id="help-list">
           <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. Max <span data-help="max-text-hints"></span> extra hints (💡) beschikbaar.</li>
           <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
           <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
@@ -113,7 +114,7 @@
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card">
       <header class="modal-header">
-        <h2 id="modal-stats-title">📊 Statistieken</h2>
+        <h2 id="modal-stats-title" data-i18n="stats_title">📊 Statistieken</h2>
         <button class="modal-close" data-close aria-label="Sluit">✕</button>
       </header>
       <div id="stats-body" class="modal-body"></div>
@@ -124,25 +125,25 @@
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card">
       <header class="modal-header">
-        <h2 id="modal-login-title">Inloggen</h2>
+        <h2 id="modal-login-title" data-i18n="login_title">Inloggen</h2>
         <button class="modal-close" data-close aria-label="Sluit">✕</button>
       </header>
       <div class="modal-body">
         <button type="button" id="login-google" class="google-btn">
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.61z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.33-1.58-5.04-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.96 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.28-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3 2.33C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
-          Doorgaan met Google
+          <span data-i18n="login_google">Doorgaan met Google</span>
         </button>
-        <div class="auth-sep"><span>of met e-mail</span></div>
+        <div class="auth-sep"><span data-i18n="login_or">of met e-mail</span></div>
         <form id="login-form" autocomplete="on">
-          <label>E-mail<input type="email" name="email" required autocomplete="email"></label>
-          <label>Wachtwoord<input type="password" name="password" required autocomplete="current-password" minlength="6"></label>
+          <label><span data-i18n="login_email">E-mail</span><input type="email" name="email" required autocomplete="email"></label>
+          <label><span data-i18n="login_password">Wachtwoord</span><input type="password" name="password" required autocomplete="current-password" minlength="6"></label>
           <div class="modal-actions">
-            <button type="submit" class="primary">Inloggen</button>
-            <button type="button" id="login-register">Registreren</button>
+            <button type="submit" class="primary" data-i18n="login_submit">Inloggen</button>
+            <button type="button" id="login-register" data-i18n="login_register">Registreren</button>
           </div>
         </form>
         <p id="login-error" class="form-error" hidden></p>
-        <p class="form-note">
+        <p class="form-note" data-i18n-html="login_note">
           Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google).
           Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst,
           en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.
@@ -153,11 +154,11 @@
 
   <footer>
     <p>
-      Gebeurtenissen + Nederlandse vertalingen onder
+      <span data-i18n-html="footer_note">Gebeurtenissen + Nederlandse vertalingen onder
       <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a>,
       afgeleid van
       <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Engelstalige Wikipedia</a>
-      (machine-vertaald).
+      (machine-vertaald).</span>
       <span id="day-label"></span>
     </p>
   </footer>
@@ -204,7 +205,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="game.js?v=13"></script>
+  <script src="game.js?v=14"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

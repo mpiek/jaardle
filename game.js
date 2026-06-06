@@ -6,6 +6,118 @@ const EPOCH = new Date(Date.UTC(2026, 0, 1));
 const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
 
+// --- i18n (NL/EN) ------------------------------------------------------------
+let lang = (() => { try { return localStorage.getItem("jaardle:lang") === "en" ? "en" : "nl"; } catch (e) { return "nl"; } })();
+
+const HELP_NL = `
+  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. Max <span data-help="max-text-hints"></span> extra hints (💡) beschikbaar.</li>
+  <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
+  <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
+  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
+  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span> en 🧭 <span data-penalty="dir-hint"></span>. Verloren = 0.</li>
+  <li>Tiers: <span data-help="tiers"></span></li>
+  <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
+  <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
+  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>E</kbd> voor extra hint, <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
+const HELP_EN = `
+  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. Up to <span data-help="max-text-hints"></span> extra hints (💡) available.</li>
+  <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
+  <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
+  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
+  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints cost 💡 <span data-penalty="text-hint"></span> and 🧭 <span data-penalty="dir-hint"></span>. Lost = 0.</li>
+  <li>Tiers: <span data-help="tiers"></span></li>
+  <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
+  <li><strong>New game</strong>: endless rounds, a random event.</li>
+  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>E</kbd> for an extra hint, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
+
+const I18N = {
+  nl: {
+    tab_daily: "Dagelijkse Jaardle", tab_free: "Nieuw spel",
+    menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
+    guess: "Gok", share: "Deel resultaat", next: "Nieuw rondje",
+    hint_text: "💡 Extra hint", hint_dir: "🧭 Richting",
+    help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
+    login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
+    login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
+    login_note: `Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.`,
+    footer_note: `Gebeurtenissen + Nederlandse vertalingen onder <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a>, afgeleid van <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Engelstalige Wikipedia</a> (machine-vertaald).`,
+    day: "Dag", loading: "Laden…",
+    err_load: "Kon de gebeurtenis niet laden.", err_share: "Deze gedeelde puzzel bestaat niet meer.",
+    err_none: "Geen puzzel beschikbaar.", retry: "Opnieuw proberen",
+    won_intro: "Goed geraden! Het was", lost_intro: "Helaas — het juiste jaar was", source: "Bron:",
+    stats_empty: "Nog geen dagelijkse puzzels afgerond.",
+    stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak",
+    stat_beststreak: "Beste streak", stat_avgscore: "Gem. score", stat_won: "Gewonnen",
+    cal_title: "Laatste maanden", cal_notsolved: "niet opgelost",
+    peek_title: "Houd ingedrukt voor de Engelse tekst", free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
+    tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
+    help_list: HELP_NL,
+  },
+  en: {
+    tab_daily: "Daily Jaardle", tab_free: "New game",
+    menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
+    guess: "Guess", share: "Share result", next: "New round",
+    hint_text: "💡 Extra hint", hint_dir: "🧭 Direction",
+    help_summary: "How to play?", stats_title: "📊 Statistics",
+    login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
+    login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
+    login_note: `Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.`,
+    footer_note: `Events + Dutch translations under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derived from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">English Wikipedia</a> (machine-translated).`,
+    day: "Day", loading: "Loading…",
+    err_load: "Couldn't load the event.", err_share: "This shared puzzle no longer exists.",
+    err_none: "No puzzle available.", retry: "Try again",
+    won_intro: "Well guessed! It was", lost_intro: "Too bad — the year was", source: "Source:",
+    stats_empty: "No daily puzzles finished yet.",
+    stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak",
+    stat_beststreak: "Best streak", stat_avgscore: "Avg. score", stat_won: "Won",
+    cal_title: "Last few months", cal_notsolved: "not solved",
+    peek_title: "Hold to see the Dutch text", free_tag: "(free)", lost_share: "💀 Not cracked",
+    tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
+    help_list: HELP_EN,
+  },
+};
+
+function t(key) {
+  const v = I18N[lang] && I18N[lang][key];
+  return v != null ? v : I18N.nl[key];
+}
+function tierLabel(tier) {
+  return (t("tiers") || {})[tier.key] || tier.label;
+}
+
+// Pas de gekozen taal toe op alle UI. Idempotent — kan altijd opnieuw.
+function applyLang() {
+  try { localStorage.setItem("jaardle:lang", lang); } catch (e) {}
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const v = t(el.dataset.i18n); if (v != null) el.textContent = v;
+  });
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+    const v = t(el.dataset.i18nHtml); if (v != null) el.innerHTML = v;
+  });
+  const help = document.getElementById("help-list");
+  if (help) help.innerHTML = t("help_list");
+  renderHelpConstants();
+  const lb = document.getElementById("lang-btn");
+  if (lb) {
+    lb.textContent = lang === "nl" ? "🇬🇧" : "🇳🇱";
+    const lbl = lang === "nl" ? "Switch to English" : "Schakel naar Nederlands";
+    lb.title = lbl; lb.setAttribute("aria-label", lbl);
+  }
+  if (els.dayLabel) els.dayLabel.textContent = `${t("day")} #${daysSince(EPOCH) + 1}`;
+  if (els.eventCard) els.eventCard.title = t("peek_title");
+  renderMenu();
+  if (state) {
+    renderEvent();
+    renderHintStatus();
+    if (state.done) finishGame(state.won);
+  }
+  const sm = document.getElementById("modal-stats");
+  if (sm && !sm.hidden) renderStats();
+}
+
+function toggleLang() { lang = lang === "nl" ? "en" : "nl"; applyLang(); }
+
 // Debug-flag onthult WIP-features (account-menu, stats) zonder ze voor
 // publieke users zichtbaar te maken. Aan op localhost, of via ?debug=1
 // (blijft daarna in localStorage staan tot ?debug=0).
@@ -145,7 +257,7 @@ function setCardStatus(msg, retry) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "retry-btn";
-    b.textContent = "Opnieuw proberen";
+    b.textContent = t("retry");
     b.addEventListener("click", retry);
     els.eventText.appendChild(b);
   }
@@ -245,7 +357,7 @@ function appendFact(f, isExtra) {
   p.className = "fact" + (isExtra ? " fact-extra" : "");
   p.dataset.nl = f.nl;
   p.dataset.en = f.en;
-  p.textContent = f.nl;
+  p.textContent = (lang === "en" ? (f.en || f.nl) : f.nl);
   els.eventText.appendChild(p);
 }
 
@@ -272,7 +384,7 @@ function renderHintStatus() {
     !state.directionsRevealed.includes(state.guesses.length - 1);
   els.hintBtnText.hidden = state.done || textRemaining <= 0;
   els.hintBtnDir.hidden = state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
-  els.hintCount.textContent = `💡 ${state.textHintsUsed}/${MAX_EXTRA_HINTS} hints · 🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} richtingen`;
+  els.hintCount.textContent = `💡 ${state.textHintsUsed}/${MAX_EXTRA_HINTS} hints · 🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${lang === "en" ? "directions" : "richtingen"}`;
 }
 
 function requestTextHint() {
@@ -341,12 +453,12 @@ function computeScore() {
 
 // Tiers: hoogste eerst. Eerste match wint.
 const SCORE_TIERS = [
-  { min: 100, label: "Perfect",            emoji: "🏆" },
-  { min: 80,  label: "Indrukwekkend",      emoji: "🥇" },
-  { min: 60,  label: "Goed",               emoji: "🥈" },
-  { min: 40,  label: "Solide",             emoji: "🥉" },
-  { min: 1,   label: "Net gehaald",        emoji: "😅" },
-  { min: 0,   label: "Volgende keer beter", emoji: "💀" },
+  { min: 100, key: "perfect",    label: "Perfect",            emoji: "🏆" },
+  { min: 80,  key: "impressive", label: "Indrukwekkend",      emoji: "🥇" },
+  { min: 60,  key: "good",       label: "Goed",               emoji: "🥈" },
+  { min: 40,  key: "solid",      label: "Solide",             emoji: "🥉" },
+  { min: 1,   key: "justmade",   label: "Net gehaald",        emoji: "😅" },
+  { min: 0,   key: "lost",       label: "Volgende keer beter", emoji: "💀" },
 ];
 
 function scoreTier(score) {
@@ -464,7 +576,7 @@ function finishGame(won, fresh = false) {
   els.revealRow.hidden = true;
   els.revealRow.innerHTML = "";
   const ev = state.event;
-  const intro = won ? "Goed geraden! Het was" : "Helaas — het juiste jaar was";
+  const intro = won ? t("won_intro") : t("lost_intro");
   els.resultText.innerHTML = "";
   els.resultText.append(
     document.createTextNode(`${intro} `),
@@ -478,11 +590,11 @@ function finishGame(won, fresh = false) {
     const tier = scoreTier(score);
     const scoreLine = document.createElement("div");
     scoreLine.className = "score-line";
-    scoreLine.textContent = `${tier.emoji} ${tier.label} · ${score}/100`;
+    scoreLine.textContent = `${tier.emoji} ${tierLabel(tier)} · ${score}/100`;
     els.resultText.append(scoreLine);
   }
   els.source.innerHTML = ev.source
-    ? `Bron: <a href="${ev.source}" target="_blank" rel="noopener">${displaySource(ev.source)}</a> · CC BY-SA`
+    ? `${t("source")} <a href="${ev.source}" target="_blank" rel="noopener">${displaySource(ev.source)}</a> · CC BY-SA`
     : "";
   els.nextBtn.hidden = state.mode !== "free";
   renderHintStatus();
@@ -519,7 +631,9 @@ async function showFactStats(hash) {
   if (!s || !s.games) return;
   const el = document.createElement("p");
   el.className = "fact-stats";
-  el.textContent = `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
+  el.textContent = lang === "en"
+    ? `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`
+    : `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
   els.source.after(el);
 }
 
@@ -601,18 +715,18 @@ function renderStats() {
   const body = document.getElementById("stats-body");
   const history = loadHistory();
   if (history.length === 0) {
-    body.innerHTML = '<p class="stats-empty">Nog geen dagelijkse puzzels afgerond.</p>';
+    body.innerHTML = `<p class="stats-empty">${t("stats_empty")}</p>`;
     return;
   }
   const s = computeStats(history);
   body.innerHTML = `
     <div class="stats-grid">
-      <div class="stat"><div class="num">${s.total}</div><div class="lbl">Gespeeld</div></div>
-      <div class="stat"><div class="num">${s.winRate}%</div><div class="lbl">Win-rate</div></div>
-      <div class="stat"><div class="num">${s.currentStreak}</div><div class="lbl">Huidige streak</div></div>
-      <div class="stat"><div class="num">${s.bestStreak}</div><div class="lbl">Beste streak</div></div>
-      <div class="stat"><div class="num">${s.avgScore}</div><div class="lbl">Gem. score (gewonnen)</div></div>
-      <div class="stat"><div class="num">${s.won}</div><div class="lbl">Gewonnen</div></div>
+      <div class="stat"><div class="num">${s.total}</div><div class="lbl">${t("stat_played")}</div></div>
+      <div class="stat"><div class="num">${s.winRate}%</div><div class="lbl">${t("stat_winrate")}</div></div>
+      <div class="stat"><div class="num">${s.currentStreak}</div><div class="lbl">${t("stat_curstreak")}</div></div>
+      <div class="stat"><div class="num">${s.bestStreak}</div><div class="lbl">${t("stat_beststreak")}</div></div>
+      <div class="stat"><div class="num">${s.avgScore}</div><div class="lbl">${t("stat_avgscore")}</div></div>
+      <div class="stat"><div class="num">${s.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
   `;
   body.appendChild(renderCalendar(history));
@@ -634,9 +748,8 @@ function renderCalendar(history) {
     const e = map.get(cur);
     const cell = document.createElement("div");
     cell.className = "cal-cell " + (e ? (e.won ? "win" : "loss") : "none");
-    cell.title = e
-      ? `${cur} — ${e.won ? `opgelost (${e.guesses}/${MAX_GUESSES})` : "niet opgelost"}`
-      : cur;
+    const solved = lang === "en" ? `solved (${e?.guesses}/${MAX_GUESSES})` : `opgelost (${e?.guesses}/${MAX_GUESSES})`;
+    cell.title = e ? `${cur} — ${e.won ? solved : t("cal_notsolved")}` : cur;
     grid.appendChild(cell);
     cur = shiftDay(cur, 1);
   }
@@ -644,7 +757,7 @@ function renderCalendar(history) {
   wrap.className = "cal-wrap";
   const h = document.createElement("div");
   h.className = "cal-title";
-  h.textContent = "Laatste maanden";
+  h.textContent = t("cal_title");
   wrap.append(h, grid);
   return wrap;
 }
@@ -663,13 +776,13 @@ function renderMenu() {
   items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
 
   if (auth.user) {
-    section.innerHTML = `<span class="email">${auth.user.email}</span>Ingelogd`;
+    section.innerHTML = `<span class="email">${auth.user.email}</span>${t("menu_loggedin")}`;
     if (statsBtn) statsBtn.hidden = false;
     const out = document.createElement("button");
     out.className = "menu-item danger";
     out.role = "menuitem";
     out.dataset.action = "logout";
-    out.textContent = "Uitloggen";
+    out.textContent = t("menu_logout");
     items.appendChild(out);
   } else {
     section.innerHTML = "";
@@ -678,7 +791,7 @@ function renderMenu() {
     inBtn.className = "menu-item";
     inBtn.role = "menuitem";
     inBtn.dataset.action = "login";
-    inBtn.textContent = "🔑 Inloggen";
+    inBtn.textContent = t("menu_login");
     items.insertBefore(inBtn, items.firstChild);
   }
 }
@@ -877,16 +990,16 @@ function loadRecord(mode) {
 
 function shareText() {
   const dayNum = daysSince(EPOCH) + 1;
-  const tag = state.mode === "daily" ? `#${dayNum}` : "(vrij)";
+  const tag = state.mode === "daily" ? `#${dayNum}` : t("free_tag");
   const guessScore = state.won ? `${state.guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
   const grid = state.guesses.map((g) => emojiFor(g.cls)).join("");
   let intro;
   if (state.won) {
     const s = computeScore();
     const tier = scoreTier(s);
-    intro = `Jaardle ${tag}: ${tier.emoji} ${tier.label} (${s}/100)`;
+    intro = `Jaardle ${tag}: ${tier.emoji} ${tierLabel(tier)} (${s}/100)`;
   } else {
-    intro = `Jaardle ${tag}: 💀 Niet gekraakt`;
+    intro = `Jaardle ${tag}: ${t("lost_share")}`;
   }
   const statsParts = [`🎯 ${guessScore}`, `📊 ${grid}`];
   if (state.textHintsUsed > 0) statsParts.push(`💡 ${state.textHintsUsed}`);
@@ -909,8 +1022,8 @@ async function doShare() {
   }
   try {
     await navigator.clipboard.writeText(`${text}\n${url}`);
-    els.shareBtn.textContent = "Gekopieerd!";
-    setTimeout(() => (els.shareBtn.textContent = "Deel resultaat"), 1500);
+    els.shareBtn.textContent = lang === "en" ? "Copied!" : "Gekopieerd!";
+    setTimeout(() => (els.shareBtn.textContent = t("share")), 1500);
   } catch (e) {
     prompt("Kopieer dit:", `${text}\n${url}`);
   }
@@ -948,7 +1061,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
     try { localStorage.removeItem(storageKey(mode)); } catch (e) {}
   }
   setKeypadDisabled(true);
-  setCardStatus("Laden…");
+  setCardStatus(t("loading"));
   els.result.hidden = true;
   els.nextBtn.hidden = true;
 
@@ -957,12 +1070,12 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
     record = await resolveRecord(mode, forceNew, sharedHashes);
   } catch (e) {
     console.error(e);
-    setCardStatus("Kon de gebeurtenis niet laden.", () => startGame(mode, forceNew, sharedHashes));
+    setCardStatus(t("err_load"), () => startGame(mode, forceNew, sharedHashes));
     return;
   }
   if (!record) {
-    if (sharedHashes) setCardStatus("Deze gedeelde puzzel bestaat niet meer.", () => switchMode("daily"));
-    else setCardStatus("Geen puzzel beschikbaar.", () => startGame(mode, forceNew, sharedHashes));
+    if (sharedHashes) setCardStatus(t("err_share"), () => switchMode("daily"));
+    else setCardStatus(t("err_none"), () => startGame(mode, forceNew, sharedHashes));
     return;
   }
 
@@ -1007,11 +1120,8 @@ function switchMode(mode) {
 }
 
 async function init() {
-  renderHelpConstants();
+  applyLang();           // zet UI-taal + helptekst + daglabel (idempotent)
   await whenSbReady();
-
-  const dayNum = daysSince(EPOCH);
-  els.dayLabel.textContent = `Dag #${dayNum + 1}`;
 
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => switchMode(tab.dataset.mode));
@@ -1089,16 +1199,17 @@ async function init() {
 
   // Houd de tekst-box ingedrukt om de Engelse bron te zien.
   if (els.eventCard) {
-    const peekEn = (e) => { e.preventDefault(); showFactsLang("en"); };
-    const restoreNl = () => showFactsLang("nl");
-    els.eventCard.addEventListener("mousedown", peekEn);
-    els.eventCard.addEventListener("mouseup", restoreNl);
-    els.eventCard.addEventListener("mouseleave", restoreNl);
-    els.eventCard.addEventListener("touchstart", peekEn, { passive: false });
-    els.eventCard.addEventListener("touchend", restoreNl);
-    els.eventCard.addEventListener("touchcancel", restoreNl);
+    const peek = (e) => { e.preventDefault(); showFactsLang(lang === "en" ? "nl" : "en"); };
+    const restore = () => showFactsLang(lang);
+    els.eventCard.addEventListener("mousedown", peek);
+    els.eventCard.addEventListener("mouseup", restore);
+    els.eventCard.addEventListener("mouseleave", restore);
+    els.eventCard.addEventListener("touchstart", peek, { passive: false });
+    els.eventCard.addEventListener("touchend", restore);
+    els.eventCard.addEventListener("touchcancel", restore);
     els.eventCard.addEventListener("contextmenu", (e) => e.preventDefault());
   }
+  document.getElementById("lang-btn").addEventListener("click", toggleLang);
 
   const sharedHashes = getSharedLocation();
   if (sharedHashes) {
