@@ -664,7 +664,7 @@ function renderMenu() {
 
   if (auth.user) {
     section.innerHTML = `<span class="email">${auth.user.email}</span>Ingelogd`;
-    if (DEBUG && statsBtn) statsBtn.hidden = false;
+    if (statsBtn) statsBtn.hidden = false;
     const out = document.createElement("button");
     out.className = "menu-item danger";
     out.role = "menuitem";
@@ -673,7 +673,7 @@ function renderMenu() {
     items.appendChild(out);
   } else {
     section.innerHTML = "";
-    if (statsBtn) statsBtn.hidden = true;
+    if (statsBtn) statsBtn.hidden = false;  // stats zijn lokaal — ook zonder login zichtbaar
     const inBtn = document.createElement("button");
     inBtn.className = "menu-item";
     inBtn.role = "menuitem";
@@ -1048,8 +1048,8 @@ async function init() {
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
-  // Wrapper is in HTML hidden tot account-features af zijn — DEBUG onthult 'm.
-  if (DEBUG) document.getElementById("menu-wrap").hidden = false;
+  // ⋮-menu (Statistieken + Inloggen) is voor iedereen zichtbaar.
+  document.getElementById("menu-wrap").hidden = false;
   const menuBtn = document.getElementById("menu-btn");
   const menuPop = document.getElementById("menu-pop");
   menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(); });
