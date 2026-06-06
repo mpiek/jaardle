@@ -630,8 +630,14 @@ function sendTelemetry() {
     p_attempts: Math.min(6, Math.max(1, state.guesses.length)),
     p_won: state.won,
     p_first_distance: first ? Math.abs(first.diff) : 0,
-    p_hints_used: state.textHintsUsed + state.directionsRevealed.length,
-  }).catch(() => { try { localStorage.removeItem(sentKey); } catch (e) {} });
+    p_text_hints_used: state.textHintsUsed,
+    p_dir_hints_used: state.directionsRevealed.length,
+    p_mode: state.mode,
+    p_puzzle_date: state.mode === "daily" ? todayKey() : null,
+    p_score: computeScore(),
+  })
+    .then(() => { invalidateHistory(); })  // verse stats bij volgende opening
+    .catch(() => { try { localStorage.removeItem(sentKey); } catch (e) {} });
 }
 
 // Globale statistieken van het hoofd-feit op het eindscherm.
@@ -650,6 +656,44 @@ async function showFactStats(hash) {
 }
 
 // --- Daily history & stats ------------------------------------------------
+// Ingelogd: de dagresultaten komen uit de DB (cross-device sync) via
+// get_my_history(). Anon ziet geen stats — het ⋮-menu opent dan de login-modal
+// als nudge. De lokale "jaardle:history" blijft als offline-vangnet bestaan,
+// maar de getoonde statistieken komen voor ingelogde spelers uit de DB.
+let myHistoryCache = null;     // [{date, won, score, guesses}] of null (niet geladen)
+let myHistoryPromise = null;   // dedupe gelijktijdige fetches
+
+async function fetchMyHistory() {
+  try {
+    const rows = await rpc("get_my_history", {});
+    if (!Array.isArray(rows)) return [];
+    return rows.map((r) => ({
+      date: r.date,
+      won: !!r.won,
+      score: r.score ?? 0,
+      guesses: r.guesses,
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+function getMyHistory() {
+  if (myHistoryCache) return Promise.resolve(myHistoryCache);
+  if (!myHistoryPromise) {
+    myHistoryPromise = fetchMyHistory().then((h) => {
+      myHistoryCache = h;
+      myHistoryPromise = null;
+      return h;
+    });
+  }
+  return myHistoryPromise;
+}
+
+function invalidateHistory() {
+  myHistoryCache = null;
+  myHistoryPromise = null;
+}
 
 const HISTORY_KEY = "jaardle:history";
 
@@ -723,9 +767,18 @@ function daysBetween(a, b) {
   return Math.round((tb - ta) / 86400000);
 }
 
-function renderStats() {
+async function renderStats() {
   const body = document.getElementById("stats-body");
-  const history = loadHistory();
+  if (!auth.user) {
+    // Vangnet: het menu gate't dit al (opent login), maar mocht de modal toch
+    // open zijn zonder login, toon dan niets persoonlijks.
+    body.innerHTML = `<p class="stats-empty">${t("stats_empty")}</p>`;
+    return;
+  }
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const history = await getMyHistory();
+  // Modal kan ondertussen gesloten/gewisseld zijn; alleen vullen als nog relevant.
+  if (document.getElementById("modal-stats").hidden) return;
   if (history.length === 0) {
     body.innerHTML = `<p class="stats-empty">${t("stats_empty")}</p>`;
     return;
@@ -798,7 +851,7 @@ function renderMenu() {
     items.appendChild(out);
   } else {
     section.innerHTML = "";
-    if (statsBtn) statsBtn.hidden = false;  // stats zijn lokaal — ook zonder login zichtbaar
+    if (statsBtn) statsBtn.hidden = false;  // zichtbaar maar login-gated: klik opent login-nudge
     const inBtn = document.createElement("button");
     inBtn.className = "menu-item";
     inBtn.role = "menuitem";
@@ -1180,7 +1233,8 @@ async function init() {
     if (!btn) return;
     toggleMenu(false);
     const action = btn.dataset.action;
-    if (action === "stats") openModal("modal-stats");
+    // Stats zijn login-gated: uitgelogd opent de login-modal als nudge.
+    if (action === "stats") openModal(auth.user ? "modal-stats" : "modal-login");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
     else if (action === "lang") toggleLang();
@@ -1207,7 +1261,11 @@ async function init() {
   // Sync auth-state vanuit de Supabase module-bridge.
   window.addEventListener("sb-auth-changed", (e) => {
     auth.user = e.detail ? { email: e.detail.email, uid: e.detail.uid } : null;
+    invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
     renderMenu();
+    // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
+    const sm = document.getElementById("modal-stats");
+    if (sm && !sm.hidden) renderStats();
   });
 
   // Houd de tekst-box ingedrukt om de Engelse bron te zien.
