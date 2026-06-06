@@ -7,7 +7,16 @@ const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
 
 // --- i18n (NL/EN) ------------------------------------------------------------
-let lang = (() => { try { return localStorage.getItem("jaardle:lang") === "en" ? "en" : "nl"; } catch (e) { return "nl"; } })();
+// Taalkeuze: pad (/en) > ?lang= > opgeslagen voorkeur > NL.
+let lang = (() => {
+  try {
+    const p = location.pathname.replace(/\/+$/, "");
+    if (p === "/en" || p.endsWith("/en")) return "en";
+    const q = new URLSearchParams(location.search).get("lang");
+    if (q === "en" || q === "nl") return q;
+    return localStorage.getItem("jaardle:lang") === "en" ? "en" : "nl";
+  } catch (e) { return "nl"; }
+})();
 
 const HELP_NL = `
   <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. Max <span data-help="max-text-hints"></span> extra hints (💡) beschikbaar.</li>
@@ -98,12 +107,8 @@ function applyLang() {
   const help = document.getElementById("help-list");
   if (help) help.innerHTML = t("help_list");
   renderHelpConstants();
-  const lb = document.getElementById("lang-btn");
-  if (lb) {
-    lb.textContent = lang === "nl" ? "🇬🇧" : "🇳🇱";
-    const lbl = lang === "nl" ? "Switch to English" : "Schakel naar Nederlands";
-    lb.title = lbl; lb.setAttribute("aria-label", lbl);
-  }
+  const langItem = document.querySelector('#menu-pop [data-action="lang"]');
+  if (langItem) langItem.textContent = lang === "nl" ? "🇬🇧 English" : "🇳🇱 Nederlands";
   if (els.dayLabel) els.dayLabel.textContent = `${t("day")} #${daysSince(EPOCH) + 1}`;
   if (els.eventCard) els.eventCard.title = t("peek_title");
   renderMenu();
@@ -116,7 +121,14 @@ function applyLang() {
   if (sm && !sm.hidden) renderStats();
 }
 
-function toggleLang() { lang = lang === "nl" ? "en" : "nl"; applyLang(); }
+function toggleLang() {
+  lang = lang === "nl" ? "en" : "nl";
+  applyLang();
+  // Houd de URL in lijn met de taal: /en voor Engels, / voor Nederlands (query
+  // zoals ?p=... blijft behouden). Direct bezoek aan /en werkt via en/index.html.
+  try { history.replaceState(null, "", (lang === "en" ? "/en" : "/") + location.search); }
+  catch (e) {}
+}
 
 // Debug-flag onthult WIP-features (account-menu, stats) zonder ze voor
 // publieke users zichtbaar te maken. Aan op localhost, of via ?debug=1
@@ -1171,6 +1183,7 @@ async function init() {
     if (action === "stats") openModal("modal-stats");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
+    else if (action === "lang") toggleLang();
   });
   document.addEventListener("click", (e) => {
     if (!menuPop.hidden && !menuPop.contains(e.target) && e.target !== menuBtn) {
@@ -1209,7 +1222,6 @@ async function init() {
     els.eventCard.addEventListener("touchcancel", restore);
     els.eventCard.addEventListener("contextmenu", (e) => e.preventDefault());
   }
-  document.getElementById("lang-btn").addEventListener("click", toggleLang);
 
   const sharedHashes = getSharedLocation();
   if (sharedHashes) {
