@@ -6,20 +6,25 @@ Elke dag krijg je één historische gebeurtenis en moet je raden in welk jaar he
 
 ## Live
 
-➡️ **<https://mpiek.github.io/jaardle/>**
+➡️ **<https://jaardle.nl/>** — Engelstalige versie op **<https://jaardle.nl/en>**
 
 ## Spelen
 
 - **Dagelijkse Jaardle** — elke dag één puzzel, voor iedereen gelijk
 - **Nieuw spel** — oneindig rondjes, willekeurige gebeurtenis
+- **Account** (optioneel) — log in met Google of e-mail om je statistieken
+  (win-rate, streaks, gemiddelde score) cross-device te synchroniseren
 - Range-badges:
   - 🟩 0 jaar — 🟪 1-2 — 🟨 3-10 — 🟧 11-25 — 🟥 26-50 — 🟫 51-200 — ⬜ 200+
 
 ## Dataset
 
-2.322 jaartallen (679 v.Chr. tot 2026), 40.138 historische feiten, Nederlands.
+2.322 jaartallen (679 v.Chr. tot 2026), 40.138 historische feiten, Nederlands +
+Engels.
 
-Runtime laadt `bundle.bin` (XOR+gzip van een compacte vertaalde dataset). De ruwe bronbestanden en build-scripts maken geen onderdeel uit van deze repo.
+Puzzels en spelersdata worden tijdens runtime via **Supabase RPC** geladen — er
+zit geen dataset in deze repo. De dagpuzzels worden vooruit gegenereerd uit de
+DB (zie de aparte tools-repo); de daily-picker selecteert jaren met genoeg hints.
 
 De vertaling is LLM-geassisteerd (Gemini 2.5 Flash + Claude). Jaartal-spoilers (vermeldingen binnen ±2 van het puzzle-jaar) zijn automatisch vervangen door `____`.
 
@@ -34,13 +39,17 @@ python3 -m http.server 8000
 
 ## Architectuur
 
-Pure static HTML/CSS/JS. Geen build-stap, geen framework, geen backend. State in `localStorage`. Dagelijkse cyclus seeded vanaf 2026-01-01.
+Static HTML/CSS/JS frontend (geen build-stap, geen framework) met **Supabase** als
+backend voor auth, puzzeldata en stats-sync. Anonieme state in `localStorage`;
+ingelogde spelers syncen hun geschiedenis naar de DB.
 
 ```
-index.html  — UI
-style.css   — Donkere thema + range-badges
-game.js     — Game logic, year-input, share, daily/free modes
-bundle.bin  — Geobfusceerde runtime data (geladen via fetch)
+index.html      — NL UI + Supabase-init (window.sb / window.sbAuth)
+en/index.html   — Engelstalige variant
+login/, register/ — redirect-stubs naar de auth-modal
+style.css       — Donker thema + range-badges
+game.js         — Game logic, year-input, share, daily/free modes, auth & stats
+favicon.svg     — Tab-icoon (+ favicon-96/192.png voor zoekresultaten)
 ```
 
 ## Licenties
