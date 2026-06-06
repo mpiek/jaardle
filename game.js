@@ -2,7 +2,7 @@ const MAX_GUESSES = 6;
 const FACTS_PER_PUZZLE = 1;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
-const EPOCH = new Date(Date.UTC(2026, 0, 1));
+const EPOCH = new Date(Date.UTC(2026, 5, 6));   // v1-launch: dag #1 = 2026-06-06
 const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
 
