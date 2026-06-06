@@ -1331,6 +1331,10 @@ async function init() {
     els.eventCard.addEventListener("contextmenu", (e) => e.preventDefault());
   }
 
+  // Diepe links /login en /register sturen (via redirect-stubs) door naar
+  // ?auth=login|register. Vang dat op vóór startGame de URL opschoont.
+  const wantAuth = new URLSearchParams(window.location.search).get("auth");
+
   const sharedHashes = getSharedLocation();
   if (sharedHashes) {
     // Open een door iemand gedeeld vrij spel.
@@ -1340,6 +1344,12 @@ async function init() {
     startGame("free", false, sharedHashes);
   } else {
     switchMode("daily");
+  }
+
+  // Open de login-modal als /login of /register is bezocht (tenzij al ingelogd).
+  // Login en registreren zitten in dezelfde modal.
+  if ((wantAuth === "login" || wantAuth === "register") && !auth.user) {
+    openModal("modal-login");
   }
 }
 
