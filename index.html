@@ -11,16 +11,12 @@
 <meta property="og:url" content="https://jaardle.nl/">
 <meta property="og:title" content="Jaardle — raad het jaar van historische gebeurtenissen">
 <meta property="og:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis.">
-<meta property="og:image" content="https://jaardle.nl/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:locale" content="nl_NL">
 <meta property="og:site_name" content="Jaardle">
 
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Jaardle — raad het jaar van historische gebeurtenissen">
 <meta name="twitter:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl.">
-<meta name="twitter:image" content="https://jaardle.nl/og-image.png">
 
 <script type="application/ld+json">
 {
@@ -37,16 +33,16 @@
 </script>
 
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <main>
     <nav id="mode-tabs" role="tablist">
-      <div id="menu-wrap" hidden >
+      <div id="menu-wrap">
         <button id="menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu">⋮</button>
         <div id="menu-pop" role="menu" hidden>
           <div id="menu-account" class="menu-section"></div>
-          <button class="menu-item" role="menuitem" data-action="stats" hidden>📊 Statistieken</button>
+          <button class="menu-item" role="menuitem" data-action="stats">📊 Statistieken</button>
         </div>
       </div>
       <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D">Dagelijkse Jaardle</button>
@@ -192,6 +188,11 @@
       signOut: () => unwrap(supabase.auth.signOut()),
     };
 
+    // Brug voor de game-RPC's (publieke leesfuncties + telemetrie via Postgres).
+    window.sb = {
+      rpc: (fn, args) => unwrap(supabase.rpc(fn, args || {})),
+    };
+
     const emit = (session) => {
       const user = session?.user
         ? { email: session.user.email, uid: session.user.id }
@@ -203,7 +204,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="game.js?v=11"></script>
+  <script src="game.js?v=12"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

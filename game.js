@@ -101,133 +101,80 @@ function setKeypadDisabled(disabled) {
   els.keypad.querySelectorAll("button").forEach((b) => (b.disabled = disabled));
 }
 
-let events = [];
-let _hashToLoc = null;  // hash → [yearIdx, hintIdx]
 let state = null;
 
-// Content-hash per event: stabiel obv year + main text. 10 hex chars = 40 bit.
-// Verbergt ID-volgorde (lage ID → laag jaar) en blijft stabiel als nieuwe
-// events toegevoegd worden, zolang bestaande events ongewijzigd blijven.
-function eventHash(year, text) {
-  const s = `${year}|${text}`;
-  let h1 = 2166136261 | 0;
-  let h2 = 0x12345678 | 0;
-  for (let i = 0; i < s.length; i++) {
-    const c = s.charCodeAt(i);
-    h1 = Math.imul(h1 ^ c, 16777619);
-    h2 = Math.imul(h2 ^ c, 0x5bd1e995);
+// --- Supabase RPC-bridge (window.sb wordt in index.html gezet) ---------------
+function rpc(fn, args) {
+  if (window.sb?.rpc) return window.sb.rpc(fn, args || {});
+  return Promise.reject(new Error("Supabase nog niet geladen"));
+}
+function whenSbReady() {
+  return new Promise((resolve) => {
+    if (window.sb) return resolve();
+    window.addEventListener("sb-ready", () => resolve(), { once: true });
+  });
+}
+
+function arraysEqual(a, b) {
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length &&
+    a.every((v, i) => v === b[i]);
+}
+
+// Een puzzle komt zo van de RPC's:
+//   { year, hashes:[main,...extras], facts:[{hash,nl,en,source}], extras:[...] }
+// state.event is de UI-vorm ({year, facts:[{nl,en}], extras:[{nl,en}], source});
+// state.hashes is het share-token (main eerst).
+function toEvent(puzzle) {
+  const map = (f) => ({ nl: f.nl, en: f.en || "" });
+  return {
+    year: puzzle.year,
+    facts: (puzzle.facts || []).map(map),
+    extras: (puzzle.extras || []).map(map),
+    source: puzzle.facts?.[0]?.source || "",
+  };
+}
+
+// Laad/fout-status in de event-card.
+function setCardStatus(msg, retry) {
+  els.eventText.innerHTML = "";
+  const p = document.createElement("p");
+  p.className = "fact card-status";
+  p.textContent = msg;
+  els.eventText.appendChild(p);
+  if (retry) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "retry-btn";
+    b.textContent = "Opnieuw proberen";
+    b.addEventListener("click", retry);
+    els.eventText.appendChild(b);
   }
-  const hex = ((h1 >>> 0).toString(16).padStart(8, "0")
-             + (h2 >>> 0).toString(16).padStart(8, "0"));
-  return hex.slice(0, 10);
+  els.eventCard?.classList.remove("has-en");
 }
 
-function buildEventHashes() {
-  _hashToLoc = new Map();
-  let total = 0;
-  let collisions = 0;
-  for (let yi = 0; yi < events.length; yi++) {
-    const ev = events[yi];
-    for (let hi = 0; hi < ev.hints.length; hi++) {
-      total++;
-      const h = eventHash(ev.year, ev.hints[hi].text);
-      if (_hashToLoc.has(h)) {
-        collisions++;
-        // First-wins: collisions are not URL-addressable but still playable.
-      } else {
-        _hashToLoc.set(h, [yi, hi]);
-      }
-    }
-  }
-  if (collisions > 0) {
-    console.warn(`eventHash: ${collisions} collisions in ${total} hints`);
-  }
+// Share-token = de puzzle-hashes aan elkaar (main eerst, dan extras). De server
+// reconstrueert 'm via get_facts_by_hashes — geen index/jaar-afleiding meer.
+function buildShareToken() {
+  return (state?.hashes || []).join("");
 }
 
-function hashFor(yearIdx, hintIdx) {
-  return eventHash(events[yearIdx].year, events[yearIdx].hints[hintIdx].text);
-}
-
-function findLocByHash(h) {
-  return _hashToLoc === null ? null : (_hashToLoc.get(h) || null);
-}
-
-// Concat de hashes van alle gepickte hints → opaque share token.
-function buildShareToken(yearIdx, hintIdxs) {
-  return hintIdxs.map((hi) => hashFor(yearIdx, hi)).join("");
-}
-
-// Parse share token (N × 10 hex, één hash per fact). Returns [yearIdx, hintIdxs] of null.
+// Parse share token (N × 10 hex) → array van hashes, of null.
 function parseShareToken(token) {
-  if (!/^[0-9a-f]+$/.test(token) || token.length % 10 !== 0) return null;
-  const hashes = token.match(/.{10}/g);
-  const locs = hashes.map((h) => findLocByHash(h));
-  if (locs.some((l) => l === null)) return null;
-  const yearIdx = locs[0][0];
-  if (!locs.every((l) => l[0] === yearIdx)) return null;
-  const hintIdxs = locs.map((l) => l[1]).sort((a, b) => a - b);
-  return [yearIdx, hintIdxs];
+  if (!/^[0-9a-f]+$/.test(token) || token.length % 10 !== 0 || token.length === 0) return null;
+  return token.match(/.{10}/g);
 }
 
-function normalizeEvent(raw) {
-  // Keep ALL hints; per-game we pick one as "main" and the rest as extras.
-  if (Array.isArray(raw.hints) && raw.hints.length > 0) {
-    return { year: raw.year, hints: raw.hints };
-  }
-  return { year: raw.year, hints: [{ text: raw.event, source: raw.source }] };
-}
-
-// Deterministisch FACTS_PER_PUZZLE indices uit ev.hints kiezen. Als jaar
-// minder hints heeft, geven we er minder terug.
-function pickHintIdxs(yearIdx, seed) {
-  const ev = events[yearIdx];
-  const n = Math.min(FACTS_PER_PUZZLE, ev.hints.length);
-  const idxs = ev.hints.map((_, i) => i);
-  const rand = mulberry32(seed);
-  for (let i = idxs.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [idxs[i], idxs[j]] = [idxs[j], idxs[i]];
-  }
-  return idxs.slice(0, n).sort((a, b) => a - b);
-}
-
-// Extras worden deterministisch afgeleid uit (year, factHintIdxs) zodat
-// share-URLs alleen de fact-hashes hoeven te bevatten — de extras volgen.
-function pickExtraHintIdxs(yearIdx, factHintIdxs) {
-  const ev = events[yearIdx];
-  const factSet = new Set(factHintIdxs);
-  const remaining = [];
-  for (let i = 0; i < ev.hints.length; i++) if (!factSet.has(i)) remaining.push(i);
-  if (remaining.length === 0) return [];
-  let seed = (ev.year * 2654435761) >>> 0;
-  for (const i of factHintIdxs) seed = (seed ^ Math.imul(i + 1, 1000003)) >>> 0;
-  const rand = mulberry32(seed);
-  for (let i = remaining.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
-  }
-  return remaining.slice(0, MAX_EXTRA_HINTS).sort((a, b) => a - b);
-}
-
-// Build the {year, facts[], extras[], source} that de UI rendert.
-// Elke fact/extra is { nl, en } zodat de "hold for EN" knop kan toggelen.
-function buildVisibleEvent(yearIdx, hintIdxs) {
-  const ev = events[yearIdx];
-  const facts = hintIdxs.map((i) => ({ nl: ev.hints[i].text, en: ev.hints[i].en || "" }));
-  const extras = pickExtraHintIdxs(yearIdx, hintIdxs).map((i) => ({ nl: ev.hints[i].text, en: ev.hints[i].en || "" }));
-  const source = ev.hints[hintIdxs[0]]?.source;
-  return { year: ev.year, facts, extras, source };
+// "Vandaag" in Europe/Amsterdam, zodat iedereen dezelfde dagpuzzel krijgt en het
+// matcht met de server-gate in get_daily(). en-CA levert YYYY-MM-DD.
+function todayKey() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date());
 }
 
 function daysSince(epoch) {
-  const today = new Date();
-  const utcToday = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
-  return Math.floor((utcToday - epoch.getTime()) / 86400000);
-}
-
-function todayKey() {
-  const t = new Date();
-  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+  const [y, m, d] = todayKey().split("-").map(Number);
+  return Math.floor((Date.UTC(y, m - 1, d) - epoch.getTime()) / 86400000);
 }
 
 function storageKey(mode) {
@@ -541,6 +488,39 @@ function finishGame(won, fresh = false) {
   renderHintStatus();
   if (fresh && won) showConfetti();
   if (fresh && state.mode === "daily") recordDailyResult(won);
+  if (fresh) sendTelemetry();
+  showFactStats(state.hashes?.[0]);
+}
+
+// Eén rij per afgerond spel naar de DB (fire-and-forget). Idempotent per puzzel
+// zodat herladen/heropenen niet dubbel telt. Geen PII — anon of JWT (server-side).
+function sendTelemetry() {
+  const hash = state.hashes?.[0];
+  if (!hash) return;
+  const sentKey = `jaardle:sent:${hash}:${state.mode === "daily" ? todayKey() : "free"}`;
+  if (localStorage.getItem(sentKey)) return;
+  try { localStorage.setItem(sentKey, "1"); } catch (e) {}
+  const first = state.guesses[0];
+  rpc("record_play", {
+    p_fact_hash: hash,
+    p_attempts: Math.min(6, Math.max(1, state.guesses.length)),
+    p_won: state.won,
+    p_first_distance: first ? Math.abs(first.diff) : 0,
+    p_hints_used: state.textHintsUsed + state.directionsRevealed.length,
+  }).catch(() => { try { localStorage.removeItem(sentKey); } catch (e) {} });
+}
+
+// Globale statistieken van het hoofd-feit op het eindscherm.
+async function showFactStats(hash) {
+  els.result.querySelectorAll(".fact-stats").forEach((e) => e.remove());
+  if (!hash) return;
+  let s;
+  try { s = await rpc("get_fact_stats", { h: hash }); } catch (e) { return; }
+  if (!s || !s.games) return;
+  const el = document.createElement("p");
+  el.className = "fact-stats";
+  el.textContent = `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
+  els.source.after(el);
 }
 
 // --- Daily history & stats ------------------------------------------------
@@ -635,6 +615,38 @@ function renderStats() {
       <div class="stat"><div class="num">${s.won}</div><div class="lbl">Gewonnen</div></div>
     </div>
   `;
+  body.appendChild(renderCalendar(history));
+}
+
+// Redactle-achtige bijdrage-grid: kolommen = weken, rijen = ma..zo. Gekleurd op
+// gewonnen / verloren / niet gespeeld. Puur uit de lokale history — geen DB.
+function renderCalendar(history) {
+  const WEEKS = 17;
+  const map = new Map(history.map((e) => [e.date, e]));
+  let cur = shiftDay(todayKey(), -(WEEKS * 7 - 1));
+  const [sy, sm, sd] = cur.split("-").map(Number);
+  const mondayOffset = (new Date(Date.UTC(sy, sm - 1, sd)).getUTCDay() + 6) % 7; // 0 = ma
+  cur = shiftDay(cur, -mondayOffset);
+  const today = todayKey();
+  const grid = document.createElement("div");
+  grid.className = "cal-grid";
+  while (cur <= today) {
+    const e = map.get(cur);
+    const cell = document.createElement("div");
+    cell.className = "cal-cell " + (e ? (e.won ? "win" : "loss") : "none");
+    cell.title = e
+      ? `${cur} — ${e.won ? `opgelost (${e.guesses}/${MAX_GUESSES})` : "niet opgelost"}`
+      : cur;
+    grid.appendChild(cell);
+    cur = shiftDay(cur, 1);
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "cal-wrap";
+  const h = document.createElement("div");
+  h.className = "cal-title";
+  h.textContent = "Laatste maanden";
+  wrap.append(h, grid);
+  return wrap;
 }
 
 // --- Menu + modals --------------------------------------------------------
@@ -834,31 +846,30 @@ function flashInput() {
   els.input.classList.add("flash");
 }
 
+// Bewaar de hele puzzel + het bord, zodat herladen instant/offline werkt en de
+// dagpuzzel niet opnieuw opgehaald hoeft te worden.
 function save() {
   try {
     localStorage.setItem(storageKey(state.mode), JSON.stringify({
-      guesses: state.guesses,
-      done: state.done,
-      won: state.won,
-      textHintsUsed: state.textHintsUsed,
-      directionsRevealed: state.directionsRevealed,
-      yearIdx: state.yearIdx,
-      hintIdxs: state.hintIdxs,
+      hashes: state.hashes,
+      event: state.event,
+      board: {
+        guesses: state.guesses,
+        done: state.done,
+        won: state.won,
+        textHintsUsed: state.textHintsUsed,
+        directionsRevealed: state.directionsRevealed,
+      },
     }));
   } catch (e) { /* storage may be unavailable */ }
 }
 
-function load(mode, expectedYearIdx, expectedHintIdxs) {
+function loadRecord(mode) {
   try {
     const raw = localStorage.getItem(storageKey(mode));
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (mode === "free") {
-      if (parsed.yearIdx !== expectedYearIdx) return null;
-      const a = expectedHintIdxs, b = parsed.hintIdxs;
-      if (!Array.isArray(b) || a.length !== b.length || a.some((v, i) => v !== b[i])) return null;
-    }
-    return parsed;
+    const r = JSON.parse(raw);
+    return (r && Array.isArray(r.hashes) && r.event) ? r : null;
   } catch (e) {
     return null;
   }
@@ -886,7 +897,7 @@ function shareText() {
 async function doShare() {
   const text = shareText();
   const url = state.mode === "free"
-    ? `https://jaardle.nl/?p=${buildShareToken(state.yearIdx, state.hintIdxs)}`
+    ? `https://jaardle.nl/?p=${buildShareToken()}`
     : "https://jaardle.nl/";
   if (navigator.share) {
     try {
@@ -905,114 +916,83 @@ async function doShare() {
   }
 }
 
-// Mulberry32: kleine, deterministische PRNG voor een vaste shuffle van de jaren.
-function mulberry32(seed) {
-  return function () {
-    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// Uniforme dagvolgorde: elke jaar precies één keer, deterministisch geschud
-// zodat iedereen op dezelfde dag hetzelfde jaar krijgt.
-let _yearOrder = null;
-function yearOrder() {
-  if (_yearOrder) return _yearOrder;
-  const order = [];
-  for (let i = 0; i < events.length; i++) order.push(i);
-  const rand = mulberry32(0x4A415254); // "JART"
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
+// Bepaal de puzzel (uit lokale cache of via RPC). Geeft { mode, hashes, event, board }
+// of null (niet gevonden). Kan throwen bij netwerk/RPC-fout.
+async function resolveRecord(mode, forceNew, sharedHashes) {
+  if (sharedHashes) {
+    const cached = loadRecord("free");
+    if (cached && arraysEqual(cached.hashes, sharedHashes)) return { mode: "free", ...cached };
+    const p = await rpc("get_facts_by_hashes", { hashes: sharedHashes });
+    if (!p) return null;
+    return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null };
   }
-  _yearOrder = order;
-  return order;
-}
-
-// Returns [yearIdx, hintIdxs] for the given mode.
-function pickLocation(mode) {
   if (mode === "daily") {
-    const order = yearOrder();
-    const dayNum = daysSince(EPOCH);
-    const yearIdx = order[((dayNum % order.length) + order.length) % order.length];
-    const ev = events[yearIdx];
-    const seed = (dayNum * 1000003) ^ (ev.year * 9001);
-    return [yearIdx, pickHintIdxs(yearIdx, seed)];
+    const cached = loadRecord("daily");   // bevat de puzzel (offline/instant) + bord
+    if (cached) return { mode: "daily", ...cached };
+    const p = await rpc("get_daily", { d: todayKey() });
+    if (!p) return null;
+    return { mode: "daily", hashes: p.hashes, event: toEvent(p), board: null };
   }
-  // Free mode: resume saved if not finished, else random
-  try {
-    const raw = localStorage.getItem(storageKey("free"));
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (
-        !parsed.done &&
-        Number.isInteger(parsed.yearIdx) &&
-        Array.isArray(parsed.hintIdxs) && parsed.hintIdxs.length > 0 &&
-        parsed.yearIdx >= 0 && parsed.yearIdx < events.length &&
-        parsed.hintIdxs.every((hi) => hi >= 0 && hi < events[parsed.yearIdx].hints.length)
-      ) {
-        return [parsed.yearIdx, parsed.hintIdxs];
-      }
-    }
-  } catch (e) {}
-  const order = yearOrder();
-  const yearIdx = order[Math.floor(Math.random() * order.length)];
-  return [yearIdx, pickHintIdxs(yearIdx, Math.floor(Math.random() * 2147483647))];
+  // free
+  if (!forceNew) {
+    const cached = loadRecord("free");
+    if (cached && !cached.board?.done) return { mode: "free", ...cached };
+  }
+  const p = await rpc("get_random_fact", {});
+  if (!p) return null;
+  return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null };
 }
 
-function startGame(mode, forceNew = false, locationOverride = null) {
-  // Eerst clearen, anders pakt pickLocation de saved event weer op
+async function startGame(mode, forceNew = false, sharedHashes = null) {
   if (forceNew) {
     try { localStorage.removeItem(storageKey(mode)); } catch (e) {}
   }
-  const [yearIdx, hintIdxs] = locationOverride !== null
-    ? locationOverride
-    : pickLocation(mode);
-  state = {
-    mode,
-    yearIdx,
-    hintIdxs,
-    event: buildVisibleEvent(yearIdx, hintIdxs),
-    guesses: [],
-    done: false,
-    won: false,
-    textHintsUsed: 0,
-    directionsRevealed: [],
-  };
-
-  if (!forceNew) {
-    const saved = load(mode, yearIdx, hintIdxs);
-    if (saved) {
-      state.guesses = saved.guesses || [];
-      state.done = !!saved.done;
-      state.won = !!saved.won;
-      state.textHintsUsed = saved.textHintsUsed || 0;
-      state.directionsRevealed = Array.isArray(saved.directionsRevealed) ? saved.directionsRevealed : [];
-    }
-  }
-
-  setKeypadDisabled(false);
-  clearYear();
+  setKeypadDisabled(true);
+  setCardStatus("Laden…");
   els.result.hidden = true;
   els.nextBtn.hidden = true;
 
+  let record;
+  try {
+    record = await resolveRecord(mode, forceNew, sharedHashes);
+  } catch (e) {
+    console.error(e);
+    setCardStatus("Kon de gebeurtenis niet laden.", () => startGame(mode, forceNew, sharedHashes));
+    return;
+  }
+  if (!record) {
+    if (sharedHashes) setCardStatus("Deze gedeelde puzzel bestaat niet meer.", () => switchMode("daily"));
+    else setCardStatus("Geen puzzel beschikbaar.", () => startGame(mode, forceNew, sharedHashes));
+    return;
+  }
+
+  const b = record.board;
+  state = {
+    mode: record.mode,
+    hashes: record.hashes,
+    event: record.event,
+    guesses: b?.guesses || [],
+    done: !!b?.done,
+    won: !!b?.won,
+    textHintsUsed: b?.textHintsUsed || 0,
+    directionsRevealed: Array.isArray(b?.directionsRevealed) ? b.directionsRevealed : [],
+  };
+
+  setKeypadDisabled(false);
+  clearYear();
   renderEvent();
   renderHintStatus();
   renderGuesses();
   save();
   syncUrl();
 
-  if (state.done) {
-    finishGame(state.won);
-  }
+  if (state.done) finishGame(state.won);
 }
 
 function syncUrl() {
   try {
     const target = state.mode === "free"
-      ? `${window.location.pathname}?p=${buildShareToken(state.yearIdx, state.hintIdxs)}`
+      ? `${window.location.pathname}?p=${buildShareToken()}`
       : window.location.pathname;
     history.replaceState(null, "", target);
   } catch (e) { /* sandbox / file:// */ }
@@ -1026,34 +1006,9 @@ function switchMode(mode) {
   startGame(mode);
 }
 
-function sourceFor(year) {
-  if (year < 0) return `https://en.wikipedia.org/wiki/${-year}_BC`;
-  if (year < 100) return `https://en.wikipedia.org/wiki/AD_${year}`;
-  return `https://en.wikipedia.org/wiki/${year}`;
-}
-
-const BUNDLE_KEY = "j7r4Td9xPq2nMv5W";
-
-async function loadBundle(url) {
-  const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
-  const key = new TextEncoder().encode(BUNDLE_KEY);
-  for (let i = 0; i < buf.length; i++) buf[i] ^= key[i % key.length];
-  const stream = new Response(buf).body.pipeThrough(new DecompressionStream("gzip"));
-  return JSON.parse(await new Response(stream).text());
-}
-
 async function init() {
-  const raw = await loadBundle("bundle.bin");
-  events = raw.map(([year, hints]) => normalizeEvent({
-    year,
-    hints: hints.map((h) => {
-      // h is [nl, en] vanaf bundle v2; oude bundles hadden plain string.
-      const [text, en] = Array.isArray(h) ? h : [h, ""];
-      return { text, en, source: sourceFor(year) };
-    }),
-  }));
-  buildEventHashes();
   renderHelpConstants();
+  await whenSbReady();
 
   const dayNum = daysSince(EPOCH);
   els.dayLabel.textContent = `Dag #${dayNum + 1}`;
@@ -1145,13 +1100,13 @@ async function init() {
     els.eventCard.addEventListener("contextmenu", (e) => e.preventDefault());
   }
 
-  const sharedLoc = getSharedLocation();
-  if (sharedLoc !== null) {
+  const sharedHashes = getSharedLocation();
+  if (sharedHashes) {
     // Open een door iemand gedeeld vrij spel.
     els.tabs.forEach((t) => {
       t.setAttribute("aria-selected", String(t.dataset.mode === "free"));
     });
-    startGame("free", false, sharedLoc);
+    startGame("free", false, sharedHashes);
   } else {
     switchMode("daily");
   }
@@ -1161,14 +1116,7 @@ function getSharedLocation() {
   const params = new URLSearchParams(window.location.search);
   const p = params.get("p");
   if (p === null) return null;
-  // Nieuwe vorm: concat van N hashes van 10 hex chars
-  if (/^[0-9a-f]+$/.test(p) && p.length % 10 === 0 && p.length >= 10) {
-    return parseShareToken(p);
-  }
-  // Legacy numeric ?p=N — wijst naar yearIdx, pick hints deterministisch
-  const idx = parseInt(p, 10);
-  if (!Number.isInteger(idx) || idx < 0 || idx >= events.length) return null;
-  return [idx, pickHintIdxs(idx, idx * 31337)];
+  return parseShareToken(p);  // array van 10-hex hashes, of null
 }
 
 init().catch((err) => {
