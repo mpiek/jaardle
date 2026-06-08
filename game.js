@@ -55,8 +55,12 @@ const I18N = {
     err_none: "Geen puzzel beschikbaar.", retry: "Opnieuw proberen",
     won_intro: "Goed geraden! Het was", lost_intro: "Helaas — het juiste jaar was", source: "Bron:",
     stats_empty: "Nog geen dagelijkse puzzels afgerond.",
+    stats_daily: "Dagelijks", stats_free: "Vrij spelen",
     stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak",
     stat_beststreak: "Beste streak", stat_avgscore: "Gem. score", stat_won: "Gewonnen",
+    stat_last10: "Gem. laatste 10", stat_best: "Beste score", stat_avgtries: "Gem. pogingen",
+    fav_century: "Sterkste eeuw",
+    century_fmt: (n, bc) => `${n}e eeuw${bc ? " v.Chr." : ""}`,
     cal_title: "Laatste maanden", cal_notsolved: "niet opgelost",
     peek_title: "Houd ingedrukt voor de Engelse tekst", free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
@@ -77,8 +81,17 @@ const I18N = {
     err_none: "No puzzle available.", retry: "Try again",
     won_intro: "Well guessed! It was", lost_intro: "Too bad — the year was", source: "Source:",
     stats_empty: "No daily puzzles finished yet.",
+    stats_daily: "Daily", stats_free: "Free play",
     stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak",
     stat_beststreak: "Best streak", stat_avgscore: "Avg. score", stat_won: "Won",
+    stat_last10: "Avg. last 10", stat_best: "Best score", stat_avgtries: "Avg. tries",
+    fav_century: "Strongest century",
+    century_fmt: (n, bc) => {
+      const s = (n % 10 === 1 && n % 100 !== 11) ? "st"
+              : (n % 10 === 2 && n % 100 !== 12) ? "nd"
+              : (n % 10 === 3 && n % 100 !== 13) ? "rd" : "th";
+      return `${n}${s} century${bc ? " BC" : ""}`;
+    },
     cal_title: "Last few months", cal_notsolved: "not solved",
     peek_title: "Hold to see the Dutch text", free_tag: "(free)", lost_share: "💀 Not cracked",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
@@ -654,9 +667,10 @@ async function showFactStats(hash) {
   if (!s || !s.games) return;
   const el = document.createElement("p");
   el.className = "fact-stats";
+  const hasScore = s.avg_score != null;
   el.textContent = lang === "en"
-    ? `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`
-    : `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
+    ? `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`
+    : `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
   els.source.after(el);
 }
 
@@ -782,10 +796,13 @@ function computeStats(history) {
   const winsN = wins.length;
   const winRate = total ? Math.round((winsN / total) * 100) : 0;
   const avgScore = winsN ? Math.round(wins.reduce((s, e) => s + e.score, 0) / winsN) : 0;
-  // Streaks worden geteld op opeenvolgende kalenderdagen mét win.
-  const dateSet = new Set(wins.map((e) => e.date));
+  // Gem. pogingen alleen over winsten (een verlies is altijd 6 en zou 't vertekenen).
+  const avgAttempts = winsN ? Math.round((wins.reduce((s, e) => s + (e.guesses || 0), 0) / winsN) * 10) / 10 : 0;
+  // Streaks worden geteld op opeenvolgende kalenderdagen dat je hebt GESPEELD
+  // (winst óf verlies, Duolingo-stijl); alleen een gemiste dag breekt de streak.
+  const dateSet = new Set(history.map((e) => e.date));
   let best = 0, run = 0;
-  const sorted = [...wins].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...history].sort((a, b) => a.date.localeCompare(b.date));
   let prev = null;
   for (const e of sorted) {
     if (prev && daysBetween(prev, e.date) === 1) run += 1;
@@ -798,7 +815,7 @@ function computeStats(history) {
   let cursor = todayKey();
   if (!dateSet.has(cursor)) cursor = shiftDay(cursor, -1);
   while (dateSet.has(cursor)) { cur += 1; cursor = shiftDay(cursor, -1); }
-  return { total, won: winsN, winRate, avgScore, currentStreak: cur, bestStreak: best };
+  return { total, won: winsN, winRate, avgScore, avgAttempts, currentStreak: cur, bestStreak: best };
 }
 
 function shiftDay(yyyymmdd, delta) {
@@ -829,21 +846,68 @@ async function renderStats() {
   // Modal kan ondertussen gesloten/gewisseld zijn; alleen vullen als nog relevant.
   if (document.getElementById("modal-stats").hidden) return;
   if (history.length === 0) {
-    body.innerHTML = `<p class="stats-empty">${t("stats_empty")}</p>`;
+    // Geen daily, maar misschien wel vrije potjes -> toon de daily-leegmelding
+    // onder een kopje en hang de free-sectie eronder.
+    body.innerHTML = `<h3 class="stats-heading">${t("stats_daily")}</h3><p class="stats-empty">${t("stats_empty")}</p>`;
+    await renderFreeStats(body);
+    await renderCenturyStats(body);
     return;
   }
   const s = computeStats(history);
   body.innerHTML = `
+    <h3 class="stats-heading">${t("stats_daily")}</h3>
     <div class="stats-grid">
       <div class="stat"><div class="num">${s.total}</div><div class="lbl">${t("stat_played")}</div></div>
       <div class="stat"><div class="num">${s.winRate}%</div><div class="lbl">${t("stat_winrate")}</div></div>
       <div class="stat"><div class="num">${s.currentStreak}</div><div class="lbl">${t("stat_curstreak")}</div></div>
       <div class="stat"><div class="num">${s.bestStreak}</div><div class="lbl">${t("stat_beststreak")}</div></div>
       <div class="stat"><div class="num">${s.avgScore}</div><div class="lbl">${t("stat_avgscore")}</div></div>
+      <div class="stat"><div class="num">${s.avgAttempts}</div><div class="lbl">${t("stat_avgtries")}</div></div>
       <div class="stat"><div class="num">${s.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
   `;
   body.appendChild(renderCalendar(history));
+  await renderFreeStats(body);
+  await renderCenturyStats(body);
+}
+
+// Sterkste eeuw — over ALLE potjes (daily + free). Eén regel onderaan; verbergt
+// zich als geen enkele eeuw >= 3 potjes heeft (RPC geeft dan null).
+async function renderCenturyStats(body) {
+  let c;
+  try { c = await rpc("get_my_century_stats", {}); } catch (e) { return; }
+  if (!c || c.century == null) return;
+  if (document.getElementById("modal-stats").hidden) return;
+  const bc = c.century < 0;
+  const label = t("century_fmt")(Math.abs(c.century), bc);
+  const p = document.createElement("p");
+  p.className = "stats-century";
+  p.innerHTML = `🏛️ <strong>${t("fav_century")}:</strong> ${label} · ${c.win_pct}%`;
+  body.appendChild(p);
+}
+
+// Vrij-spelen-stats (aparte DB-aggregatie; geen streak — free heeft geen dagcadans).
+// Hangt onder de daily-sectie; verbergt zichzelf als er nog geen free-potjes zijn.
+async function renderFreeStats(body) {
+  let f;
+  try { f = await rpc("get_my_free_stats", {}); } catch (e) { return; }
+  if (!f || !f.games) return;
+  if (document.getElementById("modal-stats").hidden) return;
+  const sec = document.createElement("div");
+  sec.className = "stats-section";
+  sec.innerHTML = `
+    <h3 class="stats-heading">${t("stats_free")}</h3>
+    <div class="stats-grid">
+      <div class="stat"><div class="num">${f.games}</div><div class="lbl">${t("stat_played")}</div></div>
+      <div class="stat"><div class="num">${f.win_pct ?? 0}%</div><div class="lbl">${t("stat_winrate")}</div></div>
+      <div class="stat"><div class="num">${f.avg_score ?? 0}</div><div class="lbl">${t("stat_avgscore")}</div></div>
+      <div class="stat"><div class="num">${f.avg_score_10 ?? 0}</div><div class="lbl">${t("stat_last10")}</div></div>
+      <div class="stat"><div class="num">${f.best_score ?? 0}</div><div class="lbl">${t("stat_best")}</div></div>
+      <div class="stat"><div class="num">${f.avg_attempts ?? "–"}</div><div class="lbl">${t("stat_avgtries")}</div></div>
+      <div class="stat"><div class="num">${f.won}</div><div class="lbl">${t("stat_won")}</div></div>
+    </div>
+  `;
+  body.appendChild(sec);
 }
 
 // Redactle-achtige bijdrage-grid: kolommen = weken, rijen = ma..zo. Gekleurd op

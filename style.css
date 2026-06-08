@@ -410,6 +410,7 @@ kbd {
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;   /* geen double-tap-to-zoom op iOS Safari */
 }
 
 .key:hover { background: var(--card-soft); filter: none; }
@@ -449,6 +450,7 @@ button {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;   /* geen double-tap-to-zoom op iOS Safari */
 }
 
 button:hover { filter: brightness(1.1); }
@@ -698,6 +700,28 @@ footer {
   font-size: 0.9rem;
   padding: 1rem 0;
 }
+.stats-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+.stats-section {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+}
+/* Bij een oneven aantal cellen de laatste over de volle breedte i.p.v. een halve wees. */
+.stats-grid > .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.stats-century {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.stats-century strong { color: var(--fg); }
 
 /* --- Login: Google button + separator --- */
 #login-form {
