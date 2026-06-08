@@ -58,7 +58,7 @@ const I18N = {
     stats_daily: "Dagelijks", stats_free: "Vrij spelen",
     stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak",
     stat_beststreak: "Beste streak", stat_avgscore: "Gem. score", stat_won: "Gewonnen",
-    stat_last10: "Gem. laatste 10", stat_best: "Beste score", stat_avgtries: "Gem. pogingen",
+    stat_last10: "Gem. laatste 10", stat_perfect: "Keer 100", stat_avgtries: "Gem. pogingen",
     fav_century: "Sterkste eeuw",
     century_fmt: (n, bc) => `${n}e eeuw${bc ? " v.Chr." : ""}`,
     cal_title: "Laatste maanden", cal_notsolved: "niet opgelost",
@@ -84,7 +84,7 @@ const I18N = {
     stats_daily: "Daily", stats_free: "Free play",
     stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak",
     stat_beststreak: "Best streak", stat_avgscore: "Avg. score", stat_won: "Won",
-    stat_last10: "Avg. last 10", stat_best: "Best score", stat_avgtries: "Avg. tries",
+    stat_last10: "Avg. last 10", stat_perfect: "Perfect 100s", stat_avgtries: "Avg. tries",
     fav_century: "Strongest century",
     century_fmt: (n, bc) => {
       const s = (n % 10 === 1 && n % 100 !== 11) ? "st"
@@ -880,9 +880,10 @@ async function renderCenturyStats(body) {
   if (document.getElementById("modal-stats").hidden) return;
   const bc = c.century < 0;
   const label = t("century_fmt")(Math.abs(c.century), bc);
+  const avg = lang === "en" ? `avg. ${c.avg_score}` : `gem. ${c.avg_score}`;
   const p = document.createElement("p");
   p.className = "stats-century";
-  p.innerHTML = `🏛️ <strong>${t("fav_century")}:</strong> ${label} · ${c.win_pct}%`;
+  p.innerHTML = `🏛️ <strong>${t("fav_century")}:</strong> ${label} · ${avg}`;
   body.appendChild(p);
 }
 
@@ -902,7 +903,7 @@ async function renderFreeStats(body) {
       <div class="stat"><div class="num">${f.win_pct ?? 0}%</div><div class="lbl">${t("stat_winrate")}</div></div>
       <div class="stat"><div class="num">${f.avg_score ?? 0}</div><div class="lbl">${t("stat_avgscore")}</div></div>
       <div class="stat"><div class="num">${f.avg_score_10 ?? 0}</div><div class="lbl">${t("stat_last10")}</div></div>
-      <div class="stat"><div class="num">${f.best_score ?? 0}</div><div class="lbl">${t("stat_best")}</div></div>
+      <div class="stat"><div class="num">${f.perfect ?? 0}</div><div class="lbl">${t("stat_perfect")}</div></div>
       <div class="stat"><div class="num">${f.avg_attempts ?? "–"}</div><div class="lbl">${t("stat_avgtries")}</div></div>
       <div class="stat"><div class="num">${f.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
