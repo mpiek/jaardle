@@ -750,7 +750,8 @@ async function reconstructDailyBoard(answerYear) {
     textHintsUsed: Math.max(0, Math.min(2, row.text_hints_used || 0)),
     // We kennen alleen het AANTAL richting-hints, niet welke rijen; leg ze op de
     // laatste gokken. Voor de score telt enkel het aantal (.length).
-    directionsRevealed: guesses.map((_, i) => i).slice(-dir),
+    // NB: slice(-0) === slice(0) → hele array; vang dir=0 expliciet af.
+    directionsRevealed: dir > 0 ? guesses.map((_, i) => i).slice(-dir) : [],
   };
 }
 
