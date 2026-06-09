@@ -1270,6 +1270,7 @@ function shareText() {
   const statsParts = [`🎯 ${guessScore}`, `📊 ${grid}`];
   if (state.textHintsUsed > 0) statsParts.push(`💡 ${state.textHintsUsed}`);
   if (state.directionsRevealed.length > 0) statsParts.push(`🧭 ${state.directionsRevealed.length}`);
+  if (state.centuryRevealed) statsParts.push(`🏛️`);
   return `${intro}\n${statsParts.join(" | ")}`;
 }
 
