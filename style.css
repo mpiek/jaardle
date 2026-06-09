@@ -204,7 +204,8 @@ main {
 }
 
 #hint-btn-text,
-#hint-btn-direction {
+#hint-btn-direction,
+#hint-btn-century {
   background: transparent;
   color: var(--hint);
   border: 1px solid var(--hint);
@@ -213,7 +214,19 @@ main {
 }
 
 #hint-btn-text:hover,
-#hint-btn-direction:hover { background: rgba(255, 213, 79, 0.1); }
+#hint-btn-direction:hover,
+#hint-btn-century:hover { background: rgba(255, 213, 79, 0.1); }
+
+.century-banner {
+  margin: -0.5rem 0 1rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(255, 213, 79, 0.08);
+  border: 1px solid rgba(255, 213, 79, 0.3);
+  color: var(--hint);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
 
 .btn-cost {
   opacity: 0.7;

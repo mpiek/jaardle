@@ -23,28 +23,29 @@ const HELP_NL = `
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
-  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span> en 🧭 <span data-penalty="dir-hint"></span>. Verloren = 0–10, o.b.v. je dichtste gok.</li>
+  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> en 🏛️ <span data-penalty="century-hint"></span>. Verloren = 0–10, o.b.v. je dichtste gok.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
   <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
-  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>E</kbd> voor extra hint, <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
+  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>E</kbd> voor extra hint, <kbd>R</kbd> voor richting-hint, <kbd>C</kbd> voor eeuw-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
 const HELP_EN = `
   <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. Up to <span data-help="max-text-hints"></span> extra hints (💡) available.</li>
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
-  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints cost 💡 <span data-penalty="text-hint"></span> and 🧭 <span data-penalty="dir-hint"></span>. Lost = 0–10, based on your closest guess.</li>
+  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints cost 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> and 🏛️ <span data-penalty="century-hint"></span>. Lost = 0–10, based on your closest guess.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
   <li><strong>New game</strong>: endless rounds, a random event.</li>
-  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>E</kbd> for an extra hint, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
+  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>E</kbd> for an extra hint, <kbd>R</kbd> for a direction hint, <kbd>C</kbd> for the century hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
 
 const I18N = {
   nl: {
     tab_daily: "Dagelijkse Jaardle", tab_free: "Nieuw spel",
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     guess: "Gok", share: "Deel resultaat", next: "Nieuw rondje",
-    hint_text: "💡 Extra hint", hint_dir: "🧭 Richting",
+    hint_text: "💡 Extra hint", hint_dir: "🧭 Richting", hint_century: "🏛️ Eeuw",
+    century_band: "🏛️ Tijdvak", bc: "v.Chr.",
     help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
     login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
@@ -70,7 +71,8 @@ const I18N = {
     tab_daily: "Daily Jaardle", tab_free: "New game",
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     guess: "Guess", share: "Share result", next: "New round",
-    hint_text: "💡 Extra hint", hint_dir: "🧭 Direction",
+    hint_text: "💡 Extra hint", hint_dir: "🧭 Direction", hint_century: "🏛️ Century",
+    century_band: "🏛️ Era", bc: "BC",
     help_summary: "How to play?", stats_title: "📊 Statistics",
     login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
@@ -161,6 +163,8 @@ const els = {
   eventCard: document.getElementById("event-card"),
   hintBtnText: document.getElementById("hint-btn-text"),
   hintBtnDir: document.getElementById("hint-btn-direction"),
+  hintBtnCentury: document.getElementById("hint-btn-century"),
+  centuryBanner: document.getElementById("century-banner"),
   hintCount: document.getElementById("hint-count"),
   guesses: document.getElementById("guesses"),
   input: document.getElementById("year-input"),
@@ -409,7 +413,29 @@ function renderHintStatus() {
     !state.directionsRevealed.includes(state.guesses.length - 1);
   els.hintBtnText.hidden = state.done || textRemaining <= 0;
   els.hintBtnDir.hidden = state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
+  if (els.hintBtnCentury) els.hintBtnCentury.hidden = state.done || state.centuryRevealed;
+  renderCenturyBanner();
   els.hintCount.textContent = `💡 ${state.textHintsUsed}/${MAX_EXTRA_HINTS} hints · 🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${lang === "en" ? "directions" : "richtingen"}`;
+}
+
+// Honderdtal-blok van een jaartal als leesbaar bereik: 1850 → "1800–1899",
+// 490 → "400–499", -500 → "500–401 v.Chr." (BC telt aflopend).
+function centuryBand(year) {
+  const start = Math.floor(year / 100) * 100;
+  const end = start + 99;
+  if (end < 0) return `${Math.abs(start)}–${Math.abs(end)} ${t("bc")}`;   // beide BC
+  if (start < 0) return `${Math.abs(start)} ${t("bc")}–${end}`;           // over jaar 0 heen
+  return `${start}–${end}`;
+}
+
+function renderCenturyBanner() {
+  if (!els.centuryBanner) return;
+  if (state.centuryRevealed && state.event) {
+    els.centuryBanner.textContent = `${t("century_band")}: ${centuryBand(state.event.year)}`;
+    els.centuryBanner.hidden = false;
+  } else {
+    els.centuryBanner.hidden = true;
+  }
 }
 
 function requestTextHint() {
@@ -445,6 +471,13 @@ function requestDirectionHint() {
   save();
 }
 
+function requestCenturyHint() {
+  if (state.done || state.centuryRevealed) return;
+  state.centuryRevealed = true;
+  renderHintStatus();
+  save();
+}
+
 const RANGE_LABELS = {
   veryclose: "1–2",
   close: "3–10",
@@ -466,6 +499,7 @@ const GUESS_PENALTIES = {
 };
 const TEXT_HINT_PENALTY = 5;
 const DIRECTION_HINT_PENALTY = 3;
+const CENTURY_HINT_PENALTY = 25;
 
 // Verlies = geen harde 0, maar een lage band op basis van je dichtste gok.
 // Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
@@ -484,6 +518,7 @@ function computeScore() {
   for (const g of state.guesses) s -= GUESS_PENALTIES[g.cls] || 0;
   s -= state.textHintsUsed * TEXT_HINT_PENALTY;
   s -= state.directionsRevealed.length * DIRECTION_HINT_PENALTY;
+  if (state.centuryRevealed) s -= CENTURY_HINT_PENALTY;
   return Math.max(0, s);
 }
 
@@ -518,6 +553,7 @@ function renderHelpConstants() {
     distant:   GUESS_PENALTIES.distant,
     "text-hint": TEXT_HINT_PENALTY,
     "dir-hint": DIRECTION_HINT_PENALTY,
+    "century-hint": CENTURY_HINT_PENALTY,
   };
   document.querySelectorAll("[data-penalty]").forEach((el) => {
     const key = el.dataset.penalty;
@@ -665,6 +701,7 @@ function sendTelemetry() {
     p_first_distance: first ? Math.abs(first.diff) : 0,
     p_text_hints_used: state.textHintsUsed,
     p_dir_hints_used: state.directionsRevealed.length,
+    p_century_hint_used: !!state.centuryRevealed,
     p_mode: state.mode,
     p_puzzle_date: state.mode === "daily" ? todayKey() : null,
     p_score: computeScore(),
@@ -752,6 +789,7 @@ async function reconstructDailyBoard(answerYear) {
     // laatste gokken. Voor de score telt enkel het aantal (.length).
     // NB: slice(-0) === slice(0) → hele array; vang dir=0 expliciet af.
     directionsRevealed: dir > 0 ? guesses.map((_, i) => i).slice(-dir) : [],
+    centuryRevealed: !!row.century_hint_used,
   };
 }
 
@@ -768,6 +806,7 @@ async function maybeRestoreDailyAfterLogin() {
   state.guesses = board.guesses;
   state.textHintsUsed = board.textHintsUsed;
   state.directionsRevealed = board.directionsRevealed;
+  state.centuryRevealed = board.centuryRevealed;
   setKeypadDisabled(true);
   renderEvent();
   renderHintStatus();
@@ -1197,6 +1236,7 @@ function save() {
         won: state.won,
         textHintsUsed: state.textHintsUsed,
         directionsRevealed: state.directionsRevealed,
+        centuryRevealed: state.centuryRevealed,
       },
     }));
   } catch (e) { /* storage may be unavailable */ }
@@ -1318,6 +1358,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
     won: !!b?.won,
     textHintsUsed: b?.textHintsUsed || 0,
     directionsRevealed: Array.isArray(b?.directionsRevealed) ? b.directionsRevealed : [],
+    centuryRevealed: !!b?.centuryRevealed,
   };
 
   setKeypadDisabled(false);
@@ -1380,11 +1421,15 @@ async function init() {
     else if (e.key === "r" || e.key === "R") {
       if (!els.hintBtnDir.hidden) { requestDirectionHint(); e.preventDefault(); }
     }
+    else if (e.key === "c" || e.key === "C") {
+      if (els.hintBtnCentury && !els.hintBtnCentury.hidden) { requestCenturyHint(); e.preventDefault(); }
+    }
   });
   els.shareBtn.addEventListener("click", doShare);
   els.nextBtn.addEventListener("click", () => startGame("free", true));
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
+  if (els.hintBtnCentury) els.hintBtnCentury.addEventListener("click", requestCenturyHint);
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
   // ⋮-menu (Statistieken + Inloggen) is voor iedereen zichtbaar.
