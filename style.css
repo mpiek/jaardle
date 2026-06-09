@@ -94,6 +94,14 @@ main {
 }
 #menu-btn .menu-label { font-size: 0.9rem; padding-right: 0.55rem; }
 @media (max-width: 480px) { #menu-btn .menu-label { display: none; } }
+#menu-btn .menu-caret {
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--muted);
+  padding-right: 0.3rem;
+  transition: transform 0.15s ease;
+}
+#menu-btn[aria-expanded="true"] .menu-caret { transform: rotate(180deg); }
 
 #menu-pop {
   position: absolute;

@@ -23,7 +23,7 @@ const HELP_NL = `
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
-  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span> en 🧭 <span data-penalty="dir-hint"></span>. Verloren = 0.</li>
+  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span> en 🧭 <span data-penalty="dir-hint"></span>. Verloren = 0–10, o.b.v. je dichtste gok.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
   <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
@@ -33,7 +33,7 @@ const HELP_EN = `
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
-  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints cost 💡 <span data-penalty="text-hint"></span> and 🧭 <span data-penalty="dir-hint"></span>. Lost = 0.</li>
+  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints cost 💡 <span data-penalty="text-hint"></span> and 🧭 <span data-penalty="dir-hint"></span>. Lost = 0–10, based on your closest guess.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
   <li><strong>New game</strong>: endless rounds, a random event.</li>
@@ -467,8 +467,19 @@ const GUESS_PENALTIES = {
 const TEXT_HINT_PENALTY = 5;
 const DIRECTION_HINT_PENALTY = 3;
 
+// Verlies = geen harde 0, maar een lage band op basis van je dichtste gok.
+// Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
+// verdwaalde speler op 0 blijft. Altijd onder een winst.
+const LOSS_SCORES = {
+  correct: 0, veryclose: 10, close: 6, warm: 4, cool: 2, far: 0, distant: 0,
+};
+
 function computeScore() {
-  if (!state.won) return 0;
+  if (!state.won) {
+    let s = 0;
+    for (const g of state.guesses) s = Math.max(s, LOSS_SCORES[g.cls] || 0);
+    return s;
+  }
   let s = 100;
   for (const g of state.guesses) s -= GUESS_PENALTIES[g.cls] || 0;
   s -= state.textHintsUsed * TEXT_HINT_PENALTY;
@@ -486,7 +497,12 @@ const SCORE_TIERS = [
   { min: 0,   key: "lost",       label: "Volgende keer beter", emoji: "💀" },
 ];
 
-function scoreTier(score) {
+const LOST_TIER = SCORE_TIERS.find((t) => t.key === "lost");
+
+// Bij verlies altijd de verlies-tier (💀), ongeacht de 0–10-score — anders zou
+// een verlies van 1+ de "Net gehaald"-tier pakken.
+function scoreTier(score, won = true) {
+  if (!won) return LOST_TIER;
   return SCORE_TIERS.find((t) => score >= t.min);
 }
 
@@ -610,9 +626,9 @@ function finishGame(won, fresh = false) {
   yearBadge.className = "year-pill" + (fresh && won ? " win-pop" : "");
   yearBadge.textContent = ev.year;
   els.resultText.append(yearBadge);
-  if (won) {
+  {
     const score = computeScore();
-    const tier = scoreTier(score);
+    const tier = scoreTier(score, won);
     const scoreLine = document.createElement("div");
     scoreLine.className = "score-line";
     scoreLine.textContent = `${tier.emoji} ${tierLabel(tier)} · ${score}/100`;
@@ -775,7 +791,7 @@ function saveHistory(arr) {
 
 function recordDailyResult(won) {
   const date = todayKey();
-  const score = won ? computeScore() : 0;
+  const score = computeScore();
   const entry = {
     date,
     won,
@@ -952,21 +968,24 @@ function renderMenuButton() {
   const btn = document.getElementById("menu-btn");
   if (!btn) return;
   const guest = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6Z"/></svg>';
+  // Pijltje signaleert dat de knop een uitklapmenu opent (anders lijkt het
+  // ingelogd alleen een avatar zonder klik-affordance).
+  const caret = '<span class="menu-caret" aria-hidden="true">▾</span>';
   if (auth.user) {
     const initial = ((auth.user.name || auth.user.email || "?").trim().charAt(0) || "?").toUpperCase();
     if (auth.user.avatar) {
-      btn.innerHTML = `<span class="avatar"><img alt="" referrerpolicy="no-referrer"></span>`;
+      btn.innerHTML = `<span class="avatar"><img alt="" referrerpolicy="no-referrer"></span>` + caret;
       const img = btn.querySelector("img");
       img.addEventListener("error", () => {   // foto onbereikbaar -> initiaal
-        btn.innerHTML = `<span class="avatar initial">${initial}</span>`;
+        btn.innerHTML = `<span class="avatar initial">${initial}</span>` + caret;
       });
       img.src = auth.user.avatar;
     } else {
-      btn.innerHTML = `<span class="avatar initial">${initial}</span>`;
+      btn.innerHTML = `<span class="avatar initial">${initial}</span>` + caret;
     }
     btn.setAttribute("aria-label", auth.user.email);
   } else {
-    btn.innerHTML = `<span class="avatar">${guest}</span><span class="menu-label">${t("menu_login")}</span>`;
+    btn.innerHTML = `<span class="avatar">${guest}</span><span class="menu-label">${t("menu_login")}</span>` + caret;
     btn.setAttribute("aria-label", t("menu_login"));
   }
 }
@@ -1201,10 +1220,11 @@ function shareText() {
   let intro;
   if (state.won) {
     const s = computeScore();
-    const tier = scoreTier(s);
+    const tier = scoreTier(s, true);
     intro = `Jaardle ${tag}: ${tier.emoji} ${tierLabel(tier)} (${s}/100)`;
   } else {
-    intro = `Jaardle ${tag}: ${t("lost_share")}`;
+    const s = computeScore();
+    intro = `Jaardle ${tag}: ${t("lost_share")} (${s}/100)`;
   }
   const statsParts = [`🎯 ${guessScore}`, `📊 ${grid}`];
   if (state.textHintsUsed > 0) statsParts.push(`💡 ${state.textHintsUsed}`);
