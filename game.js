@@ -64,6 +64,7 @@ const I18N = {
     century_fmt: (n, bc) => `${n}e eeuw${bc ? " v.Chr." : ""}`,
     cal_title: "Laatste maanden", cal_notsolved: "niet opgelost",
     peek_title: "Houd ingedrukt voor de Engelse tekst", free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
+    next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     help_list: HELP_NL,
   },
@@ -96,6 +97,7 @@ const I18N = {
     },
     cal_title: "Last few months", cal_notsolved: "not solved",
     peek_title: "Hold to see the Dutch text", free_tag: "(free)", lost_share: "💀 Not cracked",
+    next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     help_list: HELP_EN,
   },
@@ -318,6 +320,23 @@ function daysSince(epoch) {
   return Math.floor((Date.UTC(y, m - 1, d) - epoch.getTime()) / 86400000);
 }
 
+// Seconden tot de volgende dagpuzzel = middernacht Europe/Amsterdam. We lezen de
+// huidige wandklok in die zone, zodat het ook klopt rond zomer-/wintertijd.
+function secsToNextDaily() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+  }).formatToParts(new Date());
+  const get = (type) => Number(parts.find((p) => p.type === type).value);
+  let h = get("hour");
+  if (h === 24) h = 0;  // en-GB geeft middernacht soms als 24
+  return 86400 - (h * 3600 + get("minute") * 60 + get("second"));
+}
+
+function fmtCountdown(secs) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(Math.floor(secs / 3600))}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}`;
+}
+
 function storageKey(mode) {
   return mode === "daily" ? `jaardle:daily:${todayKey()}` : `jaardle:free:current`;
 }
@@ -497,7 +516,7 @@ const GUESS_PENALTIES = {
   far: 13,
   distant: 15,
 };
-const TEXT_HINT_PENALTY = 5;
+const TEXT_HINT_PENALTY = 2;
 const DIRECTION_HINT_PENALTY = 3;
 const CENTURY_HINT_PENALTY = 25;
 
@@ -683,6 +702,7 @@ function finishGame(won, fresh = false) {
   const statsHash = state.hashes?.[0];
   if (fresh) sendTelemetry().then(() => showFactStats(statsHash), () => showFactStats(statsHash));
   else showFactStats(statsHash);
+  startDailyCountdown();
 }
 
 // Eén rij per afgerond spel naar de DB (fire-and-forget). Idempotent per puzzel
@@ -709,6 +729,28 @@ function sendTelemetry() {
   })
     .then(() => { invalidateHistory(); })  // verse stats bij volgende opening
     .catch(() => { try { localStorage.removeItem(sentKey); } catch (e) {} });
+}
+
+// Aftelklok tot de volgende dagpuzzel, onder de globale stats. Alleen in
+// daily-modus; tikt elke seconde en stopt zodra de nieuwe daily klaarstaat.
+let dailyCountdownTimer = null;
+function stopDailyCountdown() {
+  if (dailyCountdownTimer) { clearInterval(dailyCountdownTimer); dailyCountdownTimer = null; }
+}
+function startDailyCountdown() {
+  stopDailyCountdown();
+  els.result.querySelectorAll(".daily-countdown").forEach((e) => e.remove());
+  if (state.mode !== "daily") return;
+  const el = document.createElement("p");
+  el.className = "daily-countdown";
+  els.source.after(el);
+  const tick = () => {
+    const left = secsToNextDaily();
+    if (left <= 0) { el.textContent = t("daily_ready"); stopDailyCountdown(); return; }
+    el.textContent = `${t("next_daily")} ${fmtCountdown(left)}`;
+  };
+  tick();
+  dailyCountdownTimer = setInterval(tick, 1000);
 }
 
 // Globale statistieken van het hoofd-feit op het eindscherm.
@@ -1340,6 +1382,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
   }
   setKeypadDisabled(true);
   setCardStatus(t("loading"));
+  stopDailyCountdown();
   els.result.hidden = true;
   els.nextBtn.hidden = true;
 

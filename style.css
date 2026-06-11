@@ -800,6 +800,7 @@ footer {
 .retry-btn:hover { background: var(--border); }
 
 .fact-stats { margin: 0.4rem 0 0.85rem; font-size: 0.85rem; color: var(--muted); }
+.daily-countdown { margin: 0 0 0.85rem; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .cal-wrap { margin-top: 1rem; }
 .cal-title { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; }
