@@ -1274,12 +1274,20 @@ function shareText() {
   return `${intro}\n${statsParts.join(" | ")}`;
 }
 
+// Native share-sheet alleen op echte mobiele toestellen. Op desktop (ook
+// Windows/Edge, waar navigator.share bestaat) opent dat een nutteloze dialoog
+// met e-mail e.d. — daar willen we gewoon kopiëren naar klembord.
+function isMobileDevice() {
+  if (navigator.userAgentData?.mobile != null) return navigator.userAgentData.mobile;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
 async function doShare() {
   const text = shareText();
   const url = state.mode === "free"
     ? `https://jaardle.nl/?p=${buildShareToken()}`
     : "https://jaardle.nl/";
-  if (navigator.share) {
+  if (navigator.share && isMobileDevice()) {
     try {
       await navigator.share({ text: `${text}\n${url}` });
       return;
