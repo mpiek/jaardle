@@ -828,3 +828,47 @@ footer {
   border-radius: 6px;
 }
 .lang-btn:hover { background: var(--card-soft); }
+
+/* --- Vrienden-leaderboard ------------------------------------------------- */
+.lb-section { margin-top: 1.1rem; }
+.lb-section:first-child { margin-top: 0; }
+.lb-section + .lb-section { padding-top: 1.1rem; border-top: 1px solid var(--border); }
+.lb-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+.lb-empty { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 0.6rem 0; }
+.lb-table { display: flex; flex-direction: column; gap: 2px; }
+.lb-row {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  background: var(--card-soft);
+}
+.lb-rank { text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-val { font-weight: 700; font-variant-numeric: tabular-nums; }
+.lb-row.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
+.lb-row.lb-me .lb-val { color: var(--accent); }
+.lb-tag {
+  margin-left: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+}
+.lb-sync {
+  margin: 0.7rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}

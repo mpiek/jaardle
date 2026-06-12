@@ -65,6 +65,13 @@ const I18N = {
     cal_title: "Laatste maanden", cal_notsolved: "niet opgelost",
     peek_title: "Houd ingedrukt voor de Engelse tekst", free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
+    menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
+    lb_daily: "Vandaag", lb_overall: "Aller tijden",
+    lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
+    lb_empty_overall: "Nog geen ranglijst — speel een paar potjes.",
+    lb_not_member: "Je staat (nog) niet op een vriendenbord.",
+    lb_sync: "⏳ Rating bijgewerkt over", lb_synced: "✨ Rating zojuist bijgewerkt",
+    lb_you: "jij", lb_games_short: (n) => `${n} ${n === 1 ? "potje" : "potjes"}`,
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     help_list: HELP_NL,
   },
@@ -98,6 +105,13 @@ const I18N = {
     cal_title: "Last few months", cal_notsolved: "not solved",
     peek_title: "Hold to see the Dutch text", free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
+    menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
+    lb_daily: "Today", lb_overall: "All-time",
+    lb_empty_daily: "Nobody has played today's daily yet.",
+    lb_empty_overall: "No ranking yet — play a few rounds.",
+    lb_not_member: "You're not on a friends board (yet).",
+    lb_sync: "⏳ Rating updates in", lb_synced: "✨ Rating just updated",
+    lb_you: "you", lb_games_short: (n) => `${n} ${n === 1 ? "game" : "games"}`,
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     help_list: HELP_EN,
   },
@@ -753,6 +767,103 @@ function startDailyCountdown() {
   dailyCountdownTimer = setInterval(tick, 1000);
 }
 
+// --- Vrienden-leaderboard --------------------------------------------------
+// Members-only: lb_is_member() gate't de 🏆-knop, de RPC's geven niet-leden 0
+// rijen. Twee borden onder elkaar in één modal:
+//   • Vandaag — LIVE dagbord (get_daily_leaderboard); ververst meteen na een potje.
+//   • Aller tijden — rating-bord (get_leaderboard); rating wordt NACHTELIJK
+//     herberekend (recompute_elo, 03:00 UTC) → kleine aftelklok toont wanneer.
+let isLbMember = false;
+let lbSyncTimer = null;
+
+function escHtml(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+// Seconden tot de volgende nachtelijke recompute (pg_cron 03:00 UTC).
+function secsToNextSync() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setUTCHours(3, 0, 0, 0);
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+  return Math.max(0, Math.round((next - now) / 1000));
+}
+
+function stopLbSync() {
+  if (lbSyncTimer) { clearInterval(lbSyncTimer); lbSyncTimer = null; }
+}
+
+// Vraag de DB of de ingelogde speler op een vriendenbord staat; toont/verbergt
+// de 🏆-knop. Uitgelogd → nooit lid.
+async function refreshLbMembership() {
+  if (!auth.user) { isLbMember = false; renderMenu(); return; }
+  try { isLbMember = !!(await rpc("lb_is_member", {})); }
+  catch (e) { isLbMember = false; }
+  renderMenu();
+}
+
+async function renderLeaderboard() {
+  const body = document.getElementById("lb-body");
+  stopLbSync();
+  if (!auth.user || !isLbMember) {
+    body.innerHTML = `<p class="lb-empty">${t("lb_not_member")}</p>`;
+    return;
+  }
+  body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+  let daily = [], overall = [];
+  try {
+    [daily, overall] = await Promise.all([
+      rpc("get_daily_leaderboard", { p_date: todayKey() }),
+      rpc("get_leaderboard", { p_min_games: 1 }),
+    ]);
+  } catch (e) {}
+  if (document.getElementById("modal-leaderboard").hidden) return;
+  daily = Array.isArray(daily) ? daily : [];
+  overall = Array.isArray(overall) ? overall : [];
+
+  const medal = (r) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : `${r}`);
+  const rowCls = (me) => (me ? "lb-row lb-me" : "lb-row");
+  const nameCell = (row) =>
+    escHtml(row.display_name) + (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
+
+  // Vandaag (live dagbord)
+  let html = `<section class="lb-section"><h3 class="lb-heading">${t("lb_daily")}</h3>`;
+  if (daily.length === 0) {
+    html += `<p class="lb-empty">${t("lb_empty_daily")}</p>`;
+  } else {
+    html += `<div class="lb-table">` + daily.map((d) =>
+      `<div class="${rowCls(d.is_me)}"><span class="lb-rank">${medal(d.rank)}</span>` +
+      `<span class="lb-name">${nameCell(d)}</span>` +
+      `<span class="lb-val">${d.won ? d.score : "💀"}</span></div>`
+    ).join("") + `</div>`;
+  }
+  html += `</section>`;
+
+  // Aller tijden (nachtelijk rating-bord) + sync-aftelklok
+  html += `<section class="lb-section"><h3 class="lb-heading">${t("lb_overall")}</h3>`;
+  if (overall.length === 0) {
+    html += `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
+  } else {
+    html += `<div class="lb-table">` + overall.map((o) =>
+      `<div class="${rowCls(o.is_me)}"><span class="lb-rank">${medal(o.rank)}</span>` +
+      `<span class="lb-name">${nameCell(o)}</span>` +
+      `<span class="lb-val">${o.rating}${o.is_provisional ? "?" : ""}</span></div>`
+    ).join("") + `</div>`;
+  }
+  html += `<p class="lb-sync" id="lb-sync"></p></section>`;
+  body.innerHTML = html;
+
+  // Tik de aftelklok tot de nachtelijke rating-update.
+  const syncEl = document.getElementById("lb-sync");
+  const tick = () => {
+    if (document.getElementById("modal-leaderboard").hidden) { stopLbSync(); return; }
+    const left = secsToNextSync();
+    syncEl.textContent = left <= 0 ? t("lb_synced") : `${t("lb_sync")} ${fmtCountdown(left)}`;
+  };
+  tick();
+  lbSyncTimer = setInterval(tick, 1000);
+}
+
 // Globale statistieken van het hoofd-feit op het eindscherm.
 async function showFactStats(hash) {
   els.result.querySelectorAll(".fact-stats").forEach((e) => e.remove());
@@ -1077,6 +1188,8 @@ function renderMenu() {
   const section = document.getElementById("menu-account");
   const items = document.getElementById("menu-pop");
   const statsBtn = items.querySelector('[data-action="stats"]');
+  const lbBtn = items.querySelector('[data-action="leaderboard"]');
+  if (lbBtn) lbBtn.hidden = !(auth.user && isLbMember);  // alleen leden zien 🏆
   // Verwijder dynamische account-knoppen (action=login|logout) maar laat
   // statische knoppen (stats) staan.
   items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
@@ -1113,6 +1226,7 @@ function toggleMenu(force) {
 function openModal(id) {
   document.getElementById(id).hidden = false;
   if (id === "modal-stats") renderStats();
+  if (id === "modal-leaderboard") renderLeaderboard();
   if (id === "modal-login") {
     const err = document.getElementById("login-error");
     if (err) err.hidden = true;
@@ -1122,10 +1236,12 @@ function openModal(id) {
 
 function closeModal(id) {
   document.getElementById(id).hidden = true;
+  stopLbSync();
 }
 
 function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+  stopLbSync();
 }
 
 async function doAuth(mode, e) {
@@ -1496,6 +1612,7 @@ async function init() {
     const action = btn.dataset.action;
     // Stats zijn login-gated: uitgelogd opent de login-modal als nudge.
     if (action === "stats") openModal(auth.user ? "modal-stats" : "modal-login");
+    else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
     else if (action === "lang") toggleLang();
@@ -1526,6 +1643,7 @@ async function init() {
       : null;
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
     renderMenu();
+    refreshLbMembership();  // toont/verbergt de 🏆-knop op basis van lidmaatschap
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();

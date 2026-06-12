@@ -39,7 +39,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
   <main>
@@ -49,6 +49,7 @@
         <div id="menu-pop" role="menu" hidden>
           <div id="menu-account" class="menu-section"></div>
           <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Statistieken</button>
+          <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Leaderboard</button>
           <button class="menu-item" role="menuitem" data-action="lang"></button>
         </div>
       </div>
@@ -127,6 +128,17 @@
         <button class="modal-close" data-close aria-label="Sluit">✕</button>
       </header>
       <div id="stats-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-leaderboard" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-lb-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-lb-title" data-i18n="lb_title">🏆 Leaderboard</h2>
+        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+      </header>
+      <div id="lb-body" class="modal-body"></div>
     </div>
   </div>
 
@@ -218,7 +230,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="game.js?v=28"></script>
+  <script src="game.js?v=29"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
