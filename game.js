@@ -28,8 +28,8 @@ const HELP_NL = `
   <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. Max <span data-help="max-text-hints"></span> extra hints (💡) beschikbaar.</li>
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
-  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> en 🏛️ <span data-penalty="century-hint"></span>. Verloren = 0–10, o.b.v. je dichtste gok.</li>
+  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
+  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> en 🏛️ <span data-penalty="century-hint"></span>. Verloren = 0–10, o.b.v. je dichtste gok.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
   <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
@@ -38,8 +38,8 @@ const HELP_EN = `
   <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. Up to <span data-help="max-text-hints"></span> extra hints (💡) available.</li>
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 200+</li>
-  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints cost 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> and 🏛️ <span data-penalty="century-hint"></span>. Lost = 0–10, based on your closest guess.</li>
+  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
+  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints cost 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> and 🏛️ <span data-penalty="century-hint"></span>. Lost = 0–10, based on your closest guess.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
   <li><strong>New game</strong>: endless rounds, a random event.</li>
@@ -407,7 +407,8 @@ function classify(diff) {
   if (abs <= 25) return "warm";
   if (abs <= 50) return "cool";
   if (abs <= 200) return "far";
-  return "distant";
+  if (abs <= 599) return "distant";
+  return "farthest";
 }
 
 function displaySource(url) {
@@ -428,6 +429,7 @@ function emojiFor(cls) {
     cool: "🟥",
     far: "🟫",
     distant: "⬜",
+    farthest: "⬛",
   }[cls];
 }
 
@@ -545,7 +547,8 @@ const RANGE_LABELS = {
   warm: "11–25",
   cool: "26–50",
   far: "51–200",
-  distant: "200+",
+  distant: "201–599",
+  farthest: "600+",
 };
 
 // Score: 100 - sum(penalty per wrong guess) - hint penalties.
@@ -557,6 +560,7 @@ const GUESS_PENALTIES = {
   cool: 11,
   far: 13,
   distant: 15,
+  farthest: 23,
 };
 const TEXT_HINT_PENALTY = 2;
 const DIRECTION_HINT_PENALTY = 3;
@@ -566,7 +570,7 @@ const CENTURY_HINT_PENALTY = 25;
 // Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
 // verdwaalde speler op 0 blijft. Altijd onder een winst.
 const LOSS_SCORES = {
-  correct: 0, veryclose: 10, close: 6, warm: 4, cool: 2, far: 0, distant: 0,
+  correct: 0, veryclose: 10, close: 6, warm: 4, cool: 2, far: 0, distant: 0, farthest: 0,
 };
 
 function computeScore() {
@@ -612,6 +616,7 @@ function renderHelpConstants() {
     cool:      GUESS_PENALTIES.cool,
     far:       GUESS_PENALTIES.far,
     distant:   GUESS_PENALTIES.distant,
+    farthest:  GUESS_PENALTIES.farthest,
     "text-hint": TEXT_HINT_PENALTY,
     "dir-hint": DIRECTION_HINT_PENALTY,
     "century-hint": CENTURY_HINT_PENALTY,
