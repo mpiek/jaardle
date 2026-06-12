@@ -872,3 +872,63 @@ footer {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+/* pool-header + acties */
+.lb-poolhead { margin: 0 0 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); }
+.lb-poolname { font-size: 1.05rem; font-weight: 700; }
+.lb-poolsub { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+.lb-poolactions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.lb-pillbtn {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-soft);
+  color: var(--fg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lb-pillbtn:hover { background: var(--border); }
+.lb-pillbtn.danger { color: #ff8a8a; }
+.lb-invite-code { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--green); word-break: break-all; }
+/* maak/join-formulieren */
+.lb-form { margin: 0.9rem 0 0; }
+.lb-form-label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; }
+.lb-form-row { display: flex; gap: 0.5rem; }
+.lb-form-row input {
+  flex: 1; min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-soft);
+  color: var(--fg);
+  font-size: 0.95rem;
+}
+.lb-form-row input:focus { outline: none; border-color: var(--accent); }
+.lb-form-row button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-soft);
+  color: var(--fg);
+  font-weight: 600;
+  cursor: pointer;
+}
+.lb-form-row button:hover { background: var(--border); }
+.lb-name-status { margin: 0.6rem 0 0; font-size: 0.8rem; }
+.lb-name-status.ok { color: var(--green); }
+.lb-name-status.err { color: #ff8a8a; }
+/* join-bevestiging */
+.lb-confirm { text-align: center; padding: 1.2rem 0.5rem; }
+.lb-confirm-q { font-size: 1.05rem; font-weight: 600; margin: 0 0 0.3rem; }
+.lb-confirm-sub { font-size: 0.85rem; color: var(--muted); margin: 0 0 1.1rem; }
+.lb-confirm-actions { display: flex; gap: 0.6rem; justify-content: center; }
+.lb-confirm-actions button {
+  padding: 0.55rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-soft);
+  color: var(--fg);
+  font-weight: 600;
+  cursor: pointer;
+}
+.lb-confirm-actions button.primary { background: var(--accent); border-color: var(--accent); color: #08131f; }
