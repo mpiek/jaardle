@@ -7,14 +7,20 @@ const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
 
 // --- i18n (NL/EN) ------------------------------------------------------------
-// Taalkeuze: pad (/en) > ?lang= > opgeslagen voorkeur > NL.
+// Taalkeuze: pad (/en) > ?lang= > opgeslagen voorkeur > browsertaal.
+// Bij een eerste bezoek zonder voorkeur kiezen we op basis van de browsertaal:
+// een Nederlandstalige browser (nl-NL/nl-BE) krijgt NL, al het andere Engels —
+// zodat het internationale publiek standaard in het Engels binnenkomt.
 let lang = (() => {
   try {
     const p = location.pathname.replace(/\/+$/, "");
     if (p === "/en" || p.endsWith("/en")) return "en";
     const q = new URLSearchParams(location.search).get("lang");
     if (q === "en" || q === "nl") return q;
-    return localStorage.getItem("jaardle:lang") === "en" ? "en" : "nl";
+    const stored = localStorage.getItem("jaardle:lang");
+    if (stored === "en" || stored === "nl") return stored;
+    const prefs = navigator.languages || [navigator.language || ""];
+    return prefs.some((l) => l.toLowerCase().startsWith("nl")) ? "nl" : "en";
   } catch (e) { return "nl"; }
 })();
 
