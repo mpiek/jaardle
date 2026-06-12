@@ -66,7 +66,7 @@ const I18N = {
     peek_title: "Houd ingedrukt voor de Engelse tekst", free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
-    lb_daily: "Daily van vandaag", lb_overall: "Aller tijden",
+    lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
     lb_empty_overall: "Nog geen ranglijst — speel een paar potjes.",
     lb_not_member: "Je staat (nog) niet op een vriendenbord.",
@@ -76,7 +76,8 @@ const I18N = {
     lb_create_label: "Nieuwe pool maken", lb_create_ph: "naam van je pool", lb_create_btn: "Maken",
     lb_join_label: "Pool joinen met code", lb_join_ph: "code", lb_join_btn: "Joinen",
     lb_invite: "📢 Nodig uit", lb_leave: "Verlaten", lb_leave_confirm: "Weet je zeker dat je deze pool wilt verlaten?",
-    lb_invite_copied: "Gekopieerd:", lb_owner_tag: "beheerder",
+    lb_invite_copied: "✓ Gekopieerd!", lb_owner_tag: "beheerder",
+    lb_rename: "✏️ Hernoemen", lb_rename_prompt: "Nieuwe naam voor de pool:",
     lb_yes: "Ja", lb_no: "Nee", lb_err_code: "Onbekende code", lb_err_name: "Naam moet 2–30 tekens zijn", lb_err_generic: "Er ging iets mis",
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
@@ -115,7 +116,7 @@ const I18N = {
     peek_title: "Hold to see the Dutch text", free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
-    lb_daily: "Today's daily", lb_overall: "All-time",
+    lb_daily: "Daily", lb_overall: "All-time",
     lb_empty_daily: "Nobody has played today's daily yet.",
     lb_empty_overall: "No ranking yet — play a few rounds.",
     lb_not_member: "You're not on a friends board (yet).",
@@ -125,7 +126,8 @@ const I18N = {
     lb_create_label: "Create a new pool", lb_create_ph: "your pool's name", lb_create_btn: "Create",
     lb_join_label: "Join a pool by code", lb_join_ph: "code", lb_join_btn: "Join",
     lb_invite: "📢 Invite", lb_leave: "Leave", lb_leave_confirm: "Are you sure you want to leave this pool?",
-    lb_invite_copied: "Copied:", lb_owner_tag: "owner",
+    lb_invite_copied: "✓ Copied!", lb_owner_tag: "owner",
+    lb_rename: "✏️ Rename", lb_rename_prompt: "New name for the pool:",
     lb_yes: "Yes", lb_no: "No", lb_err_code: "Unknown code", lb_err_name: "Name must be 2–30 characters", lb_err_generic: "Something went wrong",
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
     lb_join_q: (name) => `Join pool "${name}"?`,
@@ -844,6 +846,19 @@ const lbRowCls = (me) => (me ? "lb-row lb-me" : "lb-row");
 const lbNameCell = (row) =>
   escHtml(row.display_name) + (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
 
+// "YYYY-MM-DD" → korte gelokaliseerde datum (bv. "12 jun" / "12 Jun") voor de daily-kop.
+function fmtDailyDate(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Intl.DateTimeFormat(lang === "en" ? "en-GB" : "nl-NL", { day: "numeric", month: "short" })
+    .format(new Date(Date.UTC(y, m - 1, d)));
+}
+
+// Gebruikte hints als iconen (💡 tekst, 🧭 richting, 🏛️ eeuw); leeg als geen.
+function lbHintIcons(d) {
+  const s = "💡".repeat(d.text_hints || 0) + "🧭".repeat(d.dir_hints || 0) + (d.century_hint ? "🏛️" : "");
+  return s ? `<span class="lb-hints">${s}</span>` : "";
+}
+
 function lbBoardHtml(heading, rows, valFn, emptyKey) {
   let h = `<section class="lb-section"><h3 class="lb-heading">${heading}</h3>`;
   if (!rows.length) h += `<p class="lb-empty">${t(emptyKey)}</p>`;
@@ -876,16 +891,18 @@ async function renderLeaderboard() {
   overall = Array.isArray(overall) ? overall : [];
 
   const inviteUrl = `https://jaardle.nl/?join=${myPool.invite_code}`;
+  const renameBtnHtml = myPool.is_owner ? `<button id="lb-rename-btn" class="lb-pillbtn">${t("lb_rename")}</button>` : "";
   let html = `<div class="lb-poolhead">
       <div class="lb-poolname">${escHtml(myPool.name)}${myPool.is_owner ? ` <span class="lb-tag">${t("lb_owner_tag")}</span>` : ""}</div>
       <div class="lb-poolsub">${t("lb_members_n")(myPool.members)}</div>
       <div class="lb-poolactions">
         <button id="lb-invite-btn" class="lb-pillbtn">${t("lb_invite")}</button>
+        ${renameBtnHtml}
         <button id="lb-leave-btn" class="lb-pillbtn danger">${t("lb_leave")}</button>
       </div>
-      <p class="lb-invite-code" id="lb-invite-code" hidden></p>
     </div>`;
-  html += lbBoardHtml(t("lb_daily"), daily, (d) => (d.won ? d.score : "💀"), "lb_empty_daily");
+  html += lbBoardHtml(`${t("lb_daily")} ${fmtDailyDate(todayKey())}`, daily,
+    (d) => (d.won ? lbHintIcons(d) + d.score : "💀"), "lb_empty_daily");
   html += `<section class="lb-section"><h3 class="lb-heading">${t("lb_overall")}</h3>`;
   if (!overall.length) html += `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
   else html += `<div class="lb-table">` + overall.map((o) =>
@@ -895,7 +912,15 @@ async function renderLeaderboard() {
   html += `<p class="lb-sync" id="lb-sync"></p></section>`;
   body.innerHTML = html;
 
-  document.getElementById("lb-invite-btn").onclick = () => shareInvite(inviteUrl);
+  const inviteBtn = document.getElementById("lb-invite-btn");
+  inviteBtn.onclick = () => shareInvite(inviteUrl, inviteBtn);
+  const renameBtn = document.getElementById("lb-rename-btn");
+  if (renameBtn) renameBtn.onclick = async () => {
+    const name = prompt(t("lb_rename_prompt"), myPool.name);
+    if (name == null) return;
+    let r = "err"; try { r = await rpc("rename_pool", { p_name: name }); } catch (e) {}
+    if (r === "ok") { await refreshPoolState(); renderLeaderboard(); }
+  };
   document.getElementById("lb-leave-btn").onclick = async () => {
     if (!confirm(t("lb_leave_confirm"))) return;
     try { await rpc("leave_pool", {}); } catch (e) {}
@@ -982,17 +1007,17 @@ async function showJoinConfirm(code) {
   };
 }
 
-// Deel de invite-link: native share op mobiel, anders klembord (toont de link).
-async function shareInvite(url) {
-  const codeEl = document.getElementById("lb-invite-code");
+// Deel de invite-link — exact als de deel-knop: native share op mobiel, op
+// desktop kopiëren naar klembord met "Gekopieerd!"-feedback op de knop zelf.
+async function shareInvite(url, btn) {
   if (navigator.share && isMobileDevice()) {
     try { await navigator.share({ text: url }); return; } catch (e) { if (e.name === "AbortError") return; }
   }
   try {
     await navigator.clipboard.writeText(url);
-    if (codeEl) { codeEl.textContent = `${t("lb_invite_copied")} ${url}`; codeEl.hidden = false; }
+    if (btn) { const orig = t("lb_invite"); btn.textContent = t("lb_invite_copied"); setTimeout(() => { btn.textContent = orig; }, 1500); }
   } catch (e) {
-    if (codeEl) { codeEl.textContent = url; codeEl.hidden = false; }
+    prompt("Kopieer dit:", url);
   }
 }
 

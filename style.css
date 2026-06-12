@@ -855,6 +855,7 @@ footer {
 .lb-rank { text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
 .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-val { font-weight: 700; font-variant-numeric: tabular-nums; }
+.lb-hints { margin-right: 0.4rem; font-size: 0.8em; opacity: 0.85; font-weight: 400; letter-spacing: -0.05em; }
 .lb-row.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
 .lb-row.lb-me .lb-val { color: var(--accent); }
 .lb-tag {
