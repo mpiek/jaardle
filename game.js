@@ -66,15 +66,12 @@ const I18N = {
     peek_title: "Houd ingedrukt voor de Engelse tekst", free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
-    lb_daily: "Vandaag", lb_overall: "Aller tijden",
+    lb_daily: "Daily van vandaag", lb_overall: "Aller tijden",
     lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
     lb_empty_overall: "Nog geen ranglijst — speel een paar potjes.",
     lb_not_member: "Je staat (nog) niet op een vriendenbord.",
     lb_sync: "⏳ Rating bijgewerkt over", lb_synced: "✨ Rating zojuist bijgewerkt",
     lb_you: "jij", lb_games_short: (n) => `${n} ${n === 1 ? "potje" : "potjes"}`,
-    lb_name_label: "Jouw naam op het bord", lb_name_ph: "kies een naam", lb_name_save: "Opslaan",
-    lb_name_ok: "Opgeslagen ✓", lb_name_taken: "Die naam is al bezet", lb_name_len: "2–20 tekens",
-    lb_name_chars: "Alleen letters, cijfers, spatie, - en _", lb_name_err: "Kon niet opslaan",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     help_list: HELP_NL,
   },
@@ -109,15 +106,12 @@ const I18N = {
     peek_title: "Hold to see the Dutch text", free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
-    lb_daily: "Today", lb_overall: "All-time",
+    lb_daily: "Today's daily", lb_overall: "All-time",
     lb_empty_daily: "Nobody has played today's daily yet.",
     lb_empty_overall: "No ranking yet — play a few rounds.",
     lb_not_member: "You're not on a friends board (yet).",
     lb_sync: "⏳ Rating updates in", lb_synced: "✨ Rating just updated",
     lb_you: "you", lb_games_short: (n) => `${n} ${n === 1 ? "game" : "games"}`,
-    lb_name_label: "Your name on the board", lb_name_ph: "choose a name", lb_name_save: "Save",
-    lb_name_ok: "Saved ✓", lb_name_taken: "That name is taken", lb_name_len: "2–20 characters",
-    lb_name_chars: "Only letters, digits, space, - and _", lb_name_err: "Couldn't save",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     help_list: HELP_EN,
   },
@@ -827,12 +821,11 @@ async function renderLeaderboard() {
     return;
   }
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
-  let daily = [], overall = [], myName = "";
+  let daily = [], overall = [];
   try {
-    [daily, overall, myName] = await Promise.all([
+    [daily, overall] = await Promise.all([
       rpc("get_daily_leaderboard", { p_date: todayKey() }),
       rpc("get_leaderboard", { p_min_games: 1 }),
-      rpc("get_my_username", {}),
     ]);
   } catch (e) {}
   if (document.getElementById("modal-leaderboard").hidden) return;
@@ -844,19 +837,8 @@ async function renderLeaderboard() {
   const nameCell = (row) =>
     escHtml(row.display_name) + (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
 
-  // Eigen username (zelf-bediening): bovenaan een veldje om je naam te kiezen.
-  let html = `<form class="lb-profile" id="lb-name-form">
-    <label class="lb-profile-label" for="lb-name-input">${t("lb_name_label")}</label>
-    <div class="lb-profile-row">
-      <input id="lb-name-input" type="text" maxlength="20" autocomplete="off"
-             placeholder="${t("lb_name_ph")}" value="${escHtml(myName || "")}">
-      <button type="submit" id="lb-name-save">${t("lb_name_save")}</button>
-    </div>
-    <p class="lb-name-status" id="lb-name-status" hidden></p>
-  </form>`;
-
-  // Vandaag (live dagbord)
-  html += `<section class="lb-section"><h3 class="lb-heading">${t("lb_daily")}</h3>`;
+  // Daily-bord (live)
+  let html = `<section class="lb-section"><h3 class="lb-heading">${t("lb_daily")}</h3>`;
   if (daily.length === 0) {
     html += `<p class="lb-empty">${t("lb_empty_daily")}</p>`;
   } else {
@@ -881,23 +863,6 @@ async function renderLeaderboard() {
   }
   html += `<p class="lb-sync" id="lb-sync"></p></section>`;
   body.innerHTML = html;
-
-  // Username opslaan (eigen profiel). Mapt RPC-codes op nette meldingen.
-  const nameForm = document.getElementById("lb-name-form");
-  if (nameForm) {
-    nameForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const input = document.getElementById("lb-name-input");
-      const status = document.getElementById("lb-name-status");
-      let code = "lb_name_err";
-      try { code = await rpc("set_my_username", { p_name: input.value }); } catch (err) {}
-      const map = { ok: "lb_name_ok", taken: "lb_name_taken", invalid_length: "lb_name_len", invalid_chars: "lb_name_chars" };
-      status.textContent = t(map[code] || "lb_name_err");
-      status.className = "lb-name-status " + (code === "ok" ? "ok" : "err");
-      status.hidden = false;
-      if (code === "ok") setTimeout(() => { if (!document.getElementById("modal-leaderboard").hidden) renderLeaderboard(); }, 800);
-    });
-  }
 
   // Tik de aftelklok tot de nachtelijke rating-update.
   const syncEl = document.getElementById("lb-sync");

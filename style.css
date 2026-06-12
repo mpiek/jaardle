@@ -830,32 +830,6 @@ footer {
 .lang-btn:hover { background: var(--card-soft); }
 
 /* --- Vrienden-leaderboard ------------------------------------------------- */
-.lb-profile { margin: 0 0 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-.lb-profile-label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; }
-.lb-profile-row { display: flex; gap: 0.5rem; }
-.lb-profile-row input {
-  flex: 1; min-width: 0;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card-soft);
-  color: var(--fg);
-  font-size: 0.95rem;
-}
-.lb-profile-row input:focus { outline: none; border-color: var(--accent); }
-.lb-profile-row button {
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card-soft);
-  color: var(--fg);
-  font-weight: 600;
-  cursor: pointer;
-}
-.lb-profile-row button:hover { background: var(--border); }
-.lb-name-status { margin: 0.45rem 0 0; font-size: 0.8rem; }
-.lb-name-status.ok { color: var(--green); }
-.lb-name-status.err { color: #ff8a8a; }
 .lb-section { margin-top: 1.1rem; }
 .lb-section:first-child { margin-top: 0; }
 .lb-section + .lb-section { padding-top: 1.1rem; border-top: 1px solid var(--border); }
