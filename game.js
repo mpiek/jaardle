@@ -78,6 +78,7 @@ const I18N = {
     lb_invite: "📢 Nodig uit", lb_leave: "Verlaten", lb_leave_confirm: "Weet je zeker dat je deze pool wilt verlaten?",
     lb_invite_copied: "✓ Gekopieerd!", lb_owner_tag: "beheerder",
     lb_rename: "✏️ Hernoemen", lb_rename_prompt: "Nieuwe naam voor de pool:",
+    lb_invite_text: (name) => `🏆 Doe mee met "${name}" op Jaardle — raad elke dag het jaar van een historische gebeurtenis:`,
     lb_yes: "Ja", lb_no: "Nee", lb_err_code: "Onbekende code", lb_err_name: "Naam moet 2–30 tekens zijn", lb_err_generic: "Er ging iets mis",
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
@@ -128,6 +129,7 @@ const I18N = {
     lb_invite: "📢 Invite", lb_leave: "Leave", lb_leave_confirm: "Are you sure you want to leave this pool?",
     lb_invite_copied: "✓ Copied!", lb_owner_tag: "owner",
     lb_rename: "✏️ Rename", lb_rename_prompt: "New name for the pool:",
+    lb_invite_text: (name) => `🏆 Join "${name}" on Jaardle — guess the year of a historic event every day:`,
     lb_yes: "Yes", lb_no: "No", lb_err_code: "Unknown code", lb_err_name: "Name must be 2–30 characters", lb_err_generic: "Something went wrong",
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
     lb_join_q: (name) => `Join pool "${name}"?`,
@@ -1010,14 +1012,15 @@ async function showJoinConfirm(code) {
 // Deel de invite-link — exact als de deel-knop: native share op mobiel, op
 // desktop kopiëren naar klembord met "Gekopieerd!"-feedback op de knop zelf.
 async function shareInvite(url, btn) {
+  const msg = `${t("lb_invite_text")(myPool ? myPool.name : "")}\n${url}`;
   if (navigator.share && isMobileDevice()) {
-    try { await navigator.share({ text: url }); return; } catch (e) { if (e.name === "AbortError") return; }
+    try { await navigator.share({ text: msg }); return; } catch (e) { if (e.name === "AbortError") return; }
   }
   try {
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(msg);
     if (btn) { const orig = t("lb_invite"); btn.textContent = t("lb_invite_copied"); setTimeout(() => { btn.textContent = orig; }, 1500); }
   } catch (e) {
-    prompt("Kopieer dit:", url);
+    prompt("Kopieer dit:", msg);
   }
 }
 
