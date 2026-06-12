@@ -1383,25 +1383,37 @@ function toggleMenu(force) {
   btn.setAttribute("aria-expanded", String(open));
 }
 
+// Laat de URL het open scherm weerspiegelen (deelbaar/bookmarkbaar). null =
+// herstel de basis-URL (kaal pad bij daily, ?p=token bij vrij spel) via syncUrl().
+function setModalUrl(param) {
+  try {
+    if (param) history.replaceState(null, "", window.location.pathname + "?" + param);
+    else syncUrl();
+  } catch (e) { /* sandbox / file:// */ }
+}
+
 function openModal(id) {
   document.getElementById(id).hidden = false;
   if (id === "modal-stats") renderStats();
-  if (id === "modal-leaderboard") renderLeaderboard();
+  if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
     const err = document.getElementById("login-error");
     if (err) err.hidden = true;
     document.querySelector('#login-form input[name="email"]')?.focus();
+    setModalUrl("auth=login");
   }
 }
 
 function closeModal(id) {
   document.getElementById(id).hidden = true;
   stopLbSync();
+  setModalUrl(null);
 }
 
 function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
   stopLbSync();
+  setModalUrl(null);
 }
 
 async function doAuth(mode, e) {
