@@ -781,6 +781,17 @@ function startDailyCountdown() {
 //     herberekend (recompute_elo, 03:00 UTC) → kleine aftelklok toont wanneer.
 let isLbMember = false;
 let lbSyncTimer = null;
+let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink: open zodra auth/lidmaatschap bekend is
+
+// Handelt de ?leaderboard-deeplink af zodra de auth-state binnen is (via
+// sb-auth-changed). Uitgelogd → login-nudge (intentie blijft staan tot na login);
+// ingelogd lid → open het bord; ingelogd niet-lid → stilletjes laten vallen.
+function maybeOpenLeaderboardDeeplink() {
+  if (!pendingOpenLeaderboard) return;
+  if (!auth.user) { openModal("modal-login"); return; }
+  pendingOpenLeaderboard = false;
+  if (isLbMember) { closeModal("modal-login"); openModal("modal-leaderboard"); }
+}
 
 function escHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -1672,13 +1683,14 @@ async function init() {
   document.getElementById("login-google").addEventListener("click", doGoogleSignIn);
 
   // Sync auth-state vanuit de Supabase module-bridge.
-  window.addEventListener("sb-auth-changed", (e) => {
+  window.addEventListener("sb-auth-changed", async (e) => {
     auth.user = e.detail
       ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null, name: e.detail.name || null }
       : null;
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
     renderMenu();
-    refreshLbMembership();  // toont/verbergt de 🏆-knop op basis van lidmaatschap
+    await refreshLbMembership();  // toont/verbergt de 🏆-knop op basis van lidmaatschap
+    maybeOpenLeaderboardDeeplink();  // ?leaderboard-deeplink afhandelen nu lidmaatschap bekend is
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();
@@ -1702,6 +1714,16 @@ async function init() {
   // Diepe links /login en /register sturen (via redirect-stubs) door naar
   // ?auth=login|register. Vang dat op vóór startGame de URL opschoont.
   const wantAuth = new URLSearchParams(window.location.search).get("auth");
+
+  // ?leaderboard-deeplink: markeer de intentie en schoon de URL op. De
+  // sb-auth-changed-handler opent het bord zodra login + lidmaatschap bekend zijn.
+  const lbParams = new URLSearchParams(window.location.search);
+  if (lbParams.has("leaderboard")) {
+    pendingOpenLeaderboard = true;
+    lbParams.delete("leaderboard");
+    const qs = lbParams.toString();
+    history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);
+  }
 
   const sharedHashes = getSharedLocation();
   if (sharedHashes) {
