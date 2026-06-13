@@ -454,13 +454,17 @@ function emojiFor(cls) {
   }[cls];
 }
 
-// De slides = hoofdfeit(en) + de tot nu toe onthulde extra hints. Eén feit per
-// slide; extra hints worden niet meer onder elkaar uitgeklapt maar als carrousel
-// getoond (stippen + swipe), zodat de kaart niet groeit bij elke hint.
+// De slides = hoofdfeit(en) + de onthulde extra hints. Eén feit per slide; extra
+// hints worden niet onder elkaar uitgeklapt maar als carrousel getoond (stippen +
+// swipe). Na afloop (gewonnen/verloren) tonen we ÁLLE hints, zodat je ze alsnog
+// kunt nalezen — ook de hints die je tijdens het spel niet hebt gebruikt.
 function factSlides() {
   if (!state || !state.event) return [];
   const slides = state.event.facts.map((f) => ({ nl: f.nl, en: f.en, isExtra: false }));
-  for (let i = 0; i < state.textHintsUsed; i++) {
+  const revealCount = state.done
+    ? Math.min(state.event.extras.length, MAX_EXTRA_HINTS)
+    : state.textHintsUsed;
+  for (let i = 0; i < revealCount; i++) {
     const f = state.event.extras[i];
     if (f) slides.push({ nl: f.nl, en: f.en, isExtra: true });
   }
@@ -786,6 +790,7 @@ function finishGame(won, fresh = false) {
   state.won = won;
   save();
   setKeypadDisabled(true);
+  renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
   els.result.hidden = false;
   els.revealRow.hidden = true;
   els.revealRow.innerHTML = "";
