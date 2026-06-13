@@ -70,16 +70,17 @@ test("scoreTier — score → tier-key", () => {
 });
 
 test("computeScore — penalties per gok + hints, niet onder 0", () => {
-  T.setState({ won: false, guesses: [], textHintsUsed: 0, directionsRevealed: [] });
+  T.setState({ won: false, guesses: [], directionsRevealed: [], laterCluesShown: 0 });
   assert.equal(T.computeScore(), 0);                       // verloren = 0
 
-  T.setState({ won: true, guesses: [{ cls: "correct" }], textHintsUsed: 0, directionsRevealed: [] });
+  T.setState({ won: true, guesses: [{ cls: "correct" }], directionsRevealed: [], laterCluesShown: 0 });
   assert.equal(T.computeScore(), 100);                     // in één keer goed
 
-  T.setState({ won: true, guesses: [{ cls: "close" }, { cls: "correct" }], textHintsUsed: 1, directionsRevealed: [0] });
-  assert.equal(T.computeScore(), 100 - 5 - 0 - 5 - 3);     // close(5) + text(5) + dir(3) = 87
+  // Zelfde-tijd extra's (geel) zijn gratis; "100 jaar later"-clues (⏳) kosten −3 elk.
+  T.setState({ won: true, guesses: [{ cls: "close" }, { cls: "correct" }], directionsRevealed: [0], laterCluesShown: 2 });
+  assert.equal(T.computeScore(), 100 - 5 - 3 - 2 * 3);     // close(5) + dir(3) + 2×later(3) = 86
 
-  T.setState({ won: true, guesses: Array(6).fill({ cls: "distant" }), textHintsUsed: 2, directionsRevealed: [0, 1] });
+  T.setState({ won: true, guesses: Array(6).fill({ cls: "farthest" }), directionsRevealed: [0, 1], laterCluesShown: 0 });
   assert.equal(T.computeScore(), 0);                       // clamp op 0, niet negatief
 });
 

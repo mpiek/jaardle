@@ -2,6 +2,9 @@ const MAX_GUESSES = 6;
 const FACTS_PER_PUZZLE = 1;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
+// Gratis zelfde-tijd-extra's komen vrij bij gok 2 en 4 → gok-rij-index 1 en 3.
+// Waarde = hoeveelste extra (1e/2e) bij die rij hoort.
+const LATER_FREE_AT_ROW = { 1: 1, 3: 2 };
 const EPOCH = new Date(Date.UTC(2026, 5, 6));   // v1-launch: dag #1 = 2026-06-06
 const EPOCH_KEY = EPOCH.toISOString().slice(0, 10);   // "2026-06-06" — eerste browsbare daily
 const MIN_YEAR = -753;
@@ -26,25 +29,27 @@ let lang = (() => {
 })();
 
 const HELP_NL = `
-  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. Max <span data-help="max-text-hints"></span> extra hints (💡) beschikbaar.</li>
+  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel komt er bij gok 2 en gok 4 <strong>gratis</strong> een extra feit uit hetzelfde jaar bij (💡 geel).</li>
+  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100 jaar later</strong> (gebeurtenis uit een eeuw ná het antwoord, tot 2×), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> en 🏛️ <span data-penalty="century-hint"></span>. Verloren = 0–10, o.b.v. je dichtste gok.</li>
+  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. De gele extra-feiten zijn gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> en 🧭 <span data-penalty="dir-hint"></span> kosten punten. Verloren = 0–10, o.b.v. je dichtste gok.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
   <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
-  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>E</kbd> voor extra hint, <kbd>R</kbd> voor richting-hint, <kbd>C</kbd> voor eeuw-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
+  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
 const HELP_EN = `
-  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. Up to <span data-help="max-text-hints"></span> extra hints (💡) available.</li>
+  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. In the carousel, guesses 2 and 4 each add a <strong>free</strong> extra fact from the same year (💡 yellow).</li>
+  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100 years later</strong> (an event a century after the answer, up to 2×), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints cost 💡 <span data-penalty="text-hint"></span>, 🧭 <span data-penalty="dir-hint"></span> and 🏛️ <span data-penalty="century-hint"></span>. Lost = 0–10, based on your closest guess.</li>
+  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. The yellow extra facts are free; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> and 🧭 <span data-penalty="dir-hint"></span> cost points. Lost = 0–10, based on your closest guess.</li>
   <li>Tiers: <span data-help="tiers"></span></li>
   <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
   <li><strong>New game</strong>: endless rounds, a random event.</li>
-  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>E</kbd> for an extra hint, <kbd>R</kbd> for a direction hint, <kbd>C</kbd> for the century hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
+  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
 
 const I18N = {
   nl: {
@@ -52,7 +57,17 @@ const I18N = {
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     guess: "Gok", share: "Deel resultaat", next: "Nieuw rondje",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Richting", hint_century: "🏛️ Eeuw",
+    hint_later: "⏩ 100 jaar later", hint_digit: "🔢 Laatste cijfer",
     century_band: "🏛️ Tijdvak", bc: "v.Chr.",
+    reveal: "Onthul",
+    extra_label: "Ook dit jaar",
+    century_label: "Tijdvak",
+    digit_label: "Laatste cijfer",
+    free_hint: "extra hint",
+    later_label: "100 jaar later",
+    later_future: "Dit is nog toekomst — 100 jaar later is nog niet geweest.",
+    later_future_2: "Ook dát is nog niet geweest — het antwoord ligt dus in de afgelopen ~100 jaar.",
+    later_none: "Verder geen gebeurtenis van rond honderd jaar later bekend.",
     help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
     login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
@@ -113,7 +128,17 @@ const I18N = {
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     guess: "Guess", share: "Share result", next: "New round",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Direction", hint_century: "🏛️ Century",
+    hint_later: "⏩ 100 years later", hint_digit: "🔢 Last digit",
     century_band: "🏛️ Era", bc: "BC",
+    reveal: "Reveal",
+    extra_label: "Also this year",
+    century_label: "Era",
+    digit_label: "Last digit",
+    free_hint: "extra hint",
+    later_label: "100 years later",
+    later_future: "This is still the future — 100 years later hasn't happened yet.",
+    later_future_2: "That hasn't happened yet either — so the answer is from the last ~100 years.",
+    later_none: "No further event from around a hundred years later is known.",
     help_summary: "How to play?", stats_title: "📊 Statistics",
     login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
@@ -237,10 +262,10 @@ const els = {
   eventCard: document.getElementById("event-card"),
   factPrev: document.getElementById("fact-prev"),
   factNext: document.getElementById("fact-next"),
-  hintBtnText: document.getElementById("hint-btn-text"),
+  hintBtnLater: document.getElementById("hint-btn-later"),
   hintBtnDir: document.getElementById("hint-btn-direction"),
   hintBtnCentury: document.getElementById("hint-btn-century"),
-  centuryBanner: document.getElementById("century-banner"),
+  hintBtnDigit: document.getElementById("hint-btn-digit"),
   hintCount: document.getElementById("hint-count"),
   guesses: document.getElementById("guesses"),
   input: document.getElementById("year-input"),
@@ -466,21 +491,91 @@ function emojiFor(cls) {
   }[cls];
 }
 
-// De slides = hoofdfeit(en) + de onthulde extra hints. Eén feit per slide; extra
-// hints worden niet onder elkaar uitgeklapt maar als carrousel getoond (stippen +
-// swipe). Na afloop (gewonnen/verloren) tonen we ÁLLE hints, zodat je ze alsnog
-// kunt nalezen — ook de hints die je tijdens het spel niet hebt gebruikt.
+// Hoeveel gratis zelfde-tijd-extra's deze puzzel heeft (0–2).
+function availableExtras() {
+  if (!state || !state.event) return 0;
+  return Math.min(state.event.extras.length, MAX_EXTRA_HINTS);
+}
+
+// Aantal gratis "zelfde tijd"-extra's dat nu zichtbaar is: automatisch onthuld bij
+// gok 2 en gok 4 (één per keer), ná afloop allemaal. Geen strafpunten.
+function revealedExtraCount() {
+  if (!state || !state.event) return 0;
+  if (state.done) return availableExtras();
+  const auto = (state.guesses.length >= 2 ? 1 : 0) + (state.guesses.length >= 4 ? 1 : 0);
+  return Math.min(availableExtras(), auto);
+}
+
+// De carrousel ÍS de hint-deck. Volgorde: hoofdfeit → gratis zelfde-tijd-extra's
+// (💡 geel, bij gok 2/4) → ⏩ "100 jaar later" → 🏛️ eeuw → 🔢 laatste cijfer.
+// Betaalde hints staan als "tik om te onthullen"-slot (locked) en morphen naar hun
+// inhoud zodra je betaalt. Ná afloop staat alles open om na te lezen.
 function factSlides() {
   if (!state || !state.event) return [];
-  const slides = state.event.facts.map((f) => ({ nl: f.nl, en: f.en, isExtra: false }));
-  const revealCount = state.done
-    ? Math.min(state.event.extras.length, MAX_EXTRA_HINTS)
-    : state.textHintsUsed;
-  for (let i = 0; i < revealCount; i++) {
+  const slides = state.event.facts.map((f) => ({ kind: "main", nl: f.nl, en: f.en }));
+  // Gratis zelfde-tijd-extra's (geel), onthuld bij gok 2/4.
+  const ex = revealedExtraCount();
+  for (let i = 0; i < ex; i++) {
     const f = state.event.extras[i];
-    if (f) slides.push({ nl: f.nl, en: f.en, isExtra: true });
+    if (f) slides.push({ kind: "extra", nl: f.nl, en: f.en });
+  }
+  // Opgevraagde hints verschijnen als nieuwe gekleurde slide (knop = trigger).
+  // ⏩ "100 jaar later" (oranje), tot 2. Ná afloop open ter inzage.
+  if (state.laterClues) {
+    const shown = state.done ? availableLaterClues() : state.laterCluesShown;
+    for (let i = 0; i < shown; i++) {
+      slides.push({ kind: "later", text: laterSlotText(i) });
+    }
+  }
+  // 🏛️ eeuw-band (steen) en 🔢 laatste cijfer (blauw): elk één slide zodra onthuld.
+  if (state.done || state.centuryRevealed) {
+    slides.push({ kind: "century", text: centuryBand(state.event.year), sub: eraName(state.event.year) });
+  }
+  if (state.done || state.lastDigitRevealed) {
+    slides.push({ kind: "digit", text: String(Math.abs(state.event.year) % 10) });
   }
   return slides;
+}
+
+// Kopje boven een clue-slide: emoji-icoon + label. Gedeeld door alle hint-slides.
+function buildSlideTag(tagClass, iconClass, emoji, label) {
+  const tag = document.createElement("div");
+  tag.className = tagClass;
+  const icon = document.createElement("span");
+  icon.className = iconClass;
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = emoji;
+  const lbl = document.createElement("span");
+  lbl.textContent = label;
+  tag.append(icon, lbl);
+  return tag;
+}
+
+function factParagraph(text, extraClass) {
+  const p = document.createElement("p");
+  p.className = "fact" + (extraClass ? " " + extraClass : "");
+  p.textContent = text;
+  return p;
+}
+
+// Onthuld kort-en-krachtig getal/bereik (eeuw-band, laatste cijfer).
+function hintValue(text) {
+  const d = document.createElement("div");
+  d.className = "hint-value";
+  d.textContent = text;
+  return d;
+}
+
+// Schuif naar de (laatste) carrousel-slide van een bepaald hint-type — gebruikt
+// nadat een hint-knop een nieuwe slide heeft toegevoegd.
+function goToHintSlide(kind) {
+  const slides = factSlides();
+  let idx = -1;
+  slides.forEach((s, i) => { if (s.kind === kind) idx = i; });
+  if (idx < 0) return;
+  const track = els.eventText.querySelector(".fact-track");
+  if (track) void track.offsetWidth;   // reflow → de schuif animeert i.p.v. springt
+  goToSlide(idx);
 }
 
 function renderEvent() {
@@ -495,10 +590,37 @@ function renderEvent() {
   slides.forEach((s) => {
     const slide = document.createElement("div");
     slide.className = "fact-slide";
-    const p = document.createElement("p");
-    p.className = "fact" + (s.isExtra ? " fact-extra" : "");
-    p.textContent = (lang === "en" ? (s.en || s.nl) : s.nl);
-    slide.appendChild(p);
+    if (s.kind === "extra") {
+      // Gele zelfde-tijd-extra: 💡 + label boven het feit.
+      slide.classList.add("slide-extra");
+      slide.appendChild(buildSlideTag("extra-tag", "extra-icon", "💡", t("extra_label")));
+      slide.appendChild(factParagraph(lang === "en" ? (s.en || s.nl) : s.nl, "fact-extra"));
+    } else if (s.kind === "later") {
+      // ⏩ "100 jaar later" (oranje): gebeurtenis uit ±100 jaar later.
+      slide.classList.add("slide-later");
+      slide.appendChild(buildSlideTag("later-tag", "later-icon", "⏩", t("later_label")));
+      slide.appendChild(factParagraph(s.text, "fact-later"));
+    } else if (s.kind === "century") {
+      // 🏛️ eeuw-band + grove periode (educatief): bv. "1500–1599" · "Renaissance".
+      slide.classList.add("slide-century");
+      slide.appendChild(buildSlideTag("century-tag", "century-icon", "🏛️", t("century_label")));
+      slide.appendChild(hintValue(s.text));
+      if (s.sub) {
+        const sub = document.createElement("div");
+        sub.className = "hint-sub";
+        sub.textContent = s.sub;
+        slide.appendChild(sub);
+      }
+    } else if (s.kind === "digit") {
+      // 🔢 laatste cijfer (blauw).
+      slide.classList.add("slide-digit");
+      slide.appendChild(buildSlideTag("digit-tag", "digit-icon", "🔢", t("digit_label")));
+      slide.appendChild(hintValue(s.text));
+    } else {
+      // Hoofdfeit: zelfde gele wash als de zelfde-tijd-extra (zelfde gele zijlijn).
+      slide.classList.add("slide-main");
+      slide.appendChild(factParagraph(lang === "en" ? (s.en || s.nl) : s.nl, ""));
+    }
     track.appendChild(slide);
   });
   carousel.appendChild(track);
@@ -507,10 +629,11 @@ function renderEvent() {
   if (slides.length > 1) {
     const dots = document.createElement("div");
     dots.className = "fact-dots";
-    slides.forEach((_, i) => {
+    slides.forEach((s, i) => {
       const d = document.createElement("button");
       d.type = "button";
-      d.className = "fact-dot" + (i === factSlideIndex ? " active" : "");
+      // Stip krijgt de kleur van z'n hint (geel/oranje/steen/blauw); hoofdfeit neutraal.
+      d.className = `fact-dot k-${s.kind}` + (i === factSlideIndex ? " active" : "");
       d.setAttribute("aria-label", `${i + 1}/${slides.length}`);
       d.addEventListener("click", () => goToSlide(i));
       dots.appendChild(d);
@@ -549,18 +672,22 @@ function goToSlide(i) {
 }
 
 
+// Elke hint-knop is de trigger; een druk voegt een gekleurde slide toe aan de
+// carrousel (⏩/🏛️/🔢). 🧭 richting wijst naar je laatste gok (pijl op de gok-rij).
 function renderHintStatus() {
-  const availableExtras = Math.min(state.event.extras.length, MAX_EXTRA_HINTS);
-  const textRemaining = availableExtras - state.textHintsUsed;
   const dirsLeft = MAX_DIRECTION_HINTS - state.directionsRevealed.length;
   const hasUnrevealedGuess =
     state.guesses.length > 0 &&
     !state.directionsRevealed.includes(state.guesses.length - 1);
-  els.hintBtnText.hidden = state.done || textRemaining <= 0;
+  const availLater = availableLaterClues();
+  if (els.hintBtnLater) els.hintBtnLater.hidden = state.done || state.laterCluesShown >= availLater;
   els.hintBtnDir.hidden = state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
   if (els.hintBtnCentury) els.hintBtnCentury.hidden = state.done || state.centuryRevealed;
-  renderCenturyBanner();
-  els.hintCount.textContent = `💡 ${state.textHintsUsed}/${MAX_EXTRA_HINTS} hints · 🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${lang === "en" ? "directions" : "richtingen"}`;
+  if (els.hintBtnDigit) els.hintBtnDigit.hidden = state.done || state.lastDigitRevealed;
+  // Teller: ⏩ "100 jaar later" (altijd /2 zodra geladen — verraadt de toekomst-variant
+  // niet) + 🧭 richtingen.
+  const laterPart = availLater > 0 ? `⏩ ${state.laterCluesShown}/${availLater} · ` : "";
+  els.hintCount.textContent = `${laterPart}🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${lang === "en" ? "directions" : "richtingen"}`;
 }
 
 // Honderdtal-blok van een jaartal als leesbaar bereik: 1850 → "1800–1899",
@@ -573,29 +700,75 @@ function centuryBand(year) {
   return `${start}–${end}`;
 }
 
-function renderCenturyBanner() {
-  if (!els.centuryBanner) return;
-  if (state.centuryRevealed && state.event) {
-    els.centuryBanner.textContent = `${t("century_band")}: ${centuryBand(state.event.year)}`;
-    els.centuryBanner.hidden = false;
-  } else {
-    els.centuryBanner.hidden = true;
-  }
+// Grove historische periode bij een jaartal — puur educatief naast de eeuw-band.
+// Brede, herkenbare indeling (Westers, met fuzzy grenzen op eeuwgrenzen).
+function eraName(year) {
+  const eras = [
+    { max: 500,      nl: "Oudheid",           en: "Antiquity" },
+    { max: 1500,     nl: "Middeleeuwen",      en: "Middle Ages" },
+    { max: 1600,     nl: "Renaissance",       en: "Renaissance" },
+    { max: 1800,     nl: "Vroegmoderne tijd", en: "Early modern era" },
+    { max: 2000,     nl: "Moderne tijd",      en: "Modern era" },
+    { max: Infinity, nl: "21e eeuw",          en: "21st century" },
+  ];
+  const e = eras.find((x) => year < x.max);
+  return lang === "en" ? e.en : e.nl;
 }
 
-function requestTextHint() {
+// "100 jaar later"-clue (#8/#9). Een gebeurtenis uit exact antwoordjaar+100
+// (deterministisch per antwoord-hash via get_century_clues) — grof tijdperk +
+// impliciet richting (antwoord ligt vóór die gebeurtenis). Opgevraagd via de
+// ⏩-knop (kost punten, tot 2) en getoond als oranje carrousel-slide. De gratis
+// zelfde-tijd-extra's bij gok 2/4 staan los hiervan (zie revealedExtraCount).
+// Fallback "toekomst" als jaar+100 > nu.
+
+// We doen ALTIJD alsof er 2 clues zijn (zodra de data binnen is), zodat de teller
+// "x/2" niets verraadt: een "x/1" zou anders al lekken dat het de toekomst-variant
+// is (en dus dat het antwoord recent is) zónder dat je een clue gebruikt.
+const LATER_CLUE_SLOTS = 2;
+function availableLaterClues() {
+  return state?.laterClues ? LATER_CLUE_SLOTS : 0;
+}
+
+// Tekst voor clue-slot i. Toekomst → twee toekomst-regels; anders het echte feit,
+// met een neutrale terugval als er (zeldzaam) geen tweede feit op jaar+100 is.
+function laterSlotText(i) {
+  const cc = state?.laterClues;
+  if (!cc) return null;
+  if (cc.future) return i === 0 ? t("later_future") : t("later_future_2");
+  const f = (cc.clues || [])[i];
+  if (f) return lang === "en" ? (f.en || f.nl) : f.nl;
+  return t("later_none");
+}
+
+// Onthul de volgende ⏩-clue (kost punten): voeg 'm als nieuwe oranje slide toe en
+// schuif erheen.
+function requestLaterClue() {
   if (state.done) return;
-  const available = Math.min(state.event.extras.length, MAX_EXTRA_HINTS);
-  if (state.textHintsUsed >= available) return;
-  state.textHintsUsed += 1;
+  if (state.laterCluesShown >= availableLaterClues()) return;
+  state.laterCluesShown += 1;
   renderEvent();
-  // Forceer een reflow zodat de begintoestand (huidige slide) telt en de
-  // browser de schuif naar de nieuwe hint als transitie animeert i.p.v. springt.
-  const track = els.eventText.querySelector(".fact-track");
-  if (track) void track.offsetWidth;
-  goToSlide(factSlides().length - 1);   // schuif naar de zojuist onthulde hint
   renderHintStatus();
+  goToHintSlide("later");
   save();
+}
+
+// Haal de clue(s) op (uit de board-cache of via RPC). Idempotent; herrendert
+// carrousel + knoppen zodra de data binnen is.
+async function loadLaterClues() {
+  if (!state) return;
+  if (state.laterClues) { renderHintStatus(); return; }   // al gecachet
+  const hash = state.hashes?.[0];
+  if (!hash) return;
+  let res = null;
+  try { res = await rpc("get_century_clues", { p_hash: hash }); } catch (e) { /* offline */ }
+  // De speler kan intussen van modus zijn gewisseld; alleen toepassen als de
+  // puzzel nog dezelfde is.
+  if (!state || state.hashes?.[0] !== hash) return;
+  state.laterClues = res || { future: false, clues: [] };
+  save();
+  renderEvent();
+  renderHintStatus();
 }
 
 function requestDirectionHint() {
@@ -624,7 +797,18 @@ function requestDirectionHint() {
 function requestCenturyHint() {
   if (state.done || state.centuryRevealed) return;
   state.centuryRevealed = true;
+  renderEvent();
   renderHintStatus();
+  goToHintSlide("century");   // voeg de 🏛️-band-slide toe en schuif erheen
+  save();
+}
+
+function requestLastDigit() {
+  if (state.done || state.lastDigitRevealed) return;
+  state.lastDigitRevealed = true;
+  renderEvent();
+  renderHintStatus();
+  goToHintSlide("digit");   // voeg de 🔢-cijfer-slide toe en schuif erheen
   save();
 }
 
@@ -649,9 +833,10 @@ const GUESS_PENALTIES = {
   distant: 15,
   farthest: 23,
 };
-const TEXT_HINT_PENALTY = 2;
 const DIRECTION_HINT_PENALTY = 3;
 const CENTURY_HINT_PENALTY = 25;
+const LATER_CLUE_PENALTY = 3;   // per opgevraagde "100 jaar later"-clue (⏩-knop)
+const LAST_DIGIT_PENALTY = 5;   // 🔢 laatste cijfer van het jaartal onthullen
 
 // Verlies = geen harde 0, maar een lage band op basis van je dichtste gok.
 // Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
@@ -668,9 +853,10 @@ function computeScore() {
   }
   let s = 100;
   for (const g of state.guesses) s -= GUESS_PENALTIES[g.cls] || 0;
-  s -= state.textHintsUsed * TEXT_HINT_PENALTY;
   s -= state.directionsRevealed.length * DIRECTION_HINT_PENALTY;
+  s -= state.laterCluesShown * LATER_CLUE_PENALTY;
   if (state.centuryRevealed) s -= CENTURY_HINT_PENALTY;
+  if (state.lastDigitRevealed) s -= LAST_DIGIT_PENALTY;
   return Math.max(0, s);
 }
 
@@ -704,9 +890,10 @@ function renderHelpConstants() {
     far:       GUESS_PENALTIES.far,
     distant:   GUESS_PENALTIES.distant,
     farthest:  GUESS_PENALTIES.farthest,
-    "text-hint": TEXT_HINT_PENALTY,
+    "later-clue": LATER_CLUE_PENALTY,
     "dir-hint": DIRECTION_HINT_PENALTY,
     "century-hint": CENTURY_HINT_PENALTY,
+    "digit-hint": LAST_DIGIT_PENALTY,
   };
   document.querySelectorAll("[data-penalty]").forEach((el) => {
     const key = el.dataset.penalty;
@@ -714,7 +901,6 @@ function renderHelpConstants() {
   });
   const helpMap = {
     "max-guesses": MAX_GUESSES,
-    "max-text-hints": MAX_EXTRA_HINTS,
     "max-dir-hints": MAX_DIRECTION_HINTS,
   };
   document.querySelectorAll("[data-help]").forEach((el) => {
@@ -771,6 +957,22 @@ function renderGuesses() {
     } else {
       const row = document.createElement("div");
       row.className = "guess-row empty";
+      // Op de plekken waar een gratis (gele) zelfde-tijd-extra vrijkomt — gok 2 en 4,
+      // dus rij-index 1 en 3 — een 💡 + grijs "extra hint"-label zodat je 't ziet
+      // aankomen. De 💡 pulseert alleen op de eerstvolgende gok-plek.
+      const needExtra = LATER_FREE_AT_ROW[idx];   // hoeveelste extra hoort bij deze rij
+      if (!state.done && needExtra && availableExtras() >= needExtra) {
+        const m = document.createElement("span");
+        m.className = "free-hint-marker";
+        const bulb = document.createElement("span");
+        bulb.className = "free-hint-bulb" + (idx === state.guesses.length ? " next" : "");
+        bulb.textContent = "💡";
+        const lbl = document.createElement("span");
+        lbl.className = "free-hint-label";
+        lbl.textContent = t("free_hint");
+        m.append(bulb, lbl);
+        row.appendChild(m);
+      }
       const slot = document.createElement("span");
       slot.className = "slot-num";
       slot.textContent = `${idx + 1}`;
@@ -864,9 +1066,10 @@ function sendTelemetry() {
     p_attempts: Math.min(6, Math.max(1, state.guesses.length)),
     p_won: state.won,
     p_first_distance: first ? Math.abs(first.diff) : 0,
-    p_text_hints_used: state.textHintsUsed,
+    p_text_hints_used: state.laterCluesShown,   // DB-kolom hergebruikt: # "100 jaar later"-clues
     p_dir_hints_used: state.directionsRevealed.length,
     p_century_hint_used: !!state.centuryRevealed,
+    p_last_digit_used: !!state.lastDigitRevealed,
     p_mode: state.mode,
     p_puzzle_date: state.mode === "daily" ? todayKey() : null,
     p_score: computeScore(),
@@ -912,8 +1115,9 @@ function startDailyCountdown() {
   if (state.mode !== "daily") return;
   const el = document.createElement("p");
   el.className = "daily-countdown";
-  const actions = document.getElementById("result-actions");
-  (actions || els.resultText).after(el);   // onder de actieknoppen
+  // Onder de Wikipedia-bron (#event-source). Valt terug op de actieknoppen/tekst
+  // als de bron-regel onverhoopt ontbreekt.
+  (els.source || document.getElementById("result-actions") || els.resultText).after(el);
   const tick = () => {
     const left = secsToNextDaily();
     if (left <= 0) { el.textContent = t("daily_ready"); stopDailyCountdown(); return; }
@@ -997,9 +1201,9 @@ function shiftDateKey(key, delta) {
   return new Date(Date.UTC(y, m - 1, d + delta)).toISOString().slice(0, 10);
 }
 
-// Gebruikte hints als iconen (💡 tekst, 🧭 richting, 🏛️ eeuw); leeg als geen.
+// Gebruikte hints als iconen (⏩ "100 jaar later", 🧭 richting, 🏛️ eeuw); leeg als geen.
 function lbHintIcons(d) {
-  const s = "💡".repeat(d.text_hints || 0) + "🧭".repeat(d.dir_hints || 0) + (d.century_hint ? "🏛️" : "");
+  const s = "⏩".repeat(d.text_hints || 0) + "🧭".repeat(d.dir_hints || 0) + (d.century_hint ? "🏛️" : "");
   return s ? `<span class="lb-hints">${s}</span>` : "";
 }
 
@@ -1377,12 +1581,13 @@ async function reconstructDailyBoard(answerYear) {
     guesses,
     done: true,
     won: !!row.won,
-    textHintsUsed: Math.max(0, Math.min(2, row.text_hints_used || 0)),
+    laterCluesShown: Math.max(0, Math.min(2, row.text_hints_used || 0)),
     // We kennen alleen het AANTAL richting-hints, niet welke rijen; leg ze op de
     // laatste gokken. Voor de score telt enkel het aantal (.length).
     // NB: slice(-0) === slice(0) → hele array; vang dir=0 expliciet af.
     directionsRevealed: dir > 0 ? guesses.map((_, i) => i).slice(-dir) : [],
     centuryRevealed: !!row.century_hint_used,
+    lastDigitRevealed: !!row.last_digit_used,
   };
 }
 
@@ -1397,9 +1602,10 @@ async function maybeRestoreDailyAfterLogin() {
   // Race-guard: kan tijdens de fetch gewisseld/afgerond zijn.
   if (!state || state.mode !== "daily" || state.done) return;
   state.guesses = board.guesses;
-  state.textHintsUsed = board.textHintsUsed;
+  state.laterCluesShown = board.laterCluesShown;
   state.directionsRevealed = board.directionsRevealed;
   state.centuryRevealed = board.centuryRevealed;
+  state.lastDigitRevealed = board.lastDigitRevealed;
   setKeypadDisabled(true);
   renderEvent();
   renderHintStatus();
@@ -1430,7 +1636,7 @@ function recordDailyResult(won) {
     won,
     score,
     guesses: state.guesses.length,
-    hintsUsed: state.textHintsUsed,
+    hintsUsed: state.laterCluesShown,
     dirsUsed: state.directionsRevealed.length,
   };
   const history = loadHistory().filter((e) => e.date !== date);
@@ -1820,6 +2026,22 @@ function submitGuess() {
   }
   save();
   renderHintStatus();
+  // Komt er bij deze gok een gratis zelfde-tijd-extra vrij (gok 2 → 1e, gok 4 → 2e)?
+  // Herbouw de carrousel, schuif naar de nieuwe gele slide en geef de zojuist
+  // gevulde gok-rij een korte gele "unlocked"-puls op de plek van de placeholder.
+  const gl = state.guesses.length;
+  const unlocksExtra = !state.done &&
+    ((gl === 2 && availableExtras() >= 1) || (gl === 4 && availableExtras() >= 2));
+  if (unlocksExtra) {
+    renderEvent();
+    const track = els.eventText.querySelector(".fact-track");
+    if (track) void track.offsetWidth;
+    goToSlide(state.event.facts.length + revealedExtraCount() - 1);
+    const justRow = els.guesses.querySelectorAll(".guess-row")[gl - 1];
+    if (justRow) {
+      requestAnimationFrame(() => requestAnimationFrame(() => justRow.classList.add("hint-unlocked")));
+    }
+  }
   if (cls === "correct") {
     finishGame(true, true);
   } else if (state.guesses.length >= MAX_GUESSES) {
@@ -1845,9 +2067,11 @@ function save() {
         guesses: state.guesses,
         done: state.done,
         won: state.won,
-        textHintsUsed: state.textHintsUsed,
+        laterCluesShown: state.laterCluesShown,
         directionsRevealed: state.directionsRevealed,
         centuryRevealed: state.centuryRevealed,
+        lastDigitRevealed: state.lastDigitRevealed,
+        laterClues: state.laterClues,
       },
     }));
   } catch (e) { /* storage may be unavailable */ }
@@ -1879,9 +2103,10 @@ function shareText() {
     intro = `Jaardle ${tag}: ${t("lost_share")} (${s}/100)`;
   }
   const statsParts = [`🎯 ${guessScore}`, `📊 ${grid}`];
-  if (state.textHintsUsed > 0) statsParts.push(`💡 ${state.textHintsUsed}`);
+  if (state.laterCluesShown > 0) statsParts.push(`⏩ ${state.laterCluesShown}`);
   if (state.directionsRevealed.length > 0) statsParts.push(`🧭 ${state.directionsRevealed.length}`);
   if (state.centuryRevealed) statsParts.push(`🏛️`);
+  if (state.lastDigitRevealed) statsParts.push(`🔢`);
   return `${intro}\n${statsParts.join(" | ")}`;
 }
 
@@ -1979,9 +2204,11 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
     guesses: b?.guesses || [],
     done: !!b?.done,
     won: !!b?.won,
-    textHintsUsed: b?.textHintsUsed || 0,
+    laterCluesShown: Math.max(0, Math.min(2, b?.laterCluesShown || 0)),
     directionsRevealed: Array.isArray(b?.directionsRevealed) ? b.directionsRevealed : [],
     centuryRevealed: !!b?.centuryRevealed,
+    lastDigitRevealed: !!b?.lastDigitRevealed,
+    laterClues: b?.laterClues || null,
   };
 
   setKeypadDisabled(false);
@@ -1992,6 +2219,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
   renderGuesses();
   save();
   syncUrl();
+  loadLaterClues();   // async: vult/herrendert de clues zodra binnen
 
   if (state.done) finishGame(state.won);
 }
@@ -2034,13 +2262,16 @@ async function init() {
     // Tab-shortcuts werken altijd, ook nadat de puzzel klaar is.
     if (e.key === "d" || e.key === "D") { switchMode("daily"); e.preventDefault(); return; }
     if (e.key === "n" || e.key === "N") { switchMode("free"); e.preventDefault(); return; }
+    // ←/→ bladert door de carrousel (ook na afloop, om alle hints na te lezen).
+    if (e.key === "ArrowLeft")  { goToSlide(factSlideIndex - 1); e.preventDefault(); return; }
+    if (e.key === "ArrowRight") { goToSlide(factSlideIndex + 1); e.preventDefault(); return; }
     if (state && state.done) return;
     if (/^[0-9]$/.test(e.key)) { appendDigit(e.key); e.preventDefault(); }
     else if (e.key === "Backspace") { backspaceYear(); e.preventDefault(); }
     else if (e.key === "Enter") { submitGuess(); e.preventDefault(); }
     else if (e.key === "-" || e.key === "+") { toggleSign(); e.preventDefault(); }
     else if (e.key === "e" || e.key === "E") {
-      if (!els.hintBtnText.hidden) { requestTextHint(); e.preventDefault(); }
+      if (els.hintBtnLater && !els.hintBtnLater.hidden) { requestLaterClue(); e.preventDefault(); }
     }
     else if (e.key === "r" || e.key === "R") {
       if (!els.hintBtnDir.hidden) { requestDirectionHint(); e.preventDefault(); }
@@ -2048,13 +2279,17 @@ async function init() {
     else if (e.key === "c" || e.key === "C") {
       if (els.hintBtnCentury && !els.hintBtnCentury.hidden) { requestCenturyHint(); e.preventDefault(); }
     }
+    else if (e.key === "l" || e.key === "L") {
+      if (els.hintBtnDigit && !els.hintBtnDigit.hidden) { requestLastDigit(); e.preventDefault(); }
+    }
   });
   els.shareBtn.addEventListener("click", doShare);
   els.nextBtn.addEventListener("click", () => startGame("free", true));
   if (els.recapBtn) els.recapBtn.addEventListener("click", () => openDailyRecap());
-  els.hintBtnText.addEventListener("click", requestTextHint);
+  if (els.hintBtnLater) els.hintBtnLater.addEventListener("click", requestLaterClue);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
   if (els.hintBtnCentury) els.hintBtnCentury.addEventListener("click", requestCenturyHint);
+  if (els.hintBtnDigit) els.hintBtnDigit.addEventListener("click", requestLastDigit);
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
   // ⋮-menu (Statistieken + Inloggen) is voor iedereen zichtbaar.

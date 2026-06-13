@@ -39,7 +39,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="/style.css?v=39">
+<link rel="stylesheet" href="/style.css?v=55">
 </head>
 <body>
   <main>
@@ -64,13 +64,12 @@
     </section>
 
     <div id="hint-row">
-      <button id="hint-btn-text" type="button" hidden title="Toets: E"><span data-i18n="hint_text">💡 Extra hint</span> <span class="btn-cost" data-penalty="text-hint"></span></button>
+      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ 100 years later</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
       <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">🧭 Richting</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
       <button id="hint-btn-century" type="button" hidden title="Toets: C"><span data-i18n="hint_century">🏛️ Eeuw</span> <span class="btn-cost" data-penalty="century-hint"></span></button>
+      <button id="hint-btn-digit" type="button" hidden title="Toets: L"><span data-i18n="hint_digit">🔢 Last digit</span> <span class="btn-cost" data-penalty="digit-hint"></span></button>
       <span id="hint-count" class="hint-count"></span>
     </div>
-
-    <div id="century-banner" class="century-banner" hidden></div>
 
     <section id="guesses" aria-label="Pogingen"></section>
 
@@ -244,7 +243,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=55"></script>
+  <script src="/game.js?v=70"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
