@@ -149,6 +149,10 @@ main {
 
 .tab {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   background: var(--card);
   color: var(--muted);
   border: 1px solid var(--border);
@@ -157,6 +161,11 @@ main {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+}
+.tab-icon {
+  width: 0.9em;
+  height: 0.9em;
+  flex: none;
 }
 
 .tab[aria-selected="true"] {
@@ -590,6 +599,16 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+}
+#share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.btn-icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
 }
 
 #help summary {

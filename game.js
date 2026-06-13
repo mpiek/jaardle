@@ -1847,8 +1847,9 @@ async function doShare() {
   }
   try {
     await navigator.clipboard.writeText(`${text}\n${url}`);
-    els.shareBtn.textContent = lang === "en" ? "Copied!" : "Gekopieerd!";
-    setTimeout(() => (els.shareBtn.textContent = t("share")), 1500);
+    const label = els.shareBtn.querySelector(".share-label") || els.shareBtn;
+    label.textContent = lang === "en" ? "✓ Copied!" : "✓ Gekopieerd!";
+    setTimeout(() => (label.textContent = t("share")), 1500);
   } catch (e) {
     prompt("Kopieer dit:", `${text}\n${url}`);
   }
