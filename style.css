@@ -587,7 +587,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 #event-source {
-  margin: 0 0 0.75rem;
+  margin: 0.9rem 0 0;
   font-size: 0.9rem;
 }
 
@@ -600,11 +600,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   gap: 0.5rem;
   justify-content: center;
 }
-#share-btn {
+#share-btn,
+#recap-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
 }
+#recap-btn[hidden] { display: none; }   /* hidden wint van inline-flex */
 .btn-icon {
   width: 1em;
   height: 1em;
