@@ -223,6 +223,8 @@ const DEBUG = (() => {
 const els = {
   eventText: document.getElementById("event-text"),
   eventCard: document.getElementById("event-card"),
+  factPrev: document.getElementById("fact-prev"),
+  factNext: document.getElementById("fact-next"),
   hintBtnText: document.getElementById("hint-btn-text"),
   hintBtnDir: document.getElementById("hint-btn-direction"),
   hintBtnCentury: document.getElementById("hint-btn-century"),
@@ -487,17 +489,6 @@ function renderEvent() {
   els.eventText.appendChild(carousel);
 
   if (slides.length > 1) {
-    const nav = document.createElement("div");
-    nav.className = "fact-nav";
-
-    const prev = document.createElement("button");
-    prev.type = "button";
-    prev.className = "fact-arrow";
-    prev.textContent = "‹";
-    prev.setAttribute("aria-label", t("fact_prev"));
-    prev.addEventListener("click", () => goToSlide(factSlideIndex - 1));
-    nav.appendChild(prev);
-
     const dots = document.createElement("div");
     dots.className = "fact-dots";
     slides.forEach((_, i) => {
@@ -508,18 +499,12 @@ function renderEvent() {
       d.addEventListener("click", () => goToSlide(i));
       dots.appendChild(d);
     });
-    nav.appendChild(dots);
-
-    const next = document.createElement("button");
-    next.type = "button";
-    next.className = "fact-arrow";
-    next.textContent = "›";
-    next.setAttribute("aria-label", t("fact_next"));
-    next.addEventListener("click", () => goToSlide(factSlideIndex + 1));
-    nav.appendChild(next);
-
-    els.eventText.appendChild(nav);
+    els.eventText.appendChild(dots);
   }
+  // Grote ‹ ›-knoppen flankeren de kaart (klik links = terug, rechts = verder);
+  // ze verschijnen pas zodra er meer dan één feit is.
+  if (els.factPrev) els.factPrev.hidden = slides.length <= 1;
+  if (els.factNext) els.factNext.hidden = slides.length <= 1;
   applyFactTransform(false);
   updateFactDots();
 }
@@ -536,10 +521,8 @@ function updateFactDots() {
   els.eventText.querySelectorAll(".fact-dot")
     .forEach((d, i) => d.classList.toggle("active", i === factSlideIndex));
   const n = factSlides().length;
-  const prev = els.eventText.querySelector(".fact-nav .fact-arrow:first-child");
-  const next = els.eventText.querySelector(".fact-nav .fact-arrow:last-child");
-  if (prev) prev.disabled = factSlideIndex <= 0;
-  if (next) next.disabled = factSlideIndex >= n - 1;
+  if (els.factPrev) els.factPrev.disabled = factSlideIndex <= 0;
+  if (els.factNext) els.factNext.disabled = factSlideIndex >= n - 1;
 }
 
 function goToSlide(i) {
@@ -590,7 +573,11 @@ function requestTextHint() {
   if (state.textHintsUsed >= available) return;
   state.textHintsUsed += 1;
   renderEvent();
-  goToSlide(factSlides().length - 1);   // spring naar de zojuist onthulde hint
+  // Forceer een reflow zodat de begintoestand (huidige slide) telt en de
+  // browser de schuif naar de nieuwe hint als transitie animeert i.p.v. springt.
+  const track = els.eventText.querySelector(".fact-track");
+  if (track) void track.offsetWidth;
+  goToSlide(factSlides().length - 1);   // schuif naar de zojuist onthulde hint
   renderHintStatus();
   save();
 }
@@ -2001,6 +1988,8 @@ async function init() {
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
   if (els.hintBtnCentury) els.hintBtnCentury.addEventListener("click", requestCenturyHint);
+  if (els.factPrev) els.factPrev.addEventListener("click", () => goToSlide(factSlideIndex - 1));
+  if (els.factNext) els.factNext.addEventListener("click", () => goToSlide(factSlideIndex + 1));
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
   // ⋮-menu (Statistieken + Inloggen) is voor iedereen zichtbaar.
@@ -2055,43 +2044,48 @@ async function init() {
     if (auth.user) maybeRestoreDailyAfterLogin();
   });
 
-  // Tekst-box: horizontaal swipen bladert door de feiten-carrousel.
+  // Tekst-box: slepen (muis óf touch) bladert horizontaal door de carrousel.
+  // Pointer-events dekken beide; touch-action: pan-y (CSS) laat verticaal scrollen
+  // door terwijl horizontaal slepen voor ons is.
   if (els.eventCard) {
-    let sx = 0, sy = 0, dragging = false, slideCount = 1, width = 1;
-    els.eventCard.addEventListener("touchstart", (e) => {
-      const tch = e.touches[0];
-      sx = tch.clientX; sy = tch.clientY;
-      dragging = false;
+    let sx = 0, sy = 0, dragging = false, active = false, slideCount = 1, width = 1;
+    els.eventCard.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button")) return;   // pijlen/stippen niet kapen
       slideCount = factSlides().length;
+      if (slideCount <= 1) return;
+      active = true; dragging = false;
+      sx = e.clientX; sy = e.clientY;
       width = els.eventText.querySelector(".fact-carousel")?.clientWidth || els.eventText.clientWidth || 1;
-    }, { passive: true });
-    els.eventCard.addEventListener("touchmove", (e) => {
-      const tch = e.touches[0];
-      const dx = tch.clientX - sx, dy = tch.clientY - sy;
-      if (!dragging && slideCount > 1 && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
+    });
+    els.eventCard.addEventListener("pointermove", (e) => {
+      if (!active) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!dragging && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
         dragging = true;
+        try { els.eventCard.setPointerCapture(e.pointerId); } catch (_) {}
       }
       if (dragging) {
-        e.preventDefault();
         const track = els.eventText.querySelector(".fact-track");
         if (track) {
           track.style.transition = "none";
           track.style.transform = `translateX(calc(${-factSlideIndex * 100}% + ${dx}px))`;
         }
       }
-    }, { passive: false });
-    const endTouch = (e) => {
+    });
+    const endDrag = (e) => {
+      if (!active) return;
+      active = false;
       if (!dragging) return;
-      const dx = (e.changedTouches?.[0]?.clientX ?? sx) - sx;
+      dragging = false;
+      const dx = e.clientX - sx;
       const threshold = Math.min(60, width * 0.2);
       if (dx < -threshold) factSlideIndex = Math.min(factSlideIndex + 1, slideCount - 1);
       else if (dx > threshold) factSlideIndex = Math.max(factSlideIndex - 1, 0);
       applyFactTransform(true);
       updateFactDots();
-      dragging = false;
     };
-    els.eventCard.addEventListener("touchend", endTouch);
-    els.eventCard.addEventListener("touchcancel", endTouch);
+    els.eventCard.addEventListener("pointerup", endDrag);
+    els.eventCard.addEventListener("pointercancel", endDrag);
   }
 
   // Diepe links /login en /register sturen (via redirect-stubs) door naar

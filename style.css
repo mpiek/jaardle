@@ -169,15 +169,43 @@ main {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 1.1rem 1.1rem;
+  padding: 1.1rem 0.5rem;
   margin-bottom: 0.6rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  touch-action: pan-y;   /* verticaal scrollen blijft; horizontaal slepen = swipe */
 }
 
 #event-text {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   font-size: 1.05rem;
   font-weight: 500;
 }
+
+/* Grote ‹ ›-knoppen flankeren het kaartje: klik links = terug, rechts = verder.
+   Volle hoogte van de kaart, dus een ruim klikvlak (fijner dan kleine pijltjes). */
+.fact-side {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.fact-side:hover:not(:disabled) { background: var(--card-soft); color: var(--fg); }
+.fact-side:disabled { opacity: 0.2; cursor: default; }
+.fact-side[hidden] { display: none; }
 
 /* Feiten-carrousel: één feit per slide, horizontaal schuivend (stippen + swipe). */
 .fact-carousel { overflow: hidden; }
@@ -205,37 +233,12 @@ main {
   opacity: 0.95;
 }
 
-/* Navigatie-rij: ‹ pijl · stippen · pijl › — pijlen voor klikken (desktop),
-   stippen tonen positie, swipe blijft werken op touch. */
-.fact-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-top: 0.85rem;
-}
-.fact-arrow {
-  flex: 0 0 auto;
-  width: 1.9rem;
-  height: 1.9rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: var(--card-soft);
-  color: var(--fg);
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-}
-.fact-arrow:hover:not(:disabled) { background: var(--border); }
-.fact-arrow:disabled { opacity: 0.3; cursor: default; }
+/* Stippen onder het feit tonen de positie (en zijn ook klikbaar). */
 .fact-dots {
   display: flex;
   justify-content: center;
   gap: 0.45rem;
+  margin-top: 0.85rem;
 }
 .fact-dot {
   width: 8px;
