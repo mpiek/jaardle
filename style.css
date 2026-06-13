@@ -205,11 +205,37 @@ main {
   opacity: 0.95;
 }
 
+/* Navigatie-rij: ‹ pijl · stippen · pijl › — pijlen voor klikken (desktop),
+   stippen tonen positie, swipe blijft werken op touch. */
+.fact-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+}
+.fact-arrow {
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card-soft);
+  color: var(--fg);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.fact-arrow:hover:not(:disabled) { background: var(--border); }
+.fact-arrow:disabled { opacity: 0.3; cursor: default; }
 .fact-dots {
   display: flex;
   justify-content: center;
   gap: 0.45rem;
-  margin-top: 0.85rem;
 }
 .fact-dot {
   width: 8px;

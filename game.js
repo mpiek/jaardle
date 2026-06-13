@@ -70,6 +70,7 @@ const I18N = {
     fav_century: "Sterkste eeuw",
     century_fmt: (n, bc) => `${n}e eeuw${bc ? " v.Chr." : ""}`,
     cal_title: "Laatste maanden", cal_notsolved: "niet opgelost",
+    fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
@@ -129,6 +130,7 @@ const I18N = {
       return `${n}${s} century${bc ? " BC" : ""}`;
     },
     cal_title: "Last few months", cal_notsolved: "not solved",
+    fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
@@ -485,6 +487,17 @@ function renderEvent() {
   els.eventText.appendChild(carousel);
 
   if (slides.length > 1) {
+    const nav = document.createElement("div");
+    nav.className = "fact-nav";
+
+    const prev = document.createElement("button");
+    prev.type = "button";
+    prev.className = "fact-arrow";
+    prev.textContent = "‹";
+    prev.setAttribute("aria-label", t("fact_prev"));
+    prev.addEventListener("click", () => goToSlide(factSlideIndex - 1));
+    nav.appendChild(prev);
+
     const dots = document.createElement("div");
     dots.className = "fact-dots";
     slides.forEach((_, i) => {
@@ -495,9 +508,20 @@ function renderEvent() {
       d.addEventListener("click", () => goToSlide(i));
       dots.appendChild(d);
     });
-    els.eventText.appendChild(dots);
+    nav.appendChild(dots);
+
+    const next = document.createElement("button");
+    next.type = "button";
+    next.className = "fact-arrow";
+    next.textContent = "›";
+    next.setAttribute("aria-label", t("fact_next"));
+    next.addEventListener("click", () => goToSlide(factSlideIndex + 1));
+    nav.appendChild(next);
+
+    els.eventText.appendChild(nav);
   }
   applyFactTransform(false);
+  updateFactDots();
 }
 
 // Verschuif de track naar de actieve slide (animate=false bij (her)opbouw).
@@ -511,6 +535,11 @@ function applyFactTransform(animate) {
 function updateFactDots() {
   els.eventText.querySelectorAll(".fact-dot")
     .forEach((d, i) => d.classList.toggle("active", i === factSlideIndex));
+  const n = factSlides().length;
+  const prev = els.eventText.querySelector(".fact-nav .fact-arrow:first-child");
+  const next = els.eventText.querySelector(".fact-nav .fact-arrow:last-child");
+  if (prev) prev.disabled = factSlideIndex <= 0;
+  if (next) next.disabled = factSlideIndex >= n - 1;
 }
 
 function goToSlide(i) {
