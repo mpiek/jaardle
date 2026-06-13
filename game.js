@@ -619,8 +619,16 @@ function renderEvent() {
       slide.appendChild(buildSlideTag("digit-tag", "digit-icon", "🔢", t("digit_label")));
       slide.appendChild(hintValue(s.text));
     } else {
-      // Hoofdfeit: zelfde gele wash als de zelfde-tijd-extra (zelfde gele zijlijn).
+      // Hoofdfeit: zelfde gele wash + 💡 erboven als de zelfde-tijd-extra.
       slide.classList.add("slide-main");
+      const tag = document.createElement("div");
+      tag.className = "extra-tag";
+      const icon = document.createElement("span");
+      icon.className = "extra-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = "💡";
+      tag.appendChild(icon);
+      slide.appendChild(tag);
       slide.appendChild(factParagraph(lang === "en" ? (s.en || s.nl) : s.nl, ""));
     }
     track.appendChild(slide);
@@ -838,7 +846,7 @@ const GUESS_PENALTIES = {
 const DIRECTION_HINT_PENALTY = 3;
 const CENTURY_HINT_PENALTY = 25;
 const LATER_CLUE_PENALTY = 3;   // per opgevraagde "100 jaar later"-clue (⏩-knop)
-const LAST_DIGIT_PENALTY = 8;   // 🔢 laatste cijfer van het jaartal onthullen
+const LAST_DIGIT_PENALTY = 12;  // 🔢 laatste cijfer van het jaartal onthullen
 
 // Verlies = geen harde 0, maar een lage band op basis van je dichtste gok.
 // Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
