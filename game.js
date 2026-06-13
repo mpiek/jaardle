@@ -3,6 +3,7 @@ const FACTS_PER_PUZZLE = 1;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
 const EPOCH = new Date(Date.UTC(2026, 5, 6));   // v1-launch: dag #1 = 2026-06-06
+const EPOCH_KEY = EPOCH.toISOString().slice(0, 10);   // "2026-06-06" — eerste browsbare daily
 const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
 
@@ -74,6 +75,8 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
+    lb_empty_daily_past: "Niemand uit je pool heeft deze daily gespeeld.",
+    lb_daily_prev: "Vorige dag", lb_daily_next: "Volgende dag",
     lb_empty_overall: "Nog geen ranglijst — speel een paar potjes.",
     lb_not_member: "Je staat (nog) niet op een vriendenbord.",
     lb_sync: "⏳ Rating bijgewerkt over", lb_synced: "✨ Rating zojuist bijgewerkt",
@@ -89,6 +92,11 @@ const I18N = {
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
     lb_switch_q: (cur, name) => `Je zit al in "${cur}". Overstappen naar "${name}"? Je verlaat dan "${cur}".`,
+    recap_title: "📊 Klaar voor vandaag", recap_dist_title: "Verdeling pogingen",
+    recap_dist_empty: "Nog geen opgeloste puzzels — speel verder!",
+    recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
+    recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
+    recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     help_list: HELP_NL,
   },
@@ -125,6 +133,8 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
     lb_empty_daily: "Nobody has played today's daily yet.",
+    lb_empty_daily_past: "Nobody in your pool played this daily.",
+    lb_daily_prev: "Previous day", lb_daily_next: "Next day",
     lb_empty_overall: "No ranking yet — play a few rounds.",
     lb_not_member: "You're not on a friends board (yet).",
     lb_sync: "⏳ Rating updates in", lb_synced: "✨ Rating just updated",
@@ -140,6 +150,11 @@ const I18N = {
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
     lb_join_q: (name) => `Join pool "${name}"?`,
     lb_switch_q: (cur, name) => `You're already in "${cur}". Switch to "${name}"? You'll leave "${cur}".`,
+    recap_title: "📊 Done for today", recap_dist_title: "Guess distribution",
+    recap_dist_empty: "No solved puzzles yet — keep playing!",
+    recap_team_title: "Today's team standings", recap_today: "today",
+    recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
+    recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     help_list: HELP_EN,
   },
@@ -747,7 +762,13 @@ function finishGame(won, fresh = false) {
   // zodat je eigen zojuist gespeelde pot meetelt (en bij een fact zonder eerdere
   // plays niet games:0 -> niks toont). Faalt het wegschrijven, toon dan alsnog.
   const statsHash = state.hashes?.[0];
-  if (fresh) sendTelemetry().then(() => showFactStats(statsHash), () => showFactStats(statsHash));
+  // Na het wegschrijven van de verse play: globale stats tonen, en bij de daily
+  // het recap-scherm openen (verdeling pogingen + teamstand van vandaag).
+  const afterSend = () => {
+    showFactStats(statsHash);
+    if (fresh && state.mode === "daily") openDailyRecap();
+  };
+  if (fresh) sendTelemetry().then(afterSend, afterSend);
   else showFactStats(statsHash);
   startDailyCountdown();
 }
@@ -810,6 +831,8 @@ let myPool = null;                    // {id,name,invite_code,is_owner,members} 
 let lbSyncTimer = null;
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
+let lbDailyDate = null;               // welke daily-dag het bord toont (browsen met ‹ ›)
+let lbDailyReq = 0;                   // race-guard: alleen de laatste fetch mag renderen
 
 function escHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -866,20 +889,48 @@ function fmtDailyDate(key) {
     .format(new Date(Date.UTC(y, m - 1, d)));
 }
 
+// "YYYY-MM-DD" ± n dagen → nieuwe sleutel (UTC, dus geen DST-verschuiving).
+function shiftDateKey(key, delta) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + delta)).toISOString().slice(0, 10);
+}
+
 // Gebruikte hints als iconen (💡 tekst, 🧭 richting, 🏛️ eeuw); leeg als geen.
 function lbHintIcons(d) {
   const s = "💡".repeat(d.text_hints || 0) + "🧭".repeat(d.dir_hints || 0) + (d.century_hint ? "🏛️" : "");
   return s ? `<span class="lb-hints">${s}</span>` : "";
 }
 
-function lbBoardHtml(heading, rows, valFn, emptyKey) {
-  let h = `<section class="lb-section"><h3 class="lb-heading">${heading}</h3>`;
-  if (!rows.length) h += `<p class="lb-empty">${t(emptyKey)}</p>`;
-  else h += `<div class="lb-table">` + rows.map((r) =>
+// Alleen de inhoud van het daily-bord (tabel of lege staat) — de kop + ‹ ›-knoppen
+// staan vast in renderLeaderboard, zodat browsen alleen dit deel ververst.
+function dailyTableHtml(rows) {
+  if (!rows.length) {
+    return `<p class="lb-empty">${t(lbDailyDate === todayKey() ? "lb_empty_daily" : "lb_empty_daily_past")}</p>`;
+  }
+  return `<div class="lb-table">` + rows.map((r) =>
     `<div class="${lbRowCls(r.is_me)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
     `<span class="lb-name">${lbNameCell(r)}</span>` +
-    `<span class="lb-val">${valFn(r)}</span></div>`).join("") + `</div>`;
-  return h + `</section>`;
+    `<span class="lb-val">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></div>`).join("") + `</div>`;
+}
+
+// Laadt het daily-bord voor lbDailyDate en werkt kop + pijl-knoppen bij. Een
+// race-guard zorgt dat snel doorklikken alleen de laatste dag laat zien.
+async function loadDailyBoard() {
+  if (!myPool) return;
+  const content = document.getElementById("lb-daily-content");
+  const heading = document.getElementById("lb-daily-heading");
+  const prevBtn = document.getElementById("lb-daily-prev");
+  const nextBtn = document.getElementById("lb-daily-next");
+  if (!content) return;
+  heading.textContent = `${t("lb_daily")} ${fmtDailyDate(lbDailyDate)}`;
+  prevBtn.disabled = lbDailyDate <= EPOCH_KEY;
+  nextBtn.disabled = lbDailyDate >= todayKey();
+  content.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+  const req = ++lbDailyReq;
+  let rows = [];
+  try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: lbDailyDate }); } catch (e) {}
+  if (req !== lbDailyReq || document.getElementById("modal-leaderboard").hidden) return;
+  content.innerHTML = dailyTableHtml(Array.isArray(rows) ? rows : []);
 }
 
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
@@ -892,15 +943,10 @@ async function renderLeaderboard() {
   if (document.getElementById("modal-leaderboard").hidden) return;
   if (!myPool) { renderPoolEmptyState(body); return; }
 
-  let daily = [], overall = [];
-  try {
-    [daily, overall] = await Promise.all([
-      rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: todayKey() }),
-      rpc("get_pool_leaderboard", { p_pool_id: myPool.id, p_min_games: 1 }),
-    ]);
-  } catch (e) {}
+  lbDailyDate = todayKey();   // begin altijd bij de daily van vandaag
+  let overall = [];
+  try { overall = await rpc("get_pool_leaderboard", { p_pool_id: myPool.id, p_min_games: 1 }); } catch (e) {}
   if (document.getElementById("modal-leaderboard").hidden) return;
-  daily = Array.isArray(daily) ? daily : [];
   overall = Array.isArray(overall) ? overall : [];
 
   const inviteUrl = `https://jaardle.nl/?join=${myPool.invite_code}`;
@@ -914,8 +960,14 @@ async function renderLeaderboard() {
         <button id="lb-leave-btn" class="lb-pillbtn danger">${t("lb_leave")}</button>
       </div>
     </div>`;
-  html += lbBoardHtml(`${t("lb_daily")} ${fmtDailyDate(todayKey())}`, daily,
-    (d) => (d.won ? lbHintIcons(d) + d.score : "💀"), "lb_empty_daily");
+  html += `<section class="lb-section">
+      <div class="lb-dailynav">
+        <button id="lb-daily-prev" class="lb-navbtn" aria-label="${t("lb_daily_prev")}" title="${t("lb_daily_prev")}">‹</button>
+        <h3 class="lb-heading lb-daily-heading" id="lb-daily-heading"></h3>
+        <button id="lb-daily-next" class="lb-navbtn" aria-label="${t("lb_daily_next")}" title="${t("lb_daily_next")}">›</button>
+      </div>
+      <div id="lb-daily-content"></div>
+    </section>`;
   html += `<section class="lb-section"><h3 class="lb-heading">${t("lb_overall")}</h3>`;
   if (!overall.length) html += `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
   else html += `<div class="lb-table">` + overall.map((o) =>
@@ -924,6 +976,13 @@ async function renderLeaderboard() {
     `<span class="lb-val">${o.rating}${o.is_provisional ? "?" : ""}</span></div>`).join("") + `</div>`;
   html += `<p class="lb-sync" id="lb-sync"></p></section>`;
   body.innerHTML = html;
+
+  // Daily-bord + browsen naar vorige dagen (‹ ›).
+  const prevBtn = document.getElementById("lb-daily-prev");
+  const nextBtn = document.getElementById("lb-daily-next");
+  prevBtn.onclick = () => { if (lbDailyDate > EPOCH_KEY) { lbDailyDate = shiftDateKey(lbDailyDate, -1); loadDailyBoard(); } };
+  nextBtn.onclick = () => { if (lbDailyDate < todayKey()) { lbDailyDate = shiftDateKey(lbDailyDate, +1); loadDailyBoard(); } };
+  loadDailyBoard();
 
   const inviteBtn = document.getElementById("lb-invite-btn");
   inviteBtn.onclick = () => shareInvite(inviteUrl, inviteBtn);
@@ -1049,6 +1108,93 @@ async function showFactStats(hash) {
     ? `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`
     : `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
   els.source.after(el);
+}
+
+// --- Daily-recap (eindscherm na afronden) ---------------------------------
+// Popt automatisch op zodra je de daily afrondt: je persoonlijke verdeling van
+// pogingen (Wordle-stijl, vandaag uitgelicht) + de teamstand van vandaag uit je
+// pool. Voor de verdeling gebruiken we de DB-historie (ingelogd) of de lokale
+// historie (anoniem). Sluiten via ✕/backdrop/Escape laat het resultaat eronder zien.
+function openDailyRecap() {
+  const modal = document.getElementById("modal-recap");
+  if (!modal) return;
+  openModal("modal-recap");
+}
+
+// Aantal pogingen uit een historie-rij: DB bewaart de gegokte jaren (array),
+// de lokale fallback bewaart het aantal (number).
+function histGuessCount(e) {
+  return Array.isArray(e.guesses) ? e.guesses.length : (e.guesses || 0);
+}
+
+// Verdeling van afgeronde daily's per aantal pogingen (1–6, alleen winsten —
+// een verlies is altijd 6 en zou de balken vertekenen). Vandaag uitgelicht.
+function recapDistHtml(history) {
+  const buckets = [0, 0, 0, 0, 0, 0];
+  for (const e of history) {
+    if (!e.won) continue;
+    const n = histGuessCount(e);
+    if (n >= 1 && n <= 6) buckets[n - 1] += 1;
+  }
+  const todayN = state.won ? Math.min(6, Math.max(1, state.guesses.length)) : null;
+  const head = `<h3 class="stats-heading">${t("recap_dist_title")}</h3>`;
+  if (buckets.every((b) => b === 0)) {
+    return `<section class="recap-section">${head}<p class="stats-empty">${t("recap_dist_empty")}</p></section>`;
+  }
+  const max = Math.max(...buckets);
+  const rows = buckets.map((c, i) => {
+    const guesses = i + 1;
+    const pct = c === 0 ? 0 : Math.max(10, Math.round((c / max) * 100));
+    const isToday = todayN === guesses;
+    return `<div class="dist-row${isToday ? " dist-today" : ""}">` +
+      `<span class="dist-label">${guesses}</span>` +
+      `<span class="dist-track"><span class="dist-bar" style="width:${pct}%">${c}</span></span></div>`;
+  }).join("");
+  return `<section class="recap-section">${head}<div class="dist-chart">${rows}</div></section>`;
+}
+
+async function renderRecap() {
+  const body = document.getElementById("recap-body");
+  if (!body) return;
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const history = auth.user ? await getMyHistory() : loadHistory();
+  if (document.getElementById("modal-recap").hidden) return;
+  body.innerHTML = recapDistHtml(history) +
+    `<section class="recap-section">` +
+    `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
+    `<div id="recap-team"></div></section>`;
+  loadRecapTeam();
+}
+
+// Teamstand van vandaag in het recap-scherm: zelfde rijen als het daily-bord van
+// het leaderboard. Niet ingelogd → login-nudge; ingelogd zonder pool → pool-nudge.
+async function loadRecapTeam() {
+  const wrap = document.getElementById("recap-team");
+  if (!wrap) return;
+  if (!auth.user) {
+    wrap.innerHTML = `<p class="lb-empty">${t("recap_login")}</p>` +
+      `<div class="recap-cta"><button id="recap-login-btn">${t("recap_login_btn")}</button></div>`;
+    const btn = document.getElementById("recap-login-btn");
+    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
+    return;
+  }
+  if (!myPool) {
+    try { const rows = await rpc("my_pool", {}); myPool = (Array.isArray(rows) && rows[0]) ? rows[0] : null; } catch (e) {}
+    if (document.getElementById("modal-recap").hidden) return;
+  }
+  if (!myPool) {
+    wrap.innerHTML = `<p class="lb-empty">${t("recap_pool_none")}</p>` +
+      `<div class="recap-cta"><button id="recap-pool-btn">${t("recap_pool_btn")}</button></div>`;
+    const btn = document.getElementById("recap-pool-btn");
+    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-leaderboard"); };
+    return;
+  }
+  wrap.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+  lbDailyDate = todayKey();   // stuurt de lege-staat-tekst van dailyTableHtml
+  let rows = [];
+  try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: todayKey() }); } catch (e) {}
+  if (document.getElementById("modal-recap").hidden) return;
+  wrap.innerHTML = dailyTableHtml(Array.isArray(rows) ? rows : []);
 }
 
 // --- Daily history & stats ------------------------------------------------
@@ -1406,6 +1552,7 @@ function setModalUrl(param) {
 function openModal(id) {
   document.getElementById(id).hidden = false;
   if (id === "modal-stats") renderStats();
+  if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
     const err = document.getElementById("login-error");

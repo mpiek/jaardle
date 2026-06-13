@@ -749,6 +749,49 @@ footer {
 }
 .stats-century strong { color: var(--fg); }
 
+/* --- Daily-recap: verdeling pogingen + teamstand --- */
+.recap-section { margin-top: 1.1rem; }
+.recap-section:first-child { margin-top: 0; }
+.recap-section + .recap-section {
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+}
+.dist-chart { display: flex; flex-direction: column; gap: 4px; }
+.dist-row { display: flex; align-items: center; gap: 8px; }
+.dist-label {
+  flex: none;
+  width: 1ch;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.dist-track { flex: 1 1 auto; min-width: 0; }
+.dist-bar {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 1.7em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #0d1b33;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.dist-today .dist-bar { background: var(--green); color: #fff; }
+.recap-cta { text-align: center; margin-top: 0.7rem; }
+.recap-cta button {
+  background: var(--accent);
+  color: #0d1b33;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.recap-cta button:hover { filter: brightness(1.08); }
+
 /* --- Login: Google button + separator --- */
 #login-form {
   display: flex;
@@ -844,6 +887,26 @@ footer {
   margin: 0 0 0.5rem;
 }
 .lb-empty { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 0.6rem 0; }
+/* daily-navigatie: ‹ datum › */
+.lb-dailynav { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.lb-dailynav .lb-daily-heading { flex: 1; text-align: center; margin: 0; }
+.lb-navbtn {
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-soft);
+  color: var(--fg);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.lb-navbtn:hover:not(:disabled) { background: var(--border); }
+.lb-navbtn:disabled { opacity: 0.3; cursor: default; }
 .lb-table { display: flex; flex-direction: column; gap: 2px; }
 .lb-row {
   display: grid;
