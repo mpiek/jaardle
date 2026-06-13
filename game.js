@@ -2,9 +2,9 @@ const MAX_GUESSES = 6;
 const FACTS_PER_PUZZLE = 1;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
-// Eén gratis zelfde-tijd-extra komt vrij bij gok 2 → gok-rij-index 1.
-// Waarde = hoeveelste extra (1e) bij die rij hoort.
-const LATER_FREE_AT_ROW = { 1: 1 };
+// Twee gratis zelfde-tijd-extra's komen vrij bij gok 1 en gok 2 → gok-rij-index 0 en 1.
+// Waarde = hoeveelste extra (1e/2e) bij die rij hoort.
+const LATER_FREE_AT_ROW = { 0: 1, 1: 2 };
 const EPOCH = new Date(Date.UTC(2026, 5, 6));   // v1-launch: dag #1 = 2026-06-06
 const EPOCH_KEY = EPOCH.toISOString().slice(0, 10);   // "2026-06-06" — eerste browsbare daily
 const MIN_YEAR = -753;
@@ -29,7 +29,7 @@ let lang = (() => {
 })();
 
 const HELP_NL = `
-  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel komt er bij gok 2 <strong>gratis</strong> een extra feit uit hetzelfde jaar bij (💡 geel).</li>
+  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel komen er bij gok 1 en gok 2 <strong>gratis</strong> twee extra feiten uit hetzelfde jaar bij (💡 geel).</li>
   <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100 jaar later</strong> (gebeurtenis uit een eeuw ná het antwoord, tot 2×), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
@@ -40,7 +40,7 @@ const HELP_NL = `
   <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
   <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
 const HELP_EN = `
-  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. In the carousel, guess 2 adds a <strong>free</strong> extra fact from the same year (💡 yellow).</li>
+  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. In the carousel, guesses 1 and 2 each add a <strong>free</strong> extra fact from the same year (💡 yellow).</li>
   <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100 years later</strong> (an event a century after the answer, up to 2×), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
@@ -60,10 +60,12 @@ const I18N = {
     hint_later: "⏩ 100 jaar later", hint_digit: "🔢 Laatste cijfer",
     century_band: "🏛️ Tijdvak", bc: "v.Chr.",
     reveal: "Onthul",
-    extra_label: "Ook dit jaar",
+    main_label: "Dit jaar", extra_label: "Ook dit jaar",
     century_label: "Tijdvak",
     digit_label: "Laatste cijfer",
     free_hint: "extra hint",
+    free_hint_first: "raad het jaar",
+    score_label: "punten",
     later_label: "100 jaar later",
     later_future: "Dit is nog toekomst — 100 jaar later is nog niet geweest.",
     later_future_2: "Ook dát is nog niet geweest — het antwoord ligt dus in de afgelopen ~100 jaar.",
@@ -131,10 +133,12 @@ const I18N = {
     hint_later: "⏩ 100 years later", hint_digit: "🔢 Last digit",
     century_band: "🏛️ Era", bc: "BC",
     reveal: "Reveal",
-    extra_label: "Also this year",
+    main_label: "This year", extra_label: "Also this year",
     century_label: "Era",
     digit_label: "Last digit",
     free_hint: "extra hint",
+    free_hint_first: "guess the year",
+    score_label: "points",
     later_label: "100 years later",
     later_future: "This is still the future — 100 years later hasn't happened yet.",
     later_future_2: "That hasn't happened yet either — so the answer is from the last ~100 years.",
@@ -260,6 +264,8 @@ const DEBUG = (() => {
 const els = {
   eventText: document.getElementById("event-text"),
   eventCard: document.getElementById("event-card"),
+  scoreBox: document.getElementById("live-score"),
+  scoreVal: document.querySelector("#live-score .live-score-val"),
   factPrev: document.getElementById("fact-prev"),
   factNext: document.getElementById("fact-next"),
   hintBtnLater: document.getElementById("hint-btn-later"),
@@ -498,23 +504,24 @@ function availableExtras() {
 }
 
 // Aantal gratis "zelfde tijd"-extra's dat nu zichtbaar is: automatisch onthuld bij
-// gok 2 en gok 4 (één per keer), ná afloop allemaal. Geen strafpunten.
+// gok 1 en gok 2 (één per keer), ná afloop allemaal. Geen strafpunten.
 function revealedExtraCount() {
   if (!state || !state.event) return 0;
   // Verlies: toon alle beschikbare extra's ter lering. Anders (spel + winst): de
-  // ene gratis extra die bij gok 2 vrijkomt.
+  // twee gratis extra's die bij gok 1 en gok 2 vrijkomen.
   if (state.done && !state.won) return availableExtras();
-  return Math.min(availableExtras(), state.guesses.length >= 2 ? 1 : 0);
+  const g = state.guesses.length;
+  return Math.min(availableExtras(), (g >= 1 ? 1 : 0) + (g >= 2 ? 1 : 0));
 }
 
 // De carrousel ÍS de hint-deck. Volgorde: hoofdfeit → gratis zelfde-tijd-extra's
-// (💡 geel, bij gok 2/4) → ⏩ "100 jaar later" → 🏛️ eeuw → 🔢 laatste cijfer.
+// (💡 geel, bij gok 1/2) → ⏩ "100 jaar later" → 🏛️ eeuw → 🔢 laatste cijfer.
 // Betaalde hints staan als "tik om te onthullen"-slot (locked) en morphen naar hun
 // inhoud zodra je betaalt. Ná afloop staat alles open om na te lezen.
 function factSlides() {
   if (!state || !state.event) return [];
   const slides = state.event.facts.map((f) => ({ kind: "main", nl: f.nl, en: f.en }));
-  // Gratis zelfde-tijd-extra's (geel), onthuld bij gok 2/4.
+  // Gratis zelfde-tijd-extra's (geel), onthuld bij gok 1/2.
   const ex = revealedExtraCount();
   for (let i = 0; i < ex; i++) {
     const f = state.event.extras[i];
@@ -619,16 +626,9 @@ function renderEvent() {
       slide.appendChild(buildSlideTag("digit-tag", "digit-icon", "🔢", t("digit_label")));
       slide.appendChild(hintValue(s.text));
     } else {
-      // Hoofdfeit: zelfde gele wash + 💡 erboven als de zelfde-tijd-extra.
+      // Hoofdfeit: 💡 + "Dit jaar"-kopje, zelfde gele stijl als de zelfde-tijd-extra.
       slide.classList.add("slide-main");
-      const tag = document.createElement("div");
-      tag.className = "extra-tag";
-      const icon = document.createElement("span");
-      icon.className = "extra-icon";
-      icon.setAttribute("aria-hidden", "true");
-      icon.textContent = "💡";
-      tag.appendChild(icon);
-      slide.appendChild(tag);
+      slide.appendChild(buildSlideTag("extra-tag", "extra-icon", "💡", t("main_label")));
       slide.appendChild(factParagraph(lang === "en" ? (s.en || s.nl) : s.nl, ""));
     }
     track.appendChild(slide);
@@ -729,7 +729,7 @@ function eraName(year) {
 // (deterministisch per antwoord-hash via get_century_clues) — grof tijdperk +
 // impliciet richting (antwoord ligt vóór die gebeurtenis). Opgevraagd via de
 // ⏩-knop (kost punten, tot 2) en getoond als oranje carrousel-slide. De gratis
-// zelfde-tijd-extra's bij gok 2/4 staan los hiervan (zie revealedExtraCount).
+// zelfde-tijd-extra's bij gok 1/2 staan los hiervan (zie revealedExtraCount).
 // Fallback "toekomst" als jaar+100 > nu.
 
 // We doen ALTIJD alsof er 2 clues zijn (zodra de data binnen is), zodat de teller
@@ -760,6 +760,7 @@ function requestLaterClue() {
   renderEvent();
   renderHintStatus();
   goToHintSlide("later");
+  updateLiveScore(true);
   save();
 }
 
@@ -801,6 +802,7 @@ function requestDirectionHint() {
       arrow.classList.add("just-revealed");
     }));
   }
+  updateLiveScore(true);
   save();
 }
 
@@ -810,6 +812,7 @@ function requestCenturyHint() {
   renderEvent();
   renderHintStatus();
   goToHintSlide("century");   // voeg de 🏛️-band-slide toe en schuif erheen
+  updateLiveScore(true);
   save();
 }
 
@@ -819,6 +822,7 @@ function requestLastDigit() {
   renderEvent();
   renderHintStatus();
   goToHintSlide("digit");   // voeg de 🔢-cijfer-slide toe en schuif erheen
+  updateLiveScore(true);
   save();
 }
 
@@ -843,10 +847,10 @@ const GUESS_PENALTIES = {
   distant: 15,
   farthest: 23,
 };
-const DIRECTION_HINT_PENALTY = 3;
-const CENTURY_HINT_PENALTY = 25;
+const DIRECTION_HINT_PENALTY = 5;
+const CENTURY_HINT_PENALTY = 27;
 const LATER_CLUE_PENALTY = 3;   // per opgevraagde "100 jaar later"-clue (⏩-knop)
-const LAST_DIGIT_PENALTY = 12;  // 🔢 laatste cijfer van het jaartal onthullen
+const LAST_DIGIT_PENALTY = 10;  // 🔢 laatste cijfer van het jaartal onthullen
 
 // Verlies = geen harde 0, maar een lage band op basis van je dichtste gok.
 // Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
@@ -855,12 +859,10 @@ const LOSS_SCORES = {
   correct: 0, veryclose: 10, close: 6, warm: 4, cool: 2, far: 0, distant: 0, farthest: 0,
 };
 
-function computeScore() {
-  if (!state.won) {
-    let s = 0;
-    for (const g of state.guesses) s = Math.max(s, LOSS_SCORES[g.cls] || 0);
-    return s;
-  }
+// Live "potentiële" score: 100 minus alle tot nu toe verdiende strafpunten
+// (misgokken + opgevraagde hints). Vloer op 0. Gelijk aan de eindscore als je nú
+// zou winnen — dit is wat de teller onder de stippen toont.
+function liveScore() {
   let s = 100;
   for (const g of state.guesses) s -= GUESS_PENALTIES[g.cls] || 0;
   s -= state.directionsRevealed.length * DIRECTION_HINT_PENALTY;
@@ -868,6 +870,50 @@ function computeScore() {
   if (state.centuryRevealed) s -= CENTURY_HINT_PENALTY;
   if (state.lastDigitRevealed) s -= LAST_DIGIT_PENALTY;
   return Math.max(0, s);
+}
+
+function computeScore() {
+  if (!state.won) {
+    // Lage troost-band o.b.v. je dichtste gok — maar nooit méér dan je (door
+    // straffen aangetaste) score. Zit je al op 0, dan blijft het 0.
+    let band = 0;
+    for (const g of state.guesses) band = Math.max(band, LOSS_SCORES[g.cls] || 0);
+    return Math.min(band, liveScore());
+  }
+  return liveScore();
+}
+
+// De zichtbaar getoonde score (voor de tel-animatie). Telt bij een misgok/hint
+// zichtbaar omlaag van de oude naar de nieuwe waarde.
+let scoreShown = 100;
+
+// Werk de live-score onder de stippen bij. animate=true → tel zichtbaar omlaag.
+// Verborgen zodra het spel klaar is (het eindscherm toont dan de score).
+function updateLiveScore(animate) {
+  const box = els.scoreBox, val = els.scoreVal;
+  if (!box || !val) return;
+  if (!state || state.done) { box.hidden = true; return; }
+  box.hidden = false;
+  const target = liveScore();
+  box.classList.toggle("low", target < 40);
+  if (!animate || scoreShown === target) {
+    scoreShown = target;
+    val.textContent = target;
+    return;
+  }
+  const from = scoreShown;
+  const t0 = performance.now();
+  const dur = 550;
+  box.classList.add("ticking");
+  function frame(now) {
+    const p = Math.min(1, (now - t0) / dur);
+    // ease-out zodat de laatste tellen rustig uitlopen
+    const e = 1 - Math.pow(1 - p, 3);
+    val.textContent = Math.round(from + (target - from) * e);
+    if (p < 1) { requestAnimationFrame(frame); }
+    else { scoreShown = target; val.textContent = target; box.classList.remove("ticking"); }
+  }
+  requestAnimationFrame(frame);
 }
 
 // Tiers: hoogste eerst. Eerste match wint.
@@ -967,8 +1013,8 @@ function renderGuesses() {
     } else {
       const row = document.createElement("div");
       row.className = "guess-row empty";
-      // Op de plekken waar een gratis (gele) zelfde-tijd-extra vrijkomt — gok 2 en 4,
-      // dus rij-index 1 en 3 — een 💡 + grijs "extra hint"-label zodat je 't ziet
+      // Op de plekken waar een gratis (gele) zelfde-tijd-extra vrijkomt — gok 1 en 2,
+      // dus rij-index 0 en 1 — een 💡 + grijs "extra hint"-label zodat je 't ziet
       // aankomen. De 💡 pulseert alleen op de eerstvolgende gok-plek.
       const needExtra = LATER_FREE_AT_ROW[idx];   // hoeveelste extra hoort bij deze rij
       if (!state.done && needExtra && availableExtras() >= needExtra) {
@@ -979,7 +1025,10 @@ function renderGuesses() {
         bulb.textContent = "💡";
         const lbl = document.createElement("span");
         lbl.className = "free-hint-label";
-        lbl.textContent = t("free_hint");
+        // Eerste aankomende bubbel (nog geen gokken): nudge om te raden i.p.v.
+        // "extra hint" — maakt voor nieuwe spelers duidelijk wat je moet doen.
+        const isFirstUpcoming = idx === state.guesses.length && state.guesses.length === 0;
+        lbl.textContent = isFirstUpcoming ? t("free_hint_first") : t("free_hint");
         m.append(bulb, lbl);
         row.appendChild(m);
       }
@@ -1015,6 +1064,7 @@ function finishGame(won, fresh = false) {
   save();
   setKeypadDisabled(true);
   renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
+  updateLiveScore(false);   // spel klaar → live-teller verbergen (eindscherm toont de score)
   els.result.hidden = false;
   els.revealRow.hidden = true;
   els.revealRow.innerHTML = "";
@@ -2036,11 +2086,12 @@ function submitGuess() {
   }
   save();
   renderHintStatus();
-  // Komt er bij deze gok de gratis zelfde-tijd-extra vrij (alleen bij gok 2)?
+  // Komt er bij deze gok een gratis zelfde-tijd-extra vrij (bij gok 1 → 1e, gok 2 → 2e)?
   // Herbouw de carrousel, schuif naar de nieuwe gele slide en geef de zojuist
   // gevulde gok-rij een korte gele "unlocked"-puls op de plek van de placeholder.
   const gl = state.guesses.length;
-  const unlocksExtra = !state.done && gl === 2 && availableExtras() >= 1;
+  const unlocksExtra = !state.done &&
+    ((gl === 1 && availableExtras() >= 1) || (gl === 2 && availableExtras() >= 2));
   if (unlocksExtra) {
     renderEvent();
     const track = els.eventText.querySelector(".fact-track");
@@ -2051,6 +2102,7 @@ function submitGuess() {
       requestAnimationFrame(() => requestAnimationFrame(() => justRow.classList.add("hint-unlocked")));
     }
   }
+  updateLiveScore(true);   // tel zichtbaar omlaag bij deze (mis)gok
   if (cls === "correct") {
     finishGame(true, true);
   } else if (state.guesses.length >= MAX_GUESSES) {
@@ -2226,6 +2278,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
   renderEvent();
   renderHintStatus();
   renderGuesses();
+  updateLiveScore(false);   // zet de teller op de juiste waarde (100 vers, lager bij restore)
   save();
   syncUrl();
   loadLaterClues();   // async: vult/herrendert de clues zodra binnen

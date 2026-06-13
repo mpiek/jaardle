@@ -76,9 +76,9 @@ test("computeScore — penalties per gok + hints, niet onder 0", () => {
   T.setState({ won: true, guesses: [{ cls: "correct" }], directionsRevealed: [], laterCluesShown: 0 });
   assert.equal(T.computeScore(), 100);                     // in één keer goed
 
-  // Zelfde-tijd extra's (geel) zijn gratis; "100 jaar later"-clues (⏳) kosten −3 elk.
+  // Zelfde-tijd extra's (geel) zijn gratis; ⏩-clues −3 elk; 🧭-richting −5 elk.
   T.setState({ won: true, guesses: [{ cls: "close" }, { cls: "correct" }], directionsRevealed: [0], laterCluesShown: 2 });
-  assert.equal(T.computeScore(), 100 - 5 - 3 - 2 * 3);     // close(5) + dir(3) + 2×later(3) = 86
+  assert.equal(T.computeScore(), 100 - 5 - 5 - 2 * 3);     // close(5) + dir(5) + 2×later(3) = 84
 
   T.setState({ won: true, guesses: Array(6).fill({ cls: "farthest" }), directionsRevealed: [0, 1], laterCluesShown: 0 });
   assert.equal(T.computeScore(), 0);                       // clamp op 0, niet negatief

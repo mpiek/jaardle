@@ -14,6 +14,13 @@
   --gray: #9e9e9e;
   --accent: #6ea8ff;
   --hint: #ffd54f;
+  /* Samenhangend hint-palet: gedempter en gelijke helderheid, zodat de hints als
+     één familie ogen (los van de fellere gok-badge-kleuren). */
+  --h-extra:   #e2c45c;   /* 💡 zelfde tijd / hoofdfeit (goud) */
+  --h-later:   #e69a5c;   /* ⏩ 100 jaar later (oranje) */
+  --h-dir:     #e07a72;   /* 🧭 richting (koraal) */
+  --h-century: #b58bd8;   /* 🏛️ eeuw (lavendel) */
+  --h-digit:   #74a9e2;   /* 🔢 laatste cijfer (blauw) */
 }
 
 * { box-sizing: border-box; }
@@ -179,7 +186,7 @@ main {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 1.1rem 1.1rem;
+  padding: 0.35rem 1.1rem 0.65rem;
   margin-bottom: 0.6rem;
   touch-action: pan-y;   /* verticaal scrollen blijft; horizontaal slepen = swipe */
 }
@@ -229,33 +236,27 @@ main {
   box-sizing: border-box;
 }
 
-/* Hint-slides krijgen een subtiele wash in hun eigen kleur — minder "flat" dan
-   alleen een randje, en elk type voelt als een eigen gekleurd kaartje. */
+/* Hint-slides: geen gekleurde wash, alleen de gekleurde lijn links (op .fact).
+   Strakker/platter — elk type herken je aan de kleur van de rand + het kopje. */
 .slide-main, .slide-extra, .slide-later, .slide-century, .slide-digit {
-  border-radius: 10px;
-  padding: 0.6rem 0.5rem;
+  padding: 0.3rem 0.5rem;
 }
-.slide-main    { background: rgba(255, 213, 79, 0.08); }
-.slide-extra   { background: rgba(255, 213, 79, 0.08); }
-.slide-later   { background: rgba(255, 152, 0, 0.08); }
-.slide-century { background: rgba(171, 71, 188, 0.12); }
-.slide-digit   { background: rgba(110, 168, 255, 0.09); }
 
 #event-text .fact {
   margin: 0;
   padding-left: 0.85rem;
-  border-left: 3px solid var(--hint);
+  border-left: 3px solid var(--h-extra);
   line-height: 1.4;
 }
 
 /* Zelfde-tijd extra feit (gratis, gok 2/4): geel, vaste lijn — "uit dezelfde tijd". */
 #event-text .fact-extra {
-  border-left-color: var(--hint);
+  border-left-color: var(--h-extra);
   opacity: 0.95;
 }
 
 /* Onthulde clue-randen, in de kleur van de hint. */
-#event-text .fact-later { border-left-color: var(--orange); }
+#event-text .fact-later { border-left-color: var(--h-later); }
 
 /* Kopje boven elke hint-slide: emoji + label, in de kleur van die hint.
    💡 geel (zelfde tijd) · ⏩ oranje (100 jaar later) · 🏛️ paars (eeuw) · 🔢 blauw (cijfer). */
@@ -263,16 +264,16 @@ main {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin: 0 0 0.5rem 0.85rem;
+  margin: 0 0 0.25rem 0.85rem;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.extra-tag   { color: var(--hint); }
-.later-tag   { color: var(--orange); }
-.century-tag { color: var(--purple); }
-.digit-tag   { color: var(--accent); }
+.extra-tag   { color: var(--h-extra); }
+.later-tag   { color: var(--h-later); }
+.century-tag { color: var(--h-century); }
+.digit-tag   { color: var(--h-digit); }
 
 .extra-icon, .later-icon, .century-icon, .digit-icon { display: inline-block; }
 /* ⏩-emoji schuift kort naar voren; de andere poppen kort op. */
@@ -296,15 +297,16 @@ main {
    linkerrand net als de feiten. */
 .hint-value {
   padding-left: 0.85rem;
-  border-left: 3px solid currentColor;
+  border-left: 3px solid var(--h-extra);   /* fallback; kleur per hint hieronder */
+  color: var(--fg);                        /* witte tekst — leesbaar; alleen de rand is gekleurd */
   font-size: 1.6rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   animation: tag-fade 0.4s ease both;
 }
-.slide-century .hint-value { color: var(--purple); }
-.slide-digit .hint-value   { color: var(--accent); }
+.slide-century .hint-value { border-left-color: var(--h-century); }
+.slide-digit .hint-value   { border-left-color: var(--h-digit); }
 
 /* Periode-label onder de eeuw-band (Renaissance, Oudheid, …) — educatief. */
 .hint-sub {
@@ -312,8 +314,8 @@ main {
   padding-left: 0.85rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--purple);
-  opacity: 0.95;
+  color: var(--fg);
+  opacity: 0.8;
   animation: tag-fade 0.4s ease 0.1s both;
 }
 
@@ -323,6 +325,39 @@ main {
   justify-content: center;
   gap: 0.45rem;
   margin-top: 0.85rem;
+}
+
+/* Live score onder de stippen: start op 100 en telt zichtbaar omlaag bij elke
+   (mis)gok of betaalde hint. Verborgen zodra het spel klaar is. */
+.live-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.live-score-val {
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--green);
+  transition: color 0.3s ease;
+}
+.live-score-lab {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.live-score.low .live-score-val { color: var(--red); }
+/* Korte puls terwijl de teller loopt — trekt het oog naar de daling. */
+.live-score.ticking .live-score-val { animation: score-tick 0.55s ease; }
+@keyframes score-tick {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
 }
 .fact-dot {
   width: 9px;
@@ -335,11 +370,11 @@ main {
 }
 /* Elke stip houdt ALTIJD de kleur van z'n hint (verandert niet bij selecteren);
    de actieve is alleen groter + krijgt een ring in dezelfde kleur. */
-.fact-dot.k-main    { background: var(--hint); }   /* geel — zelfde als de zijlijn van het hoofdfeit */
-.fact-dot.k-extra   { background: var(--hint); }
-.fact-dot.k-later   { background: var(--orange); }
-.fact-dot.k-century { background: var(--purple); }
-.fact-dot.k-digit   { background: var(--accent); }
+.fact-dot.k-main    { background: var(--h-extra); }   /* zelfde als de zijlijn van het hoofdfeit */
+.fact-dot.k-extra   { background: var(--h-extra); }
+.fact-dot.k-later   { background: var(--h-later); }
+.fact-dot.k-century { background: var(--h-century); }
+.fact-dot.k-digit   { background: var(--h-digit); }
 .fact-dot:hover { transform: scale(1.2); }
 .fact-dot.active {
   transform: scale(1.4);
@@ -368,14 +403,14 @@ main {
   padding: 0.45rem 0.9rem;
   font-size: 0.9rem;
 }
-#hint-btn-later     { color: var(--orange); }
-#hint-btn-direction { color: var(--red); }
-#hint-btn-century   { color: var(--purple); }
-#hint-btn-digit     { color: var(--accent); }
-#hint-btn-later:hover     { background: rgba(255, 152, 0, 0.12); }
-#hint-btn-direction:hover { background: rgba(229, 57, 53, 0.12); }
-#hint-btn-century:hover   { background: rgba(171, 71, 188, 0.16); }
-#hint-btn-digit:hover     { background: rgba(110, 168, 255, 0.12); }
+#hint-btn-later     { color: var(--h-later); }
+#hint-btn-direction { color: var(--h-dir); }
+#hint-btn-century   { color: var(--h-century); }
+#hint-btn-digit     { color: var(--h-digit); }
+#hint-btn-later:hover     { background: color-mix(in srgb, var(--h-later) 14%, transparent); }
+#hint-btn-direction:hover { background: color-mix(in srgb, var(--h-dir) 14%, transparent); }
+#hint-btn-century:hover    { background: color-mix(in srgb, var(--h-century) 14%, transparent); }
+#hint-btn-digit:hover     { background: color-mix(in srgb, var(--h-digit) 14%, transparent); }
 
 .btn-cost {
   opacity: 0.7;
@@ -543,7 +578,7 @@ kbd {
 .free-hint-bulb.next { animation: free-hint-bob 2.2s ease-in-out infinite; }
 .free-hint-label {
   font-size: 0.7rem;
-  color: var(--hint);   /* geel — zelfde kleur als de zijlijn van de extra-hint */
+  color: var(--h-extra);   /* zelfde kleur als de zijlijn van de extra-hint */
   opacity: 0.85;
   text-transform: uppercase;
   letter-spacing: 0.04em;
