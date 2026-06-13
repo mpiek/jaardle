@@ -177,9 +177,19 @@ main {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 500;
+}
+
+/* Feiten-carrousel: één feit per slide, horizontaal schuivend (stippen + swipe). */
+.fact-carousel { overflow: hidden; }
+.fact-track {
   display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+  align-items: stretch;
+  will-change: transform;
+}
+.fact-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  box-sizing: border-box;
 }
 
 #event-text .fact {
@@ -194,6 +204,25 @@ main {
   border-left-style: dashed;
   opacity: 0.95;
 }
+
+.fact-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+.fact-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.fact-dot:hover { background: var(--muted); }
+.fact-dot.active { background: var(--hint); }
 
 #hint-row {
   display: flex;
@@ -252,13 +281,12 @@ kbd {
   line-height: 1.2;
 }
 
-#event-card.has-en {
-  cursor: pointer;
+/* Geen tekstselectie tijdens het swipen door de carrousel. */
+#event-card {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
-#event-card.has-en:active { background: rgba(255, 213, 79, 0.04); }
 
 .hint-count {
   color: var(--muted);

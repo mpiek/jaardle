@@ -70,7 +70,7 @@ const I18N = {
     fav_century: "Sterkste eeuw",
     century_fmt: (n, bc) => `${n}e eeuw${bc ? " v.Chr." : ""}`,
     cal_title: "Laatste maanden", cal_notsolved: "niet opgelost",
-    peek_title: "Houd ingedrukt voor de Engelse tekst", free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
+    free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
@@ -129,7 +129,7 @@ const I18N = {
       return `${n}${s} century${bc ? " BC" : ""}`;
     },
     cal_title: "Last few months", cal_notsolved: "not solved",
-    peek_title: "Hold to see the Dutch text", free_tag: "(free)", lost_share: "💀 Not cracked",
+    free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
@@ -186,7 +186,6 @@ function applyLang() {
   const langItem = document.querySelector('#menu-pop [data-action="lang"]');
   if (langItem) langItem.textContent = lang === "nl" ? "🇬🇧 English" : "🇳🇱 Nederlands";
   if (els.dayLabel) els.dayLabel.textContent = `${t("day")} #${daysSince(EPOCH) + 1}`;
-  if (els.eventCard) els.eventCard.title = t("peek_title");
   renderMenu();
   if (state) {
     renderEvent();
@@ -305,6 +304,7 @@ function setKeypadDisabled(disabled) {
 }
 
 let state = null;
+let factSlideIndex = 0;   // actieve slide in de feiten-carrousel
 
 // --- Supabase RPC-bridge (window.sb wordt in index.html gezet) ---------------
 function rpc(fn, args) {
@@ -352,7 +352,6 @@ function setCardStatus(msg, retry) {
     b.addEventListener("click", retry);
     els.eventText.appendChild(b);
   }
-  els.eventCard?.classList.remove("has-en");
 }
 
 // Share-token = de puzzle-hashes aan elkaar (main eerst, dan extras). De server
@@ -451,39 +450,76 @@ function emojiFor(cls) {
   }[cls];
 }
 
-function renderEvent() {
-  els.eventText.innerHTML = "";
-  state.event.facts.forEach((f) => appendFact(f, false));
+// De slides = hoofdfeit(en) + de tot nu toe onthulde extra hints. Eén feit per
+// slide; extra hints worden niet meer onder elkaar uitgeklapt maar als carrousel
+// getoond (stippen + swipe), zodat de kaart niet groeit bij elke hint.
+function factSlides() {
+  if (!state || !state.event) return [];
+  const slides = state.event.facts.map((f) => ({ nl: f.nl, en: f.en, isExtra: false }));
   for (let i = 0; i < state.textHintsUsed; i++) {
     const f = state.event.extras[i];
-    if (!f) continue;
-    appendFact(f, true);
+    if (f) slides.push({ nl: f.nl, en: f.en, isExtra: true });
   }
-  updateEnButton();
+  return slides;
 }
 
-function appendFact(f, isExtra) {
-  const p = document.createElement("p");
-  p.className = "fact" + (isExtra ? " fact-extra" : "");
-  p.dataset.nl = f.nl;
-  p.dataset.en = f.en;
-  p.textContent = (lang === "en" ? (f.en || f.nl) : f.nl);
-  els.eventText.appendChild(p);
-}
+function renderEvent() {
+  els.eventText.innerHTML = "";
+  const slides = factSlides();
+  factSlideIndex = Math.max(0, Math.min(factSlideIndex, slides.length - 1));
 
-function updateEnButton() {
-  // Markeer card als "kan peeken" zolang er minstens één EN beschikbaar is.
-  const anyEn = Array.from(els.eventText.querySelectorAll(".fact"))
-    .some((p) => p.dataset.en && p.dataset.en.length > 0);
-  els.eventCard?.classList.toggle("has-en", anyEn);
-}
-
-function showFactsLang(lang) {
-  els.eventText.querySelectorAll(".fact").forEach((p) => {
-    const txt = lang === "en" ? p.dataset.en : p.dataset.nl;
-    if (txt) p.textContent = txt;
+  const carousel = document.createElement("div");
+  carousel.className = "fact-carousel";
+  const track = document.createElement("div");
+  track.className = "fact-track";
+  slides.forEach((s) => {
+    const slide = document.createElement("div");
+    slide.className = "fact-slide";
+    const p = document.createElement("p");
+    p.className = "fact" + (s.isExtra ? " fact-extra" : "");
+    p.textContent = (lang === "en" ? (s.en || s.nl) : s.nl);
+    slide.appendChild(p);
+    track.appendChild(slide);
   });
+  carousel.appendChild(track);
+  els.eventText.appendChild(carousel);
+
+  if (slides.length > 1) {
+    const dots = document.createElement("div");
+    dots.className = "fact-dots";
+    slides.forEach((_, i) => {
+      const d = document.createElement("button");
+      d.type = "button";
+      d.className = "fact-dot" + (i === factSlideIndex ? " active" : "");
+      d.setAttribute("aria-label", `${i + 1}/${slides.length}`);
+      d.addEventListener("click", () => goToSlide(i));
+      dots.appendChild(d);
+    });
+    els.eventText.appendChild(dots);
+  }
+  applyFactTransform(false);
 }
+
+// Verschuif de track naar de actieve slide (animate=false bij (her)opbouw).
+function applyFactTransform(animate) {
+  const track = els.eventText.querySelector(".fact-track");
+  if (!track) return;
+  track.style.transition = animate ? "transform 0.25s ease" : "none";
+  track.style.transform = `translateX(${-factSlideIndex * 100}%)`;
+}
+
+function updateFactDots() {
+  els.eventText.querySelectorAll(".fact-dot")
+    .forEach((d, i) => d.classList.toggle("active", i === factSlideIndex));
+}
+
+function goToSlide(i) {
+  const n = factSlides().length;
+  factSlideIndex = Math.max(0, Math.min(i, n - 1));
+  applyFactTransform(true);
+  updateFactDots();
+}
+
 
 function renderHintStatus() {
   const availableExtras = Math.min(state.event.extras.length, MAX_EXTRA_HINTS);
@@ -525,6 +561,7 @@ function requestTextHint() {
   if (state.textHintsUsed >= available) return;
   state.textHintsUsed += 1;
   renderEvent();
+  goToSlide(factSlides().length - 1);   // spring naar de zojuist onthulde hint
   renderHintStatus();
   save();
 }
@@ -1866,6 +1903,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
 
   setKeypadDisabled(false);
   clearYear();
+  factSlideIndex = 0;   // start altijd bij het hoofdfeit
   renderEvent();
   renderHintStatus();
   renderGuesses();
@@ -1988,17 +2026,43 @@ async function init() {
     if (auth.user) maybeRestoreDailyAfterLogin();
   });
 
-  // Houd de tekst-box ingedrukt om de Engelse bron te zien.
+  // Tekst-box: horizontaal swipen bladert door de feiten-carrousel.
   if (els.eventCard) {
-    const peek = (e) => { e.preventDefault(); showFactsLang(lang === "en" ? "nl" : "en"); };
-    const restore = () => showFactsLang(lang);
-    els.eventCard.addEventListener("mousedown", peek);
-    els.eventCard.addEventListener("mouseup", restore);
-    els.eventCard.addEventListener("mouseleave", restore);
-    els.eventCard.addEventListener("touchstart", peek, { passive: false });
-    els.eventCard.addEventListener("touchend", restore);
-    els.eventCard.addEventListener("touchcancel", restore);
-    els.eventCard.addEventListener("contextmenu", (e) => e.preventDefault());
+    let sx = 0, sy = 0, dragging = false, slideCount = 1, width = 1;
+    els.eventCard.addEventListener("touchstart", (e) => {
+      const tch = e.touches[0];
+      sx = tch.clientX; sy = tch.clientY;
+      dragging = false;
+      slideCount = factSlides().length;
+      width = els.eventText.querySelector(".fact-carousel")?.clientWidth || els.eventText.clientWidth || 1;
+    }, { passive: true });
+    els.eventCard.addEventListener("touchmove", (e) => {
+      const tch = e.touches[0];
+      const dx = tch.clientX - sx, dy = tch.clientY - sy;
+      if (!dragging && slideCount > 1 && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
+        dragging = true;
+      }
+      if (dragging) {
+        e.preventDefault();
+        const track = els.eventText.querySelector(".fact-track");
+        if (track) {
+          track.style.transition = "none";
+          track.style.transform = `translateX(calc(${-factSlideIndex * 100}% + ${dx}px))`;
+        }
+      }
+    }, { passive: false });
+    const endTouch = (e) => {
+      if (!dragging) return;
+      const dx = (e.changedTouches?.[0]?.clientX ?? sx) - sx;
+      const threshold = Math.min(60, width * 0.2);
+      if (dx < -threshold) factSlideIndex = Math.min(factSlideIndex + 1, slideCount - 1);
+      else if (dx > threshold) factSlideIndex = Math.max(factSlideIndex - 1, 0);
+      applyFactTransform(true);
+      updateFactDots();
+      dragging = false;
+    };
+    els.eventCard.addEventListener("touchend", endTouch);
+    els.eventCard.addEventListener("touchcancel", endTouch);
   }
 
   // Diepe links /login en /register sturen (via redirect-stubs) door naar
