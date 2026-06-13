@@ -166,45 +166,45 @@ main {
 }
 
 #event-card {
+  position: relative;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 1.1rem 0.5rem;
+  padding: 1.1rem 1.1rem;
   margin-bottom: 0.6rem;
-  display: flex;
-  align-items: stretch;
-  gap: 0.25rem;
   touch-action: pan-y;   /* verticaal scrollen blijft; horizontaal slepen = swipe */
 }
 
 #event-text {
-  flex: 1 1 auto;
-  min-width: 0;
   margin: 0;
   font-size: 1.05rem;
   font-weight: 500;
 }
 
-/* Grote ‹ ›-knoppen flankeren het kaartje: klik links = terug, rechts = verder.
-   Volle hoogte van de kaart, dus een ruim klikvlak (fijner dan kleine pijltjes). */
+/* ‹ ›-indicatoren liggen als brede zones óver de randen van het kaartje
+   (Instagram-stijl). Het tikken/slepen zelf wordt op de kaart afgehandeld
+   (linker-/rechterzone = terug/verder, slepen werkt overal), dus de pijl is puur
+   visueel: pointer-events uit zodat hij het tikken/slepen niet blokkeert. */
 .fact-side {
-  flex: 0 0 auto;
-  align-self: stretch;
-  width: 2rem;
-  padding: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding: 0 0.5rem;
   border: none;
-  border-radius: 8px;
   background: transparent;
   color: var(--muted);
   font-size: 2rem;
   line-height: 1;
-  cursor: pointer;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 2;
 }
-.fact-side:hover:not(:disabled) { background: var(--card-soft); color: var(--fg); }
-.fact-side:disabled { opacity: 0.2; cursor: default; }
+.fact-side-prev { left: 0; justify-content: flex-start; }
+.fact-side-next { right: 0; justify-content: flex-end; }
+.fact-side:disabled { opacity: 0.18; }
 .fact-side[hidden] { display: none; }
 
 /* Feiten-carrousel: één feit per slide, horizontaal schuivend (stippen + swipe). */

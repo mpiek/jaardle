@@ -39,7 +39,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="/style.css?v=32">
+<link rel="stylesheet" href="/style.css?v=33">
 </head>
 <body>
   <main>
@@ -58,9 +58,9 @@
     </nav>
 
     <section id="event-card">
-      <button id="fact-prev" class="fact-side" type="button" aria-label="Vorig feit" hidden>‹</button>
+      <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Vorig feit" hidden>‹</button>
       <div id="event-text">Laden…</div>
-      <button id="fact-next" class="fact-side" type="button" aria-label="Volgend feit" hidden>›</button>
+      <button id="fact-next" class="fact-side fact-side-next" type="button" aria-label="Volgend feit" hidden>›</button>
     </section>
 
     <div id="hint-row">
@@ -244,7 +244,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=46"></script>
+  <script src="/game.js?v=47"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

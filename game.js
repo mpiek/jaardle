@@ -1993,8 +1993,6 @@ async function init() {
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
   if (els.hintBtnCentury) els.hintBtnCentury.addEventListener("click", requestCenturyHint);
-  if (els.factPrev) els.factPrev.addEventListener("click", () => goToSlide(factSlideIndex - 1));
-  if (els.factNext) els.factNext.addEventListener("click", () => goToSlide(factSlideIndex + 1));
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
   // ⋮-menu (Statistieken + Inloggen) is voor iedereen zichtbaar.
@@ -2049,18 +2047,18 @@ async function init() {
     if (auth.user) maybeRestoreDailyAfterLogin();
   });
 
-  // Tekst-box: slepen (muis óf touch) bladert horizontaal door de carrousel.
-  // Pointer-events dekken beide; touch-action: pan-y (CSS) laat verticaal scrollen
-  // door terwijl horizontaal slepen voor ons is.
+  // Tekst-box (Instagram-stijl): slepen bladert (muis óf touch, vanaf overal op de
+  // kaart, ook de randen), en een tik in de linker- of rechterzone gaat terug/verder.
+  // touch-action: pan-y (CSS) houdt verticaal scrollen intact.
   if (els.eventCard) {
     let sx = 0, sy = 0, dragging = false, active = false, slideCount = 1, width = 1;
     els.eventCard.addEventListener("pointerdown", (e) => {
-      if (e.target.closest("button")) return;   // pijlen/stippen niet kapen
+      if (e.target.closest(".fact-dot")) return;   // stippen doen hun eigen klik
       slideCount = factSlides().length;
       if (slideCount <= 1) return;
       active = true; dragging = false;
       sx = e.clientX; sy = e.clientY;
-      width = els.eventText.querySelector(".fact-carousel")?.clientWidth || els.eventText.clientWidth || 1;
+      width = els.eventText.querySelector(".fact-carousel")?.clientWidth || els.eventCard.clientWidth || 1;
     });
     els.eventCard.addEventListener("pointermove", (e) => {
       if (!active) return;
@@ -2080,14 +2078,21 @@ async function init() {
     const endDrag = (e) => {
       if (!active) return;
       active = false;
-      if (!dragging) return;
-      dragging = false;
-      const dx = e.clientX - sx;
-      const threshold = Math.min(60, width * 0.2);
-      if (dx < -threshold) factSlideIndex = Math.min(factSlideIndex + 1, slideCount - 1);
-      else if (dx > threshold) factSlideIndex = Math.max(factSlideIndex - 1, 0);
-      applyFactTransform(true);
-      updateFactDots();
+      if (dragging) {
+        dragging = false;
+        const dx = e.clientX - sx;
+        const threshold = Math.min(60, width * 0.2);
+        if (dx < -threshold) factSlideIndex = Math.min(factSlideIndex + 1, slideCount - 1);
+        else if (dx > threshold) factSlideIndex = Math.max(factSlideIndex - 1, 0);
+        applyFactTransform(true);
+        updateFactDots();
+      } else {
+        // Tik zonder slepen → zone-navigatie: linker 40% terug, rechter 40% verder.
+        const rect = els.eventCard.getBoundingClientRect();
+        const rel = (e.clientX - rect.left) / rect.width;
+        if (rel <= 0.4) goToSlide(factSlideIndex - 1);
+        else if (rel >= 0.6) goToSlide(factSlideIndex + 1);
+      }
     };
     els.eventCard.addEventListener("pointerup", endDrag);
     els.eventCard.addEventListener("pointercancel", endDrag);
