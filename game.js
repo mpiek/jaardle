@@ -92,6 +92,7 @@ const I18N = {
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
     lb_switch_q: (cur, name) => `Je zit al in "${cur}". Overstappen naar "${name}"? Je verlaat dan "${cur}".`,
+    recap_btn: "📊 Verdeling & team",
     recap_title: "📊 Klaar voor vandaag", recap_dist_title: "Verdeling pogingen",
     recap_dist_empty: "Nog geen opgeloste puzzels — speel verder!",
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
@@ -150,6 +151,7 @@ const I18N = {
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
     lb_join_q: (name) => `Join pool "${name}"?`,
     lb_switch_q: (cur, name) => `You're already in "${cur}". Switch to "${name}"? You'll leave "${cur}".`,
+    recap_btn: "📊 Distribution & team",
     recap_title: "📊 Done for today", recap_dist_title: "Guess distribution",
     recap_dist_empty: "No solved puzzles yet — keep playing!",
     recap_team_title: "Today's team standings", recap_today: "today",
@@ -236,6 +238,7 @@ const els = {
   revealRow: document.getElementById("reveal-row"),
   source: document.getElementById("event-source"),
   shareBtn: document.getElementById("share-btn"),
+  recapBtn: document.getElementById("recap-btn"),
   nextBtn: document.getElementById("next-btn"),
   dayLabel: document.getElementById("day-label"),
   tabs: Array.from(document.querySelectorAll("#mode-tabs .tab")),
@@ -755,6 +758,9 @@ function finishGame(won, fresh = false) {
     ? `${t("source")} <a href="${ev.source}" target="_blank" rel="noopener">${displaySource(ev.source)}</a> · CC BY-SA`
     : "";
   els.nextBtn.hidden = state.mode !== "free";
+  // De recap (verdeling + teamstand) is daily-only en blijft herbereikbaar via
+  // deze knop, ook nadat je het popup-scherm hebt gesloten.
+  if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily";
   renderHintStatus();
   if (fresh && won) showConfetti();
   if (fresh && state.mode === "daily") recordDailyResult(won);
@@ -1831,6 +1837,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
   stopDailyCountdown();
   els.result.hidden = true;
   els.nextBtn.hidden = true;
+  if (els.recapBtn) els.recapBtn.hidden = true;
 
   let record;
   try {
@@ -1925,6 +1932,7 @@ async function init() {
   });
   els.shareBtn.addEventListener("click", doShare);
   els.nextBtn.addEventListener("click", () => startGame("free", true));
+  if (els.recapBtn) els.recapBtn.addEventListener("click", () => openDailyRecap());
   els.hintBtnText.addEventListener("click", requestTextHint);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
   if (els.hintBtnCentury) els.hintBtnCentury.addEventListener("click", requestCenturyHint);

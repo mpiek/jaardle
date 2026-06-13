@@ -98,6 +98,7 @@
       <p id="event-source"></p>
       <div id="result-actions">
         <button id="share-btn" data-i18n="share">Deel resultaat</button>
+        <button id="recap-btn" hidden data-i18n="recap_btn">📊 Verdeling &amp; team</button>
         <button id="next-btn" hidden data-i18n="next">Nieuw rondje</button>
       </div>
     </section>
@@ -241,7 +242,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=39"></script>
+  <script src="/game.js?v=40"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
