@@ -99,6 +99,12 @@ const I18N = {
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
     recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
+    recap_acct_title: "Met een gratis account",
+    recap_acct_1: "📊 Je statistieken & streak blijven bewaard",
+    recap_acct_2: "☁️ Speel verder op al je apparaten",
+    recap_acct_3: "🏆 Vergelijk je daily met vrienden in een pool",
+    recap_acct_btn: "Inloggen of account maken",
+    recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     help_list: HELP_NL,
   },
@@ -159,6 +165,12 @@ const I18N = {
     recap_team_title: "Today's team standings", recap_today: "today",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
     recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
+    recap_acct_title: "With a free account",
+    recap_acct_1: "📊 Your stats & streak are saved",
+    recap_acct_2: "☁️ Keep playing across all your devices",
+    recap_acct_3: "🏆 Compare your daily with friends in a pool",
+    recap_acct_btn: "Sign in or create account",
+    recap_acct_free: "Always 100% free — no paid tier, no ads.",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     help_list: HELP_EN,
   },
@@ -842,7 +854,8 @@ function finishGame(won, fresh = false) {
 function sendTelemetry() {
   const hash = state.hashes?.[0];
   if (!hash) return Promise.resolve();
-  const sentKey = `jaardle:sent:${hash}:${state.mode === "daily" ? todayKey() : "free"}`;
+  const slot = state.mode === "daily" ? todayKey() : "free";
+  const sentKey = `jaardle:sent:${hash}:${slot}`;
   if (localStorage.getItem(sentKey)) return Promise.resolve();
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
   const first = state.guesses[0];
@@ -859,8 +872,32 @@ function sendTelemetry() {
     p_score: computeScore(),
     p_guesses: state.guesses.map((g) => g.year),  // voor cross-device reconstructie
   })
-    .then(() => { invalidateHistory(); })  // verse stats bij volgende opening
+    .then((id) => {
+      invalidateHistory();  // verse stats bij volgende opening
+      // Onthoud het rij-id zodat we de pot ná inloggen aan het account kunnen koppelen.
+      try { if (id != null) localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); } catch (e) {}
+    })
     .catch(() => { try { localStorage.removeItem(sentKey); } catch (e) {} });
+}
+
+// Koppel een (anoniem) net-afgeronde pot aan het account dat zojuist inlogde, door
+// de bestaande anon-rij om te punten via claim_play(id) — geen dubbele rij. Het
+// id is door record_play teruggegeven en lokaal bewaard.
+async function claimPlayOnLogin() {
+  if (!auth.user || !state || !state.done) return;
+  const hash = state.hashes?.[0];
+  if (!hash) return;
+  const slot = state.mode === "daily" ? todayKey() : "free";
+  const idKey = `jaardle:playid:${hash}:${slot}`;
+  const id = localStorage.getItem(idKey);
+  if (!id) return;
+  let claimed = false;
+  try { claimed = await rpc("claim_play", { p_id: Number(id) }); } catch (e) { return; }
+  try { localStorage.removeItem(idKey); } catch (e) {}   // eenmalig proberen
+  if (claimed) {
+    invalidateHistory();
+    if (!document.getElementById("modal-recap").hidden) renderRecap();  // pitch -> teamstand
+  }
 }
 
 // Aftelklok tot de volgende dagpuzzel, onder de globale stats. Alleen in
@@ -875,7 +912,8 @@ function startDailyCountdown() {
   if (state.mode !== "daily") return;
   const el = document.createElement("p");
   el.className = "daily-countdown";
-  els.source.after(el);
+  const actions = document.getElementById("result-actions");
+  (actions || els.resultText).after(el);   // onder de actieknoppen
   const tick = () => {
     const left = secsToNextDaily();
     if (left <= 0) { el.textContent = t("daily_ready"); stopDailyCountdown(); return; }
@@ -1171,7 +1209,7 @@ async function showFactStats(hash) {
   el.textContent = lang === "en"
     ? `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`
     : `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
-  els.source.after(el);
+  els.resultText.after(el);   // direct onder de score, boven de knoppen
 }
 
 // --- Daily-recap (eindscherm na afronden) ---------------------------------
@@ -1221,11 +1259,34 @@ async function renderRecap() {
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
   const dist = await fetchGlobalGuessDist();
   if (document.getElementById("modal-recap").hidden) return;
-  body.innerHTML = recapDistHtml(dist) +
-    `<section class="recap-section">` +
-    `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
-    `<div id="recap-team"></div></section>`;
-  loadRecapTeam();
+  if (auth.user) {
+    // Ingelogd: toon de teamstand van vandaag onder de verdeling.
+    body.innerHTML = recapDistHtml(dist) +
+      `<section class="recap-section">` +
+      `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
+      `<div id="recap-team"></div></section>`;
+    loadRecapTeam();
+  } else {
+    // Uitgelogd: wijs op de voordelen van een (gratis) account.
+    body.innerHTML = recapDistHtml(dist) + recapAccountHtml();
+    const btn = document.getElementById("recap-acct-btn");
+    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
+  }
+}
+
+// Voordelen-blok voor uitgelogde spelers op het recap-scherm: een gecentreerd,
+// omlijnd accent-kaartje dat als call-to-action opvalt.
+function recapAccountHtml() {
+  return `<div class="recap-account">
+    <h3 class="stats-heading">${t("recap_acct_title")}</h3>
+    <ul class="recap-perks">
+      <li>${t("recap_acct_1")}</li>
+      <li>${t("recap_acct_2")}</li>
+      <li>${t("recap_acct_3")}</li>
+    </ul>
+    <div class="recap-cta"><button id="recap-acct-btn">${t("recap_acct_btn")}</button></div>
+    <p class="recap-free">${t("recap_acct_free")}</p>
+  </div>`;
 }
 
 // Teamstand van vandaag in het recap-scherm: zelfde rijen als het daily-bord van
@@ -2045,7 +2106,8 @@ async function init() {
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();
     // Net ingelogd terwijl de dagpuzzel nog open staat? Herstel 'm uit de DB.
-    if (auth.user) maybeRestoreDailyAfterLogin();
+    // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
+    if (auth.user) { maybeRestoreDailyAfterLogin(); claimPlayOnLogin(); }
   });
 
   // Tekst-box (Instagram-stijl): slepen bladert (muis óf touch, vanaf overal op de

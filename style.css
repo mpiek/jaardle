@@ -859,6 +859,34 @@ footer {
   text-align: right;
 }
 .dist-today .dist-bar { background: var(--green); color: #fff; }
+.recap-account {
+  margin-top: 1.1rem;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border-radius: 10px;
+}
+.recap-account .stats-heading {
+  text-align: center;
+  margin-bottom: 0.6rem;
+}
+.recap-perks {
+  display: inline-block;   /* groep gecentreerd, regels links uitgelijnd */
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  text-align: left;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.recap-perks li { margin: 0.3rem 0; }
+.recap-free {
+  margin: 0.7rem 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
 .recap-cta { text-align: center; margin-top: 0.7rem; }
 .recap-cta button {
   background: var(--accent);
