@@ -93,8 +93,8 @@ const I18N = {
     lb_join_q: (name) => `Pool "${name}" joinen?`,
     lb_switch_q: (cur, name) => `Je zit al in "${cur}". Overstappen naar "${name}"? Je verlaat dan "${cur}".`,
     recap_btn: "📊 Verdeling & team",
-    recap_title: "📊 Klaar voor vandaag", recap_dist_title: "Verdeling pogingen",
-    recap_dist_empty: "Nog geen opgeloste puzzels — speel verder!",
+    recap_title: "📊 Klaar voor vandaag", recap_dist_title: "🌍 Verdeling pogingen (iedereen)",
+    recap_dist_empty: "Nog niemand heeft deze daily opgelost.",
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
     recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
@@ -152,8 +152,8 @@ const I18N = {
     lb_join_q: (name) => `Join pool "${name}"?`,
     lb_switch_q: (cur, name) => `You're already in "${cur}". Switch to "${name}"? You'll leave "${cur}".`,
     recap_btn: "📊 Distribution & team",
-    recap_title: "📊 Done for today", recap_dist_title: "Guess distribution",
-    recap_dist_empty: "No solved puzzles yet — keep playing!",
+    recap_title: "📊 Done for today", recap_dist_title: "🌍 Guess distribution (everyone)",
+    recap_dist_empty: "Nobody has solved this daily yet.",
     recap_team_title: "Today's team standings", recap_today: "today",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
     recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
@@ -1117,34 +1117,32 @@ async function showFactStats(hash) {
 }
 
 // --- Daily-recap (eindscherm na afronden) ---------------------------------
-// Popt automatisch op zodra je de daily afrondt: je persoonlijke verdeling van
-// pogingen (Wordle-stijl, vandaag uitgelicht) + de teamstand van vandaag uit je
-// pool. Voor de verdeling gebruiken we de DB-historie (ingelogd) of de lokale
-// historie (anoniem). Sluiten via ✕/backdrop/Escape laat het resultaat eronder zien.
+// Popt automatisch op zodra je de daily afrondt: de GLOBALE verdeling van pogingen
+// over alle spelers van deze daily (Wordle-stijl, jouw resultaat uitgelicht) + de
+// teamstand van vandaag uit je pool. Sluiten via ✕/backdrop/Escape laat het
+// resultaat eronder zien; de knop op het resultaatscherm heropent het.
 function openDailyRecap() {
   const modal = document.getElementById("modal-recap");
   if (!modal) return;
   openModal("modal-recap");
 }
 
-// Aantal pogingen uit een historie-rij: DB bewaart de gegokte jaren (array),
-// de lokale fallback bewaart het aantal (number).
-function histGuessCount(e) {
-  return Array.isArray(e.guesses) ? e.guesses.length : (e.guesses || 0);
+// Globale verdeling voor het feit van vandaag: array van 6 getallen (winsten per
+// aantal pogingen, [1..6]) over alle spelers. Faalt graceful naar nullen.
+async function fetchGlobalGuessDist() {
+  const hash = state.hashes?.[0];
+  if (!hash) return [0, 0, 0, 0, 0, 0];
+  let a;
+  try { a = await rpc("get_fact_guess_distribution", { h: hash }); } catch (e) { return [0, 0, 0, 0, 0, 0]; }
+  return Array.isArray(a) && a.length === 6 ? a.map((n) => Number(n) || 0) : [0, 0, 0, 0, 0, 0];
 }
 
-// Verdeling van afgeronde daily's per aantal pogingen (1–6, alleen winsten —
-// een verlies is altijd 6 en zou de balken vertekenen). Vandaag uitgelicht.
-function recapDistHtml(history) {
-  const buckets = [0, 0, 0, 0, 0, 0];
-  for (const e of history) {
-    if (!e.won) continue;
-    const n = histGuessCount(e);
-    if (n >= 1 && n <= 6) buckets[n - 1] += 1;
-  }
+// Verdeling van pogingen per aantal (1–6, alleen winsten — een verlies is altijd 6
+// en zou de balken vertekenen). Jouw eigen resultaat van vandaag uitgelicht.
+function recapDistHtml(buckets) {
   const todayN = state.won ? Math.min(6, Math.max(1, state.guesses.length)) : null;
   const head = `<h3 class="stats-heading">${t("recap_dist_title")}</h3>`;
-  if (buckets.every((b) => b === 0)) {
+  if (!Array.isArray(buckets) || buckets.every((b) => b === 0)) {
     return `<section class="recap-section">${head}<p class="stats-empty">${t("recap_dist_empty")}</p></section>`;
   }
   const max = Math.max(...buckets);
@@ -1163,9 +1161,9 @@ async function renderRecap() {
   const body = document.getElementById("recap-body");
   if (!body) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  const history = auth.user ? await getMyHistory() : loadHistory();
+  const dist = await fetchGlobalGuessDist();
   if (document.getElementById("modal-recap").hidden) return;
-  body.innerHTML = recapDistHtml(history) +
+  body.innerHTML = recapDistHtml(dist) +
     `<section class="recap-section">` +
     `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
     `<div id="recap-team"></div></section>`;
