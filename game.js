@@ -519,19 +519,20 @@ function factSlides() {
     const f = state.event.extras[i];
     if (f) slides.push({ kind: "extra", nl: f.nl, en: f.en });
   }
-  // Opgevraagde hints verschijnen als nieuwe gekleurde slide (knop = trigger).
-  // ⏩ "100 jaar later" (oranje), tot 2. Ná afloop open ter inzage.
+  // Betaalde hints (⏩/🏛️/🔢) verschijnen als gekleurde slide zodra je ze opent.
+  // Bij WINST tonen we alleen wat je echt opende (niet de ongebruikte spoilen);
+  // bij VERLIES klappen we alles open, ter lering (het jaar is dan toch onthuld).
+  const revealAll = state.done && !state.won;
   if (state.laterClues) {
-    const shown = state.done ? availableLaterClues() : state.laterCluesShown;
+    const shown = revealAll ? availableLaterClues() : state.laterCluesShown;
     for (let i = 0; i < shown; i++) {
       slides.push({ kind: "later", text: laterSlotText(i) });
     }
   }
-  // 🏛️ eeuw-band (steen) en 🔢 laatste cijfer (blauw): elk één slide zodra onthuld.
-  if (state.done || state.centuryRevealed) {
+  if (state.centuryRevealed || revealAll) {
     slides.push({ kind: "century", text: centuryBand(state.event.year), sub: eraName(state.event.year) });
   }
-  if (state.done || state.lastDigitRevealed) {
+  if (state.lastDigitRevealed || revealAll) {
     slides.push({ kind: "digit", text: String(Math.abs(state.event.year) % 10) });
   }
   return slides;
