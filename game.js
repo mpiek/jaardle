@@ -725,9 +725,8 @@ function renderEvent() {
     slides.forEach((s, i) => {
       const d = document.createElement("button");
       d.type = "button";
-      const dbl = s.kind === "later" && s.slot === 1;   // 250-jaar-slide → ⏩⏩
-      d.className = `fact-dot k-${s.kind}` + (dbl ? " dbl" : "") + (i === factSlideIndex ? " active" : "");
-      d.textContent = dbl ? "⏩⏩" : (DOT_EMOJI[s.kind] || "•");
+      d.className = `fact-dot k-${s.kind}` + (i === factSlideIndex ? " active" : "");
+      d.textContent = DOT_EMOJI[s.kind] || "•";
       d.setAttribute("aria-label", `${i + 1}/${slides.length}`);
       d.addEventListener("click", () => goToSlide(i));
       track.appendChild(d);
