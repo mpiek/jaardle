@@ -1388,7 +1388,11 @@ async function renderStatBoard() {
     if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
   }
   const stat = LB_STATS[lbStatIndex];
-  const list = [...lbPoolStats].sort((a, b) => b[stat.key] - a[stat.key]);
+  // Aflopend op de stat; bij gelijke waarde alfabetisch op naam — een neutrale,
+  // voorspelbare tiebreak (anders bepaalt de willekeurige RPC-volgorde wie boven staat).
+  const list = [...lbPoolStats].sort((a, b) =>
+    (b[stat.key] - a[stat.key]) ||
+    String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { sensitivity: "base" }));
   content.innerHTML = lbStatRows(list, stat.val);
 }
 
