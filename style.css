@@ -1154,7 +1154,8 @@ footer {
 .lb-empty { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 0.6rem 0; }
 /* daily-navigatie: ‹ datum › */
 .lb-dailynav { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-.lb-dailynav .lb-daily-heading { flex: 1; text-align: center; margin: 0; }
+.lb-dailynav .lb-daily-heading,
+.lb-dailynav .lb-stat-heading { flex: 1; text-align: center; margin: 0; }
 .lb-navbtn {
   flex: 0 0 auto;
   width: 1.9rem;

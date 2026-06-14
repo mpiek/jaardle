@@ -114,6 +114,8 @@ const I18N = {
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
+    lb_stat_rating: "Rating", lb_stat_streak: "Streak",
+    lb_stat_prev: "Vorige stat", lb_stat_next: "Volgende stat",
     lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
     lb_empty_daily_past: "Niemand uit je pool heeft deze daily gespeeld.",
     lb_daily_prev: "Vorige dag", lb_daily_next: "Volgende dag",
@@ -210,6 +212,8 @@ const I18N = {
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
+    lb_stat_rating: "Rating", lb_stat_streak: "Streak",
+    lb_stat_prev: "Previous stat", lb_stat_next: "Next stat",
     lb_empty_daily: "Nobody has played today's daily yet.",
     lb_empty_daily_past: "Nobody in your pool played this daily.",
     lb_daily_prev: "Previous day", lb_daily_next: "Next day",
@@ -1291,6 +1295,9 @@ let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
 let lbDailyDate = null;               // welke daily-dag het bord toont (browsen met ‹ ›)
 let lbDailyReq = 0;                   // race-guard: alleen de laatste fetch mag renderen
+let lbStatIndex = 0;                  // welke stat-kolom het all-time bord toont (‹ ›)
+let lbOverall = [];                   // rating-bord (al geladen) — pagina 0
+let lbPoolStats = null;               // win%/score/streak — lazy bij eerste swipe, daarna cache
 
 function escHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -1342,6 +1349,48 @@ const lbNameCell = (row) =>
   escHtml(row.display_name) +
   (row.flair ? ` <span class="lb-flair-badge">${escHtml(row.flair)}</span>` : "") +
   (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
+
+// De swipebare stat-kolommen van het all-time bord. Elke pagina sorteert dezelfde
+// ledenlijst aflopend op z'n stat. Rating komt uit get_pool_leaderboard (pagina 0,
+// al geladen); win%/score/streak uit get_pool_stats (lazy, zie renderStatBoard).
+const LB_STATS = [
+  { key: "rating",    label: () => t("lb_stat_rating"), val: (r) => `${r.rating}${r.is_provisional ? "?" : ""}` },
+  { key: "win_pct",   label: () => t("stat_winrate"),   val: (r) => `${r.win_pct}%` },
+  { key: "avg_score", label: () => t("stat_avgscore"),  val: (r) => `${r.avg_score}` },
+  { key: "streak",    label: () => t("lb_stat_streak"), val: (r) => `${r.streak}` },
+];
+
+function lbStatRows(list, valFn) {
+  if (!list.length) return `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
+  return `<div class="lb-table">` + list.map((r, i) =>
+    `<div class="${lbRowCls(r.is_me)}"><span class="lb-rank">${lbMedal(i + 1)}</span>` +
+    `<span class="lb-name">${lbNameCell(r)}</span>` +
+    `<span class="lb-val">${valFn(r)}</span></div>`).join("") + `</div>`;
+}
+
+// Tekent het huidige stat-bord. Pagina 0 (Rating) gebruikt de al-geladen data.
+// De overige stats worden pas opgehaald bij de eerste swipe ernaartoe, daarna
+// gecached in lbPoolStats. Na de async fetch pakken we de dán-actuele stat (de
+// gebruiker kan intussen verder geswiped zijn).
+async function renderStatBoard() {
+  const head = document.getElementById("lb-stat-heading");
+  const content = document.getElementById("lb-stat-content");
+  if (!head || !content) return;
+  head.textContent = LB_STATS[lbStatIndex].label();
+  if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
+  if (!lbPoolStats) {
+    content.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+    let rows = [];
+    try { rows = await rpc("get_pool_stats", { p_pool_id: myPool.id }); } catch (e) {}
+    lbPoolStats = Array.isArray(rows) ? rows : [];
+    if (document.getElementById("modal-leaderboard").hidden) return;
+    head.textContent = LB_STATS[lbStatIndex].label();
+    if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
+  }
+  const stat = LB_STATS[lbStatIndex];
+  const list = [...lbPoolStats].sort((a, b) => b[stat.key] - a[stat.key]);
+  content.innerHTML = lbStatRows(list, stat.val);
+}
 
 // Naam-editor: toont je zelfgekozen weergavenaam (profiles.username) met een
 // wijzig-knop. Staat bovenaan het bord in beide states (met of zonder pool).
@@ -1496,13 +1545,15 @@ async function renderLeaderboard() {
       </div>
       <div id="lb-daily-content"></div>
     </section>`;
-  html += `<section class="lb-section"><h3 class="lb-heading">${t("lb_overall")}</h3>`;
-  if (!overall.length) html += `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
-  else html += `<div class="lb-table">` + overall.map((o) =>
-    `<div class="${lbRowCls(o.is_me)}"><span class="lb-rank">${lbMedal(o.rank)}</span>` +
-    `<span class="lb-name">${lbNameCell(o)}</span>` +
-    `<span class="lb-val">${o.rating}${o.is_provisional ? "?" : ""}</span></div>`).join("") + `</div>`;
-  html += `<p class="lb-sync" id="lb-sync"></p></section>`;
+  html += `<section class="lb-section">
+      <div class="lb-dailynav">
+        <button id="lb-stat-prev" class="lb-navbtn" aria-label="${t("lb_stat_prev")}" title="${t("lb_stat_prev")}">‹</button>
+        <h3 class="lb-heading lb-stat-heading" id="lb-stat-heading"></h3>
+        <button id="lb-stat-next" class="lb-navbtn" aria-label="${t("lb_stat_next")}" title="${t("lb_stat_next")}">›</button>
+      </div>
+      <div id="lb-stat-content"></div>
+      <p class="lb-sync" id="lb-sync"></p>
+    </section>`;
   body.innerHTML = html;
   wireNameEditor();
 
@@ -1512,6 +1563,15 @@ async function renderLeaderboard() {
   prevBtn.onclick = () => { if (lbDailyDate > EPOCH_KEY) { lbDailyDate = shiftDateKey(lbDailyDate, -1); loadDailyBoard(); } };
   nextBtn.onclick = () => { if (lbDailyDate < todayKey()) { lbDailyDate = shiftDateKey(lbDailyDate, +1); loadDailyBoard(); } };
   loadDailyBoard();
+
+  // All-time bord met swipebare stat-kolommen (Rating / Win% / Gem. score / Streak),
+  // ‹ ›-nav net als de daily. Pagina 0 (Rating) hergebruikt de al-geladen data; de
+  // andere stats worden lazy opgehaald bij de eerste swipe en daarna gecached.
+  lbOverall = overall; lbStatIndex = 0; lbPoolStats = null;
+  const cycleStat = (d) => { lbStatIndex = (lbStatIndex + d + LB_STATS.length) % LB_STATS.length; renderStatBoard(); };
+  document.getElementById("lb-stat-prev").onclick = () => cycleStat(-1);
+  document.getElementById("lb-stat-next").onclick = () => cycleStat(+1);
+  renderStatBoard();
 
   const inviteBtn = document.getElementById("lb-invite-btn");
   inviteBtn.onclick = () => shareInvite(inviteUrl, inviteBtn);
