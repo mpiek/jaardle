@@ -1638,7 +1638,11 @@ function renderPoolEmptyState(body) {
 
 // Joinen bevestigen (Ja/Nee), met switch-waarschuwing als je al in een pool zit.
 async function showJoinConfirm(code) {
-  openModal("modal-leaderboard");
+  // Toon de modal zelf — NIET via openModal(), want dat triggert ook
+  // renderLeaderboard(); die async fetch zou onze Ja/Nee-bevestiging in
+  // #lb-body overschrijven (de bevestiging flitst dan even en verdwijnt).
+  document.getElementById("modal-leaderboard").hidden = false;
+  setModalUrl("leaderboard");
   const body = document.getElementById("lb-body");
   stopLbSync();
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
