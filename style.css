@@ -19,7 +19,7 @@
   --h-extra:   #e2c45c;   /* 💡 zelfde tijd / hoofdfeit (goud) */
   --h-later:   #e69a5c;   /* ⏩ 100 jaar later (oranje) */
   --h-dir:     #e07a72;   /* 🧭 richting (koraal) */
-  --h-century: #b58bd8;   /* 🏛️ eeuw (lavendel) */
+  --h-century: #a89f8c;   /* 🏛️ eeuw (warme steengrijs) */
   --h-digit:   #74a9e2;   /* 🔢 laatste cijfer (blauw) */
 }
 
@@ -320,11 +320,16 @@ main {
 }
 
 /* Stippen onder het feit tonen de positie (en zijn ook klikbaar). */
+/* Klein venster (carrousel) dat maar een paar emoji-stippen toont; de track
+   erbinnen schuift zodat de actieve in het midden blijft (zie positionDots).
+   max-width wordt in JS gezet op het aantal zichtbare slots. */
 .fact-dots {
+  margin: 0.85rem auto 0;
+  overflow: hidden;
+}
+.fact-dots-track {
   display: flex;
-  justify-content: center;
-  gap: 0.45rem;
-  margin-top: 0.85rem;
+  transition: transform 0.25s ease;
 }
 
 /* Live score onder de stippen: start op 100 en telt zichtbaar omlaag bij elke
@@ -359,26 +364,30 @@ main {
   35%  { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
+/* Stip = de emoji van z'n hint (geen kleurvlakje). De actieve licht volledig op
+   en is groter; de rest staat gedimd/ontkleurd, zodat je ziet welke hints er
+   zijn én waar je nu bent. De emoji draagt de kleur. */
 .fact-dot {
-  width: 9px;
-  height: 9px;
+  flex: 0 0 18px;   /* vaste slot-breedte (== DOT_SLOT in game.js) voor net centreren */
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 50%;
+  background: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.62rem;
+  line-height: 1;
+  opacity: 0.34;
+  filter: grayscale(0.7);
+  transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
 }
-/* Elke stip houdt ALTIJD de kleur van z'n hint (verandert niet bij selecteren);
-   de actieve is alleen groter + krijgt een ring in dezelfde kleur. */
-.fact-dot.k-main    { background: var(--h-extra); }   /* zelfde als de zijlijn van het hoofdfeit */
-.fact-dot.k-extra   { background: var(--h-extra); }
-.fact-dot.k-later   { background: var(--h-later); }
-.fact-dot.k-century { background: var(--h-century); }
-.fact-dot.k-digit   { background: var(--h-digit); }
-.fact-dot:hover { transform: scale(1.2); }
+.fact-dot:hover { transform: scale(1.15); opacity: 0.7; filter: grayscale(0.25); }
 .fact-dot.active {
-  transform: scale(1.4);
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px rgba(255, 255, 255, 0.35);
+  opacity: 1;
+  filter: none;
+  transform: scale(1.25);
 }
 
 #hint-row {
@@ -1236,6 +1245,17 @@ footer {
   cursor: pointer;
 }
 .lb-form-row button:hover { background: var(--border); }
+/* zelfgekozen weergavenaam (boven het bord) */
+.lb-nameedit {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+  margin: 0 0 0.9rem; padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.lb-namelabel { color: var(--muted); }
+.lb-namecur { font-weight: 700; }
+.lb-noname { color: var(--muted); font-weight: 400; font-style: italic; }
+.lb-nameedit .lb-pillbtn { margin-left: auto; }
 .lb-name-status { margin: 0.6rem 0 0; font-size: 0.8rem; }
 .lb-name-status.ok { color: var(--green); }
 .lb-name-status.err { color: #ff8a8a; }

@@ -64,7 +64,6 @@ const I18N = {
     century_label: "Tijdvak",
     digit_label: "Laatste cijfer",
     free_hint: "extra hint",
-    free_hint_first: "raad het jaar",
     score_label: "punten",
     later_label: "100 jaar later",
     later_future: "Dit is nog toekomst — 100 jaar later is nog niet geweest.",
@@ -107,6 +106,12 @@ const I18N = {
     lb_rename: "✏️ Hernoemen", lb_rename_prompt: "Nieuwe naam voor de pool:",
     lb_invite_text: (name) => `🏆 Doe mee met "${name}" op Jaardle — raad elke dag het jaar van een historische gebeurtenis:`,
     lb_yes: "Ja", lb_no: "Nee", lb_err_code: "Onbekende code", lb_err_name: "Naam moet 2–30 tekens zijn", lb_err_generic: "Er ging iets mis",
+    lb_myname: "Jouw naam:", lb_name_edit: "✏️ Wijzig", lb_name_unset: "(niet ingesteld)",
+    lb_name_prompt: "Kies je weergavenaam (2–20 tekens; letters, cijfers, spatie, _ of -):",
+    lb_name_taken: "Die naam is al bezet — kies een andere.",
+    lb_name_invalid_length: "Naam moet tussen 2 en 20 tekens lang zijn.",
+    lb_name_invalid_chars: "Alleen letters, cijfers, spatie, _ en - zijn toegestaan.",
+    lb_name_err: "Kon je naam niet opslaan. Probeer het opnieuw.",
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
     lb_switch_q: (cur, name) => `Je zit al in "${cur}". Overstappen naar "${name}"? Je verlaat dan "${cur}".`,
@@ -137,7 +142,6 @@ const I18N = {
     century_label: "Era",
     digit_label: "Last digit",
     free_hint: "extra hint",
-    free_hint_first: "guess the year",
     score_label: "points",
     later_label: "100 years later",
     later_future: "This is still the future — 100 years later hasn't happened yet.",
@@ -185,6 +189,12 @@ const I18N = {
     lb_rename: "✏️ Rename", lb_rename_prompt: "New name for the pool:",
     lb_invite_text: (name) => `🏆 Join "${name}" on Jaardle — guess the year of a historic event every day:`,
     lb_yes: "Yes", lb_no: "No", lb_err_code: "Unknown code", lb_err_name: "Name must be 2–30 characters", lb_err_generic: "Something went wrong",
+    lb_myname: "Your name:", lb_name_edit: "✏️ Edit", lb_name_unset: "(not set)",
+    lb_name_prompt: "Choose your display name (2–20 chars; letters, digits, space, _ or -):",
+    lb_name_taken: "That name is taken — pick another.",
+    lb_name_invalid_length: "Name must be between 2 and 20 characters.",
+    lb_name_invalid_chars: "Only letters, digits, space, _ and - are allowed.",
+    lb_name_err: "Couldn't save your name. Please try again.",
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
     lb_join_q: (name) => `Join pool "${name}"?`,
     lb_switch_q: (cur, name) => `You're already in "${cur}". Switch to "${name}"? You'll leave "${cur}".`,
@@ -639,15 +649,23 @@ function renderEvent() {
   if (slides.length > 1) {
     const dots = document.createElement("div");
     dots.className = "fact-dots";
+    // Stip = de emoji van z'n hint (💡 hoofdfeit/extra · ⏩ 100 jaar later ·
+    // 🏛️ eeuw · 🔢 cijfer). Geen kleurvlakjes: de actieve emoji licht op, de rest
+    // is gedimd. Het venster toont er maar een paar (zie positionDots) en schuift
+    // mee met de actieve — een kleine carrousel. Zo zie je wélke hint waar staat.
+    const track = document.createElement("div");
+    track.className = "fact-dots-track";
+    const DOT_EMOJI = { main: "💡", extra: "💡", later: "⏩", century: "🏛️", digit: "🔢" };
     slides.forEach((s, i) => {
       const d = document.createElement("button");
       d.type = "button";
-      // Stip krijgt de kleur van z'n hint (geel/oranje/steen/blauw); hoofdfeit neutraal.
       d.className = `fact-dot k-${s.kind}` + (i === factSlideIndex ? " active" : "");
+      d.textContent = DOT_EMOJI[s.kind] || "•";
       d.setAttribute("aria-label", `${i + 1}/${slides.length}`);
       d.addEventListener("click", () => goToSlide(i));
-      dots.appendChild(d);
+      track.appendChild(d);
     });
+    dots.appendChild(track);
     els.eventText.appendChild(dots);
   }
   // Grote ‹ ›-knoppen flankeren de kaart (klik links = terug, rechts = verder);
@@ -666,9 +684,25 @@ function applyFactTransform(animate) {
   track.style.transform = `translateX(${-factSlideIndex * 100}%)`;
 }
 
+// Schuif het emoji-stippen-venster zodat de actieve (zo veel mogelijk) in het
+// midden staat. Het venster toont DOT_WIN stippen; bij ≤ DOT_WIN passen ze
+// allemaal (geen schuif). DOT_SLOT moet exact de CSS-slotbreedte zijn.
+const DOT_SLOT = 18;   // px — gelijk aan .fact-dot flex-basis
+const DOT_WIN = 3;     // hoeveel stippen tegelijk zichtbaar
+function positionDots() {
+  const wrap = els.eventText.querySelector(".fact-dots");
+  const track = els.eventText.querySelector(".fact-dots-track");
+  if (!wrap || !track) return;
+  const n = track.children.length;
+  wrap.style.maxWidth = (Math.min(n, DOT_WIN) * DOT_SLOT) + "px";
+  const start = Math.max(0, Math.min(factSlideIndex - 1, n - DOT_WIN));
+  track.style.transform = `translateX(${-start * DOT_SLOT}px)`;
+}
+
 function updateFactDots() {
   els.eventText.querySelectorAll(".fact-dot")
     .forEach((d, i) => d.classList.toggle("active", i === factSlideIndex));
+  positionDots();
   const n = factSlides().length;
   if (els.factPrev) els.factPrev.disabled = factSlideIndex <= 0;
   if (els.factNext) els.factNext.disabled = factSlideIndex >= n - 1;
@@ -1025,10 +1059,9 @@ function renderGuesses() {
         bulb.textContent = "💡";
         const lbl = document.createElement("span");
         lbl.className = "free-hint-label";
-        // Eerste aankomende bubbel (nog geen gokken): nudge om te raden i.p.v.
-        // "extra hint" — maakt voor nieuwe spelers duidelijk wat je moet doen.
-        const isFirstUpcoming = idx === state.guesses.length && state.guesses.length === 0;
-        lbl.textContent = isFirstUpcoming ? t("free_hint_first") : t("free_hint");
+        // Altijd "extra hint" — ook op de eerste plek (gok 1). Eerder stond hier
+        // "raad het jaar", maar het label hoort overal consistent "extra hint" te zijn.
+        lbl.textContent = t("free_hint");
         m.append(bulb, lbl);
         row.appendChild(m);
       }
@@ -1194,6 +1227,7 @@ function startDailyCountdown() {
 // deelbare code/link (?join=CODE) met Ja/Nee-bevestiging. De rating blijft
 // globaal; een pool filtert enkel wie je op het bord ziet.
 let myPool = null;                    // {id,name,invite_code,is_owner,members} of null
+let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let lbSyncTimer = null;
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
@@ -1247,6 +1281,45 @@ const lbMedal = (r) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" :
 const lbRowCls = (me) => (me ? "lb-row lb-me" : "lb-row");
 const lbNameCell = (row) =>
   escHtml(row.display_name) + (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
+
+// Naam-editor: toont je zelfgekozen weergavenaam (profiles.username) met een
+// wijzig-knop. Staat bovenaan het bord in beide states (met of zonder pool).
+// myUsername wordt in renderLeaderboard opgehaald via get_my_username.
+function nameEditorHtml() {
+  const cur = myUsername
+    ? `<span class="lb-namecur">${escHtml(myUsername)}</span>`
+    : `<span class="lb-namecur lb-noname">${t("lb_name_unset")}</span>`;
+  return `<div class="lb-nameedit">
+      <span class="lb-namelabel">${t("lb_myname")}</span>${cur}
+      <button id="lb-name-btn" class="lb-pillbtn">${t("lb_name_edit")}</button>
+    </div>`;
+}
+function wireNameEditor() {
+  const btn = document.getElementById("lb-name-btn");
+  if (btn) btn.onclick = promptSetUsername;
+}
+
+// Vraag een nieuwe weergavenaam en sla 'm op via set_my_username. De server
+// valideert (lengte 2–20, alleen [A-Za-z0-9 _-], hoofdletter-ongevoelig uniek)
+// en geeft een status-code terug die we naar een melding mappen. Render-laag
+// escapet de naam altijd (escHtml), dus geen HTML/script-injectie op het bord.
+async function promptSetUsername() {
+  const name = prompt(t("lb_name_prompt"), myUsername || "");
+  if (name == null) return;   // geannuleerd
+  let status = "err";
+  try { status = await rpc("set_my_username", { p_name: name }); } catch (e) {}
+  if (status === "ok") {
+    myUsername = name.trim();
+    renderLeaderboard();   // herlaadt bord → nieuwe naam verschijnt overal
+    return;
+  }
+  const msg = {
+    taken: t("lb_name_taken"),
+    invalid_length: t("lb_name_invalid_length"),
+    invalid_chars: t("lb_name_invalid_chars"),
+  }[status] || t("lb_name_err");
+  alert(msg);
+}
 
 // "YYYY-MM-DD" → korte gelokaliseerde datum (bv. "12 jun" / "12 Jun") voor de daily-kop.
 function fmtDailyDate(key) {
@@ -1306,6 +1379,7 @@ async function renderLeaderboard() {
   if (!auth.user) { body.innerHTML = `<p class="lb-empty">${t("lb_not_member")}</p>`; return; }
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
   try { const rows = await rpc("my_pool", {}); myPool = (Array.isArray(rows) && rows[0]) ? rows[0] : null; } catch (e) {}
+  try { myUsername = await rpc("get_my_username", {}) || null; } catch (e) {}
   if (document.getElementById("modal-leaderboard").hidden) return;
   if (!myPool) { renderPoolEmptyState(body); return; }
 
@@ -1317,7 +1391,7 @@ async function renderLeaderboard() {
 
   const inviteUrl = `https://jaardle.nl/?join=${myPool.invite_code}`;
   const renameBtnHtml = myPool.is_owner ? `<button id="lb-rename-btn" class="lb-pillbtn">${t("lb_rename")}</button>` : "";
-  let html = `<div class="lb-poolhead">
+  let html = nameEditorHtml() + `<div class="lb-poolhead">
       <div class="lb-poolname">${escHtml(myPool.name)}${myPool.is_owner ? ` <span class="lb-tag">${t("lb_owner_tag")}</span>` : ""}</div>
       <div class="lb-poolsub">${t("lb_members_n")(myPool.members)}</div>
       <div class="lb-poolactions">
@@ -1342,6 +1416,7 @@ async function renderLeaderboard() {
     `<span class="lb-val">${o.rating}${o.is_provisional ? "?" : ""}</span></div>`).join("") + `</div>`;
   html += `<p class="lb-sync" id="lb-sync"></p></section>`;
   body.innerHTML = html;
+  wireNameEditor();
 
   // Daily-bord + browsen naar vorige dagen (‹ ›).
   const prevBtn = document.getElementById("lb-daily-prev");
@@ -1379,7 +1454,7 @@ async function renderLeaderboard() {
 
 // Lege staat: een pool maken of joinen via code.
 function renderPoolEmptyState(body) {
-  body.innerHTML = `
+  body.innerHTML = nameEditorHtml() + `
     <p class="lb-empty">${t("lb_pool_none")}</p>
     <form class="lb-form" id="lb-create-form">
       <label class="lb-form-label">${t("lb_create_label")}</label>
@@ -1410,6 +1485,7 @@ function renderPoolEmptyState(body) {
     const code = document.getElementById("lb-join-input").value.trim().toUpperCase();
     if (code) showJoinConfirm(code);
   });
+  wireNameEditor();
 }
 
 // Joinen bevestigen (Ja/Nee), met switch-waarschuwing als je al in een pool zit.
