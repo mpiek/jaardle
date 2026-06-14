@@ -112,6 +112,7 @@ const I18N = {
     lb_name_invalid_length: "Naam moet tussen 2 en 20 tekens lang zijn.",
     lb_name_invalid_chars: "Alleen letters, cijfers, spatie, _ en - zijn toegestaan.",
     lb_name_err: "Kon je naam niet opslaan. Probeer het opnieuw.",
+    lb_flair_label: "Flair:", lb_flair_none: "Geen flair", lb_flair_err: "Kon je flair niet opslaan.",
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
     lb_switch_q: (cur, name) => `Je zit al in "${cur}". Overstappen naar "${name}"? Je verlaat dan "${cur}".`,
@@ -195,6 +196,7 @@ const I18N = {
     lb_name_invalid_length: "Name must be between 2 and 20 characters.",
     lb_name_invalid_chars: "Only letters, digits, space, _ and - are allowed.",
     lb_name_err: "Couldn't save your name. Please try again.",
+    lb_flair_label: "Flair:", lb_flair_none: "No flair", lb_flair_err: "Couldn't save your flair.",
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
     lb_join_q: (name) => `Join pool "${name}"?`,
     lb_switch_q: (cur, name) => `You're already in "${cur}". Switch to "${name}"? You'll leave "${cur}".`,
@@ -1228,6 +1230,9 @@ function startDailyCountdown() {
 // globaal; een pool filtert enkel wie je op het bord ziet.
 let myPool = null;                    // {id,name,invite_code,is_owner,members} of null
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
+let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
+// Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
+const FLAIR_OPTIONS = ["🔥", "⭐", "🎩", "👑", "🦊", "🐢", "🚀", "🎯", "🧠", "🍀", "🌟", "⚡", "🎲", "📜", "🦉", "🏅"];
 let lbSyncTimer = null;
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
@@ -1280,23 +1285,51 @@ function maybeOpenLeaderboardDeeplink() {
 const lbMedal = (r) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : `${r}`);
 const lbRowCls = (me) => (me ? "lb-row lb-me" : "lb-row");
 const lbNameCell = (row) =>
-  escHtml(row.display_name) + (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
+  escHtml(row.display_name) +
+  (row.flair ? ` <span class="lb-flair-badge">${escHtml(row.flair)}</span>` : "") +
+  (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
 
 // Naam-editor: toont je zelfgekozen weergavenaam (profiles.username) met een
 // wijzig-knop. Staat bovenaan het bord in beide states (met of zonder pool).
 // myUsername wordt in renderLeaderboard opgehaald via get_my_username.
+function flairPickerHtml() {
+  const opt = (val, label, extra) =>
+    `<button type="button" class="lb-flair-opt${extra || ""}${(myFlair || "") === val ? " sel" : ""}" data-flair="${escHtml(val)}" aria-label="${label}" title="${label}">${val || "✖"}</button>`;
+  const buttons = opt("", t("lb_flair_none"), " lb-flair-clear") +
+    FLAIR_OPTIONS.map((e) => opt(e, e, "")).join("");
+  return `<div class="lb-flair">
+      <span class="lb-namelabel">${t("lb_flair_label")}</span>
+      <div class="lb-flair-opts">${buttons}</div>
+    </div>`;
+}
+
 function nameEditorHtml() {
   const cur = myUsername
     ? `<span class="lb-namecur">${escHtml(myUsername)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_name_unset")}</span>`;
-  return `<div class="lb-nameedit">
+  return `<div class="lb-identity">
+    <div class="lb-nameedit">
       <span class="lb-namelabel">${t("lb_myname")}</span>${cur}
       <button id="lb-name-btn" class="lb-pillbtn">${t("lb_name_edit")}</button>
-    </div>`;
+    </div>
+    ${flairPickerHtml()}
+  </div>`;
 }
 function wireNameEditor() {
   const btn = document.getElementById("lb-name-btn");
   if (btn) btn.onclick = promptSetUsername;
+  document.querySelectorAll(".lb-flair-opt").forEach((b) => {
+    b.onclick = () => setMyFlair(b.dataset.flair || "");
+  });
+}
+
+// Sla de gekozen flair op (server valideert tegen de allow-list); lege string wist.
+async function setMyFlair(flair) {
+  if ((myFlair || "") === (flair || "")) return;   // al gekozen → niks doen
+  let status = "err";
+  try { status = await rpc("set_my_flair", { p_flair: flair }); } catch (e) {}
+  if (status === "ok") { myFlair = flair || null; renderLeaderboard(); return; }
+  alert(t("lb_flair_err"));
 }
 
 // Vraag een nieuwe weergavenaam en sla 'm op via set_my_username. De server
@@ -1380,6 +1413,7 @@ async function renderLeaderboard() {
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
   try { const rows = await rpc("my_pool", {}); myPool = (Array.isArray(rows) && rows[0]) ? rows[0] : null; } catch (e) {}
   try { myUsername = await rpc("get_my_username", {}) || null; } catch (e) {}
+  try { myFlair = await rpc("get_my_flair", {}) || null; } catch (e) {}
   if (document.getElementById("modal-leaderboard").hidden) return;
   if (!myPool) { renderPoolEmptyState(body); return; }
 

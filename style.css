@@ -1245,17 +1245,32 @@ footer {
   cursor: pointer;
 }
 .lb-form-row button:hover { background: var(--border); }
-/* zelfgekozen weergavenaam (boven het bord) */
-.lb-nameedit {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+/* zelfgekozen weergavenaam + flair (boven het bord) */
+.lb-identity {
   margin: 0 0 0.9rem; padding-bottom: 0.9rem;
   border-bottom: 1px solid var(--border);
+}
+.lb-nameedit {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;
   font-size: 0.85rem;
 }
 .lb-namelabel { color: var(--muted); }
 .lb-namecur { font-weight: 700; }
 .lb-noname { color: var(--muted); font-weight: 400; font-style: italic; }
 .lb-nameedit .lb-pillbtn { margin-left: auto; }
+.lb-flair { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.65rem; font-size: 0.85rem; }
+.lb-flair-opts { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.lb-flair-opt {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card-soft); color: var(--fg);
+  font-size: 1rem; line-height: 1; cursor: pointer;
+}
+.lb-flair-opt:hover { background: var(--border); }
+.lb-flair-opt.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.lb-flair-clear { font-size: 0.85rem; color: var(--muted); }
+.lb-flair-badge { font-size: 0.95em; }
 .lb-name-status { margin: 0.6rem 0 0; font-size: 0.8rem; }
 .lb-name-status.ok { color: var(--green); }
 .lb-name-status.err { color: #ff8a8a; }
