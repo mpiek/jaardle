@@ -6,3 +6,5 @@ exclude:
   - package.json
   - package-lock.json
   - tests/
+  - tools/
+  - "*.template.html"

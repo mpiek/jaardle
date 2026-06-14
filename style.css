@@ -1289,3 +1289,16 @@ footer {
   cursor: pointer;
 }
 .lb-confirm-actions button.primary { background: var(--accent); border-color: var(--accent); color: #08131f; }
+
+/* Crawlbaar/SEO + screenreader-introblok: voorgerenderd per taal door het
+   build-script. Onzichtbaar voor zienden (verstoort de spel-UI niet), wél in de
+   DOM voor crawlers en schermlezers. Haal .sr-only weg om 'm zichtbaar te maken. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

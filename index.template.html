@@ -13,39 +13,37 @@
   vanaf zowel de root als een subdir (/en, /de) werkt. Versie-bumps (?v=) doe je
   hier; de build kopieert ze naar elke mirror.
 -->
-<html lang="en">
+<html lang="{{html}}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jaardle — guess the year</title>
-<meta name="description" content="Free Wordle-style year-guessing puzzle: guess the year of a historic event in six tries. Daily puzzle or endless free play.">
-<link rel="canonical" href="https://jaardle.nl/en">
-<link rel="alternate" hreflang="nl" href="https://jaardle.nl/">
-<link rel="alternate" hreflang="en" href="https://jaardle.nl/en">
-<link rel="alternate" hreflang="x-default" href="https://jaardle.nl/">
+<title>{{i18n:meta_title}}</title>
+<meta name="description" content="{{i18n:meta_desc}}">
+<link rel="canonical" href="{{url}}">
+{{hreflang}}
 
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://jaardle.nl/en">
-<meta property="og:title" content="Jaardle — guess the year of historic events">
-<meta property="og:description" content="Free Wordle-style year-guessing puzzle: guess the year of a historic event in six tries. Daily puzzle or endless free play.">
-<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="{{url}}">
+<meta property="og:title" content="{{i18n:meta_share_title}}">
+<meta property="og:description" content="{{i18n:meta_desc}}">
+<meta property="og:locale" content="{{og}}">
 <meta property="og:site_name" content="Jaardle">
 
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Jaardle — guess the year of historic events">
-<meta name="twitter:description" content="Free Wordle-style year-guessing puzzle: guess the year of a historic event in six tries. Daily puzzle or endless free play.">
+<meta name="twitter:title" content="{{i18n:meta_share_title}}">
+<meta name="twitter:description" content="{{i18n:meta_desc}}">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "Jaardle",
-  "url": "https://jaardle.nl/en",
+  "url": "{{url}}",
   "applicationCategory": "GameApplication",
   "operatingSystem": "Web",
-  "inLanguage": "en-GB",
+  "inLanguage": "{{intl}}",
   "isAccessibleForFree": true,
-  "description": "Free Wordle-style year-guessing puzzle: guess the year of a historic event in six tries. Daily puzzle or endless free play."
+  "description": {{json:meta_desc}}
 }
 </script>
 
@@ -58,34 +56,34 @@
 <body>
   <main>
     <header class="site-intro sr-only">
-      <h1 data-i18n="intro_h1">Jaardle — the daily year-guessing game</h1>
-      <p data-i18n-html="intro_html">Jaardle is a free Wordle-style puzzle game: you get a historic event and guess the year it happened in a few tries. Play the same <strong>daily puzzle</strong> as everyone else, or endless <strong>free play</strong>, compare your score with friends and build your streak.</p>
+      <h1 data-i18n="intro_h1">{{i18n:intro_h1}}</h1>
+      <p data-i18n-html="intro_html">{{i18nhtml:intro_html}}</p>
     </header>
     <nav id="mode-tabs" role="tablist">
       <div id="menu-wrap">
         <button id="menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu">⋮</button>
         <div id="menu-pop" role="menu" hidden>
           <div id="menu-account" class="menu-section"></div>
-          <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Statistics</button>
-          <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Leaderboard</button>
+          <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">{{i18n:menu_stats}}</button>
+          <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>{{i18n:menu_leaderboard}}</button>
           <button class="menu-item" role="menuitem" data-action="lang"></button>
         </div>
       </div>
-      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><svg class="tab-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L64 64C28.7 64 0 92.7 0 128l0 16 0 48L0 448c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-256 0-48 0-16c0-35.3-28.7-64-64-64l-40 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L152 64l0-40zM48 192l352 0 0 256c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256z"/></svg> <span data-i18n="tab_daily">Daily Jaardle</span></button>
-      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">New game</button>
+      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><svg class="tab-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L64 64C28.7 64 0 92.7 0 128l0 16 0 48L0 448c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-256 0-48 0-16c0-35.3-28.7-64-64-64l-40 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L152 64l0-40zM48 192l352 0 0 256c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256z"/></svg> <span data-i18n="tab_daily">{{i18n:tab_daily}}</span></button>
+      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">{{i18n:tab_free}}</button>
     </nav>
 
     <section id="event-card">
       <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Vorig feit" hidden>‹</button>
-      <div id="event-text">Loading…</div>
+      <div id="event-text">{{i18n:loading}}</div>
       <button id="fact-next" class="fact-side fact-side-next" type="button" aria-label="Volgend feit" hidden>›</button>
     </section>
 
     <div id="hint-row">
-      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ 100 years later</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
-      <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">🧭 Direction</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
-      <button id="hint-btn-century" type="button" hidden title="Toets: C"><span data-i18n="hint_century">🏛️ Century</span> <span class="btn-cost" data-penalty="century-hint"></span></button>
-      <button id="hint-btn-digit" type="button" hidden title="Toets: L"><span data-i18n="hint_digit">🔢 Last digit</span> <span class="btn-cost" data-penalty="digit-hint"></span></button>
+      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">{{i18n:hint_later}}</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
+      <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">{{i18n:hint_dir}}</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
+      <button id="hint-btn-century" type="button" hidden title="Toets: C"><span data-i18n="hint_century">{{i18n:hint_century}}</span> <span class="btn-cost" data-penalty="century-hint"></span></button>
+      <button id="hint-btn-digit" type="button" hidden title="Toets: L"><span data-i18n="hint_digit">{{i18n:hint_digit}}</span> <span class="btn-cost" data-penalty="digit-hint"></span></button>
       <span id="hint-count" class="hint-count"></span>
     </div>
 
@@ -93,7 +91,7 @@
 
     <div id="live-score" class="live-score" hidden>
       <span class="live-score-val">100</span>
-      <span class="live-score-lab" data-i18n="score_label">points</span>
+      <span class="live-score-lab" data-i18n="score_label">{{i18n:score_label}}</span>
     </div>
 
     <section id="input-row">
@@ -113,34 +111,24 @@
       <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="Voor Christus toggle">−</button>
       <button class="key" type="button" data-digit="0">0</button>
       <button class="key key-back" type="button" id="backspace-btn" aria-label="Wis laatste cijfer">⌫</button>
-      <button class="key key-wide" type="button" id="guess-btn" data-i18n="guess">Guess</button>
+      <button class="key key-wide" type="button" id="guess-btn" data-i18n="guess">{{i18n:guess}}</button>
     </section>
 
     <section id="result" hidden>
       <p id="result-text"></p>
       <div id="reveal-row" hidden></div>
       <div id="result-actions">
-        <button id="share-btn"><svg class="btn-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M352 224c53 0 96-43 96-96s-43-96-96-96-96 43-96 96c0 4 .2 8 .7 11.9l-94.1 47C145 174.6 124.8 160 96 160c-53 0-96 43-96 96s43 96 96 96c28.8 0 49-14.6 62.6-30.9l94.1 47c-.5 3.9-.7 7.8-.7 11.9 0 53 43 96 96 96s96-43 96-96-43-96-96-96c-28.8 0-49 14.6-62.6 30.9l-94.1-47c.5-3.9 .7-7.8 .7-11.9s-.2-8-.7-11.9l94.1-47C303 209.4 323.2 224 352 224z"/></svg> <span class="share-label" data-i18n="share">Share result</span></button>
-        <button id="recap-btn" hidden><svg class="btn-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M160 80c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 352c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48l0-352zM0 272c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 160c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48L0 272zM368 96l32 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48l0-288c0-26.5 21.5-48 48-48z"/></svg> <span data-i18n="recap_btn">Distribution &amp; team</span></button>
-        <button id="next-btn" hidden data-i18n="next">New round</button>
+        <button id="share-btn"><svg class="btn-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M352 224c53 0 96-43 96-96s-43-96-96-96-96 43-96 96c0 4 .2 8 .7 11.9l-94.1 47C145 174.6 124.8 160 96 160c-53 0-96 43-96 96s43 96 96 96c28.8 0 49-14.6 62.6-30.9l94.1 47c-.5 3.9-.7 7.8-.7 11.9 0 53 43 96 96 96s96-43 96-96-43-96-96-96c-28.8 0-49 14.6-62.6 30.9l-94.1-47c.5-3.9 .7-7.8 .7-11.9s-.2-8-.7-11.9l94.1-47C303 209.4 323.2 224 352 224z"/></svg> <span class="share-label" data-i18n="share">{{i18n:share}}</span></button>
+        <button id="recap-btn" hidden><svg class="btn-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M160 80c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 352c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48l0-352zM0 272c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 160c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48L0 272zM368 96l32 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48l0-288c0-26.5 21.5-48 48-48z"/></svg> <span data-i18n="recap_btn">{{i18n:recap_btn}}</span></button>
+        <button id="next-btn" hidden data-i18n="next">{{i18n:next}}</button>
       </div>
       <p id="event-source"></p>
     </section>
 
     <section id="help">
       <details>
-        <summary data-i18n="help_summary">How to play?</summary>
-        <ul id="help-list">
-  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. In the carousel, guesses 1 and 2 each add a <strong>free</strong> extra fact from the same year (💡 yellow).</li>
-  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100 years later</strong> (an event a century after the answer, up to 2×), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
-  <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
-  <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. The yellow extra facts are free; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> and 🧭 <span data-penalty="dir-hint"></span> cost points. Lost = 0–10, based on your closest guess.</li>
-  <li>Tiers: <span data-help="tiers"></span></li>
-  <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
-  <li><strong>New game</strong>: endless rounds, a random event.</li>
-  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li></ul>
+        <summary data-i18n="help_summary">{{i18n:help_summary}}</summary>
+        <ul id="help-list">{{i18nhtml:help_list}}</ul>
       </details>
     </section>
   </main>
@@ -149,7 +137,7 @@
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card">
       <header class="modal-header">
-        <h2 id="modal-stats-title" data-i18n="stats_title">📊 Statistics</h2>
+        <h2 id="modal-stats-title" data-i18n="stats_title">{{i18n:stats_title}}</h2>
         <button class="modal-close" data-close aria-label="Sluit">✕</button>
       </header>
       <div id="stats-body" class="modal-body"></div>
@@ -160,7 +148,7 @@
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card">
       <header class="modal-header">
-        <h2 id="modal-recap-title" data-i18n="recap_title">📊 Done for today</h2>
+        <h2 id="modal-recap-title" data-i18n="recap_title">{{i18n:recap_title}}</h2>
         <button class="modal-close" data-close aria-label="Sluit">✕</button>
       </header>
       <div id="recap-body" class="modal-body"></div>
@@ -171,7 +159,7 @@
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card">
       <header class="modal-header">
-        <h2 id="modal-lb-title" data-i18n="lb_title">🏆 Leaderboard</h2>
+        <h2 id="modal-lb-title" data-i18n="lb_title">{{i18n:lb_title}}</h2>
         <button class="modal-close" data-close aria-label="Sluit">✕</button>
       </header>
       <div id="lb-body" class="modal-body"></div>
@@ -182,32 +170,32 @@
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card">
       <header class="modal-header">
-        <h2 id="modal-login-title" data-i18n="login_title">Sign in</h2>
+        <h2 id="modal-login-title" data-i18n="login_title">{{i18n:login_title}}</h2>
         <button class="modal-close" data-close aria-label="Sluit">✕</button>
       </header>
       <div class="modal-body">
         <button type="button" id="login-google" class="google-btn">
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.61z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.33-1.58-5.04-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.96 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.28-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3 2.33C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
-          <span data-i18n="login_google">Continue with Google</span>
+          <span data-i18n="login_google">{{i18n:login_google}}</span>
         </button>
-        <div class="auth-sep"><span data-i18n="login_or">or with email</span></div>
+        <div class="auth-sep"><span data-i18n="login_or">{{i18n:login_or}}</span></div>
         <form id="login-form" autocomplete="on">
-          <label><span data-i18n="login_email">Email</span><input type="email" name="email" required autocomplete="email"></label>
-          <label><span data-i18n="login_password">Password</span><input type="password" name="password" required autocomplete="current-password" minlength="6"></label>
+          <label><span data-i18n="login_email">{{i18n:login_email}}</span><input type="email" name="email" required autocomplete="email"></label>
+          <label><span data-i18n="login_password">{{i18n:login_password}}</span><input type="password" name="password" required autocomplete="current-password" minlength="6"></label>
           <div class="modal-actions">
-            <button type="submit" class="primary" data-i18n="login_submit">Sign in</button>
-            <button type="button" id="login-register" data-i18n="login_register">Register</button>
+            <button type="submit" class="primary" data-i18n="login_submit">{{i18n:login_submit}}</button>
+            <button type="button" id="login-register" data-i18n="login_register">{{i18n:login_register}}</button>
           </div>
         </form>
         <p id="login-error" class="form-error" hidden></p>
-        <p class="form-note" data-i18n-html="login_note">Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.</p>
+        <p class="form-note" data-i18n-html="login_note">{{i18nhtml:login_note}}</p>
       </div>
     </div>
   </div>
 
   <footer>
     <p>
-      <span data-i18n-html="footer_note">Events + Dutch translations under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derived from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">English Wikipedia</a> (machine-translated).</span>
+      <span data-i18n-html="footer_note">{{i18nhtml:footer_note}}</span>
       <span id="day-label"></span>
     </p>
   </footer>

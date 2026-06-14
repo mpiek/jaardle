@@ -1,4 +1,18 @@
 <!DOCTYPE html>
+<!--
+  BRON-TEMPLATE voor alle taal-mirrors. Bewerk NOOIT index.html / en/index.html /
+  de/index.html direct — die worden gegenereerd. Wijzig deze template (of de
+  I18N-strings in game.js) en draai `npm run build`.
+
+  Tokens (telkens tussen dubbele accolades):
+    html, url, intl, og, hreflang  → per-taal <head>/SEO-waarden
+    i18n:<key>      → platte tekst uit I18N[lang][key] (HTML-geëscaped)
+    i18nhtml:<key>  → HTML-waarde uit I18N[lang][key] (ruw, mag tags bevatten)
+    json:<key>      → JSON-geëscapede waarde (voor ld+json)
+  Asset-paden zijn root-absoluut (/style.css, /game.js) zodat dezelfde template
+  vanaf zowel de root als een subdir (/en, /de) werkt. Versie-bumps (?v=) doe je
+  hier; de build kopieert ze naar elke mirror.
+-->
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -13,13 +27,13 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://jaardle.nl/">
 <meta property="og:title" content="Jaardle — raad het jaar van historische gebeurtenissen">
-<meta property="og:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis.">
+<meta property="og:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis. Dagelijkse puzzel of vrij spel.">
 <meta property="og:locale" content="nl_NL">
 <meta property="og:site_name" content="Jaardle">
 
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Jaardle — raad het jaar van historische gebeurtenissen">
-<meta name="twitter:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl.">
+<meta name="twitter:description" content="Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis. Dagelijkse puzzel of vrij spel.">
 
 <script type="application/ld+json">
 {
@@ -31,7 +45,7 @@
   "operatingSystem": "Web",
   "inLanguage": "nl-NL",
   "isAccessibleForFree": true,
-  "description": "Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis."
+  "description": "Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis. Dagelijkse puzzel of vrij spel."
 }
 </script>
 
@@ -39,10 +53,14 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="style.css?v=58">
+<link rel="stylesheet" href="/style.css?v=59">
 </head>
 <body>
   <main>
+    <header class="site-intro sr-only">
+      <h1 data-i18n="intro_h1">Jaardle — het dagelijkse jaartal-raadspel</h1>
+      <p data-i18n-html="intro_html">Jaardle is een gratis puzzelspel in Wordle-stijl: je krijgt een historische gebeurtenis en raadt in een paar pogingen in welk jaar die plaatsvond. Speel elke dag dezelfde <strong>dagelijkse puzzel</strong> als iedereen, of oneindig <strong>vrij spel</strong>, vergelijk je score met vrienden en bouw je streak op.</p>
+    </header>
     <nav id="mode-tabs" role="tablist">
       <div id="menu-wrap">
         <button id="menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu">⋮</button>
@@ -113,16 +131,16 @@
       <details>
         <summary data-i18n="help_summary">Hoe werkt het?</summary>
         <ul id="help-list">
-          <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. Max <span data-help="max-text-hints"></span> extra hints (💡) beschikbaar.</li>
-          <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
-          <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
-          <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-          <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span>. Hints kosten 💡 <span data-penalty="text-hint"></span> en 🧭 <span data-penalty="dir-hint"></span>. Verloren = 0.</li>
-          <li>Tiers: <span data-help="tiers"></span></li>
-          <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
-          <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
-          <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>E</kbd> voor extra hint, <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om tussen Dagelijks en Nieuw spel te wisselen.</li>
-        </ul>
+  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel komen er bij gok 1 en gok 2 <strong>gratis</strong> twee extra feiten uit hetzelfde jaar bij (💡 geel).</li>
+  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100 jaar later</strong> (gebeurtenis uit een eeuw ná het antwoord, tot 2×), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
+  <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
+  <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
+  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
+  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. De gele extra-feiten zijn gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> en 🧭 <span data-penalty="dir-hint"></span> kosten punten. Verloren = 0–10, o.b.v. je dichtste gok.</li>
+  <li>Tiers: <span data-help="tiers"></span></li>
+  <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
+  <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
+  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li></ul>
       </details>
     </section>
   </main>
@@ -182,22 +200,14 @@
           </div>
         </form>
         <p id="login-error" class="form-error" hidden></p>
-        <p class="form-note" data-i18n-html="login_note">
-          Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google).
-          Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst,
-          en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.
-        </p>
+        <p class="form-note" data-i18n-html="login_note">Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.</p>
       </div>
     </div>
   </div>
 
   <footer>
     <p>
-      <span data-i18n-html="footer_note">Gebeurtenissen + Nederlandse vertalingen onder
-      <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a>,
-      afgeleid van
-      <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Engelstalige Wikipedia</a>
-      (machine-vertaald).</span>
+      <span data-i18n-html="footer_note">Gebeurtenissen + Nederlandse vertalingen onder <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a>, afgeleid van <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Engelstalige Wikipedia</a> (machine-vertaald).</span>
       <span id="day-label"></span>
     </p>
   </footer>
@@ -248,7 +258,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="game.js?v=79"></script>
+  <script src="/game.js?v=80"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

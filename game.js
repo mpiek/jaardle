@@ -10,22 +10,45 @@ const EPOCH_KEY = EPOCH.toISOString().slice(0, 10);   // "2026-06-06" — eerste
 const MIN_YEAR = -753;
 const MAX_YEAR = new Date().getFullYear();
 
-// --- i18n (NL/EN) ------------------------------------------------------------
-// Taalkeuze: pad (/en) > ?lang= > opgeslagen voorkeur > browsertaal.
-// Bij een eerste bezoek zonder voorkeur kiezen we op basis van de browsertaal:
-// een Nederlandstalige browser (nl-NL/nl-BE) krijgt NL, al het andere Engels —
-// zodat het internationale publiek standaard in het Engels binnenkomt.
+// --- i18n (meertalig) --------------------------------------------------------
+// EÉN plek voor álle talen. Een taal toevoegen is puur configuratie:
+//   1. voeg een entry toe aan LANGS hieronder,
+//   2. voeg een volledig blok toe aan I18N (zelfde keys als de andere talen),
+//   3. draai `npm run build` — dat genereert de per-taal HTML-mirror (/, /en, /de…)
+//      uit index.template.html met de juiste <head>/SEO-tags en voorgerenderde tekst.
+// De volledigheidstest (tests/i18n.test.mjs) faalt als een taal een key mist.
+// Zie tools/build-html.mjs voor het build-script.
+//
+// Velden per taal: label (menu), html (<html lang>), intl (Intl + ld+json),
+// og (og:locale), path (URL-segment; "" = root-taal).
+const LANGS = {
+  nl: { label: "🇳🇱 Nederlands", html: "nl", intl: "nl-NL", og: "nl_NL", path: "" },
+  en: { label: "🇬🇧 English",    html: "en", intl: "en-GB", og: "en_GB", path: "en" },
+};
+const LANG_CODES = Object.keys(LANGS);
+// Brontaal: hieruit lenen we een string/feit als de huidige taal die mist (het
+// meest complete blok). Los van de browser-detectie-fallback hieronder.
+const DEFAULT_LANG = "nl";
+// Wat een bezoeker krijgt als zijn browsertaal géén van onze talen matcht: het
+// internationale publiek komt standaard in het Engels binnen.
+const BROWSER_DEFAULT = "en";
+
+// Taalkeuze: pad (/en) > ?lang= > opgeslagen voorkeur > browsertaal > BROWSER_DEFAULT.
 let lang = (() => {
   try {
-    const p = location.pathname.replace(/\/+$/, "");
-    if (p === "/en" || p.endsWith("/en")) return "en";
+    const seg = location.pathname.replace(/\/+$/, "").split("/").filter(Boolean)[0];
+    if (LANG_CODES.includes(seg)) return seg;
     const q = new URLSearchParams(location.search).get("lang");
-    if (q === "en" || q === "nl") return q;
+    if (LANG_CODES.includes(q)) return q;
     const stored = localStorage.getItem("jaardle:lang");
-    if (stored === "en" || stored === "nl") return stored;
+    if (LANG_CODES.includes(stored)) return stored;
     const prefs = navigator.languages || [navigator.language || ""];
-    return prefs.some((l) => l.toLowerCase().startsWith("nl")) ? "nl" : "en";
-  } catch (e) { return "nl"; }
+    for (const pref of prefs) {
+      const code = String(pref).toLowerCase().split("-")[0];
+      if (LANG_CODES.includes(code)) return code;
+    }
+    return BROWSER_DEFAULT;
+  } catch (e) { return BROWSER_DEFAULT; }
 })();
 
 const HELP_NL = `
@@ -129,6 +152,18 @@ const I18N = {
     recap_acct_btn: "Inloggen of account maken",
     recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
+    dir_word: "richtingen",
+    avg_word: "gem.",
+    copy_prompt: "Kopieer dit:",
+    cal_solved: (g, max) => `opgelost (${g}/${max})`,
+    fact_stats: (s, hasScore) =>
+      `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`,
+    // SEO/meta — door tools/build-html.mjs in de <head> + het introblok gezet.
+    meta_title: "Jaardle — raad het jaar",
+    meta_share_title: "Jaardle — raad het jaar van historische gebeurtenissen",
+    meta_desc: "Gratis Nederlands jaartal-puzzelspel in Wordle-stijl: raad in zes pogingen het jaar van een historische gebeurtenis. Dagelijkse puzzel of vrij spel.",
+    intro_h1: "Jaardle — het dagelijkse jaartal-raadspel",
+    intro_html: `Jaardle is een gratis puzzelspel in Wordle-stijl: je krijgt een historische gebeurtenis en raadt in een paar pogingen in welk jaar die plaatsvond. Speel elke dag dezelfde <strong>dagelijkse puzzel</strong> als iedereen, of oneindig <strong>vrij spel</strong>, vergelijk je score met vrienden en bouw je streak op.`,
     help_list: HELP_NL,
   },
   en: {
@@ -213,13 +248,25 @@ const I18N = {
     recap_acct_btn: "Sign in or create account",
     recap_acct_free: "Always 100% free — no paid tier, no ads.",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
+    dir_word: "directions",
+    avg_word: "avg.",
+    copy_prompt: "Copy this:",
+    cal_solved: (g, max) => `solved (${g}/${max})`,
+    fact_stats: (s, hasScore) =>
+      `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`,
+    // SEO/meta — used by tools/build-html.mjs for the <head> + intro block.
+    meta_title: "Jaardle — guess the year",
+    meta_share_title: "Jaardle — guess the year of historic events",
+    meta_desc: "Free Wordle-style year-guessing puzzle: guess the year of a historic event in six tries. Daily puzzle or endless free play.",
+    intro_h1: "Jaardle — the daily year-guessing game",
+    intro_html: `Jaardle is a free Wordle-style puzzle game: you get a historic event and guess the year it happened in a few tries. Play the same <strong>daily puzzle</strong> as everyone else, or endless <strong>free play</strong>, compare your score with friends and build your streak.`,
     help_list: HELP_EN,
   },
 };
 
 function t(key) {
   const v = I18N[lang] && I18N[lang][key];
-  return v != null ? v : I18N.nl[key];
+  return v != null ? v : I18N[DEFAULT_LANG][key];
 }
 function tierLabel(tier) {
   return (t("tiers") || {})[tier.key] || tier.label;
@@ -239,7 +286,7 @@ function applyLang() {
   if (help) help.innerHTML = t("help_list");
   renderHelpConstants();
   const langItem = document.querySelector('#menu-pop [data-action="lang"]');
-  if (langItem) langItem.textContent = lang === "nl" ? "🇬🇧 English" : "🇳🇱 Nederlands";
+  if (langItem) langItem.textContent = LANGS[nextLang()].label;
   if (els.dayLabel) els.dayLabel.textContent = `${t("day")} #${daysSince(EPOCH) + 1}`;
   renderMenu();
   if (state) {
@@ -251,12 +298,18 @@ function applyLang() {
   if (sm && !sm.hidden) renderStats();
 }
 
+// Volgende taal in de cyclus (wrapt rond). Bij 2 talen = simpele toggle; bij 3+
+// loop je er stap voor stap doorheen via het menu-item.
+function nextLang() {
+  return LANG_CODES[(LANG_CODES.indexOf(lang) + 1) % LANG_CODES.length];
+}
+
 function toggleLang() {
-  lang = lang === "nl" ? "en" : "nl";
+  lang = nextLang();
   applyLang();
-  // Houd de URL in lijn met de taal: /en voor Engels, / voor Nederlands (query
-  // zoals ?p=... blijft behouden). Direct bezoek aan /en werkt via en/index.html.
-  try { history.replaceState(null, "", (lang === "en" ? "/en" : "/") + location.search); }
+  // Houd de URL in lijn met de taal: "/" voor de root-taal, "/en", "/de", …
+  // (query zoals ?p=... blijft behouden). Direct bezoek werkt via de per-taal mirror.
+  try { history.replaceState(null, "", "/" + LANGS[lang].path + location.search); }
   catch (e) {}
 }
 
@@ -387,7 +440,7 @@ function arraysEqual(a, b) {
 // state.event is de UI-vorm ({year, facts:[{nl,en}], extras:[{nl,en}], source});
 // state.hashes is het share-token (main eerst).
 function toEvent(puzzle) {
-  const map = (f) => ({ nl: f.nl, en: f.en || "" });
+  const map = (f) => Object.fromEntries(LANG_CODES.map((c) => [c, f[c] || ""]));
   return {
     year: puzzle.year,
     facts: (puzzle.facts || []).map(map),
@@ -532,12 +585,12 @@ function revealedExtraCount() {
 // inhoud zodra je betaalt. Ná afloop staat alles open om na te lezen.
 function factSlides() {
   if (!state || !state.event) return [];
-  const slides = state.event.facts.map((f) => ({ kind: "main", nl: f.nl, en: f.en }));
+  const slides = state.event.facts.map((f) => ({ kind: "main", ...f }));
   // Gratis zelfde-tijd-extra's (geel), onthuld bij gok 1/2.
   const ex = revealedExtraCount();
   for (let i = 0; i < ex; i++) {
     const f = state.event.extras[i];
-    if (f) slides.push({ kind: "extra", nl: f.nl, en: f.en });
+    if (f) slides.push({ kind: "extra", ...f });
   }
   // Betaalde hints (⏩/🏛️/🔢) verschijnen als gekleurde slide zodra je ze opent.
   // Bij WINST tonen we alleen wat je echt opende (niet de ongebruikte spoilen);
@@ -615,7 +668,7 @@ function renderEvent() {
       // Gele zelfde-tijd-extra: 💡 + label boven het feit.
       slide.classList.add("slide-extra");
       slide.appendChild(buildSlideTag("extra-tag", "extra-icon", "💡", t("extra_label")));
-      slide.appendChild(factParagraph(lang === "en" ? (s.en || s.nl) : s.nl, "fact-extra"));
+      slide.appendChild(factParagraph(s[lang] || s[DEFAULT_LANG], "fact-extra"));
     } else if (s.kind === "later") {
       // ⏩ "100 jaar later" (oranje): gebeurtenis uit ±100 jaar later.
       slide.classList.add("slide-later");
@@ -641,7 +694,7 @@ function renderEvent() {
       // Hoofdfeit: 💡 + "Dit jaar"-kopje, zelfde gele stijl als de zelfde-tijd-extra.
       slide.classList.add("slide-main");
       slide.appendChild(buildSlideTag("extra-tag", "extra-icon", "💡", t("main_label")));
-      slide.appendChild(factParagraph(lang === "en" ? (s.en || s.nl) : s.nl, ""));
+      slide.appendChild(factParagraph(s[lang] || s[DEFAULT_LANG], ""));
     }
     track.appendChild(slide);
   });
@@ -733,7 +786,7 @@ function renderHintStatus() {
   // Teller: ⏩ "100 jaar later" (altijd /2 zodra geladen — verraadt de toekomst-variant
   // niet) + 🧭 richtingen.
   const laterPart = availLater > 0 ? `⏩ ${state.laterCluesShown}/${availLater} · ` : "";
-  els.hintCount.textContent = `${laterPart}🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${lang === "en" ? "directions" : "richtingen"}`;
+  els.hintCount.textContent = `${laterPart}🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${t("dir_word")}`;
 }
 
 // Honderdtal-blok van een jaartal als leesbaar bereik: 1850 → "1800–1899",
@@ -758,7 +811,7 @@ function eraName(year) {
     { max: Infinity, nl: "21e eeuw",          en: "21st century" },
   ];
   const e = eras.find((x) => year < x.max);
-  return lang === "en" ? e.en : e.nl;
+  return e[lang] || e[DEFAULT_LANG];
 }
 
 // "100 jaar later"-clue (#8/#9). Een gebeurtenis uit exact antwoordjaar+100
@@ -783,7 +836,7 @@ function laterSlotText(i) {
   if (!cc) return null;
   if (cc.future) return i === 0 ? t("later_future") : t("later_future_2");
   const f = (cc.clues || [])[i];
-  if (f) return lang === "en" ? (f.en || f.nl) : f.nl;
+  if (f) return f[lang] || f[DEFAULT_LANG];
   return t("later_none");
 }
 
@@ -1357,7 +1410,7 @@ async function promptSetUsername() {
 // "YYYY-MM-DD" → korte gelokaliseerde datum (bv. "12 jun" / "12 Jun") voor de daily-kop.
 function fmtDailyDate(key) {
   const [y, m, d] = key.split("-").map(Number);
-  return new Intl.DateTimeFormat(lang === "en" ? "en-GB" : "nl-NL", { day: "numeric", month: "short" })
+  return new Intl.DateTimeFormat(LANGS[lang].intl, { day: "numeric", month: "short" })
     .format(new Date(Date.UTC(y, m - 1, d)));
 }
 
@@ -1566,7 +1619,7 @@ async function shareInvite(url, btn) {
     await navigator.clipboard.writeText(msg);
     if (btn) { const orig = t("lb_invite"); btn.textContent = t("lb_invite_copied"); setTimeout(() => { btn.textContent = orig; }, 1500); }
   } catch (e) {
-    prompt("Kopieer dit:", msg);
+    prompt(t("copy_prompt"), msg);
   }
 }
 
@@ -1580,9 +1633,7 @@ async function showFactStats(hash) {
   const el = document.createElement("p");
   el.className = "fact-stats";
   const hasScore = s.avg_score != null;
-  el.textContent = lang === "en"
-    ? `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`
-    : `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`;
+  el.textContent = t("fact_stats")(s, hasScore);
   els.resultText.after(el);   // direct onder de score, boven de knoppen
 }
 
@@ -1905,7 +1956,7 @@ async function renderCenturyStats(body) {
   if (document.getElementById("modal-stats").hidden) return;
   const bc = c.century < 0;
   const label = t("century_fmt")(Math.abs(c.century), bc);
-  const avg = lang === "en" ? `avg. ${c.avg_score}` : `gem. ${c.avg_score}`;
+  const avg = `${t("avg_word")} ${c.avg_score}`;
   const p = document.createElement("p");
   p.className = "stats-century";
   p.innerHTML = `🏛️ <strong>${t("fav_century")}:</strong> ${label} · ${avg}`;
@@ -1952,7 +2003,7 @@ function renderCalendar(history) {
     const e = map.get(cur);
     const cell = document.createElement("div");
     cell.className = "cal-cell " + (e ? (e.won ? "win" : "loss") : "none");
-    const solved = lang === "en" ? `solved (${e?.guesses}/${MAX_GUESSES})` : `opgelost (${e?.guesses}/${MAX_GUESSES})`;
+    const solved = t("cal_solved")(e?.guesses, MAX_GUESSES);
     cell.title = e ? `${cur} — ${e.won ? solved : t("cal_notsolved")}` : cur;
     grid.appendChild(cell);
     cur = shiftDay(cur, 1);
@@ -2305,10 +2356,10 @@ async function doShare() {
   try {
     await navigator.clipboard.writeText(`${text}\n${url}`);
     const label = els.shareBtn.querySelector(".share-label") || els.shareBtn;
-    label.textContent = lang === "en" ? "✓ Copied!" : "✓ Gekopieerd!";
+    label.textContent = t("lb_invite_copied");
     setTimeout(() => (label.textContent = t("share")), 1500);
   } catch (e) {
-    prompt("Kopieer dit:", `${text}\n${url}`);
+    prompt(t("copy_prompt"), `${text}\n${url}`);
   }
 }
 
