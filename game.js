@@ -53,7 +53,7 @@ let lang = (() => {
 
 const HELP_NL = `
   <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel komen er bij gok 1 en gok 2 <strong>gratis</strong> twee extra feiten uit hetzelfde jaar bij (💡 geel).</li>
-  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100 jaar later</strong> (gebeurtenis uit een eeuw ná het antwoord, tot 2×), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
+  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100 jaar later</strong> en daarna <strong>⏩ 250 jaar later</strong> (gebeurtenissen ná het antwoord), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
@@ -64,7 +64,7 @@ const HELP_NL = `
   <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
 const HELP_EN = `
   <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. In the carousel, guesses 1 and 2 each add a <strong>free</strong> extra fact from the same year (💡 yellow).</li>
-  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100 years later</strong> (an event a century after the answer, up to 2×), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
+  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100 years later</strong> then <strong>⏩ 250 years later</strong> (events after the answer), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
@@ -80,7 +80,7 @@ const I18N = {
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     guess: "Gok", share: "Deel resultaat", next: "Nieuw rondje",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Richting", hint_century: "🏛️ Eeuw",
-    hint_later: "⏩ 100 jaar later", hint_digit: "🔢 Laatste cijfer",
+    hint_later: "⏩ 100 jaar later", hint_later_250: "⏩ 250 jaar later", hint_digit: "🔢 Laatste cijfer",
     century_band: "🏛️ Tijdvak", bc: "v.Chr.",
     reveal: "Onthul",
     main_label: "Dit jaar", extra_label: "Ook dit jaar",
@@ -88,10 +88,12 @@ const I18N = {
     digit_label: "Laatste cijfer",
     free_hint: "extra hint",
     score_label: "punten",
-    later_label: "100 jaar later",
+    later_label: "100 jaar later", later_label_250: "250 jaar later",
     later_future: "Dit is nog toekomst — 100 jaar later is nog niet geweest.",
     later_future_2: "Ook dát is nog niet geweest — het antwoord ligt dus in de afgelopen ~100 jaar.",
+    later_future_250: "Ook 250 jaar later is nog niet geweest — het antwoord ligt in de afgelopen ~250 jaar.",
     later_none: "Verder geen gebeurtenis van rond honderd jaar later bekend.",
+    later_none_250: "Verder geen gebeurtenis van rond 250 jaar later bekend.",
     help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
     login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
@@ -173,7 +175,7 @@ const I18N = {
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     guess: "Guess", share: "Share result", next: "New round",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Direction", hint_century: "🏛️ Century",
-    hint_later: "⏩ 100 years later", hint_digit: "🔢 Last digit",
+    hint_later: "⏩ 100 years later", hint_later_250: "⏩ 250 years later", hint_digit: "🔢 Last digit",
     century_band: "🏛️ Era", bc: "BC",
     reveal: "Reveal",
     main_label: "This year", extra_label: "Also this year",
@@ -181,10 +183,12 @@ const I18N = {
     digit_label: "Last digit",
     free_hint: "extra hint",
     score_label: "points",
-    later_label: "100 years later",
+    later_label: "100 years later", later_label_250: "250 years later",
     later_future: "This is still the future — 100 years later hasn't happened yet.",
     later_future_2: "That hasn't happened yet either — so the answer is from the last ~100 years.",
+    later_future_250: "250 years later hasn't happened yet either — so the answer is from the last ~250 years.",
     later_none: "No further event from around a hundred years later is known.",
+    later_none_250: "No further event from around 250 years later is known.",
     help_summary: "How to play?", stats_title: "📊 Statistics",
     login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
@@ -603,7 +607,7 @@ function factSlides() {
   if (state.laterClues) {
     const shown = revealAll ? availableLaterClues() : state.laterCluesShown;
     for (let i = 0; i < shown; i++) {
-      slides.push({ kind: "later", text: laterSlotText(i) });
+      slides.push({ kind: "later", text: laterSlotText(i), slot: i });
     }
   }
   if (state.centuryRevealed || revealAll) {
@@ -674,9 +678,12 @@ function renderEvent() {
       slide.appendChild(buildSlideTag("extra-tag", "extra-icon", "💡", t("extra_label")));
       slide.appendChild(factParagraph(s[lang] || s[DEFAULT_LANG], "fact-extra"));
     } else if (s.kind === "later") {
-      // ⏩ "100 jaar later" (oranje): gebeurtenis uit ±100 jaar later.
+      // ⏩ (oranje): slot 0 = gebeurtenis uit ±100 jaar later, slot 1 = ±250 jaar later.
+      // Slot 1 krijgt ⏩⏩ (dubbel): je springt ruim 2× zo ver vooruit in de tijd.
       slide.classList.add("slide-later");
-      slide.appendChild(buildSlideTag("later-tag", "later-icon", "⏩", t("later_label")));
+      const is250 = s.slot === 1;
+      const laterLabel = is250 ? t("later_label_250") : t("later_label");
+      slide.appendChild(buildSlideTag("later-tag", "later-icon", is250 ? "⏩⏩" : "⏩", laterLabel));
       slide.appendChild(factParagraph(s.text, "fact-later"));
     } else if (s.kind === "century") {
       // 🏛️ eeuw-band + grove periode (educatief): bv. "1500–1599" · "Renaissance".
@@ -718,8 +725,9 @@ function renderEvent() {
     slides.forEach((s, i) => {
       const d = document.createElement("button");
       d.type = "button";
-      d.className = `fact-dot k-${s.kind}` + (i === factSlideIndex ? " active" : "");
-      d.textContent = DOT_EMOJI[s.kind] || "•";
+      const dbl = s.kind === "later" && s.slot === 1;   // 250-jaar-slide → ⏩⏩
+      d.className = `fact-dot k-${s.kind}` + (dbl ? " dbl" : "") + (i === factSlideIndex ? " active" : "");
+      d.textContent = dbl ? "⏩⏩" : (DOT_EMOJI[s.kind] || "•");
       d.setAttribute("aria-label", `${i + 1}/${slides.length}`);
       d.addEventListener("click", () => goToSlide(i));
       track.appendChild(d);
@@ -783,7 +791,12 @@ function renderHintStatus() {
     state.guesses.length > 0 &&
     !state.directionsRevealed.includes(state.guesses.length - 1);
   const availLater = availableLaterClues();
-  if (els.hintBtnLater) els.hintBtnLater.hidden = state.done || state.laterCluesShown >= availLater;
+  if (els.hintBtnLater) {
+    els.hintBtnLater.hidden = state.done || state.laterCluesShown >= availLater;
+    // Het label volgt de vólgende onthulling: eerst "100 jaar later", daarna "250".
+    const laterLbl = els.hintBtnLater.querySelector("[data-i18n]");
+    if (laterLbl) laterLbl.textContent = state.laterCluesShown >= 1 ? t("hint_later_250") : t("hint_later");
+  }
   els.hintBtnDir.hidden = state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
   if (els.hintBtnCentury) els.hintBtnCentury.hidden = state.done || state.centuryRevealed;
   if (els.hintBtnDigit) els.hintBtnDigit.hidden = state.done || state.lastDigitRevealed;
@@ -833,11 +846,20 @@ function availableLaterClues() {
   return state?.laterClues ? LATER_CLUE_SLOTS : 0;
 }
 
-// Tekst voor clue-slot i. Toekomst → twee toekomst-regels; anders het echte feit,
-// met een neutrale terugval als er (zeldzaam) geen tweede feit op jaar+100 is.
+// Tekst voor clue-slot i. Slot 0 = jaar+100, slot 1 = jaar+250. Elk slot is óf
+// een toekomst-markering ({future:true}), óf het echte feit ({nl,en}), óf leeg
+// (null → "geen bekend"). Valt terug op het oude {future,clues}-model voor een
+// nog-niet-herladen client die de nieuwe RPC-respons nog niet kent.
 function laterSlotText(i) {
   const cc = state?.laterClues;
   if (!cc) return null;
+  if (Array.isArray(cc.slots)) {
+    const slot = cc.slots[i];
+    if (!slot) return i === 0 ? t("later_none") : t("later_none_250");
+    if (slot.future) return i === 0 ? t("later_future") : t("later_future_250");
+    return slot[lang] || slot[DEFAULT_LANG];
+  }
+  // Legacy: beide slots kwamen uit jaar+100.
   if (cc.future) return i === 0 ? t("later_future") : t("later_future_2");
   const f = (cc.clues || [])[i];
   if (f) return f[lang] || f[DEFAULT_LANG];

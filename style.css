@@ -389,6 +389,8 @@ main {
   filter: none;
   transform: scale(1.25);
 }
+/* 250-jaar-stip: twee ⏩ binnen hetzelfde 18px-slot (windowing-math blijft kloppen). */
+.fact-dot.dbl { font-size: 0.42rem; letter-spacing: -0.5px; }
 
 #hint-row {
   display: flex;
