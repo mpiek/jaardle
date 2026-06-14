@@ -1323,6 +1323,7 @@ function maybeOpenLeaderboardDeeplink() {
   if (pendingJoinCode) {
     if (!auth.user) { openModal("modal-login"); return; }
     const code = pendingJoinCode; pendingJoinCode = null;
+    try { localStorage.removeItem("jaardle:pendingJoin"); } catch (e) {}
     closeModal("modal-login");
     showJoinConfirm(code);
     return;
@@ -2630,6 +2631,17 @@ async function init() {
   if (joinCode) {
     pendingJoinCode = joinCode.trim().toUpperCase().slice(0, 6);
     lbParams.delete("join");
+    // Park de intentie zodat ze een page-reload overleeft: Google-login redirect
+    // weg en terug (en gooit de ?join=-query weg), waardoor de in-memory variabele
+    // verloren zou gaan. Wordt gewist zodra we de join-bevestiging tonen.
+    try { localStorage.setItem("jaardle:pendingJoin", pendingJoinCode); } catch (e) {}
+  } else {
+    // Geen ?join= in de URL, maar misschien staat er nog een geparkeerde
+    // join-intentie van vóór een OAuth-redirect. Herstel 'm dan.
+    try {
+      const stored = localStorage.getItem("jaardle:pendingJoin");
+      if (stored) pendingJoinCode = stored;
+    } catch (e) {}
   }
   if (lbParams.has("leaderboard")) {
     pendingOpenLeaderboard = true;
