@@ -1423,6 +1423,7 @@ const LB_STATS = [
   { key: "win_pct",   label: () => t("stat_winrate"),   val: (r) => `${r.win_pct}%`, gate: true },
   { key: "avg_score", label: () => t("stat_avgscore"),  val: (r) => `${r.avg_score}`, gate: true },
   { key: "streak",    label: () => t("lb_stat_streak"), val: (r) => `${r.streak}` },
+  { key: "games",     label: () => t("stat_played"),    val: (r) => `${r.games}` },
 ];
 
 const lbNameCmp = (a, b) =>
