@@ -1424,6 +1424,7 @@ const LB_STATS = [
   { key: "avg_score", label: () => t("stat_avgscore"),  val: (r) => `${r.avg_score}`, gate: true },
   { key: "streak",    label: () => t("lb_stat_streak"), val: (r) => `${r.streak}` },
   { key: "games",     label: () => t("stat_played"),    val: (r) => `${r.games}` },
+  { key: "perfect",   label: () => t("stat_perfect"),   val: (r) => `${r.perfect ?? 0}` },
 ];
 
 const lbNameCmp = (a, b) =>
