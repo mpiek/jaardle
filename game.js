@@ -1171,6 +1171,46 @@ function showConfetti() {
   setTimeout(() => container.remove(), 5000);
 }
 
+// Groots vuurwerk voor een first-try-winst: meerdere bursts die na elkaar
+// ontploffen, elk een ring deeltjes die naar buiten schiet (met een beetje
+// zwaartekracht). Bewust forser dan de confetti — dit is de zeldzame topscore.
+function showFireworks() {
+  const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff", "#ff5fa2", "#ffffff"];
+  const container = document.createElement("div");
+  container.className = "fireworks-container";
+  const bursts = 26;
+  let maxEnd = 0;
+  for (let b = 0; b < bursts; b++) {
+    const cx = 8 + Math.random() * 84;             // vw
+    const cy = 8 + Math.random() * 60;             // vh
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const delay = b * 0.16 + Math.random() * 0.14; // s, dicht op elkaar → veel tegelijk
+    const particles = 36 + Math.floor(Math.random() * 20);
+    const radius = 110 + Math.random() * 130;      // px
+    const dur = 1.1 + Math.random() * 0.7;         // s
+    maxEnd = Math.max(maxEnd, delay + dur);
+    for (let i = 0; i < particles; i++) {
+      const ang = (i / particles) * Math.PI * 2 + Math.random() * 0.25;
+      const dist = radius * (0.55 + Math.random() * 0.45);
+      const p = document.createElement("div");
+      p.className = "firework-particle";
+      p.style.left = cx + "vw";
+      p.style.top = cy + "vh";
+      const sz = 5 + Math.random() * 5;             // wat variatie in grootte
+      p.style.width = p.style.height = `${sz}px`;
+      p.style.color = color;                        // box-shadow gebruikt currentColor
+      p.style.background = color;
+      p.style.setProperty("--dx", `${Math.cos(ang) * dist}px`);
+      p.style.setProperty("--dy", `${Math.sin(ang) * dist + 60}px`); // +zwaartekracht
+      p.style.setProperty("--delay", `${delay}s`);
+      p.style.setProperty("--dur", `${dur}s`);
+      container.appendChild(p);
+    }
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), (maxEnd + 0.5) * 1000);
+}
+
 function finishGame(won, fresh = false) {
   state.done = true;
   state.won = won;
@@ -1207,7 +1247,7 @@ function finishGame(won, fresh = false) {
   // deze knop, ook nadat je het popup-scherm hebt gesloten.
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily";
   renderHintStatus();
-  if (fresh && won) showConfetti();
+  if (fresh && won) (state.guesses.length === 1 ? showFireworks : showConfetti)();
   if (fresh && state.mode === "daily") recordDailyResult(won);
   // Bij een verse pot: eerst de play wegschrijven, DAARNA de globale stats ophalen,
   // zodat je eigen zojuist gespeelde pot meetelt (en bij een fact zonder eerdere
