@@ -1189,6 +1189,9 @@ footer {
 .lb-hints { margin-right: 0.4rem; font-size: 0.8em; opacity: 0.85; font-weight: 400; letter-spacing: -0.05em; }
 .lb-row.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
 .lb-row.lb-me .lb-val { color: var(--accent); }
+/* Onder de min-games-drempel: nog niet gerankt op win%/score. */
+.lb-row.lb-prov { opacity: 0.55; }
+.lb-row.lb-prov .lb-val { font-weight: 400; color: var(--muted); }
 .lb-tag {
   margin-left: 0.35rem;
   font-size: 0.7rem;

@@ -1374,19 +1374,53 @@ const lbNameCell = (row) =>
 // De swipebare stat-kolommen van het all-time bord. Elke pagina sorteert dezelfde
 // ledenlijst aflopend op z'n stat. Rating komt uit get_pool_leaderboard (pagina 0,
 // al geladen); win%/score/streak uit get_pool_stats (lazy, zie renderStatBoard).
+// Win% en gem. score zijn vertekend bij weinig potjes (1 gewonnen = 100%), dus
+// pas vanaf LB_MIN_RANKED_GAMES tellen die kolommen mee in de ranking. Spelers
+// eronder staan onderaan, gedimd, met hun voortgang (x/min) i.p.v. een waarde.
+const LB_MIN_RANKED_GAMES = 15;
 const LB_STATS = [
   { key: "rating",    label: () => t("lb_stat_rating"), val: (r) => `${r.rating}${r.is_provisional ? "?" : ""}` },
-  { key: "win_pct",   label: () => t("stat_winrate"),   val: (r) => `${r.win_pct}%` },
-  { key: "avg_score", label: () => t("stat_avgscore"),  val: (r) => `${r.avg_score}` },
+  { key: "win_pct",   label: () => t("stat_winrate"),   val: (r) => `${r.win_pct}%`, gate: true },
+  { key: "avg_score", label: () => t("stat_avgscore"),  val: (r) => `${r.avg_score}`, gate: true },
   { key: "streak",    label: () => t("lb_stat_streak"), val: (r) => `${r.streak}` },
 ];
 
+const lbNameCmp = (a, b) =>
+  String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { sensitivity: "base" });
+// Tiebreak bij gelijke stat-waarde: wie het eerst een daily speelde staat boven
+// (zoals het daily-bord op created_at sorteert). Naam pas als laatste redmiddel.
+const lbTieCmp = (a, b) => {
+  const ta = a.first_played ? Date.parse(a.first_played) : Infinity;
+  const tb = b.first_played ? Date.parse(b.first_played) : Infinity;
+  return (ta - tb) || lbNameCmp(a, b);
+};
+
+function lbRow(rankCell, r, valCell, extraCls) {
+  return `<div class="lb-row${r.is_me ? " lb-me" : ""}${extraCls || ""}">` +
+    `<span class="lb-rank">${rankCell}</span>` +
+    `<span class="lb-name">${lbNameCell(r)}</span>` +
+    `<span class="lb-val">${valCell}</span></div>`;
+}
+
 function lbStatRows(list, valFn) {
   if (!list.length) return `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
-  return `<div class="lb-table">` + list.map((r, i) =>
-    `<div class="${lbRowCls(r.is_me)}"><span class="lb-rank">${lbMedal(i + 1)}</span>` +
-    `<span class="lb-name">${lbNameCell(r)}</span>` +
-    `<span class="lb-val">${valFn(r)}</span></div>`).join("") + `</div>`;
+  return `<div class="lb-table">` +
+    list.map((r, i) => lbRow(lbMedal(i + 1), r, valFn(r), "")).join("") + `</div>`;
+}
+
+// Gegate stat-bord (win%/score): gekwalificeerde spelers eerst, aflopend op de
+// stat (tiebreak alfabetisch); spelers onder de drempel onderaan, gedimd, met
+// hun potjes-voortgang i.p.v. een ranking-cijfer.
+function lbGatedStatRows(list, stat) {
+  if (!list.length) return `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
+  const ranked = list.filter((r) => (r.games || 0) >= LB_MIN_RANKED_GAMES)
+    .sort((a, b) => (b[stat.key] - a[stat.key]) || lbTieCmp(a, b));
+  const pending = list.filter((r) => (r.games || 0) < LB_MIN_RANKED_GAMES)
+    .sort((a, b) => ((b.games || 0) - (a.games || 0)) || lbTieCmp(a, b));
+  const rows = ranked.map((r, i) => lbRow(lbMedal(i + 1), r, stat.val(r), ""));
+  rows.push(...pending.map((r) =>
+    lbRow("·", r, `${r.games || 0}/${LB_MIN_RANKED_GAMES}`, " lb-prov")));
+  return `<div class="lb-table">` + rows.join("") + `</div>`;
 }
 
 // Tekent het huidige stat-bord. Pagina 0 (Rating) gebruikt de al-geladen data.
@@ -1409,11 +1443,10 @@ async function renderStatBoard() {
     if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
   }
   const stat = LB_STATS[lbStatIndex];
-  // Aflopend op de stat; bij gelijke waarde alfabetisch op naam — een neutrale,
-  // voorspelbare tiebreak (anders bepaalt de willekeurige RPC-volgorde wie boven staat).
-  const list = [...lbPoolStats].sort((a, b) =>
-    (b[stat.key] - a[stat.key]) ||
-    String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { sensitivity: "base" }));
+  if (stat.gate) { content.innerHTML = lbGatedStatRows(lbPoolStats, stat); return; }
+  // Aflopend op de stat; bij gelijke waarde wint wie het eerst speelde (lbTieCmp),
+  // anders zou de willekeurige RPC-volgorde bepalen wie boven staat.
+  const list = [...lbPoolStats].sort((a, b) => (b[stat.key] - a[stat.key]) || lbTieCmp(a, b));
   content.innerHTML = lbStatRows(list, stat.val);
 }
 
