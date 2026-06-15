@@ -1458,8 +1458,13 @@ function lbGatedStatRows(list, stat) {
   const pending = list.filter((r) => (r.games || 0) < LB_MIN_RANKED_GAMES)
     .sort((a, b) => ((b.games || 0) - (a.games || 0)) || lbTieCmp(a, b));
   const rows = ranked.map((r, i) => lbRow(lbMedal(i + 1), r, stat.val(r), ""));
+  // Sub-drempel: toon de echte (gedimde) waarde — anders zijn de win%- en
+  // score-pagina's identiek als iedereen ongerankt is en lijkt swipen vast te zitten.
+  // Het games-aantal (x/15) staat als klein bijschrift zodat de drempel zichtbaar blijft.
   rows.push(...pending.map((r) =>
-    lbRow("·", r, `${r.games || 0}/${LB_MIN_RANKED_GAMES}`, " lb-prov")));
+    lbRow("·", r,
+      `${stat.val(r)} <span class="lb-prov-n">${r.games || 0}/${LB_MIN_RANKED_GAMES}</span>`,
+      " lb-prov")));
   return `<div class="lb-table">` + rows.join("") + `</div>`;
 }
 

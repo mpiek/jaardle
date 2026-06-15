@@ -1216,6 +1216,7 @@ footer {
 /* Onder de min-games-drempel: nog niet gerankt op win%/score. */
 .lb-row.lb-prov { opacity: 0.55; }
 .lb-row.lb-prov .lb-val { font-weight: 400; color: var(--muted); }
+.lb-prov-n { font-size: 0.72em; opacity: 0.7; margin-left: 0.35em; font-variant-numeric: tabular-nums; }
 .lb-tag {
   margin-left: 0.35rem;
   font-size: 0.7rem;
