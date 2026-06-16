@@ -24,6 +24,7 @@ const MAX_YEAR = new Date().getFullYear();
 const LANGS = {
   nl: { label: "🇳🇱 Nederlands", html: "nl", intl: "nl-NL", og: "nl_NL", path: "" },
   en: { label: "🇬🇧 English",    html: "en", intl: "en-GB", og: "en_GB", path: "en" },
+  de: { label: "🇩🇪 Deutsch",    html: "de", intl: "de-DE", og: "de_DE", path: "de" },
 };
 const LANG_CODES = Object.keys(LANGS);
 // Brontaal: hieruit lenen we een string/feit als de huidige taal die mist (het
@@ -73,6 +74,17 @@ const HELP_EN = `
   <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
   <li><strong>New game</strong>: endless rounds, a random event.</li>
   <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
+const HELP_DE = `
+  <li>Du bekommst ein Ereignis aus einem Jahr und <span data-help="max-guesses"></span> Versuche, dieses Jahr zu erraten. Im Karussell kommen bei Versuch 1 und 2 jeweils <strong>gratis</strong> zwei zusätzliche Fakten aus demselben Jahr dazu (💡 gelb).</li>
+  <li><strong>Wische durch das Karussell für mehr Hinweise</strong> — tippe auf „Aufdecken" (kostet Punkte): <strong>⏩ 100 Jahre später</strong>, dann <strong>⏩ 250 Jahre später</strong> (Ereignisse nach dem Antwortjahr), <strong>🏛️ Epoche</strong> (das Jahrhundert) und die <strong>🔢 letzte Ziffer</strong> des Jahres.</li>
+  <li>Jeder Versuch zeigt ein farbiges Feld mit einer Spanne. Die Richtung (↑/↓) bleibt verborgen, bis du danach fragst.</li>
+  <li>Max. <strong><span data-help="max-dir-hints"></span> Richtungshinweise</strong> (🧭) pro Rätsel. Ein Richtungshinweis zeigt den Pfeil nur bei deinem letzten Versuch.</li>
+  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
+  <li><strong>Punkte (0–100)</strong>: Start bei 100, Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Die gelben Extra-Fakten sind gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> und 🧭 <span data-penalty="dir-hint"></span> kosten Punkte. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
+  <li>Stufen: <span data-help="tiers"></span></li>
+  <li><strong>Tägliches Jaardle</strong>: ein Rätsel pro Tag, für alle gleich.</li>
+  <li><strong>Neues Spiel</strong>: endlose Runden, ein zufälliges Ereignis.</li>
+  <li><strong>Tasten</strong>: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>R</kbd> für einen Richtungshinweis, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>`;
 
 const I18N = {
   nl: {
@@ -271,6 +283,101 @@ const I18N = {
     intro_h1: "Jaardle — the daily year-guessing game",
     intro_html: `Jaardle is a free Wordle-style puzzle game: you get a historic event and guess the year it happened in a few tries. Play the same <strong>daily puzzle</strong> as everyone else, or endless <strong>free play</strong>, compare your score with friends and build your streak.`,
     help_list: HELP_EN,
+  },
+  de: {
+    tab_daily: "Tägliches Jaardle", tab_free: "Neues Spiel",
+    menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
+    guess: "Raten", share: "Ergebnis teilen", next: "Neue Runde",
+    hint_text: "💡 Extra-Hinweis", hint_dir: "🧭 Richtung", hint_century: "🏛️ Jahrhundert",
+    hint_later: "⏩ 100 Jahre später", hint_later_250: "⏩ 250 Jahre später", hint_digit: "🔢 Letzte Ziffer",
+    century_band: "🏛️ Epoche", bc: "v. Chr.",
+    reveal: "Aufdecken",
+    main_label: "Dieses Jahr", extra_label: "Auch dieses Jahr",
+    century_label: "Epoche",
+    digit_label: "Letzte Ziffer",
+    free_hint: "Extra-Hinweis",
+    score_label: "Punkte",
+    later_label: "100 Jahre später", later_label_250: "250 Jahre später",
+    later_future: "Das liegt noch in der Zukunft — 100 Jahre später ist noch nicht gewesen.",
+    later_future_2: "Auch das ist noch nicht gewesen — die Antwort liegt also in den letzten ~100 Jahren.",
+    later_future_250: "Auch 250 Jahre später ist noch nicht gewesen — die Antwort liegt in den letzten ~250 Jahren.",
+    later_none: "Kein weiteres Ereignis von rund hundert Jahren später bekannt.",
+    later_none_250: "Kein weiteres Ereignis von rund 250 Jahren später bekannt.",
+    help_summary: "Wie funktioniert es?", stats_title: "📊 Statistiken",
+    login_title: "Anmelden", login_google: "Mit Google fortfahren", login_or: "oder mit E-Mail",
+    login_email: "E-Mail", login_password: "Passwort", login_submit: "Anmelden", login_register: "Registrieren",
+    login_note: `Die Anmeldung läuft über <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwörter werden gehasht gespeichert (bcrypt), nie als Klartext, und nur deine E-Mail und Spielergebnisse werden gespeichert — nicht an Dritte weitergegeben.`,
+    footer_note: `Ereignisse + niederländische Übersetzungen unter <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a>, abgeleitet von der <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">englischsprachigen Wikipedia</a> (maschinell übersetzt).`,
+    day: "Tag", loading: "Lädt…",
+    err_load: "Ereignis konnte nicht geladen werden.", err_share: "Dieses geteilte Rätsel existiert nicht mehr.",
+    err_none: "Kein Rätsel verfügbar.", retry: "Erneut versuchen",
+    won_intro: "Gut geraten! Es war", lost_intro: "Schade — das richtige Jahr war", source: "Quelle:",
+    stats_empty: "Noch keine täglichen Rätsel abgeschlossen.",
+    stats_daily: "Täglich", stats_free: "Freies Spiel",
+    stat_played: "Gespielt", stat_winrate: "Gewinnrate", stat_curstreak: "Aktuelle Serie",
+    stat_beststreak: "Beste Serie", stat_avgscore: "Ø Punkte", stat_won: "Gewonnen",
+    stat_last10: "Ø letzte 10", stat_perfect: "100er", stat_avgtries: "Ø Versuche",
+    fav_century: "Stärkstes Jahrhundert",
+    century_fmt: (n, bc) => `${n}. Jahrhundert${bc ? " v. Chr." : ""}`,
+    cal_title: "Letzte Monate", cal_notsolved: "nicht gelöst",
+    fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
+    free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
+    next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
+    menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
+    lb_daily: "Daily", lb_overall: "Allzeit",
+    lb_stat_rating: "Rating", lb_stat_streak: "Serie",
+    lb_stat_prev: "Vorherige Statistik", lb_stat_next: "Nächste Statistik",
+    lb_empty_daily: "Noch niemand hat das heutige Daily gespielt.",
+    lb_empty_daily_past: "Niemand aus deinem Pool hat dieses Daily gespielt.",
+    lb_daily_prev: "Vorheriger Tag", lb_daily_next: "Nächster Tag",
+    lb_empty_overall: "Noch keine Rangliste — spiel ein paar Runden.",
+    lb_not_member: "Du bist (noch) auf keiner Freundes-Bestenliste.",
+    lb_sync: "⏳ Rating aktualisiert in", lb_synced: "✨ Rating gerade aktualisiert",
+    lb_you: "du", lb_games_short: (n) => `${n} ${n === 1 ? "Spiel" : "Spiele"}`,
+    lb_pool_none: "Du bist noch in keinem Pool.",
+    lb_create_label: "Neuen Pool erstellen", lb_create_ph: "Name deines Pools", lb_create_btn: "Erstellen",
+    lb_join_label: "Pool per Code beitreten", lb_join_ph: "Code", lb_join_btn: "Beitreten",
+    lb_invite: "📢 Einladen", lb_leave: "Verlassen", lb_leave_confirm: "Willst du diesen Pool wirklich verlassen?",
+    lb_invite_copied: "✓ Kopiert!", lb_owner_tag: "Verwalter",
+    lb_rename: "✏️ Umbenennen", lb_rename_prompt: "Neuer Name für den Pool:",
+    lb_invite_text: (name) => `🏆 Mach mit bei "${name}" auf Jaardle — errate jeden Tag das Jahr eines historischen Ereignisses:`,
+    lb_yes: "Ja", lb_no: "Nein", lb_err_code: "Unbekannter Code", lb_err_name: "Name muss 2–30 Zeichen lang sein", lb_err_generic: "Etwas ist schiefgelaufen",
+    lb_myname: "Dein Name:", lb_name_edit: "✏️ Ändern", lb_name_unset: "(nicht festgelegt)",
+    lb_name_prompt: "Wähle deinen Anzeigenamen (2–20 Zeichen; Buchstaben, Ziffern, Leerzeichen, _ oder -):",
+    lb_name_taken: "Dieser Name ist vergeben — wähle einen anderen.",
+    lb_name_invalid_length: "Name muss zwischen 2 und 20 Zeichen lang sein.",
+    lb_name_invalid_chars: "Nur Buchstaben, Ziffern, Leerzeichen, _ und - sind erlaubt.",
+    lb_name_err: "Name konnte nicht gespeichert werden. Bitte versuche es erneut.",
+    lb_flair_label: "Flair:", lb_flair_none: "Kein Flair", lb_flair_err: "Flair konnte nicht gespeichert werden.",
+    lb_members_n: (n) => `${n} ${n === 1 ? "Mitglied" : "Mitglieder"}`,
+    lb_join_q: (name) => `Pool "${name}" beitreten?`,
+    lb_switch_q: (cur, name) => `Du bist bereits in "${cur}". Zu "${name}" wechseln? Du verlässt dann "${cur}".`,
+    recap_btn: "Verteilung & Team",
+    recap_title: "📊 Fertig für heute", recap_dist_title: "🌍 Verteilung der Versuche (alle)",
+    recap_dist_empty: "Noch niemand hat dieses Daily gelöst.",
+    recap_team_title: "Team-Stand heute", recap_today: "heute",
+    recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
+    recap_pool_none: "Erstelle einen Pool oder tritt einem bei, um deine Freunde hier zu sehen.", recap_pool_btn: "🏆 Pool erstellen oder beitreten",
+    recap_acct_title: "Mit einem kostenlosen Konto",
+    recap_acct_1: "📊 Deine Statistiken & Serie bleiben erhalten",
+    recap_acct_2: "☁️ Spiele auf all deinen Geräten weiter",
+    recap_acct_3: "🏆 Vergleiche dein Daily mit Freunden in einem Pool",
+    recap_acct_btn: "Anmelden oder Konto erstellen",
+    recap_acct_free: "Immer 100% kostenlos — keine Bezahlversion, keine Werbung.",
+    tiers: { perfect: "Perfekt", impressive: "Beeindruckend", good: "Gut", solid: "Solide", justmade: "Gerade so", lost: "Nächstes Mal besser" },
+    dir_word: "Richtungen",
+    avg_word: "Ø",
+    copy_prompt: "Kopiere das:",
+    cal_solved: (g, max) => `gelöst (${g}/${max})`,
+    typo_warn: (jahre) => `Dein bester Tipp war schon sehr nah dran; dieser liegt ${jahre} Jahre davon entfernt. Trotzdem raten?`,
+    fact_stats: (s, hasScore) =>
+      `🌍 ${s.games} Spieler · ${s.win_pct}% gelöst${hasScore ? ` · Ø Punkte ${s.avg_score}/100` : ""} · Ø ${s.avg_guesses} Versuche · ${s.first_try_pct}% beim ersten Versuch`,
+    meta_title: "Jaardle — errate das Jahr",
+    meta_share_title: "Jaardle — errate das Jahr historischer Ereignisse",
+    meta_desc: "Kostenloses Jahreszahlen-Rätsel im Wordle-Stil: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.",
+    intro_h1: "Jaardle — das tägliche Jahreszahlen-Ratespiel",
+    intro_html: `Jaardle ist ein kostenloses Rätselspiel im Wordle-Stil: Du bekommst ein historisches Ereignis und errätst in wenigen Versuchen, in welchem Jahr es stattfand. Spiele jeden Tag dasselbe <strong>tägliche Rätsel</strong> wie alle anderen oder endloses <strong>freies Spiel</strong>, vergleiche deinen Punktestand mit Freunden und baue deine Serie auf.`,
+    help_list: HELP_DE,
   },
 };
 
@@ -857,12 +964,12 @@ function centuryBand(year) {
 // Brede, herkenbare indeling (Westers, met fuzzy grenzen op eeuwgrenzen).
 function eraName(year) {
   const eras = [
-    { max: 500,      nl: "Oudheid",           en: "Antiquity" },
-    { max: 1500,     nl: "Middeleeuwen",      en: "Middle Ages" },
-    { max: 1600,     nl: "Renaissance",       en: "Renaissance" },
-    { max: 1800,     nl: "Vroegmoderne tijd", en: "Early modern era" },
-    { max: 2000,     nl: "Moderne tijd",      en: "Modern era" },
-    { max: Infinity, nl: "21e eeuw",          en: "21st century" },
+    { max: 500,      nl: "Oudheid",           en: "Antiquity",        de: "Antike" },
+    { max: 1500,     nl: "Middeleeuwen",      en: "Middle Ages",      de: "Mittelalter" },
+    { max: 1600,     nl: "Renaissance",       en: "Renaissance",      de: "Renaissance" },
+    { max: 1800,     nl: "Vroegmoderne tijd", en: "Early modern era", de: "Frühe Neuzeit" },
+    { max: 2000,     nl: "Moderne tijd",      en: "Modern era",       de: "Moderne" },
+    { max: Infinity, nl: "21e eeuw",          en: "21st century",     de: "21. Jahrhundert" },
   ];
   const e = eras.find((x) => year < x.max);
   return e[lang] || e[DEFAULT_LANG];
