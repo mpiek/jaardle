@@ -1209,8 +1209,24 @@ footer {
 }
 .lb-rank { text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
 .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb-val { font-weight: 700; font-variant-numeric: tabular-nums; }
+.lb-val { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.lb-score { white-space: nowrap; }
 .lb-hints { margin-right: 0.4rem; font-size: 0.8em; opacity: 0.85; font-weight: 400; letter-spacing: -0.05em; }
+/* >2 hints: compact 2-rijig grid (kolom-flow), zelfde hoogte als de gok-blokjes. */
+.lb-hints-grid { display: inline-grid; grid-auto-flow: column; grid-template-rows: repeat(2, 1fr);
+  gap: 0 1px; font-size: 0.6em; line-height: 1.05; letter-spacing: 0; vertical-align: middle; }
+.lb-hints-grid i { font-style: normal; }
+/* Gokken als mini-blokjes: max 6, in een grid van 3 kolommen × 2 rijen. */
+.lb-blocks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.lb-blk { width: 9px; height: 9px; border-radius: 2px; background: var(--gray); }
+.lb-blk.correct   { background: var(--green); }
+.lb-blk.veryclose { background: var(--purple); }
+.lb-blk.close     { background: var(--yellow); }
+.lb-blk.warm      { background: var(--orange); }
+.lb-blk.cool      { background: var(--red); }
+.lb-blk.far       { background: var(--brown); }
+.lb-blk.distant   { background: var(--gray); }
+.lb-blk.farthest  { background: #000; box-shadow: inset 0 0 0 1px #555; }
 .lb-row.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
 .lb-row.lb-me .lb-val { color: var(--accent); }
 /* Onder de min-games-drempel: nog niet gerankt op win%/score. */

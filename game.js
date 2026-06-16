@@ -1575,10 +1575,30 @@ function shiftDateKey(key, delta) {
   return new Date(Date.UTC(y, m - 1, d + delta)).toISOString().slice(0, 10);
 }
 
-// Gebruikte hints als iconen (⏩ "100 jaar later", 🧭 richting, 🏛️ eeuw); leeg als geen.
+// Gebruikte hints als iconen (⏩ "100 jaar later", 🧭 richting, 🏛️ eeuw, 🔢 laatste cijfer); leeg als geen.
+// ≤2 hints: gewoon op één regel. >2: compact in een 2-rijig grid (kolom-flow) zodat de rij niet uitdijt.
 function lbHintIcons(d) {
-  const s = "⏩".repeat(d.text_hints || 0) + "🧭".repeat(d.dir_hints || 0) + (d.century_hint ? "🏛️" : "");
-  return s ? `<span class="lb-hints">${s}</span>` : "";
+  const icons = [];
+  for (let i = 0; i < (d.text_hints || 0); i++) icons.push("⏩");
+  for (let i = 0; i < (d.dir_hints || 0); i++) icons.push("🧭");
+  if (d.century_hint) icons.push("🏛️");
+  if (d.last_digit) icons.push("🔢");
+  if (!icons.length) return "";
+  if (icons.length <= 2) return `<span class="lb-hints">${icons.join("")}</span>`;
+  return `<span class="lb-hints lb-hints-grid">${icons.map((e) => `<i>${e}</i>`).join("")}</span>`;
+}
+
+// Afstand-code (0..7 uit de RPC) → kleur-klasse, in dezelfde volgorde als emojiFor/classify.
+const LB_BLOCK_CLS = ["correct", "veryclose", "close", "warm", "cool", "far", "distant", "farthest"];
+
+// De gokken als mini-blokjes (spoilervrij: alleen kleuren, net als de deel-blokjes).
+// guess_blocks komt uit de RPC; leeg/null als de play geen opgeslagen gokken heeft.
+function lbGuessBlocks(d) {
+  const codes = Array.isArray(d.guess_blocks) ? d.guess_blocks : null;
+  if (!codes || !codes.length) return "";
+  return `<span class="lb-blocks">` +
+    codes.map((c) => `<i class="lb-blk ${LB_BLOCK_CLS[c] || "farthest"}"></i>`).join("") +
+    `</span>`;
 }
 
 // Alleen de inhoud van het daily-bord (tabel of lege staat) — de kop + ‹ ›-knoppen
@@ -1590,7 +1610,7 @@ function dailyTableHtml(rows) {
   return `<div class="lb-table">` + rows.map((r) =>
     `<div class="${lbRowCls(r.is_me)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
     `<span class="lb-name">${lbNameCell(r)}</span>` +
-    `<span class="lb-val">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></div>`).join("") + `</div>`;
+    `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`).join("") + `</div>`;
 }
 
 // Laadt het daily-bord voor lbDailyDate en werkt kop + pijl-knoppen bij. Een
