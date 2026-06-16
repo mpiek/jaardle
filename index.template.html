@@ -89,30 +89,34 @@
 
     <section id="guesses" aria-label="Pogingen"></section>
 
-    <div id="live-score" class="live-score" hidden>
-      <span class="live-score-val">100</span>
-      <span class="live-score-lab" data-i18n="score_label">{{i18n:score_label}}</span>
+    <!-- Score + invoer + keypad. Op lage schermen wordt dit een sticky bottom-bar
+         (zie @media max-height in style.css) zodat de Gok-knop altijd in beeld is. -->
+    <div id="play-bar">
+      <div id="live-score" class="live-score" hidden>
+        <span class="live-score-val">100</span>
+        <span class="live-score-lab" data-i18n="score_label">{{i18n:score_label}}</span>
+      </div>
+
+      <section id="input-row">
+        <div id="year-input" aria-live="polite" aria-label="Ingevoerd jaar"></div>
+      </section>
+
+      <section id="keypad" aria-label="Numeriek toetsenbord">
+        <button class="key" type="button" data-digit="1">1</button>
+        <button class="key" type="button" data-digit="2">2</button>
+        <button class="key" type="button" data-digit="3">3</button>
+        <button class="key" type="button" data-digit="4">4</button>
+        <button class="key" type="button" data-digit="5">5</button>
+        <button class="key" type="button" data-digit="6">6</button>
+        <button class="key" type="button" data-digit="7">7</button>
+        <button class="key" type="button" data-digit="8">8</button>
+        <button class="key" type="button" data-digit="9">9</button>
+        <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="Voor Christus toggle">−</button>
+        <button class="key" type="button" data-digit="0">0</button>
+        <button class="key key-back" type="button" id="backspace-btn" aria-label="Wis laatste cijfer">⌫</button>
+        <button class="key key-wide" type="button" id="guess-btn" data-i18n="guess">{{i18n:guess}}</button>
+      </section>
     </div>
-
-    <section id="input-row">
-      <div id="year-input" aria-live="polite" aria-label="Ingevoerd jaar"></div>
-    </section>
-
-    <section id="keypad" aria-label="Numeriek toetsenbord">
-      <button class="key" type="button" data-digit="1">1</button>
-      <button class="key" type="button" data-digit="2">2</button>
-      <button class="key" type="button" data-digit="3">3</button>
-      <button class="key" type="button" data-digit="4">4</button>
-      <button class="key" type="button" data-digit="5">5</button>
-      <button class="key" type="button" data-digit="6">6</button>
-      <button class="key" type="button" data-digit="7">7</button>
-      <button class="key" type="button" data-digit="8">8</button>
-      <button class="key" type="button" data-digit="9">9</button>
-      <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="Voor Christus toggle">−</button>
-      <button class="key" type="button" data-digit="0">0</button>
-      <button class="key key-back" type="button" id="backspace-btn" aria-label="Wis laatste cijfer">⌫</button>
-      <button class="key key-wide" type="button" id="guess-btn" data-i18n="guess">{{i18n:guess}}</button>
-    </section>
 
     <section id="result" hidden>
       <p id="result-text"></p>
@@ -246,7 +250,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=94"></script>
+  <script src="/game.js?v=95"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

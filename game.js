@@ -1211,6 +1211,47 @@ function showFireworks() {
   setTimeout(() => container.remove(), (maxEnd + 0.5) * 1000);
 }
 
+// Een sliert lampjes (💡) die van de zojuist gespeelde gok-rij omhoog naar de
+// carrousel zwiert wanneer er een gratis hint vrijkomt. De beweging trekt het oog
+// naar het nieuwe feit bovenin (i.p.v. een melding die je moet wegtikken). Vuurt
+// élke keer — het is een korte, leuke beweging, geen blijvend merkteken. Uit bij
+// prefers-reduced-motion.
+function flyHintBulbs(fromEl, toEl) {
+  if (!fromEl || !toEl) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const a = fromEl.getBoundingClientRect();
+  const b = toEl.getBoundingClientRect();
+  const sx = a.left + a.width * 0.5, sy = a.top + a.height * 0.5;   // start: midden gok-rij
+  const tx = b.left + b.width * 0.5, ty = b.top + b.height * 0.55;  // doel: de carrousel
+  const container = document.createElement("div");
+  container.className = "bulb-stream";
+  const N = 7;
+  let maxEnd = 0;
+  for (let i = 0; i < N; i++) {
+    const bulb = document.createElement("span");
+    bulb.className = "bulb";
+    bulb.textContent = "💡";
+    container.appendChild(bulb);
+    const jx = (Math.random() - 0.5) * 38, jy = (Math.random() - 0.5) * 16;  // spreiding bij start
+    const ex = (Math.random() - 0.5) * 44;                                   // spreiding bij carrousel
+    const dir = i % 2 === 0 ? 1 : -1;
+    const swirl = (46 + Math.random() * 44) * dir;                           // zijwaartse zwieer
+    const midx = (sx + jx + tx + ex) / 2 + swirl, midy = (sy + jy + ty) / 2 - 12;
+    const delay = i * 65, dur = 820 + Math.random() * 260;
+    maxEnd = Math.max(maxEnd, delay + dur);
+    bulb.animate([
+      { transform: `translate(${sx + jx}px, ${sy + jy}px) scale(0.3) rotate(0deg)`, opacity: 0 },
+      { transform: `translate(${sx + jx}px, ${sy + jy}px) scale(1) rotate(-8deg)`, opacity: 1, offset: 0.14 },
+      { transform: `translate(${midx}px, ${midy}px) scale(1.05) rotate(${8 * dir}deg)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${tx + ex}px, ${ty}px) scale(0.5) rotate(0deg)`, opacity: 0 },
+    ], { duration: dur, delay, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" });
+  }
+  document.body.appendChild(container);
+  setTimeout(() => toEl.classList.add("hint-arrived"), Math.max(0, maxEnd - 240));
+  // 'hint-arrived' moet blijven staan tot de catch-glow (1s) helemaal klaar is.
+  setTimeout(() => { toEl.classList.remove("hint-arrived"); container.remove(); }, maxEnd + 900);
+}
+
 function finishGame(won, fresh = false) {
   state.done = true;
   state.won = won;
@@ -2449,8 +2490,12 @@ function submitGuess() {
     if (track) void track.offsetWidth;
     goToSlide(state.event.facts.length + revealedExtraCount() - 1);
     const justRow = els.guesses.querySelectorAll(".guess-row")[gl - 1];
+    const carousel = els.eventText.querySelector(".fact-carousel");
     if (justRow) {
-      requestAnimationFrame(() => requestAnimationFrame(() => justRow.classList.add("hint-unlocked")));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        justRow.classList.add("hint-unlocked");
+        flyHintBulbs(justRow, carousel);   // lampjes zwieren omhoog naar het nieuwe feit
+      }));
     }
   }
   updateLiveScore(true);   // tel zichtbaar omlaag bij deze (mis)gok

@@ -57,7 +57,7 @@ main {
 #mode-tabs {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   align-items: stretch;
 }
 
@@ -186,8 +186,8 @@ main {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 0.35rem 1.1rem 0.65rem;
-  margin-bottom: 0.6rem;
+  padding: 0.3rem 1.1rem 0.5rem;
+  margin-bottom: 0.45rem;
   touch-action: pan-y;   /* verticaal scrollen blijft; horizontaal slepen = swipe */
 }
 
@@ -458,7 +458,7 @@ kbd {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.35rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   min-height: 1px;
 }
 
@@ -606,7 +606,7 @@ kbd {
 }
 
 #input-row {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.4rem;
 }
 
 #year-input {
@@ -645,7 +645,7 @@ kbd {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.4rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 .key {
@@ -843,10 +843,73 @@ footer {
   60%  { transform: scale(1.2); }
   100% { transform: scale(1);   opacity: 1; }
 }
+/* Lampjes-sliert: 💡 die van de gok-rij omhoog naar de carrousel zwiert zodra een
+   gratis hint vrijkomt (zie flyHintBulbs in game.js). */
+.bulb-stream {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+.bulb-stream .bulb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 20px;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(244, 196, 48, 0.9));
+  will-change: transform, opacity;
+}
+/* De carrousel 'vangt' de lampjes op met twee rustige gele glow-pulsen, met een
+   donkere tussenpauze ertussen zodat het als puls–puls leest (niet één lange glow,
+   en niet te snel flikkerend). ease-in-out = zachte op/neer i.p.v. harde randen. */
+.fact-carousel.hint-arrived { animation: hint-catch 1s ease-in-out; }
+@keyframes hint-catch {
+  0%   { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }
+  18%  { box-shadow: 0 0 16px 4px rgba(244, 196, 48, 0.65); }   /* puls 1 piek */
+  38%  { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }           /* uit */
+  54%  { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }           /* donkere pauze */
+  72%  { box-shadow: 0 0 16px 4px rgba(244, 196, 48, 0.65); }   /* puls 2 piek */
+  100% { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }
+}
 @media (prefers-reduced-motion: reduce) {
   .confetti-piece { display: none; }
   .firework-particle { display: none; }
+  .bulb-stream { display: none; }
   .year-pill.win-pop { animation: none; }
+}
+
+/* Korte aanraakschermen (telefoons rechtop): comprimeer de verticale maten en pin
+   het keypad onderaan zodat de Gok-knop zonder scrollen in beeld blijft. Toetsen
+   blijven ~44px raakbaar. Beperkt tot pointer:coarse → desktop (muis) blijft
+   gegarandeerd ongemoeid, ongeacht vensterhoogte; hoge telefoons houden de ruime
+   layout (boven 860px hoog). */
+@media (max-height: 860px) and (pointer: coarse) {
+  #event-card { padding-top: 0.25rem; padding-bottom: 0.35rem; }
+  #event-text { font-size: 1rem; }
+  #guesses { gap: 0.3rem; margin-bottom: 0.5rem; }
+  .guess-row { min-height: 1.75rem; padding-top: 0.2rem; padding-bottom: 0.2rem; }
+  #input-row { margin-bottom: 0.35rem; }
+  #year-input { min-height: 2.4rem; padding-top: 0.3rem; padding-bottom: 0.3rem; font-size: 1.7rem; }
+  #keypad { gap: 0.3rem; margin-bottom: 0; }
+  .key { padding: 0.55rem 0; font-size: 1.25rem; }
+  .key-wide { padding: 0.6rem 0; }
+
+  /* Score + invoer + keypad pinnen onderaan: Gok blijft altijd in beeld, de
+     carrousel/gokken erboven scrollen eronderdoor (opaque achtergrond + z-index).
+     De zachte schaduw markeert de rand. */
+  #play-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding-top: 0.4rem;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -10px 12px -6px rgba(0, 0, 0, 0.55);
+  }
+  /* Spel klaar (keypad disabled) → niet meer pinnen, zodat het eindscherm vrij is. */
+  #play-bar:has(#keypad.disabled) { position: static; box-shadow: none; padding-top: 0; }
 }
 
 
