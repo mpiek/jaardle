@@ -293,8 +293,7 @@ function applyLang() {
   const help = document.getElementById("help-list");
   if (help) help.innerHTML = t("help_list");
   renderHelpConstants();
-  const langItem = document.querySelector('#menu-pop [data-action="lang"]');
-  if (langItem) langItem.textContent = LANGS[nextLang()].label;
+  renderLangMenu();
   if (els.dayLabel) els.dayLabel.textContent = `${t("day")} #${daysSince(EPOCH) + 1}`;
   renderMenu();
   if (state) {
@@ -306,17 +305,35 @@ function applyLang() {
   if (sm && !sm.hidden) renderStats();
 }
 
-// Volgende taal in de cyclus (wrapt rond). Bij 2 talen = simpele toggle; bij 3+
-// loop je er stap voor stap doorheen via het menu-item.
-function nextLang() {
-  return LANG_CODES[(LANG_CODES.indexOf(lang) + 1) % LANG_CODES.length];
+// Zichtbare taalkeuze in de header (redactle-stijl dropdown), gevuld uit LANGS —
+// een nieuwe taal verschijnt hier dus vanzelf zodra 'ie in LANGS staat. De knop
+// toont de huidige taalcode (🌐 NL ▾); de pop lijst alle talen met ✓ op de actieve.
+function renderLangMenu() {
+  const codeEl = document.querySelector("#lang-btn .lang-code");
+  if (codeEl) codeEl.textContent = lang.toUpperCase();
+  const pop = document.getElementById("lang-pop");
+  if (!pop) return;
+  pop.innerHTML = LANG_CODES.map((c) =>
+    `<button class="lang-item${c === lang ? " active" : ""}" role="menuitem" data-lang="${c}">` +
+    `${LANGS[c].label}${c === lang ? " ✓" : ""}</button>`).join("");
 }
 
-function toggleLang() {
-  lang = nextLang();
+function toggleLangMenu(force) {
+  const pop = document.getElementById("lang-pop");
+  const btn = document.getElementById("lang-btn");
+  if (!pop || !btn) return;
+  const open = force !== undefined ? force : pop.hidden;
+  pop.hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+}
+
+// Kies een taal expliciet (uit de dropdown). Houdt de URL in lijn: "/" voor de
+// root-taal, "/en", "/de", … (query zoals ?p=... blijft behouden).
+function setLang(code) {
+  toggleLangMenu(false);
+  if (!LANG_CODES.includes(code) || code === lang) return;
+  lang = code;
   applyLang();
-  // Houd de URL in lijn met de taal: "/" voor de root-taal, "/en", "/de", …
-  // (query zoals ?p=... blijft behouden). Direct bezoek werkt via de per-taal mirror.
   try { history.replaceState(null, "", "/" + LANGS[lang].path + location.search); }
   catch (e) {}
 }
@@ -2757,7 +2774,7 @@ async function init() {
   document.getElementById("menu-wrap").hidden = false;
   const menuBtn = document.getElementById("menu-btn");
   const menuPop = document.getElementById("menu-pop");
-  menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(); });
+  menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleLangMenu(false); toggleMenu(); });
   menuPop.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-action]");
     if (!btn) return;
@@ -2768,11 +2785,25 @@ async function init() {
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
-    else if (action === "lang") toggleLang();
   });
   document.addEventListener("click", (e) => {
     if (!menuPop.hidden && !menuPop.contains(e.target) && e.target !== menuBtn) {
       toggleMenu(false);
+    }
+  });
+
+  // Taalkeuze (🌐): zichtbare dropdown rechts in de header, zelfde toggle/click-
+  // outside-patroon als het ⋮-menu. Lijst komt uit LANGS (zie renderLangMenu).
+  const langBtn = document.getElementById("lang-btn");
+  const langPop = document.getElementById("lang-pop");
+  langBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(false); toggleLangMenu(); });
+  langPop.addEventListener("click", (e) => {
+    const item = e.target.closest("[data-lang]");
+    if (item) setLang(item.dataset.lang);
+  });
+  document.addEventListener("click", (e) => {
+    if (!langPop.hidden && !langPop.contains(e.target) && !langBtn.contains(e.target)) {
+      toggleLangMenu(false);
     }
   });
   renderMenu();

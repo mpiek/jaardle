@@ -154,6 +154,52 @@ main {
 .menu-item:hover { background: var(--card-soft); }
 .menu-item.danger { color: #ff8a8a; }
 
+/* Taalkeuze (🌐): icoon-knop naast het ⋮-menu, opent een dropdown (redactle-stijl). */
+#lang-wrap { position: relative; display: flex; }
+#lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+#lang-btn:hover { background: var(--card-soft); }
+#lang-btn[aria-expanded="true"] { background: var(--card-soft); }
+#lang-btn .lang-globe { font-size: 1.15rem; line-height: 1; }
+#lang-pop {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  min-width: 10rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  z-index: 50;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+.lang-item {
+  background: transparent;
+  color: var(--fg);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+.lang-item:hover { background: var(--card-soft); }
+.lang-item.active { font-weight: 600; }
+
 .tab {
   flex: 1;
   display: inline-flex;
