@@ -880,11 +880,11 @@ footer {
   .year-pill.win-pop { animation: none; }
 }
 
-/* Korte aanraakschermen (telefoons rechtop): comprimeer de verticale maten en pin
-   het keypad onderaan zodat de Gok-knop zonder scrollen in beeld blijft. Toetsen
-   blijven ~44px raakbaar. Beperkt tot pointer:coarse → desktop (muis) blijft
-   gegarandeerd ongemoeid, ongeacht vensterhoogte; hoge telefoons houden de ruime
-   layout (boven 860px hoog). */
+/* Korte aanraakschermen (telefoons rechtop): comprimeer de verticale maten zodat
+   de Gok-knop met zo min mogelijk scrollen in beeld komt. Toetsen blijven ~44px
+   raakbaar. Beperkt tot pointer:coarse → desktop (muis) blijft gegarandeerd
+   ongemoeid, ongeacht vensterhoogte; hoge telefoons houden de ruime layout
+   (boven 860px hoog). */
 @media (max-height: 860px) and (pointer: coarse) {
   #event-card { padding-top: 0.25rem; padding-bottom: 0.35rem; }
   #event-text { font-size: 1rem; }
@@ -895,21 +895,6 @@ footer {
   #keypad { gap: 0.3rem; margin-bottom: 0; }
   .key { padding: 0.55rem 0; font-size: 1.25rem; }
   .key-wide { padding: 0.6rem 0; }
-
-  /* Score + invoer + keypad pinnen onderaan: Gok blijft altijd in beeld, de
-     carrousel/gokken erboven scrollen eronderdoor (opaque achtergrond + z-index).
-     De zachte schaduw markeert de rand. */
-  #play-bar {
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
-    background: var(--bg);
-    padding-top: 0.4rem;
-    padding-bottom: env(safe-area-inset-bottom, 0);
-    box-shadow: 0 -10px 12px -6px rgba(0, 0, 0, 0.55);
-  }
-  /* Spel klaar (keypad disabled) → niet meer pinnen, zodat het eindscherm vrij is. */
-  #play-bar:has(#keypad.disabled) { position: static; box-shadow: none; padding-top: 0; }
 }
 
 
