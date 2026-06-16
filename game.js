@@ -2482,7 +2482,10 @@ function submitGuess() {
   // Herbouw de carrousel, schuif naar de nieuwe gele slide en geef de zojuist
   // gevulde gok-rij een korte gele "unlocked"-puls op de plek van de placeholder.
   const gl = state.guesses.length;
-  const unlocksExtra = !state.done &&
+  // De gratis extra (+ lampjes-animatie) komt alleen vrij als je dóórspeelt: niet als
+  // deze gok het spel wint of je laatste poging was — dan krijg je de hint niet.
+  const willFinish = cls === "correct" || state.guesses.length >= MAX_GUESSES;
+  const unlocksExtra = !state.done && !willFinish &&
     ((gl === 1 && availableExtras() >= 1) || (gl === 2 && availableExtras() >= 2));
   if (unlocksExtra) {
     renderEvent();
