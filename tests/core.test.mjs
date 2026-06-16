@@ -42,7 +42,8 @@ let src = readFileSync(join(dir, "..", "game.js"), "utf8");
 src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aanroep + alles erna
 src += `
 ;globalThis.__T = {
-  classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N,
+  classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, typoJump,
+  TYPO_CLOSE, TYPO_JUMP,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -108,4 +109,22 @@ test("i18n — t() wisselt NL/EN en dicts dekken dezelfde keys", () => {
   const nlKeys = Object.keys(T.I18N.nl).sort();
   const enKeys = Object.keys(T.I18N.en).sort();
   assert.deepEqual(enKeys, nlKeys, "NL en EN dictionaries moeten dezelfde keys hebben");
+});
+
+test("typoJump — waarschuwt alleen bij 'was dichtbij, nu ver ervanaf'", () => {
+  const close = { year: 1850, diff: 5, cls: "close" };   // 5 jaar ervanaf (≤10)
+  // geen eerdere gokken → nooit
+  assert.equal(T.typoJump([], 1800), 0);
+  // dichtste gok was close (≤10) en nieuwe gok ligt ≥50 jaar verderop → jump terug
+  assert.equal(T.typoJump([close], 1800), 50);   // |1800-1850| = 50
+  assert.equal(T.typoJump([close], 1915), 65);
+  // wél dichtbij maar kleine sprong (<50) → geen waarschuwing
+  assert.equal(T.typoJump([close], 1830), 0);    // |1830-1850| = 20
+  // grote sprong maar dichtste gok was NIET dichtbij (warm, 20) → geen waarschuwing
+  assert.equal(T.typoJump([{ year: 1850, diff: 20, cls: "warm" }], 1700), 0);
+  // pakt de DICHTSTE gok, niet de meest recente
+  assert.equal(T.typoJump([close, { year: 1700, diff: 150, cls: "far" }], 1790), 60); // |1790-1850|
+  // grens: precies TYPO_JUMP telt mee, net eronder niet
+  assert.equal(T.typoJump([close], 1850 + T.TYPO_JUMP), T.TYPO_JUMP);
+  assert.equal(T.typoJump([close], 1850 + T.TYPO_JUMP - 1), 0);
 });
