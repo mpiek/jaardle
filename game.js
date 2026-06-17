@@ -1098,7 +1098,7 @@ const RANGE_LABELS = {
 // Score: 100 - sum(penalty per wrong guess) - hint penalties.
 const GUESS_PENALTIES = {
   correct: 0,
-  veryclose: 3,
+  veryclose: 2,
   close: 5,
   warm: 8,
   cool: 11,
