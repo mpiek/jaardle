@@ -2615,6 +2615,13 @@ function submitGuess() {
     flashInput();
     return;
   }
+  // Datzelfde jaar nog eens gokken levert niets op (zelfde feedback, verspilde
+  // poging + strafpunten) → stilletjes weigeren, net als andere ongeldige invoer.
+  // De gok staat al zichtbaar in de lijst, dus de flash maakt 't duidelijk genoeg.
+  if (state.guesses.some((g) => g.year === year)) {
+    flashInput();
+    return;
+  }
   // Buiten-bereik-guard: ligt deze gok verder van je dichtste eerdere gok dan het
   // bereik dat die gok's badge aangeeft (zie outOfBand), dan kan 't logisch gezien
   // niet kloppen → waarschijnlijk een typefout. Even bevestigen i.p.v. een poging +
