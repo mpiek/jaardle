@@ -172,7 +172,7 @@ const I18N = {
     avg_word: "gem.",
     copy_prompt: "Kopieer dit:",
     cal_solved: (g, max) => `opgelost (${g}/${max})`,
-    typo_warn: (jaren) => `Je dichtste gok zat al heel dichtbij; deze ligt er ${jaren} jaar vandaan. Toch gokken?`,
+    band_warn: (jaren) => `Volgens je dichtste gok ligt het antwoord dichterbij; deze gok ligt er ${jaren} jaar vandaan — buiten het bereik. Toch gokken?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`,
     // SEO/meta — door tools/build-html.mjs in de <head> + het introblok gezet.
@@ -273,7 +273,7 @@ const I18N = {
     avg_word: "avg.",
     copy_prompt: "Copy this:",
     cal_solved: (g, max) => `solved (${g}/${max})`,
-    typo_warn: (years) => `Your closest guess was already very close; this one is ${years} years away from it. Guess anyway?`,
+    band_warn: (years) => `Your closest guess puts the answer nearer; this guess is ${years} years away — outside that range. Guess anyway?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`,
     // SEO/meta — used by tools/build-html.mjs for the <head> + intro block.
@@ -369,7 +369,7 @@ const I18N = {
     avg_word: "Ø",
     copy_prompt: "Kopiere das:",
     cal_solved: (g, max) => `gelöst (${g}/${max})`,
-    typo_warn: (jahre) => `Dein bester Tipp war schon sehr nah dran; dieser liegt ${jahre} Jahre davon entfernt. Trotzdem raten?`,
+    band_warn: (jahre) => `Laut deinem besten Tipp liegt die Antwort näher; dieser Tipp liegt ${jahre} Jahre entfernt — außerhalb der Spanne. Trotzdem raten?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} Spieler · ${s.win_pct}% gelöst${hasScore ? ` · Ø Punkte ${s.avg_score}/100` : ""} · Ø ${s.avg_guesses} Versuche · ${s.first_try_pct}% beim ersten Versuch`,
     meta_title: "Jaardle — errate das Jahr",
@@ -662,12 +662,6 @@ function storageKey(mode) {
   } catch (e) { /* private browsing etc. */ }
 })();
 
-// Typo-guard: was een eerdere gok al ≤TYPO_CLOSE jaar (🟨 of beter), dan ligt het
-// antwoord daar dichtbij; een nieuwe gok ≥TYPO_JUMP jaar daarvandaan kan logisch
-// gezien geen bedoelde gok zijn → waarschijnlijk een typefout (zie submitGuess).
-const TYPO_CLOSE = 10;
-const TYPO_JUMP = 50;
-
 function classify(diff) {
   const abs = Math.abs(diff);
   if (abs === 0) return "correct";
@@ -680,17 +674,26 @@ function classify(diff) {
   return "farthest";
 }
 
-// Pure typo-detectie: geeft de afstand (jaren) tussen `year` en je dichtste
-// eerdere gok TERUG als die gok al ≤TYPO_CLOSE jaar was én `year` er ≥TYPO_JUMP
-// jaar vandaan ligt — anders 0. Een waarde >0 = "was al dichtbij, dit ligt er ver
-// naast → waarschijnlijk een typefout". Kijkt alleen naar eigen gokken (diff is
-// bekend uit eerdere feedback), niet naar het antwoord — verklapt dus niets.
-function typoJump(guesses, year) {
+// Bovengrens van het bereik dat elke gok-badge toont (zie RANGE_LABELS): hoe ver
+// het antwoord maximaal van die gok kan liggen. "farthest" (600+) is onbegrensd.
+const BAND_OUTER = {
+  veryclose: 2, close: 10, warm: 25, cool: 50, far: 200, distant: 599,
+};
+
+// Buiten-bereik-guard: je dichtste eerdere gok geeft via z'n badge het smalste
+// bereik waarin het antwoord moet liggen. Ligt `year` daar verder vandaan dan die
+// bovengrens, dan kan het logisch gezien niet het antwoord zijn → waarschijnlijk
+// een typefout. Geeft die afstand (jaren) TERUG, anders 0. Kijkt alleen naar eigen
+// gokken (afstand is bekend uit eerdere feedback), niet naar het antwoord — verklapt
+// dus niets.
+function outOfBand(guesses, year) {
   const closest = (guesses || []).reduce(
     (b, g) => (b === null || Math.abs(g.diff) < Math.abs(b.diff)) ? g : b, null);
-  if (!closest || Math.abs(closest.diff) > TYPO_CLOSE) return 0;
+  if (!closest) return 0;
+  const outer = BAND_OUTER[closest.cls];
+  if (outer === undefined) return 0;   // farthest → geen bovengrens, geen guard
   const jump = Math.abs(year - closest.year);
-  return jump >= TYPO_JUMP ? jump : 0;
+  return jump > outer ? jump : 0;
 }
 
 function displaySource(url) {
@@ -2607,12 +2610,13 @@ function submitGuess() {
     flashInput();
     return;
   }
-  // Typo-guard: vrijwel zeker een typefout als je dichtste eerdere gok al heel
-  // dichtbij was en deze er ver vandaan ligt (zie typoJump). Even bevestigen i.p.v.
-  // een poging + strafpunten te verspillen; annuleren laat de invoer staan om te
-  // corrigeren. Gebruikt alleen je eigen gokken (geen antwoord-info → verklapt niets).
-  const tj = typoJump(state.guesses, year);
-  if (tj && !confirm(t("typo_warn")(tj))) return;
+  // Buiten-bereik-guard: ligt deze gok verder van je dichtste eerdere gok dan het
+  // bereik dat die gok's badge aangeeft (zie outOfBand), dan kan 't logisch gezien
+  // niet kloppen → waarschijnlijk een typefout. Even bevestigen i.p.v. een poging +
+  // strafpunten te verspillen; annuleren laat de invoer staan om te corrigeren.
+  // Gebruikt alleen je eigen gokken (geen antwoord-info → verklapt niets).
+  const oob = outOfBand(state.guesses, year);
+  if (oob && !confirm(t("band_warn")(oob))) return;
   const diff = state.event.year - year;
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });

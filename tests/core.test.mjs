@@ -42,8 +42,8 @@ let src = readFileSync(join(dir, "..", "game.js"), "utf8");
 src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aanroep + alles erna
 src += `
 ;globalThis.__T = {
-  classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, typoJump,
-  TYPO_CLOSE, TYPO_JUMP,
+  classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
+  BAND_OUTER,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -111,20 +111,24 @@ test("i18n — t() wisselt NL/EN en dicts dekken dezelfde keys", () => {
   assert.deepEqual(enKeys, nlKeys, "NL en EN dictionaries moeten dezelfde keys hebben");
 });
 
-test("typoJump — waarschuwt alleen bij 'was dichtbij, nu ver ervanaf'", () => {
-  const close = { year: 1850, diff: 5, cls: "close" };   // 5 jaar ervanaf (≤10)
+test("outOfBand — waarschuwt als de gok buiten het bereik van je dichtste gok valt", () => {
+  const close = { year: 1850, diff: 5, cls: "close" };   // bereik-bovengrens 10
   // geen eerdere gokken → nooit
-  assert.equal(T.typoJump([], 1800), 0);
-  // dichtste gok was close (≤10) en nieuwe gok ligt ≥50 jaar verderop → jump terug
-  assert.equal(T.typoJump([close], 1800), 50);   // |1800-1850| = 50
-  assert.equal(T.typoJump([close], 1915), 65);
-  // wél dichtbij maar kleine sprong (<50) → geen waarschuwing
-  assert.equal(T.typoJump([close], 1830), 0);    // |1830-1850| = 20
-  // grote sprong maar dichtste gok was NIET dichtbij (warm, 20) → geen waarschuwing
-  assert.equal(T.typoJump([{ year: 1850, diff: 20, cls: "warm" }], 1700), 0);
-  // pakt de DICHTSTE gok, niet de meest recente
-  assert.equal(T.typoJump([close, { year: 1700, diff: 150, cls: "far" }], 1790), 60); // |1790-1850|
-  // grens: precies TYPO_JUMP telt mee, net eronder niet
-  assert.equal(T.typoJump([close], 1850 + T.TYPO_JUMP), T.TYPO_JUMP);
-  assert.equal(T.typoJump([close], 1850 + T.TYPO_JUMP - 1), 0);
+  assert.equal(T.outOfBand([], 1800), 0);
+  // close → bovengrens 10; verder dan 10 jaar weg → afstand terug
+  assert.equal(T.outOfBand([close], 1800), 50);   // |1800-1850| = 50
+  assert.equal(T.outOfBand([close], 1915), 65);
+  // binnen de bovengrens (≤10) → geen waarschuwing
+  assert.equal(T.outOfBand([close], 1858), 0);    // |1858-1850| = 8
+  // grens: precies op de bovengrens telt niet, één jaar erbuiten wél
+  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close), 0);
+  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + 1), 11);
+  // bredere band (warm, bovengrens 25) → grotere sprong toegestaan
+  const warm = { year: 1850, diff: 20, cls: "warm" };
+  assert.equal(T.outOfBand([warm], 1870), 0);     // |1870-1850| = 20 ≤ 25
+  assert.equal(T.outOfBand([warm], 1900), 50);    // |1900-1850| = 50 > 25
+  // farthest (600+) is onbegrensd → nooit een waarschuwing
+  assert.equal(T.outOfBand([{ year: 1850, diff: 700, cls: "farthest" }], 0), 0);
+  // pakt de DICHTSTE gok (smalste band), niet de meest recente
+  assert.equal(T.outOfBand([close, { year: 1700, diff: 150, cls: "far" }], 1790), 60); // |1790-1850|
 });
