@@ -43,7 +43,7 @@ src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aan
 src += `
 ;globalThis.__T = {
   classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
-  BAND_OUTER,
+  BAND_OUTER, BAND_SLACK,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -111,22 +111,23 @@ test("i18n — t() wisselt NL/EN en dicts dekken dezelfde keys", () => {
   assert.deepEqual(enKeys, nlKeys, "NL en EN dictionaries moeten dezelfde keys hebben");
 });
 
-test("outOfBand — waarschuwt als de gok buiten het bereik van je dichtste gok valt", () => {
-  const close = { year: 1850, diff: 5, cls: "close" };   // bereik-bovengrens 10
+test("outOfBand — waarschuwt als de gok duidelijk buiten het bereik van je dichtste gok valt", () => {
+  const close = { year: 1850, diff: 5, cls: "close" };   // bovengrens 10 (+ slack 30 = 40)
   // geen eerdere gokken → nooit
   assert.equal(T.outOfBand([], 1800), 0);
-  // close → bovengrens 10; verder dan 10 jaar weg → afstand terug
-  assert.equal(T.outOfBand([close], 1800), 50);   // |1800-1850| = 50
+  // close → bovengrens 10 + speelruimte 30 = 40; pas verder dan 40 jaar weg → afstand terug
+  assert.equal(T.outOfBand([close], 1800), 50);   // |1800-1850| = 50 > 40
   assert.equal(T.outOfBand([close], 1915), 65);
-  // binnen de bovengrens (≤10) → geen waarschuwing
+  // binnen bovengrens + speelruimte → geen waarschuwing (zou v66 wél hebben gewaarschuwd)
   assert.equal(T.outOfBand([close], 1858), 0);    // |1858-1850| = 8
-  // grens: precies op de bovengrens telt niet, één jaar erbuiten wél
-  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close), 0);
-  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + 1), 11);
-  // bredere band (warm, bovengrens 25) → grotere sprong toegestaan
+  assert.equal(T.outOfBand([close], 1885), 0);    // |1885-1850| = 35 ≤ 40
+  // grens: precies op bovengrens + speelruimte telt niet, één jaar erbuiten wél
+  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + T.BAND_SLACK), 0);
+  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + T.BAND_SLACK + 1), 41);
+  // bredere band (warm, bovengrens 25 + 30 = 55) → grotere sprong toegestaan
   const warm = { year: 1850, diff: 20, cls: "warm" };
-  assert.equal(T.outOfBand([warm], 1870), 0);     // |1870-1850| = 20 ≤ 25
-  assert.equal(T.outOfBand([warm], 1900), 50);    // |1900-1850| = 50 > 25
+  assert.equal(T.outOfBand([warm], 1900), 0);     // |1900-1850| = 50 ≤ 55
+  assert.equal(T.outOfBand([warm], 1910), 60);    // |1910-1850| = 60 > 55
   // farthest (600+) is onbegrensd → nooit een waarschuwing
   assert.equal(T.outOfBand([{ year: 1850, diff: 700, cls: "farthest" }], 0), 0);
   // pakt de DICHTSTE gok (smalste band), niet de meest recente

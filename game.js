@@ -680,12 +680,17 @@ const BAND_OUTER = {
   veryclose: 2, close: 10, warm: 25, cool: 50, far: 200, distant: 599,
 };
 
+// Speelruimte bovenop de band-bovengrens: pas waarschuwen als de gok er duidelijk
+// buiten valt, niet bij elke gok die net over de grens kruipt. Houdt de guard een
+// failsafe tegen typefouten i.p.v. een betweter.
+const BAND_SLACK = 30;
+
 // Buiten-bereik-guard: je dichtste eerdere gok geeft via z'n badge het smalste
-// bereik waarin het antwoord moet liggen. Ligt `year` daar verder vandaan dan die
-// bovengrens, dan kan het logisch gezien niet het antwoord zijn → waarschijnlijk
-// een typefout. Geeft die afstand (jaren) TERUG, anders 0. Kijkt alleen naar eigen
-// gokken (afstand is bekend uit eerdere feedback), niet naar het antwoord — verklapt
-// dus niets.
+// bereik waarin het antwoord moet liggen. Ligt `year` daar duidelijk verder vandaan
+// dan die bovengrens (+ speelruimte), dan kan het logisch gezien niet het antwoord
+// zijn → waarschijnlijk een typefout. Geeft die afstand (jaren) TERUG, anders 0.
+// Kijkt alleen naar eigen gokken (afstand is bekend uit eerdere feedback), niet naar
+// het antwoord — verklapt dus niets.
 function outOfBand(guesses, year) {
   const closest = (guesses || []).reduce(
     (b, g) => (b === null || Math.abs(g.diff) < Math.abs(b.diff)) ? g : b, null);
@@ -693,7 +698,7 @@ function outOfBand(guesses, year) {
   const outer = BAND_OUTER[closest.cls];
   if (outer === undefined) return 0;   // farthest → geen bovengrens, geen guard
   const jump = Math.abs(year - closest.year);
-  return jump > outer ? jump : 0;
+  return jump > outer + BAND_SLACK ? jump : 0;
 }
 
 function displaySource(url) {
