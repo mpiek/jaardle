@@ -1638,10 +1638,24 @@ function lbRow(rankCell, r, valCell, extraCls) {
     `<span class="lb-val">${valCell}</span></div>`;
 }
 
+// Competition-ranking over een al-gesorteerde lijst: wie dezelfde getoonde waarde
+// heeft deelt de rang (en dus de medaille) — 100, 90, 90, 89 → 1, 2, 2, 4. De
+// display-volgorde binnen een gelijkspel blijft staan; alleen het cijfer/de
+// medaille wordt gedeeld. Tie = identieke getoonde string, zodat "zelfde getal →
+// zelfde medaille" altijd klopt, los van verborgen sorteersleutels (bv. elo−2·rd).
+function lbRanked(list, valFn) {
+  let rank = 0, prev = null;
+  return list.map((r, i) => {
+    const v = valFn(r);
+    if (i === 0 || v !== prev) { rank = i + 1; prev = v; }
+    return [rank, r];
+  });
+}
+
 function lbStatRows(list, valFn) {
   if (!list.length) return `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
   return `<div class="lb-table">` +
-    list.map((r, i) => lbRow(lbMedal(i + 1), r, valFn(r), "")).join("") + `</div>`;
+    lbRanked(list, valFn).map(([rank, r]) => lbRow(lbMedal(rank), r, valFn(r), "")).join("") + `</div>`;
 }
 
 // Gegate stat-bord (win%/score): gekwalificeerde spelers eerst, aflopend op de
@@ -1653,7 +1667,7 @@ function lbGatedStatRows(list, stat) {
     .sort((a, b) => (b[stat.key] - a[stat.key]) || lbTieCmp(a, b));
   const pending = list.filter((r) => (r.games || 0) < LB_MIN_RANKED_GAMES)
     .sort((a, b) => ((b.games || 0) - (a.games || 0)) || lbTieCmp(a, b));
-  const rows = ranked.map((r, i) => lbRow(lbMedal(i + 1), r, stat.val(r), ""));
+  const rows = lbRanked(ranked, stat.val).map(([rank, r]) => lbRow(lbMedal(rank), r, stat.val(r), ""));
   // Sub-drempel: toon de echte (gedimde) waarde — anders zijn de win%- en
   // score-pagina's identiek als iedereen ongerankt is en lijkt swipen vast te zitten.
   // Het games-aantal (x/15) staat als klein bijschrift zodat de drempel zichtbaar blijft.
