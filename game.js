@@ -25,6 +25,7 @@ const LANGS = {
   nl: { label: "🇳🇱 Nederlands", html: "nl", intl: "nl-NL", og: "nl_NL", path: "" },
   en: { label: "🇬🇧 English",    html: "en", intl: "en-GB", og: "en_GB", path: "en" },
   de: { label: "🇩🇪 Deutsch",    html: "de", intl: "de-DE", og: "de_DE", path: "de" },
+  es: { label: "🇪🇸 Español",    html: "es", intl: "es-ES", og: "es_ES", path: "es" },
 };
 const LANG_CODES = Object.keys(LANGS);
 // Brontaal: hieruit lenen we een string/feit als de huidige taal die mist (het
@@ -85,6 +86,17 @@ const HELP_DE = `
   <li><strong>Tägliches Jaardle</strong>: ein Rätsel pro Tag, für alle gleich.</li>
   <li><strong>Neues Spiel</strong>: endlose Runden, ein zufälliges Ereignis.</li>
   <li><strong>Tasten</strong>: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>R</kbd> für einen Richtungshinweis, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>`;
+const HELP_ES = `
+  <li>Recibes un acontecimiento de un año y <span data-help="max-guesses"></span> intentos para adivinar ese año. En el carrusel, los intentos 1 y 2 añaden cada uno <strong>gratis</strong> dos datos adicionales del mismo año (💡 amarillo).</li>
+  <li><strong>Desliza el carrusel para más pistas</strong> — toca «Revelar» (resta puntos): <strong>⏩ 100 años después</strong> y luego <strong>⏩ 250 años después</strong> (acontecimientos posteriores a la respuesta), <strong>🏛️ época</strong> (el siglo) y la <strong>🔢 última cifra</strong> del año.</li>
+  <li>Cada intento muestra una etiqueta de color con un margen. La dirección (↑/↓) permanece oculta hasta que la pidas.</li>
+  <li>Máx. <strong><span data-help="max-dir-hints"></span> pistas de dirección</strong> (🧭) por puzle. Una pista de dirección revela la flecha solo en tu último intento.</li>
+  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
+  <li><strong>Puntos (0–100)</strong>: empiezas con 100, penalización por cada fallo: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Los datos extra amarillos son gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> y 🧭 <span data-penalty="dir-hint"></span> restan puntos. Perdida = 0–10, según tu intento más cercano.</li>
+  <li>Niveles: <span data-help="tiers"></span></li>
+  <li><strong>Jaardle diario</strong>: un puzle al día, igual para todos.</li>
+  <li><strong>Partida nueva</strong>: rondas infinitas, un acontecimiento aleatorio.</li>
+  <li><strong>Teclas</strong>: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>R</kbd> para una pista de dirección, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>`;
 
 const I18N = {
   nl: {
@@ -378,6 +390,106 @@ const I18N = {
     intro_h1: "Jaardle — das tägliche Jahreszahlen-Ratespiel",
     intro_html: `Jaardle ist ein kostenloses Rätselspiel im Wordle-Stil: Du bekommst ein historisches Ereignis und errätst in wenigen Versuchen, in welchem Jahr es stattfand. Spiele jeden Tag dasselbe <strong>tägliche Rätsel</strong> wie alle anderen oder endloses <strong>freies Spiel</strong>, vergleiche deinen Punktestand mit Freunden und baue deine Serie auf.`,
     help_list: HELP_DE,
+  },
+  es: {
+    tab_daily: "Jaardle diario", tab_free: "Partida nueva",
+    menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
+    guess: "Adivinar", share: "Compartir resultado", next: "Nueva ronda",
+    hint_text: "💡 Pista extra", hint_dir: "🧭 Dirección", hint_century: "🏛️ Siglo",
+    hint_later: "⏩ 100 años después", hint_later_250: "⏩ 250 años después", hint_digit: "🔢 Última cifra",
+    century_band: "🏛️ Época", bc: "a. C.",
+    reveal: "Revelar",
+    main_label: "Este año", extra_label: "También este año",
+    century_label: "Época",
+    digit_label: "Última cifra",
+    free_hint: "Pista extra",
+    score_label: "Puntos",
+    later_label: "100 años después", later_label_250: "250 años después",
+    later_future: "Eso todavía está en el futuro — 100 años después aún no ha ocurrido.",
+    later_future_2: "Eso tampoco ha ocurrido aún — así que la respuesta está en los últimos ~100 años.",
+    later_future_250: "250 años después tampoco ha ocurrido aún — la respuesta está en los últimos ~250 años.",
+    later_none: "No se conoce ningún otro acontecimiento de unos cien años después.",
+    later_none_250: "No se conoce ningún otro acontecimiento de unos 250 años después.",
+    help_summary: "¿Cómo se juega?", stats_title: "📊 Estadísticas",
+    login_title: "Iniciar sesión", login_google: "Continuar con Google", login_or: "o con correo electrónico",
+    login_email: "Correo electrónico", login_password: "Contraseña", login_submit: "Iniciar sesión", login_register: "Registrarse",
+    login_note: `El inicio de sesión funciona a través de <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Las contraseñas se guardan cifradas (bcrypt), nunca en texto plano, y solo se almacenan tu correo y tus resultados de juego — no se comparten con terceros.`,
+    footer_note: `Acontecimientos + traducciones neerlandesas bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derivado de la <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia en inglés</a> (traducido automáticamente).`,
+    day: "Día", loading: "Cargando…",
+    err_load: "No se pudo cargar el acontecimiento.", err_share: "Este puzle compartido ya no existe.",
+    err_none: "No hay ningún puzle disponible.", retry: "Reintentar",
+    won_intro: "¡Bien adivinado! Era", lost_intro: "Vaya — el año correcto era", source: "Fuente:",
+    stats_empty: "Aún no has completado ningún puzle diario.",
+    stats_daily: "Diario", stats_free: "Partida libre",
+    stat_played: "Jugadas", stat_winrate: "Aciertos", stat_curstreak: "Racha actual",
+    stat_beststreak: "Mejor racha", stat_avgscore: "Puntos medios", stat_won: "Ganadas",
+    stat_last10: "Media últimas 10", stat_perfect: "100 perfectos", stat_avgtries: "Intentos medios",
+    fav_century: "Siglo más fuerte",
+    century_fmt: (n, bc) => {
+      const R = [[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];
+      let x = n, r = "";
+      for (const [v, s] of R) while (x >= v) { r += s; x -= v; }
+      return `siglo ${r}${bc ? " a. C." : ""}`;
+    },
+    cal_title: "Últimos meses", cal_notsolved: "no resuelto",
+    fact_prev: "Dato anterior", fact_next: "Dato siguiente",
+    free_tag: "(libre)", lost_share: "💀 No resuelto",
+    next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
+    menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
+    lb_daily: "Diario", lb_overall: "Histórico",
+    lb_stat_rating: "Puntuación", lb_stat_streak: "Racha",
+    lb_stat_prev: "Estadística anterior", lb_stat_next: "Estadística siguiente",
+    lb_empty_daily: "Nadie ha jugado todavía el diario de hoy.",
+    lb_empty_daily_past: "Nadie de tu grupo jugó este diario.",
+    lb_daily_prev: "Día anterior", lb_daily_next: "Día siguiente",
+    lb_empty_overall: "Aún no hay clasificación — juega algunas rondas.",
+    lb_not_member: "Todavía no estás en ninguna clasificación de amigos.",
+    lb_sync: "⏳ Puntuación actualizada en", lb_synced: "✨ Puntuación recién actualizada",
+    lb_you: "tú", lb_games_short: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
+    lb_pool_none: "Todavía no estás en ningún grupo.",
+    lb_create_label: "Crear un grupo nuevo", lb_create_ph: "Nombre de tu grupo", lb_create_btn: "Crear",
+    lb_join_label: "Unirse a un grupo con código", lb_join_ph: "Código", lb_join_btn: "Unirse",
+    lb_invite: "📢 Invitar", lb_leave: "Salir", lb_leave_confirm: "¿Seguro que quieres salir de este grupo?",
+    lb_invite_copied: "✓ ¡Copiado!", lb_owner_tag: "Administrador",
+    lb_rename: "✏️ Renombrar", lb_rename_prompt: "Nuevo nombre para el grupo:",
+    lb_invite_text: (name) => `🏆 Únete a "${name}" en Jaardle — adivina cada día el año de un acontecimiento histórico:`,
+    lb_yes: "Sí", lb_no: "No", lb_err_code: "Código desconocido", lb_err_name: "El nombre debe tener entre 2 y 30 caracteres", lb_err_generic: "Algo salió mal",
+    lb_myname: "Tu nombre:", lb_name_edit: "✏️ Cambiar", lb_name_unset: "(sin definir)",
+    lb_name_prompt: "Elige tu nombre visible (2–20 caracteres; letras, cifras, espacios, _ o -):",
+    lb_name_taken: "Ese nombre ya está cogido — elige otro.",
+    lb_name_invalid_length: "El nombre debe tener entre 2 y 20 caracteres.",
+    lb_name_invalid_chars: "Solo se permiten letras, cifras, espacios, _ y -.",
+    lb_name_err: "No se pudo guardar el nombre. Inténtalo de nuevo.",
+    lb_flair_label: "Distintivo:", lb_flair_none: "Sin distintivo", lb_flair_err: "No se pudo guardar el distintivo.",
+    lb_members_n: (n) => `${n} ${n === 1 ? "miembro" : "miembros"}`,
+    lb_join_q: (name) => `¿Unirse al grupo "${name}"?`,
+    lb_switch_q: (cur, name) => `Ya estás en "${cur}". ¿Cambiar a "${name}"? Saldrás de "${cur}".`,
+    recap_btn: "Distribución y equipo",
+    recap_title: "📊 Listo por hoy", recap_dist_title: "🌍 Distribución de intentos (todos)",
+    recap_dist_empty: "Nadie ha resuelto todavía este diario.",
+    recap_team_title: "Marcador del equipo hoy", recap_today: "hoy",
+    recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
+    recap_pool_none: "Crea un grupo o únete a uno para ver aquí a tus amigos.", recap_pool_btn: "🏆 Crear o unirse a un grupo",
+    recap_acct_title: "Con una cuenta gratuita",
+    recap_acct_1: "📊 Tus estadísticas y tu racha se conservan",
+    recap_acct_2: "☁️ Sigue jugando en todos tus dispositivos",
+    recap_acct_3: "🏆 Compara tu diario con tus amigos en un grupo",
+    recap_acct_btn: "Iniciar sesión o crear cuenta",
+    recap_acct_free: "Siempre 100% gratis — sin versión de pago, sin anuncios.",
+    tiers: { perfect: "Perfecto", impressive: "Impresionante", good: "Bien", solid: "Sólido", justmade: "Por los pelos", lost: "La próxima irá mejor" },
+    dir_word: "direcciones",
+    avg_word: "med.",
+    copy_prompt: "Copia esto:",
+    cal_solved: (g, max) => `resuelto (${g}/${max})`,
+    band_warn: (anos) => `Según tu mejor intento, la respuesta está más cerca; este intento queda a ${anos} años — fuera del margen. ¿Adivinar de todos modos?`,
+    fact_stats: (s, hasScore) =>
+      `🌍 ${s.games} jugadores · ${s.win_pct}% resuelto${hasScore ? ` · puntos medios ${s.avg_score}/100` : ""} · ${s.avg_guesses} intentos de media · ${s.first_try_pct}% al primer intento`,
+    meta_title: "Jaardle — adivina el año",
+    meta_share_title: "Jaardle — adivina el año de acontecimientos históricos",
+    meta_desc: "Puzle gratuito de años al estilo Wordle: adivina en seis intentos el año de un acontecimiento histórico. Puzle diario o partida libre infinita.",
+    intro_h1: "Jaardle — el juego diario de adivinar años",
+    intro_html: `Jaardle es un juego de puzles gratuito al estilo Wordle: recibes un acontecimiento histórico y adivinas en pocos intentos en qué año ocurrió. Juega cada día el mismo <strong>puzle diario</strong> que todos los demás o disfruta de la <strong>partida libre</strong> infinita, compara tu puntuación con tus amigos y construye tu racha.`,
+    help_list: HELP_ES,
   },
 };
 
@@ -972,12 +1084,12 @@ function centuryBand(year) {
 // Brede, herkenbare indeling (Westers, met fuzzy grenzen op eeuwgrenzen).
 function eraName(year) {
   const eras = [
-    { max: 500,      nl: "Oudheid",           en: "Antiquity",        de: "Antike" },
-    { max: 1500,     nl: "Middeleeuwen",      en: "Middle Ages",      de: "Mittelalter" },
-    { max: 1600,     nl: "Renaissance",       en: "Renaissance",      de: "Renaissance" },
-    { max: 1800,     nl: "Vroegmoderne tijd", en: "Early modern era", de: "Frühe Neuzeit" },
-    { max: 2000,     nl: "Moderne tijd",      en: "Modern era",       de: "Moderne" },
-    { max: Infinity, nl: "21e eeuw",          en: "21st century",     de: "21. Jahrhundert" },
+    { max: 500,      nl: "Oudheid",           en: "Antiquity",        de: "Antike",         es: "Antigüedad" },
+    { max: 1500,     nl: "Middeleeuwen",      en: "Middle Ages",      de: "Mittelalter",    es: "Edad Media" },
+    { max: 1600,     nl: "Renaissance",       en: "Renaissance",      de: "Renaissance",    es: "Renacimiento" },
+    { max: 1800,     nl: "Vroegmoderne tijd", en: "Early modern era", de: "Frühe Neuzeit",  es: "Edad Moderna" },
+    { max: 2000,     nl: "Moderne tijd",      en: "Modern era",       de: "Moderne",        es: "Edad Contemporánea" },
+    { max: Infinity, nl: "21e eeuw",          en: "21st century",     de: "21. Jahrhundert", es: "Siglo XXI" },
   ];
   const e = eras.find((x) => year < x.max);
   return e[lang] || e[DEFAULT_LANG];
