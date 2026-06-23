@@ -92,7 +92,7 @@
     </section>
 
     <div id="hint-row">
-      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ 100 years later</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
+      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ ~a century later</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
       <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">🧭 Direction</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
       <button id="hint-btn-century" type="button" hidden title="Toets: C"><span data-i18n="hint_century">🏛️ Century</span> <span class="btn-cost" data-penalty="century-hint"></span></button>
       <button id="hint-btn-digit" type="button" hidden title="Toets: L"><span data-i18n="hint_digit">🔢 Last digit</span> <span class="btn-cost" data-penalty="digit-hint"></span></button>
@@ -146,7 +146,7 @@
         <summary data-i18n="help_summary">How to play?</summary>
         <ul id="help-list">
   <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. In the carousel, guesses 1 and 2 each add a <strong>free</strong> extra fact from the same year (💡 yellow).</li>
-  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100 years later</strong> then <strong>⏩ 250 years later</strong> (events after the answer), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
+  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ ~a century later</strong> then <strong>⏩ ~2.5 centuries later</strong> (events after the answer), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
@@ -272,7 +272,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=105"></script>
+  <script src="/game.js?v=106"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

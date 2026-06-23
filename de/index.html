@@ -92,7 +92,7 @@
     </section>
 
     <div id="hint-row">
-      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ 100 Jahre später</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
+      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ ~ein Jahrhundert später</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
       <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">🧭 Richtung</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
       <button id="hint-btn-century" type="button" hidden title="Toets: C"><span data-i18n="hint_century">🏛️ Jahrhundert</span> <span class="btn-cost" data-penalty="century-hint"></span></button>
       <button id="hint-btn-digit" type="button" hidden title="Toets: L"><span data-i18n="hint_digit">🔢 Letzte Ziffer</span> <span class="btn-cost" data-penalty="digit-hint"></span></button>
@@ -146,7 +146,7 @@
         <summary data-i18n="help_summary">Wie funktioniert es?</summary>
         <ul id="help-list">
   <li>Du bekommst ein Ereignis aus einem Jahr und <span data-help="max-guesses"></span> Versuche, dieses Jahr zu erraten. Im Karussell kommen bei Versuch 1 und 2 jeweils <strong>gratis</strong> zwei zusätzliche Fakten aus demselben Jahr dazu (💡 gelb).</li>
-  <li><strong>Wische durch das Karussell für mehr Hinweise</strong> — tippe auf „Aufdecken" (kostet Punkte): <strong>⏩ 100 Jahre später</strong>, dann <strong>⏩ 250 Jahre später</strong> (Ereignisse nach dem Antwortjahr), <strong>🏛️ Epoche</strong> (das Jahrhundert) und die <strong>🔢 letzte Ziffer</strong> des Jahres.</li>
+  <li><strong>Wische durch das Karussell für mehr Hinweise</strong> — tippe auf „Aufdecken" (kostet Punkte): <strong>⏩ ~ein Jahrhundert später</strong>, dann <strong>⏩ ~2,5 Jahrhunderte später</strong> (Ereignisse nach dem Antwortjahr), <strong>🏛️ Epoche</strong> (das Jahrhundert) und die <strong>🔢 letzte Ziffer</strong> des Jahres.</li>
   <li>Jeder Versuch zeigt ein farbiges Feld mit einer Spanne. Die Richtung (↑/↓) bleibt verborgen, bis du danach fragst.</li>
   <li>Max. <strong><span data-help="max-dir-hints"></span> Richtungshinweise</strong> (🧭) pro Rätsel. Ein Richtungshinweis zeigt den Pfeil nur bei deinem letzten Versuch.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
@@ -272,7 +272,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=105"></script>
+  <script src="/game.js?v=106"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

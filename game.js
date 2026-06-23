@@ -1117,6 +1117,19 @@ function availableLaterClues() {
 function laterSlotText(i) {
   const cc = state?.laterClues;
   if (!cc) return null;
+  // Nieuw: meerdere feiten uit exact jaar+100/+250 + één gekozen index
+  // (state.laterPick) zodat dezelfde slot stabiel blijft binnen één potje maar
+  // varieert tussen potjes (zie chooseLaterPicks).
+  if (Array.isArray(cc.slot_cands)) {
+    const cand = cc.slot_cands[i];
+    if (!cand) return i === 0 ? t("later_none") : t("later_none_250");
+    if (cand.future) return i === 0 ? t("later_future") : t("later_future_250");
+    const list = cand.facts || [];
+    if (!list.length) return i === 0 ? t("later_none") : t("later_none_250");
+    const idx = (state.laterPick && state.laterPick[i]) || 0;
+    const f = list[idx % list.length];
+    return f[lang] || f[DEFAULT_LANG];
+  }
   if (Array.isArray(cc.slots)) {
     const slot = cc.slots[i];
     if (!slot) return i === 0 ? t("later_none") : t("later_none_250");
@@ -1156,9 +1169,26 @@ async function loadLaterClues() {
   // puzzel nog dezelfde is.
   if (!state || state.hashes?.[0] !== hash) return;
   state.laterClues = res || { future: false, clues: [] };
+  chooseLaterPicks();
   save();
   renderEvent();
   renderHintStatus();
+}
+
+// Kies één feit per ⏩-slot uit het kandidaten-venster. Oefenmodus: willekeurig
+// (variatie bij replay van hetzelfde antwoord). Daily: altijd het dichtstbije
+// (index 0) → deterministisch, dus dezelfde clue op al je apparaten. Eén keer
+// gekozen en in state bewaard, zodat de slide stabiel blijft bij herrenderen en
+// herladen.
+function chooseLaterPicks() {
+  const cc = state?.laterClues;
+  if (!cc || !Array.isArray(cc.slot_cands)) return;
+  if (Array.isArray(state.laterPick) && state.laterPick.length === cc.slot_cands.length) return;
+  state.laterPick = cc.slot_cands.map((cand) => {
+    const n = (cand && !cand.future && Array.isArray(cand.facts)) ? cand.facts.length : 0;
+    if (n <= 1 || state.mode !== "free") return 0;
+    return Math.floor(Math.random() * n);
+  });
 }
 
 function requestDirectionHint() {
@@ -2825,6 +2855,7 @@ function save() {
         centuryRevealed: state.centuryRevealed,
         lastDigitRevealed: state.lastDigitRevealed,
         laterClues: state.laterClues,
+        laterPick: state.laterPick,
       },
     }));
   } catch (e) { /* storage may be unavailable */ }
@@ -2962,6 +2993,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
     centuryRevealed: !!b?.centuryRevealed,
     lastDigitRevealed: !!b?.lastDigitRevealed,
     laterClues: b?.laterClues || null,
+    laterPick: Array.isArray(b?.laterPick) ? b.laterPick : null,
   };
 
   setKeypadDisabled(false);
