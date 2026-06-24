@@ -1754,9 +1754,11 @@ const lbNameCell = (row) =>
 // pas vanaf LB_MIN_RANKED_GAMES tellen die kolommen mee in de ranking. Spelers
 // eronder staan onderaan, gedimd, met hun voortgang (x/min) i.p.v. een waarde.
 const LB_MIN_RANKED_GAMES = 15;
+// note: () => t("lb_scope_all") = bijschrift "alle games" voor stats die over
+// daily + vrij spelen samen rekenen (rating telt óók alle plays mee — geen
+// mode-filter in de elo-loop). Alleen Streak en Dagzeges zijn daily-only.
 const LB_STATS = [
-  { key: "rating",      label: () => t("lb_stat_rating"),    val: (r) => `${r.rating}${r.is_provisional ? "?" : ""}` },
-  // win%/score/pogingen rekenen over álle games (daily + vrij); note maakt dat zichtbaar.
+  { key: "rating",      label: () => t("lb_stat_rating"),    val: (r) => `${r.rating}${r.is_provisional ? "?" : ""}`, note: () => t("lb_scope_all") },
   { key: "win_pct",     label: () => t("stat_winrate"),      val: (r) => `${r.win_pct}%`, gate: true, note: () => t("lb_scope_all") },
   { key: "avg_score",   label: () => t("stat_avgscore"),     val: (r) => `${r.avg_score}`, gate: true, note: () => t("lb_scope_all") },
   // Gem. pogingen: lager = beter (asc), en gegate net als win%/score want één
@@ -1764,8 +1766,8 @@ const LB_STATS = [
   { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true, note: () => t("lb_scope_all") },
   { key: "streak",      label: () => t("lb_stat_streak"),    val: (r) => `${r.streak}` },
   { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}` },
-  { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}` },
-  { key: "perfect",     label: () => t("stat_perfect"),      val: (r) => `${r.perfect ?? 0}` },
+  { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}`, note: () => t("lb_scope_all") },
+  { key: "perfect",     label: () => t("stat_perfect"),      val: (r) => `${r.perfect ?? 0}`, note: () => t("lb_scope_all") },
 ];
 
 const lbNameCmp = (a, b) =>
