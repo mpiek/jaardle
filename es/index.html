@@ -92,7 +92,7 @@
     </section>
 
     <div id="hint-row">
-      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ ~un siglo después</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
+      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ 100 años después</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
       <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">🧭 Dirección</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
       <button id="hint-btn-century" type="button" hidden title="Toets: C"><span data-i18n="hint_century">🏛️ Siglo</span> <span class="btn-cost" data-penalty="century-hint"></span></button>
       <button id="hint-btn-digit" type="button" hidden title="Toets: L"><span data-i18n="hint_digit">🔢 Última cifra</span> <span class="btn-cost" data-penalty="digit-hint"></span></button>
@@ -146,7 +146,7 @@
         <summary data-i18n="help_summary">¿Cómo se juega?</summary>
         <ul id="help-list">
   <li>Recibes un acontecimiento de un año y <span data-help="max-guesses"></span> intentos para adivinar ese año. En el carrusel, los intentos 1 y 2 añaden cada uno <strong>gratis</strong> dos datos adicionales del mismo año (💡 amarillo).</li>
-  <li><strong>Desliza el carrusel para más pistas</strong> — toca «Revelar» (resta puntos): <strong>⏩ ~un siglo después</strong> y luego <strong>⏩ ~2,5 siglos después</strong> (acontecimientos posteriores a la respuesta), <strong>🏛️ época</strong> (el siglo) y la <strong>🔢 última cifra</strong> del año.</li>
+  <li><strong>Desliza el carrusel para más pistas</strong> — toca «Revelar» (resta puntos): <strong>⏩ 100 años después</strong> y luego <strong>⏩ 250 años después</strong> (acontecimientos posteriores a la respuesta), <strong>🏛️ época</strong> (el siglo) y la <strong>🔢 última cifra</strong> del año.</li>
   <li>Cada intento muestra una etiqueta de color con un margen. La dirección (↑/↓) permanece oculta hasta que la pidas.</li>
   <li>Máx. <strong><span data-help="max-dir-hints"></span> pistas de dirección</strong> (🧭) por puzle. Una pista de dirección revela la flecha solo en tu último intento.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
@@ -272,7 +272,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=106"></script>
+  <script src="/game.js?v=107"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
