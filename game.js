@@ -140,7 +140,7 @@ const I18N = {
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
-    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges",
+    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges", lb_scope_all: "alle games",
     lb_stat_prev: "Vorige stat", lb_stat_next: "Volgende stat",
     lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
     lb_empty_daily_past: "Niemand uit je pool heeft deze daily gespeeld.",
@@ -241,7 +241,7 @@ const I18N = {
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
-    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins",
+    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins", lb_scope_all: "all games",
     lb_stat_prev: "Previous stat", lb_stat_next: "Next stat",
     lb_empty_daily: "Nobody has played today's daily yet.",
     lb_empty_daily_past: "Nobody in your pool played this daily.",
@@ -337,7 +337,7 @@ const I18N = {
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
-    lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege",
+    lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege", lb_scope_all: "alle Spiele",
     lb_stat_prev: "Vorherige Statistik", lb_stat_next: "Nächste Statistik",
     lb_empty_daily: "Noch niemand hat das heutige Daily gespielt.",
     lb_empty_daily_past: "Niemand aus deinem Pool hat dieses Daily gespielt.",
@@ -437,7 +437,7 @@ const I18N = {
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
-    lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias",
+    lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias", lb_scope_all: "todas las partidas",
     lb_stat_prev: "Estadística anterior", lb_stat_next: "Estadística siguiente",
     lb_empty_daily: "Nadie ha jugado todavía el diario de hoy.",
     lb_empty_daily_past: "Nadie de tu grupo jugó este diario.",
@@ -1756,11 +1756,12 @@ const lbNameCell = (row) =>
 const LB_MIN_RANKED_GAMES = 15;
 const LB_STATS = [
   { key: "rating",      label: () => t("lb_stat_rating"),    val: (r) => `${r.rating}${r.is_provisional ? "?" : ""}` },
-  { key: "win_pct",     label: () => t("stat_winrate"),      val: (r) => `${r.win_pct}%`, gate: true },
-  { key: "avg_score",   label: () => t("stat_avgscore"),     val: (r) => `${r.avg_score}`, gate: true },
+  // win%/score/pogingen rekenen over álle games (daily + vrij); note maakt dat zichtbaar.
+  { key: "win_pct",     label: () => t("stat_winrate"),      val: (r) => `${r.win_pct}%`, gate: true, note: () => t("lb_scope_all") },
+  { key: "avg_score",   label: () => t("stat_avgscore"),     val: (r) => `${r.avg_score}`, gate: true, note: () => t("lb_scope_all") },
   // Gem. pogingen: lager = beter (asc), en gegate net als win%/score want één
   // gewonnen potje in 1 gok zou anders bovenaan staan.
-  { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true },
+  { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true, note: () => t("lb_scope_all") },
   { key: "streak",      label: () => t("lb_stat_streak"),    val: (r) => `${r.streak}` },
   { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}` },
   { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}` },
@@ -1831,11 +1832,18 @@ function lbGatedStatRows(list, stat) {
 // De overige stats worden pas opgehaald bij de eerste swipe ernaartoe, daarna
 // gecached in lbPoolStats. Na de async fetch pakken we de dán-actuele stat (de
 // gebruiker kan intussen verder geswiped zijn).
+// Stat-kop + optioneel bijschrift (bv. "alle games" zodat win%/score/pogingen
+// niet als daily-only gelezen worden).
+function setStatHead(head, stat) {
+  const note = stat.note ? ` <span class="lb-stat-note">${escHtml(stat.note())}</span>` : "";
+  head.innerHTML = escHtml(stat.label()) + note;
+}
+
 async function renderStatBoard() {
   const head = document.getElementById("lb-stat-heading");
   const content = document.getElementById("lb-stat-content");
   if (!head || !content) return;
-  head.textContent = LB_STATS[lbStatIndex].label();
+  setStatHead(head, LB_STATS[lbStatIndex]);
   if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
   if (!lbPoolStats) {
     content.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
@@ -1843,7 +1851,7 @@ async function renderStatBoard() {
     try { rows = await rpc("get_pool_stats", { p_pool_id: myPool.id }); } catch (e) {}
     lbPoolStats = Array.isArray(rows) ? rows : [];
     if (document.getElementById("modal-leaderboard").hidden) return;
-    head.textContent = LB_STATS[lbStatIndex].label();
+    setStatHead(head, LB_STATS[lbStatIndex]);
     if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
   }
   const stat = LB_STATS[lbStatIndex];
