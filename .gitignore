@@ -2,6 +2,9 @@
 *.bak*
 *.pre-cleanup
 
+# Vertaal-workers (lokale PID-bestanden)
+.vertaal_*.pid
+
 # Editors / OS
 .DS_Store
 .idea/
