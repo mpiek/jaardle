@@ -2431,23 +2431,25 @@ function computeStats(history) {
   const avgScore = winsN ? Math.round(wins.reduce((s, e) => s + e.score, 0) / winsN) : 0;
   // Gem. pogingen alleen over winsten (een verlies is altijd 6 en zou 't vertekenen).
   const avgAttempts = winsN ? Math.round((wins.reduce((s, e) => s + (e.guesses || 0), 0) / winsN) * 10) / 10 : 0;
-  // Streaks worden geteld op opeenvolgende kalenderdagen dat je hebt GESPEELD
-  // (winst óf verlies, Duolingo-stijl); alleen een gemiste dag breekt de streak.
+  // Streaks worden geteld op opeenvolgende kalenderdagen dat je hebt GEWONNEN;
+  // zowel een gemiste dag als een verloren dag breekt de streak.
   const dateSet = new Set(history.map((e) => e.date));
+  const wonSet = new Set(wins.map((e) => e.date));
   let best = 0, run = 0;
-  const sorted = [...history].sort((a, b) => a.date.localeCompare(b.date));
+  const sortedWon = [...wins].sort((a, b) => a.date.localeCompare(b.date));
   let prev = null;
-  for (const e of sorted) {
+  for (const e of sortedWon) {
     if (prev && daysBetween(prev, e.date) === 1) run += 1;
     else run = 1;
     if (run > best) best = run;
     prev = e.date;
   }
-  // Current streak: tel terug vanaf vandaag (of gister als vandaag nog niet gespeeld).
+  // Current streak: tel terug vanaf vandaag (of gister als vandaag nog niet
+  // gespeeld). Een verlies vandaag laat de eerste stap falen → streak 0.
   let cur = 0;
   let cursor = todayKey();
   if (!dateSet.has(cursor)) cursor = shiftDay(cursor, -1);
-  while (dateSet.has(cursor)) { cur += 1; cursor = shiftDay(cursor, -1); }
+  while (wonSet.has(cursor)) { cur += 1; cursor = shiftDay(cursor, -1); }
   return { total, won: winsN, winRate, avgScore, avgAttempts, currentStreak: cur, bestStreak: best };
 }
 
