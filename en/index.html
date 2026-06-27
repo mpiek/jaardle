@@ -11,6 +11,8 @@
 
   Tokens (telkens tussen dubbele accolades):
     html, url, intl, og, hreflang  → per-taal <head>/SEO-waarden
+    csp             → Content-Security-Policy (build berekent de sha256-hash
+                      van het inline Supabase-script; taal-onafhankelijk)
     i18n:<key>      → platte tekst uit I18N[lang][key] (HTML-geëscaped)
     i18nhtml:<key>  → HTML-waarde uit I18N[lang][key] (ruw, mag tags bevatten)
     json:<key>      → JSON-geëscapede waarde (voor ld+json)
@@ -22,6 +24,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-MDI8zKbE7FVR2kggA5H7mz6E9gt8kHpPR1yarJTsGVk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
 <title>Jaardle — guess the year</title>
 <meta name="description" content="Free Wordle-style year-guessing puzzle: guess the year of a historic event in six tries. Daily puzzle or endless free play.">
 <link rel="canonical" href="https://jaardle.nl/en">
@@ -227,7 +230,7 @@
   </footer>
 
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.108.2";
 
     // Publieke sleutels; beveiliging komt straks van Row Level Security in Postgres.
     const supabase = createClient(
