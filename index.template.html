@@ -11,6 +11,8 @@
 
   Tokens (telkens tussen dubbele accolades):
     html, url, intl, og, hreflang  → per-taal <head>/SEO-waarden
+    csp             → Content-Security-Policy (build berekent de sha256-hash
+                      van het inline Supabase-script; taal-onafhankelijk)
     i18n:<key>      → platte tekst uit I18N[lang][key] (HTML-geëscaped)
     i18nhtml:<key>  → HTML-waarde uit I18N[lang][key] (ruw, mag tags bevatten)
     json:<key>      → JSON-geëscapede waarde (voor ld+json)
@@ -22,6 +24,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="{{csp}}">
 <title>{{i18n:meta_title}}</title>
 <meta name="description" content="{{i18n:meta_desc}}">
 <link rel="canonical" href="{{url}}">
@@ -213,7 +216,7 @@
   </footer>
 
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.108.2";
 
     // Publieke sleutels; beveiliging komt straks van Row Level Security in Postgres.
     const supabase = createClient(

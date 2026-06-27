@@ -6,6 +6,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { createHash } from "node:crypto";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE_URL = "https://jaardle.nl";
@@ -61,8 +62,41 @@ function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG) {
   return lines.join("\n");
 }
 
+// Bouw de Content-Security-Policy. Het inline Supabase-script kan niet via
+// 'self' worden toegestaan en op statische hosting (GitHub Pages) is er geen
+// nonce — dus hashen we de exacte scriptinhoud (sha256) en zetten die in
+// script-src. De hash wordt elke build vers berekend, dus een wijziging aan het
+// inline script (bv. de Supabase-versie pinnen) houdt 'm vanzelf kloppend.
+// Hosts (Supabase, GoatCounter) lezen we uit de template zodat ze niet driften.
+// NB: frame-ancestors werkt niet via <meta>; dat hoort thuis in een HTTP-header.
+function buildCsp(template) {
+  const m = template.match(/<script type="module">([\s\S]*?)<\/script>/);
+  if (!m) throw new Error("Inline module-script niet gevonden voor CSP-hash");
+  if (m[1].includes("{{")) {
+    throw new Error("Inline module-script bevat {{tokens}}; CSP-hash zou niet kloppen met de output");
+  }
+  const hash = createHash("sha256").update(m[1], "utf8").digest("base64");
+
+  const supa = (template.match(/https:\/\/[a-z0-9]+\.supabase\.co/) || [])[0];
+  const goat = (template.match(/data-goatcounter="(https:\/\/[^/"]+)/) || [])[1];
+  if (!supa || !goat) throw new Error("Supabase/GoatCounter-host niet gevonden voor CSP");
+  const supaWss = supa.replace(/^https:/, "wss:");
+
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "form-action 'self'",
+    `script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-${hash}'`,
+    "style-src 'self' 'unsafe-inline'",                       // inline style-attrs via innerHTML
+    `img-src 'self' data: https://*.googleusercontent.com ${goat}`,  // Google-avatars + GoatCounter-pixel
+    "font-src 'self'",
+    `connect-src 'self' ${supa} ${supaWss} ${goat}`,          // Supabase REST/auth + realtime (wss)
+  ].join("; ");
+}
+
 // Vul de {{…}}-tokens voor één taal. str-keys uit I18N met fallback op DEFAULT_LANG.
-function render(template, code, mod) {
+function render(template, code, mod, csp) {
   const { I18N, LANGS, LANG_CODES, DEFAULT_LANG } = mod;
   const strings = I18N[code];
   const get = (key) => {
@@ -74,6 +108,7 @@ function render(template, code, mod) {
   };
   const meta = LANGS[code];
   return template
+    .replace(/\{\{csp\}\}/g, csp)
     .replace(/\{\{html\}\}/g, meta.html)
     .replace(/\{\{url\}\}/g, urlFor(meta.path))
     .replace(/\{\{intl\}\}/g, meta.intl)
@@ -94,13 +129,14 @@ function sitemap(LANGS, LANG_CODES) {
 // --- 3. bouwen -----------------------------------------------------------------
 const mod = loadGameModule();
 const template = readFileSync(join(ROOT, "index.template.html"), "utf8");
+const csp = buildCsp(template);   // taal-onafhankelijk; één keer berekenen
 
 // sanity: nog onvervangbare tokens overgebleven?
 const leftover = (s) => (s.match(/\{\{[^}]+\}\}/g) || []);
 
 let count = 0;
 for (const code of mod.LANG_CODES) {
-  const html = render(template, code, mod);
+  const html = render(template, code, mod, csp);
   const missing = leftover(html);
   if (missing.length) throw new Error(`Onbekende tokens voor "${code}": ${[...new Set(missing)].join(", ")}`);
 
