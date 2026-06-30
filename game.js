@@ -134,6 +134,17 @@ const I18N = {
     login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
     login_check_spam: `Account aangemaakt — klik op de link in je inbox om je e-mailadres te bevestigen. <strong>Geen mail? Check je spam-/ongewenstmap.</strong>`,
+    auth_loading: "Supabase laadt nog, probeer het opnieuw.",
+    auth_invalid: "E-mail of wachtwoord klopt niet.",
+    auth_unconfirmed: "E-mailadres nog niet bevestigd — check je inbox (en spam).",
+    auth_exists: "Dit e-mailadres heeft al een account — kies Inloggen.",
+    auth_weak: "Wachtwoord te kort (minimaal 6 tekens).",
+    auth_email_invalid: "Ongeldig e-mailadres.",
+    auth_rate: "Te veel pogingen — probeer het later opnieuw.",
+    auth_signup_disabled: "Registreren is uitgeschakeld.",
+    auth_provider_disabled: "Deze inlogmethode staat niet aan.",
+    auth_network: "Netwerkfout, controleer je verbinding.",
+    auth_failed: "Inloggen mislukt.",
     login_note: `Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.`,
     footer_note: `Gebeurtenissen + Nederlandse vertalingen onder <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a>, afgeleid van <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Engelstalige Wikipedia</a> (machine-vertaald).`,
     day: "Dag", loading: "Laden…",
@@ -231,6 +242,17 @@ const I18N = {
     login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
     login_check_spam: `Account created — click the link in your inbox to confirm your email. <strong>No email? Check your spam/junk folder.</strong>`,
+    auth_loading: "Supabase is still loading, please try again.",
+    auth_invalid: "Email or password is incorrect.",
+    auth_unconfirmed: "Email not confirmed yet — check your inbox (and spam).",
+    auth_exists: "This email already has an account — choose Sign in.",
+    auth_weak: "Password too short (at least 6 characters).",
+    auth_email_invalid: "Invalid email address.",
+    auth_rate: "Too many attempts — please try again later.",
+    auth_signup_disabled: "Registration is disabled.",
+    auth_provider_disabled: "This sign-in method is not enabled.",
+    auth_network: "Network error, check your connection.",
+    auth_failed: "Sign-in failed.",
     login_note: `Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.`,
     footer_note: `Events + Dutch translations under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derived from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">English Wikipedia</a> (machine-translated).`,
     day: "Day", loading: "Loading…",
@@ -333,6 +355,17 @@ const I18N = {
     login_title: "Anmelden", login_google: "Mit Google fortfahren", login_or: "oder mit E-Mail",
     login_email: "E-Mail", login_password: "Passwort", login_submit: "Anmelden", login_register: "Registrieren",
     login_check_spam: `Konto erstellt — klicke auf den Link in deinem Posteingang, um deine E-Mail-Adresse zu bestätigen. <strong>Keine E-Mail? Sieh im Spam-/Junk-Ordner nach.</strong>`,
+    auth_loading: "Supabase lädt noch, bitte versuche es erneut.",
+    auth_invalid: "E-Mail oder Passwort ist falsch.",
+    auth_unconfirmed: "E-Mail-Adresse noch nicht bestätigt — sieh in deinem Posteingang (und Spam) nach.",
+    auth_exists: "Diese E-Mail hat bereits ein Konto — wähle Anmelden.",
+    auth_weak: "Passwort zu kurz (mindestens 6 Zeichen).",
+    auth_email_invalid: "Ungültige E-Mail-Adresse.",
+    auth_rate: "Zu viele Versuche — bitte später erneut versuchen.",
+    auth_signup_disabled: "Registrierung ist deaktiviert.",
+    auth_provider_disabled: "Diese Anmeldemethode ist nicht aktiviert.",
+    auth_network: "Netzwerkfehler, prüfe deine Verbindung.",
+    auth_failed: "Anmeldung fehlgeschlagen.",
     login_note: `Die Anmeldung läuft über <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwörter werden gehasht gespeichert (bcrypt), nie als Klartext, und nur deine E-Mail und Spielergebnisse werden gespeichert — nicht an Dritte weitergegeben.`,
     footer_note: `Ereignisse + niederländische Übersetzungen unter <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a>, abgeleitet von der <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">englischsprachigen Wikipedia</a> (maschinell übersetzt).`,
     day: "Tag", loading: "Lädt…",
@@ -429,6 +462,17 @@ const I18N = {
     login_title: "Iniciar sesión", login_google: "Continuar con Google", login_or: "o con correo electrónico",
     login_email: "Correo electrónico", login_password: "Contraseña", login_submit: "Iniciar sesión", login_register: "Registrarse",
     login_check_spam: `Cuenta creada — haz clic en el enlace de tu bandeja de entrada para confirmar tu correo. <strong>¿No ves el correo? Revisa tu carpeta de spam/correo no deseado.</strong>`,
+    auth_loading: "Supabase aún se está cargando, inténtalo de nuevo.",
+    auth_invalid: "El correo o la contraseña no son correctos.",
+    auth_unconfirmed: "Correo aún sin confirmar — revisa tu bandeja de entrada (y spam).",
+    auth_exists: "Este correo ya tiene una cuenta — elige Iniciar sesión.",
+    auth_weak: "Contraseña demasiado corta (mínimo 6 caracteres).",
+    auth_email_invalid: "Correo electrónico no válido.",
+    auth_rate: "Demasiados intentos — inténtalo más tarde.",
+    auth_signup_disabled: "El registro está desactivado.",
+    auth_provider_disabled: "Este método de inicio de sesión no está activado.",
+    auth_network: "Error de red, comprueba tu conexión.",
+    auth_failed: "Error al iniciar sesión.",
     login_note: `El inicio de sesión funciona a través de <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Las contraseñas se guardan cifradas (bcrypt), nunca en texto plano, y solo se almacenan tu correo y tus resultados de juego — no se comparten con terceros.`,
     footer_note: `Acontecimientos + traducciones neerlandesas bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derivado de la <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia en inglés</a> (traducido automáticamente).`,
     day: "Día", loading: "Cargando…",
@@ -530,6 +574,17 @@ const I18N = {
     login_title: "Entrar", login_google: "Continuar com o Google", login_or: "ou com e-mail",
     login_email: "E-mail", login_password: "Senha", login_submit: "Entrar", login_register: "Cadastrar-se",
     login_check_spam: `Conta criada — clique no link na sua caixa de entrada para confirmar seu e-mail. <strong>Não recebeu? Veja na pasta de spam/lixo eletrônico.</strong>`,
+    auth_loading: "O Supabase ainda está carregando, tente novamente.",
+    auth_invalid: "E-mail ou senha incorretos.",
+    auth_unconfirmed: "E-mail ainda não confirmado — veja sua caixa de entrada (e spam).",
+    auth_exists: "Este e-mail já tem uma conta — escolha Entrar.",
+    auth_weak: "Senha muito curta (mínimo de 6 caracteres).",
+    auth_email_invalid: "Endereço de e-mail inválido.",
+    auth_rate: "Muitas tentativas — tente novamente mais tarde.",
+    auth_signup_disabled: "O cadastro está desativado.",
+    auth_provider_disabled: "Este método de login não está ativado.",
+    auth_network: "Erro de rede, verifique sua conexão.",
+    auth_failed: "Falha ao entrar.",
     login_note: `O login é feito através do <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). As senhas são armazenadas com hash (bcrypt), nunca em texto puro, e apenas o seu e-mail e os resultados de jogo são guardados — não compartilhados com terceiros.`,
     footer_note: `Acontecimentos + traduções neerlandesas sob <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derivado da <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia em inglês</a> (traduzido automaticamente).`,
     day: "Dia", loading: "Carregando…",
@@ -2807,7 +2862,7 @@ async function doAuth(mode, e) {
   err.hidden = true;
   err.textContent = "";
   if (!window.sbAuth) {
-    err.textContent = "Supabase nog aan het laden, probeer het opnieuw.";
+    err.textContent = t("auth_loading");
     err.hidden = false;
     return;
   }
@@ -2844,22 +2899,22 @@ function friendlyAuthError(ex) {
   const status = ex?.status || 0;
   const msg = (ex?.message || "").toLowerCase();
   if (code === "invalid_credentials" || msg.includes("invalid login credentials"))
-    return "E-mail of wachtwoord klopt niet.";
+    return t("auth_invalid");
   if (code === "email_not_confirmed")
-    return "E-mailadres nog niet bevestigd — check je inbox.";
+    return t("auth_unconfirmed");
   if (code === "user_already_exists" || msg.includes("already registered"))
-    return "Dit e-mailadres heeft al een account — kies Inloggen.";
+    return t("auth_exists");
   if (code === "weak_password" || msg.includes("password should be"))
-    return "Wachtwoord te kort (minimaal 6 tekens).";
+    return t("auth_weak");
   if (code === "email_address_invalid" || msg.includes("invalid email") || msg.includes("invalid format"))
-    return "Ongeldig e-mailadres.";
+    return t("auth_email_invalid");
   if (code === "over_email_send_rate_limit" || code === "over_request_rate_limit" || status === 429)
-    return "Te veel pogingen — probeer het later opnieuw.";
-  if (code === "signup_disabled") return "Registreren is uitgeschakeld.";
-  if (code === "provider_disabled") return "Deze inlogmethode staat niet aan.";
+    return t("auth_rate");
+  if (code === "signup_disabled") return t("auth_signup_disabled");
+  if (code === "provider_disabled") return t("auth_provider_disabled");
   if (msg.includes("failed to fetch") || msg.includes("networkerror"))
-    return "Netwerkfout, controleer je verbinding.";
-  return ex?.message || "Inloggen mislukt.";
+    return t("auth_network");
+  return ex?.message || t("auth_failed");
 }
 
 async function doSignOut() {
