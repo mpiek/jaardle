@@ -2832,6 +2832,7 @@ function setModalUrl(param) {
 
 function openModal(id) {
   document.getElementById(id).hidden = false;
+  if (id === "modal-help") document.getElementById("help-btn-top")?.classList.remove("pulse");
   if (id === "modal-stats") renderStats();
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
@@ -3312,6 +3313,7 @@ async function init() {
     el.addEventListener("click", () => closeAllModals());
   });
   document.getElementById("help-btn")?.addEventListener("click", () => openModal("modal-help"));
+  document.getElementById("help-btn-top")?.addEventListener("click", () => openModal("modal-help"));
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeAllModals();
   });
@@ -3436,6 +3438,15 @@ async function init() {
   if ((wantAuth === "login" || wantAuth === "register") && !auth.user) {
     openModal("modal-login");
   }
+
+  // Eerste bezoek ooit: laat de "?" in de header even pulseren als subtiele hint
+  // naar de uitleg (eindig, dooft vanzelf uit — geen pop-up). Daarna nooit meer.
+  try {
+    if (!localStorage.getItem("jaardle:seen-help")) {
+      localStorage.setItem("jaardle:seen-help", "1");
+      document.getElementById("help-btn-top")?.classList.add("pulse");
+    }
+  } catch (e) {}
 }
 
 function getSharedLocation() {

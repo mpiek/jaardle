@@ -170,6 +170,41 @@ main {
   cursor: pointer;
 }
 #lang-btn:hover { background: var(--card-soft); }
+
+/* Zichtbare "?" in de header: opent de hoe-werkt-het-modal. */
+#help-btn-top {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.95rem;
+  height: 1.95rem;
+  flex: none;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+#help-btn-top:hover { background: var(--card-soft); color: var(--fg); }
+/* Eerste-bezoek-hint: een eindig pulserend ringetje (dooft vanzelf uit, geen
+   pop-up). 6 iteraties ≈ 8s, daarna stil; stopt direct zodra de modal opent. */
+@keyframes help-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(110, 168, 255, 0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(110, 168, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(110, 168, 255, 0); }
+}
+#help-btn-top.pulse {
+  border-color: var(--accent);
+  color: var(--fg);
+  animation: help-pulse 1.4s ease-out 6;
+}
+@media (prefers-reduced-motion: reduce) {
+  #help-btn-top.pulse { animation: none; border-color: var(--accent); }
+}
 #lang-btn[aria-expanded="true"] { background: var(--card-soft); }
 #lang-btn .lang-globe { font-size: 1.15rem; line-height: 1; }
 #lang-pop {
