@@ -133,6 +133,7 @@ const I18N = {
     help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
     login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
+    login_check_spam: `Account aangemaakt — klik op de link in je inbox om je e-mailadres te bevestigen. <strong>Geen mail? Check je spam-/ongewenstmap.</strong>`,
     login_note: `Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.`,
     footer_note: `Gebeurtenissen + Nederlandse vertalingen onder <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a>, afgeleid van <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Engelstalige Wikipedia</a> (machine-vertaald).`,
     day: "Dag", loading: "Laden…",
@@ -229,6 +230,7 @@ const I18N = {
     help_summary: "How to play?", stats_title: "📊 Statistics",
     login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
+    login_check_spam: `Account created — click the link in your inbox to confirm your email. <strong>No email? Check your spam/junk folder.</strong>`,
     login_note: `Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.`,
     footer_note: `Events + Dutch translations under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derived from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">English Wikipedia</a> (machine-translated).`,
     day: "Day", loading: "Loading…",
@@ -330,6 +332,7 @@ const I18N = {
     help_summary: "Wie funktioniert es?", stats_title: "📊 Statistiken",
     login_title: "Anmelden", login_google: "Mit Google fortfahren", login_or: "oder mit E-Mail",
     login_email: "E-Mail", login_password: "Passwort", login_submit: "Anmelden", login_register: "Registrieren",
+    login_check_spam: `Konto erstellt — klicke auf den Link in deinem Posteingang, um deine E-Mail-Adresse zu bestätigen. <strong>Keine E-Mail? Sieh im Spam-/Junk-Ordner nach.</strong>`,
     login_note: `Die Anmeldung läuft über <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwörter werden gehasht gespeichert (bcrypt), nie als Klartext, und nur deine E-Mail und Spielergebnisse werden gespeichert — nicht an Dritte weitergegeben.`,
     footer_note: `Ereignisse + niederländische Übersetzungen unter <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a>, abgeleitet von der <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">englischsprachigen Wikipedia</a> (maschinell übersetzt).`,
     day: "Tag", loading: "Lädt…",
@@ -425,6 +428,7 @@ const I18N = {
     help_summary: "¿Cómo se juega?", stats_title: "📊 Estadísticas",
     login_title: "Iniciar sesión", login_google: "Continuar con Google", login_or: "o con correo electrónico",
     login_email: "Correo electrónico", login_password: "Contraseña", login_submit: "Iniciar sesión", login_register: "Registrarse",
+    login_check_spam: `Cuenta creada — haz clic en el enlace de tu bandeja de entrada para confirmar tu correo. <strong>¿No ves el correo? Revisa tu carpeta de spam/correo no deseado.</strong>`,
     login_note: `El inicio de sesión funciona a través de <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Las contraseñas se guardan cifradas (bcrypt), nunca en texto plano, y solo se almacenan tu correo y tus resultados de juego — no se comparten con terceros.`,
     footer_note: `Acontecimientos + traducciones neerlandesas bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derivado de la <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia en inglés</a> (traducido automáticamente).`,
     day: "Día", loading: "Cargando…",
@@ -525,6 +529,7 @@ const I18N = {
     help_summary: "Como jogar?", stats_title: "📊 Estatísticas",
     login_title: "Entrar", login_google: "Continuar com o Google", login_or: "ou com e-mail",
     login_email: "E-mail", login_password: "Senha", login_submit: "Entrar", login_register: "Cadastrar-se",
+    login_check_spam: `Conta criada — clique no link na sua caixa de entrada para confirmar seu e-mail. <strong>Não recebeu? Veja na pasta de spam/lixo eletrônico.</strong>`,
     login_note: `O login é feito através do <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). As senhas são armazenadas com hash (bcrypt), nunca em texto puro, e apenas o seu e-mail e os resultados de jogo são guardados — não compartilhados com terceiros.`,
     footer_note: `Acontecimentos + traduções neerlandesas sob <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a>, derivado da <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia em inglês</a> (traduzido automaticamente).`,
     day: "Dia", loading: "Carregando…",
@@ -2817,7 +2822,7 @@ async function doAuth(mode, e) {
       // de gebruiker moet eerst de bevestigingsmail klikken.
       if (!data?.session) {
         form.reset();
-        err.textContent = "Account aangemaakt — check je inbox om je e-mailadres te bevestigen.";
+        err.innerHTML = t("login_check_spam");
         err.hidden = false;
         return;
       }
