@@ -178,16 +178,19 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  height: 1.55rem;            /* = compacte globe-knop (24.8px) → gelijke hover-halo */
   background: transparent;
   color: var(--muted);
   border: none;
   border-radius: 999px;
-  padding: 0.2rem 0.4rem;
+  padding: 0 0.4rem;
   line-height: 1;
   cursor: pointer;
 }
 #help-btn-top:hover { background: var(--card-soft); color: var(--fg); }
-#help-btn-top .help-icon { width: 1.15rem; height: 1.15rem; display: block; }
+/* Iets groter dan de glyph-box: de globe-emoji rendert groter dan z'n regelbox,
+   dus de outline-"?" heeft ~1.45rem nodig om er even groot uit te zien. */
+#help-btn-top .help-icon { width: 1.45rem; height: 1.45rem; display: block; }
 /* Eerste-bezoek-hint: een eindig pulserend ringetje (dooft vanzelf uit, geen
    pop-up). 6 iteraties ≈ 8s, daarna stil; stopt direct zodra de modal opent. */
 @keyframes help-pulse {
