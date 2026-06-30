@@ -157,6 +157,7 @@ main {
 /* Taalkeuze (🌐): icoon-knop naast het ⋮-menu, opent een dropdown (redactle-stijl). */
 #lang-wrap { position: relative; display: flex; }
 #lang-btn {
+  align-self: center;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -186,7 +187,7 @@ main {
   cursor: pointer;
 }
 #help-btn-top:hover { background: var(--card-soft); color: var(--fg); }
-#help-btn-top .help-icon { width: 1.1rem; height: 1.1rem; display: block; }
+#help-btn-top .help-icon { width: 1.15rem; height: 1.15rem; display: block; }
 /* Eerste-bezoek-hint: een eindig pulserend ringetje (dooft vanzelf uit, geen
    pop-up). 6 iteraties ≈ 8s, daarna stil; stopt direct zodra de modal opent. */
 @keyframes help-pulse {
