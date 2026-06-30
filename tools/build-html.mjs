@@ -9,7 +9,7 @@ import { dirname, join } from "node:path";
 import { createHash } from "node:crypto";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const BASE_URL = "https://jaardle.nl";
+const BASE_URL = "https://jaardle.com";
 
 // --- 1. game.js inladen zonder z'n auto-init / netwerk / DOM --------------------
 function loadGameModule() {
