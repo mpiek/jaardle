@@ -3312,7 +3312,6 @@ async function init() {
   document.querySelectorAll(".modal [data-close]").forEach((el) => {
     el.addEventListener("click", () => closeAllModals());
   });
-  document.getElementById("help-btn")?.addEventListener("click", () => openModal("modal-help"));
   document.getElementById("help-btn-top")?.addEventListener("click", () => openModal("modal-help"));
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeAllModals();
