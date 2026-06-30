@@ -183,14 +183,14 @@ main {
   color: var(--muted);
   border: none;
   border-radius: 999px;
-  padding: 0 0.4rem;
+  padding: 0 0.3rem;
   line-height: 1;
   cursor: pointer;
 }
 #help-btn-top:hover { background: var(--card-soft); color: var(--fg); }
 /* Iets groter dan de glyph-box: de globe-emoji rendert groter dan z'n regelbox,
    dus de outline-"?" heeft ~1.45rem nodig om er even groot uit te zien. */
-#help-btn-top .help-icon { width: 1.45rem; height: 1.45rem; display: block; }
+#help-btn-top .help-icon { width: calc(1.35rem - 1.2px); height: calc(1.35rem - 1.2px); display: block; position: relative; top: 0.4px; }
 /* Eerste-bezoek-hint: een eindig pulserend ringetje (dooft vanzelf uit, geen
    pop-up). 6 iteraties ≈ 8s, daarna stil; stopt direct zodra de modal opent. */
 @keyframes help-pulse {
