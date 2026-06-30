@@ -155,7 +155,7 @@ main {
 .menu-item.danger { color: #ff8a8a; }
 
 /* Taalkeuze (🌐): icoon-knop naast het ⋮-menu, opent een dropdown (redactle-stijl). */
-#lang-wrap { position: relative; display: flex; }
+#lang-wrap { position: relative; display: flex; margin-left: -0.2rem; }
 #lang-btn {
   align-self: center;
   display: inline-flex;
@@ -183,7 +183,9 @@ main {
   color: var(--muted);
   border: none;
   border-radius: 999px;
-  padding: 0 0.3rem;
+  color: #5b9bd5;
+  padding: 0 0.15rem;
+  margin-left: -0.35rem;
   line-height: 1;
   cursor: pointer;
 }
