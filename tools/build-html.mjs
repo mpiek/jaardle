@@ -146,6 +146,15 @@ for (const code of mod.LANG_CODES) {
   writeFileSync(join(outDir, "index.html"), html);
   console.log(`✓ ${path ? path + "/" : ""}index.html  (${code})`);
   count++;
+
+  // De root-taal (path "") krijgt ook een expliciete alias (/en) zodat oude
+  // links + binnenkomende redirects niet 404'en. De canonical in de HTML wijst
+  // al naar "/", dus Google consolideert de alias naar de root (geen duplicate).
+  if (!path) {
+    mkdirSync(join(ROOT, code), { recursive: true });
+    writeFileSync(join(ROOT, code, "index.html"), html);
+    console.log(`✓ ${code}/index.html  (${code}, alias → /)`);
+  }
 }
 
 writeFileSync(join(ROOT, "sitemap.xml"), sitemap(mod.LANGS, mod.LANG_CODES));

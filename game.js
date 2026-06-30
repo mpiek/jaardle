@@ -22,8 +22,8 @@ const MAX_YEAR = new Date().getFullYear();
 // Velden per taal: label (menu), html (<html lang>), intl (Intl + ld+json),
 // og (og:locale), path (URL-segment; "" = root-taal).
 const LANGS = {
-  nl: { label: "🇳🇱 Nederlands", html: "nl", intl: "nl-NL", og: "nl_NL", path: "" },
-  en: { label: "🇬🇧 English",    html: "en", intl: "en-GB", og: "en_GB", path: "en" },
+  nl: { label: "🇳🇱 Nederlands", html: "nl", intl: "nl-NL", og: "nl_NL", path: "nl" },
+  en: { label: "🇬🇧 English",    html: "en", intl: "en-GB", og: "en_GB", path: "" },
   de: { label: "🇩🇪 Deutsch",    html: "de", intl: "de-DE", og: "de_DE", path: "de" },
   es: { label: "🇪🇸 Español",    html: "es", intl: "es-ES", og: "es_ES", path: "es" },
   pt: { label: "🇧🇷 Português",  html: "pt", intl: "pt-BR", og: "pt_BR", path: "pt" },
@@ -31,7 +31,7 @@ const LANGS = {
 const LANG_CODES = Object.keys(LANGS);
 // Brontaal: hieruit lenen we een string/feit als de huidige taal die mist (het
 // meest complete blok). Los van de browser-detectie-fallback hieronder.
-const DEFAULT_LANG = "nl";
+const DEFAULT_LANG = "en";
 // Wat een bezoeker krijgt als zijn browsertaal géén van onze talen matcht: het
 // internationale publiek komt standaard in het Engels binnen.
 const BROWSER_DEFAULT = "en";
