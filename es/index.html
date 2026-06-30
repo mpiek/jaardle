@@ -64,7 +64,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="/style.css?v=70">
+<link rel="stylesheet" href="/style.css?v=71">
 </head>
 <body>
   <main>
@@ -146,11 +146,21 @@
     </section>
 
     <section id="help">
-      <details>
-        <summary data-i18n="help_summary">¿Cómo se juega?</summary>
+      <button type="button" id="help-btn" data-i18n="help_summary">¿Cómo se juega?</button>
+    </section>
+  </main>
+
+  <div id="modal-help" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-help-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-help-title" data-i18n="help_summary">¿Cómo se juega?</h2>
+        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+      </header>
+      <div class="modal-body">
         <ul id="help-list">
   <li>Recibes un acontecimiento de un año y <span data-help="max-guesses"></span> intentos para adivinar ese año. En el carrusel, los intentos 1 y 2 añaden cada uno <strong>gratis</strong> dos datos adicionales del mismo año (💡 amarillo).</li>
-  <li><strong>Desliza el carrusel para más pistas</strong> — toca «Revelar» (resta puntos): <strong>⏩ 100 años después</strong> y luego <strong>⏩ 250 años después</strong> (acontecimientos posteriores a la respuesta), <strong>🏛️ época</strong> (el siglo) y la <strong>🔢 última cifra</strong> del año.</li>
+  <li><strong>Desliza el carrusel para más pistas</strong> — toca «Revelar» (resta puntos): <strong>⏩ 100, 250, 500 y 1000 años después</strong> (acontecimientos posteriores a la respuesta), <strong>🏛️ época</strong> (el siglo) y la <strong>🔢 última cifra</strong> del año.</li>
   <li>Cada intento muestra una etiqueta de color con un margen. La dirección (↑/↓) permanece oculta hasta que la pidas.</li>
   <li>Máx. <strong><span data-help="max-dir-hints"></span> pistas de dirección</strong> (🧭) por puzle. Una pista de dirección revela la flecha solo en tu último intento.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
@@ -159,9 +169,9 @@
   <li><strong>Jaardle diario</strong>: un puzle al día, igual para todos.</li>
   <li><strong>Partida nueva</strong>: rondas infinitas, un acontecimiento aleatorio.</li>
   <li><strong>Teclas</strong>: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>R</kbd> para una pista de dirección, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li></ul>
-      </details>
-    </section>
-  </main>
+      </div>
+    </div>
+  </div>
 
   <div id="modal-stats" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-stats-title">
     <div class="modal-backdrop" data-close></div>
@@ -276,7 +286,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=120"></script>
+  <script src="/game.js?v=121"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

@@ -59,7 +59,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="/style.css?v=70">
+<link rel="stylesheet" href="/style.css?v=71">
 </head>
 <body>
   <main>
@@ -141,12 +141,22 @@
     </section>
 
     <section id="help">
-      <details>
-        <summary data-i18n="help_summary">{{i18n:help_summary}}</summary>
-        <ul id="help-list">{{i18nhtml:help_list}}</ul>
-      </details>
+      <button type="button" id="help-btn" data-i18n="help_summary">{{i18n:help_summary}}</button>
     </section>
   </main>
+
+  <div id="modal-help" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-help-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-help-title" data-i18n="help_summary">{{i18n:help_summary}}</h2>
+        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+      </header>
+      <div class="modal-body">
+        <ul id="help-list">{{i18nhtml:help_list}}</ul>
+      </div>
+    </div>
+  </div>
 
   <div id="modal-stats" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-stats-title">
     <div class="modal-backdrop" data-close></div>
@@ -261,7 +271,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=120"></script>
+  <script src="/game.js?v=121"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

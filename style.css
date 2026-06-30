@@ -818,16 +818,29 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   flex: none;
 }
 
-#help summary {
+#help {
+  text-align: center;
+}
+#help button {
   cursor: pointer;
   color: var(--muted);
-  padding: 0.5rem 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+}
+#help button:hover {
+  background: var(--card-soft);
+  color: var(--fg);
 }
 
-#help ul {
+/* Help-lijst staat nu in #modal-help (modal-body); id i.p.v. "#help ul". */
+#help-list {
   padding-left: 1.2rem;
   color: var(--muted);
   font-size: 0.9rem;
+  margin: 0;
 }
 
 footer {

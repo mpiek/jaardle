@@ -64,7 +64,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="/style.css?v=70">
+<link rel="stylesheet" href="/style.css?v=71">
 </head>
 <body>
   <main>
@@ -146,11 +146,21 @@
     </section>
 
     <section id="help">
-      <details>
-        <summary data-i18n="help_summary">Hoe werkt het?</summary>
+      <button type="button" id="help-btn" data-i18n="help_summary">Hoe werkt het?</button>
+    </section>
+  </main>
+
+  <div id="modal-help" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-help-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-help-title" data-i18n="help_summary">Hoe werkt het?</h2>
+        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+      </header>
+      <div class="modal-body">
         <ul id="help-list">
   <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel komen er bij gok 1 en gok 2 <strong>gratis</strong> twee extra feiten uit hetzelfde jaar bij (💡 geel).</li>
-  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100 jaar later</strong> en daarna <strong>⏩ 250 jaar later</strong> (gebeurtenissen ná het antwoord), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
+  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100, 250, 500 en 1000 jaar later</strong> (gebeurtenissen ná het antwoord), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
   <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
@@ -159,9 +169,9 @@
   <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
   <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
   <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li></ul>
-      </details>
-    </section>
-  </main>
+      </div>
+    </div>
+  </div>
 
   <div id="modal-stats" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-stats-title">
     <div class="modal-backdrop" data-close></div>
@@ -276,7 +286,7 @@
     supabase.auth.onAuthStateChange((_event, session) => emit(session));
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=120"></script>
+  <script src="/game.js?v=121"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
