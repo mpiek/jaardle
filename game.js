@@ -133,6 +133,12 @@ const I18N = {
     help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
     login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
+    login_forgot: "Wachtwoord vergeten?",
+    login_reset_email_needed: "Vul eerst je e-mailadres in.",
+    login_reset_sent: `Als er een account bij dit e-mailadres hoort, is er een reset-link verstuurd. <strong>Geen mail? Check je spam-/ongewenstmap.</strong>`,
+    newpw_title: "Nieuw wachtwoord instellen", newpw_label: "Nieuw wachtwoord", newpw_submit: "Wachtwoord opslaan",
+    newpw_success: "Je wachtwoord is bijgewerkt. Je bent nu ingelogd.",
+    auth_same_password: "Kies een ander wachtwoord dan je oude.",
     login_check_spam: `Account aangemaakt — klik op de link in je inbox om je e-mailadres te bevestigen. <strong>Geen mail? Check je spam-/ongewenstmap.</strong>`,
     auth_loading: "Supabase laadt nog, probeer het opnieuw.",
     auth_invalid: "E-mail of wachtwoord klopt niet.",
@@ -238,6 +244,12 @@ const I18N = {
     help_summary: "How to play?", stats_title: "📊 Statistics",
     login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
+    login_forgot: "Forgot password?",
+    login_reset_email_needed: "Enter your email address first.",
+    login_reset_sent: `If an account exists for this email, a reset link has been sent. <strong>No email? Check your spam/junk folder.</strong>`,
+    newpw_title: "Set a new password", newpw_label: "New password", newpw_submit: "Save password",
+    newpw_success: "Your password has been updated. You're now signed in.",
+    auth_same_password: "Choose a different password from your old one.",
     login_check_spam: `Account created — click the link in your inbox to confirm your email. <strong>No email? Check your spam/junk folder.</strong>`,
     auth_loading: "Supabase is still loading, please try again.",
     auth_invalid: "Email or password is incorrect.",
@@ -348,6 +360,12 @@ const I18N = {
     help_summary: "Wie funktioniert es?", stats_title: "📊 Statistiken",
     login_title: "Anmelden", login_google: "Mit Google fortfahren", login_or: "oder mit E-Mail",
     login_email: "E-Mail", login_password: "Passwort", login_submit: "Anmelden", login_register: "Registrieren",
+    login_forgot: "Passwort vergessen?",
+    login_reset_email_needed: "Gib zuerst deine E-Mail-Adresse ein.",
+    login_reset_sent: `Falls ein Konto zu dieser E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet. <strong>Keine E-Mail? Sieh im Spam-/Junk-Ordner nach.</strong>`,
+    newpw_title: "Neues Passwort festlegen", newpw_label: "Neues Passwort", newpw_submit: "Passwort speichern",
+    newpw_success: "Dein Passwort wurde aktualisiert. Du bist jetzt angemeldet.",
+    auth_same_password: "Wähle ein anderes Passwort als dein altes.",
     login_check_spam: `Konto erstellt — klicke auf den Link in deinem Posteingang, um deine E-Mail-Adresse zu bestätigen. <strong>Keine E-Mail? Sieh im Spam-/Junk-Ordner nach.</strong>`,
     auth_loading: "Supabase lädt noch, bitte versuche es erneut.",
     auth_invalid: "E-Mail oder Passwort ist falsch.",
@@ -452,6 +470,12 @@ const I18N = {
     help_summary: "¿Cómo se juega?", stats_title: "📊 Estadísticas",
     login_title: "Iniciar sesión", login_google: "Continuar con Google", login_or: "o con correo electrónico",
     login_email: "Correo electrónico", login_password: "Contraseña", login_submit: "Iniciar sesión", login_register: "Registrarse",
+    login_forgot: "¿Olvidaste tu contraseña?",
+    login_reset_email_needed: "Introduce primero tu correo electrónico.",
+    login_reset_sent: `Si existe una cuenta con este correo, se ha enviado un enlace para restablecerla. <strong>¿No ves el correo? Revisa tu carpeta de spam/correo no deseado.</strong>`,
+    newpw_title: "Establecer una nueva contraseña", newpw_label: "Nueva contraseña", newpw_submit: "Guardar contraseña",
+    newpw_success: "Tu contraseña se ha actualizado. Ya has iniciado sesión.",
+    auth_same_password: "Elige una contraseña distinta de la anterior.",
     login_check_spam: `Cuenta creada — haz clic en el enlace de tu bandeja de entrada para confirmar tu correo. <strong>¿No ves el correo? Revisa tu carpeta de spam/correo no deseado.</strong>`,
     auth_loading: "Supabase aún se está cargando, inténtalo de nuevo.",
     auth_invalid: "El correo o la contraseña no son correctos.",
@@ -561,6 +585,12 @@ const I18N = {
     help_summary: "Como jogar?", stats_title: "📊 Estatísticas",
     login_title: "Entrar", login_google: "Continuar com o Google", login_or: "ou com e-mail",
     login_email: "E-mail", login_password: "Senha", login_submit: "Entrar", login_register: "Cadastrar-se",
+    login_forgot: "Esqueceu a senha?",
+    login_reset_email_needed: "Digite primeiro o seu e-mail.",
+    login_reset_sent: `Se houver uma conta com este e-mail, um link de redefinição foi enviado. <strong>Não recebeu? Veja na pasta de spam/lixo eletrônico.</strong>`,
+    newpw_title: "Definir uma nova senha", newpw_label: "Nova senha", newpw_submit: "Salvar senha",
+    newpw_success: "Sua senha foi atualizada. Você já está conectado.",
+    auth_same_password: "Escolha uma senha diferente da anterior.",
     login_check_spam: `Conta criada — clique no link na sua caixa de entrada para confirmar seu e-mail. <strong>Não recebeu? Veja na pasta de spam/lixo eletrônico.</strong>`,
     auth_loading: "O Supabase ainda está carregando, tente novamente.",
     auth_invalid: "E-mail ou senha incorretos.",
@@ -2895,10 +2925,77 @@ async function doAuth(mode, e) {
   }
 }
 
+// "Wachtwoord vergeten?": stuur een reset-mail. Neutrale bevestiging (lekt niet
+// of het e-mailadres bestaat), maar echte fouten (rate-limit, netwerk) tonen we wel.
+async function doForgot() {
+  const form = document.getElementById("login-form");
+  const err = document.getElementById("login-error");
+  err.hidden = true;
+  err.textContent = "";
+  if (!window.sbAuth?.resetPassword) {
+    err.textContent = t("auth_loading");
+    err.hidden = false;
+    return;
+  }
+  const email = form.email.value.trim();
+  if (!email) {
+    err.textContent = t("login_reset_email_needed");
+    err.hidden = false;
+    form.email.focus();
+    return;
+  }
+  const btn = document.getElementById("login-forgot");
+  btn.disabled = true;
+  try {
+    await window.sbAuth.resetPassword(email);
+    err.innerHTML = t("login_reset_sent");
+    err.hidden = false;
+  } catch (ex) {
+    err.textContent = friendlyAuthError(ex);
+    err.hidden = false;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// Recovery-scherm: nieuw wachtwoord instellen. supabase-js heeft de recovery-token
+// al tot een sessie omgezet, dus updateUser werkt.
+async function doUpdatePassword(e) {
+  e.preventDefault();
+  const form = document.getElementById("newpw-form");
+  const err = document.getElementById("newpw-error");
+  err.hidden = true;
+  err.textContent = "";
+  if (!window.sbAuth?.updatePassword) {
+    err.textContent = t("auth_loading");
+    err.hidden = false;
+    return;
+  }
+  const pw = form.password.value;
+  const btns = form.querySelectorAll("button");
+  btns.forEach((b) => (b.disabled = true));
+  try {
+    await window.sbAuth.updatePassword(pw);
+    form.reset();
+    closeAllModals();
+    const le = document.getElementById("login-error");
+    // Toon een korte succesmelding via de login-foutregel als die zichtbaar is;
+    // anders volstaat het sluiten (de gebruiker is nu ingelogd).
+    alert(t("newpw_success"));
+  } catch (ex) {
+    err.textContent = friendlyAuthError(ex);
+    err.hidden = false;
+  } finally {
+    btns.forEach((b) => (b.disabled = false));
+  }
+}
+
 function friendlyAuthError(ex) {
   const code = ex?.code || "";
   const status = ex?.status || 0;
   const msg = (ex?.message || "").toLowerCase();
+  if (code === "same_password" || msg.includes("should be different from the old password"))
+    return t("auth_same_password");
   if (code === "invalid_credentials" || msg.includes("invalid login credentials"))
     return t("auth_invalid");
   if (code === "email_not_confirmed")
@@ -3320,6 +3417,16 @@ async function init() {
   loginForm.addEventListener("submit", (e) => doAuth("signin", e));
   document.getElementById("login-register").addEventListener("click", (e) => doAuth("signup", e));
   document.getElementById("login-google").addEventListener("click", doGoogleSignIn);
+  document.getElementById("login-forgot").addEventListener("click", doForgot);
+  document.getElementById("newpw-form").addEventListener("submit", doUpdatePassword);
+
+  // Recovery-link geklikt (Supabase vuurt PASSWORD_RECOVERY via de module-bridge):
+  // open het "nieuw wachtwoord"-scherm.
+  window.addEventListener("sb-recovery", () => {
+    closeAllModals();
+    openModal("modal-newpw");
+    document.querySelector('#newpw-form input[name="password"]')?.focus();
+  });
 
   // Sync auth-state vanuit de Supabase module-bridge.
   window.addEventListener("sb-auth-changed", async (e) => {
@@ -3436,6 +3543,12 @@ async function init() {
   // Login en registreren zitten in dezelfde modal.
   if ((wantAuth === "login" || wantAuth === "register") && !auth.user) {
     openModal("modal-login");
+  }
+  // Fallback voor de recovery-flow: als het PASSWORD_RECOVERY-event al vuurde vóór
+  // onze listener bestond, opent ?auth=recovery het "nieuw wachtwoord"-scherm alsnog.
+  if (wantAuth === "recovery") {
+    openModal("modal-newpw");
+    document.querySelector('#newpw-form input[name="password"]')?.focus();
   }
 
   // Eerste bezoek ooit: laat de "?" in de header even pulseren als subtiele hint

@@ -208,9 +208,29 @@
             <button type="submit" class="primary" data-i18n="login_submit">{{i18n:login_submit}}</button>
             <button type="button" id="login-register" data-i18n="login_register">{{i18n:login_register}}</button>
           </div>
+          <button type="button" id="login-forgot" class="link-btn" data-i18n="login_forgot">{{i18n:login_forgot}}</button>
         </form>
         <p id="login-error" class="form-error" hidden></p>
         <p class="form-note" data-i18n-html="login_note">{{i18nhtml:login_note}}</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-newpw" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-newpw-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-head">
+        <h2 id="modal-newpw-title" data-i18n="newpw_title">{{i18n:newpw_title}}</h2>
+        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+      </header>
+      <div class="modal-body">
+        <form id="newpw-form" autocomplete="on">
+          <label><span data-i18n="newpw_label">{{i18n:newpw_label}}</span><input type="password" name="password" required autocomplete="new-password" minlength="6"></label>
+          <div class="modal-actions">
+            <button type="submit" class="primary" data-i18n="newpw_submit">{{i18n:newpw_submit}}</button>
+          </div>
+        </form>
+        <p id="newpw-error" class="form-error" hidden></p>
       </div>
     </div>
   </div>
@@ -245,6 +265,12 @@
         provider: "google",
         options: { redirectTo: location.origin + location.pathname },
       })),
+      // Stuurt een reset-mail; de link komt terug op dezelfde (taal)pagina,
+      // waar supabase-js de recovery-token in de hash oppikt en PASSWORD_RECOVERY vuurt.
+      resetPassword: (email) => unwrap(supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: location.origin + location.pathname + "?auth=recovery",
+      })),
+      updatePassword: (password) => unwrap(supabase.auth.updateUser({ password })),
       signOut: () => unwrap(supabase.auth.signOut()),
     };
 
@@ -265,10 +291,14 @@
     };
     // Sessie herstellen bij page-load (ook na Google OAuth-redirect).
     supabase.auth.getSession().then(({ data }) => emit(data.session));
-    supabase.auth.onAuthStateChange((_event, session) => emit(session));
+    supabase.auth.onAuthStateChange((event, session) => {
+      // Recovery-link geklikt: laat game.js het "nieuw wachtwoord"-scherm openen.
+      if (event === "PASSWORD_RECOVERY") window.dispatchEvent(new Event("sb-recovery"));
+      emit(session);
+    });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=124"></script>
+  <script src="/game.js?v=125"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

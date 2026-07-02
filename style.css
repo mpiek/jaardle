@@ -1231,6 +1231,19 @@ footer {
 .google-btn:hover { background: #f5f5f5; }
 .google-btn:disabled { opacity: 0.6; cursor: default; }
 
+.link-btn {
+  display: inline-block;
+  margin-top: 0.2rem;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.link-btn:hover { color: var(--fg); }
+
 .auth-sep {
   display: flex;
   align-items: center;

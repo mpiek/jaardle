@@ -24,7 +24,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-MDI8zKbE7FVR2kggA5H7mz6E9gt8kHpPR1yarJTsGVk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-9phGxzewcZW1chQb98RptY7/kp7I43XU2XXO+UF5bsc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
 <title>Jaardle — adivinhe o ano</title>
 <meta name="description" content="Jaardle é um jogo diário e gratuito de adivinhar anos — o Anodle da história, no estilo de Wordle: adivinhe em seis tentativas o ano de um acontecimento histórico. Quebra-cabeça diário ou jogo livre infinito.">
 <link rel="canonical" href="https://jaardle.com/pt">
@@ -223,9 +223,29 @@
             <button type="submit" class="primary" data-i18n="login_submit">Entrar</button>
             <button type="button" id="login-register" data-i18n="login_register">Cadastrar-se</button>
           </div>
+          <button type="button" id="login-forgot" class="link-btn" data-i18n="login_forgot">Esqueceu a senha?</button>
         </form>
         <p id="login-error" class="form-error" hidden></p>
         <p class="form-note" data-i18n-html="login_note">O login é feito através do <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). As senhas são armazenadas com hash (bcrypt), nunca em texto puro, e apenas o seu e-mail e os resultados de jogo são guardados — não compartilhados com terceiros.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-newpw" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-newpw-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-head">
+        <h2 id="modal-newpw-title" data-i18n="newpw_title">Definir uma nova senha</h2>
+        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+      </header>
+      <div class="modal-body">
+        <form id="newpw-form" autocomplete="on">
+          <label><span data-i18n="newpw_label">Nova senha</span><input type="password" name="password" required autocomplete="new-password" minlength="6"></label>
+          <div class="modal-actions">
+            <button type="submit" class="primary" data-i18n="newpw_submit">Salvar senha</button>
+          </div>
+        </form>
+        <p id="newpw-error" class="form-error" hidden></p>
       </div>
     </div>
   </div>
@@ -260,6 +280,12 @@
         provider: "google",
         options: { redirectTo: location.origin + location.pathname },
       })),
+      // Stuurt een reset-mail; de link komt terug op dezelfde (taal)pagina,
+      // waar supabase-js de recovery-token in de hash oppikt en PASSWORD_RECOVERY vuurt.
+      resetPassword: (email) => unwrap(supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: location.origin + location.pathname + "?auth=recovery",
+      })),
+      updatePassword: (password) => unwrap(supabase.auth.updateUser({ password })),
       signOut: () => unwrap(supabase.auth.signOut()),
     };
 
@@ -280,10 +306,14 @@
     };
     // Sessie herstellen bij page-load (ook na Google OAuth-redirect).
     supabase.auth.getSession().then(({ data }) => emit(data.session));
-    supabase.auth.onAuthStateChange((_event, session) => emit(session));
+    supabase.auth.onAuthStateChange((event, session) => {
+      // Recovery-link geklikt: laat game.js het "nieuw wachtwoord"-scherm openen.
+      if (event === "PASSWORD_RECOVERY") window.dispatchEvent(new Event("sb-recovery"));
+      emit(session);
+    });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=124"></script>
+  <script src="/game.js?v=125"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
