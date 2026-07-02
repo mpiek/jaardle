@@ -1784,7 +1784,10 @@ function finishGame(won, fresh = false) {
     const tier = scoreTier(score, won);
     const scoreLine = document.createElement("div");
     scoreLine.className = "score-line";
-    scoreLine.textContent = `${tier.emoji} ${tierLabel(tier)} · ${score}/100`;
+    // Alleen 🏆 (perfect) staat in ANIM_EMOJI en gaat bewegen; de andere
+    // tier-emoji's komen als gewoon teken uit animEmojiHtml terug.
+    scoreLine.innerHTML = `${animEmojiHtml(tier.emoji)} ${tierLabel(tier)} · ${score}/100`;
+    armEmojiFallbacks(scoreLine);
     els.resultText.append(scoreLine);
   }
   els.source.innerHTML = ev.source
@@ -1882,7 +1885,12 @@ function startDailyCountdown() {
   (els.source || document.getElementById("result-actions") || els.resultText).after(el);
   const tick = () => {
     const left = secsToNextDaily();
-    if (left <= 0) { el.textContent = t("daily_ready"); stopDailyCountdown(); return; }
+    if (left <= 0) {
+      el.innerHTML = withAnimEmoji(t("daily_ready"));   // ✨ mag even fonkelen
+      armEmojiFallbacks(el);
+      stopDailyCountdown();
+      return;
+    }
     el.textContent = `${t("next_daily")} ${fmtCountdown(left)}`;
   };
   tick();
@@ -2454,7 +2462,7 @@ async function renderRecap() {
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
   const [dist, streak] = await Promise.all([fetchGlobalGuessDist(), streakLineText(state.won)]);
   if (document.getElementById("modal-recap").hidden) return;
-  const streakHtml = streak ? `<p class="recap-streak">${streak}</p>` : "";
+  const streakHtml = streak ? `<p class="recap-streak">${withAnimEmoji(streak)}</p>` : "";
   // Delen hoort bij dít scherm (het Wordle-moment): direct onder de verdeling,
   // zodat je niet eerst de recap hoeft te sluiten om bij de deel-knop te komen.
   const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button></div>`;
@@ -2471,6 +2479,7 @@ async function renderRecap() {
     const btn = body.querySelector(".js-acct-btn");
     if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
   }
+  armEmojiFallbacks(body);
   const sbtn = document.getElementById("recap-share-btn");
   if (sbtn) sbtn.onclick = () => doShare(sbtn);
 }
@@ -2595,7 +2604,8 @@ async function appendStreakLine(won) {
   els.resultText.querySelectorAll(".streak-line").forEach((e) => e.remove());
   const el = document.createElement("div");
   el.className = "streak-line";
-  el.textContent = line;
+  el.innerHTML = withAnimEmoji(line);   // eigen i18n-string + getal — veilig als HTML
+  armEmojiFallbacks(el);
   els.resultText.append(el);
 }
 
@@ -3223,6 +3233,32 @@ function loadRecord(mode) {
   } catch (e) {
     return null;
   }
+}
+
+// --- Geanimeerde emoji (Noto Emoji Animation, lokaal in /emoji/) -------------
+// Alleen op eenmalige piekmomenten (streak-regel, perfecte score, daily-klaar) —
+// nooit in permanente UI: blijvende beweging leidt af en went nooit. Bij
+// prefers-reduced-motion of een laadfout valt alles terug op het gewone teken.
+const ANIM_EMOJI = { "🔥": "fire", "💔": "heartbreak", "🏆": "trophy", "✨": "sparkles" };
+
+function animEmojiHtml(ch) {
+  const name = ANIM_EMOJI[ch];
+  if (!name || matchMedia("(prefers-reduced-motion: reduce)").matches) return ch;
+  return `<img class="emoji-anim" src="/emoji/${name}.webp" alt="${ch}">`;
+}
+
+// Vervang bekende emoji-tekens in een (eigen i18n-)string door hun animatie.
+function withAnimEmoji(str) {
+  let out = str;
+  for (const ch of Object.keys(ANIM_EMOJI)) out = out.replaceAll(ch, animEmojiHtml(ch));
+  return out;
+}
+
+// Webp laadt niet (offline, oude Safari)? Zet het alt-teken terug in de tekst.
+function armEmojiFallbacks(root) {
+  root.querySelectorAll("img.emoji-anim").forEach((img) => {
+    img.addEventListener("error", () => img.replaceWith(document.createTextNode(img.alt)), { once: true });
+  });
 }
 
 // Zelfde deel-icoon als op het eindscherm (FA share-nodes, inline SVG) — voor

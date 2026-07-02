@@ -824,6 +824,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   color: #ff9d4d;
 }
 
+/* Geanimeerde emoji (Noto, lokaal in /emoji/): meeschalen met de tekst en
+   netjes op de regel uitlijnen; gedraagt zich verder als een gewoon teken. */
+.emoji-anim {
+  height: 1.25em;
+  width: 1.25em;
+  display: inline-block;
+  vertical-align: -0.28em;
+}
+
 .year-pill {
   display: inline-block;
   background: var(--green);

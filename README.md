@@ -18,6 +18,6 @@ Lokaal draaien: `python3 -m http.server 8000` in de repo-root.
 
 ## Licentie
 
-Code [MIT](LICENSE) · gebeurtenissen + vertalingen CC BY-SA 4.0, afgeleid van [Engelstalige Wikipedia](https://en.wikipedia.org/wiki/Main_Page).
+Code [MIT](LICENSE) · gebeurtenissen + vertalingen CC BY-SA 4.0, afgeleid van [Engelstalige Wikipedia](https://en.wikipedia.org/wiki/Main_Page) · geanimeerde emoji in `/emoji/` uit [Noto Emoji Animation](https://googlefonts.github.io/noto-emoji-animation/) (Google, CC BY 4.0), lokaal gehost.
 
 Issues en PRs welkom — bij een vertaalfout graag het event-jaar vermelden.
