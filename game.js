@@ -2528,10 +2528,12 @@ async function showLiveRating() {
   const delta = prev == null ? 0 : r.elo - prev;
   const el = document.createElement("p");
   el.className = "fact-stats rating-line";
+  const label = document.createElement("span");
+  label.innerHTML = `${animEmojiHtml("⚡")} ${escHtml(t("rating_line"))}: `;
   const num = document.createElement("span");
   num.className = "rating-num";
   num.textContent = String(prev ?? r.elo);
-  el.append(`⚡ ${t("rating_line")}: `, num);
+  el.append(label, num);
   if (delta !== 0) {
     const badge = document.createElement("span");
     badge.className = `rating-delta ${delta > 0 ? "up" : "down"}`;
@@ -3387,7 +3389,7 @@ function loadRecord(mode) {
 // Alleen op eenmalige piekmomenten (streak-regel, perfecte score, daily-klaar) —
 // nooit in permanente UI: blijvende beweging leidt af en went nooit. Bij
 // prefers-reduced-motion of een laadfout valt alles terug op het gewone teken.
-const ANIM_EMOJI = { "🔥": "fire", "💔": "heartbreak", "🏆": "trophy", "✨": "sparkles" };
+const ANIM_EMOJI = { "🔥": "fire", "💔": "heartbreak", "🏆": "trophy", "✨": "sparkles", "⚡": "flair-zap" };
 
 function animEmojiHtml(ch) {
   const name = ANIM_EMOJI[ch];
