@@ -1328,8 +1328,20 @@ footer {
 .retry-btn:hover { background: var(--border); }
 
 .fact-stats { margin: 0.4rem 0 0.85rem; font-size: 0.85rem; color: var(--muted); }
-/* Live rating (free mode, ingelogd) — iets prominenter dan de globale stats. */
-.rating-line { color: var(--fg); font-weight: 600; }
+/* Live rating (free mode, ingelogd) — teller loopt op, delta popt erachteraan. */
+.rating-line { color: var(--fg); font-weight: 600; animation: rating-in 0.35s ease-out; }
+@keyframes rating-in { from { opacity: 0; transform: translateY(5px); } }
+.rating-num { font-variant-numeric: tabular-nums; }
+.rating-num-settled { animation: rating-settle 0.5s ease-out; }
+@keyframes rating-settle { 30% { text-shadow: 0 0 12px var(--accent); } }
+.rating-delta { display: inline-block; margin-left: 0.35em; font-weight: 700;
+  animation: delta-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.9s both; }
+.rating-delta.up { color: var(--green); }
+.rating-delta.down { color: var(--red); }
+@keyframes delta-pop { from { opacity: 0; transform: scale(0.3) rotate(-8deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .rating-line, .rating-delta, .rating-num-settled { animation: none; }
+}
 .daily-countdown { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .cal-wrap { margin-top: 1rem; }

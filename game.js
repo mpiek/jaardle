@@ -223,7 +223,7 @@ const I18N = {
     band_warn: (jaren) => `Volgens je dichtste gok ligt het antwoord dichterbij; deze gok ligt er ${jaren} jaar vandaan — buiten het bereik. Toch gokken?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`,
-    rating_line: (elo, d) => `⚡ Jouw rating: ${elo}${d}`,
+    rating_line: "Jouw rating",
     // SEO/meta — door tools/build-html.mjs in de <head> + het introblok gezet.
     meta_title: "Jaardle — raad het jaar",
     meta_share_title: "Jaardle — raad het jaar van historische gebeurtenissen",
@@ -346,7 +346,7 @@ const I18N = {
     band_warn: (years) => `Your closest guess puts the answer nearer; this guess is ${years} years away — outside that range. Guess anyway?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`,
-    rating_line: (elo, d) => `⚡ Your rating: ${elo}${d}`,
+    rating_line: "Your rating",
     // SEO/meta — used by tools/build-html.mjs for the <head> + intro block.
     meta_title: "Jaardle — guess the year",
     meta_share_title: "Jaardle — guess the year of historic events",
@@ -464,7 +464,7 @@ const I18N = {
     band_warn: (jahre) => `Laut deinem besten Tipp liegt die Antwort näher; dieser Tipp liegt ${jahre} Jahre entfernt — außerhalb der Spanne. Trotzdem raten?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} Spieler · ${s.win_pct}% gelöst${hasScore ? ` · Ø Punkte ${s.avg_score}/100` : ""} · Ø ${s.avg_guesses} Versuche · ${s.first_try_pct}% beim ersten Versuch`,
-    rating_line: (elo, d) => `⚡ Dein Rating: ${elo}${d}`,
+    rating_line: "Dein Rating",
     meta_title: "Jaardle — errate das Jahr",
     meta_share_title: "Jaardle — errate das Jahr historischer Ereignisse",
     meta_desc: "Jaardle ist ein kostenloses tägliches Jahreszahlen-Ratespiel — das Jahrdle der Geschichte, im Stil von Wordle: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.",
@@ -586,7 +586,7 @@ const I18N = {
     band_warn: (anos) => `Según tu mejor intento, la respuesta está más cerca; este intento queda a ${anos} años — fuera del margen. ¿Adivinar de todos modos?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} jugadores · ${s.win_pct}% resuelto${hasScore ? ` · puntos medios ${s.avg_score}/100` : ""} · ${s.avg_guesses} intentos de media · ${s.first_try_pct}% al primer intento`,
-    rating_line: (elo, d) => `⚡ Tu rating: ${elo}${d}`,
+    rating_line: "Tu rating",
     meta_title: "Jaardle — adivina el año",
     meta_share_title: "Jaardle — adivina el año de acontecimientos históricos",
     meta_desc: "Jaardle es un juego diario y gratuito de adivinar años — el Añodle de la historia, al estilo de Wordle: adivina en seis intentos el año de un acontecimiento histórico. Puzle diario o partida libre infinita.",
@@ -708,7 +708,7 @@ const I18N = {
     band_warn: (anos) => `Pelo seu melhor palpite, a resposta está mais perto; este palpite fica a ${anos} anos — fora da faixa. Adivinhar mesmo assim?`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} jogadores · ${s.win_pct}% resolvido${hasScore ? ` · pontos médios ${s.avg_score}/100` : ""} · ${s.avg_guesses} tentativas em média · ${s.first_try_pct}% no primeiro palpite`,
-    rating_line: (elo, d) => `⚡ Seu rating: ${elo}${d}`,
+    rating_line: "Seu rating",
     meta_title: "Jaardle — adivinhe o ano",
     meta_share_title: "Jaardle — adivinhe o ano de acontecimentos históricos",
     meta_desc: "Jaardle é um jogo diário e gratuito de adivinhar anos — o Anodle da história, no estilo de Wordle: adivinhe em seis tentativas o ano de um acontecimento histórico. Quebra-cabeça diário ou jogo livre infinito.",
@@ -2525,11 +2525,32 @@ async function showLiveRating() {
   if (!r || r.elo == null) return;
   auth.rating = r.elo;
   els.result.querySelectorAll(".rating-line").forEach((e) => e.remove());
-  const d = prev == null || r.elo === prev ? "" : ` (${r.elo > prev ? "+" : "−"}${Math.abs(r.elo - prev)})`;
+  const delta = prev == null ? 0 : r.elo - prev;
   const el = document.createElement("p");
   el.className = "fact-stats rating-line";
-  el.textContent = t("rating_line")(r.elo, d);
+  const num = document.createElement("span");
+  num.className = "rating-num";
+  num.textContent = String(prev ?? r.elo);
+  el.append(`⚡ ${t("rating_line")}: `, num);
+  if (delta !== 0) {
+    const badge = document.createElement("span");
+    badge.className = `rating-delta ${delta > 0 ? "up" : "down"}`;
+    badge.textContent = `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
+    el.append(badge);
+  }
   els.resultText.after(el);
+  // Tel het getal van oud naar nieuw (ease-out); de delta-badge popt via CSS
+  // erachteraan. Bij reduced-motion of onbekende oude rating: meteen eindstand.
+  const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  if (delta === 0 || reduced) { num.textContent = String(r.elo); return; }
+  const dur = 900, start = performance.now();
+  (function tick(now) {
+    const p = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    num.textContent = String(Math.round(prev + delta * eased));
+    if (p < 1) requestAnimationFrame(tick);
+    else num.classList.add("rating-num-settled");   // korte flash op de eindstand
+  })(start);
 }
 
 // Cache de huidige rating zodat de volgende free-mode-pot een delta kan tonen.
