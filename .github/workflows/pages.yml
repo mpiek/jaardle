@@ -45,3 +45,7 @@ jobs:
           path: /tmp/site
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # 20 min i.p.v. standaard 10: de deployment-wachtrij loopt soms
+          # pas na >10 min leeg en dan smoort elke poging net te vroeg.
+          timeout: 1200000
