@@ -830,6 +830,20 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   color: #ff9d4d;
 }
 
+/* Eenmalig hint-duwtje onder de hintknoppen (zelfdovend, zie maybeShowHintNudge). */
+.hint-nudge {
+  margin: 0.35rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--h-digit);
+  animation: nudge-pulse 1.6s ease-in-out 3;
+}
+@keyframes nudge-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .hint-nudge { animation: none; } }
+
 /* Geanimeerde emoji (Noto, lokaal in /emoji/): meeschalen met de tekst en
    netjes op de regel uitlijnen; gedraagt zich verder als een gewoon teken. */
 .emoji-anim {

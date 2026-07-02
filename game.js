@@ -120,6 +120,7 @@ const I18N = {
     menu_login_short: "Inloggen",
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
     aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten",
+    hint_nudge: (p) => `Tip: 🔢 verklapt het laatste cijfer (−${p} punten)`,
     guess: "Gok", share: "Deel resultaat", next: "Nieuw rondje",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Richting", hint_century: "🏛️ Eeuw",
     hint_later: "⏩ 100 jaar later", hint_later_n: (y) => `⏩ ${y} jaar later`, hint_digit: "🔢 Laatste cijfer",
@@ -236,6 +237,7 @@ const I18N = {
     menu_login_short: "Sign in",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
     aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close",
+    hint_nudge: (p) => `Tip: 🔢 reveals the last digit (−${p} points)`,
     guess: "Guess", share: "Share result", next: "New round",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Direction", hint_century: "🏛️ Century",
     hint_later: "⏩ 100 years later", hint_later_n: (y) => `⏩ ${y} years later`, hint_digit: "🔢 Last digit",
@@ -357,6 +359,7 @@ const I18N = {
     menu_login_short: "Anmelden",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
     aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen",
+    hint_nudge: (p) => `Tipp: 🔢 verrät die letzte Ziffer (−${p} Punkte)`,
     guess: "Raten", share: "Ergebnis teilen", next: "Neue Runde",
     hint_text: "💡 Extra-Hinweis", hint_dir: "🧭 Richtung", hint_century: "🏛️ Jahrhundert",
     hint_later: "⏩ 100 Jahre später", hint_later_n: (y) => `⏩ ${y} Jahre später`, hint_digit: "🔢 Letzte Ziffer",
@@ -472,6 +475,7 @@ const I18N = {
     menu_login_short: "Entrar",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar",
+    hint_nudge: (p) => `Consejo: 🔢 revela el último dígito (−${p} puntos)`,
     guess: "Adivinar", share: "Compartir resultado", next: "Nueva ronda",
     hint_text: "💡 Pista extra", hint_dir: "🧭 Dirección", hint_century: "🏛️ Siglo",
     hint_later: "⏩ 100 años después", hint_later_n: (y) => `⏩ ${y} años después`, hint_digit: "🔢 Última cifra",
@@ -592,6 +596,7 @@ const I18N = {
     menu_login_short: "Entrar",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar",
+    hint_nudge: (p) => `Dica: 🔢 revela o último dígito (−${p} pontos)`,
     guess: "Adivinhar", share: "Compartilhar resultado", next: "Nova rodada",
     hint_text: "💡 Dica extra", hint_dir: "🧭 Direção", hint_century: "🏛️ Século",
     hint_later: "⏩ 100 anos depois", hint_later_n: (y) => `⏩ ${y} anos depois`, hint_digit: "🔢 Último algarismo",
@@ -1376,6 +1381,7 @@ function requestLaterClue() {
   if (state.done) return;
   if (state.laterCluesShown >= availableLaterClues()) return;
   state.laterCluesShown += 1;
+  markPaidHintUsed();
   renderEvent();
   renderHintStatus();
   goToHintSlide("later");
@@ -1430,6 +1436,7 @@ function requestDirectionHint() {
   const latestIdx = state.guesses.length - 1;
   if (state.directionsRevealed.includes(latestIdx)) return;
   state.directionsRevealed.push(latestIdx);
+  markPaidHintUsed();
   renderHintStatus();
   renderGuesses();
   // Pop-animatie op het zojuist onthulde pijltje. Double-rAF zodat de
@@ -1450,6 +1457,7 @@ function requestDirectionHint() {
 function requestCenturyHint() {
   if (state.done || state.centuryRevealed) return;
   state.centuryRevealed = true;
+  markPaidHintUsed();
   renderEvent();
   renderHintStatus();
   goToHintSlide("century");   // voeg de 🏛️-band-slide toe en schuif erheen
@@ -1460,11 +1468,45 @@ function requestCenturyHint() {
 function requestLastDigit() {
   if (state.done || state.lastDigitRevealed) return;
   state.lastDigitRevealed = true;
+  markPaidHintUsed();
   renderEvent();
   renderHintStatus();
   goToHintSlide("digit");   // voeg de 🔢-cijfer-slide toe en schuif erheen
   updateLiveScore(true);
   save();
+}
+
+// --- Hint-nudge -------------------------------------------------------------
+// Eenmalig duwtje voor spelers die zonder hints stranden: bij gok 5 (één poging
+// over), nog ver van het doel én geen enkele betaalde hint dit potje. Dooft
+// zichzelf uit: nooit meer zodra ooit een hint is gebruikt, en max 3× ooit.
+// (Data: 61% van de daily-verliezers was hintloos; winnaars pakken 🔢 3× vaker.)
+const HINT_NUDGE_MAX = 3;
+
+function markPaidHintUsed() {
+  try { localStorage.setItem("jaardle:hintused", "1"); } catch (e) {}
+  document.getElementById("hint-nudge")?.remove();
+}
+
+function maybeShowHintNudge() {
+  if (state.done || state.guesses.length !== MAX_GUESSES - 1) return;
+  if (state.laterCluesShown > 0 || state.directionsRevealed.length > 0 ||
+      state.centuryRevealed || state.lastDigitRevealed) return;
+  const closest = Math.min(...state.guesses.map((g) => Math.abs(g.diff)));
+  if (closest <= 25) return;   // al warm — dan geen bemoeienis
+  try {
+    if (localStorage.getItem("jaardle:hintused")) return;
+    const seen = Number(localStorage.getItem("jaardle:nudged") || 0);
+    if (seen >= HINT_NUDGE_MAX) return;
+    localStorage.setItem("jaardle:nudged", String(seen + 1));
+  } catch (e) {}
+  document.getElementById("hint-nudge")?.remove();
+  const el = document.createElement("p");
+  el.id = "hint-nudge";
+  el.className = "hint-nudge";
+  el.textContent = t("hint_nudge")(LAST_DIGIT_PENALTY);
+  document.getElementById("hint-row")?.after(el);
+  setTimeout(() => el.remove(), 8000);   // dooft vanzelf uit
 }
 
 const RANGE_LABELS = {
@@ -1782,6 +1824,7 @@ function flyHintBulbs(fromEl, toEl) {
 function finishGame(won, fresh = false) {
   state.done = true;
   state.won = won;
+  document.getElementById("hint-nudge")?.remove();   // duwtje is niet meer relevant
   save();
   setKeypadDisabled(true);
   renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
@@ -3242,6 +3285,8 @@ function submitGuess() {
     finishGame(true, true);
   } else if (state.guesses.length >= MAX_GUESSES) {
     finishGame(false, true);
+  } else {
+    maybeShowHintNudge();   // gok 5, ver mis, hintloos → eenmalig duwtje
   }
 }
 
