@@ -816,6 +816,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-variant-numeric: tabular-nums;
 }
 
+/* 🔥/💔-streak-regel op het eindscherm, direct onder de score. */
+.streak-line {
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ff9d4d;
+}
+
 .year-pill {
   display: inline-block;
   background: var(--green);
@@ -1207,6 +1215,23 @@ footer {
   cursor: pointer;
 }
 .recap-cta button:hover { filter: brightness(1.08); }
+
+/* Streak-regel bovenin de recap-modal (zelfde vlam-kleur als .streak-line). */
+.recap-streak {
+  text-align: center;
+  font-weight: 600;
+  color: #ff9d4d;
+  margin: 0 0 0.75rem;
+}
+
+/* Share-knop in de recap: .recap-cta-styling + icoon netjes naast het label. */
+.recap-share { margin-top: 0.9rem; }
+.recap-share button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
 
 /* --- Login: Google button + separator --- */
 #login-form {

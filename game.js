@@ -209,6 +209,8 @@ const I18N = {
     recap_acct_3: "🏆 Vergelijk je daily met vrienden in een pool",
     recap_acct_btn: "Inloggen of account maken",
     recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
+    streak_won: (n) => n === 1 ? "🔥 Streak gestart — kom morgen terug!" : `🔥 ${n} dagen op rij!`,
+    streak_lost: (n) => `💔 Streak van ${n} ${n === 1 ? "dag" : "dagen"} gebroken — morgen nieuwe kans!`,
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     dir_word: "richtingen",
     avg_word: "gem.",
@@ -325,6 +327,8 @@ const I18N = {
     recap_acct_3: "🏆 Compare your daily with friends in a pool",
     recap_acct_btn: "Sign in or create account",
     recap_acct_free: "Always 100% free — no paid tier, no ads.",
+    streak_won: (n) => n === 1 ? "🔥 Streak started — come back tomorrow!" : `🔥 ${n} days in a row!`,
+    streak_lost: (n) => `💔 ${n}-day streak broken — new chance tomorrow!`,
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     dir_word: "directions",
     avg_word: "avg.",
@@ -436,6 +440,8 @@ const I18N = {
     recap_acct_3: "🏆 Vergleiche dein Daily mit Freunden in einem Pool",
     recap_acct_btn: "Anmelden oder Konto erstellen",
     recap_acct_free: "Immer 100% kostenlos — keine Bezahlversion, keine Werbung.",
+    streak_won: (n) => n === 1 ? "🔥 Serie gestartet — komm morgen wieder!" : `🔥 ${n} Tage in Folge!`,
+    streak_lost: (n) => `💔 Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gerissen — morgen neue Chance!`,
     tiers: { perfect: "Perfekt", impressive: "Beeindruckend", good: "Gut", solid: "Solide", justmade: "Gerade so", lost: "Nächstes Mal besser" },
     dir_word: "Richtungen",
     avg_word: "Ø",
@@ -551,6 +557,8 @@ const I18N = {
     recap_acct_3: "🏆 Compara tu diario con tus amigos en un grupo",
     recap_acct_btn: "Iniciar sesión o crear cuenta",
     recap_acct_free: "Siempre 100% gratis — sin versión de pago, sin anuncios.",
+    streak_won: (n) => n === 1 ? "🔥 ¡Racha iniciada — vuelve mañana!" : `🔥 ¡${n} días seguidos!`,
+    streak_lost: (n) => `💔 Racha de ${n} ${n === 1 ? "día" : "días"} perdida — ¡mañana, otra oportunidad!`,
     tiers: { perfect: "Perfecto", impressive: "Impresionante", good: "Bien", solid: "Sólido", justmade: "Por los pelos", lost: "La próxima irá mejor" },
     dir_word: "direcciones",
     avg_word: "med.",
@@ -666,6 +674,8 @@ const I18N = {
     recap_acct_3: "🏆 Compare seu diário com seus amigos em um grupo",
     recap_acct_btn: "Entrar ou criar conta",
     recap_acct_free: "Sempre 100% grátis — sem versão paga, sem anúncios.",
+    streak_won: (n) => n === 1 ? "🔥 Sequência iniciada — volte amanhã!" : `🔥 ${n} dias seguidos!`,
+    streak_lost: (n) => `💔 Sequência de ${n} ${n === 1 ? "dia" : "dias"} perdida — amanhã tem outra chance!`,
     tiers: { perfect: "Perfeito", impressive: "Impressionante", good: "Bem", solid: "Sólido", justmade: "Por pouco", lost: "A próxima vai melhor" },
     dir_word: "direções",
     avg_word: "méd.",
@@ -1787,6 +1797,7 @@ function finishGame(won, fresh = false) {
   renderHintStatus();
   if (fresh && won) (state.guesses.length === 1 ? showFireworks : showConfetti)();
   if (fresh && state.mode === "daily") recordDailyResult(won);
+  appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
   // Bij een verse pot: eerst de play wegschrijven, DAARNA de globale stats ophalen,
   // zodat je eigen zojuist gespeelde pot meetelt (en bij een fact zonder eerdere
   // plays niet games:0 -> niks toont). Faalt het wegschrijven, toon dan alsnog.
@@ -2441,25 +2452,32 @@ async function renderRecap() {
   const body = document.getElementById("recap-body");
   if (!body) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  const dist = await fetchGlobalGuessDist();
+  const [dist, streak] = await Promise.all([fetchGlobalGuessDist(), streakLineText(state.won)]);
   if (document.getElementById("modal-recap").hidden) return;
+  const streakHtml = streak ? `<p class="recap-streak">${streak}</p>` : "";
+  // Delen hoort bij dít scherm (het Wordle-moment): direct onder de verdeling,
+  // zodat je niet eerst de recap hoeft te sluiten om bij de deel-knop te komen.
+  const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button></div>`;
   if (auth.user) {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
-    body.innerHTML = recapDistHtml(dist) +
+    body.innerHTML = streakHtml + recapDistHtml(dist) + shareHtml +
       `<section class="recap-section">` +
       `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
       `<div id="recap-team"></div></section>`;
     loadRecapTeam();
   } else {
     // Uitgelogd: wijs op de voordelen van een (gratis) account.
-    body.innerHTML = recapDistHtml(dist) + recapAccountHtml();
-    const btn = document.getElementById("recap-acct-btn");
+    body.innerHTML = streakHtml + recapDistHtml(dist) + shareHtml + recapAccountHtml();
+    const btn = body.querySelector(".js-acct-btn");
     if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
   }
+  const sbtn = document.getElementById("recap-share-btn");
+  if (sbtn) sbtn.onclick = () => doShare(sbtn);
 }
 
 // Voordelen-blok voor uitgelogde spelers op het recap-scherm: een gecentreerd,
-// omlijnd accent-kaartje dat als call-to-action opvalt.
+// omlijnd accent-kaartje dat als call-to-action opvalt. Ook hergebruikt in de
+// stats-modal (anon) — daarom een class i.p.v. id op de knop (kan 2× in de DOM).
 function recapAccountHtml() {
   return `<div class="recap-account">
     <h3 class="stats-heading">${t("recap_acct_title")}</h3>
@@ -2468,7 +2486,7 @@ function recapAccountHtml() {
       <li>${t("recap_acct_2")}</li>
       <li>${t("recap_acct_3")}</li>
     </ul>
-    <div class="recap-cta"><button id="recap-acct-btn">${t("recap_acct_btn")}</button></div>
+    <div class="recap-cta"><button class="js-acct-btn">${t("recap_acct_btn")}</button></div>
     <p class="recap-free">${t("recap_acct_free")}</p>
   </div>`;
 }
@@ -2506,9 +2524,10 @@ async function loadRecapTeam() {
 
 // --- Daily history & stats ------------------------------------------------
 // Ingelogd: de dagresultaten komen uit de DB (cross-device sync) via
-// get_my_history(). Anon ziet geen stats — het ⋮-menu opent dan de login-modal
-// als nudge. De lokale "jaardle:history" blijft als offline-vangnet bestaan,
-// maar de getoonde statistieken komen voor ingelogde spelers uit de DB.
+// get_my_history(). Anon speelt op de lokale "jaardle:history" van dit
+// apparaat — die ziet z'n eigen stats/streak dus ook, met een bewaar-CTA.
+// Voor ingelogde spelers vult de lokale historie DB-gaten op (bv. de zojuist
+// gespeelde pot die de server nog niet terugmeldt) — zie dailyHistoryForDisplay.
 let myHistoryCache = null;     // [{date, won, score, guesses}] of null (niet geladen)
 let myHistoryPromise = null;   // dedupe gelijktijdige fetches
 
@@ -2542,6 +2561,42 @@ function getMyHistory() {
 function invalidateHistory() {
   myHistoryCache = null;
   myHistoryPromise = null;
+}
+
+// De daghistorie zoals we 'm TONEN (stats, streak-regels). Anon: puur lokaal.
+// Ingelogd: DB is leidend (cross-device), maar lokale dagen die de DB niet kent
+// vullen aan — dekt de race waarin record_play nog onderweg is terwijl het
+// eindscherm de streak al wil tonen, en werkt door in stats vlak na een pot.
+async function dailyHistoryForDisplay() {
+  const local = loadHistory();
+  if (!auth.user) return local;
+  const db = await getMyHistory();
+  const map = new Map();
+  for (const e of db) map.set(e.date, e);
+  for (const e of local) if (!map.has(e.date)) map.set(e.date, e);
+  return [...map.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+// De streak-regel voor het winmoment: bij winst de lopende streak (dag 1 krijgt
+// een "kom morgen terug"), bij verlies wat er sneuvelde (alleen als er iets
+// stónd — anders niets; het aftelklokje geeft de terugkeer-reden al).
+async function streakLineText(won) {
+  const s = computeStats(await dailyHistoryForDisplay());
+  if (won) return s.currentStreak >= 1 ? t("streak_won")(s.currentStreak) : "";
+  return s.yesterdayStreak > 0 ? t("streak_lost")(s.yesterdayStreak) : "";
+}
+
+// Zet de streak-regel op het eindscherm (onder de score). Async: de historie kan
+// uit de DB komen; guard dat het spel intussen niet gewisseld/heropend is.
+async function appendStreakLine(won) {
+  if (!state || state.mode !== "daily") return;
+  const line = await streakLineText(won);
+  if (!line || !state || !state.done || state.mode !== "daily") return;
+  els.resultText.querySelectorAll(".streak-line").forEach((e) => e.remove());
+  const el = document.createElement("div");
+  el.className = "streak-line";
+  el.textContent = line;
+  els.resultText.append(el);
 }
 
 // Reconstrueer het AFGERONDE dagbord uit de DB (alleen ingelogd). De DB bewaart de
@@ -2652,7 +2707,12 @@ function computeStats(history) {
   let cursor = todayKey();
   if (!dateSet.has(cursor)) cursor = shiftDay(cursor, -1);
   while (wonSet.has(cursor)) { cur += 1; cursor = shiftDay(cursor, -1); }
-  return { total, won: winsN, winRate, avgScore, avgAttempts, currentStreak: cur, bestStreak: best };
+  // Streak t/m gisteren: wat er op het spel stond vóór de pot van vandaag.
+  // Voedt de "streak van N gebroken"-regel op het eindscherm na een verlies.
+  let yday = 0;
+  let ycursor = shiftDay(todayKey(), -1);
+  while (wonSet.has(ycursor)) { yday += 1; ycursor = shiftDay(ycursor, -1); }
+  return { total, won: winsN, winRate, avgScore, avgAttempts, currentStreak: cur, bestStreak: best, yesterdayStreak: yday };
 }
 
 function shiftDay(yyyymmdd, delta) {
@@ -2672,26 +2732,20 @@ function daysBetween(a, b) {
 
 async function renderStats() {
   const body = document.getElementById("stats-body");
-  if (!auth.user) {
-    // Vangnet: het menu gate't dit al (opent login), maar mocht de modal toch
-    // open zijn zonder login, toon dan niets persoonlijks.
-    body.innerHTML = `<p class="stats-empty">${t("stats_empty")}</p>`;
-    return;
-  }
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  const history = await getMyHistory();
+  // Anoniem: de lokale historie van dit apparaat (wordt bij elke daily al
+  // bijgehouden) — zo ziet ook een speler zonder account z'n streak groeien.
+  // Ingelogd: DB (cross-device), aangevuld met lokale dagen (zie helper).
+  const history = await dailyHistoryForDisplay();
   // Modal kan ondertussen gesloten/gewisseld zijn; alleen vullen als nog relevant.
   if (document.getElementById("modal-stats").hidden) return;
   if (history.length === 0) {
     // Geen daily, maar misschien wel vrije potjes -> toon de daily-leegmelding
     // onder een kopje en hang de free-sectie eronder.
     body.innerHTML = `<h3 class="stats-heading">${t("stats_daily")}</h3><p class="stats-empty">${t("stats_empty")}</p>`;
-    await renderFreeStats(body);
-    await renderCenturyStats(body);
-    return;
-  }
-  const s = computeStats(history);
-  body.innerHTML = `
+  } else {
+    const s = computeStats(history);
+    body.innerHTML = `
     <h3 class="stats-heading">${t("stats_daily")}</h3>
     <div class="stats-grid">
       <div class="stat"><div class="num">${s.total}</div><div class="lbl">${t("stat_played")}</div></div>
@@ -2703,7 +2757,17 @@ async function renderStats() {
       <div class="stat"><div class="num">${s.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
   `;
-  body.appendChild(renderCalendar(history));
+    body.appendChild(renderCalendar(history));
+  }
+  if (!auth.user) {
+    // Anon heeft z'n lokale stats nu gezien — daaronder de bewaar-pitch
+    // (zelfde kaartje als op de recap): dít is het moment dat een account
+    // iets tastbaars te bieden heeft.
+    body.insertAdjacentHTML("beforeend", recapAccountHtml());
+    const btn = body.querySelector(".js-acct-btn");
+    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
+    return;   // free/century-stats zijn DB-gebonden (auth.uid) — niets voor anon
+  }
   await renderFreeStats(body);
   await renderCenturyStats(body);
 }
@@ -2833,7 +2897,7 @@ function renderMenu() {
     items.appendChild(out);
   } else {
     section.innerHTML = "";
-    if (statsBtn) statsBtn.hidden = false;  // zichtbaar maar login-gated: klik opent login-nudge
+    if (statsBtn) statsBtn.hidden = false;  // anon ziet de lokale stats van dit apparaat + bewaar-CTA
     const inBtn = document.createElement("button");
     inBtn.className = "menu-item";
     inBtn.role = "menuitem";
@@ -3161,6 +3225,10 @@ function loadRecord(mode) {
   }
 }
 
+// Zelfde deel-icoon als op het eindscherm (FA share-nodes, inline SVG) — voor
+// de share-knop die renderRecap in de recap-modal zet.
+const SHARE_ICON = '<svg class="btn-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M352 224c53 0 96-43 96-96s-43-96-96-96-96 43-96 96c0 4 .2 8 .7 11.9l-94.1 47C145 174.6 124.8 160 96 160c-53 0-96 43-96 96s43 96 96 96c28.8 0 49-14.6 62.6-30.9l94.1 47c-.5 3.9-.7 7.8-.7 11.9 0 53 43 96 96 96s96-43 96-96-43-96-96-96c-28.8 0-49 14.6-62.6 30.9l-94.1-47c.5-3.9 .7-7.8 .7-11.9s-.2-8-.7-11.9l94.1-47C303 209.4 323.2 224 352 224z"/></svg>';
+
 function shareText() {
   const dayNum = daysSince(EPOCH) + 1;
   const tag = state.mode === "daily" ? `#${dayNum}` : t("free_tag");
@@ -3191,7 +3259,10 @@ function isMobileDevice() {
   return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 }
 
-async function doShare() {
+async function doShare(btnEl) {
+  // De "✓ Gekopieerd!"-feedback landt op de knop die je indrukte: het eind-
+  // scherm (els.shareBtn) of de share-knop in de recap-modal.
+  const btn = (btnEl && btnEl.nodeType === 1) ? btnEl : els.shareBtn;
   const text = shareText();
   const url = state.mode === "free"
     ? `https://jaardle.com/?p=${buildShareToken()}`
@@ -3206,7 +3277,7 @@ async function doShare() {
   }
   try {
     await navigator.clipboard.writeText(`${text}\n${url}`);
-    const label = els.shareBtn.querySelector(".share-label") || els.shareBtn;
+    const label = btn.querySelector(".share-label") || btn;
     label.textContent = t("lb_invite_copied");
     setTimeout(() => (label.textContent = t("share")), 1500);
   } catch (e) {
@@ -3358,7 +3429,7 @@ async function init() {
       if (els.hintBtnDigit && !els.hintBtnDigit.hidden) { requestLastDigit(); e.preventDefault(); }
     }
   });
-  els.shareBtn.addEventListener("click", doShare);
+  els.shareBtn.addEventListener("click", () => doShare(els.shareBtn));
   els.nextBtn.addEventListener("click", () => startGame("free", true));
   if (els.recapBtn) els.recapBtn.addEventListener("click", () => openDailyRecap());
   if (els.hintBtnLater) els.hintBtnLater.addEventListener("click", requestLaterClue);
@@ -3377,8 +3448,8 @@ async function init() {
     if (!btn) return;
     toggleMenu(false);
     const action = btn.dataset.action;
-    // Stats zijn login-gated: uitgelogd opent de login-modal als nudge.
-    if (action === "stats") openModal(auth.user ? "modal-stats" : "modal-login");
+    // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
+    if (action === "stats") openModal("modal-stats");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
