@@ -1409,6 +1409,25 @@ footer {
 .lb-blk.farthest  { background: #000; box-shadow: inset 0 0 0 1px #555; }
 .lb-row.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
 .lb-row.lb-me .lb-val { color: var(--accent); }
+/* Podium: goud/zilver/koper voor de top-3 (na .lb-me, zodat de tint wint —
+   je eigen rij blijft herkenbaar aan de JIJ-tag). */
+.lb-row.lb-top1 { background: color-mix(in srgb, #f4c430 20%, var(--card-soft)); }
+.lb-row.lb-top2 { background: color-mix(in srgb, #c9ced6 16%, var(--card-soft)); }
+.lb-row.lb-top3 { background: color-mix(in srgb, #cd7f32 18%, var(--card-soft)); }
+/* Het cijfer van de nr. 1 in goud, met een zachte fonkeling. De twinkle staat
+   alleen op het getal — .lb-score (daily) of een .lb-val zónder .lb-score
+   (stat-borden) — zodat de gok-emoji's er geen gouden waas van krijgen. */
+.lb-row.lb-top1 .lb-val { color: #f4c430; }
+.lb-row.lb-top1 .lb-score,
+.lb-row.lb-top1 .lb-val:not(:has(.lb-score)) { animation: lb-goldtwinkle 2.6s ease-in-out infinite; }
+@keyframes lb-goldtwinkle {
+  0%, 100% { text-shadow: 0 0 2px rgba(244, 196, 48, 0.3); }
+  50%      { text-shadow: 0 0 7px rgba(244, 196, 48, 0.75), 0 0 14px rgba(244, 196, 48, 0.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb-row.lb-top1 .lb-score,
+  .lb-row.lb-top1 .lb-val:not(:has(.lb-score)) { animation: none; }
+}
 /* Onder de min-games-drempel: nog niet gerankt op win%/score. */
 .lb-row.lb-prov { opacity: 0.55; }
 .lb-row.lb-prov .lb-val { font-weight: 400; color: var(--muted); }

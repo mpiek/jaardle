@@ -1983,10 +1983,38 @@ function maybeOpenLeaderboardDeeplink() {
 
 const lbMedal = (r) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : `${r}`);
 const lbRowCls = (me) => (me ? "lb-row lb-me" : "lb-row");
-const lbNameCell = (row) =>
+// Podium-tint voor de top-3 (goud/zilver/koper) op alle borden.
+const lbPodiumCls = (rank) => (rank >= 1 && rank <= 3 ? ` lb-top${rank}` : "");
+
+// Flairs met een lokale Noto-animatie (/emoji/flair-*.webp): de nummer 1 van een
+// bord draagt z'n flair geanimeerd. 🎩/🦫/🍺 hebben (nog) geen Noto-animatie en
+// blijven altijd statisch; 🔥 hergebruikt fire.webp van de streak-regel.
+const FLAIR_ANIM = {
+  "🔥": "fire", "🕊️": "flair-dove", "👑": "flair-crown", "🦊": "flair-fox",
+  "🐢": "flair-turtle", "🚀": "flair-rocket", "🥸": "flair-disguise", "🧠": "flair-brain",
+  "🍀": "flair-clover", "🌟": "flair-glowing-star", "⚡": "flair-zap", "🎲": "flair-die",
+  "🦉": "flair-owl", "💎": "flair-gem", "🐉": "flair-dragon", "🦄": "flair-unicorn",
+  "🐙": "flair-octopus", "💅": "flair-nails",
+};
+
+// De 🥇 draagt z'n flair met trots: op rang 1 speelt de Noto-animatie (indien
+// beschikbaar en geen reduced-motion); alle andere rijen tonen het gewone teken.
+function flairBadgeHtml(flair, rank) {
+  if (!flair) return "";
+  const file = rank === 1 ? FLAIR_ANIM[flair] : null;
+  const inner = file && !matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? `<img class="emoji-anim" src="/emoji/${file}.webp" alt="${escHtml(flair)}">`
+    : escHtml(flair);
+  return ` <span class="lb-flair-badge">${inner}</span>`;
+}
+
+const lbNameCell = (row, rank) =>
   escHtml(row.display_name) +
-  (row.flair ? ` <span class="lb-flair-badge">${escHtml(row.flair)}</span>` : "") +
+  flairBadgeHtml(row.flair, rank) +
   (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
+
+// innerHTML + de laadfout-vangnetten voor eventuele geanimeerde flairs erin.
+function setBoard(el, html) { el.innerHTML = html; armEmojiFallbacks(el); }
 
 // De swipebare stat-kolommen van het all-time bord. Elke pagina sorteert dezelfde
 // ledenlijst aflopend op z'n stat. Rating komt uit get_pool_leaderboard (pagina 0,
@@ -2021,10 +2049,10 @@ const lbTieCmp = (a, b) => {
   return (ta - tb) || lbNameCmp(a, b);
 };
 
-function lbRow(rankCell, r, valCell, extraCls) {
-  return `<div class="lb-row${r.is_me ? " lb-me" : ""}${extraCls || ""}">` +
+function lbRow(rankCell, r, valCell, extraCls, rank) {
+  return `<div class="lb-row${r.is_me ? " lb-me" : ""}${lbPodiumCls(rank)}${extraCls || ""}">` +
     `<span class="lb-rank">${rankCell}</span>` +
-    `<span class="lb-name">${lbNameCell(r)}</span>` +
+    `<span class="lb-name">${lbNameCell(r, rank)}</span>` +
     `<span class="lb-val">${valCell}</span></div>`;
 }
 
@@ -2045,7 +2073,7 @@ function lbRanked(list, valFn) {
 function lbStatRows(list, valFn) {
   if (!list.length) return `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
   return `<div class="lb-table">` +
-    lbRanked(list, valFn).map(([rank, r]) => lbRow(lbMedal(rank), r, valFn(r), "")).join("") + `</div>`;
+    lbRanked(list, valFn).map(([rank, r]) => lbRow(lbMedal(rank), r, valFn(r), "", rank)).join("") + `</div>`;
 }
 
 // Gegate stat-bord (win%/score): gekwalificeerde spelers eerst, aflopend op de
@@ -2060,7 +2088,7 @@ function lbGatedStatRows(list, stat) {
     .sort((a, b) => (stat.asc ? sortKey(a) - sortKey(b) : sortKey(b) - sortKey(a)) || lbTieCmp(a, b));
   const pending = list.filter((r) => (r.games || 0) < LB_MIN_RANKED_GAMES)
     .sort((a, b) => ((b.games || 0) - (a.games || 0)) || lbTieCmp(a, b));
-  const rows = lbRanked(ranked, stat.val).map(([rank, r]) => lbRow(lbMedal(rank), r, stat.val(r), ""));
+  const rows = lbRanked(ranked, stat.val).map(([rank, r]) => lbRow(lbMedal(rank), r, stat.val(r), "", rank));
   // Sub-drempel: toon de echte (gedimde) waarde — anders zijn de win%- en
   // score-pagina's identiek als iedereen ongerankt is en lijkt swipen vast te zitten.
   // Het games-aantal (x/15) staat als klein bijschrift zodat de drempel zichtbaar blijft.
@@ -2087,7 +2115,7 @@ async function renderStatBoard() {
   const content = document.getElementById("lb-stat-content");
   if (!head || !content) return;
   setStatHead(head, LB_STATS[lbStatIndex]);
-  if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
+  if (lbStatIndex === 0) { setBoard(content, lbStatRows(lbOverall, LB_STATS[0].val)); return; }
   if (!lbPoolStats) {
     content.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
     let rows = [];
@@ -2095,14 +2123,14 @@ async function renderStatBoard() {
     lbPoolStats = Array.isArray(rows) ? rows : [];
     if (document.getElementById("modal-leaderboard").hidden) return;
     setStatHead(head, LB_STATS[lbStatIndex]);
-    if (lbStatIndex === 0) { content.innerHTML = lbStatRows(lbOverall, LB_STATS[0].val); return; }
+    if (lbStatIndex === 0) { setBoard(content, lbStatRows(lbOverall, LB_STATS[0].val)); return; }
   }
   const stat = LB_STATS[lbStatIndex];
-  if (stat.gate) { content.innerHTML = lbGatedStatRows(lbPoolStats, stat); return; }
+  if (stat.gate) { setBoard(content, lbGatedStatRows(lbPoolStats, stat)); return; }
   // Aflopend op de stat; bij gelijke waarde wint wie het eerst speelde (lbTieCmp),
   // anders zou de willekeurige RPC-volgorde bepalen wie boven staat.
   const list = [...lbPoolStats].sort((a, b) => (b[stat.key] - a[stat.key]) || lbTieCmp(a, b));
-  content.innerHTML = lbStatRows(list, stat.val);
+  setBoard(content, lbStatRows(list, stat.val));
 }
 
 // Naam-editor: toont je zelfgekozen weergavenaam (profiles.username) met een
@@ -2216,8 +2244,8 @@ function dailyTableHtml(rows) {
     return `<p class="lb-empty">${t(lbDailyDate === todayKey() ? "lb_empty_daily" : "lb_empty_daily_past")}</p>`;
   }
   return `<div class="lb-table">` + rows.map((r) =>
-    `<div class="${lbRowCls(r.is_me)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
-    `<span class="lb-name">${lbNameCell(r)}</span>` +
+    `<div class="${lbRowCls(r.is_me)}${lbPodiumCls(r.rank)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
+    `<span class="lb-name">${lbNameCell(r, r.rank)}</span>` +
     `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`).join("") + `</div>`;
 }
 
@@ -2238,7 +2266,7 @@ async function loadDailyBoard() {
   let rows = [];
   try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: lbDailyDate }); } catch (e) {}
   if (req !== lbDailyReq || document.getElementById("modal-leaderboard").hidden) return;
-  content.innerHTML = dailyTableHtml(Array.isArray(rows) ? rows : []);
+  setBoard(content, dailyTableHtml(Array.isArray(rows) ? rows : []));
 }
 
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
@@ -2548,7 +2576,7 @@ async function loadRecapTeam() {
   let rows = [];
   try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: todayKey() }); } catch (e) {}
   if (document.getElementById("modal-recap").hidden) return;
-  wrap.innerHTML = dailyTableHtml(Array.isArray(rows) ? rows : []);
+  setBoard(wrap, dailyTableHtml(Array.isArray(rows) ? rows : []));
 }
 
 // --- Daily history & stats ------------------------------------------------
