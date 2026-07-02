@@ -172,6 +172,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
+    free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges", lb_scope_all: "alle games",
@@ -295,6 +296,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
+    free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins", lb_scope_all: "all games",
@@ -413,6 +415,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
+    free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
     lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege", lb_scope_all: "alle Spiele",
@@ -535,6 +538,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
+    free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
     lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias", lb_scope_all: "todas las partidas",
@@ -657,6 +661,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
+    free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
     lb_stat_rating: "Pontuação", lb_stat_streak: "Sequência", lb_stat_dailywins: "Vitórias diárias", lb_scope_all: "todas as partidas",
@@ -1861,7 +1866,15 @@ function finishGame(won, fresh = false) {
   els.source.innerHTML = ev.source
     ? `${t("source")} <a href="${ev.source}" target="_blank" rel="noopener">${displaySource(ev.source)}</a> · CC BY-SA`
     : "";
-  els.nextBtn.hidden = state.mode !== "free";
+  // Verder-spelen-knop: in vrij spel het volgende rondje; na de daily de brug
+  // naar vrij spel (na verlies als revanche geframed — hét "nog één potje"-moment).
+  els.nextBtn.hidden = false;
+  if (state.mode === "free") {
+    els.nextBtn.textContent = t("next");
+  } else {
+    els.nextBtn.innerHTML = withAnimEmoji(escHtml(t(won ? "free_again" : "free_revenge")));
+    armEmojiFallbacks(els.nextBtn);
+  }
   // De recap (verdeling + teamstand) is daily-only en blijft herbereikbaar via
   // deze knop, ook nadat je het popup-scherm hebt gesloten.
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily";
@@ -1910,7 +1923,7 @@ function sendTelemetry() {
   })
     .then((id) => {
       invalidateHistory();  // verse stats bij volgende opening
-      showLiveRating();     // ⚡-regel op het free-mode-eindscherm (no-op anders)
+      showLiveRating();     // ⚡-regel op het eindscherm (alleen ingelogd)
       // Onthoud het rij-id zodat we de pot ná inloggen aan het account kunnen koppelen.
       try { if (id != null) localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); } catch (e) {}
     })
@@ -2512,13 +2525,14 @@ async function showFactStats(hash) {
   els.resultText.after(el);   // direct onder de score, boven de knoppen
 }
 
-// Live rating op het eindscherm — FREE-MODE-ONLY, als motivator voor vrij spel.
+// Live rating op het eindscherm (daily én vrij spel — op de daily laat hij zien
+// dat élke pot je rating beweegt, met de 🎲-knop ernaast als deur naar meer).
 // record_play werkt de speler-elo direct in de DB bij (indicatief; de nachtelijke
 // recompute-replay blijft de bron van waarheid en mag het getal 's ochtends iets
 // verschuiven). Delta t.o.v. de gecachete rating van vóór deze pot; zonder cache
 // (net ingelogd) alleen het getal zelf.
 async function showLiveRating() {
-  if (!auth.user || state.mode !== "free") return;
+  if (!auth.user) return;
   const prev = auth.rating;
   let r;
   try { r = await rpc("get_my_rating"); } catch (e) { return; }
@@ -3389,7 +3403,9 @@ function loadRecord(mode) {
 // Alleen op eenmalige piekmomenten (streak-regel, perfecte score, daily-klaar) —
 // nooit in permanente UI: blijvende beweging leidt af en went nooit. Bij
 // prefers-reduced-motion of een laadfout valt alles terug op het gewone teken.
-const ANIM_EMOJI = { "🔥": "fire", "💔": "heartbreak", "🏆": "trophy", "✨": "sparkles", "⚡": "flair-zap" };
+// die-once = flair-die met loopcount 1 (ANIM-chunk gepatcht): speelt één keer
+// en blijft dan stilstaan — de knop is blijvende UI, dus geen eeuwige beweging.
+const ANIM_EMOJI = { "🔥": "fire", "💔": "heartbreak", "🏆": "trophy", "✨": "sparkles", "⚡": "flair-zap", "🎲": "die-once" };
 
 function animEmojiHtml(ch) {
   const name = ANIM_EMOJI[ch];
@@ -3616,7 +3632,12 @@ async function init() {
     }
   });
   els.shareBtn.addEventListener("click", () => doShare(els.shareBtn));
-  els.nextBtn.addEventListener("click", () => startGame("free", true));
+  els.nextBtn.addEventListener("click", () => {
+    // Vanuit de daily wisselt het tabblad mee en loopt een onafgemaakt vrij spel
+    // gewoon door; in vrij spel forceert de knop altijd een vers rondje.
+    if (state?.mode === "daily") switchMode("free");
+    else startGame("free", true);
+  });
   if (els.recapBtn) els.recapBtn.addEventListener("click", () => openDailyRecap());
   if (els.hintBtnLater) els.hintBtnLater.addEventListener("click", requestLaterClue);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
@@ -3699,7 +3720,7 @@ async function init() {
     if (sm && !sm.hidden) renderStats();
     // Net ingelogd terwijl de dagpuzzel nog open staat? Herstel 'm uit de DB.
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
-    refreshMyRating();  // rating-cache voor de ⚡-delta in vrij spel
+    refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
     if (auth.user) { maybeRestoreDailyAfterLogin(); claimPlayOnLogin(); }
   });
 

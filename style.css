@@ -875,6 +875,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 #result-actions {
   display: flex;
+  flex-wrap: wrap;   /* daily toont 3 knoppen (deel/recap/vrij spel) — smal scherm wikkelt */
   gap: 0.5rem;
   justify-content: center;
 }
