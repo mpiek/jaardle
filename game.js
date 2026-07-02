@@ -3098,7 +3098,6 @@ function setModalUrl(param) {
 
 function openModal(id) {
   document.getElementById(id).hidden = false;
-  if (id === "modal-help") document.getElementById("help-btn-top")?.classList.remove("pulse");
   if (id === "modal-stats") renderStats();
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
@@ -3638,6 +3637,17 @@ async function init() {
     if (state?.mode === "daily") switchMode("free");
     else startGame("free", true);
   });
+  // Hover laat de 🎲 dóórrollen: wissel de eenmalige die-once.webp voor de
+  // loopende flair-die.webp en terug. Zo blijft de rustende knop stil (geen
+  // eeuwige beweging) maar nodigt de rol-animatie uit zodra je 'm aanwijst.
+  els.nextBtn.addEventListener("mouseenter", () => {
+    const img = els.nextBtn.querySelector('img.emoji-anim[alt="🎲"]');
+    if (img) img.src = "/emoji/flair-die.webp";
+  });
+  els.nextBtn.addEventListener("mouseleave", () => {
+    const img = els.nextBtn.querySelector('img.emoji-anim[alt="🎲"]');
+    if (img) img.src = "/emoji/die-once.webp";
+  });
   if (els.recapBtn) els.recapBtn.addEventListener("click", () => openDailyRecap());
   if (els.hintBtnLater) els.hintBtnLater.addEventListener("click", requestLaterClue);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
@@ -3687,7 +3697,7 @@ async function init() {
   document.querySelectorAll(".modal [data-close]").forEach((el) => {
     el.addEventListener("click", () => closeAllModals());
   });
-  document.getElementById("help-btn-top")?.addEventListener("click", () => openModal("modal-help"));
+  document.getElementById("help-btn")?.addEventListener("click", () => openModal("modal-help"));
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeAllModals();
   });
@@ -3829,15 +3839,6 @@ async function init() {
     openModal("modal-newpw");
     document.querySelector('#newpw-form input[name="password"]')?.focus();
   }
-
-  // Eerste bezoek ooit: laat de "?" in de header even pulseren als subtiele hint
-  // naar de uitleg (eindig, dooft vanzelf uit — geen pop-up). Daarna nooit meer.
-  try {
-    if (!localStorage.getItem("jaardle:seen-help")) {
-      localStorage.setItem("jaardle:seen-help", "1");
-      document.getElementById("help-btn-top")?.classList.add("pulse");
-    }
-  } catch (e) {}
 }
 
 function getSharedLocation() {
