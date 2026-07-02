@@ -818,6 +818,21 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   vertical-align: -0.28em;
 }
 
+/* Nep-animatie voor rang-1-flairs zonder Noto-webp (🎩/🦫): een subtiele
+   "cheer" zodat ze tóch meebewegen. Uit bij prefers-reduced-motion. */
+@keyframes flair-cheer {
+  0%, 100% { transform: rotate(-7deg) scale(1); }
+  50%      { transform: rotate(7deg) scale(1.14); }
+}
+.flair-fake-anim {
+  display: inline-block;
+  transform-origin: 50% 85%;
+  animation: flair-cheer 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flair-fake-anim { animation: none; }
+}
+
 .year-pill {
   display: inline-block;
   background: var(--green);

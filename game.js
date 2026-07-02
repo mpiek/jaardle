@@ -1989,7 +1989,7 @@ let myPool = null;                    // {id,name,invite_code,is_owner,members} 
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
-const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍺"];
+const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕"];
 let lbSyncTimer = null;
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
@@ -2049,24 +2049,30 @@ const lbRowCls = (me) => (me ? "lb-row lb-me" : "lb-row");
 const lbPodiumCls = (rank) => (rank >= 1 && rank <= 3 ? ` lb-top${rank}` : "");
 
 // Flairs met een lokale Noto-animatie (/emoji/flair-*.webp): de nummer 1 van een
-// bord draagt z'n flair geanimeerd. 🎩/🦫/🍺 hebben (nog) geen Noto-animatie en
-// blijven altijd statisch; 🔥 hergebruikt fire.webp van de streak-regel.
+// bord draagt z'n flair geanimeerd. 🎩/🦫 hebben (nog) geen Noto-animatie en
+// vallen terug op de CSS-"cheer" (.flair-fake-anim); 🔥 hergebruikt fire.webp.
 const FLAIR_ANIM = {
   "🔥": "fire", "🕊️": "flair-dove", "👑": "flair-crown", "🦊": "flair-fox",
   "🐢": "flair-turtle", "🚀": "flair-rocket", "🥸": "flair-disguise", "🧠": "flair-brain",
   "🍀": "flair-clover", "🌟": "flair-glowing-star", "⚡": "flair-zap", "🎲": "flair-die",
   "🦉": "flair-owl", "💎": "flair-gem", "🐉": "flair-dragon", "🦄": "flair-unicorn",
-  "🐙": "flair-octopus", "💅": "flair-nails",
+  "🐙": "flair-octopus", "💅": "flair-nails", "🍻": "flair-beer",
+  "💥": "flair-collision", "🎉": "flair-party", "🌌": "flair-milkyway",
+  "☄️": "flair-comet", "🦞": "flair-lobster", "🍕": "flair-pizza", "☕": "flair-coffee",
 };
 
-// De 🥇 draagt z'n flair met trots: op rang 1 speelt de Noto-animatie (indien
-// beschikbaar en geen reduced-motion); alle andere rijen tonen het gewone teken.
+// De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
+// motion). Is er een Noto-webp → die; zo niet (🎩/🦫) → een CSS-"cheer" op het
+// gewone teken zodat óók zij bewegen. Andere rijen tonen het statische teken.
 function flairBadgeHtml(flair, rank) {
   if (!flair) return "";
-  const file = rank === 1 ? FLAIR_ANIM[flair] : null;
-  const inner = file && !matchMedia("(prefers-reduced-motion: reduce)").matches
+  const animate = rank === 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const file = animate ? FLAIR_ANIM[flair] : null;
+  const inner = file
     ? `<img class="emoji-anim" src="/emoji/${file}.webp" alt="${escHtml(flair)}">`
-    : escHtml(flair);
+    : animate
+      ? `<span class="flair-fake-anim">${escHtml(flair)}</span>`
+      : escHtml(flair);
   return ` <span class="lb-flair-badge">${inner}</span>`;
 }
 
