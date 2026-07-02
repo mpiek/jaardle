@@ -64,7 +64,16 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/favicon-192.png">
-<link rel="stylesheet" href="/style.css?v=79">
+
+<!-- PWA: installeerbaar op het beginscherm. Manifest per taal (start_url naar de
+     eigen locale, ?ref=pwa zodat GoatCounter installaties als bron toont). Bewust
+     géén service worker: geen offline-waarde (spel = DB) en geen stale-cache-risico. -->
+<meta name="theme-color" content="#1a1a1a">
+<link rel="manifest" href="/es/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jaardle">
+<link rel="stylesheet" href="/style.css?v=80">
 </head>
 <body>
   <main>
@@ -91,9 +100,9 @@
     </nav>
 
     <section id="event-card">
-      <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Vorig feit" hidden>‹</button>
+      <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Dato anterior" data-i18n-aria="fact_prev" hidden>‹</button>
       <div id="event-text">Cargando…</div>
-      <button id="fact-next" class="fact-side fact-side-next" type="button" aria-label="Volgend feit" hidden>›</button>
+      <button id="fact-next" class="fact-side fact-side-next" type="button" aria-label="Dato siguiente" data-i18n-aria="fact_next" hidden>›</button>
     </section>
 
     <div id="hint-row">
@@ -104,7 +113,7 @@
       <span id="hint-count" class="hint-count"></span>
     </div>
 
-    <section id="guesses" aria-label="Pogingen"></section>
+    <section id="guesses" aria-label="Intentos" data-i18n-aria="aria_guesses"></section>
 
     <!-- Score + invoer + keypad. Op lage schermen worden de verticale maten
          gecomprimeerd (zie @media max-height in style.css). -->
@@ -115,10 +124,10 @@
       </div>
 
       <section id="input-row">
-        <div id="year-input" aria-live="polite" aria-label="Ingevoerd jaar"></div>
+        <div id="year-input" aria-live="polite" aria-label="Año introducido" data-i18n-aria="aria_year_input"></div>
       </section>
 
-      <section id="keypad" aria-label="Numeriek toetsenbord">
+      <section id="keypad" aria-label="Teclado numérico" data-i18n-aria="aria_keypad">
         <button class="key" type="button" data-digit="1">1</button>
         <button class="key" type="button" data-digit="2">2</button>
         <button class="key" type="button" data-digit="3">3</button>
@@ -128,9 +137,9 @@
         <button class="key" type="button" data-digit="7">7</button>
         <button class="key" type="button" data-digit="8">8</button>
         <button class="key" type="button" data-digit="9">9</button>
-        <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="Voor Christus toggle">−</button>
+        <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="Antes de Cristo sí/no" data-i18n-aria="aria_bc">−</button>
         <button class="key" type="button" data-digit="0">0</button>
-        <button class="key key-back" type="button" id="backspace-btn" aria-label="Wis laatste cijfer">⌫</button>
+        <button class="key key-back" type="button" id="backspace-btn" aria-label="Borrar último dígito" data-i18n-aria="aria_backspace">⌫</button>
         <button class="key key-wide" type="button" id="guess-btn" data-i18n="guess">Adivinar</button>
       </section>
     </div>
@@ -152,7 +161,7 @@
     <div class="modal-card">
       <header class="modal-header">
         <h2 id="modal-help-title" data-i18n="help_summary">¿Cómo se juega?</h2>
-        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div class="modal-body">
         <ul id="help-list">
@@ -175,7 +184,7 @@
     <div class="modal-card">
       <header class="modal-header">
         <h2 id="modal-stats-title" data-i18n="stats_title">📊 Estadísticas</h2>
-        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div id="stats-body" class="modal-body"></div>
     </div>
@@ -186,7 +195,7 @@
     <div class="modal-card">
       <header class="modal-header">
         <h2 id="modal-recap-title" data-i18n="recap_title">📊 Listo por hoy</h2>
-        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div id="recap-body" class="modal-body"></div>
     </div>
@@ -197,7 +206,7 @@
     <div class="modal-card">
       <header class="modal-header">
         <h2 id="modal-lb-title" data-i18n="lb_title">🏆 Clasificación</h2>
-        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div id="lb-body" class="modal-body"></div>
     </div>
@@ -208,7 +217,7 @@
     <div class="modal-card">
       <header class="modal-header">
         <h2 id="modal-login-title" data-i18n="login_title">Iniciar sesión</h2>
-        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div class="modal-body">
         <button type="button" id="login-google" class="google-btn">
@@ -236,7 +245,7 @@
     <div class="modal-card">
       <header class="modal-head">
         <h2 id="modal-newpw-title" data-i18n="newpw_title">Establecer una nueva contraseña</h2>
-        <button class="modal-close" data-close aria-label="Sluit">✕</button>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div class="modal-body">
         <form id="newpw-form" autocomplete="on">
@@ -313,7 +322,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=127"></script>
+  <script src="/game.js?v=128"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

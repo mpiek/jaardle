@@ -109,6 +109,7 @@ function render(template, code, mod, csp) {
   const meta = LANGS[code];
   return template
     .replace(/\{\{csp\}\}/g, csp)
+    .replace(/\{\{manifestHref\}\}/g, meta.path ? `/${meta.path}/manifest.webmanifest` : "/manifest.webmanifest")
     .replace(/\{\{html\}\}/g, meta.html)
     .replace(/\{\{url\}\}/g, urlFor(meta.path))
     .replace(/\{\{intl\}\}/g, meta.intl)
@@ -117,6 +118,33 @@ function render(template, code, mod, csp) {
     .replace(/\{\{json:([\w.-]+)\}\}/g, (_, k) => JSON.stringify(get(k)))
     .replace(/\{\{i18nhtml:([\w.-]+)\}\}/g, (_, k) => get(k))          // ruwe HTML
     .replace(/\{\{i18n:([\w.-]+)\}\}/g, (_, k) => escAttr(get(k)));    // tekst/attribuut
+}
+
+// Webmanifest per taal: start_url/id wijzen naar de eigen locale, zodat een
+// speler die /de installeert ook in /de opent. ?ref=pwa → GoatCounter toont
+// "pwa" als bron, dus we zien hoeveel spelers de app geïnstalleerd gebruiken.
+function manifestFor(code, mod) {
+  const { I18N, LANGS, DEFAULT_LANG } = mod;
+  const meta = LANGS[code];
+  const desc = I18N[code].meta_share_title ?? I18N[DEFAULT_LANG].meta_share_title;
+  const base = meta.path ? `/${meta.path}/` : "/";
+  return JSON.stringify({
+    name: "Jaardle",
+    short_name: "Jaardle",
+    description: desc,
+    id: base,
+    start_url: `${base}?ref=pwa`,
+    scope: "/",
+    display: "standalone",
+    background_color: "#1a1a1a",
+    theme_color: "#1a1a1a",
+    lang: meta.html,
+    icons: [
+      { src: "/favicon-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/favicon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+    ],
+  }, null, 2) + "\n";
 }
 
 function sitemap(LANGS, LANG_CODES) {
@@ -144,7 +172,8 @@ for (const code of mod.LANG_CODES) {
   const outDir = path ? join(ROOT, path) : ROOT;
   if (path) mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "index.html"), html);
-  console.log(`✓ ${path ? path + "/" : ""}index.html  (${code})`);
+  writeFileSync(join(outDir, "manifest.webmanifest"), manifestFor(code, mod));
+  console.log(`✓ ${path ? path + "/" : ""}index.html + manifest.webmanifest  (${code})`);
   count++;
 
   // De root-taal (path "") krijgt ook een expliciete alias (/en) zodat oude

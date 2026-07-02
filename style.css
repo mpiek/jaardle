@@ -1,7 +1,7 @@
 :root {
   --bg: #1a1a1a;
   --fg: #f5f5f5;
-  --muted: #888;
+  --muted: #a3a3a3;   /* ≥4.5:1 op --card-soft (WCAG AA; #888 haalde ~3.8:1) */
   --card: #262626;
   --card-soft: #2c2c2c;
   --border: #333;
@@ -100,7 +100,13 @@ main {
   font-size: 0.95rem;
 }
 #menu-btn .menu-label { font-size: 0.9rem; padding-right: 0.55rem; }
-@media (max-width: 480px) { #menu-btn .menu-label { display: none; } }
+#menu-btn .menu-label-short { display: none; font-size: 0.8rem; padding-right: 0.5rem; }
+/* Smal scherm: wissel naar het korte label i.p.v. helemaal geen — een naamloos
+   silhouet verstopte de hele login/pool-funnel voor mobiele spelers. */
+@media (max-width: 480px) {
+  #menu-btn .menu-label { display: none; }
+  #menu-btn .menu-label-short { display: inline; }
+}
 #menu-btn .menu-caret {
   font-size: 0.7rem;
   line-height: 1;

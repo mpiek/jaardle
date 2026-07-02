@@ -117,6 +117,9 @@ const I18N = {
   nl: {
     tab_daily: "Dagelijkse Jaardle", tab_free: "Nieuw spel",
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
+    menu_login_short: "Inloggen",
+    aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
+    aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten",
     guess: "Gok", share: "Deel resultaat", next: "Nieuw rondje",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Richting", hint_century: "🏛️ Eeuw",
     hint_later: "⏩ 100 jaar later", hint_later_n: (y) => `⏩ ${y} jaar later`, hint_digit: "🔢 Laatste cijfer",
@@ -230,6 +233,9 @@ const I18N = {
   en: {
     tab_daily: "Daily Jaardle", tab_free: "New game",
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
+    menu_login_short: "Sign in",
+    aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
+    aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close",
     guess: "Guess", share: "Share result", next: "New round",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Direction", hint_century: "🏛️ Century",
     hint_later: "⏩ 100 years later", hint_later_n: (y) => `⏩ ${y} years later`, hint_digit: "🔢 Last digit",
@@ -348,6 +354,9 @@ const I18N = {
   de: {
     tab_daily: "Tägliches Jaardle", tab_free: "Neues Spiel",
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
+    menu_login_short: "Anmelden",
+    aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
+    aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen",
     guess: "Raten", share: "Ergebnis teilen", next: "Neue Runde",
     hint_text: "💡 Extra-Hinweis", hint_dir: "🧭 Richtung", hint_century: "🏛️ Jahrhundert",
     hint_later: "⏩ 100 Jahre später", hint_later_n: (y) => `⏩ ${y} Jahre später`, hint_digit: "🔢 Letzte Ziffer",
@@ -460,6 +469,9 @@ const I18N = {
   es: {
     tab_daily: "Jaardle diario", tab_free: "Partida nueva",
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
+    menu_login_short: "Entrar",
+    aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
+    aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar",
     guess: "Adivinar", share: "Compartir resultado", next: "Nueva ronda",
     hint_text: "💡 Pista extra", hint_dir: "🧭 Dirección", hint_century: "🏛️ Siglo",
     hint_later: "⏩ 100 años después", hint_later_n: (y) => `⏩ ${y} años después`, hint_digit: "🔢 Última cifra",
@@ -577,6 +589,9 @@ const I18N = {
   pt: {
     tab_daily: "Jaardle diário", tab_free: "Jogo novo",
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
+    menu_login_short: "Entrar",
+    aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
+    aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar",
     guess: "Adivinhar", share: "Compartilhar resultado", next: "Nova rodada",
     hint_text: "💡 Dica extra", hint_dir: "🧭 Direção", hint_century: "🏛️ Século",
     hint_later: "⏩ 100 anos depois", hint_later_n: (y) => `⏩ ${y} anos depois`, hint_digit: "🔢 Último algarismo",
@@ -710,6 +725,11 @@ function applyLang() {
   });
   document.querySelectorAll("[data-i18n-html]").forEach((el) => {
     const v = t(el.dataset.i18nHtml); if (v != null) el.innerHTML = v;
+  });
+  // aria-labels meevertalen (statische waarden komen uit de build; dit dekt
+  // de taalwissel tijdens de sessie voor screenreader-gebruikers).
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+    const v = t(el.dataset.i18nAria); if (v != null) el.setAttribute("aria-label", v);
   });
   const help = document.getElementById("help-list");
   if (help) help.innerHTML = t("help_list");
@@ -2880,7 +2900,9 @@ function renderMenuButton() {
     }
     btn.setAttribute("aria-label", auth.user.email);
   } else {
-    btn.innerHTML = `<span class="avatar">${guest}</span><span class="menu-label">${t("menu_login")}</span>` + caret;
+    // Twee labels: CSS toont het korte onder 480px (i.p.v. helemaal geen —
+    // een naamloos silhouet verstopte de hele login/pool-funnel op mobiel).
+    btn.innerHTML = `<span class="avatar">${guest}</span><span class="menu-label">${t("menu_login")}</span><span class="menu-label-short">${t("menu_login_short")}</span>` + caret;
     btn.setAttribute("aria-label", t("menu_login"));
   }
 }
@@ -3676,6 +3698,9 @@ function getSharedLocation() {
 }
 
 init().catch((err) => {
-  els.eventText.textContent = "Kon de gebeurtenis niet laden.";
+  // t() kan zelf stukgelopen zijn als de fout héél vroeg zat — val dan terug op NL.
+  let msg = "Kon de gebeurtenis niet laden.";
+  try { msg = t("err_load") || msg; } catch (e) {}
+  els.eventText.textContent = msg;
   console.error(err);
 });
