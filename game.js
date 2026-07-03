@@ -2707,18 +2707,17 @@ let myHistoryCache = null;     // [{date, won, score, guesses}] of null (niet ge
 let myHistoryPromise = null;   // dedupe gelijktijdige fetches
 
 async function fetchMyHistory() {
-  try {
-    const rows = await rpc("get_my_history", {});
-    if (!Array.isArray(rows)) return [];
-    return rows.map((r) => ({
-      date: r.date,
-      won: !!r.won,
-      score: r.score ?? 0,
-      guesses: r.guesses,
-    }));
-  } catch (e) {
-    return [];
-  }
+  // Gooit dóór bij een netwerk-/RPC-fout, zodat getMyHistory een mislukte fetch
+  // niet als "lege historie" cachet (anders bevriest een transiente fout de
+  // streak op 1 tot de volgende invalidate).
+  const rows = await rpc("get_my_history", {});
+  if (!Array.isArray(rows)) return [];
+  return rows.map((r) => ({
+    date: r.date,
+    won: !!r.won,
+    score: r.score ?? 0,
+    guesses: r.guesses,
+  }));
 }
 
 function getMyHistory() {
@@ -2728,6 +2727,11 @@ function getMyHistory() {
       myHistoryCache = h;
       myHistoryPromise = null;
       return h;
+    }).catch(() => {
+      // Niet cachen: volgende aanroep probeert opnieuw. Val voor nú terug op
+      // een lege lijst — de merge in dailyHistoryForDisplay vult 'm met local.
+      myHistoryPromise = null;
+      return [];
     });
   }
   return myHistoryPromise;
@@ -3738,6 +3742,11 @@ async function init() {
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
     if (auth.user) { maybeRestoreDailyAfterLogin(); claimPlayOnLogin(); }
+    // Auth komt op een reload ná het herstellen van een afgerond dagbord binnen;
+    // de streakregel is dan met local-only historie getekend (vaak "streak 1").
+    // maybeRestoreDailyAfterLogin stopt bij state.done, dus herteken 'm hier met
+    // de nu-gezaghebbende DB-historie (werkt ook bij uitloggen → terug naar local).
+    if (state?.done && state.mode === "daily") appendStreakLine(state.won);
   });
 
   // Tekst-box (Instagram-stijl): slepen bladert (muis óf touch, vanaf overal op de
