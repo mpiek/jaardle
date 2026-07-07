@@ -1083,7 +1083,10 @@ function revealedExtraCount() {
   // Verlies: toon alle beschikbare extra's ter lering. Anders (spel + winst): de
   // twee gratis extra's die bij gok 1 en gok 2 vrijkomen.
   if (state.done && !state.won) return availableExtras();
-  const g = state.guesses.length;
+  // De gratis extra komt alleen vrij als je ná een gok dóórspeelt: de gok die
+  // het spel wint telt niet mee (die had de hint niet meer nodig). Zonder deze
+  // aftrek kreeg je bij winst-in-1-gok tóch de "2e" hint (de extra) te zien.
+  const g = state.guesses.length - (state.won ? 1 : 0);
   return Math.min(availableExtras(), (g >= 1 ? 1 : 0) + (g >= 2 ? 1 : 0));
 }
 
