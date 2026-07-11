@@ -2621,10 +2621,10 @@ async function showLiveRating() {
   num.className = "rating-num";
   num.textContent = String(prev ?? r.elo);
   el.append(label, num);
-  if (delta !== 0) {
+  if (prev != null) {
     const badge = document.createElement("span");
-    badge.className = `rating-delta ${delta > 0 ? "up" : "down"}`;
-    badge.textContent = `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
+    badge.className = `rating-delta ${delta === 0 ? "zero" : delta > 0 ? "up" : "down"}`;
+    badge.textContent = delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
     el.append(badge);
   }
   els.resultText.after(el);
@@ -3098,7 +3098,7 @@ async function renderRatingStats(body) {
     if (best > 0) {
       const dd = p.elo - pts[best - 1].elo;
       const b = document.createElement("span");
-      b.className = `rating-delta ${dd >= 0 ? "up" : "down"}`;
+      b.className = `rating-delta ${dd === 0 ? "zero" : dd > 0 ? "up" : "down"}`;
       b.textContent = dd === 0 ? "±0" : `${dd > 0 ? "+" : "−"}${Math.abs(dd)}`;
       tip.append(b);
     }
