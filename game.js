@@ -182,7 +182,6 @@ const I18N = {
     lb_daily_prev: "Vorige dag", lb_daily_next: "Volgende dag",
     lb_empty_overall: "Nog geen ranglijst — speel een paar potjes.",
     lb_not_member: "Je staat (nog) niet op een vriendenbord.",
-    lb_sync: "⏳ Rating bijgewerkt over", lb_synced: "✨ Rating zojuist bijgewerkt",
     lb_you: "jij", lb_games_short: (n) => `${n} ${n === 1 ? "potje" : "potjes"}`,
     lb_pool_none: "Je zit nog in geen enkele pool.",
     lb_create_label: "Nieuwe pool maken", lb_create_ph: "naam van je pool", lb_create_btn: "Maken",
@@ -201,7 +200,8 @@ const I18N = {
     lb_flair_label: "Flair:", lb_flair_none: "Geen flair", lb_flair_err: "Kon je flair niet opslaan.",
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
-    lb_switch_q: (cur, name) => `Je zit al in "${cur}". Overstappen naar "${name}"? Je verlaat dan "${cur}".`,
+    lb_pool_add: "➕ Pool erbij", lb_add_back: "‹ Terug",
+    lb_err_pool_limit: "Je zit al in het maximale aantal pools (5).",
     recap_btn: "Verdeling & team",
     recap_title: "📊 Klaar voor vandaag", recap_dist_title: "🌍 Verdeling pogingen (iedereen)",
     recap_dist_empty: "Nog niemand heeft deze daily opgelost.",
@@ -307,7 +307,6 @@ const I18N = {
     lb_daily_prev: "Previous day", lb_daily_next: "Next day",
     lb_empty_overall: "No ranking yet — play a few rounds.",
     lb_not_member: "You're not on a friends board (yet).",
-    lb_sync: "⏳ Rating updates in", lb_synced: "✨ Rating just updated",
     lb_you: "you", lb_games_short: (n) => `${n} ${n === 1 ? "game" : "games"}`,
     lb_pool_none: "You're not in a pool yet.",
     lb_create_label: "Create a new pool", lb_create_ph: "your pool's name", lb_create_btn: "Create",
@@ -326,7 +325,8 @@ const I18N = {
     lb_flair_label: "Flair:", lb_flair_none: "No flair", lb_flair_err: "Couldn't save your flair.",
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
     lb_join_q: (name) => `Join pool "${name}"?`,
-    lb_switch_q: (cur, name) => `You're already in "${cur}". Switch to "${name}"? You'll leave "${cur}".`,
+    lb_pool_add: "➕ Add pool", lb_add_back: "‹ Back",
+    lb_err_pool_limit: "You're already in the maximum number of pools (5).",
     recap_btn: "Distribution & team",
     recap_title: "📊 Done for today", recap_dist_title: "🌍 Guess distribution (everyone)",
     recap_dist_empty: "Nobody has solved this daily yet.",
@@ -427,7 +427,6 @@ const I18N = {
     lb_daily_prev: "Vorheriger Tag", lb_daily_next: "Nächster Tag",
     lb_empty_overall: "Noch keine Rangliste — spiel ein paar Runden.",
     lb_not_member: "Du bist (noch) auf keiner Freundes-Bestenliste.",
-    lb_sync: "⏳ Rating aktualisiert in", lb_synced: "✨ Rating gerade aktualisiert",
     lb_you: "du", lb_games_short: (n) => `${n} ${n === 1 ? "Spiel" : "Spiele"}`,
     lb_pool_none: "Du bist noch in keinem Pool.",
     lb_create_label: "Neuen Pool erstellen", lb_create_ph: "Name deines Pools", lb_create_btn: "Erstellen",
@@ -446,7 +445,8 @@ const I18N = {
     lb_flair_label: "Flair:", lb_flair_none: "Kein Flair", lb_flair_err: "Flair konnte nicht gespeichert werden.",
     lb_members_n: (n) => `${n} ${n === 1 ? "Mitglied" : "Mitglieder"}`,
     lb_join_q: (name) => `Pool "${name}" beitreten?`,
-    lb_switch_q: (cur, name) => `Du bist bereits in "${cur}". Zu "${name}" wechseln? Du verlässt dann "${cur}".`,
+    lb_pool_add: "➕ Pool dazu", lb_add_back: "‹ Zurück",
+    lb_err_pool_limit: "Du bist schon in der maximalen Anzahl an Pools (5).",
     recap_btn: "Verteilung & Team",
     recap_title: "📊 Fertig für heute", recap_dist_title: "🌍 Verteilung der Versuche (alle)",
     recap_dist_empty: "Noch niemand hat dieses Daily gelöst.",
@@ -551,7 +551,6 @@ const I18N = {
     lb_daily_prev: "Día anterior", lb_daily_next: "Día siguiente",
     lb_empty_overall: "Aún no hay clasificación — juega algunas rondas.",
     lb_not_member: "Todavía no estás en ninguna clasificación de amigos.",
-    lb_sync: "⏳ Puntuación actualizada en", lb_synced: "✨ Puntuación recién actualizada",
     lb_you: "tú", lb_games_short: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
     lb_pool_none: "Todavía no estás en ningún grupo.",
     lb_create_label: "Crear un grupo nuevo", lb_create_ph: "Nombre de tu grupo", lb_create_btn: "Crear",
@@ -570,7 +569,8 @@ const I18N = {
     lb_flair_label: "Distintivo:", lb_flair_none: "Sin distintivo", lb_flair_err: "No se pudo guardar el distintivo.",
     lb_members_n: (n) => `${n} ${n === 1 ? "miembro" : "miembros"}`,
     lb_join_q: (name) => `¿Unirse al grupo "${name}"?`,
-    lb_switch_q: (cur, name) => `Ya estás en "${cur}". ¿Cambiar a "${name}"? Saldrás de "${cur}".`,
+    lb_pool_add: "➕ Otro grupo", lb_add_back: "‹ Volver",
+    lb_err_pool_limit: "Ya estás en el número máximo de grupos (5).",
     recap_btn: "Distribución y equipo",
     recap_title: "📊 Listo por hoy", recap_dist_title: "🌍 Distribución de intentos (todos)",
     recap_dist_empty: "Nadie ha resuelto todavía este diario.",
@@ -675,7 +675,6 @@ const I18N = {
     lb_daily_prev: "Dia anterior", lb_daily_next: "Próximo dia",
     lb_empty_overall: "Ainda não há classificação — jogue algumas rodadas.",
     lb_not_member: "Você ainda não está em nenhuma classificação de amigos.",
-    lb_sync: "⏳ Pontuação atualizada em", lb_synced: "✨ Pontuação recém-atualizada",
     lb_you: "você", lb_games_short: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
     lb_pool_none: "Você ainda não está em nenhum grupo.",
     lb_create_label: "Criar um grupo novo", lb_create_ph: "Nome do seu grupo", lb_create_btn: "Criar",
@@ -694,7 +693,8 @@ const I18N = {
     lb_flair_label: "Emblema:", lb_flair_none: "Sem emblema", lb_flair_err: "Não foi possível salvar o emblema.",
     lb_members_n: (n) => `${n} ${n === 1 ? "membro" : "membros"}`,
     lb_join_q: (name) => `Entrar no grupo "${name}"?`,
-    lb_switch_q: (cur, name) => `Você já está em "${cur}". Trocar para "${name}"? Você sairá de "${cur}".`,
+    lb_pool_add: "➕ Outro grupo", lb_add_back: "‹ Voltar",
+    lb_err_pool_limit: "Você já está no número máximo de grupos (5).",
     recap_btn: "Distribuição e equipe",
     recap_title: "📊 Pronto por hoje", recap_dist_title: "🌍 Distribuição de tentativas (todos)",
     recap_dist_empty: "Ninguém resolveu este diário ainda.",
@@ -1994,17 +1994,22 @@ function startDailyCountdown() {
 }
 
 // --- Vrienden-pools (custom leaderboards) ----------------------------------
-// Elke ingelogde speler kan één pool hebben (max 1). De 🏆-knop is zichtbaar
-// zodra je ingelogd bent; het paneel toont je pool (daily live + aller-tijden
-// nachtelijk) of een lege staat (pool maken / joinen). Uitnodigen via een
-// deelbare code/link (?join=CODE) met Ja/Nee-bevestiging. De rating blijft
+// Elke ingelogde speler kan in meerdere pools zitten (max LB_MAX_POOLS, cap ook
+// in de DB — db/22). De UI toont altijd precies ÉÉN pool tegelijk (de "actieve",
+// per apparaat onthouden in localStorage); wissel-chips verschijnen pas bij 2+
+// pools, dus wie in één pool zit ziet het oude, ongewijzigde paneel. Het paneel
+// toont je pool (daily live + aller-tijden nachtelijk) of een lege staat (pool
+// maken / joinen). Uitnodigen via een deelbare code/link (?join=CODE) met
+// Ja/Nee-bevestiging; joinen is additief (geen switch meer). De rating blijft
 // globaal; een pool filtert enkel wie je op het bord ziet.
-let myPool = null;                    // {id,name,invite_code,is_owner,members} of null
+const LB_MAX_POOLS = 5;               // moet gelijklopen met de cap in join_pool/create_pool (db/22)
+const ACTIVE_POOL_KEY = "jaardle:activePool";
+let myPools = [];                     // alle pools van de speler, oudste eerst (my_pools)
+let myPool = null;                    // de ACTIEVE pool {id,name,invite_code,is_owner,members} of null
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
 const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕"];
-let lbSyncTimer = null;
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
 let lbDailyDate = null;               // welke daily-dag het bord toont (browsen met ‹ ›)
@@ -2017,25 +2022,50 @@ function escHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
-// Seconden tot de volgende nachtelijke recompute (pg_cron 03:00 UTC).
-function secsToNextSync() {
-  const now = new Date();
-  const next = new Date(now);
-  next.setUTCHours(3, 0, 0, 0);
-  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
-  return Math.max(0, Math.round((next - now) / 1000));
+
+// Kies de actieve pool: de onthouden keuze als die nog bestaat, anders de oudste.
+function pickActivePool() {
+  let want = null;
+  try { want = localStorage.getItem(ACTIVE_POOL_KEY); } catch (e) {}
+  return myPools.find((p) => p.id === want) || myPools[0] || null;
 }
 
-function stopLbSync() {
-  if (lbSyncTimer) { clearInterval(lbSyncTimer); lbSyncTimer = null; }
+function setActivePool(id) {
+  try { localStorage.setItem(ACTIVE_POOL_KEY, id); } catch (e) {}
+  myPool = myPools.find((p) => p.id === id) || myPools[0] || null;
 }
 
-// Haal de pool van de ingelogde speler op; de 🏆-knop is zichtbaar zodra ingelogd.
+// Haal álle pools van de ingelogde speler op en herbepaal de actieve.
+async function fetchMyPools() {
+  try { const rows = await rpc("my_pools", {}); myPools = Array.isArray(rows) ? rows : []; }
+  catch (e) { myPools = []; }
+  myPool = pickActivePool();
+}
+
+// Haal de pools van de ingelogde speler op; de 🏆-knop is zichtbaar zodra ingelogd.
 async function refreshPoolState() {
-  if (!auth.user) { myPool = null; renderMenu(); return; }
-  try { const rows = await rpc("my_pool", {}); myPool = (Array.isArray(rows) && rows[0]) ? rows[0] : null; }
-  catch (e) { myPool = null; }
+  if (!auth.user) { myPools = []; myPool = null; renderMenu(); return; }
+  await fetchMyPools();
   renderMenu();
+}
+
+// Wissel-chips tussen je pools — leeg (dus onzichtbaar) bij 0 of 1 pool, zodat
+// de single-pool-flow er niets van merkt. De actieve pool is uitgelicht (.sel).
+function poolChipsHtml() {
+  if (myPools.length < 2) return "";
+  return `<div class="lb-poolchips">` + myPools.map((p) =>
+    `<button type="button" class="lb-chip${myPool && p.id === myPool.id ? " sel" : ""}" data-pool="${p.id}">${escHtml(p.name)}</button>`
+  ).join("") + `</div>`;
+}
+
+function wirePoolChips(root, onSwitch) {
+  root.querySelectorAll(".lb-chip[data-pool]").forEach((b) => {
+    b.onclick = () => {
+      if (myPool && b.dataset.pool === myPool.id) return;   // al actief
+      setActivePool(b.dataset.pool);
+      onSwitch();
+    };
+  });
 }
 
 // Handelt de ?leaderboard- en ?join-deeplinks af zodra de auth-state binnen is.
@@ -2200,8 +2230,10 @@ async function renderStatBoard() {
   if (lbStatIndex === 0) { setBoard(content, lbStatRows(lbOverall, LB_STATS[0].val)); return; }
   if (!lbPoolStats) {
     content.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+    const poolId = myPool.id;   // wisselt de gebruiker intussen van pool → gooi dit antwoord weg
     let rows = [];
-    try { rows = await rpc("get_pool_stats", { p_pool_id: myPool.id }); } catch (e) {}
+    try { rows = await rpc("get_pool_stats", { p_pool_id: poolId }); } catch (e) {}
+    if (myPool?.id !== poolId) return;
     lbPoolStats = Array.isArray(rows) ? rows : [];
     if (document.getElementById("modal-leaderboard").hidden) return;
     setStatHead(head, LB_STATS[lbStatIndex]);
@@ -2354,10 +2386,9 @@ async function loadDailyBoard() {
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
 async function renderLeaderboard() {
   const body = document.getElementById("lb-body");
-  stopLbSync();
   if (!auth.user) { body.innerHTML = `<p class="lb-empty">${t("lb_not_member")}</p>`; return; }
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
-  try { const rows = await rpc("my_pool", {}); myPool = (Array.isArray(rows) && rows[0]) ? rows[0] : null; } catch (e) {}
+  await fetchMyPools();
   try { myUsername = await rpc("get_my_username", {}) || null; } catch (e) {}
   try { myFlair = await rpc("get_my_flair", {}) || null; } catch (e) {}
   if (document.getElementById("modal-leaderboard").hidden) return;
@@ -2371,12 +2402,15 @@ async function renderLeaderboard() {
 
   const inviteUrl = `https://jaardle.com/?join=${myPool.invite_code}`;
   const renameBtnHtml = myPool.is_owner ? `<button id="lb-rename-btn" class="lb-pillbtn">${t("lb_rename")}</button>` : "";
-  let html = nameEditorHtml() + `<div class="lb-poolhead">
+  // "Pool erbij" alleen onder de cap; bij 2+ pools verschijnen de wissel-chips.
+  const addBtnHtml = myPools.length < LB_MAX_POOLS ? `<button id="lb-add-btn" class="lb-pillbtn">${t("lb_pool_add")}</button>` : "";
+  let html = nameEditorHtml() + poolChipsHtml() + `<div class="lb-poolhead">
       <div class="lb-poolname">${escHtml(myPool.name)}${myPool.is_owner ? ` <span class="lb-tag">${t("lb_owner_tag")}</span>` : ""}</div>
       <div class="lb-poolsub">${t("lb_members_n")(myPool.members)}</div>
       <div class="lb-poolactions">
         <button id="lb-invite-btn" class="lb-pillbtn">${t("lb_invite")}</button>
         ${renameBtnHtml}
+        ${addBtnHtml}
         <button id="lb-leave-btn" class="lb-pillbtn danger">${t("lb_leave")}</button>
       </div>
     </div>`;
@@ -2395,10 +2429,12 @@ async function renderLeaderboard() {
         <button id="lb-stat-next" class="lb-navbtn" aria-label="${t("lb_stat_next")}" title="${t("lb_stat_next")}">›</button>
       </div>
       <div id="lb-stat-content"></div>
-      <p class="lb-sync" id="lb-sync"></p>
     </section>`;
   body.innerHTML = html;
   wireNameEditor();
+  wirePoolChips(body, renderLeaderboard);
+  const addBtn = document.getElementById("lb-add-btn");
+  if (addBtn) addBtn.onclick = () => renderPoolEmptyState(body);
 
   // Daily-bord + browsen naar vorige dagen (‹ ›).
   const prevBtn = document.getElementById("lb-daily-prev");
@@ -2422,31 +2458,27 @@ async function renderLeaderboard() {
   if (renameBtn) renameBtn.onclick = async () => {
     const name = prompt(t("lb_rename_prompt"), myPool.name);
     if (name == null) return;
-    let r = "err"; try { r = await rpc("rename_pool", { p_name: name }); } catch (e) {}
+    let r = "err"; try { r = await rpc("rename_pool", { p_name: name, p_pool_id: myPool.id }); } catch (e) {}
     if (r === "ok") { await refreshPoolState(); renderLeaderboard(); }
   };
   document.getElementById("lb-leave-btn").onclick = async () => {
     if (!confirm(t("lb_leave_confirm"))) return;
-    try { await rpc("leave_pool", {}); } catch (e) {}
+    try { await rpc("leave_pool", { p_pool_id: myPool.id }); } catch (e) {}
+    try { localStorage.removeItem(ACTIVE_POOL_KEY); } catch (e) {}   // val terug op je oudste pool
     await refreshPoolState();
     renderLeaderboard();
   };
-
-  // Tik de aftelklok tot de nachtelijke rating-update.
-  const syncEl = document.getElementById("lb-sync");
-  const tick = () => {
-    if (document.getElementById("modal-leaderboard").hidden) { stopLbSync(); return; }
-    const left = secsToNextSync();
-    syncEl.textContent = left <= 0 ? t("lb_synced") : `${t("lb_sync")} ${fmtCountdown(left)}`;
-  };
-  tick();
-  lbSyncTimer = setInterval(tick, 1000);
 }
 
-// Lege staat: een pool maken of joinen via code.
+// Lege staat: een pool maken of joinen via code. Dubbelrol: mét pools is dit
+// de "pool erbij"-weergave (terug-knop i.p.v. "je zit nergens in"-tekst en
+// zonder naam-editor — die staat dan al in het hoofdpaneel).
 function renderPoolEmptyState(body) {
-  body.innerHTML = nameEditorHtml() + `
-    <p class="lb-empty">${t("lb_pool_none")}</p>
+  const adding = myPools.length > 0;
+  const headHtml = adding
+    ? `<button id="lb-add-back" class="lb-pillbtn">${t("lb_add_back")}</button>`
+    : `<p class="lb-empty">${t("lb_pool_none")}</p>`;
+  body.innerHTML = (adding ? "" : nameEditorHtml()) + headHtml + `
     <form class="lb-form" id="lb-create-form">
       <label class="lb-form-label">${t("lb_create_label")}</label>
       <div class="lb-form-row">
@@ -2464,12 +2496,22 @@ function renderPoolEmptyState(body) {
     <p class="lb-name-status" id="lb-pool-status" hidden></p>`;
 
   const status = document.getElementById("lb-pool-status");
+  const backBtn = document.getElementById("lb-add-back");
+  if (backBtn) backBtn.onclick = () => renderLeaderboard();
   document.getElementById("lb-create-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     let r = "err";
     try { r = await rpc("create_pool", { p_name: document.getElementById("lb-create-input").value }); } catch (err) {}
-    if (r === "ok") { await refreshPoolState(); renderLeaderboard(); }
-    else { status.textContent = r === "invalid_name" ? t("lb_err_name") : t("lb_err_generic"); status.className = "lb-name-status err"; status.hidden = false; }
+    if (r === "ok") {
+      await refreshPoolState();
+      // De net-gemaakte pool is de jongste (my_pools sorteert oudste eerst) → actief.
+      if (myPools.length) setActivePool(myPools[myPools.length - 1].id);
+      renderLeaderboard();
+      return;
+    }
+    status.textContent = r === "invalid_name" ? t("lb_err_name")
+      : r === "too_many_pools" ? t("lb_err_pool_limit") : t("lb_err_generic");
+    status.className = "lb-name-status err"; status.hidden = false;
   });
   document.getElementById("lb-join-form").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -2487,7 +2529,6 @@ async function showJoinConfirm(code) {
   document.getElementById("modal-leaderboard").hidden = false;
   setModalUrl("leaderboard");
   const body = document.getElementById("lb-body");
-  stopLbSync();
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
   let info = null;
   try { const rows = await rpc("peek_pool", { p_code: code }); info = (Array.isArray(rows) && rows[0]) ? rows[0] : null; } catch (e) {}
@@ -2497,10 +2538,15 @@ async function showJoinConfirm(code) {
     setTimeout(() => { if (!document.getElementById("modal-leaderboard").hidden) renderLeaderboard(); }, 1500);
     return;
   }
-  if (info.am_member) { renderLeaderboard(); return; }
-  let cur = null;
-  try { const rows = await rpc("my_pool", {}); cur = (Array.isArray(rows) && rows[0]) ? rows[0] : null; } catch (e) {}
-  const q = cur ? t("lb_switch_q")(cur.name, info.name) : t("lb_join_q")(info.name);
+  const normCode = String(code).trim().toUpperCase();
+  // Zet de pool met deze invite-code actief (bv. net gejoind of al lid).
+  const activateByCode = () => {
+    const p = myPools.find((x) => x.invite_code === normCode);
+    if (p) setActivePool(p.id);
+  };
+  if (info.am_member) { await fetchMyPools(); activateByCode(); renderLeaderboard(); return; }
+  // Joinen is additief (multi-pool) — geen switch-waarschuwing meer nodig.
+  const q = t("lb_join_q")(info.name);
   body.innerHTML = `<div class="lb-confirm">
       <p class="lb-confirm-q">${escHtml(q)}</p>
       <p class="lb-confirm-sub">${t("lb_members_n")(info.members)}</p>
@@ -2510,8 +2556,15 @@ async function showJoinConfirm(code) {
       </div></div>`;
   document.getElementById("lb-join-no").onclick = () => renderLeaderboard();
   document.getElementById("lb-join-yes").onclick = async () => {
-    try { await rpc("join_pool", { p_code: code, p_confirm_switch: true }); } catch (e) {}
+    let r = "err";
+    try { r = await rpc("join_pool", { p_code: code, p_confirm_switch: true }); } catch (e) {}
     await refreshPoolState();
+    if (r === "too_many_pools") {
+      body.innerHTML = `<p class="lb-empty">${t("lb_err_pool_limit")}</p>`;
+      setTimeout(() => { if (!document.getElementById("modal-leaderboard").hidden) renderLeaderboard(); }, 2000);
+      return;
+    }
+    if (r === "ok" || r === "already_member") activateByCode();
     renderLeaderboard();
   };
 }
@@ -2693,7 +2746,7 @@ async function loadRecapTeam() {
     return;
   }
   if (!myPool) {
-    try { const rows = await rpc("my_pool", {}); myPool = (Array.isArray(rows) && rows[0]) ? rows[0] : null; } catch (e) {}
+    await fetchMyPools();
     if (document.getElementById("modal-recap").hidden) return;
   }
   if (!myPool) {
@@ -2703,12 +2756,17 @@ async function loadRecapTeam() {
     if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-leaderboard"); };
     return;
   }
-  wrap.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+  // Bij 2+ pools staan dezelfde wissel-chips boven het teambord; het bord zelf
+  // zit in een eigen div zodat setBoard de chips niet wegvaagt.
+  wrap.innerHTML = poolChipsHtml() + `<div id="recap-team-board"><p class="lb-empty">${t("loading")}</p></div>`;
+  wirePoolChips(wrap, loadRecapTeam);
   lbDailyDate = todayKey();   // stuurt de lege-staat-tekst van dailyTableHtml
+  const poolId = myPool.id;   // wisselt de gebruiker intussen van pool → gooi dit antwoord weg
   let rows = [];
-  try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: todayKey() }); } catch (e) {}
-  if (document.getElementById("modal-recap").hidden) return;
-  setBoard(wrap, dailyTableHtml(Array.isArray(rows) ? rows : []));
+  try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: poolId, p_date: todayKey() }); } catch (e) {}
+  if (document.getElementById("modal-recap").hidden || myPool?.id !== poolId) return;
+  const board = document.getElementById("recap-team-board");
+  if (board) setBoard(board, dailyTableHtml(Array.isArray(rows) ? rows : []));
 }
 
 // --- Daily history & stats ------------------------------------------------
@@ -3226,13 +3284,11 @@ function openModal(id) {
 
 function closeModal(id) {
   document.getElementById(id).hidden = true;
-  stopLbSync();
   setModalUrl(null);
 }
 
 function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
-  stopLbSync();
   setModalUrl(null);
 }
 

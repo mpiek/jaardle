@@ -1497,18 +1497,11 @@ footer {
   letter-spacing: 0.03em;
   color: var(--accent);
 }
-.lb-sync {
-  margin: 0.7rem 0 0;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
 /* pool-header + acties */
 .lb-poolhead { margin: 0 0 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); }
 .lb-poolname { font-size: 1.05rem; font-weight: 700; }
 .lb-poolsub { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
-.lb-poolactions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.lb-poolactions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }   /* 4 knoppen sinds "➕ Pool erbij" → wrap op smal */
 .lb-pillbtn {
   padding: 0.4rem 0.85rem;
   border: 1px solid var(--border);
@@ -1521,6 +1514,22 @@ footer {
 }
 .lb-pillbtn:hover { background: var(--border); }
 .lb-pillbtn.danger { color: #ff8a8a; }
+/* pool-wissel-chips (alleen zichtbaar bij 2+ pools): actieve pool uitgelicht */
+.lb-poolchips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.9rem; }
+.lb-chip {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-soft);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  max-width: 12em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lb-chip:hover { background: var(--border); }
+.lb-chip.sel { color: var(--fg); border-color: var(--accent); }
 .lb-invite-code { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--green); word-break: break-all; }
 /* maak/join-formulieren */
 .lb-form { margin: 0.9rem 0 0; }
