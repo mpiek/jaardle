@@ -225,6 +225,7 @@ const I18N = {
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`,
     rating_line: "Jouw rating",
+    stats_rating: "Rating-verloop",
     // SEO/meta — door tools/build-html.mjs in de <head> + het introblok gezet.
     meta_title: "Jaardle — raad het jaar",
     meta_share_title: "Jaardle — raad het jaar van historische gebeurtenissen",
@@ -349,6 +350,7 @@ const I18N = {
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`,
     rating_line: "Your rating",
+    stats_rating: "Rating progression",
     // SEO/meta — used by tools/build-html.mjs for the <head> + intro block.
     meta_title: "Jaardle — guess the year",
     meta_share_title: "Jaardle — guess the year of historic events",
@@ -468,6 +470,7 @@ const I18N = {
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} Spieler · ${s.win_pct}% gelöst${hasScore ? ` · Ø Punkte ${s.avg_score}/100` : ""} · Ø ${s.avg_guesses} Versuche · ${s.first_try_pct}% beim ersten Versuch`,
     rating_line: "Dein Rating",
+    stats_rating: "Ratingverlauf",
     meta_title: "Jaardle — errate das Jahr",
     meta_share_title: "Jaardle — errate das Jahr historischer Ereignisse",
     meta_desc: "Jaardle ist ein kostenloses tägliches Jahreszahlen-Ratespiel — das Jahrdle der Geschichte, im Stil von Wordle: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.",
@@ -591,6 +594,7 @@ const I18N = {
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} jugadores · ${s.win_pct}% resuelto${hasScore ? ` · puntos medios ${s.avg_score}/100` : ""} · ${s.avg_guesses} intentos de media · ${s.first_try_pct}% al primer intento`,
     rating_line: "Tu rating",
+    stats_rating: "Evolución del rating",
     meta_title: "Jaardle — adivina el año",
     meta_share_title: "Jaardle — adivina el año de acontecimientos históricos",
     meta_desc: "Jaardle es un juego diario y gratuito de adivinar años — el Añodle de la historia, al estilo de Wordle: adivina en seis intentos el año de un acontecimiento histórico. Puzle diario o partida libre infinita.",
@@ -714,6 +718,7 @@ const I18N = {
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} jogadores · ${s.win_pct}% resolvido${hasScore ? ` · pontos médios ${s.avg_score}/100` : ""} · ${s.avg_guesses} tentativas em média · ${s.first_try_pct}% no primeiro palpite`,
     rating_line: "Seu rating",
+    stats_rating: "Evolução do rating",
     meta_title: "Jaardle — adivinhe o ano",
     meta_share_title: "Jaardle — adivinhe o ano de acontecimentos históricos",
     meta_desc: "Jaardle é um jogo diário e gratuito de adivinhar anos — o Anodle da história, no estilo de Wordle: adivinhe em seis tentativas o ano de um acontecimento histórico. Quebra-cabeça diário ou jogo livre infinito.",
@@ -2955,7 +2960,98 @@ async function renderStats() {
     return;   // free/century-stats zijn DB-gebonden (auth.uid) — niets voor anon
   }
   await renderFreeStats(body);
+  await renderRatingStats(body);
   await renderCenturyStats(body);
+}
+
+// ⚡ Rating-verloop (lichess-stijl): per dag de laatste elo uit de DB-historie
+// (record_play appendt live, de nachtelijke replay herbouwt — een kleine
+// ochtend-verschuiving is dus normaal). Alleen ingelogd; verbergt zich zolang
+// er nog geen twee dagen aan punten zijn (één punt is geen lijn).
+async function renderRatingStats(body) {
+  let hist;
+  try { hist = await rpc("get_my_rating_history", {}); } catch (e) { return; }
+  if (!Array.isArray(hist) || hist.length < 2) return;
+  if (document.getElementById("modal-stats").hidden) return;
+
+  const pts = hist.map((p) => ({ t: Date.parse(p.d), d: p.d, elo: p.elo, n: p.n }));
+  const first = pts[0], last = pts[pts.length - 1];
+  const lo = Math.min(...pts.map((p) => p.elo)), hi = Math.max(...pts.map((p) => p.elo));
+  const pad = Math.max(8, Math.round((hi - lo) * 0.15));   // ademruimte boven/onder de lijn
+  const yLo = lo - pad, yHi = hi + pad;
+
+  // Teken op de echte modalbreedte zodat de as-labels op ware grootte renderen
+  // (een vaste brede viewBox zou op mobiel alles mee laten krimpen).
+  const W = Math.max(280, Math.min(560, body.clientWidth || 480));
+  const H = 170, L = 44, R = 10, T = 10, B = 22;
+  const x = (t) => L + (W - L - R) * (t - first.t) / Math.max(1, last.t - first.t);
+  const y = (e) => T + (H - T - B) * (yHi - e) / (yHi - yLo);
+
+  const line = pts.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.elo).toFixed(1)}`).join("");
+  const area = `${line}L${(W - R).toFixed(1)},${H - B}L${L},${H - B}Z`;
+  const grid = [...new Set([yLo, Math.round((yLo + yHi) / 2), yHi])];
+
+  const delta = last.elo - first.elo;
+  const badge = delta === 0 ? "" :
+    `<span class="rating-delta ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : "−"}${Math.abs(delta)}</span>`;
+  const sec = document.createElement("div");
+  sec.className = "stats-section stats-rating";
+  sec.innerHTML = `
+    <h3 class="stats-heading">⚡ ${t("stats_rating")}</h3>
+    <p class="rating-cur"><span class="rating-num">${last.elo}</span>${badge}
+      <span class="rating-range">${fmtDailyDate(first.d)} – ${fmtDailyDate(last.d)}</span></p>
+    <div class="rating-chart">
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${t("stats_rating")}">
+        <g class="grid">${grid.map((g) => `<line x1="${L}" x2="${W - R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}"></line>` +
+          `<text class="axis-lbl" x="${L - 6}" y="${(y(g) + 3.5).toFixed(1)}" text-anchor="end">${g}</text>`).join("")}</g>
+        <text class="axis-lbl" x="${L}" y="${H - 6}">${fmtDailyDate(first.d)}</text>
+        <text class="axis-lbl" x="${W - R}" y="${H - 6}" text-anchor="end">${fmtDailyDate(last.d)}</text>
+        <path class="series-area" d="${area}"></path>
+        <path class="series" d="${line}"></path>
+        <circle class="end-dot" cx="${x(last.t).toFixed(1)}" cy="${y(last.elo).toFixed(1)}" r="3"></circle>
+        <line class="hair" x1="0" x2="0" y1="${T}" y2="${H - B}"></line>
+        <circle class="hover-dot" cx="0" cy="0" r="4"></circle>
+      </svg>
+      <div class="chart-tip" hidden></div>
+    </div>`;
+  body.appendChild(sec);
+
+  // Crosshair + tooltip: de wijzer snapt naar de dichtstbijzijnde dag (je mikt
+  // op een datum, niet op de 2px-lijn); pointer-events dekken ook touch-slepen.
+  const svg = sec.querySelector("svg"), tip = sec.querySelector(".chart-tip");
+  const hair = svg.querySelector(".hair"), dot = svg.querySelector(".hover-dot");
+  const show = (clientX) => {
+    const r = svg.getBoundingClientRect();
+    const mx = (clientX - r.left) * W / r.width;   // scherm-px → viewBox-x
+    let best = 0;
+    for (let i = 1; i < pts.length; i++) {
+      if (Math.abs(x(pts[i].t) - mx) < Math.abs(x(pts[best].t) - mx)) best = i;
+    }
+    const p = pts[best], px = x(p.t), py = y(p.elo);
+    hair.setAttribute("x1", px); hair.setAttribute("x2", px); hair.style.opacity = 1;
+    dot.setAttribute("cx", px); dot.setAttribute("cy", py); dot.style.opacity = 1;
+    tip.textContent = "";
+    const val = document.createElement("strong");
+    val.textContent = String(p.elo);
+    tip.append(val);
+    if (best > 0) {
+      const dd = p.elo - pts[best - 1].elo;
+      const b = document.createElement("span");
+      b.className = `rating-delta ${dd >= 0 ? "up" : "down"}`;
+      b.textContent = dd === 0 ? "±0" : `${dd > 0 ? "+" : "−"}${Math.abs(dd)}`;
+      tip.append(b);
+    }
+    tip.append(document.createTextNode(` · ${fmtDailyDate(p.d)} · 🎲 ${p.n}`));
+    tip.hidden = false;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = `${Math.min(Math.max(0, px * r.width / W - tw / 2), r.width - tw)}px`;
+    tip.style.top = `${Math.max(0, py * r.height / H - th - 10)}px`;
+  };
+  svg.addEventListener("pointermove", (e) => show(e.clientX));
+  svg.addEventListener("pointerdown", (e) => show(e.clientX));
+  svg.addEventListener("pointerleave", () => {
+    tip.hidden = true; hair.style.opacity = 0; dot.style.opacity = 0;
+  });
 }
 
 // Sterkste eeuw — over ALLE potjes (daily + free). Eén regel onderaan; verbergt

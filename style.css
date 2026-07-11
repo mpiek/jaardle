@@ -1349,6 +1349,26 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .rating-line, .rating-delta, .rating-num-settled { animation: none; }
 }
+
+/* ⚡ Rating-verloop (stats-modal): rustige lijngrafiek in huisstijl-accent.
+   Grid/as-labels bewust terughoudend (muted/border), de lijn draagt de data. */
+.stats-rating .rating-delta { animation: none; }   /* geen pop bij elke hover */
+.rating-cur { margin: 0.2rem 0 0; font-size: 1.15rem; font-weight: 700; }
+.rating-cur .rating-range { margin-left: 0.5em; font-size: 0.75rem; font-weight: 400; color: var(--muted); }
+.rating-chart { position: relative; margin-top: 0.4rem; }
+.rating-chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.rating-chart .grid line { stroke: var(--border); stroke-width: 1; }
+.rating-chart .axis-lbl { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.rating-chart .series { fill: none; stroke: var(--accent); stroke-width: 2;
+  stroke-linejoin: round; stroke-linecap: round; }
+.rating-chart .series-area { fill: var(--accent); opacity: 0.12; }
+.rating-chart .end-dot { fill: var(--accent); }
+.rating-chart .hair { stroke: var(--muted); stroke-dasharray: 3 3; opacity: 0; }
+.rating-chart .hover-dot { fill: var(--accent); stroke: var(--card); stroke-width: 2; opacity: 0; }
+.chart-tip { position: absolute; pointer-events: none; white-space: nowrap;
+  background: var(--card-soft); border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.25rem 0.5rem; font-size: 0.8rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+.chart-tip strong { font-variant-numeric: tabular-nums; }
 .daily-countdown { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .cal-wrap { margin-top: 1rem; }
