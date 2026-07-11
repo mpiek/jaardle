@@ -1549,7 +1549,10 @@ const GUESS_PENALTIES = {
   farthest: 23,
 };
 const DIRECTION_HINT_PENALTY = 5;
-const CENTURY_HINT_PENALTY = 27;
+// 27 → 23 (2026-07-11): data liet zien dat de eeuw-hint te duur was — gebruikers
+// verloren er per saldo rating op t.o.v. hintloze spelers op dezelfde feiten.
+// Loopt in de pas met de rating-straf 0.23 in graded_score (db/21).
+const CENTURY_HINT_PENALTY = 23;
 const LATER_CLUE_PENALTY = 3;   // per opgevraagde "100 jaar later"-clue (⏩-knop)
 const LAST_DIGIT_PENALTY = 10;  // 🔢 laatste cijfer van het jaartal onthullen
 
