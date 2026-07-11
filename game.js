@@ -1695,7 +1695,10 @@ function renderGuesses() {
       yr.textContent = g.year;
       const badge = document.createElement("span");
       badge.className = `delta-badge ${g.cls}`;
-      const showDir = state.done || revealedSet.has(idx);
+      // Pijl alleen op rijen waar de 🧭-hint is gebruikt — óók na afloop. Live wordt
+      // het bord na finishGame niet herrenderd, dus "toon alles bij done" verscheen
+      // alleen na een reload en wiste dan juist wáár je de hint had ingezet.
+      const showDir = revealedSet.has(idx);
       renderDeltaBadge(badge, g.diff, g.cls, showDir);
       row.append(yr, badge);
       const penalty = GUESS_PENALTIES[g.cls] || 0;
