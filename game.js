@@ -2126,7 +2126,15 @@ const lbNameCell = (row, rank) =>
   (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
 
 // innerHTML + de laadfout-vangnetten voor eventuele geanimeerde flairs erin.
-function setBoard(el, html) { el.innerHTML = html; armEmojiFallbacks(el); }
+function setBoard(el, html) { el.classList.remove("lb-loading"); el.innerHTML = html; armEmojiFallbacks(el); }
+
+// Wachtstand tijdens een fetch: laat de huidige tabel gedimd staan i.p.v. 'm te
+// vervangen door één regel "Laden…" — anders klapt de lijst in en springt de
+// modal heen en weer. Alleen als er nog geen tabel staat komt de laadtekst.
+function setBoardLoading(el) {
+  if (el.querySelector(".lb-table")) el.classList.add("lb-loading");
+  else el.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+}
 
 // De swipebare stat-kolommen van het all-time bord. Elke pagina sorteert dezelfde
 // ledenlijst aflopend op z'n stat. Rating komt uit get_pool_leaderboard (pagina 0,
@@ -2229,7 +2237,7 @@ async function renderStatBoard() {
   setStatHead(head, LB_STATS[lbStatIndex]);
   if (lbStatIndex === 0) { setBoard(content, lbStatRows(lbOverall, LB_STATS[0].val)); return; }
   if (!lbPoolStats) {
-    content.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+    setBoardLoading(content);   // rating-tabel (zelfde leden) blijft gedimd staan
     const poolId = myPool.id;   // wisselt de gebruiker intussen van pool → gooi dit antwoord weg
     let rows = [];
     try { rows = await rpc("get_pool_stats", { p_pool_id: poolId }); } catch (e) {}
@@ -2375,7 +2383,7 @@ async function loadDailyBoard() {
   heading.textContent = `${t("lb_daily")} ${fmtDailyDate(lbDailyDate)}`;
   prevBtn.disabled = lbDailyDate <= EPOCH_KEY;
   nextBtn.disabled = lbDailyDate >= todayKey();
-  content.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
+  setBoardLoading(content);   // bij dag-bladeren blijft de vorige dag gedimd staan
   const req = ++lbDailyReq;
   let rows = [];
   try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: lbDailyDate }); } catch (e) {}

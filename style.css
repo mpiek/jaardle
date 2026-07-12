@@ -1435,6 +1435,8 @@ footer {
 .lb-navbtn:hover:not(:disabled) { background: var(--border); }
 .lb-navbtn:disabled { opacity: 0.3; cursor: default; }
 .lb-table { display: flex; flex-direction: column; gap: 2px; }
+/* Bord dat op nieuwe data wacht: oude lijst blijft gedimd staan (geen inklap-sprong). */
+.lb-loading { opacity: 0.4; pointer-events: none; transition: opacity 0.15s ease; }
 .lb-row {
   display: grid;
   grid-template-columns: 2rem 1fr auto;
