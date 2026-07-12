@@ -140,9 +140,11 @@ function manifestFor(code, mod) {
     theme_color: "#1a1a1a",
     lang: meta.html,
     icons: [
-      { src: "/favicon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/favicon-512.png", sizes: "512x512", type: "image/png" },
-      { src: "/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      // ?v=2: cache-buster — de v1-iconen waren wazige upscales en het maskable
+      // vulde het canvas niet (klein groen vierkant in Androids cirkel-mask).
+      { src: "/favicon-192.png?v=2", sizes: "192x192", type: "image/png" },
+      { src: "/favicon-512.png?v=2", sizes: "512x512", type: "image/png" },
+      { src: "/maskable-512.png?v=2", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   }, null, 2) + "\n";
 }
