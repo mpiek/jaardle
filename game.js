@@ -2126,7 +2126,28 @@ const lbNameCell = (row, rank) =>
   (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
 
 // innerHTML + de laadfout-vangnetten voor eventuele geanimeerde flairs erin.
-function setBoard(el, html) { el.classList.remove("lb-loading"); el.innerHTML = html; armEmojiFallbacks(el); }
+// Het nieuwe bord heeft zelden dezelfde hoogte als wat er stond: het rating-bord
+// verbergt leden zonder potjes (games >= 1) terwijl get_pool_stats iedereen toont,
+// en daily's verschillen per dag van deelnemers. Daarom vloeit de hoogte hier van
+// oud naar nieuw i.p.v. te springen.
+function setBoard(el, html) {
+  clearTimeout(el._lbHeightTimer);
+  const h0 = el.offsetHeight;   // mid-animatie = de zichtbare (geanimeerde) hoogte
+  el.classList.remove("lb-loading");
+  el.style.height = el.style.overflow = el.style.transition = "";
+  el.innerHTML = html;
+  armEmojiFallbacks(el);
+  const h1 = el.offsetHeight;
+  if (!h0 || h1 === h0 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  el.style.height = h0 + "px";
+  el.style.overflow = "hidden";
+  void el.offsetHeight;   // reflow, zodat de transition écht vanaf h0 vertrekt
+  el.style.transition = "height 0.2s ease";
+  el.style.height = h1 + "px";
+  el._lbHeightTimer = setTimeout(() => {
+    el.style.height = el.style.overflow = el.style.transition = "";
+  }, 220);
+}
 
 // Wachtstand tijdens een fetch: laat de huidige tabel gedimd staan i.p.v. 'm te
 // vervangen door één regel "Laden…" — anders klapt de lijst in en springt de
