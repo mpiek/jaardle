@@ -176,6 +176,7 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges", lb_scope_all: "alle games",
+    lb_scope_pool: "sinds deelname",
     lb_stat_prev: "Vorige stat", lb_stat_next: "Volgende stat",
     lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
     lb_empty_daily_past: "Niemand uit je pool heeft deze daily gespeeld.",
@@ -301,6 +302,7 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins", lb_scope_all: "all games",
+    lb_scope_pool: "since joining",
     lb_stat_prev: "Previous stat", lb_stat_next: "Next stat",
     lb_empty_daily: "Nobody has played today's daily yet.",
     lb_empty_daily_past: "Nobody in your pool played this daily.",
@@ -421,6 +423,7 @@ const I18N = {
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
     lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege", lb_scope_all: "alle Spiele",
+    lb_scope_pool: "seit Beitritt",
     lb_stat_prev: "Vorherige Statistik", lb_stat_next: "Nächste Statistik",
     lb_empty_daily: "Noch niemand hat das heutige Daily gespielt.",
     lb_empty_daily_past: "Niemand aus deinem Pool hat dieses Daily gespielt.",
@@ -545,6 +548,7 @@ const I18N = {
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
     lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias", lb_scope_all: "todas las partidas",
+    lb_scope_pool: "desde tu ingreso",
     lb_stat_prev: "Estadística anterior", lb_stat_next: "Estadística siguiente",
     lb_empty_daily: "Nadie ha jugado todavía el diario de hoy.",
     lb_empty_daily_past: "Nadie de tu grupo jugó este diario.",
@@ -669,6 +673,7 @@ const I18N = {
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
     lb_stat_rating: "Pontuação", lb_stat_streak: "Sequência", lb_stat_dailywins: "Vitórias diárias", lb_scope_all: "todas as partidas",
+    lb_scope_pool: "desde a entrada",
     lb_stat_prev: "Estatística anterior", lb_stat_next: "Próxima estatística",
     lb_empty_daily: "Ninguém jogou o diário de hoje ainda.",
     lb_empty_daily_past: "Ninguém do seu grupo jogou este diário.",
@@ -2005,7 +2010,7 @@ function startDailyCountdown() {
 const LB_MAX_POOLS = 5;               // moet gelijklopen met de cap in join_pool/create_pool (db/22)
 const ACTIVE_POOL_KEY = "jaardle:activePool";
 let myPools = [];                     // alle pools van de speler, oudste eerst (my_pools)
-let myPool = null;                    // de ACTIEVE pool {id,name,invite_code,is_owner,members} of null
+let myPool = null;                    // de ACTIEVE pool {id,name,invite_code,is_owner,members,since} of null
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
@@ -2175,7 +2180,9 @@ const LB_STATS = [
   // gewonnen potje in 1 gok zou anders bovenaan staan.
   { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true, note: () => t("lb_scope_all") },
   { key: "streak",      label: () => t("lb_stat_streak"),    val: (r) => `${r.streak}` },
-  { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}` },
+  // Dagzeges tellen alleen dagen sinds je pool-lidmaatschap én met ≥2 deelnemers
+  // die dag (db/23) — vandaar het bijschrift "sinds deelname".
+  { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}`, note: () => t("lb_scope_pool") },
   { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}`, note: () => t("lb_scope_all") },
   { key: "perfect",     label: () => t("stat_perfect"),      val: (r) => `${r.perfect ?? 0}`, note: () => t("lb_scope_all") },
 ];
@@ -2392,6 +2399,14 @@ function dailyTableHtml(rows) {
     `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`).join("") + `</div>`;
 }
 
+// Vroegste browsbare daily-dag: de startdag van de actieve pool (my_pools geeft
+// `since` mee sinds db/23 — vóór die dag bestond de pool niet en is het bord per
+// definitie leeg), met de epoch als vangnet zolang `since` ontbreekt.
+function lbMinDailyDate() {
+  const since = myPool?.since;
+  return since && since > EPOCH_KEY ? since : EPOCH_KEY;
+}
+
 // Laadt het daily-bord voor lbDailyDate en werkt kop + pijl-knoppen bij. Een
 // race-guard zorgt dat snel doorklikken alleen de laatste dag laat zien.
 async function loadDailyBoard() {
@@ -2402,7 +2417,7 @@ async function loadDailyBoard() {
   const nextBtn = document.getElementById("lb-daily-next");
   if (!content) return;
   heading.textContent = `${t("lb_daily")} ${fmtDailyDate(lbDailyDate)}`;
-  prevBtn.disabled = lbDailyDate <= EPOCH_KEY;
+  prevBtn.disabled = lbDailyDate <= lbMinDailyDate();
   nextBtn.disabled = lbDailyDate >= todayKey();
   setBoardLoading(content);   // bij dag-bladeren blijft de vorige dag gedimd staan
   const req = ++lbDailyReq;
@@ -2468,7 +2483,7 @@ async function renderLeaderboard() {
   // Daily-bord + browsen naar vorige dagen (‹ ›).
   const prevBtn = document.getElementById("lb-daily-prev");
   const nextBtn = document.getElementById("lb-daily-next");
-  prevBtn.onclick = () => { if (lbDailyDate > EPOCH_KEY) { lbDailyDate = shiftDateKey(lbDailyDate, -1); loadDailyBoard(); } };
+  prevBtn.onclick = () => { if (lbDailyDate > lbMinDailyDate()) { lbDailyDate = shiftDateKey(lbDailyDate, -1); loadDailyBoard(); } };
   nextBtn.onclick = () => { if (lbDailyDate < todayKey()) { lbDailyDate = shiftDateKey(lbDailyDate, +1); loadDailyBoard(); } };
   loadDailyBoard();
 
