@@ -1553,7 +1553,10 @@ const GUESS_PENALTIES = {
   distant: 15,
   farthest: 23,
 };
-const DIRECTION_HINT_PENALTY = 5;
+// 5 → 3 (2026-07-14): audit liet zien dat 🧭 per punt het minst opleverde —
+// gebruikers eindigden in rating én score structureel onder hintloze spelers.
+// Loopt in de pas met de rating-straf 0.03 in graded_score (db/25).
+const DIRECTION_HINT_PENALTY = 3;
 // 27 → 23 (2026-07-11): data liet zien dat de eeuw-hint te duur was — gebruikers
 // verloren er per saldo rating op t.o.v. hintloze spelers op dezelfde feiten.
 // Loopt in de pas met de rating-straf 0.23 in graded_score (db/21).
