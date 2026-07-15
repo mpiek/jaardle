@@ -2176,10 +2176,8 @@ const LB_MIN_RANKED_GAMES = 15;
 // daily + vrij spelen samen rekenen (rating telt óók alle plays mee — geen
 // mode-filter in de elo-loop). Alleen Streak en Dagzeges zijn daily-only.
 const LB_STATS = [
-  // Dagzeges eerst: dít is de pool-rivaliteitsstat, dus dit is de pagina die je
-  // bij openen ziet. Telt alleen dagen sinds je pool-lidmaatschap én met ≥2
-  // deelnemers die dag (db/23) — vandaar het bijschrift "sinds deelname".
-  { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}`, note: () => t("lb_scope_pool") },
+  // Rating eerst: de belangrijkste stat, en de openingspagina hergebruikt zo de
+  // al-geladen get_pool_leaderboard-data (geen extra fetch bij openen).
   { key: "rating",      label: () => t("lb_stat_rating"),    val: (r) => `${r.rating}${r.is_provisional ? "?" : ""}`, note: () => t("lb_scope_all") },
   { key: "win_pct",     label: () => t("stat_winrate"),      val: (r) => `${r.win_pct}%`, gate: true, note: () => t("lb_scope_all") },
   { key: "avg_score",   label: () => t("stat_avgscore"),     val: (r) => `${r.avg_score}`, gate: true, note: () => t("lb_scope_all") },
@@ -2187,6 +2185,9 @@ const LB_STATS = [
   // gewonnen potje in 1 gok zou anders bovenaan staan.
   { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true, note: () => t("lb_scope_all") },
   { key: "streak",      label: () => t("lb_stat_streak"),    val: (r) => `${r.streak}` },
+  // Dagzeges tellen alleen dagen sinds je pool-lidmaatschap én met ≥2 deelnemers
+  // die dag (db/23) — vandaar het bijschrift "sinds deelname".
+  { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}`, note: () => t("lb_scope_pool") },
   { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}`, note: () => t("lb_scope_all") },
   { key: "perfect",     label: () => t("stat_perfect"),      val: (r) => `${r.perfect ?? 0}`, note: () => t("lb_scope_all") },
 ];
@@ -2252,10 +2253,10 @@ function lbGatedStatRows(list, stat) {
 }
 
 // Tekent het huidige stat-bord. De rating-pagina hergebruikt de al-geladen
-// get_pool_leaderboard-data; alle andere stats (incl. openingspagina Dagzeges)
-// komen uit get_pool_stats — eenmalig opgehaald, daarna gecached in
-// lbPoolStats. Na de async fetch pakken we de dán-actuele stat (de gebruiker
-// kan intussen verder geswiped zijn).
+// get_pool_leaderboard-data; alle andere stats komen uit get_pool_stats —
+// opgehaald bij de eerste swipe ernaartoe, daarna gecached in lbPoolStats. Na
+// de async fetch pakken we de dán-actuele stat (de gebruiker kan intussen
+// verder geswiped zijn).
 // Stat-kop + optioneel bijschrift (bv. "alle games" zodat win%/score/pogingen
 // niet als daily-only gelezen worden).
 function setStatHead(head, stat) {
@@ -2494,10 +2495,10 @@ async function renderLeaderboard() {
   nextBtn.onclick = () => { if (lbDailyDate < todayKey()) { lbDailyDate = shiftDateKey(lbDailyDate, +1); loadDailyBoard(); } };
   loadDailyBoard();
 
-  // All-time bord met swipebare stat-kolommen (Dagzeges / Rating / Win% / …),
-  // ‹ ›-nav net als de daily. Opent op Dagzeges — die heeft get_pool_stats
-  // nodig, dus die fetch start meteen bij het openen; de rating-pagina
-  // hergebruikt de al-geladen get_pool_leaderboard-data.
+  // All-time bord met swipebare stat-kolommen (Rating / Win% / … / Dagzeges),
+  // ‹ ›-nav net als de daily. Opent op Rating — die hergebruikt de al-geladen
+  // get_pool_leaderboard-data; de overige stats halen get_pool_stats pas op
+  // bij de eerste swipe ernaartoe.
   lbOverall = overall; lbStatIndex = 0; lbPoolStats = null;
   const cycleStat = (d) => { lbStatIndex = (lbStatIndex + d + LB_STATS.length) % LB_STATS.length; renderStatBoard(); };
   document.getElementById("lb-stat-prev").onclick = () => cycleStat(-1);
