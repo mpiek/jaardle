@@ -2829,7 +2829,7 @@ async function showLiveRating() {
   // erachteraan. Bij reduced-motion of onbekende oude rating: meteen eindstand.
   const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   if (delta === 0 || reduced) { num.textContent = String(r.elo); return; }
-  const dur = 900, start = performance.now();
+  const dur = 1800, start = performance.now();
   (function tick(now) {
     const p = Math.min(1, (now - start) / dur);
     const eased = 1 - Math.pow(1 - p, 3);
