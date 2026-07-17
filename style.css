@@ -235,6 +235,62 @@ main {
   border-color: var(--accent);
 }
 
+/* Inhaal-daily-banner: verschijnt als je gisteren miste maar je streak nog kunt
+   redden. Bewust opvallend (warm verloop, vlam, live afteller) — het is een
+   aflopende kans, dus hij mag om aandacht vragen. Wegklikbaar (✕, per dag). */
+#makeup-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #7a2e12, #b3480f 55%, #d9631a);
+  border: 1px solid #e07a2c;
+  border-radius: 12px;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(217, 99, 26, 0.28);
+  animation: makeup-pop 0.35s ease-out;
+}
+@keyframes makeup-pop {
+  from { transform: translateY(-6px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.makeup-flame { flex: none; font-size: 1.6rem; line-height: 1; }
+.makeup-flame img.emoji-anim { width: 1.6rem; height: 1.6rem; vertical-align: middle; }
+.makeup-text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; flex: 1; }
+.makeup-title { font-size: 0.98rem; font-weight: 700; }
+.makeup-body { font-size: 0.85rem; opacity: 0.95; }
+.makeup-left { font-size: 0.8rem; font-weight: 600; font-variant-numeric: tabular-nums; opacity: 0.95; }
+.makeup-cta {
+  flex: none;
+  background: #fff;
+  color: #b3480f;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.makeup-cta:hover { background: #ffe9d6; }
+.makeup-dismiss {
+  flex: none;
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0.1rem 0.15rem;
+  cursor: pointer;
+}
+.makeup-dismiss:hover { color: #fff; }
+@media (max-width: 480px) {
+  .makeup-cta { padding: 0.45rem 0.55rem; font-size: 0.82rem; }
+  .makeup-title { font-size: 0.92rem; }
+  .makeup-body { font-size: 0.8rem; }
+}
+
 #event-card {
   position: relative;
   background: var(--card);

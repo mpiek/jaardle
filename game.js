@@ -217,6 +217,13 @@ const I18N = {
     recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
     streak_won: (n) => n === 1 ? "🔥 Streak gestart — kom morgen terug!" : `🔥 ${n} dagen op rij!`,
     streak_lost: (n) => `💔 Streak van ${n} ${n === 1 ? "dag" : "dagen"} gebroken — morgen nieuwe kans!`,
+    streak_saved: (n) => `🔥 Streak gered — ${n} ${n === 1 ? "dag" : "dagen"} op rij!`,
+    streak_makeup_lost: "💔 Helaas — de streak is niet gered.",
+    makeup_tag: "inhaaldag",
+    makeup_title: "🔥 Je miste gisteren!",
+    makeup_body: (streak, dayNum) => `Speel puzzel #${dayNum} van gisteren alsnog en red je streak van ${streak} ${streak === 1 ? "dag" : "dagen"}.`,
+    makeup_cta: "Speel gisteren",
+    makeup_play_today: "▶️ Speel nu de daily van vandaag",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     dir_word: "richtingen",
     avg_word: "gem.",
@@ -343,6 +350,13 @@ const I18N = {
     recap_acct_free: "Always 100% free — no paid tier, no ads.",
     streak_won: (n) => n === 1 ? "🔥 Streak started — come back tomorrow!" : `🔥 ${n} days in a row!`,
     streak_lost: (n) => `💔 ${n}-day streak broken — new chance tomorrow!`,
+    streak_saved: (n) => `🔥 Streak saved — ${n} ${n === 1 ? "day" : "days"} in a row!`,
+    streak_makeup_lost: "💔 Sorry — the streak wasn't saved.",
+    makeup_tag: "catch-up",
+    makeup_title: "🔥 You missed yesterday!",
+    makeup_body: (streak, dayNum) => `Play yesterday's puzzle #${dayNum} after all and save your ${streak}-day streak.`,
+    makeup_cta: "Play yesterday",
+    makeup_play_today: "▶️ Play today's daily now",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     dir_word: "directions",
     avg_word: "avg.",
@@ -464,6 +478,13 @@ const I18N = {
     recap_acct_free: "Immer 100% kostenlos — keine Bezahlversion, keine Werbung.",
     streak_won: (n) => n === 1 ? "🔥 Serie gestartet — komm morgen wieder!" : `🔥 ${n} Tage in Folge!`,
     streak_lost: (n) => `💔 Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gerissen — morgen neue Chance!`,
+    streak_saved: (n) => `🔥 Serie gerettet — ${n} ${n === 1 ? "Tag" : "Tage"} in Folge!`,
+    streak_makeup_lost: "💔 Schade — die Serie wurde nicht gerettet.",
+    makeup_tag: "Nachhol-Tag",
+    makeup_title: "🔥 Du hast gestern verpasst!",
+    makeup_body: (streak, dayNum) => `Spiel das gestrige Rätsel #${dayNum} doch noch und rette deine Serie von ${streak} ${streak === 1 ? "Tag" : "Tagen"}.`,
+    makeup_cta: "Gestern spielen",
+    makeup_play_today: "▶️ Jetzt das heutige Rätsel spielen",
     tiers: { perfect: "Perfekt", impressive: "Beeindruckend", good: "Gut", solid: "Solide", justmade: "Gerade so", lost: "Nächstes Mal besser" },
     dir_word: "Richtungen",
     avg_word: "Ø",
@@ -589,6 +610,13 @@ const I18N = {
     recap_acct_free: "Siempre 100% gratis — sin versión de pago, sin anuncios.",
     streak_won: (n) => n === 1 ? "🔥 ¡Racha iniciada — vuelve mañana!" : `🔥 ¡${n} días seguidos!`,
     streak_lost: (n) => `💔 Racha de ${n} ${n === 1 ? "día" : "días"} perdida — ¡mañana, otra oportunidad!`,
+    streak_saved: (n) => `🔥 Racha salvada — ¡${n} ${n === 1 ? "día" : "días"} seguidos!`,
+    streak_makeup_lost: "💔 Vaya — no se salvó la racha.",
+    makeup_tag: "recuperación",
+    makeup_title: "🔥 ¡Te saltaste ayer!",
+    makeup_body: (streak, dayNum) => `Juega el reto #${dayNum} de ayer y salva tu racha de ${streak} ${streak === 1 ? "día" : "días"}.`,
+    makeup_cta: "Jugar el de ayer",
+    makeup_play_today: "▶️ Juega ahora el reto de hoy",
     tiers: { perfect: "Perfecto", impressive: "Impresionante", good: "Bien", solid: "Sólido", justmade: "Por los pelos", lost: "La próxima irá mejor" },
     dir_word: "direcciones",
     avg_word: "med.",
@@ -714,6 +742,13 @@ const I18N = {
     recap_acct_free: "Sempre 100% grátis — sem versão paga, sem anúncios.",
     streak_won: (n) => n === 1 ? "🔥 Sequência iniciada — volte amanhã!" : `🔥 ${n} dias seguidos!`,
     streak_lost: (n) => `💔 Sequência de ${n} ${n === 1 ? "dia" : "dias"} perdida — amanhã tem outra chance!`,
+    streak_saved: (n) => `🔥 Sequência salva — ${n} ${n === 1 ? "dia" : "dias"} seguidos!`,
+    streak_makeup_lost: "💔 Que pena — a sequência não foi salva.",
+    makeup_tag: "recuperação",
+    makeup_title: "🔥 Você perdeu ontem!",
+    makeup_body: (streak, dayNum) => `Jogue o desafio #${dayNum} de ontem e salve sua sequência de ${streak} ${streak === 1 ? "dia" : "dias"}.`,
+    makeup_cta: "Jogar o de ontem",
+    makeup_play_today: "▶️ Jogue agora o desafio de hoje",
     tiers: { perfect: "Perfeito", impressive: "Impressionante", good: "Bem", solid: "Sólido", justmade: "Por pouco", lost: "A próxima vai melhor" },
     dir_word: "direções",
     avg_word: "méd.",
@@ -760,7 +795,7 @@ function applyLang() {
   if (help) help.innerHTML = t("help_list");
   renderHelpConstants();
   renderLangMenu();
-  if (els.dayLabel) els.dayLabel.textContent = `${t("day")} #${daysSince(EPOCH) + 1}`;
+  updateDayLabel();
   renderMenu();
   if (state) {
     renderEvent();
@@ -999,8 +1034,29 @@ function fmtCountdown(secs) {
   return `${pad(Math.floor(secs / 3600))}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}`;
 }
 
-function storageKey(mode) {
-  return mode === "daily" ? `jaardle:daily:${todayKey()}` : `jaardle:free:current`;
+function storageKey(mode, date) {
+  return mode === "daily" ? `jaardle:daily:${date || todayKey()}` : `jaardle:free:current`;
+}
+
+// Speelt de huidige state een daily van GISTEREN (inhaalpot voor streak-reparatie)?
+// De gewone daily heeft puzzleDate === vandaag; een inhaalpot een oudere datum.
+function isMakeup(s = state) {
+  return !!s && s.mode === "daily" && !!s.puzzleDate && s.puzzleDate !== todayKey();
+}
+
+// Dagnummer (#N sinds EPOCH) voor een YYYY-MM-DD-sleutel.
+function dayNumForKey(dateKey) {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  return Math.floor((Date.UTC(y, m - 1, d) - EPOCH.getTime()) / 86400000) + 1;
+}
+
+// Daglabel in de footer: #N van de nu actieve daily (vandaag, óf gisteren bij een
+// inhaalpot — dan met een "· inhaaldag"-markering zodat spelers weten wat ze doen).
+function updateDayLabel() {
+  if (!els.dayLabel) return;
+  const key = isMakeup(state) ? state.puzzleDate : todayKey();
+  const tag = isMakeup(state) ? ` · ${t("makeup_tag")}` : "";
+  els.dayLabel.textContent = `${t("day")} #${dayNumForKey(key)}${tag}`;
 }
 
 // Eenmalig: migreer state uit oude "yeardle-nl:" sleutels naar "jaardle:"
@@ -1893,13 +1949,17 @@ function finishGame(won, fresh = false) {
   els.nextBtn.hidden = false;
   if (state.mode === "free") {
     els.nextBtn.textContent = t("next");
+  } else if (isMakeup(state)) {
+    // Inhaalpot afgerond → duw door naar de daily van vandaag (die houdt de streak
+    // vanaf hier levend). De knop-handler herkent de inhaal-state.
+    els.nextBtn.textContent = t("makeup_play_today");
   } else {
     els.nextBtn.innerHTML = withAnimEmoji(escHtml(t(won ? "free_again" : "free_revenge")));
     armEmojiFallbacks(els.nextBtn);
   }
-  // De recap (verdeling + teamstand) is daily-only en blijft herbereikbaar via
-  // deze knop, ook nadat je het popup-scherm hebt gesloten.
-  if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily";
+  // De recap (verdeling + teamstand) is daily-only en blijft herbereikbaar via deze
+  // knop — maar niet bij een inhaalpot (die telt niet mee op het dagbord van gisteren).
+  if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily" || isMakeup(state);
   renderHintStatus();
   if (fresh && won) (state.guesses.length === 1 ? showFireworks : showConfetti)();
   if (fresh && state.mode === "daily") recordDailyResult(won);
@@ -1912,11 +1972,13 @@ function finishGame(won, fresh = false) {
   // het recap-scherm openen (verdeling pogingen + teamstand van vandaag).
   const afterSend = () => {
     showFactStats(statsHash);
-    if (fresh && state.mode === "daily") openDailyRecap();
+    // Recap (verdeling + teamstand van vandaag) hoort niet bij een inhaalpot.
+    if (fresh && state.mode === "daily" && !isMakeup(state)) openDailyRecap();
   };
   if (fresh) sendTelemetry().then(afterSend, afterSend);
   else showFactStats(statsHash);
-  startDailyCountdown();
+  if (isMakeup(state)) refreshMakeupBanner();   // gisteren nu gespeeld → banner weg
+  else startDailyCountdown();
 }
 
 // Eén rij per afgerond spel naar de DB (fire-and-forget). Idempotent per puzzel
@@ -1924,7 +1986,7 @@ function finishGame(won, fresh = false) {
 function sendTelemetry() {
   const hash = state.hashes?.[0];
   if (!hash) return Promise.resolve();
-  const slot = state.mode === "daily" ? todayKey() : "free";
+  const slot = state.mode === "daily" ? (state.puzzleDate || todayKey()) : "free";
   const sentKey = `jaardle:sent:${hash}:${slot}`;
   if (localStorage.getItem(sentKey)) return Promise.resolve();
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
@@ -1939,7 +2001,7 @@ function sendTelemetry() {
     p_century_hint_used: !!state.centuryRevealed,
     p_last_digit_used: !!state.lastDigitRevealed,
     p_mode: state.mode,
-    p_puzzle_date: state.mode === "daily" ? todayKey() : null,
+    p_puzzle_date: state.mode === "daily" ? (state.puzzleDate || todayKey()) : null,
     p_score: computeScore(),
     p_guesses: state.guesses.map((g) => g.year),  // voor cross-device reconstructie
   })
@@ -1959,7 +2021,7 @@ async function claimPlayOnLogin() {
   if (!auth.user || !state || !state.done) return;
   const hash = state.hashes?.[0];
   if (!hash) return;
-  const slot = state.mode === "daily" ? todayKey() : "free";
+  const slot = state.mode === "daily" ? (state.puzzleDate || todayKey()) : "free";
   const idKey = `jaardle:playid:${hash}:${slot}`;
   const id = localStorage.getItem(idKey);
   if (!id) return;
@@ -1999,6 +2061,88 @@ function startDailyCountdown() {
   };
   tick();
   dailyCountdownTimer = setInterval(tick, 1000);
+}
+
+// --- Inhaal-daily (streak-reparatie) ---------------------------------------
+// Wie GISTEREN de daily miste, mag die vandaag (tot middernacht Europe/Amsterdam)
+// alsnog spelen om z'n streak te redden. Alles sleutelt al op puzzle_date, dus een
+// inhaalpot met puzzleDate=gisteren dicht het gat vanzelf in computeStats(). De
+// pot telt NIET mee op het competitieve dagbord/dagzeges (server-side `late`-flag,
+// db/26). We bieden 'm alleen aan bij een écht gat (gisteren niet gespeeld) mét
+// een streak om te redden (eergisteren gewonnen).
+const makeupDismissKey = () => `jaardle:makeupDismissed:${todayKey()}`;
+
+async function makeupRepairInfo() {
+  const yesterday = shiftDay(todayKey(), -1);
+  const dayBefore = shiftDay(todayKey(), -2);
+  // Gisteren mag niet vóór de eerste browsbare daily liggen.
+  if (yesterday < EPOCH_KEY) return { eligible: false };
+  let hist;
+  try { hist = await dailyHistoryForDisplay(); } catch (e) { return { eligible: false }; }
+  const played = new Set(hist.map((e) => e.date));
+  const won = new Set(hist.filter((e) => e.won).map((e) => e.date));
+  if (played.has(yesterday)) return { eligible: false };  // al gespeeld (win óf verlies)
+  if (!won.has(dayBefore)) return { eligible: false };     // geen streak om te redden
+  let streak = 0, c = dayBefore;
+  while (won.has(c)) { streak += 1; c = shiftDay(c, -1); }
+  return { eligible: true, streak, dayNum: dayNumForKey(yesterday), dateKey: yesterday };
+}
+
+let makeupCountdownTimer = null;
+function stopMakeupCountdown() {
+  if (makeupCountdownTimer) { clearInterval(makeupCountdownTimer); makeupCountdownTimer = null; }
+}
+function startMakeupCountdown() {
+  stopMakeupCountdown();
+  const span = document.querySelector("#makeup-banner .makeup-countdown");
+  if (!span) return;
+  const tick = () => {
+    const left = secsToNextDaily();
+    if (left <= 0) { stopMakeupCountdown(); refreshMakeupBanner(); return; }  // dag voorbij
+    span.textContent = fmtCountdown(left);
+  };
+  tick();
+  makeupCountdownTimer = setInterval(tick, 1000);
+}
+
+// Toon/verberg de inhaal-uitnodiging. Async: leest de (DB-)historie.
+async function refreshMakeupBanner() {
+  const el = document.getElementById("makeup-banner");
+  if (!el) return;
+  // Niet tijdens het spelen van de inhaalpot zelf, en niet als deze sessie 'm wegklikte.
+  let dismissed = false;
+  try { dismissed = !!localStorage.getItem(makeupDismissKey()); } catch (e) {}
+  if (isMakeup(state) || dismissed) { stopMakeupCountdown(); el.hidden = true; return; }
+  const info = await makeupRepairInfo();
+  if (!info.eligible) { stopMakeupCountdown(); el.hidden = true; return; }
+  el.innerHTML = `
+    <span class="makeup-flame">${animEmojiHtml("🔥")}</span>
+    <div class="makeup-text">
+      <strong class="makeup-title">${escHtml(t("makeup_title"))}</strong>
+      <span class="makeup-body">${escHtml(t("makeup_body")(info.streak, info.dayNum))}</span>
+      <span class="makeup-left">⏳ <span class="makeup-countdown"></span></span>
+    </div>
+    <button class="makeup-cta" type="button">${escHtml(t("makeup_cta"))}</button>
+    <button class="makeup-dismiss" type="button" aria-label="${escHtml(t("aria_close"))}">✕</button>`;
+  armEmojiFallbacks(el);
+  el.querySelector(".makeup-cta").onclick = startMakeup;
+  el.querySelector(".makeup-dismiss").onclick = () => {
+    try { localStorage.setItem(makeupDismissKey(), "1"); } catch (e) {}
+    stopMakeupCountdown();
+    el.hidden = true;
+  };
+  el.hidden = false;
+  startMakeupCountdown();
+}
+
+// Start de inhaalpot van gisteren. Het daily-tabblad blijft actief (het ís een daily).
+function startMakeup() {
+  const yesterday = shiftDay(todayKey(), -1);
+  stopMakeupCountdown();
+  const el = document.getElementById("makeup-banner");
+  if (el) el.hidden = true;
+  els.tabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.mode === "daily")));
+  startGame("daily", false, null, yesterday);
 }
 
 // --- Vrienden-pools (custom leaderboards) ----------------------------------
@@ -2894,7 +3038,15 @@ async function streakLineText(won) {
 // uit de DB komen; guard dat het spel intussen niet gewisseld/heropend is.
 async function appendStreakLine(won) {
   if (!state || state.mode !== "daily") return;
-  const line = await streakLineText(won);
+  let line;
+  if (isMakeup(state)) {
+    // Inhaalpot: bij winst de (nu weer aaneengesloten) streak vieren als "gered",
+    // bij verlies eerlijk melden dat de reparatie niet lukte.
+    const s = computeStats(await dailyHistoryForDisplay());
+    line = won ? t("streak_saved")(s.currentStreak) : t("streak_makeup_lost");
+  } else {
+    line = await streakLineText(won);
+  }
   if (!line || !state || !state.done || state.mode !== "daily") return;
   els.resultText.querySelectorAll(".streak-line").forEach((e) => e.remove());
   const el = document.createElement("div");
@@ -2907,10 +3059,10 @@ async function appendStreakLine(won) {
 // Reconstrueer het AFGERONDE dagbord uit de DB (alleen ingelogd). De DB bewaart de
 // gegokte jaren (plays.guesses) + hint-aantallen; kleuren/afstanden leiden we af uit
 // het antwoordjaar. Geeft een board-object of null (anon / geen DB-rij voor vandaag).
-async function reconstructDailyBoard(answerYear) {
+async function reconstructDailyBoard(answerYear, d = todayKey()) {
   if (!auth.user) return null;
   let row;
-  try { row = await rpc("get_my_daily", { d: todayKey() }); } catch (e) { return null; }
+  try { row = await rpc("get_my_daily", { d }); } catch (e) { return null; }
   if (!row || !Array.isArray(row.guesses) || row.guesses.length === 0) return null;
   const guesses = row.guesses.map((year) => {
     const diff = answerYear - year;
@@ -2937,7 +3089,7 @@ async function maybeRestoreDailyAfterLogin() {
   if (!auth.user || !state || state.mode !== "daily" || state.done) return;
   const answerYear = state.event?.year;
   if (answerYear == null) return;
-  const board = await reconstructDailyBoard(answerYear);
+  const board = await reconstructDailyBoard(answerYear, state.puzzleDate || todayKey());
   if (!board) return;
   // Race-guard: kan tijdens de fetch gewisseld/afgerond zijn.
   if (!state || state.mode !== "daily" || state.done) return;
@@ -2969,7 +3121,7 @@ function saveHistory(arr) {
 }
 
 function recordDailyResult(won) {
-  const date = todayKey();
+  const date = (state && state.puzzleDate) || todayKey();
   const score = computeScore();
   const entry = {
     date,
@@ -3593,7 +3745,7 @@ function flashInput() {
 // dagpuzzel niet opnieuw opgehaald hoeft te worden.
 function save() {
   try {
-    localStorage.setItem(storageKey(state.mode), JSON.stringify({
+    localStorage.setItem(storageKey(state.mode, state.puzzleDate), JSON.stringify({
       hashes: state.hashes,
       event: state.event,
       board: {
@@ -3611,9 +3763,9 @@ function save() {
   } catch (e) { /* storage may be unavailable */ }
 }
 
-function loadRecord(mode) {
+function loadRecord(mode, date) {
   try {
-    const raw = localStorage.getItem(storageKey(mode));
+    const raw = localStorage.getItem(storageKey(mode, date));
     if (!raw) return null;
     const r = JSON.parse(raw);
     return (r && Array.isArray(r.hashes) && r.event) ? r : null;
@@ -3712,7 +3864,7 @@ async function doShare(btnEl) {
 
 // Bepaal de puzzel (uit lokale cache of via RPC). Geeft { mode, hashes, event, board }
 // of null (niet gevonden). Kan throwen bij netwerk/RPC-fout.
-async function resolveRecord(mode, forceNew, sharedHashes) {
+async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
   if (sharedHashes) {
     const cached = loadRecord("free");
     if (cached && arraysEqual(cached.hashes, sharedHashes)) return { mode: "free", ...cached };
@@ -3721,14 +3873,15 @@ async function resolveRecord(mode, forceNew, sharedHashes) {
     return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null };
   }
   if (mode === "daily") {
-    const cached = loadRecord("daily");   // bevat de puzzel (offline/instant) + bord
-    if (cached) return { mode: "daily", ...cached };
-    const p = await rpc("get_daily", { d: todayKey() });
+    const d = targetDate || todayKey();   // targetDate = inhaalpot (gisteren); anders vandaag
+    const cached = loadRecord("daily", d);   // bevat de puzzel (offline/instant) + bord
+    if (cached) return { mode: "daily", puzzleDate: d, ...cached };
+    const p = await rpc("get_daily", { d });
     if (!p) return null;
     // Geen lokale cache (ander apparaat / cache gewist), maar ingelogd? Herstel het
     // afgeronde bord uit de DB zodat de dagpuzzel niet opnieuw speelbaar lijkt.
-    const board = await reconstructDailyBoard(p.year);
-    return { mode: "daily", hashes: p.hashes, event: toEvent(p), board };
+    const board = await reconstructDailyBoard(p.year, d);
+    return { mode: "daily", puzzleDate: d, hashes: p.hashes, event: toEvent(p), board };
   }
   // free
   if (!forceNew) {
@@ -3740,9 +3893,9 @@ async function resolveRecord(mode, forceNew, sharedHashes) {
   return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null };
 }
 
-async function startGame(mode, forceNew = false, sharedHashes = null) {
+async function startGame(mode, forceNew = false, sharedHashes = null, targetDate = null) {
   if (forceNew) {
-    try { localStorage.removeItem(storageKey(mode)); } catch (e) {}
+    try { localStorage.removeItem(storageKey(mode, targetDate)); } catch (e) {}
   }
   setKeypadDisabled(true);
   setCardStatus(t("loading"));
@@ -3753,21 +3906,22 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
 
   let record;
   try {
-    record = await resolveRecord(mode, forceNew, sharedHashes);
+    record = await resolveRecord(mode, forceNew, sharedHashes, targetDate);
   } catch (e) {
     console.error(e);
-    setCardStatus(t("err_load"), () => startGame(mode, forceNew, sharedHashes));
+    setCardStatus(t("err_load"), () => startGame(mode, forceNew, sharedHashes, targetDate));
     return;
   }
   if (!record) {
     if (sharedHashes) setCardStatus(t("err_share"), () => switchMode("daily"));
-    else setCardStatus(t("err_none"), () => startGame(mode, forceNew, sharedHashes));
+    else setCardStatus(t("err_none"), () => startGame(mode, forceNew, sharedHashes, targetDate));
     return;
   }
 
   const b = record.board;
   state = {
     mode: record.mode,
+    puzzleDate: record.puzzleDate || null,   // welke daily-dag (null bij vrij spel)
     hashes: record.hashes,
     event: record.event,
     guesses: b?.guesses || [],
@@ -3793,6 +3947,8 @@ async function startGame(mode, forceNew = false, sharedHashes = null) {
   loadLaterClues();   // async: vult/herrendert de clues zodra binnen
 
   if (state.done) finishGame(state.won);
+  updateDayLabel();          // #N (+ inhaal-markering) van de nu actieve daily
+  refreshMakeupBanner();     // toon/verberg de inhaal-uitnodiging (async, no-op bij free)
 }
 
 function syncUrl() {
@@ -3856,6 +4012,8 @@ async function init() {
   });
   els.shareBtn.addEventListener("click", () => doShare(els.shareBtn));
   els.nextBtn.addEventListener("click", () => {
+    // Na een inhaalpot: naar de daily van vandaag (die houdt de streak levend).
+    if (isMakeup(state)) { switchMode("daily"); return; }
     // Vanuit de daily wisselt het tabblad mee en loopt een onafgemaakt vrij spel
     // gewoon door; in vrij spel forceert de knop altijd een vers rondje.
     if (state?.mode === "daily") switchMode("free");
@@ -3961,6 +4119,8 @@ async function init() {
     // maybeRestoreDailyAfterLogin stopt bij state.done, dus herteken 'm hier met
     // de nu-gezaghebbende DB-historie (werkt ook bij uitloggen → terug naar local).
     if (state?.done && state.mode === "daily") appendStreakLine(state.won);
+    // Historie-bron wisselde (login/logout) → herbeoordeel de inhaal-uitnodiging.
+    refreshMakeupBanner();
   });
 
   // Tekst-box (Instagram-stijl): slepen bladert (muis óf touch, vanaf overal op de

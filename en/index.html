@@ -73,7 +73,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=91">
+<link rel="stylesheet" href="/style.css?v=92">
 </head>
 <body>
   <main>
@@ -97,6 +97,10 @@
       <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><svg class="tab-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L64 64C28.7 64 0 92.7 0 128l0 16 0 48L0 448c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-256 0-48 0-16c0-35.3-28.7-64-64-64l-40 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L152 64l0-40zM48 192l352 0 0 256c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256z"/></svg> <span data-i18n="tab_daily">Daily Jaardle</span></button>
       <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">New game</button>
     </nav>
+
+    <!-- Inhaal-daily: verschijnt als je gisteren miste maar een streak kunt redden.
+         Inhoud (streak, puzzelnr, afteller) wordt door game.js gevuld. -->
+    <div id="makeup-banner" hidden></div>
 
     <section id="event-card">
       <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Previous fact" data-i18n-aria="fact_prev" hidden>‹</button>
@@ -324,7 +328,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=149"></script>
+  <script src="/game.js?v=150"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
