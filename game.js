@@ -200,6 +200,7 @@ const I18N = {
     lb_name_err: "Kon je naam niet opslaan. Probeer het opnieuw.",
     lb_flair_label: "Flair:", lb_flair_none: "Geen flair", lb_flair_err: "Kon je flair niet opslaan.",
     lb_members_n: (n) => `${n} ${n === 1 ? "lid" : "leden"}`,
+    lb_hidden_inactive: (n) => `${n} ${n === 1 ? "speler" : "spelers"} verborgen · 7+ dagen niet gespeeld`,
     lb_join_q: (name) => `Pool "${name}" joinen?`,
     lb_pool_add: "➕ Pool erbij", lb_add_back: "‹ Terug",
     lb_err_pool_limit: "Je zit al in het maximale aantal pools (5).",
@@ -333,6 +334,7 @@ const I18N = {
     lb_name_err: "Couldn't save your name. Please try again.",
     lb_flair_label: "Flair:", lb_flair_none: "No flair", lb_flair_err: "Couldn't save your flair.",
     lb_members_n: (n) => `${n} ${n === 1 ? "member" : "members"}`,
+    lb_hidden_inactive: (n) => `${n} ${n === 1 ? "player" : "players"} hidden · no play in 7+ days`,
     lb_join_q: (name) => `Join pool "${name}"?`,
     lb_pool_add: "➕ Add pool", lb_add_back: "‹ Back",
     lb_err_pool_limit: "You're already in the maximum number of pools (5).",
@@ -461,6 +463,7 @@ const I18N = {
     lb_name_err: "Name konnte nicht gespeichert werden. Bitte versuche es erneut.",
     lb_flair_label: "Flair:", lb_flair_none: "Kein Flair", lb_flair_err: "Flair konnte nicht gespeichert werden.",
     lb_members_n: (n) => `${n} ${n === 1 ? "Mitglied" : "Mitglieder"}`,
+    lb_hidden_inactive: (n) => `${n} ${n === 1 ? "Spieler" : "Spieler"} ausgeblendet · 7+ Tage inaktiv`,
     lb_join_q: (name) => `Pool "${name}" beitreten?`,
     lb_pool_add: "➕ Pool dazu", lb_add_back: "‹ Zurück",
     lb_err_pool_limit: "Du bist schon in der maximalen Anzahl an Pools (5).",
@@ -593,6 +596,7 @@ const I18N = {
     lb_name_err: "No se pudo guardar el nombre. Inténtalo de nuevo.",
     lb_flair_label: "Distintivo:", lb_flair_none: "Sin distintivo", lb_flair_err: "No se pudo guardar el distintivo.",
     lb_members_n: (n) => `${n} ${n === 1 ? "miembro" : "miembros"}`,
+    lb_hidden_inactive: (n) => `${n} ${n === 1 ? "jugador oculto" : "jugadores ocultos"} · sin jugar 7+ días`,
     lb_join_q: (name) => `¿Unirse al grupo "${name}"?`,
     lb_pool_add: "➕ Otro grupo", lb_add_back: "‹ Volver",
     lb_err_pool_limit: "Ya estás en el número máximo de grupos (5).",
@@ -725,6 +729,7 @@ const I18N = {
     lb_name_err: "Não foi possível salvar o nome. Tente de novo.",
     lb_flair_label: "Emblema:", lb_flair_none: "Sem emblema", lb_flair_err: "Não foi possível salvar o emblema.",
     lb_members_n: (n) => `${n} ${n === 1 ? "membro" : "membros"}`,
+    lb_hidden_inactive: (n) => `${n} ${n === 1 ? "jogador oculto" : "jogadores ocultos"} · sem jogar há 7+ dias`,
     lb_join_q: (name) => `Entrar no grupo "${name}"?`,
     lb_pool_add: "➕ Outro grupo", lb_add_back: "‹ Voltar",
     lb_err_pool_limit: "Você já está no número máximo de grupos (5).",
@@ -2167,7 +2172,8 @@ let pendingJoinCode = null;           // ?join=CODE-deeplink
 let lbDailyDate = null;               // welke daily-dag het bord toont (browsen met ‹ ›)
 let lbDailyReq = 0;                   // race-guard: alleen de laatste fetch mag renderen
 let lbStatIndex = 0;                  // welke stat-kolom het all-time bord toont (‹ ›)
-let lbOverall = [];                   // rating-bord (al geladen) — pagina 0
+let lbOverall = [];                   // rating-bord (al geladen) — pagina 0, alleen actieve leden
+let lbInactiveN = 0;                  // # leden verborgen wegens inactiviteit (7+ dagen) — "N verborgen"
 let lbPoolStats = null;               // win%/score/streak — lazy bij eerste swipe, daarna cache
 
 function escHtml(s) {
@@ -2413,8 +2419,11 @@ async function renderStatBoard() {
   const content = document.getElementById("lb-stat-content");
   if (!head || !content) return;
   setStatHead(head, LB_STATS[lbStatIndex]);
+  // Subtiele voetregel als er leden verborgen zijn wegens inactiviteit — verklaart
+  // het gat tussen "N leden" (kopje) en het aantal rijen op het bord.
   const ratingRows = () => setBoard(content,
-    lbStatRows(lbOverall, LB_STATS.find((s) => s.key === "rating").val));
+    lbStatRows(lbOverall, LB_STATS.find((s) => s.key === "rating").val) +
+    (lbInactiveN > 0 ? `<p class="lb-hidden-note">${escHtml(t("lb_hidden_inactive")(lbInactiveN))}</p>` : ""));
   if (LB_STATS[lbStatIndex].key === "rating") { ratingRows(); return; }
   if (!lbPoolStats) {
     setBoardLoading(content);   // vorige tabel (zelfde leden) blijft gedimd staan
@@ -2422,7 +2431,12 @@ async function renderStatBoard() {
     let rows = [];
     try { rows = await rpc("get_pool_stats", { p_pool_id: poolId }); } catch (e) {}
     if (myPool?.id !== poolId) return;
-    lbPoolStats = Array.isArray(rows) ? rows : [];
+    // Zelfde inactiviteits-filter als het rating-bord: verberg leden die 7+ dagen
+    // niet speelden (behalve jezelf). Nieuwelingen zonder potjes (games=0) blijven
+    // staan zoals voorheen — die zijn "nog niet begonnen", niet "gestopt".
+    // `is_active === false`: alleen bij expliciete false verbergen (oude RPC = geen filter).
+    lbPoolStats = (Array.isArray(rows) ? rows : [])
+      .filter((r) => !((r.games || 0) >= 1 && r.is_active === false && !r.is_me));
     if (document.getElementById("modal-leaderboard").hidden) return;
     setStatHead(head, LB_STATS[lbStatIndex]);
     if (LB_STATS[lbStatIndex].key === "rating") { ratingRows(); return; }
@@ -2643,7 +2657,14 @@ async function renderLeaderboard() {
   // ‹ ›-nav net als de daily. Opent op Rating — die hergebruikt de al-geladen
   // get_pool_leaderboard-data; de overige stats halen get_pool_stats pas op
   // bij de eerste swipe ernaartoe.
-  lbOverall = overall; lbStatIndex = 0; lbPoolStats = null;
+  // Verberg inactieve leden (laatste pot 7+ dagen geleden) — "verbergen tot terugkeer".
+  // Jezelf zie je altijd (is_me), ook als je even niet speelde. `overall` bevat alleen
+  // leden met games>=1, dus lbInactiveN telt echt-gestopte spelers, geen nieuwelingen.
+  // `is_active !== false`: alleen verbergen bij een expliciete false, zodat een oude
+  // RPC (zónder is_active, vóór db/27) niemand verbergt — deploy-volgorde-veilig.
+  const activeOverall = overall.filter((r) => r.is_active !== false || r.is_me);
+  lbInactiveN = overall.length - activeOverall.length;
+  lbOverall = activeOverall; lbStatIndex = 0; lbPoolStats = null;
   const cycleStat = (d) => { lbStatIndex = (lbStatIndex + d + LB_STATS.length) % LB_STATS.length; renderStatBoard(); };
   document.getElementById("lb-stat-prev").onclick = () => cycleStat(-1);
   document.getElementById("lb-stat-next").onclick = () => cycleStat(+1);
