@@ -307,6 +307,41 @@ main {
   font-weight: 500;
 }
 
+/* Moeilijkheids-pepertjes van de daily: mini, rechtsboven in de kaart binnen de
+   padding. Aantal = niveau (1 mild … 3 pittig). Het label schuift bij tik (en
+   één keer als cue) even inline naast de pepertjes; hover heeft de title. */
+.diff-heat {
+  position: absolute;
+  top: 6px;
+  right: 9px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6rem;
+  line-height: 1;
+  letter-spacing: 1px;
+  opacity: 0.9;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+.diff-heat-label {
+  /* Buiten de flow (links van de pepertjes), zodat de onzichtbare tekst geen
+     tikzone op de kaart blokkeert en de container pepper-klein blijft. */
+  position: absolute;
+  right: calc(100% + 5px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.68rem;
+  letter-spacing: 0;
+  color: var(--muted);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.diff-heat.open .diff-heat-label { opacity: 1; }
+
 /* ‹ ›-indicatoren liggen als brede zones óver de randen van het kaartje
    (Instagram-stijl). Het tikken/slepen zelf wordt op de kaart afgehandeld
    (linker-/rechterzone = terug/verder, slepen werkt overal), dus de pijl is puur

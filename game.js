@@ -131,6 +131,7 @@ const I18N = {
     digit_label: "Laatste cijfer",
     free_hint: "extra hint",
     score_label: "punten",
+    diff_easy: "Moeilijkheid: makkelijk", diff_med: "Moeilijkheid: gemiddeld", diff_hard: "Moeilijkheid: pittig",
     later_label: (y) => `${y} jaar later`,
     later_future: (y) => `${y} jaar later is nog niet geweest — het antwoord ligt in de afgelopen ~${y} jaar.`,
     later_none: (y) => `Geen gebeurtenis van rond ${y} jaar later bekend.`,
@@ -262,6 +263,7 @@ const I18N = {
     digit_label: "Last digit",
     free_hint: "extra hint",
     score_label: "points",
+    diff_easy: "Difficulty: easy", diff_med: "Difficulty: medium", diff_hard: "Difficulty: tough",
     later_label: (y) => `${y} years later`,
     later_future: (y) => `${y} years later hasn't happened yet — so the answer is within the last ~${y} years.`,
     later_none: (y) => `No event from around ${y} years later is known.`,
@@ -398,6 +400,7 @@ const I18N = {
     digit_label: "Letzte Ziffer",
     free_hint: "Extra-Hinweis",
     score_label: "Punkte",
+    diff_easy: "Schwierigkeit: leicht", diff_med: "Schwierigkeit: mittel", diff_hard: "Schwierigkeit: knifflig",
     later_label: (y) => `${y} Jahre später`,
     later_future: (y) => `${y} Jahre später ist noch nicht gewesen — die Antwort liegt also in den letzten ~${y} Jahren.`,
     later_none: (y) => `Kein Ereignis von rund ${y} Jahren später bekannt.`,
@@ -528,6 +531,7 @@ const I18N = {
     digit_label: "Última cifra",
     free_hint: "Pista extra",
     score_label: "Puntos",
+    diff_easy: "Dificultad: fácil", diff_med: "Dificultad: media", diff_hard: "Dificultad: difícil",
     later_label: (y) => `${y} años después`,
     later_future: (y) => `${y} años después aún no ha ocurrido — así que la respuesta está en los últimos ~${y} años.`,
     later_none: (y) => `No se conoce ningún acontecimiento de unos ${y} años después.`,
@@ -663,6 +667,7 @@ const I18N = {
     digit_label: "Último algarismo",
     free_hint: "Dica extra",
     score_label: "Pontos",
+    diff_easy: "Dificuldade: fácil", diff_med: "Dificuldade: média", diff_hard: "Dificuldade: difícil",
     later_label: (y) => `${y} anos depois`,
     later_future: (y) => `${y} anos depois ainda não aconteceu — então a resposta está nos últimos ~${y} anos.`,
     later_none: (y) => `Não se conhece nenhum acontecimento de cerca de ${y} anos depois.`,
@@ -870,6 +875,7 @@ const DEBUG = (() => {
 const els = {
   eventText: document.getElementById("event-text"),
   eventCard: document.getElementById("event-card"),
+  diffHeat: document.getElementById("diff-heat"),
   scoreBox: document.getElementById("live-score"),
   scoreVal: document.querySelector("#live-score .live-score-val"),
   factPrev: document.getElementById("fact-prev"),
@@ -1244,6 +1250,48 @@ function goToHintSlide(kind) {
   goToSlide(idx);
 }
 
+// Moeilijkheids-pepertjes (alleen daily): band 1..3 uit get_daily → 🌶️ / 🌶️🌶️ /
+// 🌶️🌶️🌶️ rechtsboven op de kaart, mini. Zelfde repeat-idioom als de ⏩'s; het
+// label zit in de tooltip/aria en verschijnt op mobiel even inline (tik, plus
+// een eenmalige cue bij de allereerste keer). Vrij spel/onbekende band → weg.
+function renderDiffHeat() {
+  const el = els.diffHeat;
+  if (!el) return;
+  const band = state?.mode === "daily" ? state.band : null;
+  if (!band || band < 1 || band > 3) { el.hidden = true; return; }
+  const label = t(["diff_easy", "diff_med", "diff_hard"][band - 1]);
+  el.innerHTML = "";
+  const word = document.createElement("span");
+  word.className = "diff-heat-label";
+  word.setAttribute("aria-hidden", "true");
+  word.textContent = label;
+  el.appendChild(word);
+  el.appendChild(document.createTextNode("🌶️".repeat(band)));
+  el.title = label;
+  el.setAttribute("aria-label", label);
+  el.hidden = false;
+  maybeShowDiffHeatCue();
+}
+
+// Tik/cue: laat het label kort naast de pepertjes zien (mobiel heeft geen hover).
+let diffHeatTimer = null;
+function openDiffHeat(ms) {
+  const el = els.diffHeat;
+  if (!el || el.hidden) return;
+  el.classList.add("open");
+  clearTimeout(diffHeatTimer);
+  diffHeatTimer = setTimeout(() => el.classList.remove("open"), ms);
+}
+
+// Eenmalig, daarna nooit meer vanzelf (cues moeten zichzelf uitdoven).
+function maybeShowDiffHeatCue() {
+  try {
+    if (localStorage.getItem("jaardle:diffcue")) return;
+    localStorage.setItem("jaardle:diffcue", "1");
+    setTimeout(() => openDiffHeat(3000), 800);
+  } catch (e) { /* geen storage → geen cue */ }
+}
+
 function renderEvent() {
   els.eventText.innerHTML = "";
   const slides = factSlides();
@@ -1323,6 +1371,7 @@ function renderEvent() {
   if (els.factNext) els.factNext.hidden = slides.length <= 1;
   applyFactTransform(false);
   updateFactDots();
+  renderDiffHeat();
 }
 
 // Verschuif de track naar de actieve slide (animate=false bij (her)opbouw).
@@ -3825,6 +3874,7 @@ function save() {
     localStorage.setItem(storageKey(state.mode, state.puzzleDate), JSON.stringify({
       hashes: state.hashes,
       event: state.event,
+      band: state.band ?? null,
       board: {
         guesses: state.guesses,
         done: state.done,
@@ -3958,7 +4008,7 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
     // Geen lokale cache (ander apparaat / cache gewist), maar ingelogd? Herstel het
     // afgeronde bord uit de DB zodat de dagpuzzel niet opnieuw speelbaar lijkt.
     const board = await reconstructDailyBoard(p.year, d);
-    return { mode: "daily", puzzleDate: d, hashes: p.hashes, event: toEvent(p), board };
+    return { mode: "daily", puzzleDate: d, hashes: p.hashes, band: p.band ?? null, event: toEvent(p), board };
   }
   // free
   if (!forceNew) {
@@ -3999,6 +4049,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   state = {
     mode: record.mode,
     puzzleDate: record.puzzleDate || null,   // welke daily-dag (null bij vrij spel)
+    band: record.band ?? null,               // moeilijkheids-band 1..3 (alleen daily, sinds db/29)
     hashes: record.hashes,
     event: record.event,
     guesses: b?.guesses || [],
@@ -4200,13 +4251,16 @@ async function init() {
     refreshMakeupBanner();
   });
 
+  // Pepertjes: tik toont het moeilijkheidslabel even (hover bestaat niet op mobiel).
+  if (els.diffHeat) els.diffHeat.addEventListener("click", () => openDiffHeat(1800));
+
   // Tekst-box (Instagram-stijl): slepen bladert (muis óf touch, vanaf overal op de
   // kaart, ook de randen), en een tik in de linker- of rechterzone gaat terug/verder.
   // touch-action: pan-y (CSS) houdt verticaal scrollen intact.
   if (els.eventCard) {
     let sx = 0, sy = 0, dragging = false, active = false, slideCount = 1, width = 1;
     els.eventCard.addEventListener("pointerdown", (e) => {
-      if (e.target.closest(".fact-dot")) return;   // stippen doen hun eigen klik
+      if (e.target.closest(".fact-dot, .diff-heat")) return;   // stippen/pepertjes doen hun eigen klik
       slideCount = factSlides().length;
       if (slideCount <= 1) return;
       active = true; dragging = false;
