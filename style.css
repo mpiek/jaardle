@@ -1378,13 +1378,17 @@ footer {
 }
 .recap-cta button:hover { filter: brightness(1.08); }
 
-/* Streak-regel bovenin de recap-modal (zelfde vlam-kleur als .streak-line). */
+/* Streak-regel bovenin de recap-modal (zelfde vlam-kleur als .streak-line).
+   Marges collapsen niet in de flex-kolom van .modal-body, dus eigen marge +
+   gap + margin-top van de sectie eronder stapelde op tot ~2.6rem gat; de
+   flex-gap (0.75rem) alleen is de bedoelde afstand. */
 .recap-streak {
   text-align: center;
   font-weight: 600;
   color: #ff9d4d;
-  margin: 0 0 0.75rem;
+  margin: 0;
 }
+.recap-streak + .recap-section { margin-top: 0; }
 
 /* Share-knop in de recap: .recap-cta-styling + icoon netjes naast het label. */
 .recap-share { margin-top: 0.9rem; }

@@ -2954,19 +2954,28 @@ async function fetchFactStatsSafe() {
   try { return await rpc("get_fact_stats", { h: hash }); } catch (e) { return null; }
 }
 
-// "Beter dan X%": percentiel-rang van de speler tussen alle winnaars van dit
-// feit, puur uit de al opgehaalde verdeling — geen extra RPC. Gelijke pogingen
-// tellen half mee (mid-rank), zodat de snelste balk geen opschepperige 100%
-// krijgt en de traagste geen kille 0%. Alleen bij winst en genoeg vergelijkings-
-// data; geclamped op 1–99 als extra vangnet.
+// Score-rang voor "Beter dan X%": {lower, same, total} van alle plays van dit
+// feit t.o.v. jouw score (get_fact_score_rank, db/30). Verliezers tellen in de
+// vergelijking mee (score is over winst én verlies vergelijkbaar), maar de regel
+// zelf toont alleen bij winst — dus zonder winst geen fetch. Graceful naar null.
+async function fetchScoreRankSafe() {
+  const hash = state.hashes?.[0];
+  if (!hash || !state.won) return null;
+  try { return await rpc("get_fact_score_rank", { h: hash, s: computeScore() }); } catch (e) { return null; }
+}
+
+// "Beter dan X%": percentiel-rang van de speler op SCORE (0–100, mét hint- en
+// misgok-straffen) tussen alle spelers van dit feit. Fijnmaziger dan pogingen:
+// twee 3-poging-winsten met verschillend hintgebruik tellen nu verschillend.
+// Gelijke scores tellen half mee (mid-rank), zodat de topscore geen opschepperige
+// 100% krijgt en de laagste geen kille 0%. Alleen bij winst en genoeg
+// vergelijkingsdata; geclamped op 1–99 als extra vangnet.
 const FASTER_MIN_SAMPLE = 5;
-function fasterThanHtml(buckets, todayN) {
-  if (todayN == null) return "";
-  const total = buckets.reduce((a, b) => a + b, 0);
+function fasterThanHtml(rank) {
+  if (!rank || !state.won) return "";
+  const lower = Number(rank.lower) || 0, same = Number(rank.same) || 0, total = Number(rank.total) || 0;
   if (total < FASTER_MIN_SAMPLE) return "";
-  const slower = buckets.slice(todayN).reduce((a, b) => a + b, 0); // meer pogingen = trager
-  const same = buckets[todayN - 1] || 0;                           // zelfde snelheid (incl. jij)
-  const pct = Math.min(99, Math.max(1, Math.round(((slower + same / 2) / total) * 100)));
+  const pct = Math.min(99, Math.max(1, Math.round(((lower + same / 2) / total) * 100)));
   return `<p class="dist-faster">${t("recap_faster")(pct)}</p>`;
 }
 
@@ -2988,7 +2997,7 @@ function firstGuessHtml(avgFirstDist) {
 // Verdeling van pogingen per aantal (1–6, alleen winsten — een verlies is altijd 6
 // en zou de balken vertekenen). Jouw eigen resultaat van vandaag uitgelicht.
 // Onder de grafiek eerst het "Beter dan X%"-oordeel, daaronder de eerste-gok-afstand.
-function recapDistHtml(buckets, avgFirstDist) {
+function recapDistHtml(buckets, avgFirstDist, scoreRank) {
   const todayN = state.won ? Math.min(6, Math.max(1, state.guesses.length)) : null;
   const head = `<h3 class="stats-heading">${t("recap_dist_title")}</h3>`;
   if (!Array.isArray(buckets) || buckets.every((b) => b === 0)) {
@@ -3004,15 +3013,15 @@ function recapDistHtml(buckets, avgFirstDist) {
       `<span class="dist-track"><span class="dist-bar" style="width:${pct}%">${c}</span></span></div>`;
   }).join("");
   return `<section class="recap-section">${head}<div class="dist-chart">${rows}</div>` +
-    `${fasterThanHtml(buckets, todayN)}${firstGuessHtml(avgFirstDist)}</section>`;
+    `${fasterThanHtml(scoreRank)}${firstGuessHtml(avgFirstDist)}</section>`;
 }
 
 async function renderRecap() {
   const body = document.getElementById("recap-body");
   if (!body) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  const [dist, stats, streak] = await Promise.all([
-    fetchGlobalGuessDist(), fetchFactStatsSafe(), streakLineText(state.won),
+  const [dist, stats, streak, scoreRank] = await Promise.all([
+    fetchGlobalGuessDist(), fetchFactStatsSafe(), streakLineText(state.won), fetchScoreRankSafe(),
   ]);
   if (document.getElementById("modal-recap").hidden) return;
   // Gemiddelde eerste-gok-afstand alleen tonen bij genoeg spelers (anders is het
@@ -3024,14 +3033,14 @@ async function renderRecap() {
   const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button></div>`;
   if (auth.user) {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
-    body.innerHTML = streakHtml + recapDistHtml(dist, avgFD) + shareHtml +
+    body.innerHTML = streakHtml + recapDistHtml(dist, avgFD, scoreRank) + shareHtml +
       `<section class="recap-section">` +
       `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
       `<div id="recap-team"></div></section>`;
     loadRecapTeam();
   } else {
     // Uitgelogd: wijs op de voordelen van een (gratis) account.
-    body.innerHTML = streakHtml + recapDistHtml(dist, avgFD) + shareHtml + recapAccountHtml();
+    body.innerHTML = streakHtml + recapDistHtml(dist, avgFD, scoreRank) + shareHtml + recapAccountHtml();
     const btn = body.querySelector(".js-acct-btn");
     if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
   }

@@ -43,7 +43,7 @@ src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aan
 src += `
 ;globalThis.__T = {
   classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
-  BAND_OUTER, BAND_SLACK,
+  BAND_OUTER, BAND_SLACK, fasterThanHtml,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -83,6 +83,18 @@ test("computeScore — penalties per gok + hints, niet onder 0", () => {
 
   T.setState({ won: true, guesses: Array(6).fill({ cls: "farthest" }), directionsRevealed: [0, 1], laterCluesShown: 0 });
   assert.equal(T.computeScore(), 0);                       // clamp op 0, niet negatief
+});
+
+test("fasterThanHtml — score-percentiel: mid-rank, min-sample, clamps, alleen winst", () => {
+  T.setLang("nl");
+  T.setState({ won: true, guesses: [{ cls: "correct", diff: 0 }] });
+  assert.equal(T.fasterThanHtml(null), "");                                            // RPC faalde → geen regel
+  assert.equal(T.fasterThanHtml({ lower: 3, same: 1, total: 4 }), "");                 // te weinig data
+  assert.match(T.fasterThanHtml({ lower: 8, same: 2, total: 10 }), /Beter dan 90%/);   // mid-rank: (8+2/2)/10
+  assert.match(T.fasterThanHtml({ lower: 10, same: 0, total: 10 }), /Beter dan 99%/);  // clamp boven
+  assert.match(T.fasterThanHtml({ lower: 0, same: 0, total: 10 }), /Beter dan 1%/);    // clamp onder
+  T.setState({ won: false, guesses: [] });
+  assert.equal(T.fasterThanHtml({ lower: 8, same: 2, total: 10 }), "");                // verlies → geen regel
 });
 
 test("parseShareToken — N×10 hex of null", () => {
