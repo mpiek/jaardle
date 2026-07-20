@@ -207,6 +207,8 @@ const I18N = {
     recap_btn: "Verdeling & team",
     recap_title: "📊 Klaar voor vandaag", recap_dist_title: "🌍 Verdeling pogingen (iedereen)",
     recap_dist_empty: "Nog niemand heeft deze daily opgelost.",
+    recap_faster: (pct) => `🎯 Beter dan ${pct}% van de spelers vandaag`,
+    recap_firstguess: (avg, mine) => `📏 Eerste gok zat er gemiddeld ${avg} jaar naast${mine != null ? ` · jij: ${mine}` : ""}`,
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
     recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
@@ -341,6 +343,8 @@ const I18N = {
     recap_btn: "Distribution & team",
     recap_title: "📊 Done for today", recap_dist_title: "🌍 Guess distribution (everyone)",
     recap_dist_empty: "Nobody has solved this daily yet.",
+    recap_faster: (pct) => `🎯 Better than ${pct}% of players today`,
+    recap_firstguess: (avg, mine, avgN) => `📏 First guess was ${avg} year${avgN === 1 ? "" : "s"} off on average${mine != null ? ` · you: ${mine}` : ""}`,
     recap_team_title: "Today's team standings", recap_today: "today",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
     recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
@@ -470,6 +474,8 @@ const I18N = {
     recap_btn: "Verteilung & Team",
     recap_title: "📊 Fertig für heute", recap_dist_title: "🌍 Verteilung der Versuche (alle)",
     recap_dist_empty: "Noch niemand hat dieses Daily gelöst.",
+    recap_faster: (pct) => `🎯 Besser als ${pct}% der Spieler heute`,
+    recap_firstguess: (avg, mine, avgN) => `📏 Erster Tipp im Schnitt ${avg} Jahr${avgN === 1 ? "" : "e"} daneben${mine != null ? ` · du: ${mine}` : ""}`,
     recap_team_title: "Team-Stand heute", recap_today: "heute",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
     recap_pool_none: "Erstelle einen Pool oder tritt einem bei, um deine Freunde hier zu sehen.", recap_pool_btn: "🏆 Pool erstellen oder beitreten",
@@ -603,6 +609,8 @@ const I18N = {
     recap_btn: "Distribución y equipo",
     recap_title: "📊 Listo por hoy", recap_dist_title: "🌍 Distribución de intentos (todos)",
     recap_dist_empty: "Nadie ha resuelto todavía este diario.",
+    recap_faster: (pct) => `🎯 Mejor que el ${pct}% de los jugadores de hoy`,
+    recap_firstguess: (avg, mine, avgN) => `📏 El primer intento falló por ${avg} año${avgN === 1 ? "" : "s"} de media${mine != null ? ` · tú: ${mine}` : ""}`,
     recap_team_title: "Marcador del equipo hoy", recap_today: "hoy",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
     recap_pool_none: "Crea un grupo o únete a uno para ver aquí a tus amigos.", recap_pool_btn: "🏆 Crear o unirse a un grupo",
@@ -736,6 +744,8 @@ const I18N = {
     recap_btn: "Distribuição e equipe",
     recap_title: "📊 Pronto por hoje", recap_dist_title: "🌍 Distribuição de tentativas (todos)",
     recap_dist_empty: "Ninguém resolveu este diário ainda.",
+    recap_faster: (pct) => `🎯 Melhor que ${pct}% dos jogadores hoje`,
+    recap_firstguess: (avg, mine, avgN) => `📏 O primeiro palpite errou por ${avg} ano${avgN === 1 ? "" : "s"} em média${mine != null ? ` · você: ${mine}` : ""}`,
     recap_team_title: "Placar da equipe hoje", recap_today: "hoje",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
     recap_pool_none: "Crie um grupo ou entre em um para ver seus amigos aqui.", recap_pool_btn: "🏆 Criar ou entrar em um grupo",
@@ -2887,9 +2897,49 @@ async function fetchGlobalGuessDist() {
   return Array.isArray(a) && a.length === 6 ? a.map((n) => Number(n) || 0) : [0, 0, 0, 0, 0, 0];
 }
 
+// Globale feit-stats voor de recap (o.a. avg_first_dist). Zelfde RPC als het
+// eindscherm; faalt graceful naar null zodat de verdeling gewoon blijft werken.
+async function fetchFactStatsSafe() {
+  const hash = state.hashes?.[0];
+  if (!hash) return null;
+  try { return await rpc("get_fact_stats", { h: hash }); } catch (e) { return null; }
+}
+
+// "Beter dan X%": percentiel-rang van de speler tussen alle winnaars van dit
+// feit, puur uit de al opgehaalde verdeling — geen extra RPC. Gelijke pogingen
+// tellen half mee (mid-rank), zodat de snelste balk geen opschepperige 100%
+// krijgt en de traagste geen kille 0%. Alleen bij winst en genoeg vergelijkings-
+// data; geclamped op 1–99 als extra vangnet.
+const FASTER_MIN_SAMPLE = 5;
+function fasterThanHtml(buckets, todayN) {
+  if (todayN == null) return "";
+  const total = buckets.reduce((a, b) => a + b, 0);
+  if (total < FASTER_MIN_SAMPLE) return "";
+  const slower = buckets.slice(todayN).reduce((a, b) => a + b, 0); // meer pogingen = trager
+  const same = buckets[todayN - 1] || 0;                           // zelfde snelheid (incl. jij)
+  const pct = Math.min(99, Math.max(1, Math.round(((slower + same / 2) / total) * 100)));
+  return `<p class="dist-faster">${t("recap_faster")(pct)}</p>`;
+}
+
+// Gemiddelde afstand van de eerste gok over álle spelers van dit feit (uit
+// get_fact_stats.avg_first_dist), met jouw eigen eerste gok ernaast. Puur
+// Jaardle-eigen: laat zien hoe scherp (of gok-en-maar) de eerste inschatting was.
+// De getallen krijgen dezelfde afstandskleur als de gok-badges in het spel
+// (classify → .dist-chip), zodat je in één blik ziet hoe warm/koud de gok was.
+// Verborgen als er nog geen gemiddelde is (te weinig data → null vanuit renderRecap).
+function firstGuessHtml(avgFirstDist) {
+  if (avgFirstDist == null) return "";
+  const avg = Math.round(avgFirstDist);
+  const first = state.guesses[0];
+  const mine = first ? Math.abs(first.diff) : null;
+  const chip = (n) => `<span class="dist-chip ${classify(n)}">${n}</span>`;
+  return `<p class="dist-firstguess">${t("recap_firstguess")(chip(avg), mine != null ? chip(mine) : null, avg)}</p>`;
+}
+
 // Verdeling van pogingen per aantal (1–6, alleen winsten — een verlies is altijd 6
 // en zou de balken vertekenen). Jouw eigen resultaat van vandaag uitgelicht.
-function recapDistHtml(buckets) {
+// Onder de grafiek eerst het "Beter dan X%"-oordeel, daaronder de eerste-gok-afstand.
+function recapDistHtml(buckets, avgFirstDist) {
   const todayN = state.won ? Math.min(6, Math.max(1, state.guesses.length)) : null;
   const head = `<h3 class="stats-heading">${t("recap_dist_title")}</h3>`;
   if (!Array.isArray(buckets) || buckets.every((b) => b === 0)) {
@@ -2904,29 +2954,35 @@ function recapDistHtml(buckets) {
       `<span class="dist-label">${guesses}</span>` +
       `<span class="dist-track"><span class="dist-bar" style="width:${pct}%">${c}</span></span></div>`;
   }).join("");
-  return `<section class="recap-section">${head}<div class="dist-chart">${rows}</div></section>`;
+  return `<section class="recap-section">${head}<div class="dist-chart">${rows}</div>` +
+    `${fasterThanHtml(buckets, todayN)}${firstGuessHtml(avgFirstDist)}</section>`;
 }
 
 async function renderRecap() {
   const body = document.getElementById("recap-body");
   if (!body) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  const [dist, streak] = await Promise.all([fetchGlobalGuessDist(), streakLineText(state.won)]);
+  const [dist, stats, streak] = await Promise.all([
+    fetchGlobalGuessDist(), fetchFactStatsSafe(), streakLineText(state.won),
+  ]);
   if (document.getElementById("modal-recap").hidden) return;
+  // Gemiddelde eerste-gok-afstand alleen tonen bij genoeg spelers (anders is het
+  // getal ruis); avg_first_dist ontbreekt tot de RPC live is → dan null = verborgen.
+  const avgFD = stats && stats.games >= FASTER_MIN_SAMPLE ? stats.avg_first_dist : null;
   const streakHtml = streak ? `<p class="recap-streak">${withAnimEmoji(streak)}</p>` : "";
   // Delen hoort bij dít scherm (het Wordle-moment): direct onder de verdeling,
   // zodat je niet eerst de recap hoeft te sluiten om bij de deel-knop te komen.
   const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button></div>`;
   if (auth.user) {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
-    body.innerHTML = streakHtml + recapDistHtml(dist) + shareHtml +
+    body.innerHTML = streakHtml + recapDistHtml(dist, avgFD) + shareHtml +
       `<section class="recap-section">` +
       `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
       `<div id="recap-team"></div></section>`;
     loadRecapTeam();
   } else {
     // Uitgelogd: wijs op de voordelen van een (gratis) account.
-    body.innerHTML = streakHtml + recapDistHtml(dist) + shareHtml + recapAccountHtml();
+    body.innerHTML = streakHtml + recapDistHtml(dist, avgFD) + shareHtml + recapAccountHtml();
     const btn = body.querySelector(".js-acct-btn");
     if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
   }

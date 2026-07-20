@@ -1268,6 +1268,41 @@ footer {
   text-align: right;
 }
 .dist-today .dist-bar { background: var(--green); color: #fff; }
+/* "Beter dan X%"-oordeel ónder de verdeling: zelfde groen als de eigen
+   'vandaag'-balk, zodat meteen duidelijk is dat het over jouw resultaat gaat. */
+.dist-faster {
+  text-align: center;
+  font-weight: 700;
+  color: var(--green);
+  margin: 0.7rem 0 0;
+  font-size: 0.98rem;
+}
+/* Gemiddelde eerste-gok-afstand onderaan de verdeling: neutraal/gedimd,
+   het is context (over iedereen), geen persoonlijk feestje. */
+.dist-firstguess {
+  text-align: center;
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+}
+/* De getallen als kleine chips in de afstandskleur uit het spel (zie
+   .delta-badge / classify): één blik en je ziet hoe warm/koud de eerste gok was. */
+.dist-chip {
+  display: inline-block;
+  padding: 0 0.4em;
+  border-radius: 4px;
+  font-weight: 700;
+  color: #0d1b33;
+  font-variant-numeric: tabular-nums;
+}
+.dist-chip.correct   { background: var(--green); }
+.dist-chip.veryclose { background: var(--purple); color: #fff; }
+.dist-chip.close     { background: var(--yellow); }
+.dist-chip.warm      { background: var(--orange); }
+.dist-chip.cool      { background: var(--red);   color: #fff; }
+.dist-chip.far       { background: var(--brown); color: #fff; }
+.dist-chip.distant   { background: var(--gray);  color: #fff; }
+.dist-chip.farthest  { background: #333; color: #fff; box-shadow: inset 0 0 0 1px #555; }
 .recap-account {
   margin-top: 1.1rem;
   padding: 1rem;
