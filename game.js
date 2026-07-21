@@ -2972,15 +2972,17 @@ async function fetchScoreRankSafe() {
 // "Beter dan X%": percentiel-rang van de speler op SCORE (0–100, mét hint- en
 // misgok-straffen) tussen alle spelers van dit feit. Fijnmaziger dan pogingen:
 // twee 3-poging-winsten met verschillend hintgebruik tellen nu verschillend.
-// Gelijke scores tellen half mee (mid-rank), zodat de topscore geen opschepperige
-// 100% krijgt en de laagste geen kille 0%. Alleen bij winst en genoeg
-// vergelijkingsdata; geclamped op 1–99 als extra vangnet.
+// Je eigen play zit in de tellingen (same/total) en gaat eruit; gelijke scores
+// van ánderen tellen in jouw voordeel, zodat een topscore 100% geeft — ook als
+// meer spelers 'm in één keer hadden. Alleen bij winst en genoeg
+// vergelijkingsdata; vloer op 1% zodat de hekkensluiter geen kille 0% ziet.
 const FASTER_MIN_SAMPLE = 5;
 function fasterThanHtml(rank) {
   if (!rank || !state.won) return "";
   const lower = Number(rank.lower) || 0, same = Number(rank.same) || 0, total = Number(rank.total) || 0;
   if (total < FASTER_MIN_SAMPLE) return "";
-  const pct = Math.min(99, Math.max(1, Math.round(((lower + same / 2) / total) * 100)));
+  const others = Math.max(1, total - 1);
+  const pct = Math.min(100, Math.max(1, Math.round(((lower + Math.max(0, same - 1)) / others) * 100)));
   return `<p class="dist-faster">${t("recap_faster")(pct)}</p>`;
 }
 
