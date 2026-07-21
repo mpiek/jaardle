@@ -2177,6 +2177,11 @@ async function refreshMakeupBanner() {
   let dismissed = false;
   try { dismissed = !!localStorage.getItem(makeupDismissKey()); } catch (e) {}
   if (isMakeup(state) || dismissed) { stopMakeupCountdown(); el.hidden = true; return; }
+  // Vóór het eerste auth-event weten we niet of de DB-historie (cross-device)
+  // leidend is; toon dan nog niets — de sb-auth-changed-handler roept ons zo
+  // opnieuw aan. Voorkomt de flits "speel gisteren!" die weer verdwijnt zodra
+  // de DB meldt dat gisteren elders al gespeeld is.
+  if (!auth.resolved) { el.hidden = true; return; }
   const info = await makeupRepairInfo();
   if (!info.eligible) { stopMakeupCountdown(); el.hidden = true; return; }
   el.innerHTML = `
@@ -3528,7 +3533,9 @@ function renderCalendar(history) {
 // --- Menu + modals --------------------------------------------------------
 
 // Auth-state placeholder; Supabase-wiring zit in de module-bridge in index.html.
-const auth = { user: null };
+// `resolved` wordt true bij het eerste sb-auth-changed-event (vuurt óók voor anon):
+// pas dan weten we welke historie-bron (DB of lokaal) gezaghebbend is.
+const auth = { user: null, resolved: false };
 
 // Het menu-knopje toont de account-staat: profielfoto (Google) / initiaal-cirkel
 // (e-mail) / silhouet + "Inloggen" (uitgelogd) — i.p.v. de vaste ⋮.
@@ -4240,6 +4247,7 @@ async function init() {
     auth.user = e.detail
       ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null, name: e.detail.name || null }
       : null;
+    auth.resolved = true;  // historie-bron is nu bekend (ook bij anon: detail=null)
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
