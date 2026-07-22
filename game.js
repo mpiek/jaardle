@@ -2349,14 +2349,37 @@ const FLAIR_ANIM = {
 function flairBadgeHtml(flair, rank) {
   if (!flair) return "";
   const animate = rank === 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const file = animate ? FLAIR_ANIM[flair] : null;
-  const inner = file
-    ? `<img class="emoji-anim" src="/emoji/${file}.webp" alt="${escHtml(flair)}">`
-    : animate
-      ? `<span class="flair-fake-anim">${escHtml(flair)}</span>`
-      : escHtml(flair);
-  return ` <span class="lb-flair-badge">${inner}</span>`;
+  const inner = animate ? flairPreviewHtml(flair) : escHtml(flair);
+  return ` <span class="lb-flair-badge" data-flair="${escHtml(flair)}">${inner}</span>`;
 }
+
+// De geanimeerde vorm van een flair: de Noto-webp, of de CSS-cheer voor de
+// flairs zonder webp (🐷/🎩/🦫).
+function flairPreviewHtml(flair) {
+  const file = FLAIR_ANIM[flair];
+  return file
+    ? `<img class="emoji-anim" src="/emoji/${file}.webp" alt="${escHtml(flair)}">`
+    : `<span class="flair-fake-anim">${escHtml(flair)}</span>`;
+}
+
+// Hover over een flair-badge op een bord (of de teamstand in de recap) →
+// animatie-voorproefje. Gedelegeerd op document: de borden re-renderen vaak.
+// Rang 1 heeft al een permanente animatie in de badge en blijft af.
+document.addEventListener("mouseover", (e) => {
+  if (!(e.target instanceof Element)) return;
+  const b = e.target.closest(".lb-flair-badge[data-flair]");
+  if (!b || b.contains(e.relatedTarget) || b.querySelector(".emoji-anim, .flair-fake-anim")) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  b.dataset.preview = "1";
+  b.innerHTML = flairPreviewHtml(b.dataset.flair);
+});
+document.addEventListener("mouseout", (e) => {
+  if (!(e.target instanceof Element)) return;
+  const b = e.target.closest(".lb-flair-badge[data-flair]");
+  if (!b || !b.dataset.preview || b.contains(e.relatedTarget)) return;
+  delete b.dataset.preview;
+  b.textContent = b.dataset.flair;
+});
 
 const lbNameCell = (row, rank) =>
   escHtml(row.display_name) +
@@ -2560,16 +2583,11 @@ function rerenderIdentity() {
   wireNameEditor();
 }
 
-// Hover = voorproefje: de Noto-animatie van de flair speelt af (flairs zonder
-// webp krijgen de CSS-cheer). Desktop-suiker; op touch bestaat hover niet.
+// Hover = voorproefje in de kiezer: de animatie van de flair speelt af.
+// Desktop-suiker; op touch bestaat hover niet.
 function wireFlairPreview(el, flair) {
   if (!flair || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const file = FLAIR_ANIM[flair];
-  el.onmouseenter = () => {
-    el.innerHTML = file
-      ? `<img class="emoji-anim" src="/emoji/${file}.webp" alt="${escHtml(flair)}">`
-      : `<span class="flair-fake-anim">${escHtml(flair)}</span>`;
-  };
+  el.onmouseenter = () => { el.innerHTML = flairPreviewHtml(flair); };
   el.onmouseleave = () => { el.textContent = flair; };
 }
 

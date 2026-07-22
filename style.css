@@ -1781,7 +1781,8 @@ footer {
 .lb-flair-opt:hover { background: var(--border); }
 .lb-flair-opt.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
 .lb-flair-clear { font-size: 0.85rem; color: var(--muted); }
-.lb-flair-badge { font-size: 0.95em; }
+/* Flair naast de naam op de borden: lekker zichtbaar — daar doe je het voor. */
+.lb-flair-badge { font-size: 1.25em; line-height: 1; }
 .lb-name-status { margin: 0.6rem 0 0; font-size: 0.8rem; }
 .lb-name-status.ok { color: var(--green-text); }
 .lb-name-status.err { color: var(--danger); }
