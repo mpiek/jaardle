@@ -90,9 +90,9 @@ test("fasterThanHtml — score-percentiel: mid-rank, min-sample, clamps, alleen 
   T.setState({ won: true, guesses: [{ cls: "correct", diff: 0 }] });
   assert.equal(T.fasterThanHtml(null), "");                                            // RPC faalde → geen regel
   assert.equal(T.fasterThanHtml({ lower: 3, same: 1, total: 4 }), "");                 // te weinig data
-  assert.match(T.fasterThanHtml({ lower: 8, same: 2, total: 10 }), /Beter dan 90%/);   // mid-rank: (8+2/2)/10
-  assert.match(T.fasterThanHtml({ lower: 10, same: 0, total: 10 }), /Beter dan 99%/);  // clamp boven
-  assert.match(T.fasterThanHtml({ lower: 0, same: 0, total: 10 }), /Beter dan 1%/);    // clamp onder
+  assert.match(T.fasterThanHtml({ lower: 6, same: 2, total: 10 }), /Beter dan 78%/);   // mid-rank: (6+1)/9, eigen play eruit
+  assert.match(T.fasterThanHtml({ lower: 8, same: 2, total: 10 }), /Beter dan 100%/);  // topscore: ties van anderen in je voordeel
+  assert.match(T.fasterThanHtml({ lower: 0, same: 1, total: 10 }), /Beter dan 1%/);    // vloer: hekkensluiter ziet geen 0%
   T.setState({ won: false, guesses: [] });
   assert.equal(T.fasterThanHtml({ lower: 8, same: 2, total: 10 }), "");                // verlies → geen regel
 });
