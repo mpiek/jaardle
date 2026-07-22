@@ -1768,8 +1768,9 @@ footer {
 .lb-noname { color: var(--muted); font-weight: 400; font-style: italic; }
 .lb-nameedit .lb-pillbtn { margin-left: auto; }
 .lb-flair { margin-top: 0.65rem; font-size: 0.85rem; }
-/* Je eigen flair op de ingeklapte regel lekker groot — daar doe je het voor. */
-.lb-flair .lb-namecur { font-size: 1.35rem; line-height: 1; }
+/* Je eigen flair op de ingeklapte regel lekker groot — daar doe je het voor.
+   Alleen de emoji zelf; de "geen flair"-placeholder blijft gewone tekst. */
+.lb-flair .lb-namecur:not(.lb-noname) { font-size: 1.35rem; line-height: 1; }
 .lb-flair-opts { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
 .lb-flair-opt {
   width: 38px; height: 38px;
