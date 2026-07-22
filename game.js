@@ -2237,7 +2237,8 @@ let myPool = null;                    // de ACTIEVE pool {id,name,invite_code,is
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
-const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕"];
+const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕",
+  "🐐", "🦇", "🦖", "🐦‍🔥", "🦭", "🐺", "🐻", "🐼", "🐷", "🦁", "🐸", "🐧", "🐱", "🦈", "🦋", "🐍", "🐳", "🦥", "🦔", "🦩", "🐝", "🦀", "🪰", "💩", "💀", "🍄", "🎻", "🪙"];
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
 let lbDailyDate = null;               // welke daily-dag het bord toont (browsen met ‹ ›)
@@ -2322,7 +2323,7 @@ const lbRowCls = (me) => (me ? "lb-row lb-me" : "lb-row");
 const lbPodiumCls = (rank) => (rank >= 1 && rank <= 3 ? ` lb-top${rank}` : "");
 
 // Flairs met een lokale Noto-animatie (/emoji/flair-*.webp): de nummer 1 van een
-// bord draagt z'n flair geanimeerd. 🎩/🦫 hebben (nog) geen Noto-animatie en
+// bord draagt z'n flair geanimeerd. 🎩/🦫/🐷 hebben (nog) geen Noto-animatie en
 // vallen terug op de CSS-"cheer" (.flair-fake-anim); 🔥 hergebruikt fire.webp.
 const FLAIR_ANIM = {
   "🔥": "fire", "🕊️": "flair-dove", "👑": "flair-crown", "🦊": "flair-fox",
@@ -2332,6 +2333,13 @@ const FLAIR_ANIM = {
   "🐙": "flair-octopus", "💅": "flair-nails", "🍻": "flair-beer",
   "💥": "flair-collision", "🎉": "flair-party", "🌌": "flair-milkyway",
   "☄️": "flair-comet", "🦞": "flair-lobster", "🍕": "flair-pizza", "☕": "flair-coffee",
+  "🐐": "flair-goat", "🦇": "flair-bat", "🦖": "flair-trex", "🐦‍🔥": "flair-phoenix",
+  "🦭": "flair-seal", "🐺": "flair-wolf", "🐻": "flair-bear", "🐼": "flair-panda",
+  "🦁": "flair-lion", "🐸": "flair-frog", "🐧": "flair-penguin", "🐱": "flair-cat",
+  "🦈": "flair-shark", "🦋": "flair-butterfly", "🐍": "flair-snake", "🐳": "flair-whale",
+  "🦥": "flair-sloth", "🦔": "flair-hedgehog", "🦩": "flair-flamingo", "🐝": "flair-bee",
+  "🦀": "flair-crab", "🪰": "flair-fly", "💩": "flair-poop", "💀": "flair-skull",
+  "🍄": "flair-mushroom", "🎻": "flair-violin", "🪙": "flair-coin",
 };
 
 // De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
