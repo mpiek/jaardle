@@ -2236,6 +2236,7 @@ let myPools = [];                     // alle pools van de speler, oudste eerst 
 let myPool = null;                    // de ACTIEVE pool {id,name,invite_code,is_owner,members,since} of null
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
+let flairPickerOpen = false;          // flair-rooster ingeklapt tot je op ✏️ drukt (56 opties)
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
 const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕",
   "🐐", "🦇", "🦖", "🐦‍🔥", "🦭", "🐺", "🐻", "🐼", "🐷", "🦁", "🐸", "🐧", "🐱", "🦈", "🦋", "🐍", "🐳", "🦥", "🦔", "🦩", "🐝", "🦀", "🪰", "💩", "💀", "🍄", "🎻", "🪙"];
@@ -2531,15 +2532,45 @@ async function renderStatBoard() {
 // Naam-editor: toont je zelfgekozen weergavenaam (profiles.username) met een
 // wijzig-knop. Staat bovenaan het bord in beide states (met of zonder pool).
 // myUsername wordt in renderLeaderboard opgehaald via get_my_username.
+// Flair-kiezer: standaard ingeklapt tot één regel (zelfde patroon als de naam-
+// regel erboven) — met 56 opties zou het rooster de hele modal domineren.
+// ✏️ klapt het rooster uit, kiezen (of ✕) klapt weer in.
 function flairPickerHtml() {
+  const cur = myFlair
+    ? `<span class="lb-namecur">${escHtml(myFlair)}</span>`
+    : `<span class="lb-namecur lb-noname">${t("lb_flair_none")}</span>`;
+  const head = `<div class="lb-nameedit">
+      <span class="lb-namelabel">${t("lb_flair_label")}</span>${cur}
+      <button id="lb-flair-btn" class="lb-pillbtn" aria-expanded="${flairPickerOpen}">${flairPickerOpen ? "✕" : t("lb_name_edit")}</button>
+    </div>`;
   const opt = (val, label, extra) =>
     `<button type="button" class="lb-flair-opt${extra || ""}${(myFlair || "") === val ? " sel" : ""}" data-flair="${escHtml(val)}" aria-label="${label}" title="${label}">${val || "✖"}</button>`;
-  const buttons = opt("", t("lb_flair_none"), " lb-flair-clear") +
-    FLAIR_OPTIONS.map((e) => opt(e, e, "")).join("");
-  return `<div class="lb-flair">
-      <span class="lb-namelabel">${t("lb_flair_label")}</span>
-      <div class="lb-flair-opts">${buttons}</div>
-    </div>`;
+  const grid = flairPickerOpen
+    ? `<div class="lb-flair-opts">${opt("", t("lb_flair_none"), " lb-flair-clear") + FLAIR_OPTIONS.map((e) => opt(e, e, "")).join("")}</div>`
+    : "";
+  return `<div class="lb-flair">${head}${grid}</div>`;
+}
+
+// Ververst alleen het naam+flair-blok (in- en uitklappen van de kiezer), zodat
+// de borden eronder niet opnieuw hoeven te laden.
+function rerenderIdentity() {
+  const el = document.querySelector("#lb-body .lb-identity");
+  if (!el) return;
+  el.outerHTML = nameEditorHtml();
+  wireNameEditor();
+}
+
+// Hover = voorproefje: de Noto-animatie van de flair speelt af (flairs zonder
+// webp krijgen de CSS-cheer). Desktop-suiker; op touch bestaat hover niet.
+function wireFlairPreview(el, flair) {
+  if (!flair || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const file = FLAIR_ANIM[flair];
+  el.onmouseenter = () => {
+    el.innerHTML = file
+      ? `<img class="emoji-anim" src="/emoji/${file}.webp" alt="${escHtml(flair)}">`
+      : `<span class="flair-fake-anim">${escHtml(flair)}</span>`;
+  };
+  el.onmouseleave = () => { el.textContent = flair; };
 }
 
 function nameEditorHtml() {
@@ -2557,14 +2588,19 @@ function nameEditorHtml() {
 function wireNameEditor() {
   const btn = document.getElementById("lb-name-btn");
   if (btn) btn.onclick = promptSetUsername;
+  const fb = document.getElementById("lb-flair-btn");
+  if (fb) fb.onclick = () => { flairPickerOpen = !flairPickerOpen; rerenderIdentity(); };
   document.querySelectorAll(".lb-flair-opt").forEach((b) => {
     b.onclick = () => setMyFlair(b.dataset.flair || "");
+    wireFlairPreview(b, b.dataset.flair);
   });
+  const cur = document.querySelector(".lb-flair .lb-namecur");
+  if (cur && myFlair) wireFlairPreview(cur, myFlair);
 }
 
 // Sla de gekozen flair op (server valideert tegen de allow-list); lege string wist.
 async function setMyFlair(flair) {
-  if ((myFlair || "") === (flair || "")) return;   // al gekozen → niks doen
+  if ((myFlair || "") === (flair || "")) { flairPickerOpen = false; rerenderIdentity(); return; }
   let status = "err";
   try { status = await rpc("set_my_flair", { p_flair: flair }); } catch (e) {}
   if (status === "ok") { myFlair = flair || null; renderLeaderboard(); return; }
@@ -2675,6 +2711,7 @@ async function loadDailyBoard() {
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
 async function renderLeaderboard() {
   const body = document.getElementById("lb-body");
+  flairPickerOpen = false;   // vol her-render (openen, pool-wissel) → kiezer weer dicht
   if (!auth.user) { body.innerHTML = `<p class="lb-empty">${t("lb_not_member")}</p>`; return; }
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
   await fetchMyPools();
