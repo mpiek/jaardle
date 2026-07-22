@@ -2239,7 +2239,7 @@ let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair
 let flairPickerOpen = false;          // flair-rooster ingeklapt tot je op ✏️ drukt (56 opties)
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
 const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕",
-  "🐐", "🦇", "🦖", "🐦‍🔥", "🦭", "🐺", "🐻", "🐼", "🐷", "🦁", "🐸", "🐧", "🐱", "🦈", "🦋", "🐍", "🐳", "🦥", "🦔", "🦩", "🐝", "🦀", "🪰", "💩", "💀", "🍄", "🎻", "🪙"];
+  "🐐", "🦇", "🦖", "🐦‍🔥", "🦭", "🐺", "🐻", "🐼", "🐷", "🦁", "🐸", "🐧", "🐱", "🦈", "🦋", "🐍", "🐳", "🦥", "🦔", "🦩", "🐝", "🦀", "🦅", "🪿", "🫏", "🪰", "💩", "💀", "🍄", "🌈", "🫪", "🎻", "🪙"];
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingJoinCode = null;           // ?join=CODE-deeplink
 let lbDailyDate = null;               // welke daily-dag het bord toont (browsen met ‹ ›)
@@ -2341,6 +2341,8 @@ const FLAIR_ANIM = {
   "🦥": "flair-sloth", "🦔": "flair-hedgehog", "🦩": "flair-flamingo", "🐝": "flair-bee",
   "🦀": "flair-crab", "🪰": "flair-fly", "💩": "flair-poop", "💀": "flair-skull",
   "🍄": "flair-mushroom", "🎻": "flair-violin", "🪙": "flair-coin",
+  "🦅": "flair-eagle", "🪿": "flair-goose", "🫏": "flair-donkey",
+  "🌈": "flair-rainbow", "🫪": "flair-distorted",
 };
 
 // De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
