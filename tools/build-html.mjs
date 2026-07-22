@@ -70,12 +70,16 @@ function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG) {
 // Hosts (Supabase, GoatCounter) lezen we uit de template zodat ze niet driften.
 // NB: frame-ancestors werkt niet via <meta>; dat hoort thuis in een HTTP-header.
 function buildCsp(template) {
-  const m = template.match(/<script type="module">([\s\S]*?)<\/script>/);
-  if (!m) throw new Error("Inline module-script niet gevonden voor CSP-hash");
-  if (m[1].includes("{{")) {
-    throw new Error("Inline module-script bevat {{tokens}}; CSP-hash zou niet kloppen met de output");
-  }
-  const hash = createHash("sha256").update(m[1], "utf8").digest("base64");
+  // Alle uitvoerbare inline scripts hashen: het thema-script in de <head> én de
+  // module-bridge. (ld+json heeft een ander type, voert niet uit → geen hash.)
+  const matches = [...template.matchAll(/<script(\s+type="module")?>([\s\S]*?)<\/script>/g)];
+  if (!matches.some(([, mod]) => mod)) throw new Error("Inline module-script niet gevonden voor CSP-hash");
+  const hashes = matches.map(([, , body]) => {
+    if (body.includes("{{")) {
+      throw new Error("Inline script bevat {{tokens}}; CSP-hash zou niet kloppen met de output");
+    }
+    return `'sha256-${createHash("sha256").update(body, "utf8").digest("base64")}'`;
+  });
 
   const supa = (template.match(/https:\/\/[a-z0-9]+\.supabase\.co/) || [])[0];
   const goat = (template.match(/data-goatcounter="(https:\/\/[^/"]+)/) || [])[1];
@@ -87,7 +91,7 @@ function buildCsp(template) {
     "base-uri 'self'",
     "object-src 'none'",
     "form-action 'self'",
-    `script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-${hash}'`,
+    `script-src 'self' https://esm.sh https://gc.zgo.at ${hashes.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",                       // inline style-attrs via innerHTML
     `img-src 'self' data: https://*.googleusercontent.com ${goat}`,  // Google-avatars + GoatCounter-pixel
     "font-src 'self'",

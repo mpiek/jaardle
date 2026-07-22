@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;   /* native form-controls/scrollbars kleuren mee */
   --bg: #1a1a1a;
   --fg: #f5f5f5;
   --muted: #a3a3a3;   /* ≥4.5:1 op --card-soft (WCAG AA; #888 haalde ~3.8:1) */
@@ -21,6 +22,53 @@
   --h-dir:     #e07a72;   /* 🧭 richting (koraal) */
   --h-century: #a89f8c;   /* 🏛️ eeuw (warme steengrijs) */
   --h-digit:   #74a9e2;   /* 🔢 laatste cijfer (blauw) */
+  /* Thema-afhankelijke rollen: tekst óp accent/badges, statuskleuren als tekst
+     en de "diepte"-tinten. In het lichte thema krijgen deze een eigen waarde;
+     de badge-/chipkleuren zelf (--green e.d.) zijn in beide thema's gelijk. */
+  --on-accent: #0d1b33;        /* tekst op accent-vlakken (knoppen, tabs, balken) */
+  --on-badge: #111;            /* tekst op groene/gele/oranje chips */
+  --green-text: var(--green);  /* groen als tékst (score, rating-delta, ✓-status) */
+  --red-text: var(--red);
+  --gold-text: #f4c430;        /* nr. 1 op het leaderboard */
+  --danger: #ff8a8a;           /* uitloggen/verwijderen/fouten */
+  --flame: #ff9d4d;            /* 🔥-streak-regels */
+  --kbd-tint: rgba(255, 255, 255, 0.04);
+  --penalty-tint: rgba(255, 255, 255, 0.06);
+  --shadow-pop: 0 8px 20px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.6);
+  --shadow-tip: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Licht thema (opt-in via ⋮-menu; head-script zet data-theme vóór de stylesheet
+   laadt). Warm papier-wit — past bij het historische thema en houdt de gele
+   chips leesbaar. Alle tekst-paren gecheckt op WCAG AA (zie tools in repo-notes;
+   badge-/chipkleuren blijven bewust identiek aan het donkere thema). */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f1ea;
+  --fg: #211e19;
+  --muted: #5d574b;      /* ≥4.5:1 op --card-soft én --card */
+  --card: #fffdf8;
+  --card-soft: #ebe7dd;
+  --border: #d6d0c2;
+  --accent: #2456c4;     /* donkerder blauw: ook als linktekst leesbaar op licht */
+  --hint: #8f6e14;
+  --h-extra:   #8f6e14;
+  --h-later:   #a35113;
+  --h-dir:     #b13f35;
+  --h-century: #6d6555;
+  --h-digit:   #2e6cb5;
+  --on-accent: #fff;
+  --green-text: #2c7031;
+  --red-text: #c62828;
+  --gold-text: #755a0b;
+  --danger: #b3261e;
+  --flame: #b35309;
+  --kbd-tint: rgba(0, 0, 0, 0.05);
+  --penalty-tint: rgba(0, 0, 0, 0.07);
+  --shadow-pop: 0 8px 20px rgba(0, 0, 0, 0.14);
+  --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.22);
+  --shadow-tip: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
 
 * { box-sizing: border-box; }
@@ -95,7 +143,7 @@ main {
 #menu-btn .avatar .ico { width: 1.15rem; height: 1.15rem; }
 #menu-btn .avatar.initial {
   background: var(--green);
-  color: #111;
+  color: var(--on-badge);
   font-weight: 700;
   font-size: 0.95rem;
 }
@@ -129,7 +177,7 @@ main {
   flex-direction: column;
   gap: 0.1rem;
   z-index: 50;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-pop);
 }
 
 .menu-section {
@@ -158,7 +206,22 @@ main {
   cursor: pointer;
 }
 .menu-item:hover { background: var(--card-soft); }
-.menu-item.danger { color: #ff8a8a; }
+.menu-item.danger { color: var(--danger); }
+
+/* Thema-schakelaar (☀️): vinkje rechts zodra het lichte thema aanstaat. */
+.menu-item[role="menuitemcheckbox"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.menu-item[role="menuitemcheckbox"]::after {
+  content: "✓";
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0;
+}
+.menu-item[role="menuitemcheckbox"][aria-checked="true"]::after { opacity: 1; }
 
 /* Taalkeuze (🌐): icoon-knop naast het ⋮-menu, opent een dropdown (redactle-stijl). */
 #lang-wrap { position: relative; display: flex; margin-left: -0.2rem; }
@@ -193,7 +256,7 @@ main {
   flex-direction: column;
   gap: 0.1rem;
   z-index: 50;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-pop);
 }
 .lang-item {
   background: transparent;
@@ -231,7 +294,7 @@ main {
 
 .tab[aria-selected="true"] {
   background: var(--accent);
-  color: #111;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 
@@ -491,7 +554,7 @@ main {
   display: inline-block;
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--green);
+  color: var(--green-text);
   transition: color 0.3s ease;
 }
 .live-score-lab {
@@ -501,7 +564,7 @@ main {
   text-transform: uppercase;
   color: var(--muted);
 }
-.live-score.low .live-score-val { color: var(--red); }
+.live-score.low .live-score-val { color: var(--red-text); }
 /* Korte puls terwijl de teller loopt — trekt het oog naar de daling. */
 .live-score.ticking .live-score-val { animation: score-tick 0.55s ease; }
 @keyframes score-tick {
@@ -581,7 +644,7 @@ kbd {
   border: 1px solid var(--border);
   border-bottom-width: 2px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--kbd-tint);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85em;
   line-height: 1.2;
@@ -635,7 +698,7 @@ kbd {
   font-size: 0.8rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: #111;
+  color: var(--on-badge);
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -651,7 +714,7 @@ kbd {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--penalty-tint);
   letter-spacing: 0.02em;
 }
 
@@ -818,7 +881,7 @@ kbd {
 
 .key-sign.negative {
   background: var(--accent);
-  color: #111;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 
@@ -830,7 +893,7 @@ kbd {
 .key-wide {
   grid-column: 1 / -1;
   background: var(--accent);
-  color: #111;
+  color: var(--on-accent);
   border-color: var(--accent);
   font-size: 1.15rem;
   letter-spacing: 0.05em;
@@ -838,7 +901,7 @@ kbd {
 
 button {
   background: var(--accent);
-  color: #111;
+  color: var(--on-accent);
   border: 0;
   border-radius: 8px;
   padding: 0.75rem 1.25rem;
@@ -883,7 +946,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   margin-top: 0.35rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #ff9d4d;
+  color: var(--flame);
 }
 
 /* Eenmalig hint-duwtje onder de hintknoppen (zelfdovend, zie maybeShowHintNudge). */
@@ -927,7 +990,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .year-pill {
   display: inline-block;
   background: var(--green);
-  color: #111;
+  color: var(--on-badge);
   padding: 0.15rem 0.7rem;
   border-radius: 999px;
   font-weight: 700;
@@ -1135,7 +1198,7 @@ footer {
   border-radius: 12px;
   max-width: 28rem;
   width: 100%;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-modal);
   max-height: 90vh;
   overflow: auto;
 }
@@ -1206,12 +1269,12 @@ footer {
 }
 .modal-actions button.primary {
   background: var(--accent);
-  color: #111;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 .form-error {
   margin: 0;
-  color: #ff8a8a;
+  color: var(--danger);
   font-size: 0.85rem;
 }
 .form-note {
@@ -1296,7 +1359,7 @@ footer {
   padding: 2px 8px;
   border-radius: 4px;
   background: var(--accent);
-  color: #0d1b33;
+  color: var(--on-accent);
   font-weight: 700;
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
@@ -1308,7 +1371,7 @@ footer {
 .dist-faster {
   text-align: center;
   font-weight: 700;
-  color: var(--green);
+  color: var(--green-text);
   margin: 0.7rem 0 0;
   font-size: 0.98rem;
 }
@@ -1327,7 +1390,7 @@ footer {
   padding: 0 0.4em;
   border-radius: 4px;
   font-weight: 700;
-  color: #0d1b33;
+  color: var(--on-badge);
   font-variant-numeric: tabular-nums;
 }
 .dist-chip.correct   { background: var(--green); }
@@ -1369,7 +1432,7 @@ footer {
 .recap-cta { text-align: center; margin-top: 0.7rem; }
 .recap-cta button {
   background: var(--accent);
-  color: #0d1b33;
+  color: var(--on-accent);
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1.1rem;
@@ -1385,7 +1448,7 @@ footer {
 .recap-streak {
   text-align: center;
   font-weight: 600;
-  color: #ff9d4d;
+  color: var(--flame);
   margin: 0;
 }
 .recap-streak + .recap-section { margin-top: 0; }
@@ -1473,8 +1536,8 @@ footer {
 @keyframes rating-settle { 30% { text-shadow: 0 0 12px var(--accent); } }
 .rating-delta { display: inline-block; margin-left: 0.35em; font-weight: 700;
   animation: delta-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.9s both; }
-.rating-delta.up { color: var(--green); }
-.rating-delta.down { color: var(--red); }
+.rating-delta.up { color: var(--green-text); }
+.rating-delta.down { color: var(--red-text); }
 /* ±0: het getal telt niet op, dus de badge popt zonder de 0.9s wachttijd. */
 .rating-delta.zero { color: var(--muted); animation-delay: 0.15s; }
 @keyframes delta-pop { from { opacity: 0; transform: scale(0.3) rotate(-8deg); } }
@@ -1499,7 +1562,7 @@ footer {
 .rating-chart .hover-dot { fill: var(--accent); stroke: var(--card); stroke-width: 2; opacity: 0; }
 .chart-tip { position: absolute; pointer-events: none; white-space: nowrap;
   background: var(--card-soft); border: 1px solid var(--border); border-radius: 6px;
-  padding: 0.25rem 0.5rem; font-size: 0.8rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+  padding: 0.25rem 0.5rem; font-size: 0.8rem; box-shadow: var(--shadow-tip); }
 .chart-tip strong { font-variant-numeric: tabular-nums; }
 .daily-countdown { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
@@ -1606,7 +1669,7 @@ footer {
 /* Het cijfer van de nr. 1 in goud, met een zachte fonkeling. De twinkle staat
    alleen op het getal — .lb-score (daily) of een .lb-val zónder .lb-score
    (stat-borden) — zodat de gok-emoji's er geen gouden waas van krijgen. */
-.lb-row.lb-top1 .lb-val { color: #f4c430; }
+.lb-row.lb-top1 .lb-val { color: var(--gold-text); }
 .lb-row.lb-top1 .lb-score,
 .lb-row.lb-top1 .lb-val:not(:has(.lb-score)) { animation: lb-goldtwinkle 2.6s ease-in-out infinite; }
 @keyframes lb-goldtwinkle {
@@ -1649,7 +1712,7 @@ footer {
   cursor: pointer;
 }
 .lb-pillbtn:hover { background: var(--border); }
-.lb-pillbtn.danger { color: #ff8a8a; }
+.lb-pillbtn.danger { color: var(--danger); }
 /* pool-wissel-chips (alleen zichtbaar bij 2+ pools): actieve pool uitgelicht */
 .lb-poolchips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.9rem; }
 .lb-chip {
@@ -1666,7 +1729,7 @@ footer {
 }
 .lb-chip:hover { background: var(--border); }
 .lb-chip.sel { color: var(--fg); border-color: var(--accent); }
-.lb-invite-code { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--green); word-break: break-all; }
+.lb-invite-code { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--green-text); word-break: break-all; }
 /* maak/join-formulieren */
 .lb-form { margin: 0.9rem 0 0; }
 .lb-form-label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; }
@@ -1718,8 +1781,8 @@ footer {
 .lb-flair-clear { font-size: 0.85rem; color: var(--muted); }
 .lb-flair-badge { font-size: 0.95em; }
 .lb-name-status { margin: 0.6rem 0 0; font-size: 0.8rem; }
-.lb-name-status.ok { color: var(--green); }
-.lb-name-status.err { color: #ff8a8a; }
+.lb-name-status.ok { color: var(--green-text); }
+.lb-name-status.err { color: var(--danger); }
 /* join-bevestiging */
 .lb-confirm { text-align: center; padding: 1.2rem 0.5rem; }
 .lb-confirm-q { font-size: 1.05rem; font-weight: 600; margin: 0 0 0.3rem; }
@@ -1734,7 +1797,7 @@ footer {
   font-weight: 600;
   cursor: pointer;
 }
-.lb-confirm-actions button.primary { background: var(--accent); border-color: var(--accent); color: #08131f; }
+.lb-confirm-actions button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
 /* Crawlbaar/SEO + screenreader-introblok: voorgerenderd per taal door het
    build-script. Onzichtbaar voor zienden (verstoort de spel-UI niet), wél in de

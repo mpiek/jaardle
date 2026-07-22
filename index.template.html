@@ -64,11 +64,24 @@
      eigen locale, ?ref=pwa zodat GoatCounter installaties als bron toont). Bewust
      géén service worker: geen offline-waarde (spel = DB) en geen stale-cache-risico. -->
 <meta name="theme-color" content="#1a1a1a">
+<!-- Thema vóór de stylesheet zetten: voorkomt een donkere flits voor spelers met
+     het lichte thema. Donker is de default; licht is opt-in (⋮-menu, per apparaat).
+     De kleur hier in sync houden met --bg in style.css en THEME_COLORS in game.js. -->
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem("jaardle:theme") === "light") {
+        document.documentElement.dataset.theme = "light";
+        document.querySelector('meta[name="theme-color"]').content = "#f4f1ea";
+      }
+    } catch (e) { /* private mode zonder localStorage → donker */ }
+  })();
+</script>
 <link rel="manifest" href="{{manifestHref}}">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=97">
+<link rel="stylesheet" href="/style.css?v=98">
 </head>
 <body>
   <main>
@@ -83,6 +96,7 @@
           <div id="menu-account" class="menu-section"></div>
           <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">{{i18n:menu_stats}}</button>
           <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>{{i18n:menu_leaderboard}}</button>
+          <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">{{i18n:menu_theme}}</button>
         </div>
       </div>
       <div id="lang-wrap">
@@ -314,7 +328,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=158"></script>
+  <script src="/game.js?v=159"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

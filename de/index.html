@@ -24,7 +24,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-9phGxzewcZW1chQb98RptY7/kp7I43XU2XXO+UF5bsc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-Y7rcFPf/sI0ks8lpxuwV639yE7ljjJbC0qZxt9kf9T0=' 'sha256-9phGxzewcZW1chQb98RptY7/kp7I43XU2XXO+UF5bsc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
 <title>Jaardle — errate das Jahr</title>
 <meta name="description" content="Jaardle ist ein kostenloses tägliches Jahreszahlen-Ratespiel — das Jahrdle der Geschichte, im Stil von Wordle: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.">
 <link rel="canonical" href="https://jaardle.com/de">
@@ -69,11 +69,24 @@
      eigen locale, ?ref=pwa zodat GoatCounter installaties als bron toont). Bewust
      géén service worker: geen offline-waarde (spel = DB) en geen stale-cache-risico. -->
 <meta name="theme-color" content="#1a1a1a">
+<!-- Thema vóór de stylesheet zetten: voorkomt een donkere flits voor spelers met
+     het lichte thema. Donker is de default; licht is opt-in (⋮-menu, per apparaat).
+     De kleur hier in sync houden met --bg in style.css en THEME_COLORS in game.js. -->
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem("jaardle:theme") === "light") {
+        document.documentElement.dataset.theme = "light";
+        document.querySelector('meta[name="theme-color"]').content = "#f4f1ea";
+      }
+    } catch (e) { /* private mode zonder localStorage → donker */ }
+  })();
+</script>
 <link rel="manifest" href="/de/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=97">
+<link rel="stylesheet" href="/style.css?v=98">
 </head>
 <body>
   <main>
@@ -88,6 +101,7 @@
           <div id="menu-account" class="menu-section"></div>
           <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Statistiken</button>
           <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Bestenliste</button>
+          <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">☀️ Helles Design</button>
         </div>
       </div>
       <div id="lang-wrap">
@@ -329,7 +343,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=158"></script>
+  <script src="/game.js?v=159"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

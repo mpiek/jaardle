@@ -118,6 +118,7 @@ const I18N = {
     tab_daily: "Dagelijkse Jaardle", tab_free: "Nieuw spel",
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     menu_login_short: "Inloggen",
+    menu_theme: "☀️ Licht thema",
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
     aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten",
     hint_nudge: (p) => `Tip: 🔢 verklapt het laatste cijfer (−${p} punten)`,
@@ -250,6 +251,7 @@ const I18N = {
     tab_daily: "Daily Jaardle", tab_free: "New game",
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     menu_login_short: "Sign in",
+    menu_theme: "☀️ Light theme",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
     aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close",
     hint_nudge: (p) => `Tip: 🔢 reveals the last digit (−${p} points)`,
@@ -387,6 +389,7 @@ const I18N = {
     tab_daily: "Tägliches Jaardle", tab_free: "Neues Spiel",
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
     menu_login_short: "Anmelden",
+    menu_theme: "☀️ Helles Design",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
     aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen",
     hint_nudge: (p) => `Tipp: 🔢 verrät die letzte Ziffer (−${p} Punkte)`,
@@ -518,6 +521,7 @@ const I18N = {
     tab_daily: "Jaardle diario", tab_free: "Partida nueva",
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
     menu_login_short: "Entrar",
+    menu_theme: "☀️ Tema claro",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar",
     hint_nudge: (p) => `Consejo: 🔢 revela el último dígito (−${p} puntos)`,
@@ -654,6 +658,7 @@ const I18N = {
     tab_daily: "Jaardle diário", tab_free: "Jogo novo",
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
     menu_login_short: "Entrar",
+    menu_theme: "☀️ Tema claro",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar",
     hint_nudge: (p) => `Dica: 🔢 revela o último dígito (−${p} pontos)`,
@@ -1896,7 +1901,9 @@ function showConfetti() {
 // ontploffen, elk een ring deeltjes die naar buiten schiet (met een beetje
 // zwaartekracht). Bewust forser dan de confetti — dit is de zeldzame topscore.
 function showFireworks() {
-  const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff", "#ff5fa2", "#ffffff"];
+  // Wit spat het mooist op donker; op het lichte thema is het onzichtbaar → leigrijs.
+  const spark = currentTheme() === "light" ? "#37474f" : "#ffffff";
+  const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff", "#ff5fa2", spark];
   const container = document.createElement("div");
   container.className = "fireworks-container";
   const bursts = 26;
@@ -3532,6 +3539,31 @@ function renderCalendar(history) {
   return wrap;
 }
 
+// --- Thema (licht/donker) --------------------------------------------------
+
+// Donker is de default; licht is opt-in per apparaat (jaardle:theme). Het
+// head-script in de template zet data-theme al vóór de stylesheet laadt (geen
+// flits); hier alleen de wissel + vinkje in het menu + browserbalk-kleur.
+const THEME_COLORS = { dark: "#1a1a1a", light: "#f4f1ea" };   // sync met --bg in style.css + head-script
+
+function currentTheme() {
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+}
+
+function applyTheme(theme) {
+  if (theme === "light") document.documentElement.dataset.theme = "light";
+  else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem("jaardle:theme", theme); } catch (e) {}
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = THEME_COLORS[theme];
+  syncThemeCheck();
+}
+
+function syncThemeCheck() {
+  const btn = document.querySelector('[data-action="theme"]');
+  if (btn) btn.setAttribute("aria-checked", String(currentTheme() === "light"));
+}
+
 // --- Menu + modals --------------------------------------------------------
 
 // Auth-state placeholder; Supabase-wiring zit in de module-bridge in index.html.
@@ -4191,8 +4223,14 @@ async function init() {
   menuPop.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-action]");
     if (!btn) return;
-    toggleMenu(false);
     const action = btn.dataset.action;
+    // Thema wisselt in-place; het menu blijft open zodat je het effect ziet
+    // en zo weer terug kunt.
+    if (action === "theme") {
+      applyTheme(currentTheme() === "light" ? "dark" : "light");
+      return;
+    }
+    toggleMenu(false);
     // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
     if (action === "stats") openModal("modal-stats");
     else if (action === "leaderboard") openModal("modal-leaderboard");
@@ -4220,6 +4258,7 @@ async function init() {
     }
   });
   renderMenu();
+  syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → vinkje bijzetten
 
   // Modals: backdrop / ✕ knop / Escape.
   document.querySelectorAll(".modal [data-close]").forEach((el) => {
