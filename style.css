@@ -815,41 +815,6 @@ kbd {
   margin-left: auto;
 }
 
-/* Gratis-hint-merkteken (💡 + grijs "extra hint") op de lege gok-plekken 2 en 4.
-   Die rijen zijn iets minder gedimd zodat het opvalt. De 💡 wipt alleen op de
-   eerstvolgende gok-plek (.next); op de verdere plek staat 'ie stil. */
-.guess-row.empty:has(.free-hint-marker) { opacity: 0.85; }
-.free-hint-marker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-.free-hint-bulb {
-  display: inline-block;
-  font-size: 0.95rem;
-  line-height: 1;
-}
-.free-hint-bulb.next { animation: free-hint-bob 2.2s ease-in-out infinite; }
-.free-hint-label {
-  font-size: 0.7rem;
-  color: var(--h-extra);   /* zelfde kleur als de zijlijn van de extra-hint */
-  opacity: 0.85;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-@keyframes free-hint-bob {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.18); }
-}
-
-/* Korte gele puls op de gok-rij wanneer de gratis hint vrijkomt (gok 2/4). */
-.guess-row.hint-unlocked { animation: hint-unlock 0.9s ease-out; }
-@keyframes hint-unlock {
-  0%   { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }
-  25%  { box-shadow: 0 0 0 3px rgba(244, 196, 48, 0.6); }
-  100% { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }
-}
-
 #input-row {
   margin-bottom: 0.4rem;
 }
@@ -1157,40 +1122,9 @@ footer {
   60%  { transform: scale(1.2); }
   100% { transform: scale(1);   opacity: 1; }
 }
-/* Lampjes-sliert: 💡 die van de gok-rij omhoog naar de carrousel zwiert zodra een
-   gratis hint vrijkomt (zie flyHintBulbs in game.js). */
-.bulb-stream {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1000;
-  overflow: hidden;
-}
-.bulb-stream .bulb {
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 20px;
-  line-height: 1;
-  filter: drop-shadow(0 0 6px rgba(244, 196, 48, 0.9));
-  will-change: transform, opacity;
-}
-/* De carrousel 'vangt' de lampjes op met twee rustige gele glow-pulsen, met een
-   donkere tussenpauze ertussen zodat het als puls–puls leest (niet één lange glow,
-   en niet te snel flikkerend). ease-in-out = zachte op/neer i.p.v. harde randen. */
-.fact-carousel.hint-arrived { animation: hint-catch 1s ease-in-out; }
-@keyframes hint-catch {
-  0%   { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }
-  18%  { box-shadow: 0 0 16px 4px rgba(244, 196, 48, 0.65); }   /* puls 1 piek */
-  38%  { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }           /* uit */
-  54%  { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }           /* donkere pauze */
-  72%  { box-shadow: 0 0 16px 4px rgba(244, 196, 48, 0.65); }   /* puls 2 piek */
-  100% { box-shadow: 0 0 0 0 rgba(244, 196, 48, 0); }
-}
 @media (prefers-reduced-motion: reduce) {
   .confetti-piece { display: none; }
   .firework-particle { display: none; }
-  .bulb-stream { display: none; }
   .year-pill.win-pop { animation: none; }
 }
 

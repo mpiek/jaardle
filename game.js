@@ -2,9 +2,6 @@ const MAX_GUESSES = 6;
 const FACTS_PER_PUZZLE = 1;
 const MAX_EXTRA_HINTS = 2;
 const MAX_DIRECTION_HINTS = 2;
-// Twee gratis zelfde-tijd-extra's komen vrij bij gok 1 en gok 2 → gok-rij-index 0 en 1.
-// Waarde = hoeveelste extra (1e/2e) bij die rij hoort.
-const LATER_FREE_AT_ROW = { 0: 1, 1: 2 };
 const EPOCH = new Date(Date.UTC(2026, 5, 6));   // v1-launch: dag #1 = 2026-06-06
 const EPOCH_KEY = EPOCH.toISOString().slice(0, 10);   // "2026-06-06" — eerste browsbare daily
 const MIN_YEAR = -753;
@@ -56,7 +53,7 @@ let lang = (() => {
 })();
 
 const HELP_NL = `
-  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel komen er bij gok 1 en gok 2 <strong>gratis</strong> twee extra feiten uit hetzelfde jaar bij (💡 geel).</li>
+  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel staan vanaf de start <strong>gratis</strong> twee extra feiten uit hetzelfde jaar (💡 geel) — swipe ernaartoe.</li>
   <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100, 250, 500, 1000 en 1500 jaar later</strong> (gebeurtenissen ná het antwoord), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
   <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
@@ -67,7 +64,7 @@ const HELP_NL = `
   <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
   <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
 const HELP_EN = `
-  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. In the carousel, guesses 1 and 2 each add a <strong>free</strong> extra fact from the same year (💡 yellow).</li>
+  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. From the start, the carousel holds two <strong>free</strong> extra facts from the same year (💡 yellow) — swipe to see them.</li>
   <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100, 250, 500, 1000 and 1500 years later</strong> (events after the answer), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
   <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
   <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
@@ -78,7 +75,7 @@ const HELP_EN = `
   <li><strong>New game</strong>: endless rounds, a random event.</li>
   <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
 const HELP_DE = `
-  <li>Du bekommst ein Ereignis aus einem Jahr und <span data-help="max-guesses"></span> Versuche, dieses Jahr zu erraten. Im Karussell kommen bei Versuch 1 und 2 jeweils <strong>gratis</strong> zwei zusätzliche Fakten aus demselben Jahr dazu (💡 gelb).</li>
+  <li>Du bekommst ein Ereignis aus einem Jahr und <span data-help="max-guesses"></span> Versuche, dieses Jahr zu erraten. Im Karussell stehen von Anfang an <strong>gratis</strong> zwei zusätzliche Fakten aus demselben Jahr (💡 gelb) — wische einfach hin.</li>
   <li><strong>Wische durch das Karussell für mehr Hinweise</strong> — tippe auf „Aufdecken" (kostet Punkte): <strong>⏩ 100, 250, 500, 1000 und 1500 Jahre später</strong> (Ereignisse nach dem Antwortjahr), <strong>🏛️ Epoche</strong> (das Jahrhundert) und die <strong>🔢 letzte Ziffer</strong> des Jahres.</li>
   <li>Jeder Versuch zeigt ein farbiges Feld mit einer Spanne. Die Richtung (↑/↓) bleibt verborgen, bis du danach fragst.</li>
   <li>Max. <strong><span data-help="max-dir-hints"></span> Richtungshinweise</strong> (🧭) pro Rätsel. Ein Richtungshinweis zeigt den Pfeil nur bei deinem letzten Versuch.</li>
@@ -89,7 +86,7 @@ const HELP_DE = `
   <li><strong>Neues Spiel</strong>: endlose Runden, ein zufälliges Ereignis.</li>
   <li><strong>Tasten</strong>: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>R</kbd> für einen Richtungshinweis, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>`;
 const HELP_ES = `
-  <li>Recibes un acontecimiento de un año y <span data-help="max-guesses"></span> intentos para adivinar ese año. En el carrusel, los intentos 1 y 2 añaden cada uno <strong>gratis</strong> dos datos adicionales del mismo año (💡 amarillo).</li>
+  <li>Recibes un acontecimiento de un año y <span data-help="max-guesses"></span> intentos para adivinar ese año. Desde el inicio, el carrusel incluye <strong>gratis</strong> dos datos adicionales del mismo año (💡 amarillo) — desliza para verlos.</li>
   <li><strong>Desliza el carrusel para más pistas</strong> — toca «Revelar» (resta puntos): <strong>⏩ 100, 250, 500, 1000 y 1500 años después</strong> (acontecimientos posteriores a la respuesta), <strong>🏛️ época</strong> (el siglo) y la <strong>🔢 última cifra</strong> del año.</li>
   <li>Cada intento muestra una etiqueta de color con un margen. La dirección (↑/↓) permanece oculta hasta que la pidas.</li>
   <li>Máx. <strong><span data-help="max-dir-hints"></span> pistas de dirección</strong> (🧭) por puzle. Una pista de dirección revela la flecha solo en tu último intento.</li>
@@ -100,7 +97,7 @@ const HELP_ES = `
   <li><strong>Partida nueva</strong>: rondas infinitas, un acontecimiento aleatorio.</li>
   <li><strong>Teclas</strong>: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>R</kbd> para una pista de dirección, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>`;
 const HELP_PT = `
-  <li>Você recebe um acontecimento de um ano e <span data-help="max-guesses"></span> tentativas para adivinhar esse ano. No carrossel, as tentativas 1 e 2 adicionam cada uma <strong>grátis</strong> dois fatos extras do mesmo ano (💡 amarelo).</li>
+  <li>Você recebe um acontecimento de um ano e <span data-help="max-guesses"></span> tentativas para adivinhar esse ano. Desde o início, o carrossel traz <strong>grátis</strong> dois fatos extras do mesmo ano (💡 amarelo) — deslize para vê-los.</li>
   <li><strong>Deslize o carrossel para mais dicas</strong> — toque em "Revelar" (custa pontos): <strong>⏩ 100, 250, 500, 1000 e 1500 anos depois</strong> (acontecimentos posteriores à resposta), <strong>🏛️ era</strong> (o século) e o <strong>🔢 último algarismo</strong> do ano.</li>
   <li>Cada tentativa mostra uma etiqueta colorida com uma faixa. A direção (↑/↓) fica oculta até você pedir.</li>
   <li>Máx. <strong><span data-help="max-dir-hints"></span> dicas de direção</strong> (🧭) por quebra-cabeça. Uma dica de direção revela a seta apenas na sua última tentativa.</li>
@@ -131,7 +128,6 @@ const I18N = {
     main_label: "Dit jaar", extra_label: "Ook dit jaar",
     century_label: "Tijdvak",
     digit_label: "Laatste cijfer",
-    free_hint: "extra hint",
     score_label: "punten",
     diff_easy: "Moeilijkheid: makkelijk", diff_med: "Moeilijkheid: gemiddeld", diff_hard: "Moeilijkheid: pittig",
     later_label: (y) => `${y} jaar later`,
@@ -269,7 +265,6 @@ const I18N = {
     main_label: "This year", extra_label: "Also this year",
     century_label: "Era",
     digit_label: "Last digit",
-    free_hint: "extra hint",
     score_label: "points",
     diff_easy: "Difficulty: easy", diff_med: "Difficulty: medium", diff_hard: "Difficulty: tough",
     later_label: (y) => `${y} years later`,
@@ -412,7 +407,6 @@ const I18N = {
     main_label: "Dieses Jahr", extra_label: "Auch dieses Jahr",
     century_label: "Epoche",
     digit_label: "Letzte Ziffer",
-    free_hint: "Extra-Hinweis",
     score_label: "Punkte",
     diff_easy: "Schwierigkeit: leicht", diff_med: "Schwierigkeit: mittel", diff_hard: "Schwierigkeit: knifflig",
     later_label: (y) => `${y} Jahre später`,
@@ -549,7 +543,6 @@ const I18N = {
     main_label: "Este año", extra_label: "También este año",
     century_label: "Época",
     digit_label: "Última cifra",
-    free_hint: "Pista extra",
     score_label: "Puntos",
     diff_easy: "Dificultad: fácil", diff_med: "Dificultad: media", diff_hard: "Dificultad: difícil",
     later_label: (y) => `${y} años después`,
@@ -691,7 +684,6 @@ const I18N = {
     main_label: "Este ano", extra_label: "Também neste ano",
     century_label: "Era",
     digit_label: "Último algarismo",
-    free_hint: "Dica extra",
     score_label: "Pontos",
     diff_easy: "Dificuldade: fácil", diff_med: "Dificuldade: média", diff_hard: "Dificuldade: difícil",
     later_label: (y) => `${y} anos depois`,
@@ -1228,29 +1220,17 @@ function availableExtras() {
   return Math.min(state.event.extras.length, MAX_EXTRA_HINTS);
 }
 
-// Aantal gratis "zelfde tijd"-extra's dat nu zichtbaar is: automatisch onthuld bij
-// gok 1 en gok 2 (één per keer), ná afloop allemaal. Geen strafpunten.
-function revealedExtraCount() {
-  if (!state || !state.event) return 0;
-  // Verlies: toon alle beschikbare extra's ter lering. Anders (spel + winst): de
-  // twee gratis extra's die bij gok 1 en gok 2 vrijkomen.
-  if (state.done && !state.won) return availableExtras();
-  // De gratis extra komt alleen vrij als je ná een gok dóórspeelt: de gok die
-  // het spel wint telt niet mee (die had de hint niet meer nodig). Zonder deze
-  // aftrek kreeg je bij winst-in-1-gok tóch de "2e" hint (de extra) te zien.
-  const g = state.guesses.length - (state.won ? 1 : 0);
-  return Math.min(availableExtras(), (g >= 1 ? 1 : 0) + (g >= 2 ? 1 : 0));
-}
-
 // De carrousel ÍS de hint-deck. Volgorde: hoofdfeit → gratis zelfde-tijd-extra's
-// (💡 geel, bij gok 1/2) → ⏩ "100 jaar later" → 🏛️ eeuw → 🔢 laatste cijfer.
+// (💡 geel, vanaf de start) → ⏩ "100 jaar later" → 🏛️ eeuw → 🔢 laatste cijfer.
 // Betaalde hints staan als "tik om te onthullen"-slot (locked) en morphen naar hun
 // inhoud zodra je betaalt. Ná afloop staat alles open om na te lezen.
 function factSlides() {
   if (!state || !state.event) return [];
   const slides = state.event.facts.map((f) => ({ kind: "main", ...f }));
-  // Gratis zelfde-tijd-extra's (geel), onthuld bij gok 1/2.
-  const ex = revealedExtraCount();
+  // Gratis zelfde-tijd-extra's (geel): vanaf de start zichtbaar — de start is het
+  // enige rustige leesmoment; wat later "vrijkomt" wordt niet gelezen (de aandacht
+  // zit dan bij het bord).
+  const ex = availableExtras();
   for (let i = 0; i < ex; i++) {
     const f = state.event.extras[i];
     if (f) slides.push({ kind: "extra", ...f });
@@ -1550,8 +1530,8 @@ function eraName(year) {
 // (deterministisch per antwoord-hash via get_century_clues) — grof tijdperk +
 // impliciet richting (antwoord ligt vóór die gebeurtenis). Opgevraagd via de
 // ⏩-knop (kost punten, één per venster) en getoond als oranje carrousel-slides.
-// De gratis zelfde-tijd-extra's bij gok 1/2 staan los hiervan (zie
-// revealedExtraCount). Fallback "toekomst" als antwoordjaar+venster > nu.
+// De gratis zelfde-tijd-extra's staan los hiervan (die staan vanaf de start in de
+// carrousel, zie factSlides). Fallback "toekomst" als antwoordjaar+venster > nu.
 
 // ⏩-clue venster-afstanden (jaar ná het antwoord), in onthul-volgorde. Eén plek
 // om een venster toe te voegen: labels/teksten zijn taal-geparametriseerd op het
@@ -1932,24 +1912,6 @@ function renderGuesses() {
     } else {
       const row = document.createElement("div");
       row.className = "guess-row empty";
-      // Op de plekken waar een gratis (gele) zelfde-tijd-extra vrijkomt — gok 1 en 2,
-      // dus rij-index 0 en 1 — een 💡 + grijs "extra hint"-label zodat je 't ziet
-      // aankomen. De 💡 pulseert alleen op de eerstvolgende gok-plek.
-      const needExtra = LATER_FREE_AT_ROW[idx];   // hoeveelste extra hoort bij deze rij
-      if (!state.done && needExtra && availableExtras() >= needExtra) {
-        const m = document.createElement("span");
-        m.className = "free-hint-marker";
-        const bulb = document.createElement("span");
-        bulb.className = "free-hint-bulb" + (idx === state.guesses.length ? " next" : "");
-        bulb.textContent = "💡";
-        const lbl = document.createElement("span");
-        lbl.className = "free-hint-label";
-        // Altijd "extra hint" — ook op de eerste plek (gok 1). Eerder stond hier
-        // "raad het jaar", maar het label hoort overal consistent "extra hint" te zijn.
-        lbl.textContent = t("free_hint");
-        m.append(bulb, lbl);
-        row.appendChild(m);
-      }
       const slot = document.createElement("span");
       slot.className = "slot-num";
       slot.textContent = `${idx + 1}`;
@@ -2016,47 +1978,6 @@ function showFireworks() {
   }
   document.body.appendChild(container);
   setTimeout(() => container.remove(), (maxEnd + 0.5) * 1000);
-}
-
-// Een sliert lampjes (💡) die van de zojuist gespeelde gok-rij omhoog naar de
-// carrousel zwiert wanneer er een gratis hint vrijkomt. De beweging trekt het oog
-// naar het nieuwe feit bovenin (i.p.v. een melding die je moet wegtikken). Vuurt
-// élke keer — het is een korte, leuke beweging, geen blijvend merkteken. Uit bij
-// prefers-reduced-motion.
-function flyHintBulbs(fromEl, toEl) {
-  if (!fromEl || !toEl) return;
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const a = fromEl.getBoundingClientRect();
-  const b = toEl.getBoundingClientRect();
-  const sx = a.left + a.width * 0.5, sy = a.top + a.height * 0.5;   // start: midden gok-rij
-  const tx = b.left + b.width * 0.5, ty = b.top + b.height * 0.55;  // doel: de carrousel
-  const container = document.createElement("div");
-  container.className = "bulb-stream";
-  const N = 7;
-  let maxEnd = 0;
-  for (let i = 0; i < N; i++) {
-    const bulb = document.createElement("span");
-    bulb.className = "bulb";
-    bulb.textContent = "💡";
-    container.appendChild(bulb);
-    const jx = (Math.random() - 0.5) * 38, jy = (Math.random() - 0.5) * 16;  // spreiding bij start
-    const ex = (Math.random() - 0.5) * 44;                                   // spreiding bij carrousel
-    const dir = i % 2 === 0 ? 1 : -1;
-    const swirl = (46 + Math.random() * 44) * dir;                           // zijwaartse zwieer
-    const midx = (sx + jx + tx + ex) / 2 + swirl, midy = (sy + jy + ty) / 2 - 12;
-    const delay = i * 65, dur = 820 + Math.random() * 260;
-    maxEnd = Math.max(maxEnd, delay + dur);
-    bulb.animate([
-      { transform: `translate(${sx + jx}px, ${sy + jy}px) scale(0.3) rotate(0deg)`, opacity: 0 },
-      { transform: `translate(${sx + jx}px, ${sy + jy}px) scale(1) rotate(-8deg)`, opacity: 1, offset: 0.14 },
-      { transform: `translate(${midx}px, ${midy}px) scale(1.05) rotate(${8 * dir}deg)`, opacity: 1, offset: 0.55 },
-      { transform: `translate(${tx + ex}px, ${ty}px) scale(0.5) rotate(0deg)`, opacity: 0 },
-    ], { duration: dur, delay, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" });
-  }
-  document.body.appendChild(container);
-  setTimeout(() => toEl.classList.add("hint-arrived"), Math.max(0, maxEnd - 240));
-  // 'hint-arrived' moet blijven staan tot de catch-glow (1s) helemaal klaar is.
-  setTimeout(() => { toEl.classList.remove("hint-arrived"); container.remove(); }, maxEnd + 900);
 }
 
 function finishGame(won, fresh = false) {
@@ -4075,29 +3996,6 @@ function submitGuess() {
   }
   save();
   renderHintStatus();
-  // Komt er bij deze gok een gratis zelfde-tijd-extra vrij (bij gok 1 → 1e, gok 2 → 2e)?
-  // Herbouw de carrousel, schuif naar de nieuwe gele slide en geef de zojuist
-  // gevulde gok-rij een korte gele "unlocked"-puls op de plek van de placeholder.
-  const gl = state.guesses.length;
-  // De gratis extra (+ lampjes-animatie) komt alleen vrij als je dóórspeelt: niet als
-  // deze gok het spel wint of je laatste poging was — dan krijg je de hint niet.
-  const willFinish = cls === "correct" || state.guesses.length >= MAX_GUESSES;
-  const unlocksExtra = !state.done && !willFinish &&
-    ((gl === 1 && availableExtras() >= 1) || (gl === 2 && availableExtras() >= 2));
-  if (unlocksExtra) {
-    renderEvent();
-    const track = els.eventText.querySelector(".fact-track");
-    if (track) void track.offsetWidth;
-    goToSlide(state.event.facts.length + revealedExtraCount() - 1);
-    const justRow = els.guesses.querySelectorAll(".guess-row")[gl - 1];
-    const carousel = els.eventText.querySelector(".fact-carousel");
-    if (justRow) {
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        justRow.classList.add("hint-unlocked");
-        flyHintBulbs(justRow, carousel);   // lampjes zwieren omhoog naar het nieuwe feit
-      }));
-    }
-  }
   updateLiveScore(true);   // tel zichtbaar omlaag bij deze (mis)gok
   if (cls === "correct") {
     finishGame(true, true);
