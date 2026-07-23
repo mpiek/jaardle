@@ -240,6 +240,8 @@ const I18N = {
       `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`,
     rating_line: "Jouw rating",
     stats_rating: "Rating-verloop",
+    rating_peak: "Hoogste",
+    rating_low: "Laagste",
     // SEO/meta — door tools/build-html.mjs in de <head> + het introblok gezet.
     meta_title: "Jaardle — raad het jaar",
     meta_share_title: "Jaardle — raad het jaar van historische gebeurtenissen",
@@ -378,6 +380,8 @@ const I18N = {
       `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`,
     rating_line: "Your rating",
     stats_rating: "Rating progression",
+    rating_peak: "Highest",
+    rating_low: "Lowest",
     // SEO/meta — used by tools/build-html.mjs for the <head> + intro block.
     meta_title: "Jaardle — guess the year",
     meta_share_title: "Jaardle — guess the year of historic events",
@@ -511,6 +515,8 @@ const I18N = {
       `🌍 ${s.games} Spieler · ${s.win_pct}% gelöst${hasScore ? ` · Ø Punkte ${s.avg_score}/100` : ""} · Ø ${s.avg_guesses} Versuche · ${s.first_try_pct}% beim ersten Versuch`,
     rating_line: "Dein Rating",
     stats_rating: "Ratingverlauf",
+    rating_peak: "Höchstwert",
+    rating_low: "Tiefstwert",
     meta_title: "Jaardle — errate das Jahr",
     meta_share_title: "Jaardle — errate das Jahr historischer Ereignisse",
     meta_desc: "Jaardle ist ein kostenloses tägliches Jahreszahlen-Ratespiel — das Jahrdle der Geschichte, im Stil von Wordle: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.",
@@ -648,6 +654,8 @@ const I18N = {
       `🌍 ${s.games} jugadores · ${s.win_pct}% resuelto${hasScore ? ` · puntos medios ${s.avg_score}/100` : ""} · ${s.avg_guesses} intentos de media · ${s.first_try_pct}% al primer intento`,
     rating_line: "Tu rating",
     stats_rating: "Evolución del rating",
+    rating_peak: "Máximo",
+    rating_low: "Mínimo",
     meta_title: "Jaardle — adivina el año",
     meta_share_title: "Jaardle — adivina el año de acontecimientos históricos",
     meta_desc: "Jaardle es un juego diario y gratuito de adivinar años — el Añodle de la historia, al estilo de Wordle: adivina en seis intentos el año de un acontecimiento histórico. Puzle diario o partida libre infinita.",
@@ -785,6 +793,8 @@ const I18N = {
       `🌍 ${s.games} jogadores · ${s.win_pct}% resolvido${hasScore ? ` · pontos médios ${s.avg_score}/100` : ""} · ${s.avg_guesses} tentativas em média · ${s.first_try_pct}% no primeiro palpite`,
     rating_line: "Seu rating",
     stats_rating: "Evolução do rating",
+    rating_peak: "Máximo",
+    rating_low: "Mínimo",
     meta_title: "Jaardle — adivinhe o ano",
     meta_share_title: "Jaardle — adivinhe o ano de acontecimentos históricos",
     meta_desc: "Jaardle é um jogo diário e gratuito de adivinhar anos — o Anodle da história, no estilo de Wordle: adivinhe em seis tentativas o ano de um acontecimento histórico. Quebra-cabeça diário ou jogo livre infinito.",
@@ -3489,9 +3499,17 @@ async function renderStats() {
 // (record_play appendt live, de nachtelijke replay herbouwt — een kleine
 // ochtend-verschuiving is dus normaal). Alleen ingelogd; verbergt zich zolang
 // er nog geen twee dagen aan punten zijn (één punt is geen lijn).
+// Piek/dal komen apart uit get_my_rating_extremes (db/32): per pót i.p.v. per
+// dag (de echte piek kan 's avonds alweer weggezakt zijn) en pas vanaf pot 25
+// (zelfde grens als is_provisional op het bord) — geeft null tot die tijd.
 async function renderRatingStats(body) {
-  let hist;
-  try { hist = await rpc("get_my_rating_history", {}); } catch (e) { return; }
+  let hist, ext;
+  try {
+    [hist, ext] = await Promise.all([
+      rpc("get_my_rating_history", {}),
+      rpc("get_my_rating_extremes", {}).catch(() => null),
+    ]);
+  } catch (e) { return; }
   if (!Array.isArray(hist) || hist.length < 2) return;
   if (document.getElementById("modal-stats").hidden) return;
 
@@ -3515,6 +3533,9 @@ async function renderRatingStats(body) {
   const delta = last.elo - first.elo;
   const badge = delta === 0 ? "" :
     `<span class="rating-delta ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : "−"}${Math.abs(delta)}</span>`;
+  const extremes = ext && ext.hi && ext.lo ? `
+    <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${ext.hi.elo}</strong> <span>(${fmtDailyDate(ext.hi.d)})</span>
+      · 📉 ${t("rating_low")}: <strong>${ext.lo.elo}</strong> <span>(${fmtDailyDate(ext.lo.d)})</span></p>` : "";
   const sec = document.createElement("div");
   sec.className = "stats-section stats-rating";
   sec.innerHTML = `
@@ -3534,7 +3555,7 @@ async function renderRatingStats(body) {
         <circle class="hover-dot" cx="0" cy="0" r="4"></circle>
       </svg>
       <div class="chart-tip" hidden></div>
-    </div>`;
+    </div>${extremes}`;
   body.appendChild(sec);
 
   // Crosshair + tooltip: de wijzer snapt naar de dichtstbijzijnde dag (je mikt

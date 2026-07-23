@@ -1572,6 +1572,8 @@ footer {
 .rating-chart .end-dot { fill: var(--accent); }
 .rating-chart .hair { stroke: var(--muted); stroke-dasharray: 3 3; opacity: 0; }
 .rating-chart .hover-dot { fill: var(--accent); stroke: var(--card); stroke-width: 2; opacity: 0; }
+.rating-extremes { margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.rating-extremes strong { color: var(--fg); font-variant-numeric: tabular-nums; }
 .chart-tip { position: absolute; pointer-events: none; white-space: nowrap;
   background: var(--card-soft); border: 1px solid var(--border); border-radius: 6px;
   padding: 0.25rem 0.5rem; font-size: 0.8rem; box-shadow: var(--shadow-tip); }
