@@ -641,6 +641,31 @@ main {
 #hint-btn-century:hover    { background: color-mix(in srgb, var(--h-century) 14%, transparent); }
 #hint-btn-digit:hover     { background: color-mix(in srgb, var(--h-digit) 14%, transparent); }
 
+/* Gekochte 🏛️/🔢-hint morpht van knop naar waarde-chip op dezelfde plek: de
+   eeuw-band / het laatste cijfer blijft in beeld tijdens het gokken. Tik = terug
+   naar de bijbehorende carrousel-slide. Pil-vorm + tint onderscheidt "waarde"
+   van de koop-knoppen (rand + kosten). Pop-in speelt 1× bij verschijnen
+   (hidden → zichtbaar herstart de animatie; herrenderen niet). */
+.hint-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  animation: chip-pop 0.25s ease;
+}
+#hint-chip-century { color: var(--h-century); }
+#hint-chip-digit   { color: var(--h-digit); }
+.hint-chip:hover { filter: none; background: color-mix(in srgb, currentColor 22%, transparent); }
+@keyframes chip-pop {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
 .btn-cost {
   opacity: 0.7;
   font-size: 0.8em;

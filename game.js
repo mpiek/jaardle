@@ -918,6 +918,8 @@ const els = {
   hintBtnDir: document.getElementById("hint-btn-direction"),
   hintBtnCentury: document.getElementById("hint-btn-century"),
   hintBtnDigit: document.getElementById("hint-btn-digit"),
+  hintChipCentury: document.getElementById("hint-chip-century"),
+  hintChipDigit: document.getElementById("hint-chip-digit"),
   hintCount: document.getElementById("hint-count"),
   guesses: document.getElementById("guesses"),
   input: document.getElementById("year-input"),
@@ -1494,10 +1496,29 @@ function renderHintStatus() {
   els.hintBtnDir.hidden = state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
   if (els.hintBtnCentury) els.hintBtnCentury.hidden = state.done || state.centuryRevealed;
   if (els.hintBtnDigit) els.hintBtnDigit.hidden = state.done || state.lastDigitRevealed;
+  // Gekochte 🏛️/🔢 morpht naar een waarde-chip op de knop-plek: de band/het cijfer
+  // blijft in beeld tijdens het gokken (het "welke eeuw was het ook alweer?"-gat).
+  // Chip = écht gekocht — de verlies-onthulling in de carrousel voegt er geen toe.
+  renderHintChip(els.hintChipCentury, state.centuryRevealed, "🏛️",
+    () => centuryBand(state.event.year), "century_label");
+  renderHintChip(els.hintChipDigit, state.lastDigitRevealed, "🔢",
+    () => String(Math.abs(state.event.year) % 10), "digit_label");
   // Teller: ⏩ "100 jaar later" (altijd /2 zodra geladen — verraadt de toekomst-variant
   // niet) + 🧭 richtingen.
   const laterPart = availLater > 0 ? `⏩ ${state.laterCluesShown}/${availLater} · ` : "";
   els.hintCount.textContent = `${laterPart}🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${t("dir_word")}`;
+}
+
+// Vul één 🏛️/🔢-waarde-chip (zie renderHintStatus). value is lazy zodat er
+// niets berekend wordt vóór onthulling of zonder geladen event.
+function renderHintChip(el, revealed, emoji, value, labelKey) {
+  if (!el) return;
+  const show = !!(revealed && state?.event);
+  el.hidden = !show;
+  if (!show) return;
+  const v = value();
+  el.textContent = `${emoji} ${v}`;
+  el.setAttribute("aria-label", `${t(labelKey)}: ${v}`);
 }
 
 // Honderdtal-blok van een jaartal als leesbaar bereik: 1850 → "1800–1899",
@@ -4352,6 +4373,10 @@ async function init() {
     // ←/→ bladert door de carrousel (ook na afloop, om alle hints na te lezen).
     if (e.key === "ArrowLeft")  { goToSlide(factSlideIndex - 1); e.preventDefault(); return; }
     if (e.key === "ArrowRight") { goToSlide(factSlideIndex + 1); e.preventDefault(); return; }
+    // C/L ná aankoop = spring naar de 🏛️/🔢-slide (ook na afloop, net als ←/→);
+    // vóór aankoop kopen ze de hint (verderop).
+    if ((e.key === "c" || e.key === "C") && state?.centuryRevealed)  { goToHintSlide("century"); e.preventDefault(); return; }
+    if ((e.key === "l" || e.key === "L") && state?.lastDigitRevealed) { goToHintSlide("digit"); e.preventDefault(); return; }
     if (state && state.done) return;
     if (/^[0-9]$/.test(e.key)) { appendDigit(e.key); e.preventDefault(); }
     else if (e.key === "Backspace") { backspaceYear(); e.preventDefault(); }
@@ -4395,6 +4420,10 @@ async function init() {
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
   if (els.hintBtnCentury) els.hintBtnCentury.addEventListener("click", requestCenturyHint);
   if (els.hintBtnDigit) els.hintBtnDigit.addEventListener("click", requestLastDigit);
+  // Waarde-chip tikken = terug naar de bijbehorende slide (daar staat bij 🏛️ ook
+  // de periodenaam).
+  if (els.hintChipCentury) els.hintChipCentury.addEventListener("click", () => goToHintSlide("century"));
+  if (els.hintChipDigit) els.hintChipDigit.addEventListener("click", () => goToHintSlide("digit"));
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
   // ⋮-menu (Statistieken + Inloggen) is voor iedereen zichtbaar.
