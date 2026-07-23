@@ -177,7 +177,7 @@ const I18N = {
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
-    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges", lb_scope_all: "alle games",
+    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges", lb_stat_perfect: "Perfect-rate", lb_scope_all: "alle games",
     lb_scope_pool: "sinds deelname",
     lb_stat_prev: "Vorige stat", lb_stat_next: "Volgende stat",
     lb_empty_daily: "Nog niemand heeft de daily van vandaag gespeeld.",
@@ -315,7 +315,7 @@ const I18N = {
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
-    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins", lb_scope_all: "all games",
+    lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins", lb_stat_perfect: "Perfect rate", lb_scope_all: "all games",
     lb_scope_pool: "since joining",
     lb_stat_prev: "Previous stat", lb_stat_next: "Next stat",
     lb_empty_daily: "Nobody has played today's daily yet.",
@@ -448,7 +448,7 @@ const I18N = {
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
-    lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege", lb_scope_all: "alle Spiele",
+    lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege", lb_stat_perfect: "100er-Quote", lb_scope_all: "alle Spiele",
     lb_scope_pool: "seit Beitritt",
     lb_stat_prev: "Vorherige Statistik", lb_stat_next: "Nächste Statistik",
     lb_empty_daily: "Noch niemand hat das heutige Daily gespielt.",
@@ -585,7 +585,7 @@ const I18N = {
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
-    lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias", lb_scope_all: "todas las partidas",
+    lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias", lb_stat_perfect: "% perfectos", lb_scope_all: "todas las partidas",
     lb_scope_pool: "desde tu ingreso",
     lb_stat_prev: "Estadística anterior", lb_stat_next: "Estadística siguiente",
     lb_empty_daily: "Nadie ha jugado todavía el diario de hoy.",
@@ -722,7 +722,7 @@ const I18N = {
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
-    lb_stat_rating: "Pontuação", lb_stat_streak: "Sequência", lb_stat_dailywins: "Vitórias diárias", lb_scope_all: "todas as partidas",
+    lb_stat_rating: "Pontuação", lb_stat_streak: "Sequência", lb_stat_dailywins: "Vitórias diárias", lb_stat_perfect: "% perfeitos", lb_scope_all: "todas as partidas",
     lb_scope_pool: "desde a entrada",
     lb_stat_prev: "Estatística anterior", lb_stat_next: "Próxima estatística",
     lb_empty_daily: "Ninguém jogou o diário de hoje ainda.",
@@ -2452,8 +2452,8 @@ function setBoardLoading(el) {
 // De swipebare stat-kolommen van het all-time bord. Elke pagina sorteert dezelfde
 // ledenlijst aflopend op z'n stat. Rating komt uit get_pool_leaderboard (pagina 0,
 // al geladen); win%/score/streak uit get_pool_stats (lazy, zie renderStatBoard).
-// Win% en gem. score zijn vertekend bij weinig potjes (1 gewonnen = 100%), dus
-// pas vanaf LB_MIN_RANKED_GAMES tellen die kolommen mee in de ranking. Spelers
+// Win%, gem. score en perfect-rate zijn vertekend bij weinig potjes (1 gewonnen
+// = 100%), dus pas vanaf LB_MIN_RANKED_GAMES tellen die mee in de ranking. Spelers
 // eronder staan onderaan, gedimd, met hun voortgang (x/min) i.p.v. een waarde.
 const LB_MIN_RANKED_GAMES = 15;
 // note: () => t("lb_scope_all") = bijschrift "alle games" voor stats die over
@@ -2473,8 +2473,18 @@ const LB_STATS = [
   // die dag (db/23) — vandaar het bijschrift "sinds deelname".
   { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}`, note: () => t("lb_scope_pool") },
   { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}`, note: () => t("lb_scope_all") },
-  { key: "perfect",     label: () => t("stat_perfect"),      val: (r) => `${r.perfect ?? 0}`, note: () => t("lb_scope_all") },
+  // Perfect-rate: als rauwe teller was dit vrijwel een kloon van "Gespeeld"
+  // (meer spelen = meer 100's); als percentage meet 'ie kwaliteit — daarom ook
+  // gegated. Het absolute aantal blijft als klein bijschrift staan, maar telt
+  // niet mee voor de ranking: sorteren gaat op sortVal en de medailles worden
+  // gedeeld op alleen het percentage (rankVal), niet op de hele getoonde string.
+  { key: "perfect",     label: () => t("lb_stat_perfect"),   gate: true,
+    sortVal: (r) => (r.games ? (r.perfect || 0) / r.games : 0),
+    rankVal: (r) => lbPerfectPct(r),
+    val: (r) => `${lbPerfectPct(r)} <span class="lb-prov-n">${r.perfect ?? 0}×</span>`,
+    note: () => t("lb_scope_all") },
 ];
+const lbPerfectPct = (r) => `${(r.games ? ((r.perfect || 0) / r.games) * 100 : 0).toFixed(1)}%`;
 
 const lbNameCmp = (a, b) =>
   String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { sensitivity: "base" });
@@ -2520,12 +2530,12 @@ function lbGatedStatRows(list, stat) {
   if (!list.length) return `<p class="lb-empty">${t("lb_empty_overall")}</p>`;
   // asc-stats (gem. pogingen): lager = beter; een waarde van 0 betekent "nog geen
   // gewonnen potje" en hoort onderaan, niet bovenaan — dus naar Infinity.
-  const sortKey = (r) => { const v = r[stat.key] || 0; return stat.asc && !v ? Infinity : v; };
+  const sortKey = (r) => { const v = (stat.sortVal ? stat.sortVal(r) : r[stat.key]) || 0; return stat.asc && !v ? Infinity : v; };
   const ranked = list.filter((r) => (r.games || 0) >= LB_MIN_RANKED_GAMES)
     .sort((a, b) => (stat.asc ? sortKey(a) - sortKey(b) : sortKey(b) - sortKey(a)) || lbTieCmp(a, b));
   const pending = list.filter((r) => (r.games || 0) < LB_MIN_RANKED_GAMES)
     .sort((a, b) => ((b.games || 0) - (a.games || 0)) || lbTieCmp(a, b));
-  const rows = lbRanked(ranked, stat.val).map(([rank, r]) => lbRow(lbMedal(rank), r, stat.val(r), "", rank));
+  const rows = lbRanked(ranked, stat.rankVal || stat.val).map(([rank, r]) => lbRow(lbMedal(rank), r, stat.val(r), "", rank));
   // Sub-drempel: toon de echte (gedimde) waarde — anders zijn de win%- en
   // score-pagina's identiek als iedereen ongerankt is en lijkt swipen vast te zitten.
   // Het games-aantal (x/15) staat als klein bijschrift zodat de drempel zichtbaar blijft.
