@@ -242,6 +242,9 @@ const I18N = {
     stats_rating: "Rating-verloop",
     rating_peak: "Hoogste",
     rating_low: "Laagste",
+    menu_rating: "⚡ Rating",
+    rating_empty: "Nog te weinig historie — na twee dagen spelen verschijnt hier je rating-grafiek.",
+    rating_anon: "Je rating is gekoppeld aan je account — log in om je verloop te zien.",
     // SEO/meta — door tools/build-html.mjs in de <head> + het introblok gezet.
     meta_title: "Jaardle — raad het jaar",
     meta_share_title: "Jaardle — raad het jaar van historische gebeurtenissen",
@@ -382,6 +385,9 @@ const I18N = {
     stats_rating: "Rating progression",
     rating_peak: "Highest",
     rating_low: "Lowest",
+    menu_rating: "⚡ Rating",
+    rating_empty: "Not enough history yet — your rating graph appears after two days of play.",
+    rating_anon: "Your rating is tied to your account — sign in to see your progression.",
     // SEO/meta — used by tools/build-html.mjs for the <head> + intro block.
     meta_title: "Jaardle — guess the year",
     meta_share_title: "Jaardle — guess the year of historic events",
@@ -517,6 +523,9 @@ const I18N = {
     stats_rating: "Ratingverlauf",
     rating_peak: "Höchstwert",
     rating_low: "Tiefstwert",
+    menu_rating: "⚡ Rating",
+    rating_empty: "Noch zu wenig Verlauf — nach zwei Spieltagen erscheint hier dein Rating-Diagramm.",
+    rating_anon: "Dein Rating ist mit deinem Konto verknüpft — melde dich an, um deinen Verlauf zu sehen.",
     meta_title: "Jaardle — errate das Jahr",
     meta_share_title: "Jaardle — errate das Jahr historischer Ereignisse",
     meta_desc: "Jaardle ist ein kostenloses tägliches Jahreszahlen-Ratespiel — das Jahrdle der Geschichte, im Stil von Wordle: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.",
@@ -656,6 +665,9 @@ const I18N = {
     stats_rating: "Evolución del rating",
     rating_peak: "Máximo",
     rating_low: "Mínimo",
+    menu_rating: "⚡ Rating",
+    rating_empty: "Aún no hay historial suficiente: tu gráfica de rating aparecerá tras dos días de juego.",
+    rating_anon: "Tu rating está vinculado a tu cuenta: inicia sesión para ver tu evolución.",
     meta_title: "Jaardle — adivina el año",
     meta_share_title: "Jaardle — adivina el año de acontecimientos históricos",
     meta_desc: "Jaardle es un juego diario y gratuito de adivinar años — el Añodle de la historia, al estilo de Wordle: adivina en seis intentos el año de un acontecimiento histórico. Puzle diario o partida libre infinita.",
@@ -795,6 +807,9 @@ const I18N = {
     stats_rating: "Evolução do rating",
     rating_peak: "Máximo",
     rating_low: "Mínimo",
+    menu_rating: "⚡ Rating",
+    rating_empty: "Ainda não há histórico suficiente — seu gráfico de rating aparece após dois dias de jogo.",
+    rating_anon: "Seu rating está vinculado à sua conta — faça login para ver sua evolução.",
     meta_title: "Jaardle — adivinhe o ano",
     meta_share_title: "Jaardle — adivinhe o ano de acontecimentos históricos",
     meta_desc: "Jaardle é um jogo diário e gratuito de adivinhar anos — o Anodle da história, no estilo de Wordle: adivinhe em seis tentativas o ano de um acontecimento histórico. Quebra-cabeça diário ou jogo livre infinito.",
@@ -840,6 +855,8 @@ function applyLang() {
   }
   const sm = document.getElementById("modal-stats");
   if (sm && !sm.hidden) renderStats();
+  const rm = document.getElementById("modal-rating");
+  if (rm && !rm.hidden) renderRatingModal();
 }
 
 // Zichtbare taalkeuze in de header (redactle-stijl dropdown), gevuld uit LANGS —
@@ -3032,6 +3049,18 @@ async function showLiveRating() {
     badge.textContent = delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
     el.append(badge);
   }
+  // De regel is een deur naar de rating-modal (chevron als hint).
+  const go = document.createElement("span");
+  go.className = "rating-go";
+  go.textContent = "›";
+  el.append(go);
+  el.classList.add("rating-line-link");
+  el.setAttribute("role", "button");
+  el.tabIndex = 0;
+  el.title = t("stats_rating");
+  const openRating = () => openModal("modal-rating");
+  el.onclick = openRating;
+  el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openRating(); } };
   els.resultText.after(el);
   // Tel het getal van oud naar nieuw (ease-out); de delta-badge popt via CSS
   // erachteraan. Bij reduced-motion of onbekende oude rating: meteen eindstand.
@@ -3491,14 +3520,31 @@ async function renderStats() {
     return;   // free/century-stats zijn DB-gebonden (auth.uid) — niets voor anon
   }
   await renderFreeStats(body);
-  await renderRatingStats(body);
   await renderCenturyStats(body);
+}
+
+// ⚡ Eigen rating-modal (menu-item onder 📊 Statistieken): anon krijgt de
+// account-pitch (rating ís het account-voordeel), ingelogd de grafiek — of een
+// leegmelding zolang er nog geen lijn te tekenen is.
+async function renderRatingModal() {
+  const body = document.getElementById("rating-body");
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  if (!auth.user) {
+    body.innerHTML = `<p class="stats-empty">${t("rating_anon")}</p>` + recapAccountHtml();
+    const btn = body.querySelector(".js-acct-btn");
+    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
+    return;
+  }
+  const drawn = await renderRatingStats(body);
+  if (document.getElementById("modal-rating").hidden) return;
+  if (!drawn) body.innerHTML = `<p class="stats-empty">${t("rating_empty")}</p>`;
 }
 
 // ⚡ Rating-verloop (lichess-stijl): per dag de laatste elo uit de DB-historie
 // (record_play appendt live, de nachtelijke replay herbouwt — een kleine
-// ochtend-verschuiving is dus normaal). Alleen ingelogd; verbergt zich zolang
-// er nog geen twee dagen aan punten zijn (één punt is geen lijn).
+// ochtend-verschuiving is dus normaal). Vult de rating-modal; geeft false zolang
+// er nog geen twee dagen aan punten zijn (één punt is geen lijn) — de caller
+// toont dan een leegmelding.
 // Piek/dal komen apart uit get_my_rating_extremes (db/32): per pót i.p.v. per
 // dag (de echte piek kan 's avonds alweer weggezakt zijn) en pas vanaf pot 25
 // (zelfde grens als is_provisional op het bord) — geeft null tot die tijd.
@@ -3509,9 +3555,9 @@ async function renderRatingStats(body) {
       rpc("get_my_rating_history", {}),
       rpc("get_my_rating_extremes", {}).catch(() => null),
     ]);
-  } catch (e) { return; }
-  if (!Array.isArray(hist) || hist.length < 2) return;
-  if (document.getElementById("modal-stats").hidden) return;
+  } catch (e) { return false; }
+  if (!Array.isArray(hist) || hist.length < 2) return false;
+  if (document.getElementById("modal-rating").hidden) return false;
 
   const pts = hist.map((p) => ({ t: Date.parse(p.d), d: p.d, elo: p.elo, n: p.n }));
   const first = pts[0], last = pts[pts.length - 1];
@@ -3520,9 +3566,10 @@ async function renderRatingStats(body) {
   const yLo = lo - pad, yHi = hi + pad;
 
   // Teken op de echte modalbreedte zodat de as-labels op ware grootte renderen
-  // (een vaste brede viewBox zou op mobiel alles mee laten krimpen).
+  // (een vaste brede viewBox zou op mobiel alles mee laten krimpen). Sinds de
+  // eigen modal mag de grafiek ook hoger dan toen 'ie onderin de stats hing.
   const W = Math.max(280, Math.min(560, body.clientWidth || 480));
-  const H = 170, L = 44, R = 10, T = 10, B = 22;
+  const H = 210, L = 44, R = 10, T = 10, B = 22;
   const x = (t) => L + (W - L - R) * (t - first.t) / Math.max(1, last.t - first.t);
   const y = (e) => T + (H - T - B) * (yHi - e) / (yHi - yLo);
 
@@ -3537,9 +3584,9 @@ async function renderRatingStats(body) {
     <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${ext.hi.elo}</strong> <span>(${fmtDailyDate(ext.hi.d)})</span>
       · 📉 ${t("rating_low")}: <strong>${ext.lo.elo}</strong> <span>(${fmtDailyDate(ext.lo.d)})</span></p>` : "";
   const sec = document.createElement("div");
-  sec.className = "stats-section stats-rating";
+  // Geen .stats-section en geen kop: de modaltitel (⚡ Rating) dekt de lading al.
+  sec.className = "stats-rating";
   sec.innerHTML = `
-    <h3 class="stats-heading">⚡ ${t("stats_rating")}</h3>
     <p class="rating-cur"><span class="rating-num">${last.elo}</span>${badge}
       <span class="rating-range">${fmtDailyDate(first.d)} – ${fmtDailyDate(last.d)}</span></p>
     <div class="rating-chart">
@@ -3556,6 +3603,7 @@ async function renderRatingStats(body) {
       </svg>
       <div class="chart-tip" hidden></div>
     </div>${extremes}`;
+  body.textContent = "";   // laadtekst van de pane weg
   body.appendChild(sec);
 
   // Crosshair + tooltip: de wijzer snapt naar de dichtstbijzijnde dag (je mikt
@@ -3594,6 +3642,7 @@ async function renderRatingStats(body) {
   svg.addEventListener("pointerleave", () => {
     tip.hidden = true; hair.style.opacity = 0; dot.style.opacity = 0;
   });
+  return true;
 }
 
 // Sterkste eeuw — over ALLE potjes (daily + free). Eén regel onderaan; verbergt
@@ -3780,6 +3829,7 @@ function setModalUrl(param) {
 function openModal(id) {
   document.getElementById(id).hidden = false;
   if (id === "modal-stats") renderStats();
+  if (id === "modal-rating") renderRatingModal();
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
@@ -4365,6 +4415,7 @@ async function init() {
     toggleMenu(false);
     // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
     if (action === "stats") openModal("modal-stats");
+    else if (action === "rating") openModal("modal-rating");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
@@ -4425,9 +4476,11 @@ async function init() {
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
-    // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
+    // Stats-/rating-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();
+    const rm = document.getElementById("modal-rating");
+    if (rm && !rm.hidden) renderRatingModal();
     // Net ingelogd terwijl de dagpuzzel nog open staat? Herstel 'm uit de DB.
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm

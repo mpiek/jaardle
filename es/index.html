@@ -86,7 +86,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=103">
+<link rel="stylesheet" href="/style.css?v=104">
 </head>
 <body>
   <main>
@@ -100,6 +100,7 @@
         <div id="menu-pop" role="menu" hidden>
           <div id="menu-account" class="menu-section"></div>
           <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Estadísticas</button>
+          <button class="menu-item" role="menuitem" data-action="rating" data-i18n="menu_rating">⚡ Rating</button>
           <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Clasificación</button>
           <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">☀️ Tema claro</button>
         </div>
@@ -205,6 +206,17 @@
         <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div id="stats-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-rating" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-rating-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-rating-title" data-i18n="menu_rating">⚡ Rating</h2>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="rating-body" class="modal-body"></div>
     </div>
   </div>
 
@@ -343,7 +355,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=167"></script>
+  <script src="/game.js?v=168"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

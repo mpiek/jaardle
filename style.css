@@ -1556,6 +1556,12 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .rating-line, .rating-delta, .rating-num-settled { animation: none; }
 }
+/* De ⚡-regel is klikbaar (opent de rating-tab in de stats-modal); de chevron
+   is de stille hint en licht op bij hover/focus. */
+.rating-line-link { cursor: pointer; }
+.rating-line-link .rating-go { margin-left: 0.4em; color: var(--muted); font-weight: 700; }
+.rating-line-link:hover .rating-go,
+.rating-line-link:focus-visible .rating-go { color: var(--accent); }
 
 /* ⚡ Rating-verloop (stats-modal): rustige lijngrafiek in huisstijl-accent.
    Grid/as-labels bewust terughoudend (muted/border), de lijn draagt de data. */
