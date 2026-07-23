@@ -1064,6 +1064,35 @@ function storageKey(mode, date) {
   return mode === "daily" ? `jaardle:daily:${date || todayKey()}` : `jaardle:free:current`;
 }
 
+// Slot voor de dedup-sleutels (jaardle:sent / jaardle:playid): de daily per dag,
+// vrij spel per pot (potId). Voorheen was het vrije slot het vaste "free", maar
+// get_random_fact sluit eerder gespeelde feiten niet uit — een herhaald feit
+// bleef dan voorgoed hangen op de oude sleutel: geen record_play, geen elo,
+// geen ⚡-regel. Per-pot blijft herladen idempotent én telt een repeat gewoon mee.
+function potSlot() {
+  return state.mode === "daily" ? (state.puzzleDate || todayKey()) : (state.potId || "free");
+}
+
+// Uniek id per vrij-spel-pot; gaat mee in save() zodat een herlaad-restore
+// (en een tweede tab op dezelfde share-link) hetzelfde slot houdt.
+function newPotId() {
+  return "t" + Date.now().toString(36) + Math.floor(Math.random() * 1679616).toString(36);
+}
+
+// Dedup-sleutels van vervangen vrij-spel-potten (slot "free" van vóór het potId,
+// of een ander potId) zijn dood gewicht zodra een nieuwe pot start; ruim ze op.
+// Daily-slots zijn datums en blijven staan (claim-na-login moet blijven werken).
+function pruneFreeSentKeys(keepPotId) {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (!k || !(k.startsWith("jaardle:sent:") || k.startsWith("jaardle:playid:"))) continue;
+      const slot = k.slice(k.lastIndexOf(":") + 1);
+      if ((slot === "free" || slot[0] === "t") && slot !== keepPotId) localStorage.removeItem(k);
+    }
+  } catch (e) { /* storage may be unavailable */ }
+}
+
 // Speelt de huidige state een daily van GISTEREN (inhaalpot voor streak-reparatie)?
 // De gewone daily heeft puzzleDate === vandaag; een inhaalpot een oudere datum.
 function isMakeup(s = state) {
@@ -2057,7 +2086,7 @@ function finishGame(won, fresh = false) {
 function sendTelemetry() {
   const hash = state.hashes?.[0];
   if (!hash) return Promise.resolve();
-  const slot = state.mode === "daily" ? (state.puzzleDate || todayKey()) : "free";
+  const slot = potSlot();
   const sentKey = `jaardle:sent:${hash}:${slot}`;
   if (localStorage.getItem(sentKey)) return Promise.resolve();
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
@@ -2092,7 +2121,7 @@ async function claimPlayOnLogin() {
   if (!auth.user || !state || !state.done) return;
   const hash = state.hashes?.[0];
   if (!hash) return;
-  const slot = state.mode === "daily" ? (state.puzzleDate || todayKey()) : "free";
+  const slot = potSlot();
   const idKey = `jaardle:playid:${hash}:${slot}`;
   const id = localStorage.getItem(idKey);
   if (!id) return;
@@ -3990,6 +4019,7 @@ function save() {
       hashes: state.hashes,
       event: state.event,
       band: state.band ?? null,
+      potId: state.potId ?? null,
       board: {
         guesses: state.guesses,
         done: state.done,
@@ -4112,7 +4142,7 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
     if (cached && arraysEqual(cached.hashes, sharedHashes)) return { mode: "free", ...cached };
     const p = await rpc("get_facts_by_hashes", { hashes: sharedHashes });
     if (!p) return null;
-    return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null };
+    return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId() };
   }
   if (mode === "daily") {
     const d = targetDate || todayKey();   // targetDate = inhaalpot (gisteren); anders vandaag
@@ -4132,7 +4162,7 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
   }
   const p = await rpc("get_random_fact", {});
   if (!p) return null;
-  return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null };
+  return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId() };
 }
 
 async function startGame(mode, forceNew = false, sharedHashes = null, targetDate = null) {
@@ -4164,6 +4194,9 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   state = {
     mode: record.mode,
     puzzleDate: record.puzzleDate || null,   // welke daily-dag (null bij vrij spel)
+    // Per-pot dedup-slot (alleen vrij spel); oude records zonder potId krijgen er
+    // hier alsnog een, zodat het legacy "free"-slot na deploy nergens meer opduikt.
+    potId: record.potId || (record.mode !== "daily" ? newPotId() : null),
     band: record.band ?? null,               // moeilijkheids-band 1..3 (alleen daily, sinds db/29)
     hashes: record.hashes,
     event: record.event,
@@ -4185,6 +4218,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   renderHintStatus();
   renderGuesses();
   updateLiveScore(false);   // zet de teller op de juiste waarde (100 vers, lager bij restore)
+  if (state.mode !== "daily") pruneFreeSentKeys(state.potId);
   save();
   syncUrl();
   loadLaterClues();   // async: vult/herrendert de clues zodra binnen
