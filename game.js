@@ -19,14 +19,15 @@ const MAX_YEAR = new Date().getFullYear();
 // De volledigheidstest (tests/i18n.test.mjs) faalt als een taal een key mist.
 // Zie tools/build-html.mjs voor het build-script.
 //
-// Velden per taal: label (menu), html (<html lang>), intl (Intl + ld+json),
-// og (og:locale), path (URL-segment; "" = root-taal).
+// Velden per taal: label (menu), flag (SVG in /flags, Kenney Flag Pack — geen
+// emoji: Windows rendert vlag-emoji's als letterparen), html (<html lang>),
+// intl (Intl + ld+json), og (og:locale), path (URL-segment; "" = root-taal).
 const LANGS = {
-  nl: { label: "🇳🇱 Nederlands", html: "nl", intl: "nl-NL", og: "nl_NL", path: "nl" },
-  en: { label: "🇬🇧 English",    html: "en", intl: "en-GB", og: "en_GB", path: "" },
-  de: { label: "🇩🇪 Deutsch",    html: "de", intl: "de-DE", og: "de_DE", path: "de" },
-  es: { label: "🇪🇸 Español",    html: "es", intl: "es-ES", og: "es_ES", path: "es" },
-  pt: { label: "🇧🇷 Português",  html: "pt", intl: "pt-BR", og: "pt_BR", path: "pt" },
+  nl: { label: "Nederlands", flag: "NL", html: "nl", intl: "nl-NL", og: "nl_NL", path: "nl" },
+  en: { label: "English",    flag: "GB", html: "en", intl: "en-GB", og: "en_GB", path: "" },
+  de: { label: "Deutsch",    flag: "DE", html: "de", intl: "de-DE", og: "de_DE", path: "de" },
+  es: { label: "Español",    flag: "ES", html: "es", intl: "es-ES", og: "es_ES", path: "es" },
+  pt: { label: "Português",  flag: "BR", html: "pt", intl: "pt-BR", og: "pt_BR", path: "pt" },
 };
 const LANG_CODES = Object.keys(LANGS);
 // Brontaal: hieruit lenen we een string/feit als de huidige taal die mist (het
@@ -841,6 +842,7 @@ function renderLangMenu() {
   if (!pop) return;
   pop.innerHTML = LANG_CODES.map((c) =>
     `<button class="lang-item${c === lang ? " active" : ""}" role="menuitem" data-lang="${c}">` +
+    `<img class="lang-flag" src="/flags/${LANGS[c].flag}.svg" alt="" width="64" height="64">` +
     `${LANGS[c].label}${c === lang ? " ✓" : ""}</button>`).join("");
 }
 

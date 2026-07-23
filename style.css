@@ -259,6 +259,9 @@ main {
   box-shadow: var(--shadow-pop);
 }
 .lang-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   background: transparent;
   color: var(--fg);
   border: none;
@@ -267,6 +270,15 @@ main {
   font-size: 0.92rem;
   text-align: left;
   cursor: pointer;
+}
+/* Vlag-SVG's (Kenney Flag Pack) i.p.v. emoji: Windows toont vlag-emoji's als
+   kale letterparen. Bron-art is vierkant; we rekken naar 4:3 (preserveAspect-
+   Ratio="none" in de SVG's) zodat het als vlag leest. */
+.lang-item .lang-flag {
+  width: 1.5em;
+  height: 1.125em;
+  border-radius: 2px;
+  flex: none;
 }
 .lang-item:hover { background: var(--card-soft); }
 .lang-item.active { font-weight: 600; }

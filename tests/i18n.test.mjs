@@ -4,7 +4,7 @@
 // verdwijnt. Draaien:  node --test tests/
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -60,9 +60,16 @@ test("DEFAULT_LANG is een geldige taal", () => {
 
 test("LANGS-entries hebben alle vereiste velden", () => {
   for (const code of LANG_CODES) {
-    for (const field of ["label", "html", "intl", "og", "path"]) {
+    for (const field of ["label", "flag", "html", "intl", "og", "path"]) {
       assert.ok(field in LANGS[code], `LANGS["${code}"] mist veld "${field}"`);
     }
+  }
+});
+
+test("elke taal heeft een vlag-SVG in flags/", () => {
+  for (const code of LANG_CODES) {
+    const file = join(dir, "..", "flags", `${LANGS[code].flag}.svg`);
+    assert.ok(existsSync(file), `flags/${LANGS[code].flag}.svg ontbreekt (LANGS["${code}"])`);
   }
 });
 
