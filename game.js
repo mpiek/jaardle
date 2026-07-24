@@ -1266,9 +1266,11 @@ function storageKey(mode, date) {
 
 // Slot voor de dedup-sleutels (jaardle:sent / jaardle:playid): de daily per dag,
 // vrij spel per pot (potId). Voorheen was het vrije slot het vaste "free", maar
-// get_random_fact sluit eerder gespeelde feiten niet uit — een herhaald feit
-// bleef dan voorgoed hangen op de oude sleutel: geen record_play, geen elo,
-// geen ⚡-regel. Per-pot blijft herladen idempotent én telt een repeat gewoon mee.
+// get_random_fact sluit eerder gespeelde feiten niet betrouwbaar uit (sinds
+// db/34 best effort via p_exclude, maar de recent-lijst is gecapt en per
+// apparaat) — een herhaald feit bleef dan voorgoed hangen op de oude sleutel:
+// geen record_play, geen elo, geen ⚡-regel. Per-pot blijft herladen idempotent
+// én telt een repeat gewoon mee.
 function potSlot() {
   return state.mode === "daily" ? (state.puzzleDate || todayKey()) : (state.potId || "free");
 }
@@ -1291,6 +1293,30 @@ function pruneFreeSentKeys(keepPotId) {
       if ((slot === "free" || slot[0] === "t") && slot !== keepPotId) localStorage.removeItem(k);
     }
   } catch (e) { /* storage may be unavailable */ }
+}
+
+// Recent geziene feiten (main + 💡-extra's, beide modi): jaardle:recent, nieuwste
+// achteraan, gecapt op ~100 potjes. Gaat als p_exclude mee naar get_random_fact
+// zodat vrij spel niet herhaalt wat je net zag. Best effort: per apparaat, en de
+// DB vult 'm ingelogd aan met je laatste plays (cross-device).
+const RECENT_SEEN_KEY = "jaardle:recent";
+const RECENT_SEEN_MAX = 300;
+
+function recentHashes() {
+  try {
+    const a = JSON.parse(localStorage.getItem(RECENT_SEEN_KEY) || "[]");
+    return Array.isArray(a) ? a.filter((h) => /^[0-9a-f]{10}$/.test(h)) : [];
+  } catch (e) { return []; }
+}
+
+// Idempotent (herlaad-restore van dezelfde pot verschuift alleen de positie).
+function rememberSeen(hashes) {
+  if (!Array.isArray(hashes) || !hashes.length) return;
+  const fresh = hashes.filter((h) => /^[0-9a-f]{10}$/.test(h));
+  if (!fresh.length) return;
+  const list = recentHashes().filter((h) => !fresh.includes(h));
+  list.push(...fresh);
+  try { localStorage.setItem(RECENT_SEEN_KEY, JSON.stringify(list.slice(-RECENT_SEEN_MAX))); } catch (e) {}
 }
 
 // Speelt de huidige state een daily van GISTEREN (inhaalpot voor streak-reparatie)?
@@ -1797,20 +1823,16 @@ async function loadLaterClues() {
   renderHintStatus();
 }
 
-// Kies één feit per ⏩-slot uit het kandidaten-venster. Oefenmodus: willekeurig
-// (variatie bij replay van hetzelfde antwoord). Daily: altijd het dichtstbije
-// (index 0) → deterministisch, dus dezelfde clue op al je apparaten. Eén keer
-// gekozen en in state bewaard, zodat de slide stabiel blijft bij herrenderen en
-// herladen.
+// Kies één feit per ⏩-slot uit het kandidaten-venster. Sinds db/34 levert de
+// server de kandidaten in een volgorde geseed op de antwoord-hash: index 0 is
+// dan al een "willekeurige" keuze die per puzzel verschilt, maar gelijk is voor
+// iedereen met dezelfde puzzel (daily op al je apparaten, gedeelde potjes).
+// In state bewaard, zodat de slide stabiel blijft bij herrenderen en herladen.
 function chooseLaterPicks() {
   const cc = state?.laterClues;
   if (!cc || !Array.isArray(cc.slot_cands)) return;
   if (Array.isArray(state.laterPick) && state.laterPick.length === cc.slot_cands.length) return;
-  state.laterPick = cc.slot_cands.map((cand) => {
-    const n = (cand && !cand.future && Array.isArray(cand.facts)) ? cand.facts.length : 0;
-    if (n <= 1 || state.mode !== "free") return 0;
-    return Math.floor(Math.random() * n);
-  });
+  state.laterPick = cc.slot_cands.map(() => 0);
 }
 
 function requestDirectionHint() {
@@ -4769,7 +4791,12 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
     const cached = loadRecord("free");
     if (cached && !cached.board?.done) return { mode: "free", ...cached };
   }
-  const p = await rpc("get_random_fact", {});
+  // Recent geziene feiten meesturen zodat de server ze mijdt. Valt één keer
+  // terug op de kale aanroep voor het geval de nieuwe signatuur (db/34) er
+  // nog niet is (deploy-overlap) — gedrag is dan als vanouds.
+  let p;
+  try { p = await rpc("get_random_fact", { p_exclude: recentHashes() }); }
+  catch (e) { p = await rpc("get_random_fact", {}); }
   if (!p) return null;
   return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId() };
 }
@@ -4828,6 +4855,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   renderGuesses();
   updateLiveScore(false);   // zet de teller op de juiste waarde (100 vers, lager bij restore)
   if (state.mode !== "daily") pruneFreeSentKeys(state.potId);
+  rememberSeen(state.hashes);   // main + extra's → p_exclude van volgende potjes
   save();
   syncUrl();
   loadLaterClues();   // async: vult/herrendert de clues zodra binnen
