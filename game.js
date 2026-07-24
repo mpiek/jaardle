@@ -265,6 +265,10 @@ const I18N = {
     achv_anon_note: "🔒 Niet opgeslagen — met een account blijven je prestaties bewaard.",
     achv_year_locked: "nog niet ontdekt",
     achv_unlocked: "Prestatie behaald", achv_stamp_new: "Nieuwe zegel",
+    achv_new_badge: "NIEUW", achv_card_view: "bekijk",
+    achv_card_unsaved: "🔒 niet opgeslagen",
+    achv_flair_earned: (e) => `${e}-flair vrijgespeeld`,
+    achv_flair_choose: (e) => `kies ${e}`,
     achv_back: "‹ Prestaties",
     achv_events: {
       "-509": "Romeinse Republiek gesticht", "-336": "Alexander de Grote", "-221": "China verenigd (Qin)",
@@ -448,6 +452,10 @@ const I18N = {
     achv_anon_note: "🔒 Not saved — with an account your achievements are kept.",
     achv_year_locked: "not discovered yet",
     achv_unlocked: "Achievement unlocked", achv_stamp_new: "New stamp",
+    achv_new_badge: "NEW", achv_card_view: "view",
+    achv_card_unsaved: "🔒 not saved",
+    achv_flair_earned: (e) => `${e} flair unlocked`,
+    achv_flair_choose: (e) => `choose ${e}`,
     achv_back: "‹ Achievements",
     achv_events: {
       "-509": "Roman Republic founded", "-336": "Alexander the Great", "-221": "China unified (Qin)",
@@ -626,6 +634,10 @@ const I18N = {
     achv_anon_note: "🔒 Nicht gespeichert — mit einem Konto bleiben deine Erfolge erhalten.",
     achv_year_locked: "noch nicht entdeckt",
     achv_unlocked: "Erfolg freigeschaltet", achv_stamp_new: "Neue Briefmarke",
+    achv_new_badge: "NEU", achv_card_view: "ansehen",
+    achv_card_unsaved: "🔒 nicht gespeichert",
+    achv_flair_earned: (e) => `${e}-Flair freigeschaltet`,
+    achv_flair_choose: (e) => `${e} wählen`,
     achv_back: "‹ Erfolge",
     achv_events: {
       "-509": "Gründung der Römischen Republik", "-336": "Alexander der Große", "-221": "Einigung Chinas (Qin)",
@@ -808,6 +820,10 @@ const I18N = {
     achv_anon_note: "🔒 Sin guardar: con una cuenta tus logros se conservan.",
     achv_year_locked: "aún sin descubrir",
     achv_unlocked: "Logro conseguido", achv_stamp_new: "Sello nuevo",
+    achv_new_badge: "NUEVO", achv_card_view: "ver",
+    achv_card_unsaved: "🔒 sin guardar",
+    achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
+    achv_flair_choose: (e) => `elegir ${e}`,
     achv_back: "‹ Logros",
     achv_events: {
       "-509": "Fundación de la República romana", "-336": "Alejandro Magno", "-221": "Unificación de China (Qin)",
@@ -990,6 +1006,10 @@ const I18N = {
     achv_anon_note: "🔒 Não salvo — com uma conta suas conquistas ficam guardadas.",
     achv_year_locked: "ainda não descoberto",
     achv_unlocked: "Conquista desbloqueada", achv_stamp_new: "Selo novo",
+    achv_new_badge: "NOVO", achv_card_view: "ver",
+    achv_card_unsaved: "🔒 não salvo",
+    achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
+    achv_flair_choose: (e) => `escolher ${e}`,
     achv_back: "‹ Conquistas",
     achv_events: {
       "-509": "Fundação da República Romana", "-336": "Alexandre, o Grande", "-221": "Unificação da China (Qin)",
@@ -2275,9 +2295,23 @@ function finishGame(won, fresh = false) {
   // het recap-scherm openen (verdeling pogingen + teamstand van vandaag).
   const afterSend = () => {
     showFactStats(statsHash);
-    checkAchievements();   // unlock-regels op het eindscherm (ná record_play, dus de pot telt mee)
-    // Recap (verdeling + teamstand van vandaag) hoort niet bij een inhaalpot.
-    if (fresh && state.mode === "daily" && !isMakeup(state)) openDailyRecap();
+    // Unlock-kaart op het eindscherm (ná record_play, dus de pot telt mee).
+    const unlocked = checkAchievements().catch(() => false);
+    // Recap (verdeling + teamstand van vandaag) hoort niet bij een inhaalpot —
+    // en niet bovenop een unlock: twee feestjes tegelijk kan niet, de unlock is
+    // de zeldzame en de recap blijft op de 📊-knop staan. Wachten mét vangnet:
+    // duurt de check te lang, dan opent de recap alsnog (het stipje op ⋮ blijft
+    // dan het spoor naar de kaart).
+    if (fresh && state.mode === "daily" && !isMakeup(state)) {
+      const potKey = `${state.mode}:${statsHash}`;
+      const guard = new Promise((r) => setTimeout(() => r(false), 1200));
+      Promise.race([unlocked, guard]).then((hit) => {
+        // Snelle speler kan inmiddels een nieuw potje zijn begonnen — dan is de
+        // recap van dit feit niet meer aan de orde.
+        if (hit || !state || !state.done || `${state.mode}:${state.hashes?.[0]}` !== potKey) return;
+        openDailyRecap();
+      });
+    }
   };
   if (fresh) sendTelemetry().then(afterSend, afterSend);
   else showFactStats(statsHash);
@@ -2470,6 +2504,7 @@ let myPool = null;                    // de ACTIEVE pool {id,name,invite_code,is
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
 let flairPickerOpen = false;          // flair-rooster ingeklapt tot je op ✏️ drukt (56 opties)
+let flairPickerAutoOpen = false;      // "kies <flair>" op de unlock-kaart → rooster open bij de volgende render
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
 const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕",
   "🐐", "🦇", "🦖", "🐦‍🔥", "🦭", "🐺", "🐻", "🐼", "🐷", "🦁", "🐸", "🐧", "🐱", "🦈", "🦋", "🐍", "🐳", "🦥", "🦔", "🦩", "🐝", "🦀", "🦅", "🪿", "🫏", "🪰", "💩", "💀", "🍄", "🌈", "🫪", "🎻", "🪙"];
@@ -2875,6 +2910,15 @@ function wireNameEditor() {
   });
   const cur = document.querySelector(".lb-flair .lb-namecur");
   if (cur && myFlair) wireFlairPreview(cur, myFlair);
+  // Binnengekomen via "kies <flair>" op een unlock-kaart: rooster staat al open,
+  // breng het ook in beeld (het staat onder de naam-regel en de borden).
+  // block:"start", niet "nearest": het rooster is hoger dan de modal, en
+  // "nearest" lijnt dan de ónderkant uit — precies langs de verdiende flair,
+  // die bovenaan het rooster staat.
+  if (flairPickerAutoOpen) {
+    flairPickerAutoOpen = false;
+    document.querySelector("#lb-body .lb-flair")?.scrollIntoView({ block: "start" });
+  }
 }
 
 // Sla de gekozen flair op (server valideert tegen de allow-list); lege string wist.
@@ -2990,7 +3034,9 @@ async function loadDailyBoard() {
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
 async function renderLeaderboard() {
   const body = document.getElementById("lb-body");
-  flairPickerOpen = false;   // vol her-render (openen, pool-wissel) → kiezer weer dicht
+  // Vol her-render (openen, pool-wissel) → kiezer weer dicht, tenzij je hier via
+  // "kies <flair>" op een unlock-kaart binnenkomt.
+  flairPickerOpen = flairPickerAutoOpen;
   if (!auth.user) { body.innerHTML = `<p class="lb-empty">${t("lb_not_member")}</p>`; return; }
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
   await fetchMyPools();
@@ -3663,51 +3709,188 @@ async function achvRefreshBaseline() {
   if (!a) return;
   try { localStorage.setItem(achvSeenKey(), JSON.stringify(achvSnapshot(a))); } catch (e) {}
 }
-// Na een verse pot: bereken opnieuw, vergelijk met de vorige snapshot en zet
-// rustige unlock-regels op het eindscherm (badge-mini + naam; tik = paneel).
+// ── "nog niet bekeken"-lijst ─────────────────────────────────────────────────
+// Náást de seen-snapshot, want die zegt alleen "al één keer getóónd" — en juist
+// het missen van dat ene moment was de klacht. Deze lijst leeft door tot je het
+// paneel écht opent (en voor zegels: het album) en voedt het rode stipje op de
+// menuknop en het 🏅-item.
+const ACHV_NEW_MAX = 40;   // plafond: een lange offline reeks mag localStorage niet volpompen
+function achvNewKey() { return `jaardle:achvNew:${auth.user ? auth.user.uid : "anon"}`; }
+function achvNewLoad() {
+  try { const a = JSON.parse(localStorage.getItem(achvNewKey())); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+}
+function achvNewSave(ids) {
+  try { localStorage.setItem(achvNewKey(), JSON.stringify(ids.slice(-ACHV_NEW_MAX))); } catch (e) {}
+}
+function achvNewAdd(ids) {
+  const cur = achvNewLoad();
+  achvNewSave(cur.concat(ids.filter((id) => !cur.includes(id))));
+  renderAchvDot();
+}
+function achvNewDrop(ids) {
+  achvNewSave(achvNewLoad().filter((id) => !ids.has(id)));
+  renderAchvDot();
+}
+function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith(prefix)); }
+// Stipje als CSS-klasse i.p.v. een element: de menuknop (renderMenuButton) en de
+// menu-items (data-i18n) worden elders volledig herschreven — een class met
+// ::after overleeft dat, een kind-element niet.
+function renderAchvDot() {
+  const has = achvNewLoad().length > 0;
+  document.getElementById("menu-btn")?.classList.toggle("has-new", has);
+  document.querySelector('.menu-item[data-action="achievements"]')?.classList.toggle("has-new", has);
+}
+
+// ── unlock-items: één kaart + smalle regels ───────────────────────────────────
+// Rangorde bij meerdere unlocks in één pot: de zeldzaamste wordt de kaart. Zegel
+// en goud wegen gelijk (4); bij gelijkspel wint de zegel, want de onthulling
+// zelf is daar de beloning.
+const ACHV_TIER_WEIGHT = [1, 2, 4, 5, 6];   // brons, zilver, goud, platina, diamant
+const ACHV_STAMP_WEIGHT = 4;
+const ACHV_TROPHY_WEIGHT = 3;
+
+function achvSeriesItem(a, s, tier, prev) {
+  const n = achvValue(a, s);
+  const unit = t(`achv_${s.key}_n`);
+  return {
+    id: `s:${s.key}:${tier}`, kind: "series", weight: ACHV_TIER_WEIGHT[tier - 1],
+    art: s.art, tier, head: t("achv_unlocked"),
+    title: `${t(`achv_${s.key}`)} · ${achvTierName(tier - 1)}`,
+    sub: s.key === "years" ? unit(n, ACHV_YEARS.length) : unit(fmtN(n)),
+    next: tier >= 5 ? t("achv_maxed") : t("achv_next")(fmtN(s.steps[tier] - n), achvTierName(tier)),
+    // Flair alleen melden op de trede die hem vrijspeelt — en niet opnieuw als
+    // je in één keer twee treden pakt terwijl je de flair al had.
+    flair: s.flair && tier > s.flair.at && prev <= s.flair.at ? s.flair.emoji : null,
+  };
+}
+function achvTrophyItem(tr) {
+  return {
+    id: `t:${tr.key}`, kind: "trophy", weight: ACHV_TROPHY_WEIGHT, art: tr.art, tier: 0,
+    head: t("achv_unlocked"), title: t(tr.i18n), sub: t(`${tr.i18n}_sub`),
+    next: "", flair: tr.flair ? tr.flair.emoji : null,
+  };
+}
+function achvStampItem(a, y) {
+  return {
+    id: `y:${y}`, kind: "stamp", weight: ACHV_STAMP_WEIGHT, art: ACHV_YEAR_ART[String(y)], tier: 0,
+    head: t("achv_stamp_new"), title: achvYearLabel(y),
+    sub: (t("achv_events") || {})[String(y)] || "",
+    extra: t("achv_years_n")(a.years.length, ACHV_YEARS.length), next: "", flair: null,
+  };
+}
+
+function achvOpenPanel() { openModal("modal-achv"); }
+function achvMakeClickable(el) {
+  el.setAttribute("role", "button");
+  el.tabIndex = 0;
+  el.onclick = achvOpenPanel;
+  el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); achvOpenPanel(); } };
+}
+
+// De kaart: bewust een ánder soort element dan de inforegels eronder (streak,
+// rating, feit-stats) — anders leest een unlock als zoveelste statistiek.
+function achvCardEl(it) {
+  const el = document.createElement("div");
+  el.className = `achv-card${it.tier ? ` achv-t${it.tier}` : ""}`;
+  const rail = it.kind === "series"
+    ? `<span class="achv-card-rail">${Array.from({ length: 5 }, (_, i) =>
+        `<b class="achv-tk${i}${i < it.tier ? " done" : ""}"></b>`).join("")}</span>` : "";
+  const meta = it.kind === "series" ? it.next : (it.extra || "");
+  // Flair = het enige publiek zichtbare gevolg van een unlock, dus die krijgt de
+  // kortste route naar de kiezer (die zit twee stappen weg via ⋮ → 🏆).
+  // Anoniem kan geen flair dragen; daar staat op diezelfde plek de melding dat
+  // de prestatie alleen op dit apparaat leeft.
+  let foot = "";
+  if (!auth.user) {
+    foot = `<span class="achv-card-note">${escHtml(t("achv_card_unsaved"))}</span>`;
+  } else if (it.flair) {
+    // De emoji zit al ín de string (withAnimEmoji animeert 'm daar) — er niet
+    // nóg een losse voor zetten.
+    foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t("achv_flair_earned")(it.flair)))}</span>
+      <button type="button" class="achv-card-btn">${escHtml(t("achv_flair_choose")(it.flair))}</button>`;
+  }
+  el.innerHTML = `
+    <div class="achv-card-main">
+      <span class="achv-card-art">${achvBadgeHtml(it.art, it.kind === "stamp")}</span>
+      <span class="achv-card-txt">
+        <span class="achv-card-head">${escHtml(it.head)}</span>
+        <span class="achv-card-title">${escHtml(it.title)}</span>
+        ${it.sub ? `<span class="achv-card-sub">${escHtml(it.sub)}</span>` : ""}
+        ${rail}${meta ? `<span class="achv-card-meta">${escHtml(meta)}</span>` : ""}
+      </span>
+    </div>
+    <div class="achv-card-foot">${foot}<span class="achv-card-go">${escHtml(t("achv_card_view"))} ›</span></div>`;
+  achvMakeClickable(el);
+  const btn = el.querySelector(".achv-card-btn");
+  if (btn) {
+    btn.onclick = (e) => {
+      e.stopPropagation();   // de kaart zelf opent het paneel; deze knop de kiezer
+      flairPickerAutoOpen = true;
+      closeAllModals();
+      openModal("modal-leaderboard");
+    };
+  }
+  armEmojiFallbacks(el);
+  return el;
+}
+
+// De overige unlocks van dezelfde pot: de bestaande smalle regel.
+function achvLineEl(it) {
+  const el = document.createElement("div");
+  el.className = "achv-line" + (it.tier ? ` achv-line-t${it.tier}` : "");
+  const text = `${it.head}: ${it.title}${it.kind === "stamp" && it.sub ? ` · ${it.sub}` : ""}`;
+  el.innerHTML = `${achvBadgeHtml(it.art, it.kind === "stamp")}<span>${escHtml(text)}</span><span class="achv-go">›</span>`;
+  achvMakeClickable(el);
+  return el;
+}
+
+// Het resultaatblok staat in de DOM ná het toetsenblok, dus op een telefoon met
+// vijf of zes gokrijen kan de kaart buiten beeld geboren worden. Alleen dán
+// scrollen — wie het eindscherm al ziet, merkt niets.
+function achvScrollIntoView(el) {
+  const r = el.getBoundingClientRect();
+  const h = window.innerHeight || document.documentElement.clientHeight || 0;
+  if (r.top >= 0 && r.bottom <= h) return;
+  const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
+}
+
+// Na een verse pot: bereken opnieuw, vergelijk met de vorige snapshot en zet de
+// zeldzaamste unlock als kaart op het eindscherm (rest = smalle regels).
+// Retourneert of er iets vrijkwam — de daily-recap wacht daarop.
 async function checkAchievements() {
   const a = await fetchAchievements();
-  if (!a || !state || !state.done) return;
+  if (!a || !state || !state.done) return false;
   const key = achvSeenKey();
   let seen = null;
   try { seen = JSON.parse(localStorage.getItem(key)); } catch (e) {}
   const cur = achvSnapshot(a);
   try { localStorage.setItem(key, JSON.stringify(cur)); } catch (e) {}
-  if (!seen || typeof seen !== "object") return;   // eerste keer: stil (retroactief)
-  const lines = [];
+  if (!seen || typeof seen !== "object") return false;   // eerste keer: stil (retroactief)
+  const items = [];
   for (const s of ACHV_SERIES) {
     const prev = seen[s.key] || 0;
-    if (cur[s.key] > prev) {
-      lines.push({ art: s.art, tier: cur[s.key],
-        text: `${t("achv_unlocked")}: ${t(`achv_${s.key}`)} · ${achvTierName(cur[s.key] - 1)}` });
-    }
+    if (cur[s.key] > prev) items.push(achvSeriesItem(a, s, cur[s.key], prev));
   }
   for (const tr of ACHV_TROPHIES) {
-    if (cur[tr.key] && !seen[tr.key]) {
-      lines.push({ art: tr.art, trophy: true, text: `${t("achv_unlocked")}: ${t(tr.i18n)}` });
-    }
+    if (cur[tr.key] && !seen[tr.key]) items.push(achvTrophyItem(tr));
   }
   const seenYears = new Set(Array.isArray(seen.yearsList) ? seen.yearsList : []);
-  for (const y of a.years) {
-    if (!seenYears.has(y)) {
-      const ev = (t("achv_events") || {})[String(y)] || "";
-      lines.push({ art: ACHV_YEAR_ART[String(y)], stamp: true,
-        text: `${t("achv_stamp_new")}: ${achvYearLabel(y)}${ev ? ` · ${ev}` : ""}` });
-    }
-  }
-  if (!lines.length) return;
-  els.resultText.querySelectorAll(".achv-line").forEach((e) => e.remove());
-  for (const line of lines) {
-    const el = document.createElement("div");
-    el.className = "achv-line" + (line.tier ? ` achv-line-t${line.tier}` : "");
-    el.innerHTML = `${achvBadgeHtml(line.art, line.stamp)}<span>${escHtml(line.text)}</span><span class="achv-go">›</span>`;
-    el.setAttribute("role", "button");
-    el.tabIndex = 0;
-    const open = () => openModal("modal-achv");
-    el.onclick = open;
-    el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
-    els.resultText.append(el);
-  }
+  for (const y of a.years) if (!seenYears.has(y)) items.push(achvStampItem(a, y));
+  if (!items.length) return false;
+  achvNewAdd(items.map((it) => it.id));
+  items.sort((x, y) => (y.weight - x.weight) || ((y.kind === "stamp") - (x.kind === "stamp")));
+  els.resultText.querySelectorAll(".achv-line, .achv-card").forEach((e) => e.remove());
+  const card = achvCardEl(items[0]);
+  // De kaart hoort bij de score, niet bij de inforegels: pal onder .score-line,
+  // dus bóven de 🔥-streak, de ⚡-rating en de feit-stats.
+  const anchor = els.resultText.querySelector(".score-line");
+  if (anchor) anchor.after(card); else els.resultText.append(card);
+  let tail = card;
+  for (const it of items.slice(1)) { const line = achvLineEl(it); tail.after(line); tail = line; }
+  achvScrollIntoView(card);
+  return true;
 }
 
 // ── paneel: bord (reeksen + trofeeën) en het album als enige sub-scherm ──────
@@ -3762,6 +3945,30 @@ function achvDetailHtml(a, s) {
       ${note}</div>`;
 }
 
+// NIEUW-markering: alles wat nog in de achvNew-lijst staat. Wat we hier tónen
+// onthouden we in achvNewShown; pas bij het sluiten van het paneel wordt het
+// gewist (zie achvPanelClosed) — zo kan een stipje niet "opgebruikt" raken
+// zonder dat je het bijbehorende ding gezien hebt.
+let achvNewShown = new Set();
+function achvNewMark(prefix) {
+  const hits = achvNewHits(prefix);
+  if (!hits.length) return "";
+  hits.forEach((id) => achvNewShown.add(id));
+  return `<span class="achv-new">${escHtml(t("achv_new_badge"))}</span>`;
+}
+// Zegels leven in het album (een sub-scherm), dus de jaren-rij krijgt alleen een
+// stipje als wegwijzer — dat wordt hier bewust níet als "gezien" geteld.
+function achvNewDot(prefix) {
+  return achvNewHits(prefix).length ? `<span class="achv-newdot" aria-hidden="true"></span>` : "";
+}
+// Bord dicht (of paneel dicht): wis wat we als NIEUW getoond hebben. De
+// zegel-ids blijven staan tot het album zelf open is geweest.
+function achvPanelClosed() {
+  if (!achvNewShown.size) return;
+  achvNewDrop(achvNewShown);
+  achvNewShown = new Set();
+}
+
 function achvRowHtml(a, s) {
   const n = achvValue(a, s);
   const tier = achvTier(n, s.steps);
@@ -3769,12 +3976,12 @@ function achvRowHtml(a, s) {
   const barPct = tier >= 5 ? 100
     : Math.max(0, Math.min(100, ((n - prevStep) / (s.steps[tier] - prevStep)) * 100));
   const chip = tier > 0 ? `<span class="achv-chip">${escHtml(achvTierName(tier - 1))}</span>` : "";
-  const chev = s.album ? `<span class="achv-chev">›</span>` : "";
+  const chev = s.album ? `${achvNewDot("y:")}<span class="achv-chev">›</span>` : "";
   return `<div class="achv-row achv-t${tier}" data-key="${s.key}">
     <button class="achv-rowbtn" type="button" aria-expanded="false">
       <span class="achv-ring">${achvBadgeHtml(s.art)}</span>
       <span class="achv-body">
-        <span class="achv-name">${escHtml(t(`achv_${s.key}`))}</span>
+        <span class="achv-name">${escHtml(t(`achv_${s.key}`))}${achvNewMark(`s:${s.key}:`)}</span>
         <span class="achv-sub">${escHtml(achvRowSub(a, s))}</span>
         <span class="achv-bar"><i style="width:${barPct.toFixed(1)}%"></i></span>
       </span>
@@ -3793,7 +4000,7 @@ function achvTrophyHtml(a, tr) {
   }
   const note = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"` : "";
   return `<div class="achv-trophy${done ? "" : " locked"}"${note}>
-      <span class="achv-tring">${achvBadgeHtml(tr.art)}</span>
+      <span class="achv-tring">${achvBadgeHtml(tr.art)}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
       <span class="achv-tname">${escHtml(t(tr.i18n))}</span>
       <span class="achv-tsub">${escHtml(sub)}</span>
     </div>`;
@@ -3852,7 +4059,7 @@ function renderAchvAlbum(body, a) {
     const art = has ? ACHV_YEAR_ART[String(y)] : "locked";
     const ev = has ? ((t("achv_events") || {})[String(y)] || "") : t("achv_year_locked");
     return `<div class="achv-stamp${has ? "" : " locked"}">
-        ${achvBadgeHtml(art, true)}
+        ${achvBadgeHtml(art, true)}${has ? achvNewMark(`y:${y}`) : ""}
         <span class="achv-yr">${escHtml(achvYearLabel(y))}</span>
         <span class="achv-ev">${escHtml(ev)}</span>
       </div>`;
@@ -4432,6 +4639,9 @@ function renderMenu() {
     inBtn.textContent = t("menu_login");
     items.insertBefore(inBtn, items.firstChild);
   }
+  // Ook de plek waar het stipje van identiteit wisselt: de achvNew-lijst hangt
+  // aan uid/anon, en renderMenu loopt bij elke auth-wijziging.
+  renderAchvDot();
 }
 
 function toggleMenu(force) {
@@ -4472,11 +4682,13 @@ function openModal(id) {
 
 function closeModal(id) {
   document.getElementById(id).hidden = true;
+  if (id === "modal-achv") achvPanelClosed();
   setModalUrl(null);
 }
 
 function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+  achvPanelClosed();   // NIEUW-markeringen die je gezien hebt, zijn hiermee gezien
   setModalUrl(null);
 }
 

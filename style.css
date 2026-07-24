@@ -2045,5 +2045,130 @@ html[data-theme="light"] {
 }
 @media (prefers-reduced-motion: reduce) { .achv-line { animation: none; } }
 
+/* Eindscherm: unlock-kaart voor de zeldzaamste prestatie van de pot. Bewust een
+   ánder soort element dan de inforegels eronder (streak, rating, feit-stats) —
+   in dezelfde vorm las een prestatie als de zoveelste statistiek. Zonder trede
+   (trofee/zegel) is de accentkleur goud. */
+.achv-card {
+  margin: 0.6rem 0 0.15rem;
+  padding: 0.6rem 0.7rem;
+  background: var(--card-soft);
+  border: 1px solid color-mix(in srgb, var(--tc, var(--achv-gold)) 55%, transparent);
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tc, var(--achv-gold)) 16%, transparent),
+    0 8px 20px -12px color-mix(in srgb, var(--tc, var(--achv-gold)) 70%, transparent);
+  text-align: left;
+  cursor: pointer;
+  animation: achv-card-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.achv-card-main { display: flex; align-items: center; gap: 0.7rem; }
+.achv-card-art { flex: 0 0 auto; width: 64px; height: 64px; }
+.achv-card-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+.achv-card-head {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tc, var(--achv-gold));
+}
+.achv-card-title { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+.achv-card-sub { font-size: 0.78rem; font-weight: 400; color: var(--muted); line-height: 1.25; }
+.achv-card-meta {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Mini-rail: vijf treden, gevuld tot waar je staat (de volle rail met getallen
+   blijft het paneel voorbehouden). */
+.achv-card-rail { display: flex; align-items: center; gap: 4px; margin: 0.2rem 0 0.1rem; }
+.achv-card-rail b {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+}
+.achv-card-rail b.done { background: var(--tc); border-color: var(--tc); }
+.achv-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+.achv-card-note { color: var(--muted); }
+.achv-card-btn {
+  border: 1px solid var(--tc, var(--achv-gold));
+  background: transparent;
+  color: var(--fg);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.achv-card-btn:hover { background: color-mix(in srgb, var(--tc, var(--achv-gold)) 16%, transparent); }
+.achv-card-go { margin-left: auto; color: var(--muted); white-space: nowrap; }
+@keyframes achv-card-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .achv-card { animation: none; } }
+
+/* "Nog niet bekeken": rood stipje op de menuknop + het 🏅-item, NIEUW-markering
+   in het paneel. Stipje als ::after op een klasse, want de menuknop
+   (renderMenuButton) en de menu-items (data-i18n) worden in JS volledig
+   herschreven — een kind-element zou dat niet overleven. */
+:root { --achv-new: #e5484d; }
+#menu-btn { position: relative; }
+#menu-btn.has-new::after {
+  content: "";
+  position: absolute;
+  top: 0.05rem;
+  right: 0.05rem;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--achv-new);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+.menu-item.has-new::after {
+  content: "";
+  display: inline-block;
+  width: 7px; height: 7px;
+  margin-left: 0.4rem;
+  border-radius: 50%;
+  background: var(--achv-new);
+  vertical-align: middle;
+}
+.achv-new {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.32rem;
+  border-radius: 999px;
+  background: var(--achv-new);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+.achv-newdot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+  background: var(--achv-new);
+  vertical-align: middle;
+}
+.achv-tring { position: relative; }
+.achv-tring .achv-new { position: absolute; top: -0.15rem; right: -0.6rem; margin: 0; }
+.achv-stamp { position: relative; }
+.achv-stamp .achv-new { position: absolute; top: -0.1rem; right: 0.15rem; margin: 0; }
+
 /* Verdiende prestatie-flairs vooraan in de flair-kiezer: gouden randje. */
 .lb-flair-opt.lb-flair-achv { border-color: var(--achv-gold); }
