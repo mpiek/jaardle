@@ -268,6 +268,7 @@ const I18N = {
       "-509": "Romeinse Republiek gesticht", "-44": "Moord op Julius Caesar", "476": "Val van Rome",
       "622": "De hidjra", "800": "Kroning van Karel de Grote", "1066": "Slag bij Hastings",
       "1215": "Magna Carta", "1347": "De Zwarte Dood", "1440": "Drukpers van Gutenberg",
+      "1453": "Val van Constantinopel",
       "1492": "Columbus bereikt Amerika", "1517": "Luthers 95 stellingen", "1588": "Spaanse Armada",
       "1648": "Vrede van Westfalen", "1687": "Newtons Principia", "1776": "Amerikaanse onafhankelijkheid",
       "1789": "Franse Revolutie", "1815": "Slag bij Waterloo", "1859": "Darwins evolutietheorie",
@@ -444,6 +445,7 @@ const I18N = {
       "-509": "Roman Republic founded", "-44": "Assassination of Julius Caesar", "476": "Fall of Rome",
       "622": "The Hijra", "800": "Coronation of Charlemagne", "1066": "Battle of Hastings",
       "1215": "Magna Carta", "1347": "The Black Death", "1440": "Gutenberg's printing press",
+      "1453": "Fall of Constantinople",
       "1492": "Columbus reaches the Americas", "1517": "Luther's 95 Theses", "1588": "Spanish Armada",
       "1648": "Peace of Westphalia", "1687": "Newton's Principia", "1776": "American independence",
       "1789": "French Revolution", "1815": "Battle of Waterloo", "1859": "Darwin's theory of evolution",
@@ -615,6 +617,7 @@ const I18N = {
       "-509": "Gründung der Römischen Republik", "-44": "Ermordung Julius Caesars", "476": "Untergang Roms",
       "622": "Die Hidschra", "800": "Krönung Karls des Großen", "1066": "Schlacht bei Hastings",
       "1215": "Magna Carta", "1347": "Der Schwarze Tod", "1440": "Gutenbergs Druckerpresse",
+      "1453": "Eroberung Konstantinopels",
       "1492": "Kolumbus erreicht Amerika", "1517": "Luthers 95 Thesen", "1588": "Spanische Armada",
       "1648": "Westfälischer Friede", "1687": "Newtons Principia", "1776": "Amerikanische Unabhängigkeit",
       "1789": "Französische Revolution", "1815": "Schlacht bei Waterloo", "1859": "Darwins Evolutionstheorie",
@@ -790,6 +793,7 @@ const I18N = {
       "-509": "Fundación de la República romana", "-44": "Asesinato de Julio César", "476": "Caída de Roma",
       "622": "La Hégira", "800": "Coronación de Carlomagno", "1066": "Batalla de Hastings",
       "1215": "Carta Magna", "1347": "La Peste Negra", "1440": "La imprenta de Gutenberg",
+      "1453": "Caída de Constantinopla",
       "1492": "Colón llega a América", "1517": "Las 95 tesis de Lutero", "1588": "Armada Invencible",
       "1648": "Paz de Westfalia", "1687": "Principia de Newton", "1776": "Independencia de EE. UU.",
       "1789": "Revolución francesa", "1815": "Batalla de Waterloo", "1859": "Teoría de la evolución de Darwin",
@@ -965,6 +969,7 @@ const I18N = {
       "-509": "Fundação da República Romana", "-44": "Assassinato de Júlio César", "476": "Queda de Roma",
       "622": "A Hégira", "800": "Coroação de Carlos Magno", "1066": "Batalha de Hastings",
       "1215": "Magna Carta", "1347": "A Peste Negra", "1440": "A prensa de Gutenberg",
+      "1453": "Queda de Constantinopla",
       "1492": "Colombo chega à América", "1517": "As 95 teses de Lutero", "1588": "Armada Espanhola",
       "1648": "Paz de Vestfália", "1687": "Principia de Newton", "1776": "Independência dos EUA",
       "1789": "Revolução Francesa", "1815": "Batalha de Waterloo", "1859": "Teoria da evolução de Darwin",
@@ -3403,9 +3408,9 @@ async function loadRecapTeam() {
 // Badge-stijl: zie de stijlgids bij ACHV_SVG onderaan deze sectie.
 
 // Spiegel van de lijst in db/33 (compute_achievements) — wijzig je 'm, wijzig
-// beide. 1453 ontbreekt bewust: nog geen feiten in de pool.
-const ACHV_YEARS = [-509, -44, 476, 622, 800, 1066, 1215, 1347, 1440, 1492, 1517, 1588,
-  1648, 1687, 1776, 1789, 1815, 1859, 1889, 1912, 1929, 1945, 1957, 1969, 1989];
+// beide (en schuif de laatste trede van de years-reeks mee: die = album vol).
+const ACHV_YEARS = [-509, -44, 476, 622, 800, 1066, 1215, 1347, 1440, 1453, 1492, 1517,
+  1588, 1648, 1687, 1776, 1789, 1815, 1859, 1889, 1912, 1929, 1945, 1957, 1969, 1989];
 const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond"];
 // Reeksen: steps = de vijf treden; flair = {emoji, at} (0-based trede) — de
 // server-gate in set_my_flair (db/33) moet dezelfde drempels hanteren.
@@ -3418,7 +3423,7 @@ const ACHV_SERIES = [
   { key: "perfect", art: "100",        steps: [1, 10, 50, 250, 1000],  flair: { emoji: "💯", at: 2 } },
   { key: "pure",    art: "zen",        steps: [5, 25, 100, 500, 2000] },
   { key: "rating",  art: "bolt",       steps: [1600, 1700, 1800, 1900, 2000], floor: 1500, flair: { emoji: "🥇", at: 4 }, authOnly: true },
-  { key: "years",   art: "albumcover", steps: [3, 8, 15, 20, 25], flair: { emoji: "🗿", at: 4 }, album: true },
+  { key: "years",   art: "albumcover", steps: [3, 8, 15, 20, 26], flair: { emoji: "🗿", at: 4 }, album: true },
 ];
 const ACHV_TROPHIES = [
   { key: "first_try", i18n: "achv_t_first", art: "target" },
@@ -3429,7 +3434,7 @@ const ACHV_TROPHIES = [
 // Zegel-artwork per iconisch jaar (ids in ACHV_SVG).
 const ACHV_YEAR_ART = {
   "-509": "zuil", "-44": "caesar", "476": "broken", "622": "camel", "800": "crown",
-  "1066": "hastings", "1215": "charter", "1347": "skull", "1440": "press", "1492": "1492",
+  "1066": "hastings", "1215": "charter", "1347": "skull", "1440": "press", "1453": "1453", "1492": "1492",
   "1517": "door", "1588": "armada", "1648": "scale", "1687": "apple", "1776": "bell",
   "1789": "guillotine", "1815": "1815", "1859": "finch", "1889": "eiffel", "1912": "berg",
   "1929": "crash", "1945": "victory", "1957": "sputnik", "1969": "1969", "1989": "wall",
