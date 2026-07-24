@@ -1794,3 +1794,235 @@ footer {
   white-space: nowrap;
   border: 0;
 }
+
+/* ── 🏅 Prestaties ─────────────────────────────────────────────────────────
+   Bord (reeksen + trofeeën) + album, zie renderAchievements() in game.js.
+   Treden-kleuren volgen de badge-stijlgids; de badge-kunst zelf (nachtpaars)
+   is in beide thema's gelijk, alleen de trede-ringen/chips wisselen mee. */
+:root {
+  --achv-bronze:  #c08640;
+  --achv-silver:  #b8bfc9;
+  --achv-gold:    #f4c430;
+  --achv-plat:    #8fd4cd;
+  --achv-diamond: #9fc7ff;
+}
+html[data-theme="light"] {
+  --achv-bronze:  #a4692f;
+  --achv-silver:  #7e8894;
+  --achv-gold:    #b08d10;
+  --achv-plat:    #4e8f8a;
+  --achv-diamond: #3d74c9;
+}
+/* --tc = kleur van de huidige trede; t0 = nog geen trede (neutraal). */
+.achv-t0 { --tc: var(--border); }
+.achv-t1, .achv-line-t1 { --tc: var(--achv-bronze); }
+.achv-t2, .achv-line-t2 { --tc: var(--achv-silver); }
+.achv-t3, .achv-line-t3 { --tc: var(--achv-gold); }
+.achv-t4, .achv-line-t4 { --tc: var(--achv-plat); }
+.achv-t5, .achv-line-t5 { --tc: var(--achv-diamond); }
+
+.achv-art { width: 100%; height: 100%; display: block; }
+
+#achv-body .stats-heading:not(:first-child) { margin-top: 1.25rem; }
+
+/* Reeks-rijen: ring = huidige trede, balkje = voortgang naar de volgende. */
+.achv-rows { display: flex; flex-direction: column; gap: 0.45rem; }
+.achv-row {
+  background: var(--card-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.achv-rowbtn {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.achv-ring {
+  flex: 0 0 auto;
+  width: 46px; height: 46px;
+  padding: 2px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--tc);
+}
+.achv-t0 .achv-ring { box-shadow: 0 0 0 2px var(--border); }
+.achv-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.18rem; }
+.achv-name { font-weight: 600; font-size: 0.95rem; line-height: 1.2; }
+.achv-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+.achv-bar {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--penalty-tint);
+  overflow: hidden;
+}
+.achv-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--tc);
+}
+.achv-t0 .achv-bar i { background: var(--accent); }
+.achv-chip {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  color: var(--tc);
+  border: 1px solid color-mix(in srgb, var(--tc) 55%, transparent);
+  background: color-mix(in srgb, var(--tc) 14%, transparent);
+}
+.achv-chev { flex: 0 0 auto; color: var(--muted); font-size: 1.1rem; }
+
+/* Uitklap-detail: rail met de 5 treden (ticks op 10/30/50/70/90%). */
+.achv-detail { padding: 0.15rem 0.85rem 0.75rem; }
+.achv-pinrow { position: relative; height: 1.25rem; }
+.achv-flairpin {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  line-height: 1.25rem;
+}
+.achv-rail {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--penalty-tint);
+}
+.achv-rail i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--tc);
+}
+.achv-t0 .achv-rail i { background: var(--accent); }
+.achv-tick {
+  position: absolute;
+  top: 50%;
+  width: 12px; height: 12px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--card-soft);
+  border: 2px solid var(--border);
+}
+.achv-tick.done { background: var(--tc); border-color: var(--tc); }
+.achv-ticklabels {
+  position: relative;
+  height: 1.1rem;
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.achv-ticklabels span { position: absolute; transform: translateX(-50%); }
+.achv-ticklabels span.next { color: var(--fg); font-weight: 600; }
+.achv-flairnote {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Trofeeën: vlakke 2×2-tegels (geen treden). */
+.achv-trophies {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+.achv-trophy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.3rem;
+  padding: 0.7rem 0.5rem 0.6rem;
+  background: var(--card-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.achv-tring { width: 56px; height: 56px; }
+.achv-trophy.locked .achv-tring { filter: grayscale(1) opacity(0.35); }
+.achv-trophy.locked .achv-tname { color: var(--muted); }
+.achv-tname { font-weight: 600; font-size: 0.88rem; line-height: 1.2; }
+.achv-tsub { font-size: 0.74rem; color: var(--muted); line-height: 1.3; }
+
+/* Endowment-regel voor anonieme spelers (rustig, geen banner). */
+.achv-note {
+  margin: 1rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Album: zegel-raster; jaartal áltijd als bijschrift, de kunst is de onthulling. */
+.achv-back { margin-bottom: 0.7rem; }
+.achv-albumhead {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.achv-stamps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem 0.45rem;
+  margin-top: 1rem;
+}
+.achv-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.15rem;
+}
+.achv-stamp .achv-art { width: 76px; height: 76px; }
+.achv-yr {
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.achv-ev { font-size: 0.7rem; color: var(--muted); line-height: 1.25; }
+.achv-stamp.locked .achv-yr { color: var(--muted); }
+.achv-stamp.locked .achv-ev { opacity: 0.7; }
+
+/* Eindscherm: rustige unlock-regel — badge-mini + tekst, tik opent het paneel. */
+.achv-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--card-soft);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--tc, var(--accent));
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  animation: achv-line-in 0.45s ease-out;
+}
+.achv-line .achv-art { flex: 0 0 auto; width: 30px; height: 30px; }
+.achv-line span:not(.achv-go) { flex: 1; min-width: 0; }
+.achv-line .achv-go { flex: 0 0 auto; color: var(--muted); font-size: 1.05rem; }
+@keyframes achv-line-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .achv-line { animation: none; } }
+
+/* Verdiende prestatie-flairs vooraan in de flair-kiezer: gouden randje. */
+.lb-flair-opt.lb-flair-achv { border-color: var(--achv-gold); }

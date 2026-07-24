@@ -86,7 +86,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=106">
+<link rel="stylesheet" href="/style.css?v=107">
 </head>
 <body>
   <main>
@@ -100,6 +100,7 @@
         <div id="menu-pop" role="menu" hidden>
           <div id="menu-account" class="menu-section"></div>
           <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Estatísticas</button>
+          <button class="menu-item" role="menuitem" data-action="achievements" data-i18n="menu_achv">🏅 Conquistas</button>
           <button class="menu-item" role="menuitem" data-action="rating" data-i18n="menu_rating">⚡ Rating</button>
           <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Classificação</button>
           <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">☀️ Tema claro</button>
@@ -222,6 +223,17 @@
         <button class="modal-close" data-close aria-label="Fechar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div id="rating-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-achv" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-achv-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-achv-title" data-i18n="menu_achv">🏅 Conquistas</h2>
+        <button class="modal-close" data-close aria-label="Fechar" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="achv-body" class="modal-body"></div>
     </div>
   </div>
 
@@ -360,7 +372,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=170"></script>
+  <script src="/game.js?v=171"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

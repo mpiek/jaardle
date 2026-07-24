@@ -241,6 +241,40 @@ const I18N = {
     menu_rating: "⚡ Rating",
     rating_empty: "Nog te weinig historie — na twee dagen spelen verschijnt hier je rating-grafiek.",
     rating_anon: "Je rating is gekoppeld aan je account — log in om je verloop te zien.",
+    menu_achv: "🏅 Prestaties",
+    achv_sect_series: "Reeksen", achv_sect_trophies: "Trofeeën",
+    achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
+    achv_next: (k, tier) => `nog ${k} tot ${tier}`,
+    achv_maxed: "hoogste trede behaald",
+    achv_games: "Veelspeler", achv_games_n: (n) => `${n} ${n === 1 ? "potje" : "potjes"}`,
+    achv_dailies: "Dagelijkse gast", achv_dailies_n: (n) => `${n} dailies`,
+    achv_streak: "Streak", achv_streak_n: (n) => `beste reeks ${n} ${n === 1 ? "dag" : "dagen"}`,
+    achv_perfect: "Perfectionist", achv_perfect_n: (n) => `${n} perfecte scores`,
+    achv_pure: "Puurspeler", achv_pure_n: (n) => `${n} wins zonder hint`,
+    achv_rating: "Rating", achv_rating_n: (n) => `piek ${n}`,
+    achv_years: "Iconische jaren", achv_years_n: (n, total) => `${n}/${total} verzameld`,
+    achv_t_first: "Voltreffer", achv_t_first_sub: "raak in gok 1",
+    achv_t_last: "Ontsnapping", achv_t_last_sub: "win op gok 6",
+    achv_t_saver: "Reddingsactie", achv_t_saver_sub: "red een streak met de inhaal-daily",
+    achv_t_eras: "Tijdreiziger", achv_t_eras_sub: "win in elk van de 6 tijdperken",
+    achv_t_eras_n: (n) => `${n} van 6 tijdperken`,
+    achv_flair_note: (e, tier) => `bij ${tier} verdien je de ${e}-flair voor op het leaderboard`,
+    achv_flair_note_flat: (e) => `hiermee verdien je de ${e}-flair voor op het leaderboard`,
+    achv_anon_note: "🔒 Niet opgeslagen — met een account blijven je prestaties bewaard.",
+    achv_year_locked: "nog niet ontdekt",
+    achv_unlocked: "Prestatie behaald", achv_stamp_new: "Nieuwe zegel",
+    achv_back: "‹ Prestaties",
+    achv_events: {
+      "-509": "Romeinse Republiek gesticht", "-44": "Moord op Julius Caesar", "476": "Val van Rome",
+      "622": "De hidjra", "800": "Kroning van Karel de Grote", "1066": "Slag bij Hastings",
+      "1215": "Magna Carta", "1347": "De Zwarte Dood", "1440": "Drukpers van Gutenberg",
+      "1492": "Columbus bereikt Amerika", "1517": "Luthers 95 stellingen", "1588": "Spaanse Armada",
+      "1648": "Vrede van Westfalen", "1687": "Newtons Principia", "1776": "Amerikaanse onafhankelijkheid",
+      "1789": "Franse Revolutie", "1815": "Slag bij Waterloo", "1859": "Darwins evolutietheorie",
+      "1889": "De Eiffeltoren geopend", "1912": "Ondergang van de Titanic", "1929": "Beurskrach",
+      "1945": "Einde Tweede Wereldoorlog", "1957": "Spoetnik", "1969": "De maanlanding",
+      "1989": "Val van de Muur",
+    },
     // SEO/meta — door tools/build-html.mjs in de <head> + het introblok gezet.
     meta_title: "Jaardle — raad het jaar",
     meta_share_title: "Jaardle — raad het jaar van historische gebeurtenissen",
@@ -383,6 +417,40 @@ const I18N = {
     menu_rating: "⚡ Rating",
     rating_empty: "Not enough history yet — your rating graph appears after two days of play.",
     rating_anon: "Your rating is tied to your account — sign in to see your progression.",
+    menu_achv: "🏅 Achievements",
+    achv_sect_series: "Series", achv_sect_trophies: "Trophies",
+    achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
+    achv_next: (k, tier) => `${k} to go until ${tier}`,
+    achv_maxed: "highest tier reached",
+    achv_games: "Frequent player", achv_games_n: (n) => `${n} ${n === 1 ? "game" : "games"}`,
+    achv_dailies: "Daily regular", achv_dailies_n: (n) => `${n} dailies`,
+    achv_streak: "Streak", achv_streak_n: (n) => `best run ${n} ${n === 1 ? "day" : "days"}`,
+    achv_perfect: "Perfectionist", achv_perfect_n: (n) => `${n} perfect scores`,
+    achv_pure: "Purist", achv_pure_n: (n) => `${n} wins without hints`,
+    achv_rating: "Rating", achv_rating_n: (n) => `peak ${n}`,
+    achv_years: "Iconic years", achv_years_n: (n, total) => `${n}/${total} collected`,
+    achv_t_first: "Bullseye", achv_t_first_sub: "correct on guess 1",
+    achv_t_last: "Great escape", achv_t_last_sub: "win on guess 6",
+    achv_t_saver: "Rescue mission", achv_t_saver_sub: "save a streak with the make-up daily",
+    achv_t_eras: "Time traveller", achv_t_eras_sub: "win in each of the 6 eras",
+    achv_t_eras_n: (n) => `${n} of 6 eras`,
+    achv_flair_note: (e, tier) => `reach ${tier} to earn the ${e} flair for the leaderboard`,
+    achv_flair_note_flat: (e) => `earns you the ${e} flair for the leaderboard`,
+    achv_anon_note: "🔒 Not saved — with an account your achievements are kept.",
+    achv_year_locked: "not discovered yet",
+    achv_unlocked: "Achievement unlocked", achv_stamp_new: "New stamp",
+    achv_back: "‹ Achievements",
+    achv_events: {
+      "-509": "Roman Republic founded", "-44": "Assassination of Julius Caesar", "476": "Fall of Rome",
+      "622": "The Hijra", "800": "Coronation of Charlemagne", "1066": "Battle of Hastings",
+      "1215": "Magna Carta", "1347": "The Black Death", "1440": "Gutenberg's printing press",
+      "1492": "Columbus reaches the Americas", "1517": "Luther's 95 Theses", "1588": "Spanish Armada",
+      "1648": "Peace of Westphalia", "1687": "Newton's Principia", "1776": "American independence",
+      "1789": "French Revolution", "1815": "Battle of Waterloo", "1859": "Darwin's theory of evolution",
+      "1889": "Eiffel Tower opens", "1912": "Sinking of the Titanic", "1929": "Wall Street Crash",
+      "1945": "End of World War II", "1957": "Sputnik", "1969": "The Moon landing",
+      "1989": "Fall of the Berlin Wall",
+    },
     // SEO/meta — used by tools/build-html.mjs for the <head> + intro block.
     meta_title: "Jaardle — guess the year",
     meta_share_title: "Jaardle — guess the year of historic events",
@@ -520,6 +588,40 @@ const I18N = {
     menu_rating: "⚡ Rating",
     rating_empty: "Noch zu wenig Verlauf — nach zwei Spieltagen erscheint hier dein Rating-Diagramm.",
     rating_anon: "Dein Rating ist mit deinem Konto verknüpft — melde dich an, um deinen Verlauf zu sehen.",
+    menu_achv: "🏅 Erfolge",
+    achv_sect_series: "Serien", achv_sect_trophies: "Trophäen",
+    achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
+    achv_next: (k, tier) => `noch ${k} bis ${tier}`,
+    achv_maxed: "höchste Stufe erreicht",
+    achv_games: "Vielspieler", achv_games_n: (n) => `${n} ${n === 1 ? "Partie" : "Partien"}`,
+    achv_dailies: "Stammgast", achv_dailies_n: (n) => `${n} tägliche Rätsel`,
+    achv_streak: "Serie", achv_streak_n: (n) => `beste Serie ${n} ${n === 1 ? "Tag" : "Tage"}`,
+    achv_perfect: "Perfektionist", achv_perfect_n: (n) => `${n} perfekte Ergebnisse`,
+    achv_pure: "Purist", achv_pure_n: (n) => `${n} Siege ohne Hinweis`,
+    achv_rating: "Rating", achv_rating_n: (n) => `Bestwert ${n}`,
+    achv_years: "Ikonische Jahre", achv_years_n: (n, total) => `${n}/${total} gesammelt`,
+    achv_t_first: "Volltreffer", achv_t_first_sub: "richtig beim 1. Versuch",
+    achv_t_last: "Entkommen", achv_t_last_sub: "Sieg beim 6. Versuch",
+    achv_t_saver: "Rettungsaktion", achv_t_saver_sub: "rette eine Serie mit dem Nachhol-Rätsel",
+    achv_t_eras: "Zeitreisender", achv_t_eras_sub: "gewinne in allen 6 Epochen",
+    achv_t_eras_n: (n) => `${n} von 6 Epochen`,
+    achv_flair_note: (e, tier) => `ab ${tier} verdienst du das ${e}-Flair für die Bestenliste`,
+    achv_flair_note_flat: (e) => `damit verdienst du das ${e}-Flair für die Bestenliste`,
+    achv_anon_note: "🔒 Nicht gespeichert — mit einem Konto bleiben deine Erfolge erhalten.",
+    achv_year_locked: "noch nicht entdeckt",
+    achv_unlocked: "Erfolg freigeschaltet", achv_stamp_new: "Neue Briefmarke",
+    achv_back: "‹ Erfolge",
+    achv_events: {
+      "-509": "Gründung der Römischen Republik", "-44": "Ermordung Julius Caesars", "476": "Untergang Roms",
+      "622": "Die Hidschra", "800": "Krönung Karls des Großen", "1066": "Schlacht bei Hastings",
+      "1215": "Magna Carta", "1347": "Der Schwarze Tod", "1440": "Gutenbergs Druckerpresse",
+      "1492": "Kolumbus erreicht Amerika", "1517": "Luthers 95 Thesen", "1588": "Spanische Armada",
+      "1648": "Westfälischer Friede", "1687": "Newtons Principia", "1776": "Amerikanische Unabhängigkeit",
+      "1789": "Französische Revolution", "1815": "Schlacht bei Waterloo", "1859": "Darwins Evolutionstheorie",
+      "1889": "Eröffnung des Eiffelturms", "1912": "Untergang der Titanic", "1929": "Börsenkrach",
+      "1945": "Ende des Zweiten Weltkriegs", "1957": "Sputnik", "1969": "Die Mondlandung",
+      "1989": "Fall der Mauer",
+    },
     meta_title: "Jaardle — errate das Jahr",
     meta_share_title: "Jaardle — errate das Jahr historischer Ereignisse",
     meta_desc: "Jaardle ist ein kostenloses tägliches Jahreszahlen-Ratespiel — das Jahrdle der Geschichte, im Stil von Wordle: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.",
@@ -661,6 +763,40 @@ const I18N = {
     menu_rating: "⚡ Rating",
     rating_empty: "Aún no hay historial suficiente: tu gráfica de rating aparecerá tras dos días de juego.",
     rating_anon: "Tu rating está vinculado a tu cuenta: inicia sesión para ver tu evolución.",
+    menu_achv: "🏅 Logros",
+    achv_sect_series: "Series", achv_sect_trophies: "Trofeos",
+    achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
+    achv_next: (k, tier) => `faltan ${k} para ${tier}`,
+    achv_maxed: "nivel máximo alcanzado",
+    achv_games: "Jugador asiduo", achv_games_n: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
+    achv_dailies: "Habitual del diario", achv_dailies_n: (n) => `${n} puzles diarios`,
+    achv_streak: "Racha", achv_streak_n: (n) => `mejor racha ${n} ${n === 1 ? "día" : "días"}`,
+    achv_perfect: "Perfeccionista", achv_perfect_n: (n) => `${n} puntuaciones perfectas`,
+    achv_pure: "Purista", achv_pure_n: (n) => `${n} victorias sin pistas`,
+    achv_rating: "Rating", achv_rating_n: (n) => `máximo ${n}`,
+    achv_years: "Años icónicos", achv_years_n: (n, total) => `${n}/${total} coleccionados`,
+    achv_t_first: "Pleno", achv_t_first_sub: "acierta al 1.er intento",
+    achv_t_last: "Gran escape", achv_t_last_sub: "gana en el 6.º intento",
+    achv_t_saver: "Rescate", achv_t_saver_sub: "salva una racha con el puzle de recuperación",
+    achv_t_eras: "Viajero del tiempo", achv_t_eras_sub: "gana en cada una de las 6 épocas",
+    achv_t_eras_n: (n) => `${n} de 6 épocas`,
+    achv_flair_note: (e, tier) => `al llegar a ${tier} ganas el distintivo ${e} para la clasificación`,
+    achv_flair_note_flat: (e) => `te hace ganar el distintivo ${e} para la clasificación`,
+    achv_anon_note: "🔒 Sin guardar: con una cuenta tus logros se conservan.",
+    achv_year_locked: "aún sin descubrir",
+    achv_unlocked: "Logro conseguido", achv_stamp_new: "Sello nuevo",
+    achv_back: "‹ Logros",
+    achv_events: {
+      "-509": "Fundación de la República romana", "-44": "Asesinato de Julio César", "476": "Caída de Roma",
+      "622": "La Hégira", "800": "Coronación de Carlomagno", "1066": "Batalla de Hastings",
+      "1215": "Carta Magna", "1347": "La Peste Negra", "1440": "La imprenta de Gutenberg",
+      "1492": "Colón llega a América", "1517": "Las 95 tesis de Lutero", "1588": "Armada Invencible",
+      "1648": "Paz de Westfalia", "1687": "Principia de Newton", "1776": "Independencia de EE. UU.",
+      "1789": "Revolución francesa", "1815": "Batalla de Waterloo", "1859": "Teoría de la evolución de Darwin",
+      "1889": "Inauguración de la Torre Eiffel", "1912": "Hundimiento del Titanic", "1929": "Crac del 29",
+      "1945": "Fin de la Segunda Guerra Mundial", "1957": "Sputnik", "1969": "La llegada a la Luna",
+      "1989": "Caída del Muro de Berlín",
+    },
     meta_title: "Jaardle — adivina el año",
     meta_share_title: "Jaardle — adivina el año de acontecimientos históricos",
     meta_desc: "Jaardle es un juego diario y gratuito de adivinar años — el Añodle de la historia, al estilo de Wordle: adivina en seis intentos el año de un acontecimiento histórico. Puzle diario o partida libre infinita.",
@@ -802,6 +938,40 @@ const I18N = {
     menu_rating: "⚡ Rating",
     rating_empty: "Ainda não há histórico suficiente — seu gráfico de rating aparece após dois dias de jogo.",
     rating_anon: "Seu rating está vinculado à sua conta — faça login para ver sua evolução.",
+    menu_achv: "🏅 Conquistas",
+    achv_sect_series: "Séries", achv_sect_trophies: "Troféus",
+    achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
+    achv_next: (k, tier) => `faltam ${k} para ${tier}`,
+    achv_maxed: "nível máximo alcançado",
+    achv_games: "Jogador assíduo", achv_games_n: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
+    achv_dailies: "Frequentador do diário", achv_dailies_n: (n) => `${n} desafios diários`,
+    achv_streak: "Sequência", achv_streak_n: (n) => `melhor sequência ${n} ${n === 1 ? "dia" : "dias"}`,
+    achv_perfect: "Perfeccionista", achv_perfect_n: (n) => `${n} pontuações perfeitas`,
+    achv_pure: "Purista", achv_pure_n: (n) => `${n} vitórias sem dicas`,
+    achv_rating: "Rating", achv_rating_n: (n) => `pico ${n}`,
+    achv_years: "Anos icônicos", achv_years_n: (n, total) => `${n}/${total} colecionados`,
+    achv_t_first: "Na mosca", achv_t_first_sub: "acerte na 1ª tentativa",
+    achv_t_last: "Grande escape", achv_t_last_sub: "vença na 6ª tentativa",
+    achv_t_saver: "Resgate", achv_t_saver_sub: "salve uma sequência com o desafio de recuperação",
+    achv_t_eras: "Viajante do tempo", achv_t_eras_sub: "vença em cada uma das 6 eras",
+    achv_t_eras_n: (n) => `${n} de 6 eras`,
+    achv_flair_note: (e, tier) => `ao chegar a ${tier} você ganha o emblema ${e} para o placar`,
+    achv_flair_note_flat: (e) => `faz você ganhar o emblema ${e} para o placar`,
+    achv_anon_note: "🔒 Não salvo — com uma conta suas conquistas ficam guardadas.",
+    achv_year_locked: "ainda não descoberto",
+    achv_unlocked: "Conquista desbloqueada", achv_stamp_new: "Selo novo",
+    achv_back: "‹ Conquistas",
+    achv_events: {
+      "-509": "Fundação da República Romana", "-44": "Assassinato de Júlio César", "476": "Queda de Roma",
+      "622": "A Hégira", "800": "Coroação de Carlos Magno", "1066": "Batalha de Hastings",
+      "1215": "Magna Carta", "1347": "A Peste Negra", "1440": "A prensa de Gutenberg",
+      "1492": "Colombo chega à América", "1517": "As 95 teses de Lutero", "1588": "Armada Espanhola",
+      "1648": "Paz de Vestfália", "1687": "Principia de Newton", "1776": "Independência dos EUA",
+      "1789": "Revolução Francesa", "1815": "Batalha de Waterloo", "1859": "Teoria da evolução de Darwin",
+      "1889": "Inauguração da Torre Eiffel", "1912": "Naufrágio do Titanic", "1929": "Crash da bolsa",
+      "1945": "Fim da Segunda Guerra Mundial", "1957": "Sputnik", "1969": "A chegada à Lua",
+      "1989": "Queda do Muro de Berlim",
+    },
     meta_title: "Jaardle — adivinhe o ano",
     meta_share_title: "Jaardle — adivinhe o ano de acontecimentos históricos",
     meta_desc: "Jaardle é um jogo diário e gratuito de adivinhar anos — o Anodle da história, no estilo de Wordle: adivinhe em seis tentativas o ano de um acontecimento histórico. Quebra-cabeça diário ou jogo livre infinito.",
@@ -849,6 +1019,8 @@ function applyLang() {
   if (sm && !sm.hidden) renderStats();
   const rm = document.getElementById("modal-rating");
   if (rm && !rm.hidden) renderRatingModal();
+  const am = document.getElementById("modal-achv");
+  if (am && !am.hidden) renderAchievements();
 }
 
 // Zichtbare taalkeuze in de header (redactle-stijl dropdown), gevuld uit LANGS —
@@ -2033,6 +2205,7 @@ function finishGame(won, fresh = false) {
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily" || isMakeup(state);
   renderHintStatus();
   if (fresh && won) (state.guesses.length === 1 ? showFireworks : showConfetti)();
+  if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
   if (fresh && state.mode === "daily") recordDailyResult(won);
   appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
   // Bij een verse pot: eerst de play wegschrijven, DAARNA de globale stats ophalen,
@@ -2043,6 +2216,7 @@ function finishGame(won, fresh = false) {
   // het recap-scherm openen (verdeling pogingen + teamstand van vandaag).
   const afterSend = () => {
     showFactStats(statsHash);
+    checkAchievements();   // unlock-regels op het eindscherm (ná record_play, dus de pot telt mee)
     // Recap (verdeling + teamstand van vandaag) hoort niet bij een inhaalpot.
     if (fresh && state.mode === "daily" && !isMakeup(state)) openDailyRecap();
   };
@@ -2343,6 +2517,9 @@ const FLAIR_ANIM = {
   "🍄": "flair-mushroom", "🎻": "flair-violin", "🪙": "flair-coin",
   "🦅": "flair-eagle", "🪿": "flair-goose", "🫏": "flair-donkey",
   "🌈": "flair-rainbow", "🫪": "flair-distorted",
+  // Prestatie-flairs (unlockbaar via het 🏅-bord, gegate in set_my_flair/db33).
+  "💯": "flair-hundred", "⏳": "flair-hourglass", "🗿": "flair-moai",
+  "🦕": "flair-sauropod", "🥇": "flair-goldmedal",
 };
 
 // De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
@@ -2580,8 +2757,13 @@ function flairPickerHtml() {
     </div>`;
   const opt = (val, label, extra) =>
     `<button type="button" class="lb-flair-opt${extra || ""}${(myFlair || "") === val ? " sel" : ""}" data-flair="${escHtml(val)}" aria-label="${label}" title="${label}">${val || "✖"}</button>`;
+  // Verdiende prestatie-flairs (💯⏳🗿🦕🥇) vooraan, met een gouden randje —
+  // de server hergate ze in set_my_flair, dus dit is puur weergave.
+  const earned = achvEarnedFlairs();
   const grid = flairPickerOpen
-    ? `<div class="lb-flair-opts">${opt("", t("lb_flair_none"), " lb-flair-clear") + FLAIR_OPTIONS.map((e) => opt(e, e, "")).join("")}</div>`
+    ? `<div class="lb-flair-opts">${opt("", t("lb_flair_none"), " lb-flair-clear") +
+        earned.map((e) => opt(e, e, " lb-flair-achv")).join("") +
+        FLAIR_OPTIONS.map((e) => opt(e, e, "")).join("")}</div>`
     : "";
   return `<div class="lb-flair">${head}${grid}</div>`;
 }
@@ -2747,6 +2929,7 @@ async function renderLeaderboard() {
   await fetchMyPools();
   try { myUsername = await rpc("get_my_username", {}) || null; } catch (e) {}
   try { myFlair = await rpc("get_my_flair", {}) || null; } catch (e) {}
+  if (!achvCache) { try { await fetchAchievements(); } catch (e) {} }   // verdiende prestatie-flairs in de kiezer
   if (document.getElementById("modal-leaderboard").hidden) return;
   if (!myPool) { renderPoolEmptyState(body); return; }
 
@@ -3200,6 +3383,412 @@ async function loadRecapTeam() {
   if (document.getElementById("modal-recap").hidden || myPool?.id !== poolId) return;
   const board = document.getElementById("recap-team-board");
   if (board) setBoard(board, dailyTableHtml(Array.isArray(rows) ? rows : []));
+}
+
+// --- Prestaties (achievements) ----------------------------------------------
+// Bord van 7 getrapte reeksen (brons→diamant) + 4 vlakke trofeeën + het
+// iconische-jaren-album. Ingelogd = get_my_achievements() (db/33, retroactief
+// uit plays); anoniem = lokale tellers (jaardle:achv) + de daily-historie.
+// Unlock-detectie: snapshot-diff tegen jaardle:achvSeen — de eerste berekening
+// is een stille baseline (retroactief toekennen zonder toast-regen), daarna
+// geeft elke trede/trofee/zegel een rustige regel op het eindscherm.
+// Badge-stijl: zie de stijlgids bij ACHV_SVG onderaan deze sectie.
+
+// Spiegel van de lijst in db/33 (compute_achievements) — wijzig je 'm, wijzig
+// beide. 1453 ontbreekt bewust: nog geen feiten in de pool.
+const ACHV_YEARS = [-509, -44, 476, 622, 800, 1066, 1215, 1347, 1440, 1492, 1517, 1588,
+  1648, 1687, 1776, 1789, 1815, 1859, 1889, 1912, 1929, 1945, 1957, 1969, 1989];
+const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond"];
+// Reeksen: steps = de vijf treden; flair = {emoji, at} (0-based trede) — de
+// server-gate in set_my_flair (db/33) moet dezelfde drempels hanteren.
+// floor = ondergrens voor het voortgangsbalkje vóór de eerste trede (rating
+// start op 1500, dus 0..1600 zou het balkje meteen vol tekenen).
+const ACHV_SERIES = [
+  { key: "games",   art: "dice",       steps: [10, 100, 1000, 5000, 25000] },
+  { key: "dailies", art: "cal",        steps: [7, 30, 100, 365, 1000] },
+  { key: "streak",  art: "flame",      steps: [7, 30, 100, 365, 1000], flair: { emoji: "⏳", at: 2 } },
+  { key: "perfect", art: "100",        steps: [1, 10, 50, 250, 1000],  flair: { emoji: "💯", at: 2 } },
+  { key: "pure",    art: "zen",        steps: [5, 25, 100, 500, 2000] },
+  { key: "rating",  art: "bolt",       steps: [1600, 1700, 1800, 1900, 2000], floor: 1500, flair: { emoji: "🥇", at: 4 }, authOnly: true },
+  { key: "years",   art: "albumcover", steps: [3, 8, 15, 20, 25], flair: { emoji: "🗿", at: 4 }, album: true },
+];
+const ACHV_TROPHIES = [
+  { key: "first_try", i18n: "achv_t_first", art: "target" },
+  { key: "last_gasp", i18n: "achv_t_last",  art: "chute" },
+  { key: "saver",     i18n: "achv_t_saver", art: "buoy" },
+  { key: "eras",      i18n: "achv_t_eras",  art: "timering", flair: { emoji: "🦕" } },
+];
+// Zegel-artwork per iconisch jaar (ids in ACHV_SVG).
+const ACHV_YEAR_ART = {
+  "-509": "zuil", "-44": "caesar", "476": "broken", "622": "camel", "800": "crown",
+  "1066": "hastings", "1215": "charter", "1347": "skull", "1440": "press", "1492": "1492",
+  "1517": "door", "1588": "armada", "1648": "scale", "1687": "apple", "1776": "bell",
+  "1789": "guillotine", "1815": "1815", "1859": "finch", "1889": "eiffel", "1912": "berg",
+  "1929": "crash", "1945": "victory", "1957": "sputnik", "1969": "1969", "1989": "wall",
+};
+
+function achvTier(n, steps) {           // 0 = nog geen trede, 5 = diamant
+  let tier = 0;
+  for (const s of steps) if (n >= s) tier += 1;
+  return tier;
+}
+function achvTierName(i) { return (t("achv_tiers") || {})[ACHV_TIER_KEYS[i]] || ACHV_TIER_KEYS[i]; }
+function achvValue(a, s) {
+  if (s.key === "years") return a.years.length;
+  if (s.key === "rating") return a.rating || 0;
+  return a[s.key] || 0;
+}
+function achvTrophyDone(a, tr) {
+  return tr.key === "eras" ? a.eras.every(Boolean) : !!a[tr.key];
+}
+// Zelfde 6 tijdperk-grenzen als eraName (en de eras-CTE in db/33).
+function eraIndex(year) {
+  if (year < 500) return 0;
+  if (year < 1500) return 1;
+  if (year < 1600) return 2;
+  if (year < 1800) return 3;
+  if (year < 2000) return 4;
+  return 5;
+}
+function achvYearLabel(y) { return y < 0 ? `${-y} ${t("bc")}` : String(y); }
+const fmtN = (n) => new Intl.NumberFormat(LANGS[lang].intl).format(n);
+
+// ── data: één genormaliseerde vorm voor server (db/33) én lokaal ─────────────
+let achvCache = null;   // laatste berekening voor de huidige identiteit (voedt ook de flair-kiezer)
+
+function achvNormalize(a) {
+  return {
+    games: a.games || 0, dailies: a.dailies || 0, streak: a.streak || 0,
+    perfect: a.perfect || 0, pure: a.pure || 0,
+    rating: a.rating ?? null,
+    years: (Array.isArray(a.years) ? a.years : []).slice().sort((x, y) => x - y),
+    first_try: !!a.first_try, last_gasp: !!a.last_gasp, saver: !!a.saver,
+    eras: Array.from({ length: 6 }, (_, i) => !!(a.eras || [])[i]),
+  };
+}
+
+// Lokale tellers voor anonieme spelers. Eenmalig geseed uit de daily-historie
+// (dailies/streak/perfect zijn daar al uit af te leiden); vrij-spel-potjes van
+// vóór dit moment zijn lokaal nooit bijgehouden en tellen dus niet mee — de
+// beperking van spelen zonder account (zie achv_anon_note).
+const ACHV_LOCAL_KEY = "jaardle:achv";
+function loadAchvLocal() {
+  try { const o = JSON.parse(localStorage.getItem(ACHV_LOCAL_KEY)); return o && typeof o === "object" ? o : null; }
+  catch (e) { return null; }
+}
+function saveAchvLocal(o) {
+  try { localStorage.setItem(ACHV_LOCAL_KEY, JSON.stringify(o)); } catch (e) {}
+}
+function ensureAchvLocal() {
+  let l = loadAchvLocal();
+  if (l) return l;
+  const hist = loadHistory();
+  l = {
+    games: hist.length,
+    perfect: hist.filter((e) => e.won && e.score === 100).length,
+    pure: 0, first_try: false, last_gasp: false, saver: false,
+    eras: {}, years: {},
+  };
+  saveAchvLocal(l);
+  return l;
+}
+// Tel een zojuist afgeronde (verse) anonieme pot mee — daily én vrij spel.
+// Aanroepen vóór recordDailyResult, zodat de eerste seed vandaag niet dubbel telt.
+function recordAchvLocal() {
+  if (auth.user || !state || !state.event) return;
+  const l = ensureAchvLocal();
+  l.games = (l.games || 0) + 1;
+  if (state.won) {
+    if (computeScore() === 100) l.perfect = (l.perfect || 0) + 1;
+    if (state.laterCluesShown === 0 && state.directionsRevealed.length === 0 &&
+        !state.centuryRevealed && !state.lastDigitRevealed) l.pure = (l.pure || 0) + 1;
+    if (state.guesses.length === 1) l.first_try = true;
+    if (state.guesses.length === MAX_GUESSES) l.last_gasp = true;
+    if (isMakeup(state)) l.saver = true;
+    const y = state.event.year;
+    (l.eras = l.eras || {})[eraIndex(y)] = true;
+    if (ACHV_YEARS.includes(y)) (l.years = l.years || {})[y] = true;
+  }
+  saveAchvLocal(l);
+}
+
+// De actuele stand. Ingelogd: db/33 is de bron; de daily-afgeleiden (dailies/
+// streak/perfect) worden opgehoogd met de gemergde daghistorie zodat het paneel
+// nooit mínder toont dan de stats-modal (die merget lokale dagen ook al).
+async function fetchAchievements() {
+  const hist = await dailyHistoryForDisplay();
+  const s = computeStats(hist);
+  let a = null;
+  if (auth.user) {
+    try { const r = await rpc("get_my_achievements", {}); if (r) a = achvNormalize(r); } catch (e) {}
+    if (!a) a = achvCache;          // offline → laatste bekende stand
+    if (!a) return null;
+  } else {
+    const l = ensureAchvLocal();
+    a = achvNormalize({
+      games: l.games, perfect: l.perfect, pure: l.pure,
+      first_try: l.first_try, last_gasp: l.last_gasp, saver: l.saver,
+      years: Object.keys(l.years || {}).map(Number),
+      eras: Array.from({ length: 6 }, (_, i) => !!(l.eras || {})[i]),
+    });
+  }
+  a.dailies = Math.max(a.dailies, hist.length);
+  a.streak = Math.max(a.streak, s.bestStreak);
+  const histPerfect = hist.filter((e) => e.won && e.score === 100).length;
+  a.perfect = Math.max(a.perfect, histPerfect);
+  achvCache = a;
+  return a;
+}
+
+// Welke prestatie-flairs zijn verdiend? (client-weergave; de server hergate in
+// set_my_flair, dus dit hoeft alleen de kiezer te voeden.)
+function achvEarnedFlairs() {
+  const a = achvCache;
+  if (!a || !auth.user) return [];
+  const out = [];
+  for (const s of ACHV_SERIES) {
+    if (s.flair && achvTier(achvValue(a, s), s.steps) >= s.flair.at + 1) out.push(s.flair.emoji);
+  }
+  for (const tr of ACHV_TROPHIES) {
+    if (tr.flair && achvTrophyDone(a, tr)) out.push(tr.flair.emoji);
+  }
+  return out;
+}
+
+// ── unlock-detectie: snapshot-diff per identiteit ─────────────────────────────
+function achvSeenKey() { return `jaardle:achvSeen:${auth.user ? auth.user.uid : "anon"}`; }
+function achvSnapshot(a) {
+  const snap = { yearsList: a.years };
+  for (const s of ACHV_SERIES) snap[s.key] = achvTier(achvValue(a, s), s.steps);
+  for (const tr of ACHV_TROPHIES) snap[tr.key] = achvTrophyDone(a, tr) ? 1 : 0;
+  return snap;
+}
+// Stille baseline (login/logout, eerste run): snapshot opslaan zonder regels.
+async function achvRefreshBaseline() {
+  const a = await fetchAchievements();
+  if (!a) return;
+  try { localStorage.setItem(achvSeenKey(), JSON.stringify(achvSnapshot(a))); } catch (e) {}
+}
+// Na een verse pot: bereken opnieuw, vergelijk met de vorige snapshot en zet
+// rustige unlock-regels op het eindscherm (badge-mini + naam; tik = paneel).
+async function checkAchievements() {
+  const a = await fetchAchievements();
+  if (!a || !state || !state.done) return;
+  const key = achvSeenKey();
+  let seen = null;
+  try { seen = JSON.parse(localStorage.getItem(key)); } catch (e) {}
+  const cur = achvSnapshot(a);
+  try { localStorage.setItem(key, JSON.stringify(cur)); } catch (e) {}
+  if (!seen || typeof seen !== "object") return;   // eerste keer: stil (retroactief)
+  const lines = [];
+  for (const s of ACHV_SERIES) {
+    const prev = seen[s.key] || 0;
+    if (cur[s.key] > prev) {
+      lines.push({ art: s.art, tier: cur[s.key],
+        text: `${t("achv_unlocked")}: ${t(`achv_${s.key}`)} · ${achvTierName(cur[s.key] - 1)}` });
+    }
+  }
+  for (const tr of ACHV_TROPHIES) {
+    if (cur[tr.key] && !seen[tr.key]) {
+      lines.push({ art: tr.art, trophy: true, text: `${t("achv_unlocked")}: ${t(tr.i18n)}` });
+    }
+  }
+  const seenYears = new Set(Array.isArray(seen.yearsList) ? seen.yearsList : []);
+  for (const y of a.years) {
+    if (!seenYears.has(y)) {
+      const ev = (t("achv_events") || {})[String(y)] || "";
+      lines.push({ art: ACHV_YEAR_ART[String(y)], stamp: true,
+        text: `${t("achv_stamp_new")}: ${achvYearLabel(y)}${ev ? ` · ${ev}` : ""}` });
+    }
+  }
+  if (!lines.length) return;
+  els.resultText.querySelectorAll(".achv-line").forEach((e) => e.remove());
+  for (const line of lines) {
+    const el = document.createElement("div");
+    el.className = "achv-line" + (line.tier ? ` achv-line-t${line.tier}` : "");
+    el.innerHTML = `${achvBadgeHtml(line.art, line.stamp)}<span>${escHtml(line.text)}</span><span class="achv-go">›</span>`;
+    el.setAttribute("role", "button");
+    el.tabIndex = 0;
+    const open = () => openModal("modal-achv");
+    el.onclick = open;
+    el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
+    els.resultText.append(el);
+  }
+}
+
+// ── paneel: bord (reeksen + trofeeën) en het album als enige sub-scherm ──────
+function achvBadgeHtml(art, isStamp) {
+  return `<svg viewBox="0 0 100 100" class="achv-art${isStamp ? " achv-art-stamp" : ""}" aria-hidden="true"><use href="#achv-art-${art}"/></svg>`;
+}
+
+// Voortgang binnen de rail (tick-posities 10/30/50/70/90%): tot de vorige trede
+// vol, daarbinnen naar rato richting de volgende.
+function achvRailPct(n, s) {
+  const tier = achvTier(n, s.steps);
+  if (tier >= 5) return 100;
+  const prevStep = tier === 0 ? (s.floor || 0) : s.steps[tier - 1];
+  const prevPos = tier === 0 ? 0 : 10 + 20 * (tier - 1);
+  const nextPos = 10 + 20 * tier;
+  const frac = Math.max(0, Math.min(1, (n - prevStep) / (s.steps[tier] - prevStep)));
+  return prevPos + frac * (nextPos - prevPos);
+}
+
+function achvRowSub(a, s) {
+  const n = achvValue(a, s);
+  const shown = s.key === "rating" && a.rating == null ? "–" : fmtN(n);
+  const unit = t(`achv_${s.key}_n`);
+  const unitLine = s.key === "years" ? unit(n, ACHV_YEARS.length)
+    : s.key === "rating" ? unit(shown) : unit(n);
+  // Nog geen zichtbare rating (pot < 25): "nog 1.600 tot brons" zou vanaf 0
+  // tellen terwijl je op 1500 start — laat het nog-stuk dan weg.
+  if (s.key === "rating" && a.rating == null) return unitLine;
+  const tier = achvTier(n, s.steps);
+  const next = tier >= 5 ? t("achv_maxed")
+    : t("achv_next")(fmtN(s.steps[tier] - n), achvTierName(tier));
+  return `${unitLine} · ${next}`;
+}
+
+function achvDetailHtml(a, s) {
+  const n = achvValue(a, s);
+  const tier = achvTier(n, s.steps);
+  const ticks = s.steps.map((step, i) => {
+    const done = tier > i;
+    return `<b class="achv-tick achv-tk${i}${done ? " done" : ""}" style="left:${10 + 20 * i}%"></b>`;
+  }).join("");
+  const labels = s.steps.map((step, i) =>
+    `<span class="${tier === i ? "next" : ""}" style="left:${10 + 20 * i}%">${fmtN(step)}</span>`).join("");
+  const pin = s.flair
+    ? `<span class="achv-flairpin" style="left:${10 + 20 * s.flair.at}%">${s.flair.emoji}</span>` : "";
+  const note = s.flair
+    ? `<p class="achv-flairnote">${escHtml(t("achv_flair_note")(s.flair.emoji, achvTierName(s.flair.at)))}</p>` : "";
+  return `<div class="achv-detail" hidden>
+      <div class="achv-pinrow">${pin}</div>
+      <div class="achv-rail"><i style="width:${achvRailPct(n, s).toFixed(1)}%"></i>${ticks}</div>
+      <div class="achv-ticklabels">${labels}</div>
+      ${note}</div>`;
+}
+
+function achvRowHtml(a, s) {
+  const n = achvValue(a, s);
+  const tier = achvTier(n, s.steps);
+  const prevStep = tier === 0 ? (s.floor || 0) : s.steps[tier - 1];
+  const barPct = tier >= 5 ? 100
+    : Math.max(0, Math.min(100, ((n - prevStep) / (s.steps[tier] - prevStep)) * 100));
+  const chip = tier > 0 ? `<span class="achv-chip">${escHtml(achvTierName(tier - 1))}</span>` : "";
+  const chev = s.album ? `<span class="achv-chev">›</span>` : "";
+  return `<div class="achv-row achv-t${tier}" data-key="${s.key}">
+    <button class="achv-rowbtn" type="button" aria-expanded="false">
+      <span class="achv-ring">${achvBadgeHtml(s.art)}</span>
+      <span class="achv-body">
+        <span class="achv-name">${escHtml(t(`achv_${s.key}`))}</span>
+        <span class="achv-sub">${escHtml(achvRowSub(a, s))}</span>
+        <span class="achv-bar"><i style="width:${barPct.toFixed(1)}%"></i></span>
+      </span>
+      ${chip}${chev}
+    </button>
+    ${s.album ? "" : achvDetailHtml(a, s)}
+  </div>`;
+}
+
+function achvTrophyHtml(a, tr) {
+  const done = achvTrophyDone(a, tr);
+  let sub = t(`${tr.i18n}_sub`);
+  if (tr.key === "eras" && !done) {
+    const cnt = a.eras.filter(Boolean).length;
+    if (cnt > 0) sub = t("achv_t_eras_n")(cnt);
+  }
+  const note = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"` : "";
+  return `<div class="achv-trophy${done ? "" : " locked"}"${note}>
+      <span class="achv-tring">${achvBadgeHtml(tr.art)}</span>
+      <span class="achv-tname">${escHtml(t(tr.i18n))}</span>
+      <span class="achv-tsub">${escHtml(sub)}</span>
+    </div>`;
+}
+
+async function renderAchievements() {
+  const body = document.getElementById("achv-body");
+  if (!body) return;
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const a = await fetchAchievements();
+  if (document.getElementById("modal-achv").hidden) return;
+  if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
+  renderAchvBoard(body, a);
+}
+
+function achvAnonNoteHtml() {
+  return auth.user ? "" : `<p class="achv-note">${escHtml(t("achv_anon_note"))}</p>`;
+}
+
+function renderAchvBoard(body, a) {
+  const rows = ACHV_SERIES
+    .filter((s) => !s.authOnly || auth.user)
+    .map((s) => achvRowHtml(a, s)).join("");
+  const trophies = ACHV_TROPHIES.map((tr) => achvTrophyHtml(a, tr)).join("");
+  body.innerHTML = `
+    <h3 class="stats-heading">${escHtml(t("achv_sect_series"))}</h3>
+    <div class="achv-rows">${rows}</div>
+    <h3 class="stats-heading">${escHtml(t("achv_sect_trophies"))}</h3>
+    <div class="achv-trophies">${trophies}</div>
+    ${achvAnonNoteHtml()}`;
+  body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
+    btn.onclick = () => {
+      const row = btn.closest(".achv-row");
+      if (row.dataset.key === "years") { renderAchvAlbum(body, a); return; }
+      const detail = row.querySelector(".achv-detail");
+      if (!detail) return;
+      const open = detail.hidden;
+      detail.hidden = !open;
+      btn.setAttribute("aria-expanded", String(open));
+    };
+  });
+}
+
+// Het album: 25 zegels, jaartal áltijd als bijschrift eronder — verzameld in
+// kleur mét gebeurtenis, niet-ontdekt gedimd met een "?" (de kunst is de
+// onthulling). Enige sub-scherm van het bord.
+function renderAchvAlbum(body, a) {
+  const got = new Set(a.years);
+  const yearsSeries = ACHV_SERIES.find((s) => s.key === "years");
+  const n = a.years.length;
+  const tier = achvTier(n, yearsSeries.steps);
+  const next = tier >= 5 ? t("achv_maxed")
+    : t("achv_next")(fmtN(yearsSeries.steps[tier] - n), achvTierName(tier));
+  const stamps = ACHV_YEARS.map((y) => {
+    const has = got.has(y);
+    const art = has ? ACHV_YEAR_ART[String(y)] : "locked";
+    const ev = has ? ((t("achv_events") || {})[String(y)] || "") : t("achv_year_locked");
+    return `<div class="achv-stamp${has ? "" : " locked"}">
+        ${achvBadgeHtml(art, true)}
+        <span class="achv-yr">${escHtml(achvYearLabel(y))}</span>
+        <span class="achv-ev">${escHtml(ev)}</span>
+      </div>`;
+  }).join("");
+  body.innerHTML = `
+    <button class="achv-back lb-pillbtn" type="button">${escHtml(t("achv_back"))}</button>
+    <p class="achv-albumhead">${escHtml(t("achv_years_n")(n, ACHV_YEARS.length))} · ${escHtml(next)}</p>
+    <div class="achv-t${tier}">${achvDetailHtml(a, yearsSeries).replace(' hidden>', '>')}</div>
+    <div class="achv-stamps">${stamps}</div>
+    ${achvAnonNoteHtml()}`;
+  body.querySelector(".achv-back").onclick = () => renderAchvBoard(body, a);
+}
+
+// De badge-artwork (SVG-defs) — één keer in de DOM gehangen bij init(). Stijl-
+// gids: nachtpaars #3d2149 is de enige achtergrond, grond #241329, goud #c9a227,
+// room #f2e8c9, accenten #ff9d2e/#ffd54d/#6db06d/#e05a4e; munt-logica (één focaal
+// silhouet, leesbaar op 40px); zegels hebben een gouden rand, bord-tegels zijn
+// randloos (de tier-ring komt uit de CSS). Toren-pad (achv-art-eiffel): Wikimedia
+// Commons "Eiffel Tower Silhouette.svg", CC0. Goedgekeurd in de fiat-galerij
+// van 23/7 — nieuwe badges in dezelfde taal tekenen.
+const ACHV_SVG = "<svg width=\"0\" height=\"0\"><defs><g id=\"achv-stamp-base\"><circle cx=\"50\" cy=\"50\" r=\"48\" fill=\"#c9a227\"/><circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"#3d2149\"/><circle cx=\"50\" cy=\"50\" r=\"39\" fill=\"none\" stroke=\"#c9a227\" stroke-opacity=\".55\" stroke-width=\"1.4\" stroke-dasharray=\"3 4\"/></g><clipPath id=\"achv-stamp-clip\"><circle cx=\"50\" cy=\"50\" r=\"44\"/></clipPath><g id=\"achv-tile-base\"><circle cx=\"50\" cy=\"50\" r=\"46\" fill=\"#3d2149\"/><circle cx=\"50\" cy=\"50\" r=\"39\" fill=\"none\" stroke=\"#c9a227\" stroke-opacity=\".45\" stroke-width=\"1.4\" stroke-dasharray=\"3 4\"/></g><g id=\"achv-art-dice\"><use href=\"#achv-tile-base\"/><g transform=\"rotate(-8 50 50)\"><rect x=\"28\" y=\"28\" width=\"44\" height=\"44\" rx=\"9\" fill=\"#f2e8c9\"/><g fill=\"#3d2149\"><circle cx=\"39\" cy=\"39\" r=\"4\"/><circle cx=\"61\" cy=\"39\" r=\"4\"/><circle cx=\"50\" cy=\"50\" r=\"4\"/><circle cx=\"39\" cy=\"61\" r=\"4\"/><circle cx=\"61\" cy=\"61\" r=\"4\"/></g></g></g><g id=\"achv-art-cal\"><use href=\"#achv-tile-base\"/><rect x=\"28\" y=\"32\" width=\"44\" height=\"40\" rx=\"7\" fill=\"#f2e8c9\"/><path d=\"M28 39 a7 7 0 0 1 7 -7 h30 a7 7 0 0 1 7 7 v7 H28 Z\" fill=\"#c9a227\"/><rect x=\"36\" y=\"24\" width=\"4\" height=\"12\" rx=\"2\" fill=\"#8a5a24\"/><rect x=\"60\" y=\"24\" width=\"4\" height=\"12\" rx=\"2\" fill=\"#8a5a24\"/><g fill=\"#3d2149\" opacity=\".85\"><circle cx=\"38\" cy=\"55\" r=\"2.6\"/><circle cx=\"50\" cy=\"55\" r=\"2.6\"/><circle cx=\"62\" cy=\"55\" r=\"2.6\"/><circle cx=\"38\" cy=\"64\" r=\"2.6\"/><circle cx=\"50\" cy=\"64\" r=\"2.6\"/></g><circle cx=\"62\" cy=\"64\" r=\"4\" fill=\"#ff9d2e\"/></g><g id=\"achv-art-flame\"><use href=\"#achv-tile-base\"/><path d=\"M50 20 C44 32 56 38 52 48 C60 44 58 36 57 32 C68 42 72 56 67 67 C63 77 55 81 50 81 C45 81 37 77 33 67 C28 56 32 42 43 34 C41 42 43 47 47 51 C44 41 46 30 50 20 Z\" fill=\"#ff9d2e\"/><path d=\"M50 81 C44 81 40 74 42 66 C44 60 48 58 47 51 C52 58 50 62 53 66 C55 60 54 57 53 53 C58 60 61 68 58 74 C56 79 52 81 50 81 Z\" fill=\"#ffd54d\"/></g><g id=\"achv-art-100\"><use href=\"#achv-tile-base\"/><text x=\"50\" y=\"59\" text-anchor=\"middle\" font-size=\"27\" font-weight=\"800\" fill=\"#f2e8c9\" font-family=\"-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif\">100</text><path d=\"M34 67 L66 67\" stroke=\"#c9a227\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g id=\"achv-art-zen\"><use href=\"#achv-tile-base\"/><path d=\"M50 26 C56 36 56 48 50 57 C44 48 44 36 50 26 Z\" fill=\"#f2e8c9\"/><path d=\"M29 38 C40 40 48 48 50 59 C40 59 31 50 29 38 Z\" fill=\"#e8d9ae\"/><path d=\"M71 38 C60 40 52 48 50 59 C60 59 69 50 71 38 Z\" fill=\"#e8d9ae\"/><path d=\"M27 61 Q50 74 73 61 Q66 77 50 77 Q34 77 27 61 Z\" fill=\"#6db06d\"/></g><g id=\"achv-art-bolt\"><use href=\"#achv-tile-base\"/><path d=\"M56 19 L33 54 L47 54 L42 81 L67 44 L52 44 Z\" fill=\"#ffd54d\"/></g><g id=\"achv-art-albumcover\"><use href=\"#achv-tile-base\"/><path d=\"M50 30 C42 25 32 25 26 29 L26 70 C32 66 42 66 50 70 Z\" fill=\"#e8d9ae\"/><path d=\"M50 30 C58 25 68 25 74 29 L74 70 C68 66 58 66 50 70 Z\" fill=\"#f2e8c9\"/><rect x=\"32\" y=\"37\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#6b4180\"/><rect x=\"56\" y=\"37\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#c9a227\"/><rect x=\"32\" y=\"53\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#6db06d\"/><rect x=\"56\" y=\"53\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#e05a4e\"/><path d=\"M50 30 V70\" stroke=\"#8a5a24\" stroke-width=\"2\"/></g><g id=\"achv-art-target\"><use href=\"#achv-tile-base\"/><circle cx=\"50\" cy=\"52\" r=\"24\" fill=\"#f2e8c9\"/><circle cx=\"50\" cy=\"52\" r=\"16\" fill=\"#e05a4e\"/><circle cx=\"50\" cy=\"52\" r=\"8\" fill=\"#f2e8c9\"/><circle cx=\"50\" cy=\"52\" r=\"3.5\" fill=\"#3d2149\"/><path d=\"M50 52 L71 27 M71 27 l-9 1.5 M71 27 l-1.5 9\" stroke=\"#c9a227\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g id=\"achv-art-chute\"><use href=\"#achv-tile-base\"/><path d=\"M26 46 A24 24 0 0 1 74 46 L26 46 Z\" fill=\"#f2e8c9\"/><path d=\"M26 46 A24 24 0 0 1 50 22 A38 20 0 0 0 38 46 Z\" fill=\"#e8d9ae\"/><path d=\"M74 46 A24 24 0 0 0 50 22 A38 20 0 0 1 62 46 Z\" fill=\"#e8d9ae\"/><path d=\"M28 47 L46 68 M72 47 L54 68 M38 47 L48 68 M62 47 L52 68\" stroke=\"#c9a227\" stroke-width=\"1.6\"/><rect x=\"44\" y=\"66\" width=\"12\" height=\"11\" rx=\"2.5\" fill=\"#8a5a24\"/></g><g id=\"achv-art-buoy\"><use href=\"#achv-tile-base\"/><circle cx=\"50\" cy=\"50\" r=\"22\" fill=\"none\" stroke=\"#f2e8c9\" stroke-width=\"13\"/><circle cx=\"50\" cy=\"50\" r=\"22\" fill=\"none\" stroke=\"#e05a4e\" stroke-width=\"13\" stroke-dasharray=\"17.3 17.3\" stroke-dashoffset=\"8.6\"/><circle cx=\"50\" cy=\"50\" r=\"30\" fill=\"none\" stroke=\"#c9a227\" stroke-width=\"1.6\" stroke-dasharray=\"3 4\"/></g><g id=\"achv-art-timering\"><use href=\"#achv-tile-base\"/><g fill=\"none\" stroke-width=\"6.5\" stroke-linecap=\"round\"><path d=\"M75.9 51.8 A26 26 0 0 1 64.5 71.6\" stroke=\"#c9a227\"/><path d=\"M61.4 73.4 A26 26 0 0 1 38.6 73.4\" stroke=\"#e05a4e\"/><path d=\"M35.5 71.6 A26 26 0 0 1 24.1 51.8\" stroke=\"#6db06d\"/><path d=\"M24.1 48.2 A26 26 0 0 1 35.5 28.4\" stroke=\"#ff9d2e\"/><path d=\"M38.6 26.6 A26 26 0 0 1 61.4 26.6\" stroke=\"#f2e8c9\"/><path d=\"M64.5 28.4 A26 26 0 0 1 75.9 48.2\" stroke=\"#aeb6c2\"/></g><rect x=\"40\" y=\"33\" width=\"20\" height=\"3.4\" rx=\"1.7\" fill=\"#c9a227\"/><rect x=\"40\" y=\"63.6\" width=\"20\" height=\"3.4\" rx=\"1.7\" fill=\"#c9a227\"/><path d=\"M42 37 L58 37 L50 50 Z\" fill=\"#f2e8c9\"/><path d=\"M42 63.6 L58 63.6 L50 50.6 Z\" fill=\"#f2e8c9\"/><path d=\"M46 42 L54 42 L50 48.5 Z\" fill=\"#c9a227\"/><path d=\"M45 63.6 L55 63.6 L50 58 Z\" fill=\"#c9a227\"/></g><g id=\"achv-art-caesar\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M50 20 L57 44 L50 72 L43 44 Z\" fill=\"#f2e8c9\"/><path d=\"M50 20 C51.6 26 52.6 31 51.6 35.5 C50.9 38 48.7 37.6 48.4 35 C48 30.5 49 25 50 20 Z\" fill=\"#e05a4e\"/><circle cx=\"51.6\" cy=\"41\" r=\"1.7\" fill=\"#e05a4e\"/><circle cx=\"49.4\" cy=\"47\" r=\"1.2\" fill=\"#e05a4e\"/><rect x=\"38\" y=\"64\" width=\"24\" height=\"5\" rx=\"2.5\" fill=\"#c9a227\"/><rect x=\"46.5\" y=\"69\" width=\"7\" height=\"12\" rx=\"2\" fill=\"#8a5a24\"/><circle cx=\"50\" cy=\"83\" r=\"4\" fill=\"#c9a227\"/><g fill=\"#6db06d\"><ellipse cx=\"22\" cy=\"62\" rx=\"3\" ry=\"7\" transform=\"rotate(-58 22 62)\"/><ellipse cx=\"26\" cy=\"52\" rx=\"3\" ry=\"7\" transform=\"rotate(-38 26 52)\"/><ellipse cx=\"31\" cy=\"43\" rx=\"3\" ry=\"7\" transform=\"rotate(-20 31 43)\"/><ellipse cx=\"78\" cy=\"62\" rx=\"3\" ry=\"7\" transform=\"rotate(58 78 62)\"/><ellipse cx=\"74\" cy=\"52\" rx=\"3\" ry=\"7\" transform=\"rotate(38 74 52)\"/><ellipse cx=\"69\" cy=\"43\" rx=\"3\" ry=\"7\" transform=\"rotate(20 69 43)\"/></g></g></g><g id=\"achv-art-hastings\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M50 24 C36 24 30 40 30 56 L70 56 C70 40 64 24 50 24 Z\" fill=\"#aeb6c2\"/><rect x=\"47\" y=\"42\" width=\"6\" height=\"26\" rx=\"3\" fill=\"#8a93a1\"/><rect x=\"28\" y=\"56\" width=\"44\" height=\"6\" rx=\"3\" fill=\"#8a93a1\"/><g transform=\"rotate(38 50 50)\"><rect x=\"12\" y=\"49\" width=\"52\" height=\"2.6\" rx=\"1.3\" fill=\"#c9a227\"/><path d=\"M70 50.3 L60 44.5 L60 56.1 Z\" fill=\"#f2e8c9\"/><path d=\"M12 46 L18 50.3 L12 54.6 L16 50.3 Z\" fill=\"#f2e8c9\"/></g><path d=\"M14 86 L86 86 L86 74 L70 74 L66 68 L34 68 L30 74 L14 74 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-1492\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M26 20 l1.8 4.6 4.6 1.8 -4.6 1.8 -1.8 4.6 -1.8 -4.6 -4.6 -1.8 4.6 -1.8 Z\" fill=\"#f2e8c9\"/><circle cx=\"74\" cy=\"30\" r=\"1.3\" fill=\"#f2e8c9\"/><circle cx=\"64\" cy=\"20\" r=\"1\" fill=\"#f2e8c9\"/><rect x=\"49\" y=\"26\" width=\"2.4\" height=\"34\" fill=\"#8a5a24\"/><path d=\"M51 26 C63 32 65 46 63 56 L51 56 Z\" fill=\"#f2e8c9\"/><path d=\"M46 34 C38 38 36 48 37 56 L46 56 Z\" fill=\"#e8d9ae\"/><path d=\"M26 60 L74 60 C72 69 62 73 50 73 C38 73 28 69 26 60 Z\" fill=\"#6b4180\"/><rect x=\"26\" y=\"60\" width=\"48\" height=\"3.4\" fill=\"#c9a227\"/><g stroke=\"#7fb2d9\" stroke-width=\"2.4\" stroke-linecap=\"round\" fill=\"none\"><path d=\"M14 80 q6 -5 12 0 t12 0 t12 0 t12 0 t12 0 t12 0\"/><path d=\"M8 89 q6 -5 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0\"/></g></g></g><g id=\"achv-art-1815\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><circle cx=\"50\" cy=\"46\" r=\"28\" fill=\"#f2b64d\"/><path d=\"M6 94 L94 94 L94 82 C64 74 42 80 6 88 Z\" fill=\"#e8d9ae\"/><path d=\"M30 62 L46 66 L52 56 L38 50 Z\" fill=\"#241329\"/><path d=\"M32 58 L62 34 L68 41 L42 66 Z\" fill=\"#c9a227\"/><path d=\"M60 36 L66 43\" stroke=\"#8a5a24\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><circle cx=\"31\" cy=\"61\" r=\"3.6\" fill=\"#c9a227\"/><circle cx=\"42\" cy=\"66\" r=\"13\" fill=\"none\" stroke=\"#8a5a24\" stroke-width=\"4.4\"/><path d=\"M42 54 V78 M31 66 H53 M34 58 L50 74 M50 58 L34 74\" stroke=\"#8a5a24\" stroke-width=\"2.6\"/><circle cx=\"42\" cy=\"66\" r=\"3.4\" fill=\"#8a5a24\"/><circle cx=\"66\" cy=\"74\" r=\"4.4\" fill=\"#241329\"/><circle cx=\"75\" cy=\"74\" r=\"4.4\" fill=\"#241329\"/><circle cx=\"70.5\" cy=\"67\" r=\"4.4\" fill=\"#241329\"/><circle cx=\"73\" cy=\"32\" r=\"5\" fill=\"#f2e8c9\" opacity=\".9\"/><circle cx=\"79\" cy=\"27\" r=\"3.4\" fill=\"#f2e8c9\" opacity=\".7\"/><circle cx=\"83\" cy=\"22\" r=\"2.2\" fill=\"#f2e8c9\" opacity=\".5\"/></g></g><g id=\"achv-art-1969\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><circle cx=\"30\" cy=\"24\" r=\"1.3\" fill=\"#f2e8c9\"/><circle cx=\"70\" cy=\"18\" r=\"1\" fill=\"#f2e8c9\"/><circle cx=\"80\" cy=\"34\" r=\"1.2\" fill=\"#f2e8c9\"/><circle cx=\"20\" cy=\"38\" r=\"1\" fill=\"#f2e8c9\"/><circle cx=\"50\" cy=\"92\" r=\"42\" fill=\"#e8e0cd\"/><circle cx=\"34\" cy=\"70\" r=\"5\" fill=\"#cfc5ac\"/><circle cx=\"58\" cy=\"80\" r=\"7\" fill=\"#cfc5ac\"/><circle cx=\"72\" cy=\"64\" r=\"3.5\" fill=\"#cfc5ac\"/><path d=\"M43 40 L57 40 L60 50 L40 50 Z\" fill=\"#c9a227\"/><rect x=\"45\" y=\"34\" width=\"10\" height=\"8\" rx=\"2\" fill=\"#f2e8c9\"/><path d=\"M42 50 L36 60 M58 50 L64 60\" stroke=\"#c9a227\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><rect x=\"33\" y=\"59.4\" width=\"7\" height=\"2.6\" rx=\"1.3\" fill=\"#c9a227\"/><rect x=\"60\" y=\"59.4\" width=\"7\" height=\"2.6\" rx=\"1.3\" fill=\"#c9a227\"/></g></g><g id=\"achv-art-zuil\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><rect x=\"31\" y=\"20\" width=\"38\" height=\"5\" rx=\"2\" fill=\"#c9a227\"/><rect x=\"35\" y=\"25\" width=\"30\" height=\"6\" fill=\"#f2e8c9\"/><rect x=\"39\" y=\"31\" width=\"22\" height=\"34\" fill=\"#f2e8c9\"/><path d=\"M45 31 V65 M50 31 V65 M55 31 V65\" stroke=\"#cabf9b\" stroke-width=\"1.6\"/><rect x=\"35\" y=\"65\" width=\"30\" height=\"6\" fill=\"#f2e8c9\"/><rect x=\"31\" y=\"71\" width=\"38\" height=\"5\" rx=\"2\" fill=\"#c9a227\"/><path d=\"M10 94 L90 94 L90 81 L10 81 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-broken\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M39 44 L42 39 L47 43 L52 37 L58 42 L61 39 L61 44 Z\" fill=\"#f2e8c9\"/><rect x=\"39\" y=\"44\" width=\"22\" height=\"26\" fill=\"#f2e8c9\"/><path d=\"M45 46 V70 M50 46 V70 M55 46 V70\" stroke=\"#cabf9b\" stroke-width=\"1.6\"/><rect x=\"35\" y=\"70\" width=\"30\" height=\"6\" fill=\"#f2e8c9\"/><rect x=\"62\" y=\"70\" width=\"20\" height=\"11\" rx=\"5.5\" fill=\"#e8d9ae\" transform=\"rotate(10 72 76)\"/><path d=\"M8 94 L92 94 L92 83 L8 83 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-camel\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M28 20 l1.8 4.6 4.6 1.8 -4.6 1.8 -1.8 4.6 -1.8 -4.6 -4.6 -1.8 4.6 -1.8 Z\" fill=\"#f2e8c9\"/><circle cx=\"72\" cy=\"26\" r=\"1.2\" fill=\"#f2e8c9\"/><ellipse cx=\"50\" cy=\"54\" rx=\"17\" ry=\"9\" fill=\"#f2e8c9\"/><ellipse cx=\"52\" cy=\"44\" rx=\"9\" ry=\"7.5\" fill=\"#f2e8c9\"/><path d=\"M36 52 C30 48 29 40 31 32\" stroke=\"#f2e8c9\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M31 32 C31 27 26 25 23 28 C21 30 22 33 25 34 L31 35 Z\" fill=\"#f2e8c9\"/><path d=\"M33 27 L34 23\" stroke=\"#f2e8c9\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M66 52 C71 54 72 60 69 64\" stroke=\"#f2e8c9\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M40 61 L39 78 M47 62 L47 78 M55 62 L55 78 M62 60 L63 77\" stroke=\"#f2e8c9\" stroke-width=\"3.6\" stroke-linecap=\"round\"/><path d=\"M4 94 L96 94 L96 80 Q70 72 50 80 Q30 88 4 80 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-crown\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M28 62 L28 42 L38 52 L50 34 L62 52 L72 42 L72 62 Z\" fill=\"#c9a227\"/><rect x=\"28\" y=\"62\" width=\"44\" height=\"8\" rx=\"2\" fill=\"#e0b62f\"/><circle cx=\"28\" cy=\"40\" r=\"3\" fill=\"#f2e8c9\"/><circle cx=\"50\" cy=\"31\" r=\"3\" fill=\"#f2e8c9\"/><circle cx=\"72\" cy=\"40\" r=\"3\" fill=\"#f2e8c9\"/><circle cx=\"50\" cy=\"66\" r=\"3\" fill=\"#e05a4e\"/></g></g><g id=\"achv-art-charter\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><rect x=\"28\" y=\"24\" width=\"44\" height=\"9\" rx=\"4.5\" fill=\"#e8d9ae\"/><rect x=\"32\" y=\"30\" width=\"36\" height=\"42\" rx=\"3\" fill=\"#f2e8c9\"/><path d=\"M38 40 H62 M38 47 H62 M38 54 H56\" stroke=\"#a89a74\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M59 70 l2 11 M63 70 l-3 10\" stroke=\"#e05a4e\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><circle cx=\"61\" cy=\"68\" r=\"6\" fill=\"#e05a4e\"/><circle cx=\"61\" cy=\"68\" r=\"2.4\" fill=\"#c14a40\"/></g></g><g id=\"achv-art-skull\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><circle cx=\"50\" cy=\"45\" r=\"19\" fill=\"#f2e8c9\"/><path d=\"M41 58 L59 58 L58 70 C55 72 45 72 42 70 Z\" fill=\"#f2e8c9\"/><circle cx=\"43\" cy=\"45\" r=\"5\" fill=\"#241329\"/><circle cx=\"57\" cy=\"45\" r=\"5\" fill=\"#241329\"/><path d=\"M50 51 L46.8 57 L53.2 57 Z\" fill=\"#241329\"/><path d=\"M46 63 V70 M50 63 V70 M54 63 V70\" stroke=\"#cabf9b\" stroke-width=\"1.8\"/></g></g><g id=\"achv-art-press\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><rect x=\"27\" y=\"24\" width=\"7\" height=\"54\" fill=\"#8a5a24\"/><rect x=\"66\" y=\"24\" width=\"7\" height=\"54\" fill=\"#8a5a24\"/><rect x=\"23\" y=\"19\" width=\"54\" height=\"8\" rx=\"3\" fill=\"#8a5a24\"/><rect x=\"46.5\" y=\"27\" width=\"7\" height=\"15\" fill=\"#c9a227\"/><path d=\"M45 30 H55 M45 34 H55 M45 38 H55\" stroke=\"#8a5a24\" stroke-width=\"1.6\"/><rect x=\"36\" y=\"42\" width=\"28\" height=\"7\" rx=\"2\" fill=\"#c9a227\"/><rect x=\"34\" y=\"56\" width=\"32\" height=\"20\" rx=\"2\" fill=\"#f2e8c9\"/><path d=\"M39 62 H61 M39 67 H61 M39 72 H53\" stroke=\"#a89a74\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"24\" y=\"78\" width=\"52\" height=\"6\" rx=\"2\" fill=\"#241329\"/></g></g><g id=\"achv-art-door\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M28 82 L28 42 A22 22 0 0 1 72 42 L72 82 Z\" fill=\"#6b4180\"/><path d=\"M33 82 L33 44 A17 17 0 0 1 67 44 L67 82 Z\" fill=\"#4a2a56\"/><rect x=\"40\" y=\"40\" width=\"20\" height=\"27\" rx=\"2\" fill=\"#f2e8c9\" transform=\"rotate(-4 50 53)\"/><circle cx=\"50\" cy=\"43\" r=\"1.8\" fill=\"#c9a227\"/><path d=\"M45 49 H56 M45 54 H56 M45 59 H52\" stroke=\"#a89a74\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><path d=\"M8 94 H92 V82 H8 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-armada\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M64 16 L54 32 L60 32 L50 48\" stroke=\"#ffd54d\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><g transform=\"rotate(-12 50 62)\"><path d=\"M28 60 L72 60 C70 68 62 72 50 72 C38 72 30 68 28 60 Z\" fill=\"#6b4180\"/><rect x=\"47\" y=\"34\" width=\"2.4\" height=\"26\" fill=\"#8a5a24\"/><path d=\"M49 34 C58 40 60 50 58 58 L49 58 Z\" fill=\"#e8d9ae\"/><path d=\"M45 40 C39 44 37 52 38 58 L45 58 Z\" fill=\"#d9c791\"/></g><g stroke=\"#7fb2d9\" stroke-width=\"2.6\" stroke-linecap=\"round\" fill=\"none\"><path d=\"M10 80 q7 -6 14 0 t14 0 t14 0 t14 0 t14 0 t14 0\"/><path d=\"M4 89 q7 -6 14 0 t14 0 t14 0 t14 0 t14 0 t14 0 t14 0\"/></g></g></g><g id=\"achv-art-scale\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><rect x=\"48.6\" y=\"26\" width=\"2.8\" height=\"44\" fill=\"#c9a227\"/><rect x=\"28\" y=\"30\" width=\"44\" height=\"3\" rx=\"1.5\" fill=\"#c9a227\"/><circle cx=\"50\" cy=\"26\" r=\"3.5\" fill=\"#f2e8c9\"/><path d=\"M30 33 L25 47 M30 33 L35 47\" stroke=\"#e8d9ae\" stroke-width=\"1.6\"/><path d=\"M22 47 a8.5 8.5 0 0 0 17 0 Z\" fill=\"#f2e8c9\"/><path d=\"M70 33 L65 44 M70 33 L75 44\" stroke=\"#e8d9ae\" stroke-width=\"1.6\"/><path d=\"M62 44 a8.5 8.5 0 0 0 17 0 Z\" fill=\"#f2e8c9\"/><path d=\"M38 74 L62 74 L57 68 L43 68 Z\" fill=\"#c9a227\"/></g></g><g id=\"achv-art-apple\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M58 16 C68 20 78 18 88 26\" stroke=\"#241329\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"/><ellipse cx=\"60\" cy=\"27\" rx=\"7\" ry=\"3.5\" fill=\"#6db06d\" transform=\"rotate(-28 60 27)\"/><path d=\"M50 46 C50 40 53 36 57 34\" stroke=\"#8a5a24\" stroke-width=\"2.4\" fill=\"none\"/><path d=\"M50 48 C38 42 30 52 34 62 C37 70 44 74 50 72 C56 74 63 70 66 62 C70 52 62 42 50 48 Z\" fill=\"#e05a4e\"/><path d=\"M40 54 a7 7 0 0 1 5 -5\" stroke=\"#f2b64d\" stroke-width=\"2.4\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M36 30 l-3 6 M64 40 l3 6\" stroke=\"#e8d9ae\" stroke-width=\"2\" stroke-linecap=\"round\" opacity=\".6\"/></g></g><g id=\"achv-art-bell\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><rect x=\"34\" y=\"22\" width=\"32\" height=\"7\" rx=\"3.5\" fill=\"#8a5a24\"/><path d=\"M39 29 C39 26 61 26 61 29 L61 44 C61 56 67 58 70 64 L30 64 C33 58 39 56 39 44 Z\" fill=\"#c9a227\"/><rect x=\"27\" y=\"64\" width=\"46\" height=\"6\" rx=\"3\" fill=\"#e0b62f\"/><path d=\"M52 46 L56 55 L52 59 L56 64\" stroke=\"#241329\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"50\" cy=\"75\" r=\"3.5\" fill=\"#c9a227\"/></g></g><g id=\"achv-art-guillotine\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><rect x=\"35\" y=\"18\" width=\"5\" height=\"62\" fill=\"#8a5a24\"/><rect x=\"60\" y=\"18\" width=\"5\" height=\"62\" fill=\"#8a5a24\"/><rect x=\"32\" y=\"14\" width=\"36\" height=\"6\" rx=\"2.5\" fill=\"#8a5a24\"/><path d=\"M50 20 V27\" stroke=\"#c9a227\" stroke-width=\"1.8\"/><path d=\"M40 28 L60 28 L60 41 Z\" fill=\"#aeb6c2\"/><rect x=\"36\" y=\"58\" width=\"28\" height=\"6\" fill=\"#8a5a24\"/><circle cx=\"50\" cy=\"61\" r=\"4.2\" fill=\"#241329\"/><path d=\"M26 86 H74 V80 H26 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-finch\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><g fill=\"#f2e8c9\" stroke=\"#f2e8c9\" stroke-linecap=\"round\"><circle cx=\"29\" cy=\"57\" r=\"3\" stroke=\"none\"/><path d=\"M27 60 L21 66\" fill=\"none\" stroke-width=\"4.4\"/><path d=\"M26 61 L30 71\" fill=\"none\" stroke-width=\"3\"/><path d=\"M21 66 L24 74 M21 66 L17 73\" fill=\"none\" stroke-width=\"3\"/><circle cx=\"48\" cy=\"50\" r=\"3.2\" stroke=\"none\"/><path d=\"M47.5 53 L45 66\" fill=\"none\" stroke-width=\"4.6\"/><path d=\"M47 56 L51 65 M46.5 56 L42 64\" fill=\"none\" stroke-width=\"3\"/><path d=\"M45 66 L49 75 M45 66 L41 74\" fill=\"none\" stroke-width=\"3.2\"/><circle cx=\"70\" cy=\"44\" r=\"3.4\" stroke=\"none\"/><path d=\"M70 47.5 L69.5 64\" fill=\"none\" stroke-width=\"4.8\"/><path d=\"M70 52 L76 60 M70 52 L65 60\" fill=\"none\" stroke-width=\"3\"/><path d=\"M69.5 64 L75 75 M69.5 64 L65 75\" fill=\"none\" stroke-width=\"3.4\"/></g><path d=\"M10 82 H90\" stroke=\"#241329\" stroke-width=\"7\" stroke-linecap=\"round\"/></g></g><g id=\"achv-art-eiffel\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><circle cx=\"50\" cy=\"52\" r=\"32\" fill=\"#4a2a56\"/><circle cx=\"26\" cy=\"22\" r=\"1.3\" fill=\"#f2e8c9\"/><circle cx=\"74\" cy=\"18\" r=\"1.2\" fill=\"#f2e8c9\"/><circle cx=\"80\" cy=\"42\" r=\"1\" fill=\"#f2e8c9\"/><circle cx=\"20\" cy=\"44\" r=\"1\" fill=\"#f2e8c9\"/><g transform=\"translate(37.35,15) scale(0.034375)\"><path d=\"M371,1c0,1.7928,0,3.5856,0,5.6754c3.1156,0.2445,6.3162,1.6389,6.4228-3.3596c0.3531,2.0479,0.7062,4.0958,1.1506,6.6732c-2.4914,0.2529-4.7224,0.4794-7.3257,0.7436c-0.1255,1.4959-0.3484,2.9238-0.3499,4.352c-0.0223,21.8303-0.2111,43.6641,0.1733,65.4876c0.0652,3.7031,2.8299,7.3002,3.9487,11.0648c0.6826,2.297,1.0436,4.8735,0.7607,7.2297c-0.4067,3.3867,2.2062,7.6776-2.5941,10.0617c-0.3336,0.1657-0.1742,2.3479,0.3924,3.1329c3.2401,4.4883,3.2336,13.2663,0.1163,17.4642c-0.6358,0.8563-0.59,3.0179,0.0615,3.8931c2.897,3.8923,3.0266,13.6131,0.1478,17.1991c-0.6794,0.8462-0.9098,3.3442-0.6836,3.4353c4.4993,1.8116,1.9562,5.6888,2.6925,8.5564c0.3793,1.4774,0.6083,3.7155,1.5986,4.2039c12.0382,5.9364,18.5288,16.317,23.2351,28.2197c0.4892,1.2372,1.0104,2.4618,1.6767,4.0808c3.015,0,6.1187,0,9.5057,0c0,5.1783,0,9.9422,0,14.4297c-2.0557,0.9646-3.9575,1.857-5.8593,2.7493c1.4883,0.8992,2.9766,1.7984,5.1732,3.1254c0,4.6091,0,10.1639,0,16.047c-1.5847,0.2376-3.1574,0.4734-4.7447,0.7114c-1.5942,4.1084,1.0082,4.0649,3.7014,4.0146c2.4889-0.0465,4.9794-0.0099,8.2015-0.0099c0.6693,9.5112,1.3228,18.7991,1.8456,26.2295c-4.1078,3.606-7.3062,5.6669-9.5226,8.4969c-7.1563,9.1371-9.1574,20.2626-10.5312,31.3322c-0.9783,7.8829-1.1354,15.9439-0.846,23.8959c2.5145,69.0996,4.8686,138.2079,7.9481,207.2834c3.4505,77.3964,7.2257,154.7828,11.579,232.133c3.3885,60.2062,7.5691,120.3732,11.9834,180.5146c3.2673,44.5142,6.6931,89.0441,11.4969,133.4102c4.3712,40.37,10.6844,80.5303,16.1697,120.7791c0.7855,5.7638,1.7287,11.5063,2.6687,17.7203c7.3515,0,14.6183,0,21.7651,0c0.8004,4.2999,1.6515,8.0909,2.1089,11.9291c0.1024,0.8595-1.0937,2.6292-1.8301,2.7092c-4.3879,0.4767-6.4663,3.4833-7.6161,7.031c-3.408,10.5153-5.4131,21.1913-2.6185,32.2673c15.9972,63.4027,31.4259,126.9556,48.1893,190.1547c6.8099,25.6736,16.5431,50.5687,24.8087,75.863c0.9349,2.8607,2.542,3.3431,5.1542,3.3091c8.7884-0.1149,17.5792-0.0437,26.3507-0.0437c0,15.3308,0,30.0577,0,45.1138c3.3297,0.3149,6.3163,0.5974,9.6169,0.9095c-7.0198,9.2853-10.4893,25.4117-7.3981,33.9413c-0.9554,0.5508-1.9647,1.1327-3.1775,1.8319c10.9536,22.4906,21.7955,44.7814,32.6629,67.0597c31.6002,64.7809,63.2236,129.5507,94.7839,194.351c1.8188,3.7345,4.1771,6.1594,8.1887,8.0043c6.1494,2.8286,11.6587,7.0488,17.4405,10.679c-1.4589,6.6013,3.6301,9.3694,7.3774,12.9135c-1.3333,0.3334-2.6664,0.9567-4.0001,0.958C684,1921.0078,635,1921,586,1921c1.1193-4.0438,3.201-8.076-0.7626-11.923c-0.5778-0.561-0.3848-2.851,0.2827-3.6021c3.254-3.6606,4.5316-7.8728,4.5386-12.6567c0.0457-31.0323-10.3522-59.001-24.8798-85.8313c-30.874-57.0192-103.08-107.4421-175.689-112.4075c-60.7076-4.1514-114.576,11.485-162.1179,49.3146c-41.5111,33.0313-68.164,75.2056-77.6483,127.5934c-2.1008,11.6042-5.3472,23.9421,3.3321,34.8429c0.4419,0.5548,0.2975,2.312-0.2269,2.7843c-4.1758,3.7604-1.7248,7.8563-0.8289,11.8854c-49,0-98,0.0078-146.9999-0.0419C3.6664,1920.9568,2.3333,1920.3334,1,1920c3.6146-3.4304,8.4598-6.1499,7.3925-13.2753c6.372-3.5896,13.4044-7.3024,20.1397-11.4927c2.1027-1.3081,3.8861-3.6693,5.0007-5.9473c29.9281-61.1628,59.7509-122.3773,89.5889-183.5844c11.381-23.3461,22.7383-46.7039,34.1546-70.0326c1.4243-2.9103,2.392-5.4476,1.6747-9.0864c-0.9246-4.6901,0.3462-9.7689-0.1221-14.6034c-0.6998-7.2241-2.0268-14.4061-8.4045-20.6892c3.6515-0.332,6.5798-0.5984,10.0032-0.9097c0-14.8922,0-29.6169,0-45.1871c7.3595,0,14.7742,0.0011,22.1888-0.0004c8.2023-0.0016,7.9718-0.0938,10.9848-7.7145c20.2079-51.1115,32.0708-104.6132,45.36-157.7092c8.8488-35.3546,17.9749-70.642,26.491-106.0763c2.5739-10.7094,0.6228-21.54-3.8424-31.5874c-1.0218-2.2992-4.3841-3.5082-6.5254-5.3833c-0.9234-0.8085-2.186-2.1141-2.0802-3.0577c0.4133-3.6864,1.312-7.3185,2.1396-11.5261c6.9288,0,14.18,0,21.7236,0c2.7094-18.2045,5.6919-35.9119,7.9254-53.7131c5.4102-43.1206,10.9931-86.2308,15.5021-129.4501c3.3697-32.2986,5.2884-64.7524,7.6434-97.1525c3.0315-41.7084,6.0662-83.4186,8.6977-125.1534c2.097-33.2574,3.6509-66.5499,5.3405-99.8322c2.602-51.2566,5.1968-102.5138,7.6393-153.7781c2.2126-46.4393,4.4301-92.8802,6.2448-139.336c1.379-35.3001,2.4617-70.6198,2.9919-105.941c0.2055-13.6946-2.473-27.2204-9.26-39.4546c-2.4683-4.4493-5.2104-9.0273-11.9352-9.925c0.6554-9.2014,1.3083-18.3676,1.9683-27.6327c4.3059-0.5349,8.2806-0.9966,12.2256-1.6399c0.1522-0.0248,0.0194-1.7968,0.0194-2.9919c-1.7043-0.1716-3.1521-0.3174-5.0156-0.505c0-5.6203,0-11.176,0-16.4994c1.7855-0.9703,3.4507-1.8752,5.1159-2.7801c-1.7348-0.8528-3.4696-1.7057-5.7657-2.8345c0-4.1901,0-9.0668,0-14.3386c3.2409,0,6.3452,0,9.5052,0c3.7485-10.2509,8.1871-19.7142,16.465-26.7751c0.7602-0.6484,1.3844-1.6034,2.2567-1.9492c6.0888-2.4132,9.1331-6.4755,7.8633-13.2819c-0.1209-0.648,1.4228-1.4692,1.7392-2.3697c0.4335-1.2336,1.0584-3.0164,0.5144-3.8763c-3.378-5.3395-3.3705-11.843,0.165-17.8266c0.4951-0.8379,0.5005-2.4764,0.003-3.3075c-3.515-5.871-3.5817-12.7472-0.1718-17.7853c0.5429-0.8021,0.7231-2.817,0.2311-3.2044c-5.6829-4.4737-1.6049-10.4433-2.3514-15.611c-0.2892-2.0013,2.1177-4.2605,2.7246-6.5535c0.9317-3.52,1.896-7.1659,1.9294-10.7669c0.1837-19.8314,0.0887-39.6654,0.0893-59.4985c0.0001-1.7889,0-3.5777,0-5.5841c-2.639-0.2526-4.748-0.4544-7.4671-0.7146c0.3003-2.3036,0.5806-4.4544,0.7749-5.9445c1.7897,1.1066,3.6452,2.2539,6.5239,4.0338c0-3.5812,0-5.3726,0-7.164C368.3333,1,369.6667,1,371,1z M324.441,1328.0408c-11.922,72.7325-22.6619,145.1182-38.1751,216.7688c55.1111,0,110.597,0,165.2077,0c-12.8733-72.3667-25.707-144.5107-38.561-216.7688C383.658,1328.0408,354.2241,1328.0408,324.441,1328.0408z\" fill=\"#aeb6c2\"/></g><path d=\"M10 92 H90\" stroke=\"#241329\" stroke-width=\"8\" stroke-linecap=\"round\"/></g></g><g id=\"achv-art-berg\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><circle cx=\"24\" cy=\"22\" r=\"1.2\" fill=\"#f2e8c9\"/><circle cx=\"42\" cy=\"16\" r=\"1\" fill=\"#f2e8c9\"/><path d=\"M66 30 L76 48 L84 46 L80 64 L58 64 L62 46 Z\" fill=\"#f2e8c9\"/><path d=\"M58 64 L80 64 L74 88 L60 82 Z\" fill=\"#b9d2e8\" opacity=\".4\"/><g transform=\"rotate(7 30 58)\"><path d=\"M8 56 L52 56 L48 66 C36 70 18 68 12 62 Z\" fill=\"#17091d\"/><rect x=\"8\" y=\"53\" width=\"42\" height=\"2.6\" fill=\"#e8d9ae\"/><rect x=\"14\" y=\"42\" width=\"5\" height=\"11\" rx=\"1\" fill=\"#e0b62f\"/><rect x=\"14\" y=\"42\" width=\"5\" height=\"3\" fill=\"#241329\"/><rect x=\"23\" y=\"42\" width=\"5\" height=\"11\" rx=\"1\" fill=\"#e0b62f\"/><rect x=\"23\" y=\"42\" width=\"5\" height=\"3\" fill=\"#241329\"/><rect x=\"32\" y=\"42\" width=\"5\" height=\"11\" rx=\"1\" fill=\"#e0b62f\"/><rect x=\"32\" y=\"42\" width=\"5\" height=\"3\" fill=\"#241329\"/><rect x=\"41\" y=\"42\" width=\"5\" height=\"11\" rx=\"1\" fill=\"#e0b62f\"/><rect x=\"41\" y=\"42\" width=\"5\" height=\"3\" fill=\"#241329\"/></g><path d=\"M6 66 H94\" stroke=\"#7fb2d9\" stroke-width=\"2.8\" stroke-linecap=\"round\"/></g></g><g id=\"achv-art-crash\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M24 30 L38 44 L46 36 L58 52 L64 46 L72 62\" stroke=\"#ffd54d\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M72 62 l-8 -2 M72 62 l1 -8\" stroke=\"#ffd54d\" stroke-width=\"3.4\" stroke-linecap=\"round\"/><circle cx=\"34\" cy=\"76\" r=\"5.5\" fill=\"#c9a227\"/><circle cx=\"47\" cy=\"80\" r=\"5.5\" fill=\"#c9a227\"/><circle cx=\"41\" cy=\"71\" r=\"5.5\" fill=\"#e0b62f\"/><path d=\"M6 94 H94 V88 H6 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-victory\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><circle cx=\"50\" cy=\"90\" r=\"30\" fill=\"#f2b64d\"/><path d=\"M42 16 L44 74\" stroke=\"#e8d9ae\" stroke-width=\"2.2\"/><path d=\"M42 16 L20 21 L41 28 Z\" fill=\"#e05a4e\"/><circle cx=\"58\" cy=\"46\" r=\"4.2\" fill=\"#17091d\"/><path d=\"M58 51 L55 64\" stroke=\"#17091d\" stroke-width=\"7\" stroke-linecap=\"round\"/><path d=\"M57 52 L47 40\" stroke=\"#17091d\" stroke-width=\"4.6\" stroke-linecap=\"round\"/><path d=\"M57 56 L48 52\" stroke=\"#17091d\" stroke-width=\"4.6\" stroke-linecap=\"round\"/><path d=\"M55 64 L50 78 M55 64 L61 77\" stroke=\"#17091d\" stroke-width=\"4.6\" stroke-linecap=\"round\"/><path d=\"M4 94 L96 94 L88 78 L72 82 L62 72 L46 78 L32 70 L16 80 Z\" fill=\"#241329\"/></g></g><g id=\"achv-art-sputnik\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><circle cx=\"24\" cy=\"26\" r=\"1.2\" fill=\"#f2e8c9\"/><circle cx=\"70\" cy=\"16\" r=\"1.4\" fill=\"#f2e8c9\"/><circle cx=\"82\" cy=\"34\" r=\"1\" fill=\"#f2e8c9\"/><circle cx=\"16\" cy=\"44\" r=\"1\" fill=\"#f2e8c9\"/><circle cx=\"50\" cy=\"132\" r=\"62\" fill=\"#3f6fa3\"/><path d=\"M18 112 a52 52 0 0 1 20 -32\" stroke=\"#7fb2d9\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".7\"/><circle cx=\"42\" cy=\"38\" r=\"12\" fill=\"#e8d9ae\"/><circle cx=\"38\" cy=\"34\" r=\"3.4\" fill=\"#fffdf2\" opacity=\".8\"/><path d=\"M52 43 L76 62 M50 48 L66 72 M46 50 L52 76 M53 39 L80 48\" stroke=\"#e8d9ae\" stroke-width=\"2\" stroke-linecap=\"round\"/></g></g><g id=\"achv-art-wall\"><use href=\"#achv-stamp-base\"/><g clip-path=\"url(#achv-stamp-clip)\"><path d=\"M6 94 L6 44 L40 44 L36 52 L44 58 L38 66 L46 72 L42 94 Z\" fill=\"#a89f8c\"/><path d=\"M94 94 L94 44 L58 44 L64 52 L56 60 L62 68 L58 94 Z\" fill=\"#a89f8c\"/><path d=\"M6 56 H32 M6 68 H36 M6 80 H38 M66 56 H94 M62 68 H94 M62 80 H94\" stroke=\"#241329\" stroke-width=\"2\" opacity=\".5\"/><rect x=\"46\" y=\"48\" width=\"8\" height=\"5\" rx=\"1\" fill=\"#a89f8c\" transform=\"rotate(24 50 50)\"/><rect x=\"48\" y=\"62\" width=\"8\" height=\"5\" rx=\"1\" fill=\"#8f8674\" transform=\"rotate(-18 52 64)\"/></g></g><g id=\"achv-art-locked\"><circle cx=\"50\" cy=\"50\" r=\"48\" fill=\"#57456b\" opacity=\".5\"/><circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"#2b1f38\"/><circle cx=\"50\" cy=\"50\" r=\"39\" fill=\"none\" stroke=\"#57456b\" stroke-width=\"1.4\" stroke-dasharray=\"3 4\"/><text x=\"50\" y=\"63\" text-anchor=\"middle\" font-size=\"38\" font-weight=\"700\" fill=\"#57456b\">?</text></g></defs></svg>";
+function injectAchvSvg() {
+  if (document.getElementById("achv-svg-defs")) return;
+  const holder = document.createElement("div");
+  holder.id = "achv-svg-defs";
+  holder.setAttribute("aria-hidden", "true");
+  holder.style.position = "absolute";
+  holder.style.width = holder.style.height = "0";
+  holder.innerHTML = ACHV_SVG;
+  document.body.appendChild(holder);
 }
 
 // --- Daily history & stats ------------------------------------------------
@@ -3772,6 +4361,7 @@ function openModal(id) {
   document.getElementById(id).hidden = false;
   if (id === "modal-stats") renderStats();
   if (id === "modal-rating") renderRatingModal();
+  if (id === "modal-achv") renderAchievements();
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
@@ -4249,6 +4839,7 @@ function switchMode(mode) {
 
 async function init() {
   applyLang();           // zet UI-taal + helptekst + daglabel (idempotent)
+  injectAchvSvg();       // badge-artwork (SVG-defs) één keer in de DOM
   await whenSbReady();
 
   els.tabs.forEach((tab) => {
@@ -4342,6 +4933,7 @@ async function init() {
     toggleMenu(false);
     // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
     if (action === "stats") openModal("modal-stats");
+    else if (action === "achievements") openModal("modal-achv");
     else if (action === "rating") openModal("modal-rating");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
@@ -4400,6 +4992,8 @@ async function init() {
       : null;
     auth.resolved = true;  // historie-bron is nu bekend (ook bij anon: detail=null)
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
+    achvCache = null;      // prestaties horen bij de identiteit
+    achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
