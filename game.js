@@ -263,6 +263,7 @@ const I18N = {
     achv_t_eras: "Tijdreiziger", achv_t_eras_sub: "win in elk van de 6 tijdperken",
     achv_t_eras_n: (n) => `${n} van 6 tijdperken`,
     achv_flair_note: (e, tier) => `bij ${tier} verdien je de ${e}-flair voor op het leaderboard`,
+    achv_flair_note_multi: (list) => `flairs voor op het leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `hiermee verdien je de ${e}-flair voor op het leaderboard`,
     achv_anon_note: "🔒 Niet opgeslagen — met een account blijven je prestaties bewaard.",
     achv_year_locked: "nog niet ontdekt",
@@ -452,6 +453,7 @@ const I18N = {
     achv_t_eras: "Time traveller", achv_t_eras_sub: "win in each of the 6 eras",
     achv_t_eras_n: (n) => `${n} of 6 eras`,
     achv_flair_note: (e, tier) => `reach ${tier} to earn the ${e} flair for the leaderboard`,
+    achv_flair_note_multi: (list) => `flairs for the leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `earns you the ${e} flair for the leaderboard`,
     achv_anon_note: "🔒 Not saved — with an account your achievements are kept.",
     achv_year_locked: "not discovered yet",
@@ -636,6 +638,7 @@ const I18N = {
     achv_t_eras: "Zeitreisender", achv_t_eras_sub: "gewinne in allen 6 Epochen",
     achv_t_eras_n: (n) => `${n} von 6 Epochen`,
     achv_flair_note: (e, tier) => `ab ${tier} verdienst du das ${e}-Flair für die Bestenliste`,
+    achv_flair_note_multi: (list) => `Flairs für die Bestenliste: ${list}`,
     achv_flair_note_flat: (e) => `damit verdienst du das ${e}-Flair für die Bestenliste`,
     achv_anon_note: "🔒 Nicht gespeichert — mit einem Konto bleiben deine Erfolge erhalten.",
     achv_year_locked: "noch nicht entdeckt",
@@ -824,6 +827,7 @@ const I18N = {
     achv_t_eras: "Viajero del tiempo", achv_t_eras_sub: "gana en cada una de las 6 épocas",
     achv_t_eras_n: (n) => `${n} de 6 épocas`,
     achv_flair_note: (e, tier) => `al llegar a ${tier} ganas el distintivo ${e} para la clasificación`,
+    achv_flair_note_multi: (list) => `distintivos para la clasificación: ${list}`,
     achv_flair_note_flat: (e) => `te hace ganar el distintivo ${e} para la clasificación`,
     achv_anon_note: "🔒 Sin guardar: con una cuenta tus logros se conservan.",
     achv_year_locked: "aún sin descubrir",
@@ -1012,6 +1016,7 @@ const I18N = {
     achv_t_eras: "Viajante do tempo", achv_t_eras_sub: "vença em cada uma das 6 eras",
     achv_t_eras_n: (n) => `${n} de 6 eras`,
     achv_flair_note: (e, tier) => `ao chegar a ${tier} você ganha o emblema ${e} para o placar`,
+    achv_flair_note_multi: (list) => `emblemas para o placar: ${list}`,
     achv_flair_note_flat: (e) => `faz você ganhar o emblema ${e} para o placar`,
     achv_anon_note: "🔒 Não salvo — com uma conta suas conquistas ficam guardadas.",
     achv_year_locked: "ainda não descoberto",
@@ -2634,9 +2639,10 @@ const FLAIR_ANIM = {
   "🍄": "flair-mushroom", "🎻": "flair-violin", "🪙": "flair-coin",
   "🦅": "flair-eagle", "🪿": "flair-goose", "🫏": "flair-donkey",
   "🌈": "flair-rainbow", "🫪": "flair-distorted",
-  // Prestatie-flairs (unlockbaar via het 🏅-bord, gegate in set_my_flair/db33).
+  // Prestatie-flairs (unlockbaar via het 🏅-bord, gegate in set_my_flair/db36).
   "💯": "flair-hundred", "⏳": "flair-hourglass", "🗿": "flair-moai",
-  "🦕": "flair-sauropod", "🥇": "flair-goldmedal",
+  "🦕": "flair-sauropod",
+  "🥇": "flair-goldmedal", "🥈": "flair-silvermedal", "🥉": "flair-bronzemedal",
 };
 
 // De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
@@ -3528,18 +3534,21 @@ const ACHV_YEARS = [-509, -336, -221, -44, 79, 476, 622, 793, 800, 1066, 1215, 1
   1440, 1453, 1485, 1492, 1517, 1543, 1588, 1648, 1687, 1776, 1789, 1815, 1859, 1889, 1903,
   1912, 1914, 1929, 1945, 1953, 1957, 1969, 1989, 2008, 2020];
 const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond"];
-// Reeksen: steps = de vijf treden; flair = {emoji, at} (0-based trede) — de
-// server-gate in set_my_flair (db/33) moet dezelfde drempels hanteren.
+// Reeksen: steps = de vijf treden; flairs = [{emoji, at}] (0-based trede) — de
+// server-gate in set_my_flair (db/36) moet dezelfde drempels hanteren.
 // floor = ondergrens voor het voortgangsbalkje vóór de eerste trede (rating
 // start op 1500, dus 0..1600 zou het balkje meteen vol tekenen).
+// De rating-ladder is de enige met meer dan één flair: de drie medailles staan
+// op brons/zilver/diamant, zodat de klim ook onderweg iets zichtbaars oplevert.
 const ACHV_SERIES = [
   { key: "games",   art: "dice",       steps: [10, 100, 1000, 5000, 25000] },
   { key: "dailies", art: "cal",        steps: [7, 30, 100, 365, 1000] },
-  { key: "streak",  art: "flame",      steps: [7, 30, 100, 365, 1000], flair: { emoji: "⏳", at: 2 } },
-  { key: "perfect", art: "100",        steps: [1, 10, 50, 250, 1000],  flair: { emoji: "💯", at: 2 } },
+  { key: "streak",  art: "flame",      steps: [7, 30, 100, 365, 1000], flairs: [{ emoji: "⏳", at: 2 }] },
+  { key: "perfect", art: "100",        steps: [1, 10, 50, 250, 1000],  flairs: [{ emoji: "💯", at: 2 }] },
   { key: "pure",    art: "zen",        steps: [5, 25, 100, 500, 2000] },
-  { key: "rating",  art: "bolt",       steps: [1600, 1700, 1775, 1825, 1850], floor: 1500, flair: { emoji: "🥇", at: 4 }, authOnly: true },
-  { key: "years",   art: "albumcover", steps: [4, 10, 18, 28, 38], flair: { emoji: "🗿", at: 3 }, album: true },
+  { key: "rating",  art: "bolt",       steps: [1600, 1700, 1775, 1825, 1850], floor: 1500, authOnly: true,
+    flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }] },
+  { key: "years",   art: "albumcover", steps: [4, 10, 18, 28, 38], flairs: [{ emoji: "🗿", at: 3 }], album: true },
 ];
 const ACHV_TROPHIES = [
   { key: "first_try", i18n: "achv_t_first",    art: "target" },
@@ -3582,9 +3591,6 @@ function achvValue(a, s) {
 // de memory (capstone-track-design).
 const CAPSTONE_KEYS = ["games", "dailies", "streak", "perfect", "pure"];
 const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "🏵️" }];   // brons; zilver = confetti, goud+ later
-// Extra rating-tier-flairs náást de 🥇 (die op diamant uit ACHV_SERIES komt).
-// Bewust géén 🥈🥉: lbMedal gebruikt die al voor rang 2/3 → verwarring op 't bord.
-const RATING_FLAIRS = [{ tier: 1, emoji: "🎯" }, { tier: 2, emoji: "📈" }];
 const capstoneSeries = (k) => ACHV_SERIES.find((x) => x.key === k);
 
 function capstoneTier(a) {              // 0 = nog geen trede, 5 = diamant
@@ -3602,7 +3608,6 @@ function capstoneLagging(a) {
   if (tier >= 5) return [];
   return CAPSTONE_KEYS.filter((k) => achvTier(achvValue(a, capstoneSeries(k)), capstoneSeries(k).steps) === tier);
 }
-function ratingTierOf(a) { return achvTier(a.rating || 0, capstoneSeries("rating").steps); }
 function achvTrophyDone(a, tr) {
   return tr.key === "eras" ? a.eras.every(Boolean) : !!a[tr.key];
 }
@@ -3732,13 +3737,12 @@ function achvEarnedFlairs() {
   if (!a || !auth.user) return [];
   const out = [];
   for (const s of ACHV_SERIES) {
-    if (s.flair && achvTier(achvValue(a, s), s.steps) >= s.flair.at + 1) out.push(s.flair.emoji);
+    const tier = achvTier(achvValue(a, s), s.steps);
+    for (const f of s.flairs || []) if (tier >= f.at + 1) out.push(f.emoji);
   }
   for (const tr of ACHV_TROPHIES) {
     if (tr.flair && achvTrophyDone(a, tr)) out.push(tr.flair.emoji);
   }
-  const rt = ratingTierOf(a);
-  for (const rf of RATING_FLAIRS) if (rt >= rf.tier) out.push(rf.emoji);
   const ct = capstoneTier(a);
   for (const cf of CAPSTONE_FLAIRS) if (ct >= cf.tier) out.push(cf.emoji);
   return out;
@@ -3809,8 +3813,9 @@ function achvSeriesItem(a, s, tier, prev) {
     sub: s.key === "years" ? unit(n, ACHV_YEARS.length) : unit(fmtN(n)),
     next: tier >= 5 ? t("achv_maxed") : t("achv_next")(fmtN(s.steps[tier] - n), achvTierName(tier)),
     // Flair alleen melden op de trede die hem vrijspeelt — en niet opnieuw als
-    // je in één keer twee treden pakt terwijl je de flair al had.
-    flair: s.flair && tier > s.flair.at && prev <= s.flair.at ? s.flair.emoji : null,
+    // je in één keer twee treden pakt terwijl je de flair al had. Pak je er in
+    // één klap twee, dan wint de hoogste.
+    flair: (s.flairs || []).filter((f) => tier > f.at && prev <= f.at).pop()?.emoji || null,
   };
 }
 function achvTrophyItem(tr) {
@@ -3983,12 +3988,17 @@ function achvDetailHtml(a, s) {
   }).join("");
   const labels = s.steps.map((step, i) =>
     `<span class="${tier === i ? "next" : ""}" style="left:${10 + 20 * i}%">${fmtN(step)}</span>`).join("");
-  const pin = s.flair
-    ? `<span class="achv-flairpin" style="left:${10 + 20 * s.flair.at}%">${s.flair.emoji}</span>` : "";
-  const note = s.flair
-    ? `<p class="achv-flairnote">${escHtml(t("achv_flair_note")(s.flair.emoji, achvTierName(s.flair.at)))}</p>` : "";
+  const flairs = s.flairs || [];
+  const pins = flairs.map((f) =>
+    `<span class="achv-flairpin" style="left:${10 + 20 * f.at}%">${f.emoji}</span>`).join("");
+  // Eén flair → de hele zin; meerdere (de rating-medailles) → een opsomming,
+  // anders staat dezelfde regel drie keer onder elkaar.
+  const note = !flairs.length ? ""
+    : `<p class="achv-flairnote">${escHtml(flairs.length === 1
+        ? t("achv_flair_note")(flairs[0].emoji, achvTierName(flairs[0].at))
+        : t("achv_flair_note_multi")(flairs.map((f) => `${f.emoji} ${achvTierName(f.at)}`).join(" · ")))}</p>`;
   return `<div class="achv-detail" hidden>
-      <div class="achv-pinrow">${pin}</div>
+      <div class="achv-pinrow">${pins}</div>
       <div class="achv-rail"><i style="width:${achvRailPct(n, s).toFixed(1)}%"></i>${ticks}</div>
       <div class="achv-ticklabels">${labels}</div>
       ${note}</div>`;
