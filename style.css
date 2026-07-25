@@ -1636,6 +1636,140 @@ footer {
 }
 .lb-navbtn:hover:not(:disabled) { background: var(--border); }
 .lb-navbtn:disabled { opacity: 0.3; cursor: default; }
+
+/* ── Segmented toggle (dag / week / all-time) + tab-panes ──────────────────── */
+.lb-seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  margin: 1rem 0 0.4rem;
+  padding: 3px;
+  background: var(--card-soft);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+}
+.lb-seg-btn {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 0.2rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lb-seg-btn[aria-selected="true"] {
+  background: var(--card);
+  color: var(--fg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+/* Eén pane tegelijk; neutraliseer de gestapelde-secties-scheiding uit .lb-section. */
+.lb-section.lb-tabpane { margin-top: 0.6rem; padding-top: 0; border-top: 0; }
+.lb-tabpane[hidden] { display: none; }
+.lb-dailynav .lb-heading { flex: 1; text-align: center; margin: 0; }
+
+/* ── Weekpodium ────────────────────────────────────────────────────────────── */
+.lb-wk-pill {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.lb-wk-pill.live { color: #2f9e6f; background: color-mix(in srgb, #2f9e6f 18%, transparent); }
+.lb-wk-pill.done { color: var(--gold-text); background: color-mix(in srgb, var(--gold-text) 16%, transparent); }
+
+.lb-pod-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.12fr 1fr;
+  align-items: end;
+  gap: 0.5rem;
+  padding: 0.4rem 0.2rem 1rem;
+}
+.lb-pod-stage:has(.lb-pod-spot:only-child) { grid-template-columns: minmax(0, 12rem); justify-content: center; }
+.lb-pod-stage:has(.lb-pod-spot:nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 9rem)); justify-content: center; }
+.lb-pod-spot { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.lb-pod-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lb-pod-spot.lb-me .lb-pod-name { color: var(--accent); }
+.lb-pod-flair { font-size: 1.9rem; line-height: 1; margin-bottom: 0.35rem; min-height: 1.9rem; }
+.lb-pod-flair .emoji-anim { width: 1.9rem; height: 1.9rem; vertical-align: middle; }
+.lb-pod-block {
+  width: 100%;
+  border-radius: 0.5rem 0.5rem 0.15rem 0.15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;   /* inhoud bovenaan de sokkel; hogere trede = meer voetstuk eronder */
+  gap: 0.15rem;
+  padding: 0.4rem 0.25rem 0.3rem;
+  color: #2a1c07;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 4px 10px -6px rgba(0, 0, 0, 0.5);
+}
+/* Hoogtes ruim genoeg voor medaille + getal + label op élke trede (was te krap → afgesneden). */
+.lb-pod-gold   .lb-pod-block { height: 6rem;   background: linear-gradient(165deg, #fbe9b0, #f0bd3c 46%, #b9821c); }
+.lb-pod-silver .lb-pod-block { height: 5rem;   background: linear-gradient(165deg, #f4f8fb, #c4cfd9 46%, #8b98a4); }
+.lb-pod-bronze .lb-pod-block { height: 4.2rem; background: linear-gradient(165deg, #f0cba1, #cd8a52 46%, #8f5729); }
+.lb-pod-medal { font-size: 1.25rem; line-height: 1; }
+.lb-pod-count { text-align: center; line-height: 1.05; }
+.lb-pod-n { display: block; font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.lb-pod-u { font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.75; }
+.lb-pod-conf { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+
+.lb-wk-note { text-align: center; color: var(--muted); font-size: 0.72rem; margin: 0.2rem 0 0.6rem; }
+.lb-wk-rest { display: flex; flex-direction: column; gap: 2px; border-top: 1px solid var(--border); padding-top: 0.5rem; }
+.lb-wk-restrow { display: grid; grid-template-columns: 1.4rem 1.4rem 1fr auto; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; font-size: 0.85rem; border-radius: 0.4rem; }
+.lb-wk-restrow.lb-me { background: color-mix(in srgb, var(--accent) 20%, var(--card-soft)); }
+.lb-wk-rk { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.78rem; text-align: right; }
+.lb-wk-rf { font-size: 1.05rem; line-height: 1; text-align: center; }
+.lb-wk-rn { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-wk-rc { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+
+.lb-wk-msg { text-align: center; padding: 1.6rem 1rem 1.4rem; }
+.lb-wk-msg-i { font-size: 2.2rem; margin-bottom: 0.5rem; }
+.lb-wk-msg h4 { margin: 0 0 0.3rem; font-size: 1rem; }
+.lb-wk-msg p { margin: 0 auto; color: var(--muted); font-size: 0.85rem; max-width: 26ch; }
+
+/* verse-uitslag-stip op de 🏟️-segmentknop (zelfde stip als ⋮/menu-items) */
+.lb-seg-btn { position: relative; }
+.lb-seg-btn.has-new::after {
+  content: ""; position: absolute; top: 4px; right: 6px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--achv-new); box-shadow: 0 0 0 2px var(--card);
+}
+
+/* weekpodium-recap-kaart op het eindscherm (pal onder .score-line) */
+.lb-recap-card {
+  display: flex; align-items: center; gap: 0.7rem;
+  margin: 0.6rem auto 0; max-width: 22rem; padding: 0.65rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--gold-text) 45%, var(--border));
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--gold-text) 8%, var(--card));
+  cursor: pointer; text-align: left;
+}
+.lb-recap-card:hover { border-color: var(--gold-text); }
+.lb-recap-art { font-size: 1.9rem; line-height: 1; flex: none; }
+.lb-recap-txt { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; flex: 1; }
+.lb-recap-head { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.lb-recap-title { font-size: 0.95rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+.lb-recap-sub { font-size: 0.78rem; color: var(--muted); }
+.lb-recap-go { flex: none; color: var(--gold-text); font-size: 0.8rem; font-weight: 650; white-space: nowrap; }
+
 .lb-table { display: flex; flex-direction: column; gap: 2px; }
 /* Bord dat op nieuwe data wacht: oude lijst blijft gedimd staan (geen inklap-sprong). */
 .lb-loading { opacity: 0.4; pointer-events: none; transition: opacity 0.15s ease; }

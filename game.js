@@ -174,6 +174,17 @@ const I18N = {
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
+    lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord",
+    lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week",
+    lb_wk_live: "loopt nog", lb_wk_done: "afgerond",
+    lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
+    lb_wk_participated: "meegedaan",
+    lb_recap_head: "Vorige week", lb_recap_view: "Bekijk het podium",
+    lb_wk_note_live: "Tussenstand — het podium klapt maandag dicht.",
+    lb_wk_empty_h: "Geen podium deze week",
+    lb_wk_empty_p: "Er waren geen dagzeges — daarvoor moeten er minstens twee spelers op dezelfde dag meedoen.",
+    lb_wk_soon_h: "Het weekpodium begint binnenkort",
+    lb_wk_soon_p: (d) => `Vanaf maandag ${d} strijdt je pool om het wekelijkse podium — iedereen op nul.`,
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges", lb_stat_perfect: "Perfect-rate", lb_scope_all: "alle games",
     lb_scope_pool: "sinds deelname",
     lb_stat_prev: "Vorige stat", lb_stat_next: "Volgende stat",
@@ -364,6 +375,17 @@ const I18N = {
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
+    lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board",
+    lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week",
+    lb_wk_live: "live", lb_wk_done: "final",
+    lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
+    lb_wk_participated: "took part",
+    lb_recap_head: "Last week", lb_recap_view: "View the podium",
+    lb_wk_note_live: "Live standings — the podium locks on Monday.",
+    lb_wk_empty_h: "No podium this week",
+    lb_wk_empty_p: "There were no daily wins — you need at least two players on the same day.",
+    lb_wk_soon_h: "The week podium starts soon",
+    lb_wk_soon_p: (d) => `From Monday ${d} your pool competes for the weekly podium — everyone from zero.`,
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins", lb_stat_perfect: "Perfect rate", lb_scope_all: "all games",
     lb_scope_pool: "since joining",
     lb_stat_prev: "Previous stat", lb_stat_next: "Next stat",
@@ -549,6 +571,17 @@ const I18N = {
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
+    lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen",
+    lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche",
+    lb_wk_live: "läuft noch", lb_wk_done: "beendet",
+    lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
+    lb_wk_participated: "mitgemacht",
+    lb_recap_head: "Letzte Woche", lb_recap_view: "Podest ansehen",
+    lb_wk_note_live: "Zwischenstand — das Podest schließt am Montag.",
+    lb_wk_empty_h: "Diese Woche kein Podest",
+    lb_wk_empty_p: "Es gab keine Tagessiege — dafür müssen mindestens zwei Spieler am selben Tag mitmachen.",
+    lb_wk_soon_h: "Das Wochenpodest startet bald",
+    lb_wk_soon_p: (d) => `Ab Montag, ${d}, kämpft dein Pool ums Wochenpodest — alle bei null.`,
     lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege", lb_stat_perfect: "100er-Quote", lb_scope_all: "alle Spiele",
     lb_scope_pool: "seit Beitritt",
     lb_stat_prev: "Vorherige Statistik", lb_stat_next: "Nächste Statistik",
@@ -738,6 +771,17 @@ const I18N = {
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
+    lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla",
+    lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente",
+    lb_wk_live: "en curso", lb_wk_done: "cerrada",
+    lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
+    lb_wk_participated: "participó",
+    lb_recap_head: "La semana pasada", lb_recap_view: "Ver el podio",
+    lb_wk_note_live: "Clasificación en curso — el podio se cierra el lunes.",
+    lb_wk_empty_h: "Sin podio esta semana",
+    lb_wk_empty_p: "No hubo victorias diarias — se necesitan al menos dos jugadores el mismo día.",
+    lb_wk_soon_h: "El podio semanal empieza pronto",
+    lb_wk_soon_p: (d) => `Desde el lunes ${d} tu grupo compite por el podio semanal — todos desde cero.`,
     lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias", lb_stat_perfect: "% perfectos", lb_scope_all: "todas las partidas",
     lb_scope_pool: "desde tu ingreso",
     lb_stat_prev: "Estadística anterior", lb_stat_next: "Estadística siguiente",
@@ -927,6 +971,17 @@ const I18N = {
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
+    lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela",
+    lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana",
+    lb_wk_live: "em andamento", lb_wk_done: "encerrada",
+    lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
+    lb_wk_participated: "participou",
+    lb_recap_head: "Semana passada", lb_recap_view: "Ver o pódio",
+    lb_wk_note_live: "Parcial — o pódio fecha na segunda.",
+    lb_wk_empty_h: "Sem pódio nesta semana",
+    lb_wk_empty_p: "Não houve vitórias diárias — é preciso pelo menos dois jogadores no mesmo dia.",
+    lb_wk_soon_h: "O pódio semanal começa em breve",
+    lb_wk_soon_p: (d) => `A partir de segunda, ${d}, seu grupo disputa o pódio semanal — todos do zero.`,
     lb_stat_rating: "Pontuação", lb_stat_streak: "Sequência", lb_stat_dailywins: "Vitórias diárias", lb_stat_perfect: "% perfeitos", lb_scope_all: "todas as partidas",
     lb_scope_pool: "desde a entrada",
     lb_stat_prev: "Estatística anterior", lb_stat_next: "Próxima estatística",
@@ -2328,7 +2383,11 @@ function finishGame(won, fresh = false) {
       Promise.race([unlocked, guard]).then((hit) => {
         // Snelle speler kan inmiddels een nieuw potje zijn begonnen — dan is de
         // recap van dit feit niet meer aan de orde.
-        if (hit || !state || !state.done || `${state.mode}:${state.hashes?.[0]}` !== potKey) return;
+        if (!state || !state.done || `${state.mode}:${state.hashes?.[0]}` !== potKey) return;
+        // Weekpodium-recap stapelt onder een evt. unlock-kaart en verdringt — net als
+        // een unlock — de auto-open van de daily-recap (die blijft op de 📊-knop).
+        const podiumCard = showPodiumRecapCard();
+        if (hit || podiumCard) return;
         openDailyRecap();
       });
     }
@@ -2537,6 +2596,18 @@ let lbStatIndex = 0;                  // welke stat-kolom het all-time bord toon
 let lbOverall = [];                   // rating-bord (al geladen) — pagina 0, alleen actieve leden
 let lbInactiveN = 0;                  // # leden verborgen wegens inactiviteit (7+ dagen) — "N verborgen"
 let lbPoolStats = null;               // win%/score/streak — lazy bij eerste swipe, daarna cache
+let lbTab = "daily";                  // actief bord-tabblad: daily | podium | stats
+let lbWeekStart = null;               // maandag van de getoonde week (weekpodium, ‹ ›)
+let lbWkReq = 0;                       // race-guard: alleen de laatste weekpodium-fetch mag renderen
+let lbTabLoaded = new Set();           // welke tabbladen deze render al lui geladen zijn
+let pendingLbTab = null;               // ?leaderboard=podium → open direct op de podium-tab
+let podiumConfRAF = null;              // rAF-handle van de doorlopende podium-confetti (stop = geen leak)
+let weekPodiumResult = null;           // {weekStart, hasResult, placements:[…]} van de laatst-afgeronde week, of null
+// 1e week die het weekpodium telt (maandag, Europe/Amsterdam). Vóór deze week toont de
+// podium-tab een teaser — schone teamstart, iedereen op nul. Week 1 (27/7–2/8) is bewust
+// één week SUSPENSE: de eerste AFGERONDE uitslag + recap volgt pas op ma 3 aug. Week
+// 20–26 jul telt dus NIET mee (geen retroactief bord).
+const PODIUM_EPOCH = "2026-07-27";
 
 function escHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -2987,6 +3058,42 @@ function shiftDateKey(key, delta) {
   return new Date(Date.UTC(y, m - 1, d + delta)).toISOString().slice(0, 10);
 }
 
+// Maandag (als "YYYY-MM-DD") van de week waarin `key` valt. Weken lopen ma–zo,
+// dezelfde dagcadans als todayKey()/joined_at (Europe/Amsterdam via de dag-sleutel).
+function mondayOf(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  const dow = (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7;   // ma=0 … zo=6
+  return shiftDateKey(key, -dow);
+}
+function currentWeekStart() { return mondayOf(todayKey()); }
+// Terugbladeren op het weekpodium klemt op de start van de pool óf de podium-epoch
+// (wat later is): geen retroactieve weken van vóór de launch of van vóór je pool.
+function podiumMinWeek() {
+  const poolMon = mondayOf(myPool?.since && myPool.since > EPOCH_KEY ? myPool.since : EPOCH_KEY);
+  return poolMon > PODIUM_EPOCH ? poolMon : PODIUM_EPOCH;
+}
+function fmtWeekRange(ws) { return `${fmtDailyDate(ws)} – ${fmtDailyDate(shiftDateKey(ws, 6))}`; }
+// Waar het weekpodium standaard op opent: de laatst-AFGERONDE week (het resultaat) als
+// die meetelt, anders de lopende week — zo zie je meteen "vorige week" i.p.v. een lege race.
+function weekPodiumDefaultWeek() {
+  const cur = currentWeekStart();
+  const lastDone = shiftDateKey(cur, -7);
+  return lastDone >= podiumMinWeek() ? lastDone : cur;
+}
+
+// Al gevierd? Eenmalige confetti (en later de recap-kaart) per gewonnen week,
+// bijgehouden per uid (of anon) in localStorage.
+function podiumSeenKey() { return `jaardle:podiumSeen:${auth.user ? auth.user.uid : "anon"}`; }
+function podiumSeen(ws) {
+  try { return (JSON.parse(localStorage.getItem(podiumSeenKey())) || []).includes(ws); } catch (e) { return false; }
+}
+function podiumMarkSeen(ws) {
+  try {
+    const a = JSON.parse(localStorage.getItem(podiumSeenKey())) || [];
+    if (!a.includes(ws)) { a.push(ws); localStorage.setItem(podiumSeenKey(), JSON.stringify(a.slice(-30))); }
+  } catch (e) {}
+}
+
 // Gebruikte hints als iconen (⏩ "100 jaar later", 🧭 richting, 🏛️ eeuw, 🔢 laatste cijfer); leeg als geen.
 // ≤2 hints: gewoon op één regel. >2: compact in een 2-rijig grid (kolom-flow) zodat de rij niet uitdijt.
 function lbHintIcons(d) {
@@ -3053,6 +3160,163 @@ async function loadDailyBoard() {
   setBoard(content, dailyTableHtml(Array.isArray(rows) ? rows : []));
 }
 
+// Wisselt het zichtbare bord-tabblad (daily / podium / stats) en laadt het lui bij
+// de eerste keer dat het getoond wordt. Houdt de URL in sync (deelbare podium-link).
+function lbSelectTab(name) {
+  lbTab = name;
+  document.querySelectorAll("#lb-body .lb-seg-btn").forEach((b) => {
+    const on = b.dataset.tab === name;
+    b.setAttribute("aria-selected", String(on));
+    b.classList.toggle("sel", on);
+  });
+  document.querySelectorAll("#lb-body .lb-tabpane").forEach((p) => { p.hidden = p.dataset.pane !== name; });
+  if (!lbTabLoaded.has(name)) {
+    lbTabLoaded.add(name);
+    if (name === "daily") loadDailyBoard();
+    else if (name === "stats") renderStatBoard();
+    else if (name === "podium") loadPodium();
+  }
+  try { localStorage.setItem("jaardle:lbTab", name); } catch (e) {}   // onthoud je laatst-gebruikte bord
+  setModalUrl("leaderboard=" + name);   // URL loopt mee → deelbaar/bookmarkbaar per tab
+}
+
+// Laadt het weekpodium voor lbWeekStart. Vóór de epoch: teaser. Anders het podium
+// (afgerond of live-tussenstand) met ‹ ›-weeknavigatie. Race-guard zoals de daily.
+async function loadPodium() {
+  if (!myPool) return;
+  const content = document.getElementById("lb-wk-content");
+  const heading = document.getElementById("lb-wk-heading");
+  const prevBtn = document.getElementById("lb-wk-prev");
+  const nextBtn = document.getElementById("lb-wk-next");
+  if (!content || !heading) return;
+  const cur = currentWeekStart();
+  // Pré-launch: vóór de epoch tonen we een teaser i.p.v. een retroactief bord.
+  if (cur < PODIUM_EPOCH) {
+    heading.innerHTML = `🏟️ ${escHtml(t("lb_wk_title"))}`;
+    prevBtn.disabled = true; nextBtn.disabled = true;
+    setBoard(content, `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
+      `<h4>${escHtml(t("lb_wk_soon_h"))}</h4><p>${escHtml(t("lb_wk_soon_p")(fmtDailyDate(PODIUM_EPOCH)))}</p></div>`);
+    return;
+  }
+  const isLive = lbWeekStart >= cur;
+  heading.innerHTML = `🏟️ ${escHtml(fmtWeekRange(lbWeekStart))} ` +
+    `<span class="lb-wk-pill ${isLive ? "live" : "done"}">${escHtml(isLive ? t("lb_wk_live") : t("lb_wk_done"))}</span>`;
+  prevBtn.disabled = lbWeekStart <= podiumMinWeek();
+  nextBtn.disabled = lbWeekStart >= cur;
+  setBoardLoading(content);
+  const req = ++lbWkReq;
+  let rows = [];
+  try { rows = await rpc("get_pool_week_podium", { p_pool_id: myPool.id, p_week_start: lbWeekStart }); } catch (e) {}
+  if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
+  rows = Array.isArray(rows) ? rows : [];
+  setBoard(content, podiumHtml(rows, isLive));
+  // Een afgeronde week bekeken = "gezien" → de verse-uitslag-stip dooft.
+  if (!isLive && !podiumSeen(lbWeekStart)) { podiumMarkSeen(lbWeekStart); renderPodiumDot(); }
+  // Doorlopende feest-confetti zolang je een AFGERONDE week bekijkt waarin jij top-3
+  // stond; live weken (provisorisch) krijgen niets. Self-stoppend (zie hieronder).
+  if (!isLive && rows.some((r) => r.is_me && r.daily_wins > 0 && r.rank <= 3)) {
+    setTimeout(showPodiumConfetti, 250);
+  } else {
+    stopPodiumConfetti();
+  }
+}
+
+// Stopt de doorlopende podium-confetti en ruimt het canvas op. Voorkomt een eeuwige
+// rAF-lus / lek zodra je de podium-tab of het bord verlaat.
+function stopPodiumConfetti() {
+  if (podiumConfRAF) { cancelAnimationFrame(podiumConfRAF); podiumConfRAF = null; }
+  document.querySelectorAll("#lb-body .lb-pod-conf").forEach((c) => c.remove());
+}
+
+// Doorlopende, lichte dwarrel-confetti over het podium: een klein canvas over alléén
+// .lb-pod-stage met een VASTE pool van 14 deeltjes die telkens hergebruikt worden
+// (geen allocatie-groei → geen leak). De lus stopt zichzelf zodra het podium
+// onzichtbaar/weg is (tab-wissel, modal dicht, re-render) en respecteert
+// prefers-reduced-motion — phone-friendly, rAF pauzeert vanzelf op een achtergrond-tab.
+function showPodiumConfetti() {
+  stopPodiumConfetti();   // nooit twee lussen tegelijk
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const stage = document.querySelector("#lb-body .lb-pod-stage");
+  if (!stage) return;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const cv = document.createElement("canvas");
+  cv.className = "lb-pod-conf";
+  cv.setAttribute("aria-hidden", "true");
+  stage.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  const r = stage.getBoundingClientRect();
+  const W = Math.max(1, r.width), H = Math.max(1, r.height), ground = H - 2;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const COLORS = ["#f5c542", "#a970ff", "#58d6a6", "#ff7aa8", "#7ec8ff", "#ffffff"];
+  const spawn = (p, first) => {
+    p.x = Math.random() * W;
+    p.y = -8 - Math.random() * (first ? H : 30);   // 1e keer gespreid, daarna net boven de rand
+    p.vy = 0.55 + Math.random() * 0.85;
+    p.ph = Math.random() * 6.28;
+    p.w = 4 + Math.random() * 3;
+    p.h = 6 + Math.random() * 4;
+    p.color = COLORS[(Math.random() * COLORS.length) | 0];
+  };
+  const parts = Array.from({ length: 14 }, () => { const p = {}; spawn(p, true); return p; });
+  const step = () => {
+    const pane = cv.closest(".lb-tabpane");
+    if (!cv.isConnected || document.getElementById("modal-leaderboard")?.hidden || (pane && pane.hidden)) {
+      stopPodiumConfetti();   // podium weg/onzichtbaar → stop netjes (geen achtergrond-lus)
+      return;
+    }
+    ctx.clearRect(0, 0, W, H);
+    for (const p of parts) {
+      p.y += p.vy; p.ph += 0.06; p.x += Math.sin(p.ph) * 0.5;
+      if (p.y >= ground) { spawn(p, false); continue; }   // hergebruik i.p.v. wegnemen
+      const flutter = 0.45 + 0.55 * Math.abs(Math.sin(p.ph));
+      ctx.globalAlpha = p.y > H * 0.72 ? Math.max(0, (ground - p.y) / (H * 0.28)) : 1;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.w, p.h * flutter);
+    }
+    ctx.globalAlpha = 1;
+    podiumConfRAF = requestAnimationFrame(step);
+  };
+  podiumConfRAF = requestAnimationFrame(step);
+}
+
+// Bouwt het podium (🥇 midden-hoog · 🥈 links · 🥉 rechts, alleen gevulde treden)
+// met dansende flair + naam, en daaronder de "meegedaan"-lijst (rang 4+ / 0 dagzeges).
+function podiumHtml(rows, isLive) {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const flairDance = (f) => (f ? (reduced ? escHtml(f) : flairPreviewHtml(f)) : "");
+  const winners = rows.filter((r) => r.daily_wins > 0);
+  if (!winners.length) {
+    return `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
+      `<h4>${escHtml(t("lb_wk_empty_h"))}</h4><p>${escHtml(t("lb_wk_empty_p"))}</p></div>`;
+  }
+  const top = winners.slice(0, 3);
+  const cls = ["gold", "silver", "bronze"];
+  // Sokkel-volgorde links→rechts: 2e · 1e · 3e (past zich aan bij 1 of 2 winnaars).
+  const slots = top.length === 1 ? [0] : top.length === 2 ? [1, 0] : [1, 0, 2];
+  const podium = slots.map((i) => {
+    const r = top[i];
+    const tier = cls[Math.min(r.rank, 3) - 1];
+    const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : r.rank === 3 ? "🥉" : String(r.rank);
+    return `<div class="lb-pod-spot lb-pod-${tier}${r.is_me ? " lb-me" : ""}">` +
+      `<div class="lb-pod-name">${escHtml(r.display_name)}</div>` +
+      `<div class="lb-pod-flair">${flairDance(r.flair)}</div>` +
+      `<div class="lb-pod-block"><div class="lb-pod-medal">${medal}</div>` +
+      `<div class="lb-pod-count"><span class="lb-pod-n">${r.daily_wins}</span>` +
+      `<span class="lb-pod-u">${escHtml(t("lb_wk_dagzeges"))}</span></div></div></div>`;
+  }).join("");
+  const rest = rows.slice(top.length);
+  const restHtml = rest.length ? `<div class="lb-wk-rest">` + rest.map((r) =>
+    `<div class="lb-wk-restrow${r.is_me ? " lb-me" : ""}">` +
+    `<span class="lb-wk-rk">${r.rank}</span>` +
+    `<span class="lb-wk-rf">${r.flair ? escHtml(r.flair) : ""}</span>` +
+    `<span class="lb-wk-rn">${escHtml(r.display_name)}</span>` +
+    `<span class="lb-wk-rc">${r.daily_wins > 0 ? escHtml(t("lb_wk_n_dagzeges")(r.daily_wins)) : escHtml(t("lb_wk_participated"))}</span></div>`
+  ).join("") + `</div>` : "";
+  const note = isLive ? `<p class="lb-wk-note">${escHtml(t("lb_wk_note_live"))}</p>` : "";
+  return `<div class="lb-pod-stage">${podium}</div>${note}${restHtml}`;
+}
+
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
 async function renderLeaderboard() {
   const body = document.getElementById("lb-body");
@@ -3069,6 +3333,7 @@ async function renderLeaderboard() {
   if (!myPool) { renderPoolEmptyState(body); return; }
 
   lbDailyDate = todayKey();   // begin altijd bij de daily van vandaag
+  lbWeekStart = weekPodiumDefaultWeek();   // weekpodium opent op de laatst-afgeronde week
   let overall = [];
   try { overall = await rpc("get_pool_leaderboard", { p_pool_id: myPool.id, p_min_games: 1 }); } catch (e) {}
   if (document.getElementById("modal-leaderboard").hidden) return;
@@ -3088,7 +3353,14 @@ async function renderLeaderboard() {
         <button id="lb-leave-btn" class="lb-pillbtn danger">${t("lb_leave")}</button>
       </div>
     </div>`;
-  html += `<section class="lb-section">
+  // Segmented toggle: dag → week → all-time. Eén bord tegelijk zichtbaar (ruimt de
+  // voorheen-gestapelde modal op). Panes starten hidden; lbSelectTab toont de actieve.
+  html += `<div class="lb-seg" role="tablist" aria-label="${t("lb_tab_aria")}">
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="daily">📅 ${t("lb_daily")}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="podium">🏟️ ${t("lb_tab_podium")}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="stats">📊 ${t("lb_tab_stats")}</button>
+    </div>`;
+  html += `<section class="lb-section lb-tabpane" data-pane="daily" hidden>
       <div class="lb-dailynav">
         <button id="lb-daily-prev" class="lb-navbtn" aria-label="${t("lb_daily_prev")}" title="${t("lb_daily_prev")}">‹</button>
         <h3 class="lb-heading lb-daily-heading" id="lb-daily-heading"></h3>
@@ -3096,7 +3368,15 @@ async function renderLeaderboard() {
       </div>
       <div id="lb-daily-content"></div>
     </section>`;
-  html += `<section class="lb-section">
+  html += `<section class="lb-section lb-tabpane" data-pane="podium" hidden>
+      <div class="lb-dailynav">
+        <button id="lb-wk-prev" class="lb-navbtn" aria-label="${t("lb_wk_prev")}" title="${t("lb_wk_prev")}">‹</button>
+        <h3 class="lb-heading" id="lb-wk-heading"></h3>
+        <button id="lb-wk-next" class="lb-navbtn" aria-label="${t("lb_wk_next")}" title="${t("lb_wk_next")}">›</button>
+      </div>
+      <div id="lb-wk-content"></div>
+    </section>`;
+  html += `<section class="lb-section lb-tabpane" data-pane="stats" hidden>
       <div class="lb-dailynav">
         <button id="lb-stat-prev" class="lb-navbtn" aria-label="${t("lb_stat_prev")}" title="${t("lb_stat_prev")}">‹</button>
         <h3 class="lb-heading lb-stat-heading" id="lb-stat-heading"></h3>
@@ -3110,12 +3390,18 @@ async function renderLeaderboard() {
   const addBtn = document.getElementById("lb-add-btn");
   if (addBtn) addBtn.onclick = () => renderPoolEmptyState(body);
 
-  // Daily-bord + browsen naar vorige dagen (‹ ›).
+  // Daily-bord: browsen naar vorige dagen (‹ ›).
   const prevBtn = document.getElementById("lb-daily-prev");
   const nextBtn = document.getElementById("lb-daily-next");
   prevBtn.onclick = () => { if (lbDailyDate > lbMinDailyDate()) { lbDailyDate = shiftDateKey(lbDailyDate, -1); loadDailyBoard(); } };
   nextBtn.onclick = () => { if (lbDailyDate < todayKey()) { lbDailyDate = shiftDateKey(lbDailyDate, +1); loadDailyBoard(); } };
-  loadDailyBoard();
+
+  // Weekpodium: browsen naar vorige weken (‹ = terug, › = vooruit), geklemd op de
+  // podium-epoch / pool-start ‹ en de lopende week › (geen toekomst).
+  const wkPrev = document.getElementById("lb-wk-prev");
+  const wkNext = document.getElementById("lb-wk-next");
+  wkPrev.onclick = () => { if (lbWeekStart > podiumMinWeek()) { lbWeekStart = shiftDateKey(lbWeekStart, -7); loadPodium(); } };
+  wkNext.onclick = () => { if (lbWeekStart < currentWeekStart()) { lbWeekStart = shiftDateKey(lbWeekStart, +7); loadPodium(); } };
 
   // All-time bord met swipebare stat-kolommen (Rating / Win% / … / Dagzeges),
   // ‹ ›-nav net als de daily. Opent op Rating — die hergebruikt de al-geladen
@@ -3132,7 +3418,17 @@ async function renderLeaderboard() {
   const cycleStat = (d) => { lbStatIndex = (lbStatIndex + d + LB_STATS.length) % LB_STATS.length; renderStatBoard(); };
   document.getElementById("lb-stat-prev").onclick = () => cycleStat(-1);
   document.getElementById("lb-stat-next").onclick = () => cycleStat(+1);
-  renderStatBoard();
+
+  // Lazy: laad alleen het geopende tabblad. Deeplink ?leaderboard=podium (of later
+  // een verse weekuitslag) opent direct op het podium via pendingLbTab.
+  lbTabLoaded = new Set();
+  document.querySelectorAll("#lb-body .lb-seg-btn").forEach((b) => { b.onclick = () => lbSelectTab(b.dataset.tab); });
+  // Openen op: deeplink-tab (?leaderboard=…) > je laatst-gebruikte tab > daily.
+  let storedTab = null;
+  try { storedTab = localStorage.getItem("jaardle:lbTab"); } catch (e) {}
+  lbSelectTab(pendingLbTab || (["daily", "podium", "stats"].includes(storedTab) ? storedTab : "daily"));
+  pendingLbTab = null;
+  renderPodiumDot();   // stip op de 🏟️-segmentknop als er een verse uitslag ligt
 
   const inviteBtn = document.getElementById("lb-invite-btn");
   inviteBtn.onclick = () => shareInvite(inviteUrl, inviteBtn);
@@ -3790,10 +4086,75 @@ function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith
 // Stipje als CSS-klasse i.p.v. een element: de menuknop (renderMenuButton) en de
 // menu-items (data-i18n) worden elders volledig herschreven — een class met
 // ::after overleeft dat, een kind-element niet.
-function renderAchvDot() {
-  const has = achvNewLoad().length > 0;
+function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties óf weekpodium)
+  const has = achvNewLoad().length > 0 || podiumHasNew();
   document.getElementById("menu-btn")?.classList.toggle("has-new", has);
-  document.querySelector('.menu-item[data-action="achievements"]')?.classList.toggle("has-new", has);
+}
+function renderAchvDot() {
+  document.querySelector('.menu-item[data-action="achievements"]')?.classList.toggle("has-new", achvNewLoad().length > 0);
+  renderMenuDot();
+}
+
+// ── Weekpodium-surfacing: rode stip + recap-kaart ────────────────────────────
+// "Verse uitslag" = de laatst-AFGERONDE week (>= epoch) die je nog niet zag.
+function podiumHasNew() {
+  return !!(weekPodiumResult && weekPodiumResult.hasResult && !podiumSeen(weekPodiumResult.weekStart));
+}
+function renderPodiumDot() {
+  const has = podiumHasNew();
+  document.querySelector('.menu-item[data-action="leaderboard"]')?.classList.toggle("has-new", has);
+  document.querySelector('#lb-body .lb-seg-btn[data-tab="podium"]')?.classList.toggle("has-new", has);
+  renderMenuDot();
+}
+// Haalt (max 1×/sessie/week) de uitslag van de laatst-afgeronde week op over al je pools.
+// Vóór de 1e afgeronde week (< epoch) of als je 'm al zag: niets → nul kosten (geen fetch).
+async function refreshWeekPodiumResult() {
+  const lastDone = shiftDateKey(currentWeekStart(), -7);
+  if (!auth.user || lastDone < PODIUM_EPOCH || podiumSeen(lastDone)) { weekPodiumResult = null; renderPodiumDot(); return; }
+  if (weekPodiumResult && weekPodiumResult.weekStart === lastDone) return;   // deze sessie al berekend
+  let pools = [];
+  try { pools = await rpc("my_pools", {}) || []; } catch (e) {}
+  if (!Array.isArray(pools) || !pools.length) { weekPodiumResult = null; renderPodiumDot(); return; }
+  let hasResult = false; const placements = [];
+  for (const p of pools) {
+    let rows = [];
+    try { rows = await rpc("get_pool_week_podium", { p_pool_id: p.id, p_week_start: lastDone }) || []; } catch (e) {}
+    if (!Array.isArray(rows)) continue;
+    if (rows.some((r) => r.daily_wins > 0)) hasResult = true;
+    const me = rows.find((r) => r.is_me && r.daily_wins > 0 && r.rank <= 3);
+    if (me) placements.push({ poolName: p.name, rank: me.rank, dailyWins: me.daily_wins });
+  }
+  placements.sort((a, b) => a.rank - b.rank);
+  weekPodiumResult = { weekStart: lastDone, hasResult, placements };
+  renderPodiumDot();
+}
+const podiumMedal = (r) => (r === 1 ? "🥇" : r === 2 ? "🥈" : "🥉");
+// Recap-kaart op het eindscherm: alleen als je in ≥1 pool top-3 stond en 'm nog niet zag.
+// Eén gecombineerde kaart (meerdere pools → "🥇 Team Jaardle · 🥉 Familie"). Tik → podium.
+function showPodiumRecapCard() {
+  const res = weekPodiumResult;
+  if (!res || !res.placements.length || podiumSeen(res.weekStart)) return false;
+  podiumMarkSeen(res.weekStart);
+  renderPodiumDot();
+  const lines = res.placements.map((p) => `${podiumMedal(p.rank)} ${escHtml(p.poolName)}`).join(" · ");
+  const sub = res.placements.length === 1 ? escHtml(t("lb_wk_n_dagzeges")(res.placements[0].dailyWins)) : "";
+  const el = document.createElement("div");
+  el.className = "lb-recap-card";
+  el.innerHTML =
+    `<div class="lb-recap-art">${podiumMedal(Math.min(...res.placements.map((p) => p.rank)))}</div>` +
+    `<div class="lb-recap-txt">` +
+      `<span class="lb-recap-head">🏟️ ${escHtml(t("lb_recap_head"))}</span>` +
+      `<span class="lb-recap-title">${lines}</span>` +
+      (sub ? `<span class="lb-recap-sub">${sub}</span>` : "") +
+    `</div><span class="lb-recap-go">${escHtml(t("lb_recap_view"))} ›</span>`;
+  const open = () => { pendingLbTab = "podium"; closeAllModals(); openModal("modal-leaderboard"); };
+  el.setAttribute("role", "button"); el.tabIndex = 0;
+  el.onclick = open;
+  el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
+  const anchor = els.resultText.querySelector(".score-line");
+  if (anchor) anchor.after(el); else els.resultText.append(el);
+  achvScrollIntoView(el);
+  return true;
 }
 
 // ── unlock-items: één kaart + smalle regels ───────────────────────────────────
@@ -5403,6 +5764,7 @@ async function init() {
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
+    refreshWeekPodiumResult(); // verse-weekuitslag-stip (fire-and-forget; nul kosten vóór de 1e afgeronde week)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
     // Stats-/rating-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
@@ -5501,6 +5863,8 @@ async function init() {
   }
   if (lbParams.has("leaderboard")) {
     pendingOpenLeaderboard = true;
+    const lbTabParam = lbParams.get("leaderboard");   // ?leaderboard=daily|podium|stats → juiste tab
+    if (["daily", "podium", "stats"].includes(lbTabParam)) pendingLbTab = lbTabParam;
     lbParams.delete("leaderboard");
   }
   // ?rating / ?achievements: zelfde patroon — intentie parkeren, URL opschonen,
