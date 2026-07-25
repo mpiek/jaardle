@@ -3812,7 +3812,7 @@ function achvCardEl(it) {
   }
   el.innerHTML = `
     <div class="achv-card-main">
-      <span class="achv-card-art">${achvBadgeHtml(it.art, it.kind === "stamp")}</span>
+      <span class="achv-card-art${it.kind === "series" ? " achv-card-ring" : ""}">${achvBadgeHtml(it.art, it.kind === "stamp")}</span>
       <span class="achv-card-txt">
         <span class="achv-card-head">${escHtml(it.head)}</span>
         <span class="achv-card-title">${escHtml(it.title)}</span>

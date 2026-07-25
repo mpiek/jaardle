@@ -2063,6 +2063,14 @@ html[data-theme="light"] {
 }
 .achv-card-main { display: flex; align-items: center; gap: 0.7rem; }
 .achv-card-art { flex: 0 0 auto; width: 64px; height: 64px; }
+/* Ring in de trede-kleur om de badge, net als de reeks-rijen in het paneel
+   (.achv-ring). Alleen bij een trede: trofee-tegels hebben in het paneel ook
+   geen ring, en een zegel heeft z'n gouden rand al ín de tekening. */
+.achv-card-ring {
+  padding: 2px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--tc, var(--achv-gold));
+}
 .achv-card-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
 .achv-card-head {
   font-size: 0.62rem;
