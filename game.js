@@ -3542,11 +3542,11 @@ const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond"];
 // De rating-ladder is de enige met meer dan één flair: de drie medailles staan
 // op brons/zilver/diamant, zodat de klim ook onderweg iets zichtbaars oplevert.
 const ACHV_SERIES = [
-  { key: "games",   art: "dice",       steps: [10, 100, 1000, 5000, 25000] },
-  { key: "dailies", art: "cal",        steps: [7, 30, 100, 365, 1000] },
-  { key: "streak",  art: "flame",      steps: [7, 30, 100, 365, 1000], flairs: [{ emoji: "⏳", at: 2 }] },
-  { key: "perfect", art: "100",        steps: [1, 10, 50, 250, 1000],  flairs: [{ emoji: "💯", at: 2 }] },
-  { key: "pure",    art: "zen",        steps: [5, 25, 100, 500, 2000] },
+  { key: "games",   art: "dice",       steps: [10, 100, 500, 2000, 5000] },
+  { key: "dailies", art: "cal",        steps: [7, 30, 100, 200, 365] },
+  { key: "streak",  art: "flame",      steps: [7, 30, 90, 180, 365],  flairs: [{ emoji: "⏳", at: 2 }] },
+  { key: "perfect", art: "100",        steps: [1, 10, 50, 100, 250],  flairs: [{ emoji: "💯", at: 2 }] },
+  { key: "pure",    art: "zen",        steps: [5, 25, 100, 250, 500] },
   { key: "rating",  art: "bolt",       steps: [1600, 1700, 1775, 1825, 1850], floor: 1500, authOnly: true,
     flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }] },
   { key: "years",   art: "albumcover", steps: [4, 10, 18, 28, 38], flairs: [{ emoji: "🗿", at: 3 }], album: true },
