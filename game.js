@@ -2643,6 +2643,7 @@ const FLAIR_ANIM = {
   "💯": "flair-hundred", "⏳": "flair-hourglass", "🗿": "flair-moai",
   "🦕": "flair-sauropod",
   "🥇": "flair-goldmedal", "🥈": "flair-silvermedal", "🥉": "flair-bronzemedal",
+  "⭐": "flair-star",   // capstone-brons
 };
 
 // De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
@@ -3586,11 +3587,11 @@ function achvValue(a, s) {
 // ── Capstone-track: het láágste niveau over de 5 grind-ladders (potjes/dailies/
 // streak/perfect/hintloos). Rating (talent-plafond) en jaren (geluk) tellen
 // bewust NIET mee, en dit is alleen-ingelogd. Elke trede speelt één cosmetische
-// beloning vrij; fase 1 = brons (🏵️-flair) + zilver (flair-confetti). Goud/
+// beloning vrij; fase 1 = brons (⭐-flair) + zilver (flair-confetti). Goud/
 // platina/diamant + de ladder-rebalance zijn gedefereerd. Zie het ontwerp in
 // de memory (capstone-track-design).
 const CAPSTONE_KEYS = ["games", "dailies", "streak", "perfect", "pure"];
-const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "🏵️" }];   // brons; zilver = confetti, goud+ later
+const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "⭐" }];   // brons; zilver = confetti, goud+ later
 const capstoneSeries = (k) => ACHV_SERIES.find((x) => x.key === k);
 
 function capstoneTier(a) {              // 0 = nog geen trede, 5 = diamant
@@ -4085,7 +4086,7 @@ function achvAnonNoteHtml() {
 function capstoneBarHtml(a) {
   if (!auth.user) return "";
   const ct = capstoneTier(a);
-  const REWARD = ["🏵️", "🎊", "🔒", "🔒", "🔒"];   // brons=flair, zilver=confetti, rest binnenkort
+  const REWARD = ["⭐", "🎊", "🔒", "🔒", "🔒"];   // brons=flair, zilver=confetti, rest binnenkort
   const SOON = 2;                                    // vanaf goud (index 2) = binnenkort
   const pips = ACHV_TIER_KEYS.map((tk, i) => {
     const reached = i + 1 <= ct, soon = i >= SOON;
