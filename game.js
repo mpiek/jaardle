@@ -243,6 +243,8 @@ const I18N = {
     rating_anon: "Je rating is gekoppeld aan je account — log in om je verloop te zien.",
     menu_achv: "🏅 Prestaties",
     achv_sect_series: "Reeksen", achv_sect_trophies: "Trofeeën",
+    achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
+    achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
     achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
     achv_next: (k, tier) => `nog ${k} tot ${tier}`,
     achv_maxed: "hoogste trede behaald",
@@ -430,6 +432,8 @@ const I18N = {
     rating_anon: "Your rating is tied to your account — sign in to see your progression.",
     menu_achv: "🏅 Achievements",
     achv_sect_series: "Series", achv_sect_trophies: "Trophies",
+    achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
+    achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
     achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
     achv_next: (k, tier) => `${k} to go until ${tier}`,
     achv_maxed: "highest tier reached",
@@ -612,6 +616,8 @@ const I18N = {
     rating_anon: "Dein Rating ist mit deinem Konto verknüpft — melde dich an, um deinen Verlauf zu sehen.",
     menu_achv: "🏅 Erfolge",
     achv_sect_series: "Serien", achv_sect_trophies: "Trophäen",
+    achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
+    achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
     achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
     achv_next: (k, tier) => `noch ${k} bis ${tier}`,
     achv_maxed: "höchste Stufe erreicht",
@@ -798,6 +804,8 @@ const I18N = {
     rating_anon: "Tu rating está vinculado a tu cuenta: inicia sesión para ver tu evolución.",
     menu_achv: "🏅 Logros",
     achv_sect_series: "Series", achv_sect_trophies: "Trofeos",
+    achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
+    achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
     achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
     achv_next: (k, tier) => `faltan ${k} para ${tier}`,
     achv_maxed: "nivel máximo alcanzado",
@@ -984,6 +992,8 @@ const I18N = {
     rating_anon: "Seu rating está vinculado à sua conta — faça login para ver sua evolução.",
     menu_achv: "🏅 Conquistas",
     achv_sect_series: "Séries", achv_sect_trophies: "Troféus",
+    achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
+    achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
     achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
     achv_next: (k, tier) => `faltam ${k} para ${tier}`,
     achv_maxed: "nível máximo alcançado",
@@ -2174,13 +2184,18 @@ function renderGuesses() {
 
 function showConfetti() {
   const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"];
+  // Zilver-capstone (alle 5 grind-ladders ≥ zilver): je gedragen flair regent als
+  // confetti — self-facing beloning, alleen-ingelogd. Geen flair → gewone confetti.
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const flairFx = !reduced && auth.user && myFlair && capstoneTier(achvCache) >= 2 ? myFlair : null;
   const container = document.createElement("div");
-  container.className = "confetti-container";
+  container.className = "confetti-container" + (flairFx ? " confetti-flair" : "");
   for (let i = 0; i < 80; i++) {
     const piece = document.createElement("div");
     piece.className = "confetti-piece";
     piece.style.left = Math.random() * 100 + "vw";
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    if (flairFx) piece.textContent = flairFx;
+    else piece.style.background = colors[Math.floor(Math.random() * colors.length)];
     piece.style.animationDelay = Math.random() * 0.6 + "s";
     piece.style.animationDuration = 2.5 + Math.random() * 2 + "s";
     container.appendChild(piece);
@@ -3558,6 +3573,36 @@ function achvValue(a, s) {
   if (s.key === "rating") return a.rating || 0;
   return a[s.key] || 0;
 }
+
+// ── Capstone-track: het láágste niveau over de 5 grind-ladders (potjes/dailies/
+// streak/perfect/hintloos). Rating (talent-plafond) en jaren (geluk) tellen
+// bewust NIET mee, en dit is alleen-ingelogd. Elke trede speelt één cosmetische
+// beloning vrij; fase 1 = brons (🏵️-flair) + zilver (flair-confetti). Goud/
+// platina/diamant + de ladder-rebalance zijn gedefereerd. Zie het ontwerp in
+// de memory (capstone-track-design).
+const CAPSTONE_KEYS = ["games", "dailies", "streak", "perfect", "pure"];
+const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "🏵️" }];   // brons; zilver = confetti, goud+ later
+// Extra rating-tier-flairs náást de 🥇 (die op diamant uit ACHV_SERIES komt).
+// Bewust géén 🥈🥉: lbMedal gebruikt die al voor rang 2/3 → verwarring op 't bord.
+const RATING_FLAIRS = [{ tier: 1, emoji: "🎯" }, { tier: 2, emoji: "📈" }];
+const capstoneSeries = (k) => ACHV_SERIES.find((x) => x.key === k);
+
+function capstoneTier(a) {              // 0 = nog geen trede, 5 = diamant
+  if (!a) return 0;
+  let min = 5;
+  for (const k of CAPSTONE_KEYS) {
+    const s = capstoneSeries(k);
+    min = Math.min(min, achvTier(achvValue(a, s), s.steps));
+  }
+  return min;
+}
+// De ladder(s) die je op de laagste trede tegenhouden — voedt de master-balk.
+function capstoneLagging(a) {
+  const tier = capstoneTier(a);
+  if (tier >= 5) return [];
+  return CAPSTONE_KEYS.filter((k) => achvTier(achvValue(a, capstoneSeries(k)), capstoneSeries(k).steps) === tier);
+}
+function ratingTierOf(a) { return achvTier(a.rating || 0, capstoneSeries("rating").steps); }
 function achvTrophyDone(a, tr) {
   return tr.key === "eras" ? a.eras.every(Boolean) : !!a[tr.key];
 }
@@ -3692,6 +3737,10 @@ function achvEarnedFlairs() {
   for (const tr of ACHV_TROPHIES) {
     if (tr.flair && achvTrophyDone(a, tr)) out.push(tr.flair.emoji);
   }
+  const rt = ratingTierOf(a);
+  for (const rf of RATING_FLAIRS) if (rt >= rf.tier) out.push(rf.emoji);
+  const ct = capstoneTier(a);
+  for (const cf of CAPSTONE_FLAIRS) if (ct >= cf.tier) out.push(cf.emoji);
   return out;
 }
 
@@ -4020,12 +4069,41 @@ function achvAnonNoteHtml() {
   return auth.user ? "" : `<p class="achv-note">${escHtml(t("achv_anon_note"))}</p>`;
 }
 
+// Master-balk bovenaan het bord: de capstone-track (laagste trede over de 5
+// grind-ladders). Alleen-ingelogd; toont welke ladder je tegenhoudt naar de
+// volgende trede. Goud/platina/diamant staan als "binnenkort" (fase 2+).
+function capstoneBarHtml(a) {
+  if (!auth.user) return "";
+  const ct = capstoneTier(a);
+  const REWARD = ["🏵️", "🎊", "🔒", "🔒", "🔒"];   // brons=flair, zilver=confetti, rest binnenkort
+  const SOON = 2;                                    // vanaf goud (index 2) = binnenkort
+  const pips = ACHV_TIER_KEYS.map((tk, i) => {
+    const reached = i + 1 <= ct, soon = i >= SOON;
+    return `<div class="cap-pip cap-${tk}${reached ? " on" : ""}${soon ? " soon" : ""}">
+        <span class="cap-pip-ico">${REWARD[i]}</span>
+        <span class="cap-pip-lbl">${escHtml(achvTierName(i))}</span>
+      </div>`;
+  }).join("");
+  let hint;
+  if (ct >= 5) hint = t("achv_cap_done");
+  else {
+    const lag = capstoneLagging(a).map((k) => `${t("achv_" + k)} +${fmtN(capstoneSeries(k).steps[ct] - achvValue(a, capstoneSeries(k)))}`).join(" · ");
+    hint = t("achv_cap_next")(achvTierName(ct), lag);
+  }
+  return `<div class="achv-capstone">
+      <div class="cap-head"><span class="cap-title">${escHtml(t("achv_cap_title"))}</span></div>
+      <div class="cap-rail">${pips}</div>
+      <p class="cap-next">${escHtml(hint)}</p>
+    </div>`;
+}
+
 function renderAchvBoard(body, a) {
   const rows = ACHV_SERIES
     .filter((s) => !s.authOnly || auth.user)
     .map((s) => achvRowHtml(a, s)).join("");
   const trophies = ACHV_TROPHIES.map((tr) => achvTrophyHtml(a, tr)).join("");
   body.innerHTML = `
+    ${capstoneBarHtml(a)}
     <h3 class="stats-heading">${escHtml(t("achv_sect_series"))}</h3>
     <div class="achv-rows">${rows}</div>
     <h3 class="stats-heading">${escHtml(t("achv_sect_trophies"))}</h3>

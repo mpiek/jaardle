@@ -1107,6 +1107,15 @@ footer {
   animation: confetti-fall linear forwards;
   will-change: transform, opacity;
 }
+/* Zilver-capstone: de gedragen flair regent als confetti (showConfetti). */
+.confetti-flair .confetti-piece {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none !important;
+  font-size: 22px;
+  line-height: 1;
+}
 @keyframes confetti-fall {
   0%   { transform: translateY(0) rotate(0deg);     opacity: 1; }
   90%  { opacity: 1; }
@@ -1841,6 +1850,41 @@ html[data-theme="light"] {
 .achv-t3, .achv-line-t3 { --tc: var(--achv-gold); }
 .achv-t4, .achv-line-t4 { --tc: var(--achv-plat); }
 .achv-t5, .achv-line-t5 { --tc: var(--achv-diamond); }
+
+/* Capstone-track: master-balk bovenaan het bord (alleen-ingelogd). Laagste
+   trede over de 5 grind-ladders; goud/platina/diamant = "binnenkort" (fase 2+). */
+.achv-capstone {
+  background: var(--card-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+}
+.cap-head { margin-bottom: 0.55rem; }
+.cap-title { font-weight: 700; font-size: 0.95rem; }
+.cap-rail { display: flex; gap: 0.4rem; }
+.cap-pip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.4rem 0.15rem;
+  border-radius: 9px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  opacity: 0.5;
+}
+.cap-pip.on { opacity: 1; border-color: var(--pc); box-shadow: inset 0 0 0 1px var(--pc); }
+.cap-pip-ico { font-size: 1.15rem; line-height: 1; }
+.cap-pip-lbl { font-size: 0.62rem; color: var(--muted); text-transform: capitalize; }
+.cap-pip.on .cap-pip-lbl { color: var(--pc); font-weight: 600; }
+.cap-pip.soon .cap-pip-ico { filter: grayscale(1); }
+.cap-bronze   { --pc: var(--achv-bronze); }
+.cap-silver   { --pc: var(--achv-silver); }
+.cap-gold     { --pc: var(--achv-gold); }
+.cap-platinum { --pc: var(--achv-plat); }
+.cap-diamond  { --pc: var(--achv-diamond); }
+.cap-next { margin: 0.55rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; }
 
 .achv-art { width: 100%; height: 100%; display: block; }
 
