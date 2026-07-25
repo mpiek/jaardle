@@ -2059,7 +2059,40 @@ html[data-theme="light"] {
     0 8px 20px -12px color-mix(in srgb, var(--tc, var(--achv-gold)) 70%, transparent);
   text-align: left;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;   /* houdt de glans binnen de afgeronde hoeken */
   animation: achv-card-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+/* Glans die ná de pop-in één keer over de kaart trekt (trofee-gleam). Eindig,
+   want animatie op blijvende UI loopt 1× — een eeuwige puls blijft trekken aan
+   wie al doorgeklikt is. In de trede-kleur, dus hij werkt in beide thema's. */
+.achv-card::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 38%;
+  pointer-events: none;
+  /* Donker: één zachte band in de trede-kleur. Een lichte kern erin las als een
+     scanlijn met twee flanken i.p.v. als glans — bewust weggelaten. */
+  background: linear-gradient(90deg, transparent,
+    color-mix(in srgb, var(--tc, var(--achv-gold)) 38%, transparent), transparent);
+  animation: achv-card-sweep 0.95s cubic-bezier(0.3, 0.5, 0.4, 1) 0.5s both;
+}
+/* Licht: pigment op crème dempt tot een veeg, dus hier wél een brede lichte kern
+   (breed en zacht, anders krijg je diezelfde bandjes). */
+html[data-theme="light"] .achv-card::after {
+  background: linear-gradient(90deg, transparent,
+    color-mix(in srgb, var(--tc, var(--achv-gold)) 30%, transparent) 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    color-mix(in srgb, var(--tc, var(--achv-gold)) 30%, transparent) 70%, transparent);
+}
+@keyframes achv-card-sweep {
+  from { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  to { transform: translateX(300%) skewX(-18deg); opacity: 0; }
 }
 .achv-card-main { display: flex; align-items: center; gap: 0.7rem; }
 .achv-card-art { flex: 0 0 auto; width: 64px; height: 64px; }
@@ -2126,7 +2159,10 @@ html[data-theme="light"] {
   from { opacity: 0; transform: translateY(6px) scale(0.97); }
   to { opacity: 1; transform: none; }
 }
-@media (prefers-reduced-motion: reduce) { .achv-card { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .achv-card { animation: none; }
+  .achv-card::after { display: none; }   /* geen glans-sweep */
+}
 
 /* "Nog niet bekeken": rood stipje op de menuknop + het 🏅-item, NIEUW-markering
    in het paneel. Stipje als ::after op een klasse, want de menuknop
