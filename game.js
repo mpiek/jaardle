@@ -3176,7 +3176,6 @@ function lbSelectTab(name) {
     else if (name === "stats") renderStatBoard();
     else if (name === "podium") loadPodium();
   }
-  try { localStorage.setItem("jaardle:lbTab", name); } catch (e) {}   // onthoud je laatst-gebruikte bord
   setModalUrl("leaderboard=" + name);   // URL loopt mee → deelbaar/bookmarkbaar per tab
 }
 
@@ -3423,10 +3422,8 @@ async function renderLeaderboard() {
   // een verse weekuitslag) opent direct op het podium via pendingLbTab.
   lbTabLoaded = new Set();
   document.querySelectorAll("#lb-body .lb-seg-btn").forEach((b) => { b.onclick = () => lbSelectTab(b.dataset.tab); });
-  // Openen op: deeplink-tab (?leaderboard=…) > je laatst-gebruikte tab > daily.
-  let storedTab = null;
-  try { storedTab = localStorage.getItem("jaardle:lbTab"); } catch (e) {}
-  lbSelectTab(pendingLbTab || (["daily", "podium", "stats"].includes(storedTab) ? storedTab : "daily"));
+  // Openen op: deeplink-tab (?leaderboard=…) > anders altijd daily (geen onthouden tabblad).
+  lbSelectTab(pendingLbTab || "daily");
   pendingLbTab = null;
   renderPodiumDot();   // stip op de 🏟️-segmentknop als er een verse uitslag ligt
 
