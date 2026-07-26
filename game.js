@@ -162,6 +162,7 @@ const I18N = {
     won_intro: "Goed geraden! Het was", lost_intro: "Helaas — het juiste jaar was", source: "Bron:",
     stats_empty: "Nog geen dagelijkse puzzels afgerond.",
     stats_daily: "Dagelijks", stats_free: "Vrij spelen",
+    stats_free_empty: "Nog geen vrije potjes gespeeld.", stats_tab_aria: "Kies statistiek",
     stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak",
     stat_beststreak: "Beste streak", stat_avgscore: "Gem. score", stat_won: "Gewonnen",
     stat_last10: "Gem. laatste 10", stat_perfect: "Keer 100", stat_avgtries: "Gem. pogingen",
@@ -251,7 +252,6 @@ const I18N = {
     rating_low: "Laagste",
     menu_rating: "⚡ Rating",
     rating_empty: "Nog te weinig historie — na twee dagen spelen verschijnt hier je rating-grafiek.",
-    rating_anon: "Je rating is gekoppeld aan je account — log in om je verloop te zien.",
     menu_achv: "🏅 Prestaties",
     achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
@@ -357,6 +357,7 @@ const I18N = {
     won_intro: "Well guessed! It was", lost_intro: "Too bad — the year was", source: "Source:",
     stats_empty: "No daily puzzles finished yet.",
     stats_daily: "Daily", stats_free: "Free play",
+    stats_free_empty: "No free-play rounds yet.", stats_tab_aria: "Choose stat",
     stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak",
     stat_beststreak: "Best streak", stat_avgscore: "Avg. score", stat_won: "Won",
     stat_last10: "Avg. last 10", stat_perfect: "Perfect 100s", stat_avgtries: "Avg. tries",
@@ -451,7 +452,6 @@ const I18N = {
     rating_low: "Lowest",
     menu_rating: "⚡ Rating",
     rating_empty: "Not enough history yet — your rating graph appears after two days of play.",
-    rating_anon: "Your rating is tied to your account — sign in to see your progression.",
     menu_achv: "🏅 Achievements",
     achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
@@ -557,6 +557,7 @@ const I18N = {
     won_intro: "Gut geraten! Es war", lost_intro: "Schade — das richtige Jahr war", source: "Quelle:",
     stats_empty: "Noch keine täglichen Rätsel abgeschlossen.",
     stats_daily: "Täglich", stats_free: "Freies Spiel",
+    stats_free_empty: "Noch keine Runden im freien Spiel.", stats_tab_aria: "Statistik wählen",
     stat_played: "Gespielt", stat_winrate: "Gewinnrate", stat_curstreak: "Aktuelle Serie",
     stat_beststreak: "Beste Serie", stat_avgscore: "Ø Punkte", stat_won: "Gewonnen",
     stat_last10: "Ø letzte 10", stat_perfect: "100er", stat_avgtries: "Ø Versuche",
@@ -646,7 +647,6 @@ const I18N = {
     rating_low: "Tiefstwert",
     menu_rating: "⚡ Rating",
     rating_empty: "Noch zu wenig Verlauf — nach zwei Spieltagen erscheint hier dein Rating-Diagramm.",
-    rating_anon: "Dein Rating ist mit deinem Konto verknüpft — melde dich an, um deinen Verlauf zu sehen.",
     menu_achv: "🏅 Erfolge",
     achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
@@ -751,6 +751,7 @@ const I18N = {
     won_intro: "¡Bien adivinado! Era", lost_intro: "Vaya — el año correcto era", source: "Fuente:",
     stats_empty: "Aún no has completado ningún puzle diario.",
     stats_daily: "Diario", stats_free: "Partida libre",
+    stats_free_empty: "Aún no has jugado ninguna partida libre.", stats_tab_aria: "Elegir estadística",
     stat_played: "Jugadas", stat_winrate: "Aciertos", stat_curstreak: "Racha actual",
     stat_beststreak: "Mejor racha", stat_avgscore: "Puntos medios", stat_won: "Ganadas",
     stat_last10: "Media últimas 10", stat_perfect: "100 perfectos", stat_avgtries: "Intentos medios",
@@ -845,7 +846,6 @@ const I18N = {
     rating_low: "Mínimo",
     menu_rating: "⚡ Rating",
     rating_empty: "Aún no hay historial suficiente: tu gráfica de rating aparecerá tras dos días de juego.",
-    rating_anon: "Tu rating está vinculado a tu cuenta: inicia sesión para ver tu evolución.",
     menu_achv: "🏅 Logros",
     achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
@@ -950,6 +950,7 @@ const I18N = {
     won_intro: "Boa! O ano era", lost_intro: "Que pena — o ano certo era", source: "Fonte:",
     stats_empty: "Você ainda não concluiu nenhum quebra-cabeça diário.",
     stats_daily: "Diário", stats_free: "Jogo livre",
+    stats_free_empty: "Ainda não jogou nenhuma partida livre.", stats_tab_aria: "Escolher estatística",
     stat_played: "Jogadas", stat_winrate: "Acertos", stat_curstreak: "Sequência atual",
     stat_beststreak: "Melhor sequência", stat_avgscore: "Pontos médios", stat_won: "Vitórias",
     stat_last10: "Média últimas 10", stat_perfect: "100 perfeitos", stat_avgtries: "Tentativas médias",
@@ -1044,7 +1045,6 @@ const I18N = {
     rating_low: "Mínimo",
     menu_rating: "⚡ Rating",
     rating_empty: "Ainda não há histórico suficiente — seu gráfico de rating aparece após dois dias de jogo.",
-    rating_anon: "Seu rating está vinculado à sua conta — faça login para ver sua evolução.",
     menu_achv: "🏅 Conquistas",
     achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
@@ -1137,8 +1137,6 @@ function applyLang() {
   }
   const sm = document.getElementById("modal-stats");
   if (sm && !sm.hidden) renderStats();
-  const rm = document.getElementById("modal-rating");
-  if (rm && !rm.hidden) renderRatingModal();
   const am = document.getElementById("modal-achv");
   if (am && !am.hidden) renderAchievements();
 }
@@ -2585,6 +2583,12 @@ const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀"
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingOpenModal = null;          // ?rating / ?achievements-deeplink → modal-id
 let pendingJoinCode = null;           // ?join=CODE-deeplink
+let statsReq = 0;                     // race-guard: alleen de laatste Stats-render mag de body vullen
+// Eenmalige intentie "open Stats direct op deze tab" (endscreen-⚡-regel, ?rating-
+// deeplink). Auth-wissels bij het openen kunnen renderStats() een paar keer
+// laten overlappen (zie statsReq), dus wie 'm als laatste haalt (de render die
+// het wint) consumeert 'm precies één keer.
+let pendingStatsTab = null;
 let lbDailyDate = null;               // welke daily-dag het bord toont (browsen met ‹ ›)
 let lbDailyReq = 0;                   // race-guard: alleen de laatste fetch mag renderen
 let lbStatIndex = 0;                  // welke stat-kolom het all-time bord toont (‹ ›)
@@ -3597,7 +3601,7 @@ async function showLiveRating() {
     badge.textContent = delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
     el.append(badge);
   }
-  // De regel is een deur naar de rating-modal (chevron als hint).
+  // De regel is een deur naar de rating-tab in Stats (chevron als hint).
   const go = document.createElement("span");
   go.className = "rating-go";
   go.textContent = "›";
@@ -3606,7 +3610,7 @@ async function showLiveRating() {
   el.setAttribute("role", "button");
   el.tabIndex = 0;
   el.title = t("stats_rating");
-  const openRating = () => openModal("modal-rating");
+  const openRating = () => openModal("modal-stats", { tab: "rating" });
   el.onclick = openRating;
   el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openRating(); } };
   els.resultText.after(el);
@@ -4814,17 +4818,32 @@ async function renderStats() {
   // Anoniem: de lokale historie van dit apparaat (wordt bij elke daily al
   // bijgehouden) — zo ziet ook een speler zonder account z'n streak groeien.
   // Ingelogd: DB (cross-device), aangevuld met lokale dagen (zie helper).
+  const req = ++statsReq;
   const history = await dailyHistoryForDisplay();
-  // Modal kan ondertussen gesloten/gewisseld zijn; alleen vullen als nog relevant.
-  if (document.getElementById("modal-stats").hidden) return;
+  // Een nieuwere render (of gesloten modal) overschreef ons intussen — stoppen,
+  // anders vult straks elke helper hieronder een tabblad nog een keer (race,
+  // alleen de laatste aanroep mag nog vullen).
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
+
+  // Drie tabbladen (Dagelijks/Vrij spelen/Rating) — zelfde segmented-toggle als
+  // de Leaderboard-modal (.lb-seg/.lb-tabpane zijn generiek genoeg om te delen).
+  body.innerHTML = `
+    <div class="lb-seg" role="tablist" aria-label="${t("stats_tab_aria")}">
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="daily">📅 ${t("stats_daily")}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="free">🎲 ${t("stats_free")}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="rating">${t("menu_rating")}</button>
+    </div>
+    <section class="lb-tabpane" data-pane="daily" hidden></section>
+    <section class="lb-tabpane" data-pane="free" hidden></section>
+    <section class="lb-tabpane" data-pane="rating" hidden></section>`;
+  body.querySelectorAll(".lb-seg-btn").forEach((b) => { b.onclick = () => selectStatsTab(b.dataset.tab); });
+
+  const dailyPane = body.querySelector('[data-pane="daily"]');
   if (history.length === 0) {
-    // Geen daily, maar misschien wel vrije potjes -> toon de daily-leegmelding
-    // onder een kopje en hang de free-sectie eronder.
-    body.innerHTML = `<h3 class="stats-heading">${t("stats_daily")}</h3><p class="stats-empty">${t("stats_empty")}</p>`;
+    dailyPane.innerHTML = `<p class="stats-empty">${t("stats_empty")}</p>`;
   } else {
     const s = computeStats(history);
-    body.innerHTML = `
-    <h3 class="stats-heading">${t("stats_daily")}</h3>
+    dailyPane.innerHTML = `
     <div class="stats-grid">
       <div class="stat"><div class="num">${s.total}</div><div class="lbl">${t("stat_played")}</div></div>
       <div class="stat"><div class="num">${s.winRate}%</div><div class="lbl">${t("stat_winrate")}</div></div>
@@ -4835,47 +4854,68 @@ async function renderStats() {
       <div class="stat"><div class="num">${s.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
   `;
-    body.appendChild(renderCalendar(history));
+    dailyPane.appendChild(renderCalendar(history));
   }
+
+  const freePane = body.querySelector('[data-pane="free"]');
+  const ratingPane = body.querySelector('[data-pane="rating"]');
   if (!auth.user) {
-    // Anon heeft z'n lokale stats nu gezien — daaronder de bewaar-pitch
-    // (zelfde kaartje als op de recap): dít is het moment dat een account
-    // iets tastbaars te bieden heeft.
-    body.insertAdjacentHTML("beforeend", recapAccountHtml());
-    const btn = body.querySelector(".js-acct-btn");
-    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
-    return;   // free/century-stats zijn DB-gebonden (auth.uid) — niets voor anon
+    // Vrij spelen/Rating zijn DB-gebonden (auth.uid): anon ziet in die twee tabs
+    // de bewaar-pitch (zelfde kaartje als op de recap) in plaats van data.
+    freePane.innerHTML = recapAccountHtml();
+    ratingPane.innerHTML = recapAccountHtml();
+    wireAcctPitch(freePane);
+    wireAcctPitch(ratingPane);
+  } else {
+    freePane.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+    ratingPane.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+    await Promise.all([
+      renderFreeStats(freePane, req),
+      renderRatingPane(ratingPane, req),
+    ]);
   }
-  await renderFreeStats(body);
-  await renderCenturyStats(body);
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
+
+  let stored = null;
+  try { stored = localStorage.getItem("jaardle:statsTab"); } catch (e) {}
+  const openTab = pendingStatsTab || (["daily", "free", "rating"].includes(stored) ? stored : "daily");
+  pendingStatsTab = null;
+  selectStatsTab(openTab);
 }
 
-// ⚡ Eigen rating-modal (menu-item onder 📊 Statistieken): anon krijgt de
-// account-pitch (rating ís het account-voordeel), ingelogd de grafiek — of een
-// leegmelding zolang er nog geen lijn te tekenen is.
-async function renderRatingModal() {
-  const body = document.getElementById("rating-body");
-  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  if (!auth.user) {
-    body.innerHTML = `<p class="stats-empty">${t("rating_anon")}</p>` + recapAccountHtml();
-    const btn = body.querySelector(".js-acct-btn");
-    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
-    return;
-  }
-  const drawn = await renderRatingStats(body);
-  if (document.getElementById("modal-rating").hidden) return;
-  if (!drawn) body.innerHTML = `<p class="stats-empty">${t("rating_empty")}</p>`;
+// Wisselt het zichtbare Stats-tabblad en onthoudt de keuze — zelfde patroon als
+// lbSelectTab op de Leaderboard, maar bewust niét teruggezet op elke open
+// (Stats is een persoonlijk paneel, geen gedeeld bord dat vers moet openen).
+function selectStatsTab(name) {
+  document.querySelectorAll("#stats-body .lb-seg-btn").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+  document.querySelectorAll("#stats-body .lb-tabpane").forEach((p) => { p.hidden = p.dataset.pane !== name; });
+  try { localStorage.setItem("jaardle:statsTab", name); } catch (e) {}
+}
+
+function wireAcctPitch(container) {
+  const btn = container.querySelector(".js-acct-btn");
+  if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
+}
+
+// ⚡ Rating-tab: grafiek (of leegmelding zolang er nog geen lijn te tekenen is),
+// met de sterkste-eeuw-regel eronder — die telt daily + vrij spel samen en
+// hoort dus niet bij een van de andere twee tabs.
+async function renderRatingPane(pane, req) {
+  const drawn = await renderRatingStats(pane, req);
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
+  if (!drawn) pane.innerHTML = `<p class="stats-empty">${t("rating_empty")}</p>`;
+  await renderCenturyStats(pane, req);
 }
 
 // ⚡ Rating-verloop (lichess-stijl): per dag de laatste elo uit de DB-historie
 // (record_play appendt live, de nachtelijke replay herbouwt — een kleine
-// ochtend-verschuiving is dus normaal). Vult de rating-modal; geeft false zolang
-// er nog geen twee dagen aan punten zijn (één punt is geen lijn) — de caller
-// toont dan een leegmelding.
+// ochtend-verschuiving is dus normaal). Geeft false zolang er nog geen twee
+// dagen aan punten zijn (één punt is geen lijn) — de caller toont dan een
+// leegmelding.
 // Piek/dal komen apart uit get_my_rating_extremes (db/32): per pót i.p.v. per
 // dag (de echte piek kan 's avonds alweer weggezakt zijn) en pas vanaf pot 25
 // (zelfde grens als is_provisional op het bord) — geeft null tot die tijd.
-async function renderRatingStats(body) {
+async function renderRatingStats(pane, req) {
   let hist, ext;
   try {
     [hist, ext] = await Promise.all([
@@ -4884,7 +4924,7 @@ async function renderRatingStats(body) {
     ]);
   } catch (e) { return false; }
   if (!Array.isArray(hist) || hist.length < 2) return false;
-  if (document.getElementById("modal-rating").hidden) return false;
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return false;
 
   const pts = hist.map((p) => ({ t: Date.parse(p.d), d: p.d, elo: p.elo, n: p.n }));
   const first = pts[0], last = pts[pts.length - 1];
@@ -4892,10 +4932,9 @@ async function renderRatingStats(body) {
   const pad = Math.max(8, Math.round((hi - lo) * 0.15));   // ademruimte boven/onder de lijn
   const yLo = lo - pad, yHi = hi + pad;
 
-  // Teken op de echte modalbreedte zodat de as-labels op ware grootte renderen
-  // (een vaste brede viewBox zou op mobiel alles mee laten krimpen). Sinds de
-  // eigen modal mag de grafiek ook hoger dan toen 'ie onderin de stats hing.
-  const W = Math.max(280, Math.min(560, body.clientWidth || 480));
+  // Teken op de echte paneelbreedte zodat de as-labels op ware grootte renderen
+  // (een vaste brede viewBox zou op mobiel alles mee laten krimpen).
+  const W = Math.max(280, Math.min(560, pane.clientWidth || 480));
   const H = 210, L = 44, R = 10, T = 10, B = 22;
   const x = (t) => L + (W - L - R) * (t - first.t) / Math.max(1, last.t - first.t);
   const y = (e) => T + (H - T - B) * (yHi - e) / (yHi - yLo);
@@ -4911,7 +4950,6 @@ async function renderRatingStats(body) {
     <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${ext.hi.elo}</strong> <span>(${fmtDailyDate(ext.hi.d)})</span>
       · 📉 ${t("rating_low")}: <strong>${ext.lo.elo}</strong> <span>(${fmtDailyDate(ext.lo.d)})</span></p>` : "";
   const sec = document.createElement("div");
-  // Geen .stats-section en geen kop: de modaltitel (⚡ Rating) dekt de lading al.
   sec.className = "stats-rating";
   sec.innerHTML = `
     <p class="rating-cur"><span class="rating-num">${last.elo}</span>${badge}
@@ -4930,8 +4968,8 @@ async function renderRatingStats(body) {
       </svg>
       <div class="chart-tip" hidden></div>
     </div>${extremes}`;
-  body.textContent = "";   // laadtekst van de pane weg
-  body.appendChild(sec);
+  pane.textContent = "";   // "Laden…"-plaatshouder weg
+  pane.appendChild(sec);
 
   // Crosshair + tooltip: de wijzer snapt naar de dichtstbijzijnde dag (je mikt
   // op een datum, niet op de 2px-lijn); pointer-events dekken ook touch-slepen.
@@ -4972,33 +5010,30 @@ async function renderRatingStats(body) {
   return true;
 }
 
-// Sterkste eeuw — over ALLE potjes (daily + free). Eén regel onderaan; verbergt
-// zich als geen enkele eeuw >= 3 potjes heeft (RPC geeft dan null).
-async function renderCenturyStats(body) {
+// Sterkste eeuw — over ALLE potjes (daily + free). Eén regel onderaan de
+// Rating-tab; verbergt zich als geen enkele eeuw >= 3 potjes heeft (RPC geeft
+// dan null).
+async function renderCenturyStats(pane, req) {
   let c;
   try { c = await rpc("get_my_century_stats", {}); } catch (e) { return; }
   if (!c || c.century == null) return;
-  if (document.getElementById("modal-stats").hidden) return;
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
   const bc = c.century < 0;
   const label = t("century_fmt")(Math.abs(c.century), bc);
   const avg = `${t("avg_word")} ${c.avg_score}`;
   const p = document.createElement("p");
   p.className = "stats-century";
   p.innerHTML = `🏛️ <strong>${t("fav_century")}:</strong> ${label} · ${avg}`;
-  body.appendChild(p);
+  pane.appendChild(p);
 }
 
 // Vrij-spelen-stats (aparte DB-aggregatie; geen streak — free heeft geen dagcadans).
-// Hangt onder de daily-sectie; verbergt zichzelf als er nog geen free-potjes zijn.
-async function renderFreeStats(body) {
+async function renderFreeStats(pane, req) {
   let f;
-  try { f = await rpc("get_my_free_stats", {}); } catch (e) { return; }
-  if (!f || !f.games) return;
-  if (document.getElementById("modal-stats").hidden) return;
-  const sec = document.createElement("div");
-  sec.className = "stats-section";
-  sec.innerHTML = `
-    <h3 class="stats-heading">${t("stats_free")}</h3>
+  try { f = await rpc("get_my_free_stats", {}); } catch (e) { f = null; }
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
+  if (!f || !f.games) { pane.innerHTML = `<p class="stats-empty">${t("stats_free_empty")}</p>`; return; }
+  pane.innerHTML = `
     <div class="stats-grid">
       <div class="stat"><div class="num">${f.games}</div><div class="lbl">${t("stat_played")}</div></div>
       <div class="stat"><div class="num">${f.win_pct ?? 0}%</div><div class="lbl">${t("stat_winrate")}</div></div>
@@ -5009,7 +5044,6 @@ async function renderFreeStats(body) {
       <div class="stat"><div class="num">${f.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
   `;
-  body.appendChild(sec);
 }
 
 // Redactle-achtige bijdrage-grid: kolommen = weken, rijen = ma..zo. Gekleurd op
@@ -5160,10 +5194,9 @@ function setModalUrl(param) {
   } catch (e) { /* sandbox / file:// */ }
 }
 
-function openModal(id) {
+function openModal(id, opts) {
   document.getElementById(id).hidden = false;
-  if (id === "modal-stats") renderStats();
-  if (id === "modal-rating") { renderRatingModal(); setModalUrl("rating"); }
+  if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
@@ -5747,7 +5780,6 @@ async function init() {
     // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
     if (action === "stats") openModal("modal-stats");
     else if (action === "achievements") openModal("modal-achv");
-    else if (action === "rating") openModal("modal-rating");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
@@ -5811,11 +5843,9 @@ async function init() {
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
     refreshWeekPodiumResult(); // verse-weekuitslag-stip (fire-and-forget; nul kosten vóór de 1e afgeronde week)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
-    // Stats-/rating-modal open terwijl auth wisselt? Herteken met de juiste bron.
+    // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();
-    const rm = document.getElementById("modal-rating");
-    if (rm && !rm.hidden) renderRatingModal();
     // Net ingelogd terwijl de dagpuzzel nog open staat? Herstel 'm uit de DB.
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
@@ -5914,7 +5944,7 @@ async function init() {
   }
   // ?rating / ?achievements: zelfde patroon — intentie parkeren, URL opschonen,
   // openen zodra auth bekend is (voorkomt een anon-flits voor ingelogde spelers).
-  if (lbParams.has("rating")) { pendingOpenModal = "modal-rating"; lbParams.delete("rating"); }
+  if (lbParams.has("rating")) { pendingOpenModal = "modal-stats"; pendingStatsTab = "rating"; lbParams.delete("rating"); }
   if (lbParams.has("achievements")) { pendingOpenModal = "modal-achv"; lbParams.delete("achievements"); }
   if (joinCode || pendingOpenLeaderboard || pendingOpenModal) {
     const qs = lbParams.toString();
