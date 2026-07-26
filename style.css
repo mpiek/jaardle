@@ -2392,5 +2392,22 @@ html[data-theme="light"] .achv-card::after {
 .achv-stamp { position: relative; }
 .achv-stamp .achv-new { position: absolute; top: -0.1rem; right: 0.15rem; margin: 0; }
 
+/* ×N-badge op herhaalbare trofeeën (first_try/last_gasp/eras) — onderaan de
+   ring, tegenover .achv-new (bovenaan), zodat een verse herhaling van beide
+   tegelijk niets overlapt. */
+.achv-tcount {
+  position: absolute;
+  bottom: -0.15rem;
+  right: -0.3rem;
+  padding: 0.05rem 0.34rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--achv-gold);
+  background: color-mix(in srgb, var(--achv-gold) 16%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--achv-gold) 55%, transparent);
+}
+
 /* Verdiende prestatie-flairs vooraan in de flair-kiezer: gouden randje. */
 .lb-flair-opt.lb-flair-achv { border-color: var(--achv-gold); }

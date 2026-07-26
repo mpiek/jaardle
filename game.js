@@ -253,7 +253,7 @@ const I18N = {
     rating_empty: "Nog te weinig historie — na twee dagen spelen verschijnt hier je rating-grafiek.",
     rating_anon: "Je rating is gekoppeld aan je account — log in om je verloop te zien.",
     menu_achv: "🏅 Prestaties",
-    achv_sect_series: "Reeksen", achv_sect_trophies: "Trofeeën",
+    achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
     achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
@@ -272,7 +272,6 @@ const I18N = {
     achv_t_rematch: "Revanche", achv_t_rematch_sub: "win in vrij spel een jaar dat je in de daily verloor",
     achv_t_saver: "Reddingsactie", achv_t_saver_sub: "red een streak met de inhaal-daily",
     achv_t_eras: "Tijdreiziger", achv_t_eras_sub: "win in elk van de 6 tijdperken",
-    achv_t_eras_n: (n) => `${n} van 6 tijdperken`,
     achv_flair_note: (e, tier) => `bij ${tier} verdien je de ${e}-flair voor op het leaderboard`,
     achv_flair_note_multi: (list) => `flairs voor op het leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `hiermee verdien je de ${e}-flair voor op het leaderboard`,
@@ -454,7 +453,7 @@ const I18N = {
     rating_empty: "Not enough history yet — your rating graph appears after two days of play.",
     rating_anon: "Your rating is tied to your account — sign in to see your progression.",
     menu_achv: "🏅 Achievements",
-    achv_sect_series: "Series", achv_sect_trophies: "Trophies",
+    achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
     achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
@@ -473,7 +472,6 @@ const I18N = {
     achv_t_rematch: "Rematch", achv_t_rematch_sub: "win a year you lost in the daily in free play",
     achv_t_saver: "Rescue mission", achv_t_saver_sub: "save a streak with the make-up daily",
     achv_t_eras: "Time traveller", achv_t_eras_sub: "win in each of the 6 eras",
-    achv_t_eras_n: (n) => `${n} of 6 eras`,
     achv_flair_note: (e, tier) => `reach ${tier} to earn the ${e} flair for the leaderboard`,
     achv_flair_note_multi: (list) => `flairs for the leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `earns you the ${e} flair for the leaderboard`,
@@ -650,7 +648,7 @@ const I18N = {
     rating_empty: "Noch zu wenig Verlauf — nach zwei Spieltagen erscheint hier dein Rating-Diagramm.",
     rating_anon: "Dein Rating ist mit deinem Konto verknüpft — melde dich an, um deinen Verlauf zu sehen.",
     menu_achv: "🏅 Erfolge",
-    achv_sect_series: "Serien", achv_sect_trophies: "Trophäen",
+    achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
     achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
@@ -669,7 +667,6 @@ const I18N = {
     achv_t_rematch: "Revanche", achv_t_rematch_sub: "gewinne im freien Spiel ein Jahr, das du im Tagesrätsel verloren hast",
     achv_t_saver: "Rettungsaktion", achv_t_saver_sub: "rette eine Serie mit dem Nachhol-Rätsel",
     achv_t_eras: "Zeitreisender", achv_t_eras_sub: "gewinne in allen 6 Epochen",
-    achv_t_eras_n: (n) => `${n} von 6 Epochen`,
     achv_flair_note: (e, tier) => `ab ${tier} verdienst du das ${e}-Flair für die Bestenliste`,
     achv_flair_note_multi: (list) => `Flairs für die Bestenliste: ${list}`,
     achv_flair_note_flat: (e) => `damit verdienst du das ${e}-Flair für die Bestenliste`,
@@ -850,7 +847,7 @@ const I18N = {
     rating_empty: "Aún no hay historial suficiente: tu gráfica de rating aparecerá tras dos días de juego.",
     rating_anon: "Tu rating está vinculado a tu cuenta: inicia sesión para ver tu evolución.",
     menu_achv: "🏅 Logros",
-    achv_sect_series: "Series", achv_sect_trophies: "Trofeos",
+    achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
     achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
@@ -869,7 +866,6 @@ const I18N = {
     achv_t_rematch: "Revancha", achv_t_rematch_sub: "gana en juego libre un año que perdiste en el reto diario",
     achv_t_saver: "Rescate", achv_t_saver_sub: "salva una racha con el puzle de recuperación",
     achv_t_eras: "Viajero del tiempo", achv_t_eras_sub: "gana en cada una de las 6 épocas",
-    achv_t_eras_n: (n) => `${n} de 6 épocas`,
     achv_flair_note: (e, tier) => `al llegar a ${tier} ganas el distintivo ${e} para la clasificación`,
     achv_flair_note_multi: (list) => `distintivos para la clasificación: ${list}`,
     achv_flair_note_flat: (e) => `te hace ganar el distintivo ${e} para la clasificación`,
@@ -1050,7 +1046,7 @@ const I18N = {
     rating_empty: "Ainda não há histórico suficiente — seu gráfico de rating aparece após dois dias de jogo.",
     rating_anon: "Seu rating está vinculado à sua conta — faça login para ver sua evolução.",
     menu_achv: "🏅 Conquistas",
-    achv_sect_series: "Séries", achv_sect_trophies: "Troféus",
+    achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
     achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
@@ -1069,7 +1065,6 @@ const I18N = {
     achv_t_rematch: "Revanche", achv_t_rematch_sub: "vença no jogo livre um ano que perdeu no desafio diário",
     achv_t_saver: "Resgate", achv_t_saver_sub: "salve uma sequência com o desafio de recuperação",
     achv_t_eras: "Viajante do tempo", achv_t_eras_sub: "vença em cada uma das 6 eras",
-    achv_t_eras_n: (n) => `${n} de 6 eras`,
     achv_flair_note: (e, tier) => `ao chegar a ${tier} você ganha o emblema ${e} para o placar`,
     achv_flair_note_multi: (list) => `emblemas para o placar: ${list}`,
     achv_flair_note_flat: (e) => `faz você ganhar o emblema ${e} para o placar`,
@@ -3814,9 +3809,13 @@ async function loadRecapTeam() {
 }
 
 // --- Prestaties (achievements) ----------------------------------------------
-// Bord van 7 getrapte reeksen (brons→diamant) + 4 vlakke trofeeën + het
-// iconische-jaren-album. Ingelogd = get_my_achievements() (db/33, retroactief
-// uit plays); anoniem = lokale tellers (jaardle:achv) + de daily-historie.
+// Bord van 7 getrapte reeksen (brons→diamant) + 6 trofeeën + het
+// iconische-jaren-album. Van de trofeeën zijn er 3 herhaalbaar/telbaar
+// (first_try, last_gasp, eras — ×N-badge, eigen sectie) en 3 strikt eenmalig
+// (flawless, rematch, saver — bewust: een teller zou impliciet belonen dat je
+// eerst iets vervelends laat gebeuren, streak breken/daily missen; v192).
+// Ingelogd = get_my_achievements() (db/33, retroactief uit plays); anoniem =
+// lokale tellers (jaardle:achv) + de daily-historie.
 // Unlock-detectie: snapshot-diff tegen jaardle:achvSeen — de eerste berekening
 // is een stille baseline (retroactief toekennen zonder toast-regen), daarna
 // geeft elke trede/trofee/zegel een rustige regel op het eindscherm.
@@ -3844,14 +3843,20 @@ const ACHV_SERIES = [
     flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }] },
   { key: "years",   art: "albumcover", steps: [4, 10, 18, 28, 38], flairs: [{ emoji: "🗿", at: 3 }], album: true },
 ];
+// repeatable: true → het veld is een oplopende TELLER (niet ooit-ja/nee) en
+// krijgt een ×N-badge; blijft weg → strikt eenmalig. Zie memory
+// repeatable-achievements-design: eenmalig blijft bewust waar een teller
+// impliciet zou belonen dat je eerst iets vervelends laat gebeuren (streak
+// breken / daily missen) — vandaar flawless/rematch/saver ongewijzigd.
 const ACHV_TROPHIES = [
-  { key: "first_try", i18n: "achv_t_first",    art: "target" },
-  { key: "last_gasp", i18n: "achv_t_last",     art: "chute" },
+  { key: "first_try", i18n: "achv_t_first",    art: "target",   repeatable: true },
+  { key: "last_gasp", i18n: "achv_t_last",     art: "chute",    repeatable: true },
   { key: "flawless",  i18n: "achv_t_flawless", art: "shine" },   // 5 perfecte 100's op rij
   { key: "rematch",   i18n: "achv_t_rematch",  art: "rematch" }, // verloren daily → vrij potje zelfde jaar gewonnen
   { key: "saver",     i18n: "achv_t_saver",    art: "buoy" },
-  { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" } },
+  { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" }, repeatable: true },
 ];
+const ACHV_REPEAT_KEYS = ACHV_TROPHIES.filter((tr) => tr.repeatable).map((tr) => tr.key);
 const FLAWLESS_RUN = 5;   // drempel voor de "Vlekkeloos"-trofee (moet gelijklopen met db/33)
 // Zegel-artwork per iconisch jaar (ids in ACHV_SVG).
 const ACHV_YEAR_ART = {
@@ -3903,8 +3908,9 @@ function capstoneLagging(a) {
   return CAPSTONE_KEYS.filter((k) => achvTier(achvValue(a, capstoneSeries(k)), capstoneSeries(k).steps) === tier);
 }
 function achvTrophyDone(a, tr) {
-  return tr.key === "eras" ? a.eras.every(Boolean) : !!a[tr.key];
+  return tr.repeatable ? (a[tr.key] || 0) > 0 : !!a[tr.key];
 }
+function achvTrophyCount(a, tr) { return tr.repeatable ? (a[tr.key] || 0) : 0; }
 // Zelfde 6 tijdperk-grenzen als eraName (en de eras-CTE in db/33).
 function eraIndex(year) {
   if (year < 500) return 0;
@@ -3926,9 +3932,9 @@ function achvNormalize(a) {
     perfect: a.perfect || 0, pure: a.pure || 0,
     rating: a.rating ?? null,
     years: (Array.isArray(a.years) ? a.years : []).slice().sort((x, y) => x - y),
-    first_try: !!a.first_try, last_gasp: !!a.last_gasp, saver: !!a.saver,
+    first_try: a.first_try || 0, last_gasp: a.last_gasp || 0, saver: !!a.saver,
     flawless: !!a.flawless, rematch: !!a.rematch,
-    eras: Array.from({ length: 6 }, (_, i) => !!(a.eras || [])[i]),
+    eras: a.eras || 0,   // aantal voltooide cycli door alle 6 tijdperken (v192+; was ooit-array)
   };
 }
 
@@ -3944,9 +3950,27 @@ function loadAchvLocal() {
 function saveAchvLocal(o) {
   try { localStorage.setItem(ACHV_LOCAL_KEY, JSON.stringify(o)); } catch (e) {}
 }
+// Eénmalige, idempotente migratie (v192): first_try/last_gasp gaan van
+// ooit-ja/nee naar een teller; eras gaat van "ooit alle 6" naar tellende
+// cycli. Backfill = simpelweg op 1 zetten (geen poging tot nauwkeurige
+// reconstructie) — zie memory repeatable-achievements-design. Een oude
+// vólle eras-set wordt als 1 cyclus afgeboekt én op nul gezet, anders telt
+// de eerstvolgende pot 'm meteen dubbel.
+function achvMigrateLocal(l) {
+  let changed = false;
+  if (typeof l.first_try !== "number") { l.first_try = l.first_try ? 1 : 0; changed = true; }
+  if (typeof l.last_gasp !== "number") { l.last_gasp = l.last_gasp ? 1 : 0; changed = true; }
+  if (typeof l.erasCount !== "number") {
+    const full = !!(l.eras && [0, 1, 2, 3, 4, 5].every((i) => l.eras[i]));
+    l.erasCount = full ? 1 : 0;
+    if (full) l.eras = {};
+    changed = true;
+  }
+  return changed;
+}
 function ensureAchvLocal() {
   let l = loadAchvLocal();
-  if (l) return l;
+  if (l) { if (achvMigrateLocal(l)) saveAchvLocal(l); return l; }
   const hist = loadHistory();
   // "Vlekkeloos" uit de daghistorie seeden: langste reeks + de nog-lopende staart
   // (zodat een verse perfecte pot de reeks kan voortzetten). Chronologisch sorteren
@@ -3960,9 +3984,9 @@ function ensureAchvLocal() {
   l = {
     games: hist.length,
     perfect: hist.filter((e) => e.won && e.score === 100).length,
-    pure: 0, first_try: false, last_gasp: false, saver: false,
+    pure: 0, first_try: 0, last_gasp: 0, saver: false,
     perfectRun: run, flawless: best >= FLAWLESS_RUN, lostDaily: {}, rematch: false,
-    eras: {}, years: {},
+    eras: {}, erasCount: 0, years: {},
   };
   saveAchvLocal(l);
   return l;
@@ -3982,10 +4006,12 @@ function recordAchvLocal() {
     if (perfect) l.perfect = (l.perfect || 0) + 1;
     if (state.laterCluesShown === 0 && state.directionsRevealed.length === 0 &&
         !state.centuryRevealed && !state.lastDigitRevealed) l.pure = (l.pure || 0) + 1;
-    if (state.guesses.length === 1) l.first_try = true;
-    if (state.guesses.length === MAX_GUESSES) l.last_gasp = true;
+    if (state.guesses.length === 1) l.first_try = (l.first_try || 0) + 1;
+    if (state.guesses.length === MAX_GUESSES) l.last_gasp = (l.last_gasp || 0) + 1;
     if (isMakeup(state)) l.saver = true;
     (l.eras = l.eras || {})[eraIndex(y)] = true;
+    // Cyclus vol (alle 6 tijdperken sinds de vorige reset) → teller op, cyclus opnieuw.
+    if ([0, 1, 2, 3, 4, 5].every((i) => l.eras[i])) { l.erasCount = (l.erasCount || 0) + 1; l.eras = {}; }
     if (ACHV_YEARS.includes(y)) (l.years = l.years || {})[y] = true;
     // "Revanche": vrij potje gewonnen van een jaar dat eerder in de daily verloren ging.
     if (state.mode === "free" && (l.lostDaily || {})[y]) l.rematch = true;
@@ -4013,7 +4039,7 @@ async function fetchAchievements() {
       first_try: l.first_try, last_gasp: l.last_gasp, saver: l.saver,
       flawless: l.flawless, rematch: l.rematch,
       years: Object.keys(l.years || {}).map(Number),
-      eras: Array.from({ length: 6 }, (_, i) => !!(l.eras || {})[i]),
+      eras: l.erasCount || 0,
     });
   }
   a.dailies = Math.max(a.dailies, hist.length);
@@ -4045,9 +4071,13 @@ function achvEarnedFlairs() {
 // ── unlock-detectie: snapshot-diff per identiteit ─────────────────────────────
 function achvSeenKey() { return `jaardle:achvSeen:${auth.user ? auth.user.uid : "anon"}`; }
 function achvSnapshot(a) {
-  const snap = { yearsList: a.years };
+  // __achvV2: elke vers berekende snapshot draagt 'm (dus ook die van
+  // achvRefreshBaseline, bv. bij elke sessiestart) — alleen een snapshot die
+  // van vóór de v192-teller-migratie dateert mist 'm nog. Bewust hier en niet
+  // los bij elke schrijver: anders vergeet een toekomstige aanroeper 'm ooit.
+  const snap = { yearsList: a.years, __achvV2: true };
   for (const s of ACHV_SERIES) snap[s.key] = achvTier(achvValue(a, s), s.steps);
-  for (const tr of ACHV_TROPHIES) snap[tr.key] = achvTrophyDone(a, tr) ? 1 : 0;
+  for (const tr of ACHV_TROPHIES) snap[tr.key] = tr.repeatable ? (a[tr.key] || 0) : (achvTrophyDone(a, tr) ? 1 : 0);
   return snap;
 }
 // Stille baseline (login/logout, eerste run): snapshot opslaan zonder regels.
@@ -4177,10 +4207,13 @@ function achvSeriesItem(a, s, tier, prev) {
     flair: (s.flairs || []).filter((f) => tier > f.at && prev <= f.at).pop()?.emoji || null,
   };
 }
-function achvTrophyItem(tr) {
+function achvTrophyItem(tr, count) {
+  // Herhaalbare trofeeën melden ook een 2e, 3e, ... keer (met ×N erbij);
+  // eenmalige vuren toch maar één keer, dus count is daar altijd 1.
+  const suffix = tr.repeatable && count > 1 ? ` ×${count}` : "";
   return {
     id: `t:${tr.key}`, kind: "trophy", weight: ACHV_TROPHY_WEIGHT, art: tr.art, tier: 0,
-    head: t("achv_unlocked"), title: t(tr.i18n), sub: t(`${tr.i18n}_sub`),
+    head: t("achv_unlocked"), title: `${t(tr.i18n)}${suffix}`, sub: t(`${tr.i18n}_sub`),
     next: "", flair: tr.flair ? tr.flair.emoji : null,
   };
 }
@@ -4279,6 +4312,18 @@ async function checkAchievements() {
   let seen = null;
   try { seen = JSON.parse(localStorage.getItem(key)); } catch (e) {}
   const cur = achvSnapshot(a);
+  // v192-migratie: first_try/last_gasp/eras gingen van ooit-ja/nee naar een
+  // teller die (ingelogd) telkens vólledig herberekend wordt uit de
+  // potjes-historie. Een oude seen-snapshot van vóór die overgang zou anders
+  // in één klap tegen het al lang opgebouwde werkelijke aantal aan diffen —
+  // een met-terugwerkende-kracht-toast voor iedereen die dit ooit al eens
+  // haalde. Baseline die drie velden dan eenmalig stil op de actuele stand
+  // (kost hooguit één gemiste toast als deze pot toevallig zelf ook zo'n
+  // teller ophoogt — zelfde afweging als de bestaande "eerste keer: stil").
+  if (seen && typeof seen === "object" && !seen.__achvV2) {
+    for (const k of ACHV_REPEAT_KEYS) seen[k] = cur[k];
+    seen.__achvV2 = true;
+  }
   try { localStorage.setItem(key, JSON.stringify(cur)); } catch (e) {}
   if (!seen || typeof seen !== "object") return false;   // eerste keer: stil (retroactief)
   const items = [];
@@ -4287,7 +4332,8 @@ async function checkAchievements() {
     if (cur[s.key] > prev) items.push(achvSeriesItem(a, s, cur[s.key], prev));
   }
   for (const tr of ACHV_TROPHIES) {
-    if (cur[tr.key] && !seen[tr.key]) items.push(achvTrophyItem(tr));
+    const prev = seen[tr.key] || 0;
+    if (cur[tr.key] > prev) items.push(achvTrophyItem(tr, cur[tr.key]));
   }
   const seenYears = new Set(Array.isArray(seen.yearsList) ? seen.yearsList : []);
   for (const y of a.years) if (!seenYears.has(y)) items.push(achvStampItem(a, y));
@@ -4411,16 +4457,15 @@ function achvRowHtml(a, s) {
 
 function achvTrophyHtml(a, tr) {
   const done = achvTrophyDone(a, tr);
-  let sub = t(`${tr.i18n}_sub`);
-  if (tr.key === "eras" && !done) {
-    const cnt = a.eras.filter(Boolean).length;
-    if (cnt > 0) sub = t("achv_t_eras_n")(cnt);
-  }
+  const count = achvTrophyCount(a, tr);
+  // Geen tussentijdse voortgang tonen (bv. "4 van 6 tijdperken") — bewust
+  // simpel gehouden tot alleen het ×N-behaald-badge, zie repeatable-achievements-design.
+  const badge = count > 0 ? `<span class="achv-tcount">×${fmtN(count)}</span>` : "";
   const note = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"` : "";
   return `<div class="achv-trophy${done ? "" : " locked"}"${note}>
-      <span class="achv-tring">${achvBadgeHtml(tr.art)}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
+      <span class="achv-tring">${achvBadgeHtml(tr.art)}${badge}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
       <span class="achv-tname">${escHtml(t(tr.i18n))}</span>
-      <span class="achv-tsub">${escHtml(sub)}</span>
+      <span class="achv-tsub">${escHtml(t(`${tr.i18n}_sub`))}</span>
     </div>`;
 }
 
@@ -4470,13 +4515,16 @@ function renderAchvBoard(body, a) {
   const rows = ACHV_SERIES
     .filter((s) => !s.authOnly || auth.user)
     .map((s) => achvRowHtml(a, s)).join("");
-  const trophies = ACHV_TROPHIES.map((tr) => achvTrophyHtml(a, tr)).join("");
+  const repeatable = ACHV_TROPHIES.filter((tr) => tr.repeatable).map((tr) => achvTrophyHtml(a, tr)).join("");
+  const milestones = ACHV_TROPHIES.filter((tr) => !tr.repeatable).map((tr) => achvTrophyHtml(a, tr)).join("");
   body.innerHTML = `
     ${capstoneBarHtml(a)}
     <h3 class="stats-heading">${escHtml(t("achv_sect_series"))}</h3>
     <div class="achv-rows">${rows}</div>
+    <h3 class="stats-heading">${escHtml(t("achv_sect_repeat"))}</h3>
+    <div class="achv-trophies">${repeatable}</div>
     <h3 class="stats-heading">${escHtml(t("achv_sect_trophies"))}</h3>
-    <div class="achv-trophies">${trophies}</div>
+    <div class="achv-trophies">${milestones}</div>
     ${achvAnonNoteHtml()}`;
   body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
     btn.onclick = () => {
