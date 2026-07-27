@@ -183,6 +183,7 @@ const I18N = {
     lb_wk_participated: "meegedaan",
     lb_recap_head: "Vorige week", lb_recap_view: "Bekijk het podium",
     lb_wk_note_live: "Tussenstand — het podium klapt maandag dicht.",
+    lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
     lb_wk_empty_h: "Geen podium deze week",
     lb_wk_empty_p: "Er is deze week nog niet gespeeld in je pool.",
     lb_wk_soon_h: "Het weekpodium begint binnenkort",
@@ -388,6 +389,7 @@ const I18N = {
     lb_wk_participated: "took part",
     lb_recap_head: "Last week", lb_recap_view: "View the podium",
     lb_wk_note_live: "Live standings — the podium locks on Monday.",
+    lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
     lb_wk_empty_h: "No podium this week",
     lb_wk_empty_p: "No one has played in your pool this week yet.",
     lb_wk_soon_h: "The week podium starts soon",
@@ -588,6 +590,7 @@ const I18N = {
     lb_wk_participated: "mitgemacht",
     lb_recap_head: "Letzte Woche", lb_recap_view: "Podest ansehen",
     lb_wk_note_live: "Zwischenstand — das Podest schließt am Montag.",
+    lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
     lb_wk_empty_h: "Diese Woche kein Podest",
     lb_wk_empty_p: "In deinem Pool wurde diese Woche noch nicht gespielt.",
     lb_wk_soon_h: "Das Wochenpodest startet bald",
@@ -792,6 +795,7 @@ const I18N = {
     lb_wk_participated: "participó",
     lb_recap_head: "La semana pasada", lb_recap_view: "Ver el podio",
     lb_wk_note_live: "Clasificación en curso — el podio se cierra el lunes.",
+    lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
     lb_wk_empty_h: "Sin podio esta semana",
     lb_wk_empty_p: "Todavía nadie ha jugado en tu grupo esta semana.",
     lb_wk_soon_h: "El podio semanal empieza pronto",
@@ -996,6 +1000,7 @@ const I18N = {
     lb_wk_participated: "participou",
     lb_recap_head: "Semana passada", lb_recap_view: "Ver o pódio",
     lb_wk_note_live: "Parcial — o pódio fecha na segunda.",
+    lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
     lb_wk_empty_h: "Sem pódio nesta semana",
     lb_wk_empty_p: "Ainda ninguém jogou no seu grupo esta semana.",
     lb_wk_soon_h: "O pódio semanal começa em breve",
@@ -3335,8 +3340,9 @@ function podiumHtml(rows, isLive) {
     `<span class="lb-wk-rn">${escHtml(r.display_name)}</span>` +
     `<span class="lb-wk-rc">${r.daily_wins > 0 ? escHtml(t("lb_wk_n_dagzeges")(r.daily_wins)) : escHtml(t("lb_wk_participated"))}</span></div>`
   ).join("") + `</div>` : "";
-  const note = isLive ? `<p class="lb-wk-note">${escHtml(t("lb_wk_note_live"))}</p>` : "";
-  return `<div class="lb-pod-stage">${podium}</div>${note}${restHtml}`;
+  const liveNote = isLive ? `<p class="lb-wk-note">${escHtml(t("lb_wk_note_live"))}</p>` : "";
+  const formulaNote = `<p class="lb-wk-note">${escHtml(t("lb_wk_formula"))}</p>`;
+  return `<div class="lb-pod-stage">${podium}</div>${liveNote}${formulaNote}${restHtml}`;
 }
 
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
