@@ -5329,8 +5329,30 @@ function setModalUrl(param) {
   } catch (e) { /* sandbox / file:// */ }
 }
 
+function lockBodyScroll() {
+  if (document.body.dataset.scrollY !== undefined) return;
+  const scrollY = window.scrollY;
+  document.body.dataset.scrollY = String(scrollY);
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+}
+
+function unlockBodyScroll() {
+  if (document.body.dataset.scrollY === undefined) return;
+  const scrollY = parseInt(document.body.dataset.scrollY, 10) || 0;
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  delete document.body.dataset.scrollY;
+  window.scrollTo(0, scrollY);
+}
+
 function openModal(id, opts) {
   document.getElementById(id).hidden = false;
+  lockBodyScroll();
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
   if (id === "modal-recap") renderRecap();
@@ -5346,11 +5368,13 @@ function openModal(id, opts) {
 function closeModal(id) {
   document.getElementById(id).hidden = true;
   if (id === "modal-achv") achvPanelClosed();
+  if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden)) unlockBodyScroll();
   setModalUrl(null);
 }
 
 function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+  unlockBodyScroll();
   achvPanelClosed();   // NIEUW-markeringen die je gezien hebt, zijn hiermee gezien
   setModalUrl(null);
 }

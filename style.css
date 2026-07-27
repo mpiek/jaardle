@@ -1202,6 +1202,7 @@ footer {
   box-shadow: var(--shadow-modal);
   max-height: 90vh;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 .modal-header {
   display: flex;
