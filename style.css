@@ -2015,6 +2015,28 @@ html[data-theme="light"] {
 .cap-diamond  { --pc: var(--achv-diamond); }
 .cap-next { margin: 0.55rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; }
 
+/* Bereikte brons/zilver-pip is zelf een knop: aantikken vult .cap-detail
+   eronder met de bijbehorende bediening (dragen ⭐ / confetti aan-uit). Eén
+   gedeeld slot voor de hele balk i.p.v. een vaste regel per trede — kost dus
+   nooit meer dan één extra regel, en alleen wanneer je 'm openklapt. */
+.cap-pip-btn { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; position: relative; }
+.cap-pip-btn::before { content: "›"; position: absolute; top: 0.15rem; right: 0.3rem; font-size: 0.7rem; color: var(--muted); transform: rotate(90deg); transition: transform 0.15s; }
+.cap-pip-btn[aria-expanded="true"]::before { transform: rotate(-90deg); }
+.cap-pip-btn[aria-expanded="true"] { background: var(--card-soft); }
+
+/* Zelfde vinkje-patroon als .menu-item[role=menuitemcheckbox], maar dan in de
+   uitklap onder de balk. */
+.cap-detail { margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px solid var(--border); }
+.cap-action {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+  width: 100%; background: transparent; color: var(--fg); border: none; border-radius: 6px;
+  padding: 0.4rem 0.5rem; font-size: 0.82rem; text-align: left; cursor: pointer;
+}
+.cap-action:hover { background: var(--card); }
+.cap-action:disabled { opacity: 0.6; cursor: default; }
+.cap-action::after { content: "✓"; font-weight: 700; color: var(--accent); opacity: 0; }
+.cap-action[aria-checked="true"]::after { opacity: 1; }
+
 .achv-art { width: 100%; height: 100%; display: block; }
 
 #achv-body .stats-heading:not(:first-child) { margin-top: 1.25rem; }

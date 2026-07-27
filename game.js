@@ -179,11 +179,12 @@ const I18N = {
     lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week",
     lb_wk_live: "loopt nog", lb_wk_done: "afgerond",
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
+    lb_wk_punten: "punten",
     lb_wk_participated: "meegedaan",
     lb_recap_head: "Vorige week", lb_recap_view: "Bekijk het podium",
     lb_wk_note_live: "Tussenstand — het podium klapt maandag dicht.",
     lb_wk_empty_h: "Geen podium deze week",
-    lb_wk_empty_p: "Er waren geen dagzeges — daarvoor moeten er minstens twee spelers op dezelfde dag meedoen.",
+    lb_wk_empty_p: "Er is deze week nog niet gespeeld in je pool.",
     lb_wk_soon_h: "Het weekpodium begint binnenkort",
     lb_wk_soon_p: (d) => `Vanaf maandag ${d} strijdt je pool om het wekelijkse podium — iedereen op nul.`,
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Dagzeges", lb_stat_perfect: "Perfect-rate", lb_scope_all: "alle games",
@@ -256,6 +257,7 @@ const I18N = {
     achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
+    achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair",
     achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
     achv_next: (k, tier) => `nog ${k} tot ${tier}`,
     achv_maxed: "hoogste trede behaald",
@@ -382,11 +384,12 @@ const I18N = {
     lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week",
     lb_wk_live: "live", lb_wk_done: "final",
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
+    lb_wk_punten: "points",
     lb_wk_participated: "took part",
     lb_recap_head: "Last week", lb_recap_view: "View the podium",
     lb_wk_note_live: "Live standings — the podium locks on Monday.",
     lb_wk_empty_h: "No podium this week",
-    lb_wk_empty_p: "There were no daily wins — you need at least two players on the same day.",
+    lb_wk_empty_p: "No one has played in your pool this week yet.",
     lb_wk_soon_h: "The week podium starts soon",
     lb_wk_soon_p: (d) => `From Monday ${d} your pool competes for the weekly podium — everyone from zero.`,
     lb_stat_rating: "Rating", lb_stat_streak: "Streak", lb_stat_dailywins: "Daily wins", lb_stat_perfect: "Perfect rate", lb_scope_all: "all games",
@@ -459,6 +462,7 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
+    achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair",
     achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
     achv_next: (k, tier) => `${k} to go until ${tier}`,
     achv_maxed: "highest tier reached",
@@ -580,11 +584,12 @@ const I18N = {
     lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche",
     lb_wk_live: "läuft noch", lb_wk_done: "beendet",
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
+    lb_wk_punten: "Punkte",
     lb_wk_participated: "mitgemacht",
     lb_recap_head: "Letzte Woche", lb_recap_view: "Podest ansehen",
     lb_wk_note_live: "Zwischenstand — das Podest schließt am Montag.",
     lb_wk_empty_h: "Diese Woche kein Podest",
-    lb_wk_empty_p: "Es gab keine Tagessiege — dafür müssen mindestens zwei Spieler am selben Tag mitmachen.",
+    lb_wk_empty_p: "In deinem Pool wurde diese Woche noch nicht gespielt.",
     lb_wk_soon_h: "Das Wochenpodest startet bald",
     lb_wk_soon_p: (d) => `Ab Montag, ${d}, kämpft dein Pool ums Wochenpodest — alle bei null.`,
     lb_stat_rating: "Rating", lb_stat_streak: "Serie", lb_stat_dailywins: "Tagessiege", lb_stat_perfect: "100er-Quote", lb_scope_all: "alle Spiele",
@@ -657,6 +662,7 @@ const I18N = {
     achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
+    achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen",
     achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
     achv_next: (k, tier) => `noch ${k} bis ${tier}`,
     achv_maxed: "höchste Stufe erreicht",
@@ -782,11 +788,12 @@ const I18N = {
     lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente",
     lb_wk_live: "en curso", lb_wk_done: "cerrada",
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
+    lb_wk_punten: "puntos",
     lb_wk_participated: "participó",
     lb_recap_head: "La semana pasada", lb_recap_view: "Ver el podio",
     lb_wk_note_live: "Clasificación en curso — el podio se cierra el lunes.",
     lb_wk_empty_h: "Sin podio esta semana",
-    lb_wk_empty_p: "No hubo victorias diarias — se necesitan al menos dos jugadores el mismo día.",
+    lb_wk_empty_p: "Todavía nadie ha jugado en tu grupo esta semana.",
     lb_wk_soon_h: "El podio semanal empieza pronto",
     lb_wk_soon_p: (d) => `Desde el lunes ${d} tu grupo compite por el podio semanal — todos desde cero.`,
     lb_stat_rating: "Puntuación", lb_stat_streak: "Racha", lb_stat_dailywins: "Victorias diarias", lb_stat_perfect: "% perfectos", lb_scope_all: "todas las partidas",
@@ -859,6 +866,7 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
+    achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo",
     achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
     achv_next: (k, tier) => `faltan ${k} para ${tier}`,
     achv_maxed: "nivel máximo alcanzado",
@@ -984,11 +992,12 @@ const I18N = {
     lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana",
     lb_wk_live: "em andamento", lb_wk_done: "encerrada",
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
+    lb_wk_punten: "pontos",
     lb_wk_participated: "participou",
     lb_recap_head: "Semana passada", lb_recap_view: "Ver o pódio",
     lb_wk_note_live: "Parcial — o pódio fecha na segunda.",
     lb_wk_empty_h: "Sem pódio nesta semana",
-    lb_wk_empty_p: "Não houve vitórias diárias — é preciso pelo menos dois jogadores no mesmo dia.",
+    lb_wk_empty_p: "Ainda ninguém jogou no seu grupo esta semana.",
     lb_wk_soon_h: "O pódio semanal começa em breve",
     lb_wk_soon_p: (d) => `A partir de segunda, ${d}, seu grupo disputa o pódio semanal — todos do zero.`,
     lb_stat_rating: "Pontuação", lb_stat_streak: "Sequência", lb_stat_dailywins: "Vitórias diárias", lb_stat_perfect: "% perfeitos", lb_scope_all: "todas as partidas",
@@ -1061,6 +1070,7 @@ const I18N = {
     achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
+    achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo",
     achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
     achv_next: (k, tier) => `faltam ${k} para ${tier}`,
     achv_maxed: "nível máximo alcançado",
@@ -2255,7 +2265,7 @@ function showConfetti() {
   // Zilver-capstone (alle 5 grind-ladders ≥ zilver): je gedragen flair regent als
   // confetti — self-facing beloning, alleen-ingelogd. Geen flair → gewone confetti.
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const flairFx = !reduced && auth.user && myFlair && capstoneTier(achvCache) >= 2 ? myFlair : null;
+  const flairFx = !reduced && auth.user && myFlair && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? myFlair : null;
   const container = document.createElement("div");
   container.className = "confetti-container" + (flairFx ? " confetti-flair" : "");
   for (let i = 0; i < 80; i++) {
@@ -3227,7 +3237,7 @@ async function loadPodium() {
   if (!isLive && !podiumSeen(lbWeekStart)) { podiumMarkSeen(lbWeekStart); renderPodiumDot(); }
   // Doorlopende feest-confetti zolang je een AFGERONDE week bekijkt waarin jij top-3
   // stond; live weken (provisorisch) krijgen niets. Self-stoppend (zie hieronder).
-  if (!isLive && rows.some((r) => r.is_me && r.daily_wins > 0 && r.rank <= 3)) {
+  if (!isLive && rows.some((r) => r.is_me && r.rank <= 3)) {
     setTimeout(showPodiumConfetti, 250);
   } else {
     stopPodiumConfetti();
@@ -3298,12 +3308,11 @@ function showPodiumConfetti() {
 function podiumHtml(rows, isLive) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const flairDance = (f) => (f ? (reduced ? escHtml(f) : flairPreviewHtml(f)) : "");
-  const winners = rows.filter((r) => r.daily_wins > 0);
-  if (!winners.length) {
+  if (!rows.length) {
     return `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
       `<h4>${escHtml(t("lb_wk_empty_h"))}</h4><p>${escHtml(t("lb_wk_empty_p"))}</p></div>`;
   }
-  const top = winners.slice(0, 3);
+  const top = rows.slice(0, 3);
   const cls = ["gold", "silver", "bronze"];
   // Sokkel-volgorde links→rechts: 2e · 1e · 3e (past zich aan bij 1 of 2 winnaars).
   const slots = top.length === 1 ? [0] : top.length === 2 ? [1, 0] : [1, 0, 2];
@@ -3315,8 +3324,8 @@ function podiumHtml(rows, isLive) {
       `<div class="lb-pod-name">${escHtml(r.display_name)}</div>` +
       `<div class="lb-pod-flair">${flairDance(r.flair)}</div>` +
       `<div class="lb-pod-block"><div class="lb-pod-medal">${medal}</div>` +
-      `<div class="lb-pod-count"><span class="lb-pod-n">${r.daily_wins}</span>` +
-      `<span class="lb-pod-u">${escHtml(t("lb_wk_dagzeges"))}</span></div></div></div>`;
+      `<div class="lb-pod-count"><span class="lb-pod-n">${r.week_score}</span>` +
+      `<span class="lb-pod-u">${escHtml(t("lb_wk_punten"))}</span></div></div></div>`;
   }).join("");
   const rest = rows.slice(top.length);
   const restHtml = rest.length ? `<div class="lb-wk-rest">` + rest.map((r) =>
@@ -3934,6 +3943,30 @@ function capstoneLagging(a) {
   if (tier >= 5) return [];
   return CAPSTONE_KEYS.filter((k) => achvTier(achvValue(a, capstoneSeries(k)), capstoneSeries(k).steps) === tier);
 }
+
+// Zilver-beloning aan/uit: aan is de default zodra je 'm verdient, uit is
+// opt-out per apparaat (jaardle:flairconfetti). Schakelaar zit in de
+// prestige-track zelf (capActionsHtml), niet in het ⋮-menu.
+function flairConfettiEnabled() {
+  return localStorage.getItem("jaardle:flairconfetti") !== "0";
+}
+function setFlairConfetti(on) {
+  try { localStorage.setItem("jaardle:flairconfetti", on ? "1" : "0"); } catch (e) {}
+}
+
+// Brons-beloning (⭐) direct dragen/afleggen vanuit de prestige-track, als
+// snelkoppeling naast de volledige flair-kiezer op het leaderboard. Zet
+// alleen de globale myFlair bij server-succes; geen renderLeaderboard()-call
+// (dat bord is hier vrijwel altijd dicht en ververst toch bij het openen).
+async function toggleCapWear() {
+  const star = CAPSTONE_FLAIRS[0].emoji;
+  const next = myFlair === star ? "" : star;
+  let status = "err";
+  try { status = await rpc("set_my_flair", { p_flair: next }); } catch (e) {}
+  if (status === "ok") { myFlair = next || null; return true; }
+  alert(t("lb_flair_err"));
+  return false;
+}
 function achvTrophyDone(a, tr) {
   return tr.repeatable ? (a[tr.key] || 0) > 0 : !!a[tr.key];
 }
@@ -4186,9 +4219,9 @@ async function refreshWeekPodiumResult() {
     let rows = [];
     try { rows = await rpc("get_pool_week_podium", { p_pool_id: p.id, p_week_start: lastDone }) || []; } catch (e) {}
     if (!Array.isArray(rows)) continue;
-    if (rows.some((r) => r.daily_wins > 0)) hasResult = true;
-    const me = rows.find((r) => r.is_me && r.daily_wins > 0 && r.rank <= 3);
-    if (me) placements.push({ poolName: p.name, rank: me.rank, dailyWins: me.daily_wins });
+    if (rows.length) hasResult = true;
+    const me = rows.find((r) => r.is_me && r.rank <= 3);
+    if (me) placements.push({ poolName: p.name, rank: me.rank, weekScore: me.week_score });
   }
   placements.sort((a, b) => a.rank - b.rank);
   weekPodiumResult = { weekStart: lastDone, hasResult, placements };
@@ -4203,7 +4236,7 @@ function showPodiumRecapCard() {
   podiumMarkSeen(res.weekStart);
   renderPodiumDot();
   const lines = res.placements.map((p) => `${podiumMedal(p.rank)} ${escHtml(p.poolName)}`).join(" · ");
-  const sub = res.placements.length === 1 ? escHtml(t("lb_wk_n_dagzeges")(res.placements[0].dailyWins)) : "";
+  const sub = res.placements.length === 1 ? escHtml(`${res.placements[0].weekScore} ${t("lb_wk_punten")}`) : "";
   const el = document.createElement("div");
   el.className = "lb-recap-card";
   el.innerHTML =
@@ -4537,12 +4570,19 @@ function capstoneBarHtml(a) {
   const ct = capstoneTier(a);
   const REWARD = ["⭐", "🎊", "🔒", "🔒", "🔒"];   // brons=flair, zilver=confetti, rest binnenkort
   const SOON = 2;                                    // vanaf goud (index 2) = binnenkort
+  // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
+  // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
+  // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
+  // reeksen eronder: klik = .cap-detail vult zich, nogmaals klikken sluit 'm).
   const pips = ACHV_TIER_KEYS.map((tk, i) => {
     const reached = i + 1 <= ct, soon = i >= SOON;
-    return `<div class="cap-pip cap-${tk}${reached ? " on" : ""}${soon ? " soon" : ""}">
+    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2);
+    const tag = clickable ? "button" : "div";
+    const attrs = clickable ? ` type="button" aria-expanded="false" data-tier="${i}"` : "";
+    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : ""}${soon ? " soon" : ""}${clickable ? " cap-pip-btn" : ""}"${attrs}>
         <span class="cap-pip-ico">${REWARD[i]}</span>
         <span class="cap-pip-lbl">${escHtml(achvTierName(i))}</span>
-      </div>`;
+      </${tag}>`;
   }).join("");
   let hint;
   if (ct >= 5) hint = t("achv_cap_done");
@@ -4554,7 +4594,54 @@ function capstoneBarHtml(a) {
       <div class="cap-head"><span class="cap-title">${escHtml(t("achv_cap_title"))}</span></div>
       <div class="cap-rail">${pips}</div>
       <p class="cap-next">${escHtml(hint)}</p>
+      <div class="cap-detail" hidden></div>
     </div>`;
+}
+
+// Eén stuk bediening per trede — brons = ⭐ dragen/afleggen, zilver = confetti
+// aan/uit. data-tier komt overeen met ACHV_TIER_KEYS-index (0=brons, 1=zilver).
+function capActionHtml(tier) {
+  if (tier === "0") {
+    const on = myFlair === CAPSTONE_FLAIRS[0].emoji;
+    return `<button type="button" class="cap-action" role="switch" aria-checked="${on}" data-action="cap-wear">${escHtml(t("achv_cap_wear"))}</button>`;
+  }
+  return `<button type="button" class="cap-action" role="switch" aria-checked="${flairConfettiEnabled()}" data-action="cap-confetti">${escHtml(t("achv_cap_confetti"))}</button>`;
+}
+
+// Klik op de bereikte brons/zilver-pip vult (of leegt) de gedeelde .cap-detail
+// eronder — net als de uitklapbare reeks-rijen, maar dan met één slot voor de
+// hele balk zodat er nooit meer dan één regel bij komt.
+function wireCapPips(body) {
+  const detail = body.querySelector(".cap-detail");
+  if (!detail) return;
+  body.querySelectorAll(".cap-pip-btn").forEach((btn) => {
+    btn.onclick = () => {
+      const tier = btn.dataset.tier;
+      const wasOpenHere = !detail.hidden && detail.dataset.tier === tier;
+      body.querySelectorAll(".cap-pip-btn").forEach((b) => b.setAttribute("aria-expanded", "false"));
+      if (wasOpenHere) { detail.hidden = true; detail.innerHTML = ""; delete detail.dataset.tier; return; }
+      detail.dataset.tier = tier;
+      detail.innerHTML = capActionHtml(tier);
+      detail.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+      wireCapAction(detail);
+    };
+  });
+}
+function wireCapAction(detail) {
+  const btn = detail.querySelector(".cap-action");
+  if (!btn) return;
+  btn.onclick = async () => {
+    if (btn.dataset.action === "cap-confetti") {
+      setFlairConfetti(btn.getAttribute("aria-checked") !== "true");
+      btn.setAttribute("aria-checked", String(flairConfettiEnabled()));
+      return;
+    }
+    btn.disabled = true;
+    const ok = await toggleCapWear();
+    btn.disabled = false;
+    if (ok) btn.setAttribute("aria-checked", String(myFlair === CAPSTONE_FLAIRS[0].emoji));
+  };
 }
 
 function renderAchvBoard(body, a) {
@@ -4572,6 +4659,7 @@ function renderAchvBoard(body, a) {
     <h3 class="stats-heading">${escHtml(t("achv_sect_trophies"))}</h3>
     <div class="achv-trophies">${milestones}</div>
     ${achvAnonNoteHtml()}`;
+  wireCapPips(body);
   body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
     btn.onclick = () => {
       const row = btn.closest(".achv-row");
