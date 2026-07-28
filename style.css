@@ -1827,6 +1827,18 @@ footer {
 .lb-stat-note { text-transform: none; font-weight: 400; opacity: 0.65; letter-spacing: 0; }
 /* Voetregel "N verborgen · 7+ dagen niet gespeeld" onder het rating-bord. */
 .lb-hidden-note { text-align: center; color: var(--muted); font-size: 0.78rem; opacity: 0.8; padding: 0.5rem 0 0.1rem; }
+
+/* 📅 Geschiedenis: lijstrijen zijn .lb-row's die tegelijk knoppen zijn (drill-down). */
+.history-row { border: 0; width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.history-row:hover, .history-row:focus-visible { background: color-mix(in srgb, var(--accent) 12%, var(--card-soft)); }
+.history-daylabel { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.history-fact { margin: 0; }
+.history-score { margin: 0; font-weight: 600; }
+/* Eén kolom (i.p.v. het 2-koloms live gokbord #guesses): dat past niet naast de
+   modal-padding op smalle schermen — hier gaat het om overzicht, niet om spelen. */
+.history-board { display: flex; flex-direction: column; gap: 0.35rem; }
+.history-source { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.history-source a { color: var(--accent); }
 .lb-tag {
   margin-left: 0.35rem;
   font-size: 0.7rem;

@@ -117,6 +117,7 @@ const I18N = {
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     menu_login_short: "Inloggen",
     menu_theme: "☀️ Licht thema",
+    menu_history: "📅 Geschiedenis",
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
     aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten",
     hint_nudge: (p) => `Tip: 🔢 verklapt het laatste cijfer (−${p} punten)`,
@@ -161,6 +162,7 @@ const I18N = {
     err_none: "Geen puzzel beschikbaar.", retry: "Opnieuw proberen",
     won_intro: "Goed geraden! Het was", lost_intro: "Helaas — het juiste jaar was", source: "Bron:",
     stats_empty: "Nog geen dagelijkse puzzels afgerond.",
+    history_empty: "Je hebt nog geen dailies gespeeld.",
     stats_daily: "Dagelijks", stats_free: "Vrij spelen",
     stats_free_empty: "Nog geen vrije potjes gespeeld.", stats_tab_aria: "Kies statistiek",
     stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak",
@@ -288,6 +290,7 @@ const I18N = {
     achv_flair_earned: (e) => `${e}-flair vrijgespeeld`,
     achv_flair_choose: (e) => `kies ${e}`,
     achv_back: "‹ Prestaties",
+    history_back: "‹ Geschiedenis",
     achv_events: {
       "-509": "Romeinse Republiek gesticht", "-336": "Alexander de Grote", "-221": "China verenigd (Qin)",
       "-44": "Moord op Julius Caesar", "79": "Uitbarsting van de Vesuvius", "476": "Val van Rome",
@@ -317,6 +320,7 @@ const I18N = {
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     menu_login_short: "Sign in",
     menu_theme: "☀️ Light theme",
+    menu_history: "📅 History",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
     aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close",
     hint_nudge: (p) => `Tip: 🔢 reveals the last digit (−${p} points)`,
@@ -361,6 +365,7 @@ const I18N = {
     err_none: "No puzzle available.", retry: "Try again",
     won_intro: "Well guessed! It was", lost_intro: "Too bad — the year was", source: "Source:",
     stats_empty: "No daily puzzles finished yet.",
+    history_empty: "You haven't played any dailies yet.",
     stats_daily: "Daily", stats_free: "Free play",
     stats_free_empty: "No free-play rounds yet.", stats_tab_aria: "Choose stat",
     stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak",
@@ -493,6 +498,7 @@ const I18N = {
     achv_flair_earned: (e) => `${e} flair unlocked`,
     achv_flair_choose: (e) => `choose ${e}`,
     achv_back: "‹ Achievements",
+    history_back: "‹ History",
     achv_events: {
       "-509": "Roman Republic founded", "-336": "Alexander the Great", "-221": "China unified (Qin)",
       "-44": "Assassination of Julius Caesar", "79": "Eruption of Vesuvius", "476": "Fall of Rome",
@@ -522,6 +528,7 @@ const I18N = {
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
     menu_login_short: "Anmelden",
     menu_theme: "☀️ Helles Design",
+    menu_history: "📅 Verlauf",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
     aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen",
     hint_nudge: (p) => `Tipp: 🔢 verrät die letzte Ziffer (−${p} Punkte)`,
@@ -566,6 +573,7 @@ const I18N = {
     err_none: "Kein Rätsel verfügbar.", retry: "Erneut versuchen",
     won_intro: "Gut geraten! Es war", lost_intro: "Schade — das richtige Jahr war", source: "Quelle:",
     stats_empty: "Noch keine täglichen Rätsel abgeschlossen.",
+    history_empty: "Du hast noch keine täglichen Rätsel gespielt.",
     stats_daily: "Täglich", stats_free: "Freies Spiel",
     stats_free_empty: "Noch keine Runden im freien Spiel.", stats_tab_aria: "Statistik wählen",
     stat_played: "Gespielt", stat_winrate: "Gewinnrate", stat_curstreak: "Aktuelle Serie",
@@ -693,6 +701,7 @@ const I18N = {
     achv_flair_earned: (e) => `${e}-Flair freigeschaltet`,
     achv_flair_choose: (e) => `${e} wählen`,
     achv_back: "‹ Erfolge",
+    history_back: "‹ Verlauf",
     achv_events: {
       "-509": "Gründung der Römischen Republik", "-336": "Alexander der Große", "-221": "Einigung Chinas (Qin)",
       "-44": "Ermordung Julius Caesars", "79": "Ausbruch des Vesuvs", "476": "Untergang Roms",
@@ -721,6 +730,7 @@ const I18N = {
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
+    menu_history: "📅 Historial",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar",
     hint_nudge: (p) => `Consejo: 🔢 revela el último dígito (−${p} puntos)`,
@@ -765,6 +775,7 @@ const I18N = {
     err_none: "No hay ningún puzle disponible.", retry: "Reintentar",
     won_intro: "¡Bien adivinado! Era", lost_intro: "Vaya — el año correcto era", source: "Fuente:",
     stats_empty: "Aún no has completado ningún puzle diario.",
+    history_empty: "Aún no has jugado ningún diario.",
     stats_daily: "Diario", stats_free: "Partida libre",
     stats_free_empty: "Aún no has jugado ninguna partida libre.", stats_tab_aria: "Elegir estadística",
     stat_played: "Jugadas", stat_winrate: "Aciertos", stat_curstreak: "Racha actual",
@@ -897,6 +908,7 @@ const I18N = {
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
     achv_flair_choose: (e) => `elegir ${e}`,
     achv_back: "‹ Logros",
+    history_back: "‹ Historial",
     achv_events: {
       "-509": "Fundación de la República romana", "-336": "Alejandro Magno", "-221": "Unificación de China (Qin)",
       "-44": "Asesinato de Julio César", "79": "Erupción del Vesubio", "476": "Caída de Roma",
@@ -925,6 +937,7 @@ const I18N = {
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
+    menu_history: "📅 Histórico",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar",
     hint_nudge: (p) => `Dica: 🔢 revela o último dígito (−${p} pontos)`,
@@ -969,6 +982,7 @@ const I18N = {
     err_none: "Nenhum quebra-cabeça disponível.", retry: "Tentar de novo",
     won_intro: "Boa! O ano era", lost_intro: "Que pena — o ano certo era", source: "Fonte:",
     stats_empty: "Você ainda não concluiu nenhum quebra-cabeça diário.",
+    history_empty: "Você ainda não jogou nenhum diário.",
     stats_daily: "Diário", stats_free: "Jogo livre",
     stats_free_empty: "Ainda não jogou nenhuma partida livre.", stats_tab_aria: "Escolher estatística",
     stat_played: "Jogadas", stat_winrate: "Acertos", stat_curstreak: "Sequência atual",
@@ -1101,6 +1115,7 @@ const I18N = {
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
     achv_flair_choose: (e) => `escolher ${e}`,
     achv_back: "‹ Conquistas",
+    history_back: "‹ Histórico",
     achv_events: {
       "-509": "Fundação da República Romana", "-336": "Alexandre, o Grande", "-221": "Unificação da China (Qin)",
       "-44": "Assassinato de Júlio César", "79": "Erupção do Vesúvio", "476": "Queda de Roma",
@@ -1162,6 +1177,8 @@ function applyLang() {
   }
   const sm = document.getElementById("modal-stats");
   if (sm && !sm.hidden) renderStats();
+  const hm = document.getElementById("modal-history");
+  if (hm && !hm.hidden) renderHistory();
   const am = document.getElementById("modal-achv");
   if (am && !am.hidden) renderAchievements();
 }
@@ -2606,8 +2623,9 @@ let flairPickerAutoOpen = false;      // "kies <flair>" op de unlock-kaart → r
 const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕",
   "🐐", "🦇", "🦖", "🐦‍🔥", "🦭", "🐺", "🐻", "🐼", "🐷", "🦁", "🐸", "🐧", "🐱", "🦈", "🦋", "🐍", "🐳", "🦥", "🦔", "🦩", "🐝", "🦀", "🦅", "🪿", "🫏", "🪰", "💩", "💀", "🍄", "🌈", "🫪", "🎻", "🪙"];
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
-let pendingOpenModal = null;          // ?rating / ?achievements-deeplink → modal-id
+let pendingOpenModal = null;          // ?rating / ?achievements / ?history-deeplink → modal-id
 let pendingJoinCode = null;           // ?join=CODE-deeplink
+let pendingHistoryDate = null;        // ?history=YYYY-MM-DD → open direct de drill-down voor die dag
 let statsReq = 0;                     // race-guard: alleen de laatste Stats-render mag de body vullen
 // Eenmalige intentie "open Stats direct op deze tab" (endscreen-⚡-regel, ?rating-
 // deeplink). Auth-wissels bij het openen kunnen renderStats() een paar keer
@@ -2683,10 +2701,10 @@ function wirePoolChips(root, onSwitch) {
   });
 }
 
-// Handelt de ?leaderboard-, ?join-, ?rating- en ?achievements-deeplinks af zodra
-// de auth-state binnen is. Uitgelogd → login-nudge bij bord/join (intentie blijft
-// staan tot na login); rating en prestaties hebben een eigen anon-weergave en
-// openen dus gewoon.
+// Handelt de ?leaderboard-, ?join-, ?rating-, ?achievements- en ?history-deeplinks af
+// zodra de auth-state binnen is. Uitgelogd → login-nudge bij bord/join (intentie blijft
+// staan tot na login); rating, prestaties en geschiedenis hebben een eigen anon-weergave
+// en openen dus gewoon.
 function maybeOpenLeaderboardDeeplink() {
   if (pendingJoinCode) {
     if (!auth.user) { openModal("modal-login"); return; }
@@ -2705,7 +2723,8 @@ function maybeOpenLeaderboardDeeplink() {
   }
   if (pendingOpenModal) {
     const id = pendingOpenModal; pendingOpenModal = null;
-    openModal(id);
+    const historyDate = pendingHistoryDate; pendingHistoryDate = null;
+    openModal(id, id === "modal-history" ? { date: historyDate } : undefined);
   }
 }
 
@@ -4862,6 +4881,112 @@ async function maybeRestoreDailyAfterLogin() {
   finishGame(board.won, false);  // fresh=false -> geen confetti/telemetrie/dubbeltelling
 }
 
+// "YYYY-MM-DD" → volledige gelokaliseerde datum ("15 jul 2026") voor de geschiedenislijst,
+// die (anders dan de daily-kop) over meerdere jaren kan lopen.
+function fmtHistoryDate(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Intl.DateTimeFormat(LANGS[lang].intl, { day: "numeric", month: "short", year: "numeric" })
+    .format(new Date(Date.UTC(y, m - 1, d)));
+}
+
+// 📅 Geschiedenis-modal: lijst van gespeelde dailies (nieuwste eerst) → klik op een
+// rij voor het gereconstrueerde bord + het feit van die dag. Login-only (cross-device
+// identiteit), zelfde bewaar-pitch als de Free/Rating-tabs in Stats voor anon.
+let historyReq = 0;   // race-guard: alleen de laatste render mag de modal vullen
+
+// `date` (optioneel): direct doorklikken naar de drill-down van die dag — gebruikt
+// door de ?history=<datum>-deeplink. Eén request-keten (geen aparte race tussen
+// lijst- en detail-render): de lijst wordt overgeslagen als `date` een match heeft.
+async function renderHistory(date) {
+  const body = document.getElementById("history-body");
+  if (!auth.user) {
+    body.innerHTML = recapAccountHtml();
+    wireAcctPitch(body);
+    return;
+  }
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const req = ++historyReq;
+  const rows = await getMyHistory();
+  if (req !== historyReq || document.getElementById("modal-history").hidden) return;
+  const row = date && rows.find((r) => r.date === date);
+  if (row) { openHistoryDetail(body, date, row); return; }
+  renderHistoryList(body, rows);
+}
+
+function renderHistoryList(body, rows) {
+  if (!rows.length) {
+    body.innerHTML = `<p class="stats-empty">${t("history_empty")}</p>`;
+    return;
+  }
+  const sorted = [...rows].sort((a, b) => b.date.localeCompare(a.date));
+  body.innerHTML = `<div class="lb-table">` + sorted.map((r) =>
+    `<button type="button" class="lb-row history-row" data-date="${r.date}">` +
+      `<span class="lb-rank">#${dayNumForKey(r.date)}</span>` +
+      `<span class="lb-name">${escHtml(fmtHistoryDate(r.date))}</span>` +
+      `<span class="lb-val"><span class="lb-score">${r.won ? r.score : "💀"}</span></span>` +
+    `</button>`).join("") + `</div>`;
+  body.querySelectorAll(".history-row").forEach((btn) => {
+    btn.onclick = () => openHistoryDetail(body, btn.dataset.date, sorted.find((r) => r.date === btn.dataset.date));
+  });
+}
+
+// Drill-down: haalt het feit van die dag op (get_daily staat oude datums toe — geen
+// nieuwe blootstelling) en reconstrueert het afgeronde bord (reconstructDailyBoard,
+// hergebruikt van de daily-restore-logica hierboven).
+async function openHistoryDetail(body, date, row) {
+  if (!row) return;
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const req = ++historyReq;
+  let p = null, board = null;
+  try {
+    p = await rpc("get_daily", { d: date });
+    board = await reconstructDailyBoard(p?.year, date);
+  } catch (e) { p = null; }
+  if (req !== historyReq || document.getElementById("modal-history").hidden) return;
+  if (!p) { renderHistoryList(body, await getMyHistory()); return; }
+  const event = toEvent(p);
+  const factText = event.facts[0]?.[lang] || event.facts[0]?.[DEFAULT_LANG] || "";
+  const tier = scoreTier(row.score, row.won);
+  body.innerHTML = `
+    <button type="button" class="history-back lb-pillbtn">${escHtml(t("history_back"))}</button>
+    <p class="history-daylabel">${escHtml(t("day"))} #${dayNumForKey(date)} · ${escHtml(fmtHistoryDate(date))}</p>
+    <p class="fact">${escHtml(factText)}</p>
+    <p class="history-score">${tier.emoji} ${escHtml(tierLabel(tier))} · ${row.score}/100</p>
+    <div class="history-board"></div>
+    <p class="history-source">${event.source ? `${escHtml(t("source"))} <a href="${event.source}" target="_blank" rel="noopener">${displaySource(event.source)}</a> · CC BY-SA` : ""}</p>`;
+  if (board) renderHistoryBoardInto(body.querySelector(".history-board"), board);
+  body.querySelector(".history-back").onclick = () => { setModalUrl("history"); renderHistory(); };
+  setModalUrl(`history=${date}`);
+}
+
+// Bouwt de gokrijen voor de drill-down als losse DOM-nodes (i.p.v. renderGuesses()
+// te hergebruiken): dat schrijft naar het vaste #guesses-element en de levende
+// `state`, wat hier niet past — dit bord toont een AFGESLOTEN dag, los van de
+// huidige puzzel. Alleen de werkelijk gebruikte rijen (geen lege slots tot 6).
+function renderHistoryBoardInto(container, board) {
+  container.innerHTML = "";
+  const revealedSet = new Set(board.directionsRevealed);
+  board.guesses.forEach((g, idx) => {
+    const row = document.createElement("div");
+    row.className = `guess-row ${g.cls}`;
+    const yr = document.createElement("span");
+    yr.className = "year";
+    yr.textContent = g.year;
+    const badge = document.createElement("span");
+    badge.className = `delta-badge ${g.cls}`;
+    renderDeltaBadge(badge, g.diff, g.cls, revealedSet.has(idx));
+    row.append(yr, badge);
+    const penalty = GUESS_PENALTIES[g.cls] || 0;
+    if (penalty > 0) {
+      const pen = document.createElement("span");
+      pen.className = "penalty";
+      pen.textContent = `−${penalty}`;
+      row.appendChild(pen);
+    }
+    container.appendChild(row);
+  });
+}
+
 const HISTORY_KEY = "jaardle:history";
 
 function loadHistory() {
@@ -5351,6 +5476,7 @@ function openModal(id, opts) {
   document.getElementById(id).hidden = false;
   lockBodyScroll();
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
+  if (id === "modal-history") { renderHistory(opts && opts.date); setModalUrl("history"); }
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
@@ -5935,6 +6061,7 @@ async function init() {
     toggleMenu(false);
     // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
     if (action === "stats") openModal("modal-stats");
+    else if (action === "history") openModal("modal-history");
     else if (action === "achievements") openModal("modal-achv");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
@@ -6098,10 +6225,17 @@ async function init() {
     if (["daily", "podium", "stats"].includes(lbTabParam)) pendingLbTab = lbTabParam;
     lbParams.delete("leaderboard");
   }
-  // ?rating / ?achievements: zelfde patroon — intentie parkeren, URL opschonen,
-  // openen zodra auth bekend is (voorkomt een anon-flits voor ingelogde spelers).
+  // ?rating / ?achievements / ?history: zelfde patroon — intentie parkeren, URL
+  // opschonen, openen zodra auth bekend is (voorkomt een anon-flits voor ingelogde
+  // spelers). ?history=YYYY-MM-DD opent bovendien direct de drill-down voor die dag.
   if (lbParams.has("rating")) { pendingOpenModal = "modal-stats"; pendingStatsTab = "rating"; lbParams.delete("rating"); }
   if (lbParams.has("achievements")) { pendingOpenModal = "modal-achv"; lbParams.delete("achievements"); }
+  if (lbParams.has("history")) {
+    pendingOpenModal = "modal-history";
+    const hd = lbParams.get("history");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(hd || "")) pendingHistoryDate = hd;
+    lbParams.delete("history");
+  }
   if (joinCode || pendingOpenLeaderboard || pendingOpenModal) {
     const qs = lbParams.toString();
     history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);

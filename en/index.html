@@ -87,7 +87,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=119">
+<link rel="stylesheet" href="/style.css?v=120">
 </head>
 <body>
   <main>
@@ -101,6 +101,7 @@
         <div id="menu-pop" role="menu" hidden>
           <div id="menu-account" class="menu-section"></div>
           <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Statistics</button>
+          <button class="menu-item" role="menuitem" data-action="history" data-i18n="menu_history">📅 History</button>
           <button class="menu-item" role="menuitem" data-action="achievements" data-i18n="menu_achv">🏅 Achievements</button>
           <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Leaderboard</button>
           <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">☀️ Light theme</button>
@@ -212,6 +213,17 @@
         <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
       </header>
       <div id="stats-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-history" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-history-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-history-title" data-i18n="menu_history">📅 History</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="history-body" class="modal-body"></div>
     </div>
   </div>
 
@@ -361,7 +373,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=200"></script>
+  <script src="/game.js?v=201"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
