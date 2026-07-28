@@ -180,7 +180,6 @@ const I18N = {
     lb_wk_live: "loopt nog", lb_wk_done: "afgerond",
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
     lb_wk_punten: "punten",
-    lb_wk_participated: "meegedaan",
     lb_recap_head: "Vorige week", lb_recap_view: "Bekijk het podium",
     lb_wk_note_live: "Tussenstand — het podium klapt maandag dicht. Score = som van je dagscores + 25 bonuspunten per dagzege.",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
@@ -386,7 +385,6 @@ const I18N = {
     lb_wk_live: "live", lb_wk_done: "final",
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
     lb_wk_punten: "points",
-    lb_wk_participated: "took part",
     lb_recap_head: "Last week", lb_recap_view: "View the podium",
     lb_wk_note_live: "Live standings — the podium locks on Monday. Score = sum of your daily scores + 25 bonus points per daily win.",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
@@ -587,7 +585,6 @@ const I18N = {
     lb_wk_live: "läuft noch", lb_wk_done: "beendet",
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
     lb_wk_punten: "Punkte",
-    lb_wk_participated: "mitgemacht",
     lb_recap_head: "Letzte Woche", lb_recap_view: "Podest ansehen",
     lb_wk_note_live: "Zwischenstand — das Podest schließt am Montag. Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
@@ -792,7 +789,6 @@ const I18N = {
     lb_wk_live: "en curso", lb_wk_done: "cerrada",
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
     lb_wk_punten: "puntos",
-    lb_wk_participated: "participó",
     lb_recap_head: "La semana pasada", lb_recap_view: "Ver el podio",
     lb_wk_note_live: "Clasificación en curso — el podio se cierra el lunes. Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
@@ -997,7 +993,6 @@ const I18N = {
     lb_wk_live: "em andamento", lb_wk_done: "encerrada",
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
     lb_wk_punten: "pontos",
-    lb_wk_participated: "participou",
     lb_recap_head: "Semana passada", lb_recap_view: "Ver o pódio",
     lb_wk_note_live: "Parcial — o pódio fecha na segunda. Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
@@ -3309,7 +3304,8 @@ function showPodiumConfetti() {
 }
 
 // Bouwt het podium (🥇 midden-hoog · 🥈 links · 🥉 rechts, alleen gevulde treden)
-// met dansende flair + naam, en daaronder de "meegedaan"-lijst (rang 4+ / 0 dagzeges).
+// met dansende flair + naam, en daaronder de resterende rijen (rang 4+) mét hun
+// score/potjes/dagzeges — niet langer alleen "meegedaan".
 function podiumHtml(rows, isLive) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const flairDance = (f) => (f ? (reduced ? escHtml(f) : flairPreviewHtml(f)) : "");
@@ -3333,12 +3329,13 @@ function podiumHtml(rows, isLive) {
       `<span class="lb-pod-u">${escHtml(t("lb_wk_punten"))}</span></div></div></div>`;
   }).join("");
   const rest = rows.slice(top.length);
+  const restStat = (r) => `${r.week_score} ${escHtml(t("lb_wk_punten"))} · ${escHtml(t("lb_games_short")(r.played))} · ${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}`;
   const restHtml = rest.length ? `<div class="lb-wk-rest">` + rest.map((r) =>
     `<div class="lb-wk-restrow${r.is_me ? " lb-me" : ""}">` +
     `<span class="lb-wk-rk">${r.rank}</span>` +
     `<span class="lb-wk-rf">${r.flair ? escHtml(r.flair) : ""}</span>` +
     `<span class="lb-wk-rn">${escHtml(r.display_name)}</span>` +
-    `<span class="lb-wk-rc">${r.daily_wins > 0 ? escHtml(t("lb_wk_n_dagzeges")(r.daily_wins)) : escHtml(t("lb_wk_participated"))}</span></div>`
+    `<span class="lb-wk-rc">${restStat(r)}</span></div>`
   ).join("") + `</div>` : "";
   const note = `<p class="lb-wk-note">${escHtml(isLive ? t("lb_wk_note_live") : t("lb_wk_formula"))}</p>`;
   return `<div class="lb-pod-stage">${podium}</div>${note}${restHtml}`;
