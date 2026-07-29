@@ -255,6 +255,9 @@ const I18N = {
     rating_low: "Laagste",
     menu_rating: "⚡ Rating",
     rating_empty: "Nog te weinig historie — na twee dagen spelen verschijnt hier je rating-grafiek.",
+    rating_pool_head: (n) => `Rating in ${n}`,
+    rating_pool_none: "Nog geen pool · daag je vrienden uit",
+    rating_pool_prov: "? = voorlopig · het bord rekent tot 25 potjes met onzekerheid",
     menu_achv: "🏅 Prestaties",
     achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
@@ -463,6 +466,9 @@ const I18N = {
     rating_low: "Lowest",
     menu_rating: "⚡ Rating",
     rating_empty: "Not enough history yet — your rating graph appears after two days of play.",
+    rating_pool_head: (n) => `Rating in ${n}`,
+    rating_pool_none: "No pool yet · challenge your friends",
+    rating_pool_prov: "? = provisional · the board allows for uncertainty until 25 rounds",
     menu_achv: "🏅 Achievements",
     achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
@@ -666,6 +672,9 @@ const I18N = {
     rating_low: "Tiefstwert",
     menu_rating: "⚡ Rating",
     rating_empty: "Noch zu wenig Verlauf — nach zwei Spieltagen erscheint hier dein Rating-Diagramm.",
+    rating_pool_head: (n) => `Rating in ${n}`,
+    rating_pool_none: "Noch kein Pool · fordere deine Freunde heraus",
+    rating_pool_prov: "? = vorläufig · bis 25 Runden rechnet die Tabelle mit Unsicherheit",
     menu_achv: "🏅 Erfolge",
     achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
@@ -873,6 +882,9 @@ const I18N = {
     rating_low: "Mínimo",
     menu_rating: "⚡ Rating",
     rating_empty: "Aún no hay historial suficiente: tu gráfica de rating aparecerá tras dos días de juego.",
+    rating_pool_head: (n) => `Rating en ${n}`,
+    rating_pool_none: "Todavía sin grupo · desafía a tus amigos",
+    rating_pool_prov: "? = provisional · la tabla tiene en cuenta la incertidumbre hasta 25 partidas",
     menu_achv: "🏅 Logros",
     achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
@@ -1080,6 +1092,9 @@ const I18N = {
     rating_low: "Mínimo",
     menu_rating: "⚡ Rating",
     rating_empty: "Ainda não há histórico suficiente — seu gráfico de rating aparece após dois dias de jogo.",
+    rating_pool_head: (n) => `Rating em ${n}`,
+    rating_pool_none: "Ainda sem grupo · desafie seus amigos",
+    rating_pool_prov: "? = provisório · a tabela considera a incerteza até 25 partidas",
     menu_achv: "🏅 Conquistas",
     achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
@@ -5156,12 +5171,65 @@ function wireAcctPitch(container) {
 
 // ⚡ Rating-tab: grafiek (of leegmelding zolang er nog geen lijn te tekenen is),
 // met de sterkste-eeuw-regel eronder — die telt daily + vrij spel samen en
-// hoort dus niet bij een van de andere twee tabs.
+// hoort dus niet bij een van de andere twee tabs. Onderaan het rating-bord van
+// je pool: wie hier komt wil weten of hij al eerste staat, dus die vraag hoort
+// in hetzelfde scherm — als conclusie ná je eigen cijfer/verloop, niet ervoor.
 async function renderRatingPane(pane, req) {
   const drawn = await renderRatingStats(pane, req);
   if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
   if (!drawn) pane.innerHTML = `<p class="stats-empty">${t("rating_empty")}</p>`;
   await renderCenturyStats(pane, req);
+  await renderRatingPoolBoard(pane, req);
+}
+
+// 🏆 Pool-rating onder de grafiek: dezelfde rijen als de rating-pagina op het
+// leaderboard (zelfde RPC, zelfde val-functie uit LB_STATS, zelfde inactief-
+// filter), maar bewust zónder wissel-chips en zónder de andere stat-kolommen —
+// pool-beheer en swipen blijven op het leaderboard. Het kopje is de deur
+// daarheen. Volgt altijd de ACTIEVE pool; de naam staat in het kopje zodat
+// nooit onduidelijk is wélke pool je ziet.
+async function renderRatingPoolBoard(pane, req) {
+  const stale = () => req !== statsReq || document.getElementById("modal-stats").hidden;
+  // De modal kan open zijn vóórdat refreshPoolState klaar is (deeplink, verse
+  // login) — dan is myPool nog null en zou je onterecht "geen pool" zien.
+  if (!myPool) await fetchMyPools();
+  if (stale()) return;
+
+  const sec = document.createElement("div");
+  sec.className = "stats-pool";
+  if (!myPool) {
+    sec.innerHTML = `<button type="button" class="stats-pool-cta">🏆 ${escHtml(t("rating_pool_none"))} <span class="rating-go">›</span></button>`;
+    sec.querySelector("button").onclick = () => { closeAllModals(); openModal("modal-leaderboard"); };
+    pane.appendChild(sec);
+    return;
+  }
+
+  const poolId = myPool.id;
+  let rows = [];
+  try { rows = await rpc("get_pool_leaderboard", { p_pool_id: poolId, p_min_games: 1 }); } catch (e) { return; }
+  if (stale() || myPool?.id !== poolId) return;
+  // Zelfde regel als op het leaderboard: leden die 7+ dagen niet speelden zijn
+  // verborgen (jezelf zie je altijd), met een voetregel die het gat verklaart.
+  const active = (Array.isArray(rows) ? rows : []).filter((r) => r.is_active !== false || r.is_me);
+  const hidden = (Array.isArray(rows) ? rows.length : 0) - active.length;
+  const ratingVal = LB_STATS.find((s) => s.key === "rating").val;
+  // De grafiek hierboven toont je RAUWE elo, het bord de conservatieve (elo−2·rd,
+  // straf naar 0 bij 25 potjes). Op het leaderboard staat dat getal alleen, maar
+  // hier staan de twee vlak onder elkaar — bij een voorlopige eigen rating (het
+  // "?") schelen ze honderden punten en leest dat als een fout. Vandaar één
+  // voetregel, alléén zolang jóuw rij voorlopig is; daarna vallen ze samen.
+  const meProv = active.some((r) => r.is_me && r.is_provisional);
+  sec.innerHTML = `
+    <button type="button" class="stats-pool-head">🏆 ${escHtml(t("rating_pool_head")(myPool.name))} <span class="rating-go">›</span></button>
+    ${lbStatRows(active, ratingVal)}
+    ${hidden > 0 ? `<p class="lb-hidden-note">${escHtml(t("lb_hidden_inactive")(hidden))}</p>` : ""}
+    ${meProv ? `<p class="lb-hidden-note">${escHtml(t("rating_pool_prov"))}</p>` : ""}`;
+  sec.querySelector(".stats-pool-head").onclick = () => {
+    pendingLbTab = "stats";
+    closeAllModals();
+    openModal("modal-leaderboard");
+  };
+  pane.appendChild(sec);
 }
 
 // ⚡ Rating-verloop (lichess-stijl): per dag de laatste elo uit de DB-historie

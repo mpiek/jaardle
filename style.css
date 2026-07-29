@@ -1332,6 +1332,45 @@ footer {
 }
 .stats-century strong { color: var(--fg); }
 
+/* 🏆 Pool-rating onderaan de ⚡-pane: de conclusie ("sta ik al eerste?") ná je
+   eigen cijfer en verloop, dus met een scheidingslijn los van de blokken erboven
+   (zelfde idioom als .recap-section + .recap-section). Het kopje is een knop naar
+   het volledige bord op het leaderboard — daar zitten ook de wissel-chips en de
+   andere stat-kolommen, die hier bewust niet staan. */
+.stats-pool {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+}
+.stats-pool-head,
+.stats-pool-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  width: 100%;
+  background: none;
+  border-radius: 0;
+  padding: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+/* Geen-pool-uitnodiging is een gewone zin, geen kopje — dus zonder kapitalen. */
+.stats-pool-cta {
+  padding-bottom: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.stats-pool-head:hover .rating-go,
+.stats-pool-head:focus-visible .rating-go,
+.stats-pool-cta:hover .rating-go,
+.stats-pool-cta:focus-visible .rating-go { color: var(--accent); }
+
 /* --- Daily-recap: verdeling pogingen + teamstand --- */
 .recap-section { margin-top: 1.1rem; }
 .recap-section:first-child { margin-top: 0; }
