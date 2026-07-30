@@ -281,7 +281,7 @@ const I18N = {
     achv_t_saver: "Reddingsactie", achv_t_saver_sub: "red een streak met de inhaal-daily",
     achv_t_eras: "Tijdreiziger", achv_t_eras_sub: "win in elk van de 6 tijdperken",
     // Het getal in _sub moet gelijklopen met OBSIDIAN_AT en award_titles() in db/43.
-    achv_t_obsidian: "Obsidiaan", achv_t_obsidian_sub: "bereik ooit een rating van 1900",
+    achv_t_obsidian: "Obsidiaan", achv_t_obsidian_sub: "bereik ooit een rating van 1925",
     achv_title_wear: (code) => `${code} dragen`,
     title_obs_note: "Obsidiaan — de zeldzaamste rating-prestatie.",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "gok zowel te vroeg als te laat vóór de winst",
@@ -499,7 +499,7 @@ const I18N = {
     achv_t_flawless: "Flawless", achv_t_flawless_sub: "5 perfect 100s in a row",
     achv_t_saver: "Rescue mission", achv_t_saver_sub: "save a streak with the make-up daily",
     achv_t_eras: "Time traveller", achv_t_eras_sub: "win in each of the 6 eras",
-    achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "reach a rating of 1900",
+    achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "reach a rating of 1925",
     achv_title_wear: (code) => `Wear ${code}`,
     title_obs_note: "Obsidian — the rarest rating achievement.",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "guess both too early and too late before winning",
@@ -712,7 +712,7 @@ const I18N = {
     achv_t_flawless: "Makellos", achv_t_flawless_sub: "5 perfekte 100er in Folge",
     achv_t_saver: "Rettungsaktion", achv_t_saver_sub: "rette eine Serie mit dem Nachhol-Rätsel",
     achv_t_eras: "Zeitreisender", achv_t_eras_sub: "gewinne in allen 6 Epochen",
-    achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "erreiche eine Wertung von 1900",
+    achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "erreiche eine Wertung von 1925",
     achv_title_wear: (code) => `${code} tragen`,
     title_obs_note: "Obsidian — die seltenste Wertungs-Auszeichnung.",
     achv_t_zigzag: "Zickzack", achv_t_zigzag_sub: "rate vor dem Sieg sowohl zu früh als auch zu spät",
@@ -929,7 +929,7 @@ const I18N = {
     achv_t_flawless: "Impecable", achv_t_flawless_sub: "5 puntuaciones perfectas seguidas",
     achv_t_saver: "Rescate", achv_t_saver_sub: "salva una racha con el puzle de recuperación",
     achv_t_eras: "Viajero del tiempo", achv_t_eras_sub: "gana en cada una de las 6 épocas",
-    achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcanza una puntuación de 1900",
+    achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcanza una puntuación de 1925",
     achv_title_wear: (code) => `Llevar ${code}`,
     title_obs_note: "Obsidiana: el logro de puntuación más raro.",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "adivina antes de ganar tanto demasiado pronto como demasiado tarde",
@@ -1146,7 +1146,7 @@ const I18N = {
     achv_t_flawless: "Impecável", achv_t_flawless_sub: "5 pontuações perfeitas seguidas",
     achv_t_saver: "Resgate", achv_t_saver_sub: "salve uma sequência com o desafio de recuperação",
     achv_t_eras: "Viajante do tempo", achv_t_eras_sub: "vença em cada uma das 6 eras",
-    achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcance um rating de 1900",
+    achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcance um rating de 1925",
     achv_title_wear: (code) => `Usar ${code}`,
     title_obs_note: "Obsidiana — a conquista de rating mais rara.",
     achv_t_zigzag: "Ziguezague", achv_t_zigzag_sub: "chute antes de vencer tanto cedo demais quanto tarde demais",
@@ -4356,7 +4356,16 @@ const ACHV_TROPHIES = [
     authOnly: true, weight: 10, titleCode: "OBS",
     reveal: (a) => (a.rating || 0) >= OBSIDIAN_REVEAL },
 ];
-const OBSIDIAN_AT     = 1900;   // moet gelijklopen met award_titles() in db/43
+// 1900 → 1925 (db/48): de rating-verruimingen van 30-07 tilden het haalbare plafond tot
+// óp de oude drempel, waardoor die binnen een dag te halen werd. Een piek-drempel moet
+// niet tegen het evenwicht geijkt worden maar tegen de piekverdeling — je hoeft er maar
+// één keer langs, en pieken schieten ~25-35 punten over het evenwicht heen. Doorgerekend
+// valt 1925 met ~31% binnen 500 potten en 88% binnen 2000 (jagen met een echte kans),
+// terwijl 1950 op 1% over 2000 potten uitkwam: geen zeldzame trofee maar een dode.
+// Bij wijziging: award_titles() in db/48 én het getal in achv_t_obsidian_sub (5 talen).
+const OBSIDIAN_AT     = 1925;   // moet gelijklopen met award_titles() in db/48
+// Reveal bewust NIET meeverhoogd: bij de omzetting stond er al iemand boven 1850, en dan
+// zou de trofee weer verdwijnen bij wie hem al kon zien.
 const OBSIDIAN_REVEAL = 1850;   // = de diamant-trede van de rating-ladder
 const ACHV_REPEAT_KEYS = ACHV_TROPHIES.filter((tr) => tr.repeatable).map((tr) => tr.key);
 const FLAWLESS_RUN = 5;   // drempel voor de "Vlekkeloos"-trofee (moet gelijklopen met db/33)
