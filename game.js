@@ -2325,21 +2325,72 @@ function showConfetti() {
   setTimeout(() => container.remove(), 5000);
 }
 
+let fwRAF = null;    // rAF-handle van het vuurwerk-canvas (stop = geen leak)
+let fwBox = null;    // de container van de lópende run
+
+// Stopt het vuurwerk en ruimt het canvas op — zelfde vorm als stopPodiumConfetti.
+function stopFireworks() {
+  if (fwRAF) { cancelAnimationFrame(fwRAF); fwRAF = null; }
+  if (fwBox) { fwBox.remove(); fwBox = null; }
+}
+
 // Groots vuurwerk voor een first-try-winst: meerdere bursts die na elkaar
 // ontploffen, elk een ring deeltjes die naar buiten schiet (met een beetje
 // zwaartekracht). Bewust forser dan de confetti — dit is de zeldzame topscore.
+//
+// Op ÉÉN canvas i.p.v. ~1200 losse divs. De DOM-versie haalde op een 4× getrolde
+// telefoon ~11 fps en dit ~59 (zelfde 26 bursts, zelfde deeltjes). De kostenpost
+// was puur het aantal gelijktijdig animerende elementen: will-change weghalen of
+// de box-shadow-gloed schrappen scheelde niets (11 → 12), de helft van de
+// deeltjes verdubbelde de fps. Boven ~150 animerende elementen zakt het door.
+// De gloed komt van voorgerenderde sprites; ctx.shadowBlur per deeltje is te duur.
+//
+// LET OP: prefers-reduced-motion werd hiervóór door CSS afgevangen
+// (.firework-particle { display: none }). Een canvas tekent gewoon door, dus de
+// bail-out hieronder is nu de énige bescherming — weghalen = stille regressie
+// voor wie minder beweging heeft ingesteld.
 function showFireworks() {
+  stopFireworks();   // nooit twee lussen tegelijk
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   // Wit spat het mooist op donker; op het lichte thema is het onzichtbaar → leigrijs.
   const spark = currentTheme() === "light" ? "#37474f" : "#ffffff";
   const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff", "#ff5fa2", spark];
-  const container = document.createElement("div");
-  container.className = "fireworks-container";
-  const bursts = 26;
+  const box = document.createElement("div");
+  box.className = "fireworks-container";
+  const cv = document.createElement("canvas");
+  cv.setAttribute("aria-hidden", "true");
+  box.appendChild(cv);
+  document.body.appendChild(box);
+  fwBox = box;
+  const ctx = cv.getContext("2d");
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  let W = 0, H = 0;
+  const fit = () => {                     // ook bij draaien/resize mid-effect
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  fit();
+  // Eén gloed-sprite per kleur: dekkende kern tot 35% van de STRAAL, daarna
+  // uitdovend — dat benadert de `box-shadow: 0 0 6px 1px` van de oude divs.
+  // De kern is dus 0,35 × de spritediameter; daar rekent de tekenmaat op terug.
+  const sprites = colors.map((col) => {
+    const s = document.createElement("canvas");
+    s.width = s.height = 32;
+    const g = s.getContext("2d");
+    const rg = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+    rg.addColorStop(0, col); rg.addColorStop(0.35, col); rg.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = rg;
+    g.fillRect(0, 0, 32, 32);
+    return s;
+  });
+  // Middelpunten als frácties van het venster, zodat een rotatie ze meeneemt.
+  const parts = [];
   let maxEnd = 0;
-  for (let b = 0; b < bursts; b++) {
-    const cx = 8 + Math.random() * 84;             // vw
-    const cy = 8 + Math.random() * 60;             // vh
-    const color = colors[Math.floor(Math.random() * colors.length)];
+  for (let b = 0; b < 26; b++) {
+    const fx = (8 + Math.random() * 84) / 100;
+    const fy = (8 + Math.random() * 60) / 100;
+    const ci = Math.floor(Math.random() * colors.length);
     const delay = b * 0.16 + Math.random() * 0.14; // s, dicht op elkaar → veel tegelijk
     const particles = 36 + Math.floor(Math.random() * 20);
     const radius = 110 + Math.random() * 130;      // px
@@ -2348,23 +2399,38 @@ function showFireworks() {
     for (let i = 0; i < particles; i++) {
       const ang = (i / particles) * Math.PI * 2 + Math.random() * 0.25;
       const dist = radius * (0.55 + Math.random() * 0.45);
-      const p = document.createElement("div");
-      p.className = "firework-particle";
-      p.style.left = cx + "vw";
-      p.style.top = cy + "vh";
-      const sz = 5 + Math.random() * 5;             // wat variatie in grootte
-      p.style.width = p.style.height = `${sz}px`;
-      p.style.color = color;                        // box-shadow gebruikt currentColor
-      p.style.background = color;
-      p.style.setProperty("--dx", `${Math.cos(ang) * dist}px`);
-      p.style.setProperty("--dy", `${Math.sin(ang) * dist + 60}px`); // +zwaartekracht
-      p.style.setProperty("--delay", `${delay}s`);
-      p.style.setProperty("--dur", `${dur}s`);
-      container.appendChild(p);
+      parts.push({
+        fx, fy, ci, delay, dur,
+        dx: Math.cos(ang) * dist,
+        dy: Math.sin(ang) * dist + 60,             // +zwaartekracht
+        sz: 5 + Math.random() * 5,                 // wat variatie in grootte
+      });
     }
   }
-  document.body.appendChild(container);
-  setTimeout(() => container.remove(), (maxEnd + 0.5) * 1000);
+  const t0 = performance.now();
+  const step = (now) => {
+    if (!cv.isConnected) { stopFireworks(); return; }
+    if (W !== innerWidth || H !== innerHeight) fit();
+    const t = (now - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    for (const p of parts) {
+      const u = (t - p.delay) / p.dur;
+      if (u < 0 || u > 1) continue;
+      const e = 1 - Math.pow(1 - u, 1.7);          // ≈ CSS ease-out
+      // sprite zó groot tekenen dat de dekkende kern net zo breed is als de oude
+      // div (sz × scale 1.2 → 0.2); de rest van de sprite is de gloed eromheen
+      const d = (p.sz * (1.2 - e)) / 0.35;
+      ctx.globalAlpha = u < 0.7 ? 1 : Math.max(0, 1 - (u - 0.7) / 0.3);
+      ctx.drawImage(sprites[p.ci], p.fx * W + p.dx * e - d / 2, p.fy * H + p.dy * e - d / 2, d, d);
+    }
+    ctx.globalAlpha = 1;
+    if (t < maxEnd + 0.2) fwRAF = requestAnimationFrame(step);
+    else stopFireworks();
+  };
+  fwRAF = requestAnimationFrame(step);
+  // Vangnet: op een achtergrond-tab pauzeert rAF, dan ruimt de lus zichzelf niet
+  // op. Alleen de eigen run opruimen — een nieuwere mag deze timer niet raken.
+  setTimeout(() => { if (fwBox === box) stopFireworks(); }, (maxEnd + 1.5) * 1000);
 }
 
 function finishGame(won, fresh = false) {

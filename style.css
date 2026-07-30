@@ -1121,7 +1121,11 @@ footer {
   90%  { opacity: 1; }
   100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
 }
-/* Vuurwerk: alleen bij een first-try-winst (zie showFireworks in game.js). */
+/* Vuurwerk: alleen bij een first-try-winst (zie showFireworks in game.js).
+   Sinds v205 één canvas i.p.v. ~1200 losse deeltjes-divs — die haalden op een
+   middenklasse-telefoon ~11 fps. De animatie zit volledig in game.js; hier staat
+   alleen nog de laag waarin het canvas hangt. prefers-reduced-motion wordt dáár
+   afgevangen (een canvas is met CSS niet stil te zetten). */
 .fireworks-container {
   position: fixed;
   inset: 0;
@@ -1129,20 +1133,10 @@ footer {
   z-index: 999;
   overflow: hidden;
 }
-.firework-particle {
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  opacity: 0;
-  will-change: transform, opacity;
-  box-shadow: 0 0 6px 1px currentColor;
-  animation: firework-burst var(--dur, 1.2s) ease-out var(--delay, 0s) forwards;
-}
-@keyframes firework-burst {
-  0%   { transform: translate(0, 0) scale(1.2);            opacity: 1; }
-  70%  { opacity: 1; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+.fireworks-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .year-pill.win-pop {
   animation: year-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -1154,7 +1148,8 @@ footer {
 }
 @media (prefers-reduced-motion: reduce) {
   .confetti-piece { display: none; }
-  .firework-particle { display: none; }
+  /* Het vuurwerk staat hier niet meer: dat is sinds v205 een canvas en wordt in
+     showFireworks() zelf afgevangen — CSS kan een canvas niet stilzetten. */
   .year-pill.win-pop { animation: none; }
 }
 
