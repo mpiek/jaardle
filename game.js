@@ -288,12 +288,15 @@ const I18N = {
     achv_flair_note: (e, tier) => `bij ${tier} verdien je de ${e}-flair voor op het leaderboard`,
     achv_flair_note_multi: (list) => `flairs voor op het leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `hiermee verdien je de ${e}-flair voor op het leaderboard`,
+    achv_fx_note: (e, tier) => `bij ${tier} wordt elke winst een ${e}`,
+    achv_fx_beer: "🍻 Bier-viering",
     achv_anon_note: "🔒 Niet opgeslagen — met een account blijven je prestaties bewaard.",
     achv_year_locked: "nog niet ontdekt",
     achv_unlocked: "Prestatie behaald", achv_stamp_new: "Nieuwe zegel",
     achv_new_badge: "NIEUW", achv_card_view: "bekijk",
     achv_card_unsaved: "🔒 niet opgeslagen",
     achv_flair_earned: (e) => `${e}-flair vrijgespeeld`,
+    achv_fx_earned: (e) => `${e}-viering vrijgespeeld — hij staat aan bij elke winst`,
     achv_flair_choose: (e) => `kies ${e}`,
     achv_back: "‹ Prestaties",
     history_back: "‹ Geschiedenis",
@@ -501,12 +504,15 @@ const I18N = {
     achv_flair_note: (e, tier) => `reach ${tier} to earn the ${e} flair for the leaderboard`,
     achv_flair_note_multi: (list) => `flairs for the leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `earns you the ${e} flair for the leaderboard`,
+    achv_fx_note: (e, tier) => `at ${tier} every win turns into a ${e}`,
+    achv_fx_beer: "🍻 Beer celebration",
     achv_anon_note: "🔒 Not saved — with an account your achievements are kept.",
     achv_year_locked: "not discovered yet",
     achv_unlocked: "Achievement unlocked", achv_stamp_new: "New stamp",
     achv_new_badge: "NEW", achv_card_view: "view",
     achv_card_unsaved: "🔒 not saved",
     achv_flair_earned: (e) => `${e} flair unlocked`,
+    achv_fx_earned: (e) => `${e} celebration unlocked — it plays on every win`,
     achv_flair_choose: (e) => `choose ${e}`,
     achv_back: "‹ Achievements",
     history_back: "‹ History",
@@ -709,12 +715,15 @@ const I18N = {
     achv_flair_note: (e, tier) => `ab ${tier} verdienst du das ${e}-Flair für die Bestenliste`,
     achv_flair_note_multi: (list) => `Flairs für die Bestenliste: ${list}`,
     achv_flair_note_flat: (e) => `damit verdienst du das ${e}-Flair für die Bestenliste`,
+    achv_fx_note: (e, tier) => `ab ${tier} wird jeder Sieg ein ${e}`,
+    achv_fx_beer: "🍻 Bier-Feier",
     achv_anon_note: "🔒 Nicht gespeichert — mit einem Konto bleiben deine Erfolge erhalten.",
     achv_year_locked: "noch nicht entdeckt",
     achv_unlocked: "Erfolg freigeschaltet", achv_stamp_new: "Neue Briefmarke",
     achv_new_badge: "NEU", achv_card_view: "ansehen",
     achv_card_unsaved: "🔒 nicht gespeichert",
     achv_flair_earned: (e) => `${e}-Flair freigeschaltet`,
+    achv_fx_earned: (e) => `${e}-Feier freigeschaltet — sie spielt bei jedem Sieg`,
     achv_flair_choose: (e) => `${e} wählen`,
     achv_back: "‹ Erfolge",
     history_back: "‹ Verlauf",
@@ -921,12 +930,15 @@ const I18N = {
     achv_flair_note: (e, tier) => `al llegar a ${tier} ganas el distintivo ${e} para la clasificación`,
     achv_flair_note_multi: (list) => `distintivos para la clasificación: ${list}`,
     achv_flair_note_flat: (e) => `te hace ganar el distintivo ${e} para la clasificación`,
+    achv_fx_note: (e, tier) => `al llegar a ${tier} cada victoria se convierte en un ${e}`,
+    achv_fx_beer: "🍻 Celebración cervecera",
     achv_anon_note: "🔒 Sin guardar: con una cuenta tus logros se conservan.",
     achv_year_locked: "aún sin descubrir",
     achv_unlocked: "Logro conseguido", achv_stamp_new: "Sello nuevo",
     achv_new_badge: "NUEVO", achv_card_view: "ver",
     achv_card_unsaved: "🔒 sin guardar",
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
+    achv_fx_earned: (e) => `celebración ${e} desbloqueada — suena en cada victoria`,
     achv_flair_choose: (e) => `elegir ${e}`,
     achv_back: "‹ Logros",
     history_back: "‹ Historial",
@@ -1133,12 +1145,15 @@ const I18N = {
     achv_flair_note: (e, tier) => `ao chegar a ${tier} você ganha o emblema ${e} para o placar`,
     achv_flair_note_multi: (list) => `emblemas para o placar: ${list}`,
     achv_flair_note_flat: (e) => `faz você ganhar o emblema ${e} para o placar`,
+    achv_fx_note: (e, tier) => `ao chegar a ${tier} cada vitória vira um ${e}`,
+    achv_fx_beer: "🍻 Comemoração com cerveja",
     achv_anon_note: "🔒 Não salvo — com uma conta suas conquistas ficam guardadas.",
     achv_year_locked: "ainda não descoberto",
     achv_unlocked: "Conquista desbloqueada", achv_stamp_new: "Selo novo",
     achv_new_badge: "NOVO", achv_card_view: "ver",
     achv_card_unsaved: "🔒 não salvo",
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
+    achv_fx_earned: (e) => `comemoração ${e} desbloqueada — ela toca em cada vitória`,
     achv_flair_choose: (e) => `escolher ${e}`,
     achv_back: "‹ Conquistas",
     history_back: "‹ Histórico",
@@ -2325,68 +2340,99 @@ function showConfetti() {
   setTimeout(() => container.remove(), 5000);
 }
 
-let fwRAF = null;    // rAF-handle van het vuurwerk-canvas (stop = geen leak)
-let fwBox = null;    // de container van de lópende run
+// ── Viering-canvas ──────────────────────────────────────────────────────────
+// Één canvas + één rAF-lus voor de zware win-effecten (vuurwerk, bier). Waarom
+// canvas en niet DOM: het vuurwerk zette ~1200 losse animerende divs neer en
+// haalde daarmee op een 4× getrolde telefoon ~11 fps; ditzelfde effect op canvas
+// haalt ~59. De kostenpost is puur het AANTAL gelijktijdig animerende elementen —
+// will-change weghalen of de box-shadow-gloed schrappen scheelde niets (11 → 12),
+// de helft van de deeltjes verdubbelde de fps. Boven ~150 zakt het door.
+// En canvas náást CSS-animaties kost óók 10-15 fps, dus alles wat samen kan
+// spelen hoort op deze ene lus (vandaar dat bier hier woont en niet in CSS).
+//
+// LET OP: prefers-reduced-motion werd vóór de canvas-port door CSS afgevangen
+// (.firework-particle { display: none }). Een canvas tekent daar dwars door heen,
+// dus de bail-out in runFx() is nu de énige bescherming — weghalen = stille
+// regressie voor wie minder beweging heeft ingesteld.
+let fxRAF = null;    // rAF-handle van het viering-canvas (stop = geen leak)
+let fxBox = null;    // container van de lópende run
 
-// Stopt het vuurwerk en ruimt het canvas op — zelfde vorm als stopPodiumConfetti.
-function stopFireworks() {
-  if (fwRAF) { cancelAnimationFrame(fwRAF); fwRAF = null; }
-  if (fwBox) { fwBox.remove(); fwBox = null; }
+function stopFx() {
+  if (fxRAF) { cancelAnimationFrame(fxRAF); fxRAF = null; }
+  if (fxBox) { fxBox.remove(); fxBox = null; }
 }
 
-// Groots vuurwerk voor een first-try-winst: meerdere bursts die na elkaar
-// ontploffen, elk een ring deeltjes die naar buiten schiet (met een beetje
-// zwaartekracht). Bewust forser dan de confetti — dit is de zeldzame topscore.
-//
-// Op ÉÉN canvas i.p.v. ~1200 losse divs. De DOM-versie haalde op een 4× getrolde
-// telefoon ~11 fps en dit ~59 (zelfde 26 bursts, zelfde deeltjes). De kostenpost
-// was puur het aantal gelijktijdig animerende elementen: will-change weghalen of
-// de box-shadow-gloed schrappen scheelde niets (11 → 12), de helft van de
-// deeltjes verdubbelde de fps. Boven ~150 animerende elementen zakt het door.
-// De gloed komt van voorgerenderde sprites; ctx.shadowBlur per deeltje is te duur.
-//
-// LET OP: prefers-reduced-motion werd hiervóór door CSS afgevangen
-// (.firework-particle { display: none }). Een canvas tekent gewoon door, dus de
-// bail-out hieronder is nu de énige bescherming — weghalen = stille regressie
-// voor wie minder beweging heeft ingesteld.
-function showFireworks() {
-  stopFireworks();   // nooit twee lussen tegelijk
+// Draait één of meer lagen op hetzelfde canvas. Een laag is
+// { end: seconden, draw(ctx, t, W, H) } en wordt getekend in array-volgorde —
+// dus wat later in de lijst staat, komt bovenop.
+function runFx(layers) {
+  stopFx();   // nooit twee lussen tegelijk
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  // Wit spat het mooist op donker; op het lichte thema is het onzichtbaar → leigrijs.
-  const spark = currentTheme() === "light" ? "#37474f" : "#ffffff";
-  const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff", "#ff5fa2", spark];
   const box = document.createElement("div");
-  box.className = "fireworks-container";
+  box.className = "fx-layer";
   const cv = document.createElement("canvas");
   cv.setAttribute("aria-hidden", "true");
   box.appendChild(cv);
   document.body.appendChild(box);
-  fwBox = box;
+  fxBox = box;
   const ctx = cv.getContext("2d");
-  const dpr = Math.min(devicePixelRatio || 1, 2);
   let W = 0, H = 0;
   const fit = () => {                     // ook bij draaien/resize mid-effect
+    // dpr hier en niet één keer buiten: sleep je het venster naar een scherm met
+    // een andere pixelverhouding, dan is een vastgelegde waarde ineens fout.
+    const dpr = Math.min(devicePixelRatio || 1, 2);
     W = innerWidth; H = innerHeight;
     cv.width = W * dpr; cv.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
   fit();
-  // Eén gloed-sprite per kleur: dekkende kern tot 35% van de STRAAL, daarna
-  // uitdovend — dat benadert de `box-shadow: 0 0 6px 1px` van de oude divs.
-  // De kern is dus 0,35 × de spritediameter; daar rekent de tekenmaat op terug.
-  const sprites = colors.map((col) => {
-    const s = document.createElement("canvas");
-    s.width = s.height = 32;
-    const g = s.getContext("2d");
-    const rg = g.createRadialGradient(16, 16, 0, 16, 16, 16);
-    rg.addColorStop(0, col); rg.addColorStop(0.35, col); rg.addColorStop(1, "rgba(0,0,0,0)");
-    g.fillStyle = rg;
-    g.fillRect(0, 0, 32, 32);
-    return s;
-  });
+  const end = layers.reduce((m, l) => Math.max(m, l.end), 0);
+  const t0 = performance.now();
+  const step = (now) => {
+    if (!cv.isConnected) { stopFx(); return; }
+    if (W !== innerWidth || H !== innerHeight) fit();
+    const t = (now - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    for (const l of layers) {
+      l.draw(ctx, t, W, H);
+      ctx.globalAlpha = 1;                // een laag mag de volgende niet vervuilen
+    }
+    if (t < end) fxRAF = requestAnimationFrame(step);
+    else stopFx();
+  };
+  fxRAF = requestAnimationFrame(step);
+  // Vangnet: op een achtergrond-tab pauzeert rAF, dan ruimt de lus zichzelf niet
+  // op. Alleen de eigen run opruimen — een nieuwere mag deze timer niet raken.
+  setTimeout(() => { if (fxBox === box) stopFx(); }, (end + 1.5) * 1000);
+}
+
+const easeOut = (u) => 1 - Math.pow(1 - u, 1.7);   // ≈ CSS ease-out
+
+// Ronde gloed-sprite: dekkende kern tot 35% van de STRAAL, daarna uitdovend —
+// dat benadert een `box-shadow: 0 0 6px 1px`. De kern is dus 0,35 × de
+// spritediameter; wie hem tekent rekent daarop terug.
+function fxGlowSprite(col) {
+  const s = document.createElement("canvas");
+  s.width = s.height = 32;
+  const g = s.getContext("2d");
+  const rg = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  rg.addColorStop(0, col); rg.addColorStop(0.35, col); rg.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = rg;
+  g.fillRect(0, 0, 32, 32);
+  return s;
+}
+
+// Groots vuurwerk voor een first-try-winst: meerdere bursts die na elkaar
+// ontploffen, elk een ring deeltjes die naar buiten schiet (met een beetje
+// zwaartekracht). Bewust forser dan de confetti — dit is de zeldzame topscore.
+function fireworksLayer() {
+  // Wit spat het mooist op donker; op het lichte thema is het onzichtbaar → leigrijs.
+  const spark = currentTheme() === "light" ? "#37474f" : "#ffffff";
+  const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff", "#ff5fa2", spark];
+  const sprites = colors.map(fxGlowSprite);
   // Middelpunten als frácties van het venster, zodat een rotatie ze meeneemt.
   const parts = [];
-  let maxEnd = 0;
+  let end = 0;
   for (let b = 0; b < 26; b++) {
     const fx = (8 + Math.random() * 84) / 100;
     const fy = (8 + Math.random() * 60) / 100;
@@ -2395,7 +2441,7 @@ function showFireworks() {
     const particles = 36 + Math.floor(Math.random() * 20);
     const radius = 110 + Math.random() * 130;      // px
     const dur = 1.1 + Math.random() * 0.7;         // s
-    maxEnd = Math.max(maxEnd, delay + dur);
+    end = Math.max(end, delay + dur);
     for (let i = 0; i < particles; i++) {
       const ang = (i / particles) * Math.PI * 2 + Math.random() * 0.25;
       const dist = radius * (0.55 + Math.random() * 0.45);
@@ -2407,30 +2453,236 @@ function showFireworks() {
       });
     }
   }
-  const t0 = performance.now();
-  const step = (now) => {
-    if (!cv.isConnected) { stopFireworks(); return; }
-    if (W !== innerWidth || H !== innerHeight) fit();
-    const t = (now - t0) / 1000;
-    ctx.clearRect(0, 0, W, H);
-    for (const p of parts) {
-      const u = (t - p.delay) / p.dur;
-      if (u < 0 || u > 1) continue;
-      const e = 1 - Math.pow(1 - u, 1.7);          // ≈ CSS ease-out
-      // sprite zó groot tekenen dat de dekkende kern net zo breed is als de oude
-      // div (sz × scale 1.2 → 0.2); de rest van de sprite is de gloed eromheen
-      const d = (p.sz * (1.2 - e)) / 0.35;
-      ctx.globalAlpha = u < 0.7 ? 1 : Math.max(0, 1 - (u - 0.7) / 0.3);
-      ctx.drawImage(sprites[p.ci], p.fx * W + p.dx * e - d / 2, p.fy * H + p.dy * e - d / 2, d, d);
-    }
-    ctx.globalAlpha = 1;
-    if (t < maxEnd + 0.2) fwRAF = requestAnimationFrame(step);
-    else stopFireworks();
+  return {
+    end: end + 0.2,
+    draw(ctx, t, W, H) {
+      for (const p of parts) {
+        const u = (t - p.delay) / p.dur;
+        if (u < 0 || u > 1) continue;
+        const e = easeOut(u);
+        // sprite zó groot dat de dekkende kern net zo breed is als de oude div
+        // (sz × scale 1.2 → 0.2); de rest van de sprite is de gloed eromheen
+        const d = (p.sz * (1.2 - e)) / 0.35;
+        ctx.globalAlpha = u < 0.7 ? 1 : Math.max(0, 1 - (u - 0.7) / 0.3);
+        ctx.drawImage(sprites[p.ci], p.fx * W + p.dx * e - d / 2, p.fy * H + p.dy * e - d / 2, d, d);
+      }
+    },
   };
-  fwRAF = requestAnimationFrame(step);
-  // Vangnet: op een achtergrond-tab pauzeert rAF, dan ruimt de lus zichzelf niet
-  // op. Alleen de eigen run opruimen — een nieuwere mag deze timer niet raken.
-  setTimeout(() => { if (fwBox === box) stopFireworks(); }, (maxEnd + 1.5) * 1000);
+}
+
+function showFireworks() { runFx([fireworksLayer()]); }
+
+// ── Bier-viering (potjes-platina) ───────────────────────────────────────────
+// Kleuren per thema. De schuim-witte druppels hebben op het lichte thema een
+// randje nodig, anders vallen ze weg tegen het papierwit.
+function beerPalette() {
+  return currentTheme() === "light"
+    ? { deep: "rgba(138,75,7,0.90)", mid: "rgba(198,124,17,0.72)", top: "rgba(240,185,58,0.46)",
+        foam: "#fff7e6", line: "#e2c98f",
+        bubFill: "rgba(217,143,18,0.30)", bubRim: "rgba(138,75,7,0.55)", beer: "#d98f12" }
+    : { deep: "rgba(109,58,4,0.92)", mid: "rgba(176,110,12,0.74)", top: "rgba(232,163,25,0.48)",
+        foam: "#fff8e7", line: "rgba(255,248,231,0.50)",
+        bubFill: "rgba(246,211,114,0.22)", bubRim: "rgba(255,240,200,0.75)", beer: "#e8a319" };
+}
+
+// Het scherm ís het glas: amber vult van onderaf, de schuimkraag deint, en na een
+// paar seconden loopt het weer leeg. Blijft bewust onder de onderste ~19% van het
+// scherm — daar staat bij een gewonnen potje niets dat gelezen moet worden (het
+// jaartal en de score zitten hoger).
+function pourLayer(frac = 0.18) {
+  const c = beerPalette();
+  const RISE = 1.0, HOLD = 3.0, END = 4.0;        // s
+  const blobs = Array.from({ length: 26 }, (_, i) => ({
+    x: i / 25,
+    r: 9 + Math.random() * 9,
+    sp: 1.4 + Math.random() * 1.6,
+    ph: Math.random() * 6.28,
+  }));
+  const bubs = Array.from({ length: 22 }, () => ({
+    x: 0.02 + Math.random() * 0.96,
+    r: 2 + Math.random() * 3.5,
+    dur: 1.1 + Math.random() * 1.2,
+    off: Math.random(),
+    sp: 2 + Math.random() * 2,
+    ph: Math.random() * 6.28,
+  }));
+  return {
+    end: END,
+    draw(ctx, t, W, H) {
+      const lift = t < RISE ? easeOut(t / RISE)
+        : t < HOLD ? 1
+        : Math.max(0, 1 - (t - HOLD) / (END - HOLD));
+      if (lift <= 0) return;
+      const top = H - H * frac * lift;
+      // Naar boven toe doorschijnender: zonder dat verloop is het een vlakke
+      // amberplaat over het toetsenbord i.p.v. iets vloeibaars.
+      const g = ctx.createLinearGradient(0, H, 0, top);
+      g.addColorStop(0, c.deep);
+      g.addColorStop(0.55, c.mid);
+      g.addColorStop(1, c.top);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, top, W, H - top);
+      // koolzuur binnen het glas: geklikt op de vulling, dus de bubbels
+      // verdwijnen ín de schuimkraag i.p.v. eroverheen te lopen
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, top, W, H - top);
+      ctx.clip();
+      for (const b of bubs) {
+        const u = ((t / b.dur) + b.off) % 1;
+        const y = H - (H - top) * u;
+        const x = b.x * W + Math.sin(t * b.sp + b.ph) * 4;
+        ctx.globalAlpha = Math.min(1, u * 6) * (1 - u * 0.5);
+        ctx.beginPath();
+        ctx.arc(x, y, b.r, 0, 6.283);
+        ctx.fillStyle = c.bubFill;
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = c.bubRim;
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.globalAlpha = 1;
+      // Schuimkraag = een dichte band met losse blobs erbovenop; zonder de band
+      // zie je de kaarsrechte bovenrand van het bier tussen de blobs door.
+      ctx.fillStyle = c.foam;
+      ctx.fillRect(0, top - 3, W, 13);
+      for (const b of blobs) {
+        ctx.beginPath();
+        ctx.arc(b.x * W, top - 3 + Math.sin(t * b.sp + b.ph) * 2.5, b.r, 0, 6.283);
+        ctx.fill();
+      }
+    },
+  };
+}
+
+// Waar de glazen mogen staan. Ze zijn dekkend en zo'n 50px hoog, dus precies het
+// soort ding dat een regel onleesbaar maakt — en het eindscherm-kaartje staat niet
+// op een vaste plek: achvScrollIntoView() schuift het alleen in beeld als het
+// buiten beeld geboren wordt, dus het kan onderaan óf midden in het venster staan.
+// Overlapt de voorkeursplek het kaartje, dan gaan de glazen eronder, en als daar
+// geen ruimte is erboven. Teruggegeven als fractie van de hoogte, zodat draaien
+// tijdens het effect niets kapotmaakt.
+// (De amber-vulling mag het kaartje wél overlappen: die is doorschijnend en tint
+// het. De schuimkraag is dat niet, maar dat is een strook van ~30px.)
+//
+// Elke frame opnieuw meten, niet één keer bij het aanmaken: de unlock-kaart wordt
+// ásynchroon aan het eindscherm gehangen (checkAchievements met een 1,2 s-vangnet),
+// dus een meting vooraf mist precies de kaart waar de glazen niet op mogen landen.
+// Een rect lezen zonder ertussen te schrijven forceert geen reflow, dus dit is
+// goedkoop; springt de layout, dan verspringen de glazen één keer mee — beter dan
+// bovenop de tekst blijven staan.
+function clinkAnchorFrac(prefFrac, size) {
+  const H = innerHeight;
+  const pref = H - H * prefFrac;                   // gewenste ONDERkant van de glazen
+  const el = document.getElementById("result");
+  const r = el && !el.hidden ? el.getBoundingClientRect() : null;
+  const asFrac = (baseY) => (H - baseY) / H;
+  if (!r || !r.height || r.bottom <= 0 || r.top >= H) return prefFrac;
+  const M = 14;                                    // marge incl. de schaduw van de kaart
+  const overlapt = pref > r.top - M && pref - size < r.bottom + M;
+  if (!overlapt) return prefFrac;
+  const onder = r.bottom + size + M;
+  if (onder <= H - 4) return asFrac(onder);
+  const boven = r.top - M;
+  if (boven - size >= 4) return asFrac(boven);
+  return prefFrac;                                 // nergens plek — laat maar
+}
+
+// Proost: de glazen komen omhoog uit de onderrand en klinken, met een fontein
+// schuimdruppels op het klink-moment. Woordloos (dus taalneutraal) en kort — bij
+// een gewone winst is dit de hele viering.
+function clinkLayer(delay = 0, prefFrac = 0.24) {
+  const c = beerPalette();
+  const DUR = 1.9;
+  // Zelfde keyframes als de CSS-mockup: opkomen, doorschieten, natrillen, wegdoven.
+  const KF = [
+    { u: 0.00, y: 0.60, s: 0.30, r: -18, a: 0 },
+    { u: 0.28, y: -0.12, s: 1.16, r: 7, a: 1 },
+    { u: 0.38, y: 0.00, s: 0.98, r: -5, a: 1 },
+    { u: 0.48, y: -0.04, s: 1.05, r: 3, a: 1 },
+    { u: 0.58, y: 0.00, s: 1.00, r: 0, a: 1 },
+    { u: 0.80, y: -0.08, s: 1.00, r: 0, a: 1 },
+    { u: 1.00, y: -0.22, s: 1.00, r: 0, a: 0 },
+  ];
+  // Echte ballistiek i.p.v. een rechte lijn naar een verschoven eindpunt: op
+  // canvas kost een parabool niets, en zonder hem spat het rond als een knal in
+  // plaats van omhoog als een fontein.
+  const G = 620;                                   // px/s² — valversnelling
+  const drops = Array.from({ length: 44 }, (_, i) => {
+    // 1,05π–1,95π = de bovenste halve cirkel, dus alles begint omhoog
+    const ang = Math.PI * (1.05 + (i / 44) * 0.9) + (Math.random() - 0.5) * 0.16;
+    const speed = 130 + Math.random() * 190;       // px/s
+    return {
+      vx: Math.cos(ang) * speed,
+      vy: Math.sin(ang) * speed,                   // negatief = omhoog
+      r: 2 + Math.random() * 2.5,
+      dur: 0.85 + Math.random() * 0.5,
+      // 0,28 × DUR = het doorschiet-moment in KF, dus het moment waarop de glazen
+      // tegen elkaar tikken. Eerder vertrekken maakt schuim vóór de klink.
+      delay: delay + 0.28 * DUR + Math.random() * 0.08,
+      foam: i % 3 !== 0,
+    };
+  });
+  return {
+    end: delay + DUR,
+    draw(ctx, t, W, H) {
+      const size = Math.max(48, Math.min(W * 0.13, 80));
+      const baseY = H - H * clinkAnchorFrac(prefFrac, size);
+      for (const d of drops) {
+        const s = t - d.delay;                     // seconden sinds vertrek
+        if (s < 0 || s > d.dur) continue;
+        const u = s / d.dur;
+        ctx.globalAlpha = u < 0.6 ? 1 : Math.max(0, 1 - (u - 0.6) / 0.4);
+        ctx.beginPath();
+        ctx.arc(W / 2 + d.vx * s, baseY - 32 + d.vy * s + 0.5 * G * s * s,
+          d.r * (1.1 - u * 0.5), 0, 6.283);
+        ctx.fillStyle = d.foam ? c.foam : c.beer;
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = c.line;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      const u = (t - delay) / DUR;
+      if (u < 0 || u > 1) return;
+      let k = KF[0];
+      for (let i = 1; i < KF.length; i++) {
+        if (u > KF[i].u) continue;
+        const p = KF[i - 1], q = KF[i];
+        const f = easeOut((u - p.u) / (q.u - p.u));   // per segment, zoals CSS ease-out
+        k = { y: p.y + (q.y - p.y) * f, s: p.s + (q.s - p.s) * f,
+              r: p.r + (q.r - p.r) * f, a: p.a + (q.a - p.a) * f };
+        break;
+      }
+      ctx.save();
+      ctx.translate(W / 2, baseY + k.y * size);
+      ctx.rotate((k.r * Math.PI) / 180);
+      ctx.scale(k.s, k.s);
+      ctx.globalAlpha = k.a;
+      // Kleuren-emoji trekt zijn eigen kleuren, maar valt een platform terug op een
+      // monochrome set, dan bepaalt fillStyle de kleur — en die is hier anders zwart
+      // (canvas-default), dus onzichtbaar op het donkere thema.
+      ctx.fillStyle = c.foam;
+      // Zelf-gehoste emoji-font eerst, net als in de CSS-stack (op Apple valt hij
+      // terug op de systeemset — dat is geen regressie, zie build-emoji-font.py).
+      ctx.font = `${size}px "JaardleEmoji", -apple-system, system-ui, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(BEER_FX.emoji, 0, 0);
+      ctx.restore();
+    },
+  };
+}
+
+// Bij een gewone winst alleen de proost; bij een first-try het volle glas mét het
+// vuurwerk erboven. Ze vechten niet om dezelfde ruimte: vuurwerk zit op 8-68% van
+// de hoogte, het bier onderin. De bubbels blijven daarom in het glas — schermbreed
+// gaan ze verloren tussen de vuurwerkdeeltjes.
+function showBeer(firstTry) {
+  runFx(firstTry
+    ? [fireworksLayer(), pourLayer(0.19), clinkLayer(0.45, 0.20)]
+    : [clinkLayer(0, 0.30)]);
 }
 
 function finishGame(won, fresh = false) {
@@ -2485,7 +2737,15 @@ function finishGame(won, fresh = false) {
   // knop — maar niet bij een inhaalpot (die telt niet mee op het dagbord van gisteren).
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily" || isMakeup(state);
   renderHintStatus();
-  if (fresh && won) (state.guesses.length === 1 ? showFireworks : showConfetti)();
+  // Vieren. Bier (potjes-platina) gaat vóór de confetti: twee schermvullende
+  // effecten door elkaar is rommel, en bij een first-try zit het vuurwerk al ín
+  // showBeer(). Zonder bier blijft het precies zoals het was.
+  if (fresh && won) {
+    const firstTry = state.guesses.length === 1;
+    if (beerFxActive()) showBeer(firstTry);
+    else if (firstTry) showFireworks();
+    else showConfetti();
+  }
   if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
   if (fresh && state.mode === "daily") recordDailyResult(won);
   appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
@@ -4032,8 +4292,13 @@ const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond"];
 // start op 1500, dus 0..1600 zou het balkje meteen vol tekenen).
 // De rating-ladder is de enige met meer dan één flair: de drie medailles staan
 // op brons/zilver/diamant, zodat de klim ook onderweg iets zichtbaars oplevert.
+// fx = {emoji, at}: een niet-flair-beloning op een trede (nu alleen het biertje
+// op potjes-platina). Staat als pin op de rail, precies als een flair, en heeft
+// géén server-gate nodig — het is puur cosmetisch en alleen zichtbaar voor
+// jezelf. Zie showBeer().
+const BEER_FX = { key: "games", at: 3, emoji: "🍻" };   // at = 0-based trede-index → 2000
 const ACHV_SERIES = [
-  { key: "games",   art: "dice",       steps: [10, 100, 500, 2000, 5000] },
+  { key: "games",   art: "dice",       steps: [10, 100, 500, 2000, 5000], fx: BEER_FX },
   { key: "dailies", art: "cal",        steps: [7, 30, 100, 200, 365] },
   { key: "streak",  art: "flame",      steps: [7, 30, 90, 180, 365],  flairs: [{ emoji: "⏳", at: 2 }] },
   { key: "perfect", art: "100",        steps: [1, 10, 50, 100, 250],  flairs: [{ emoji: "💯", at: 2 }] },
@@ -4134,6 +4399,28 @@ function flairConfettiEnabled() {
 }
 function setFlairConfetti(on) {
   try { localStorage.setItem("jaardle:flairconfetti", on ? "1" : "0"); } catch (e) {}
+}
+
+// Bier-viering: verdiend op potjes-platina (2000). Zelfde soort self-facing
+// beloning als de flair-confetti — alleen-ingelogd (een lokale teller is voor
+// 2000 potjes niet te vertrouwen, en get_my_achievements heeft het cijfer al) en
+// per apparaat uit te zetten. Schakelaar zit in de uitklap van de potjes-rij.
+function beerFxUnlocked(a) {
+  if (!auth.user || !a) return false;
+  const s = ACHV_SERIES.find((x) => x.key === BEER_FX.key);
+  if (!s || BEER_FX.at >= s.steps.length) return false;   // reeks hernoemd/ingekort → geen viering i.p.v. een crash
+  return achvTier(achvValue(a, s), s.steps) > BEER_FX.at;
+}
+function beerFxEnabled() {
+  return localStorage.getItem("jaardle:beerfx") !== "0";
+}
+function setBeerFx(on) {
+  try { localStorage.setItem("jaardle:beerfx", on ? "1" : "0"); } catch (e) {}
+}
+// Speelt het bier deze winst? achvCache is de stand van de huidige identiteit;
+// die is bij een winst al gevuld (dezelfde bron als de flair-confetti gebruikt).
+function beerFxActive() {
+  return beerFxUnlocked(achvCache) && beerFxEnabled();
 }
 
 // Brons-beloning (⭐) direct dragen/afleggen vanuit de prestige-track, als
@@ -4454,6 +4741,9 @@ function achvSeriesItem(a, s, tier, prev) {
     // je in één keer twee treden pakt terwijl je de flair al had. Pak je er in
     // één klap twee, dan wint de hoogste.
     flair: (s.flairs || []).filter((f) => tier > f.at && prev <= f.at).pop()?.emoji || null,
+    // Idem voor een fx-beloning (het biertje): zonder deze melding speel je hem
+    // wel vrij maar hoor je het nergens — en dan is het geen beloning.
+    fx: s.fx && tier > s.fx.at && prev <= s.fx.at ? s.fx.emoji : null,
   };
 }
 function achvTrophyItem(tr, count) {
@@ -4504,6 +4794,10 @@ function achvCardEl(it) {
     // nóg een losse voor zetten.
     foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t("achv_flair_earned")(it.flair)))}</span>
       <button type="button" class="achv-card-btn">${escHtml(t("achv_flair_choose")(it.flair))}</button>`;
+  } else if (it.fx) {
+    // Geen knop: de viering staat meteen aan en de schakelaar zit in de reeks-rij
+    // die je via "bekijk ›" toch al bereikt.
+    foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t("achv_fx_earned")(it.fx)))}</span>`;
   }
   el.innerHTML = `
     <div class="achv-card-main">
@@ -4650,19 +4944,37 @@ function achvDetailHtml(a, s) {
   const labels = s.steps.map((step, i) =>
     `<span class="${tier === i ? "next" : ""}" style="left:${10 + 20 * i}%">${fmtN(step)}</span>`).join("");
   const flairs = s.flairs || [];
+  // Een fx-beloning (het biertje) hangt als pin op dezelfde rail als de flairs —
+  // zo zie je hem hangen lang voordat je hem haalt. Maar alleen als je ingelogd
+  // bent: de viering is alleen-ingelogd, en een pin + belofte aan een anonieme
+  // speler is een belofte die de poort nooit inlost. Zelfde lijn als de
+  // rating-reeks, die voor anoniem helemaal wegvalt (authOnly).
+  const fx = auth.user ? s.fx : null;
+  // Eigen klasse voor de fx-pin: 🍻 zit óók in FLAIR_OPTIONS, dus zonder verschil
+  // leest hij als "hier verdien je de 🍻-flair" i.p.v. een viering.
   const pins = flairs.map((f) =>
-    `<span class="achv-flairpin" style="left:${10 + 20 * f.at}%">${f.emoji}</span>`).join("");
+    `<span class="achv-flairpin" style="left:${10 + 20 * f.at}%">${f.emoji}</span>`).join("")
+    + (fx ? `<span class="achv-flairpin achv-fxpin" style="left:${10 + 20 * fx.at}%">${fx.emoji}</span>` : "");
   // Eén flair → de hele zin; meerdere (de rating-medailles) → een opsomming,
   // anders staat dezelfde regel drie keer onder elkaar.
   const note = !flairs.length ? ""
     : `<p class="achv-flairnote">${escHtml(flairs.length === 1
         ? t("achv_flair_note")(flairs[0].emoji, achvTierName(flairs[0].at))
         : t("achv_flair_note_multi")(flairs.map((f) => `${f.emoji} ${achvTierName(f.at)}`).join(" · ")))}</p>`;
+  const fxNote = fx
+    ? `<p class="achv-flairnote">${escHtml(t("achv_fx_note")(fx.emoji, achvTierName(fx.at)))}</p>`
+    : "";
+  // Aan/uit verschijnt pas als je hem verdiend hebt — anders is het een knop voor
+  // iets wat nog niet bestaat. Zelfde schakelaar-stijl als de capstone-beloningen.
+  const fxAction = fx && beerFxUnlocked(a)
+    ? `<button type="button" class="cap-action" role="switch" aria-checked="${beerFxEnabled()}"` +
+      ` data-action="beer-fx">${escHtml(t("achv_fx_beer"))}</button>`
+    : "";
   return `<div class="achv-detail" hidden>
       <div class="achv-pinrow">${pins}</div>
       <div class="achv-rail"><i style="width:${achvRailPct(n, s).toFixed(1)}%"></i>${ticks}</div>
       <div class="achv-ticklabels">${labels}</div>
-      ${note}</div>`;
+      ${note}${fxNote}${fxAction}</div>`;
 }
 
 // NIEUW-markering: alles wat nog in de achvNew-lijst staat. Wat we hier tónen
@@ -4900,6 +5212,14 @@ function renderAchvBoard(body, a) {
     ${achvAnonNoteHtml()}`;
   wireCapPips(body);
   wireTrophyActions(body);
+  // Bier-schakelaar in de uitklap van de potjes-rij. Staat náást de rowbtn (niet
+  // erin), dus een klik hierop klapt de rij niet dicht.
+  body.querySelectorAll('[data-action="beer-fx"]').forEach((btn) => {
+    btn.onclick = () => {
+      setBeerFx(btn.getAttribute("aria-checked") !== "true");
+      btn.setAttribute("aria-checked", String(beerFxEnabled()));
+    };
+  });
   body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
     btn.onclick = () => {
       const row = btn.closest(".achv-row");
@@ -6161,6 +6481,9 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   setKeypadDisabled(true);
   setCardStatus(t("loading"));
   stopDailyCountdown();
+  // Viering van de vórige pot afbreken: wie binnen ~4 s op "nog een potje" tikt,
+  // kreeg anders de bierplaat en het vuurwerk over zijn verse bord heen.
+  stopFx();
   els.result.hidden = true;
   els.nextBtn.hidden = true;
   if (els.recapBtn) els.recapBtn.hidden = true;

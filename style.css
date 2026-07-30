@@ -1121,19 +1121,20 @@ footer {
   90%  { opacity: 1; }
   100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
 }
-/* Vuurwerk: alleen bij een first-try-winst (zie showFireworks in game.js).
-   Sinds v205 één canvas i.p.v. ~1200 losse deeltjes-divs — die haalden op een
-   middenklasse-telefoon ~11 fps. De animatie zit volledig in game.js; hier staat
-   alleen nog de laag waarin het canvas hangt. prefers-reduced-motion wordt dáár
-   afgevangen (een canvas is met CSS niet stil te zetten). */
-.fireworks-container {
+/* Viering-canvas: vuurwerk (first-try) en de bier-viering (potjes-platina) delen
+   sinds v206 één canvas en één rAF-lus — als losse deeltjes-divs haalde het
+   vuurwerk op een middenklasse-telefoon ~11 fps, en canvas náást CSS-animaties
+   kost óók 10-15 fps. De animatie zit volledig in game.js (runFx); hier staat
+   alleen de laag waarin het canvas hangt. prefers-reduced-motion wordt dáár
+   afgevangen — een canvas is met CSS niet stil te zetten. */
+.fx-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 999;
   overflow: hidden;
 }
-.fireworks-container canvas {
+.fx-layer canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -2121,8 +2122,10 @@ html[data-theme="light"] {
 }
 .cap-action:hover { background: var(--card); }
 .cap-action:disabled { opacity: 0.6; cursor: default; }
-.cap-action::after { content: "✓"; font-weight: 700; color: var(--accent); opacity: 0; }
-.cap-action[aria-checked="true"]::after { opacity: 1; }
+/* visibility i.p.v. opacity: gegenereerde tekst met opacity:0 blijft in de
+   accessibility-tree staan, dus een uít-staande schakelaar heette "… ✓". */
+.cap-action::after { content: "✓"; font-weight: 700; color: var(--accent); visibility: hidden; }
+.cap-action[aria-checked="true"]::after { visibility: visible; }
 
 .achv-art { width: 100%; height: 100%; display: block; }
 
@@ -2200,6 +2203,9 @@ html[data-theme="light"] {
   font-size: 0.95rem;
   line-height: 1.25rem;
 }
+/* Een fx-pin is géén flair (je draagt hem niet op het bord) — amber gloedje als
+   verschil, want 🍻 staat óók in FLAIR_OPTIONS en zou anders zo gelezen worden. */
+.achv-fxpin { text-shadow: 0 0 7px rgba(232, 163, 25, 0.75); }
 .achv-rail {
   position: relative;
   height: 8px;
@@ -2237,6 +2243,14 @@ html[data-theme="light"] {
   margin: 0.5rem 0 0;
   font-size: 0.75rem;
   color: var(--muted);
+}
+/* Beloning-schakelaar in een reeks-uitklap (nu de bier-viering op potjes-platina):
+   zelfde scheidingslijn als .cap-detail onder de capstone-rail. */
+.achv-detail .cap-action {
+  margin-top: 0.5rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
 }
 
 /* Trofeeën: vlakke 2×2-tegels (geen treden). */
