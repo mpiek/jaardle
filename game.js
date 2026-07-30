@@ -2637,7 +2637,10 @@ function clinkLayer(delay = 0, prefFrac = 0.24) {
   return {
     end: delay + DUR,
     draw(ctx, t, W, H) {
-      const size = Math.max(48, Math.min(W * 0.13, 80));
+      // Fors: dit is de viering van een trede die je één keer haalt. Op een
+      // telefoon van 390px is dit ~94px hoog; het anker hieronder houdt hem
+      // ondanks die maat van #result af.
+      const size = Math.max(72, Math.min(W * 0.24, 140));
       const baseY = H - H * clinkAnchorFrac(prefFrac, size);
       for (const d of drops) {
         const s = t - d.delay;                     // seconden sinds vertrek
@@ -2645,7 +2648,8 @@ function clinkLayer(delay = 0, prefFrac = 0.24) {
         const u = s / d.dur;
         ctx.globalAlpha = u < 0.6 ? 1 : Math.max(0, 1 - (u - 0.6) / 0.4);
         ctx.beginPath();
-        ctx.arc(W / 2 + d.vx * s, baseY - 32 + d.vy * s + 0.5 * G * s * s,
+        // vertrekpunt op ~de glasrand, dus meeschalen met de glasmaat
+        ctx.arc(W / 2 + d.vx * s, baseY - size * 0.62 + d.vy * s + 0.5 * G * s * s,
           d.r * (1.1 - u * 0.5), 0, 6.283);
         ctx.fillStyle = d.foam ? c.foam : c.beer;
         ctx.fill();
