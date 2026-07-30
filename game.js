@@ -2499,7 +2499,7 @@ function beerPalette() {
 // paar seconden loopt het weer leeg. Blijft bewust onder de onderste ~19% van het
 // scherm — daar staat bij een gewonnen potje niets dat gelezen moet worden (het
 // jaartal en de score zitten hoger).
-function pourLayer(frac = 0.18) {
+function pourLayer(frac = 0.30) {
   const c = beerPalette();
   const RISE = 1.0, HOLD = 3.0, END = 4.0;        // s
   const blobs = Array.from({ length: 26 }, (_, i) => ({
@@ -2508,7 +2508,7 @@ function pourLayer(frac = 0.18) {
     sp: 1.4 + Math.random() * 1.6,
     ph: Math.random() * 6.28,
   }));
-  const bubs = Array.from({ length: 22 }, () => ({
+  const bubs = Array.from({ length: 30 }, () => ({
     x: 0.02 + Math.random() * 0.96,
     r: 2 + Math.random() * 3.5,
     dur: 1.1 + Math.random() * 1.2,
@@ -2582,7 +2582,9 @@ function pourLayer(frac = 0.18) {
 // Een rect lezen zonder ertussen te schrijven forceert geen reflow, dus dit is
 // goedkoop; springt de layout, dan verspringen de glazen één keer mee — beter dan
 // bovenop de tekst blijven staan.
-function clinkAnchorFrac(prefFrac, size) {
+// floorFrac = de bierrand: onder die lijn mogen de glazen niet uitkomen, anders
+// staan ze tot hun oren in het amber i.p.v. uit het schuim te komen.
+function clinkAnchorFrac(prefFrac, size, floorFrac = 0) {
   const H = innerHeight;
   const pref = H - H * prefFrac;                   // gewenste ONDERkant van de glazen
   const el = document.getElementById("result");
@@ -2593,7 +2595,7 @@ function clinkAnchorFrac(prefFrac, size) {
   const overlapt = pref > r.top - M && pref - size < r.bottom + M;
   if (!overlapt) return prefFrac;
   const onder = r.bottom + size + M;
-  if (onder <= H - 4) return asFrac(onder);
+  if (onder <= H - 4 && onder <= H - H * floorFrac) return asFrac(onder);
   const boven = r.top - M;
   if (boven - size >= 4) return asFrac(boven);
   return prefFrac;                                 // nergens plek — laat maar
@@ -2602,7 +2604,7 @@ function clinkAnchorFrac(prefFrac, size) {
 // Proost: de glazen komen omhoog uit de onderrand en klinken, met een fontein
 // schuimdruppels op het klink-moment. Woordloos (dus taalneutraal) en kort — bij
 // een gewone winst is dit de hele viering.
-function clinkLayer(delay = 0, prefFrac = 0.24) {
+function clinkLayer(delay = 0, prefFrac = 0.24, floorFrac = 0) {
   const c = beerPalette();
   const DUR = 1.9;
   // Zelfde keyframes als de CSS-mockup: opkomen, doorschieten, natrillen, wegdoven.
@@ -2641,7 +2643,7 @@ function clinkLayer(delay = 0, prefFrac = 0.24) {
       // telefoon van 390px is dit ~94px hoog; het anker hieronder houdt hem
       // ondanks die maat van #result af.
       const size = Math.max(72, Math.min(W * 0.24, 140));
-      const baseY = H - H * clinkAnchorFrac(prefFrac, size);
+      const baseY = H - H * clinkAnchorFrac(prefFrac, size, floorFrac);
       for (const d of drops) {
         const s = t - d.delay;                     // seconden sinds vertrek
         if (s < 0 || s > d.dur) continue;
@@ -2694,9 +2696,12 @@ function clinkLayer(delay = 0, prefFrac = 0.24) {
 // de hoogte, het bier onderin. De bubbels blijven daarom in het glas — schermbreed
 // gaan ze verloren tussen de vuurwerkdeeltjes.
 function showBeer(firstTry) {
+  // Glashoogte volgt de bierhoogte (+ een fractie, zodat de glazen net uít het
+  // schuim komen i.p.v. erin te staan). Eén getal aanpassen = beide schuiven mee.
+  const FILL = 0.30;
   runFx(firstTry
-    ? [fireworksLayer(), pourLayer(0.19), clinkLayer(0.45, 0.20)]
-    : [clinkLayer(0, 0.30)]);
+    ? [fireworksLayer(), pourLayer(FILL), clinkLayer(0.45, FILL + 0.015, FILL)]
+    : [clinkLayer(0, 0.32)]);
 }
 
 function finishGame(won, fresh = false) {
