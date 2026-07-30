@@ -2499,7 +2499,7 @@ function beerPalette() {
 // paar seconden loopt het weer leeg. Blijft bewust onder de onderste ~19% van het
 // scherm — daar staat bij een gewonnen potje niets dat gelezen moet worden (het
 // jaartal en de score zitten hoger).
-function pourLayer(frac = 0.30) {
+function pourLayer(frac = 0.38) {
   const c = beerPalette();
   const RISE = 1.0, HOLD = 3.0, END = 4.0;        // s
   const blobs = Array.from({ length: 26 }, (_, i) => ({
@@ -2508,7 +2508,7 @@ function pourLayer(frac = 0.30) {
     sp: 1.4 + Math.random() * 1.6,
     ph: Math.random() * 6.28,
   }));
-  const bubs = Array.from({ length: 30 }, () => ({
+  const bubs = Array.from({ length: 38 }, () => ({
     x: 0.02 + Math.random() * 0.96,
     r: 2 + Math.random() * 3.5,
     dur: 1.1 + Math.random() * 1.2,
@@ -2642,7 +2642,7 @@ function clinkLayer(delay = 0, prefFrac = 0.24, floorFrac = 0) {
       // Fors: dit is de viering van een trede die je één keer haalt. Op een
       // telefoon van 390px is dit ~94px hoog; het anker hieronder houdt hem
       // ondanks die maat van #result af.
-      const size = Math.max(72, Math.min(W * 0.24, 140));
+      const size = Math.max(96, Math.min(W * 0.32, 180));
       const baseY = H - H * clinkAnchorFrac(prefFrac, size, floorFrac);
       for (const d of drops) {
         const s = t - d.delay;                     // seconden sinds vertrek
@@ -2698,10 +2698,10 @@ function clinkLayer(delay = 0, prefFrac = 0.24, floorFrac = 0) {
 function showBeer(firstTry) {
   // Glashoogte volgt de bierhoogte (+ een fractie, zodat de glazen net uít het
   // schuim komen i.p.v. erin te staan). Eén getal aanpassen = beide schuiven mee.
-  const FILL = 0.30;
+  const FILL = 0.38;
   runFx(firstTry
     ? [fireworksLayer(), pourLayer(FILL), clinkLayer(0.45, FILL + 0.015, FILL)]
-    : [clinkLayer(0, 0.32)]);
+    : [clinkLayer(0, 0.40)]);
 }
 
 function finishGame(won, fresh = false) {
