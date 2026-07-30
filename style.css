@@ -86,7 +86,7 @@ html[data-theme="light"] {
   src: url("/fonts/jaardle-emoji.woff2") format("woff2");
   font-display: swap;
   /* EMOJI-RANGE:START */
-  unicode-range: U+200D, U+23E9, U+23F3, U+25B6, U+2600-2601, U+2604, U+2615, U+26A1, U+270C, U+270F, U+2728, U+2795, U+2B1B-2B1C, U+FE0F, U+1F308, U+1F30C-1F30D, U+1F310, U+1F31F, U+1F336, U+1F340, U+1F344, U+1F355, U+1F37B, U+1F389, U+1F3A9, U+1F3AF, U+1F3B2, U+1F3BB, U+1F3C5-1F3C6, U+1F3DB, U+1F409, U+1F40D, U+1F410, U+1F419, U+1F41D, U+1F422, U+1F426-1F427, U+1F431, U+1F433, U+1F437-1F438, U+1F43A-1F43C, U+1F44B, U+1F451, U+1F480, U+1F485, U+1F48E, U+1F494, U+1F4A1, U+1F4A5, U+1F4A9, U+1F4AF, U+1F4C8-1F4CA, U+1F4CF, U+1F4E2, U+1F511-1F512, U+1F522, U+1F525, U+1F54A, U+1F5FF, U+1F605, U+1F680, U+1F7E5, U+1F7E7-1F7EB, U+1F947-1F949, U+1F978, U+1F980-1F981, U+1F984-1F985, U+1F987-1F98B, U+1F994-1F996, U+1F99E, U+1F9A5, U+1F9A9, U+1F9AB, U+1F9AD, U+1F9E0, U+1F9ED, U+1FA99, U+1FAB0, U+1FABF, U+1FACF, U+1FAEA;
+  unicode-range: U+200D, U+23E9, U+23F3, U+25B6, U+2600-2601, U+2604, U+2615, U+26A1, U+270C, U+270F, U+2728, U+2795, U+2B1B-2B1C, U+FE0F, U+1F308, U+1F30C-1F30D, U+1F310, U+1F31F, U+1F336, U+1F340, U+1F344, U+1F355, U+1F37B, U+1F389-1F38A, U+1F3A9, U+1F3AF, U+1F3B2, U+1F3BB, U+1F3C5-1F3C6, U+1F3DB, U+1F3DF, U+1F409, U+1F40D, U+1F410, U+1F419, U+1F41D, U+1F422, U+1F426-1F427, U+1F431, U+1F433, U+1F437-1F438, U+1F43A-1F43C, U+1F44B, U+1F451, U+1F480, U+1F485, U+1F48E, U+1F494, U+1F4A1, U+1F4A5, U+1F4A9, U+1F4AF, U+1F4C5, U+1F4C8-1F4CA, U+1F4CF, U+1F4E2, U+1F511-1F512, U+1F522, U+1F525, U+1F54A, U+1F5FF, U+1F605, U+1F680, U+1F7E5, U+1F7E7-1F7EB, U+1F947-1F949, U+1F978, U+1F980-1F981, U+1F984-1F985, U+1F987-1F98B, U+1F994-1F996, U+1F99E, U+1F9A5, U+1F9A9, U+1F9AB, U+1F9AD, U+1F9E0, U+1F9ED, U+1FA99, U+1FAB0, U+1FABF, U+1FACF, U+1FAEA;
   /* EMOJI-RANGE:END */
 }
 
@@ -1057,6 +1057,27 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 0.9rem;
   margin: 0;
 }
+
+/* Colofon onder de spelregels: bewust klein en grijs — het is een verplichting
+   (CC BY 4.0 voor de Noto-animaties, CC BY-SA voor Wikipedia), geen inhoud. */
+#help-credits-title {
+  margin: 1.1rem 0 0.35rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+#help-credits {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+/* Zelfde behandeling als .form-note / .history-source: accentkleur i.p.v. het
+   blauw-paars van de browser, dat naast grijze tekst schreeuwt. */
+#help-credits a { color: var(--accent); }
 
 footer {
   text-align: center;

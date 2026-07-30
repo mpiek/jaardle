@@ -102,7 +102,14 @@ def main() -> int:
         f"--output-file={OUT}",
         "--no-hinting",
         "--desubroutinize",
-        "--name-IDs=",
+        # 0 = copyright, 13 = licentie-omschrijving, 14 = licentie-URL. De OFL
+        # (clause 2) eist dat elke kopie — ook een gesubsette — de copyright-
+        # notice en de licentie meedraagt; deze drie name-records zijn precies
+        # het "machine-readable metadata field" dat de licentie daarvoor noemt.
+        # Alle overige namen (familie, versie, trademark) gaan er wél uit: die
+        # zijn overbodig, want @font-face adresseert het bestand rechtstreeks.
+        # Naast het font staat fonts/OFL.txt met de volledige licentietekst.
+        "--name-IDs=0,13,14",
         "--drop-tables+=DSIG",
     ]
     print("→ pyftsubset (%d codepoints)…" % len(cps), file=sys.stderr)

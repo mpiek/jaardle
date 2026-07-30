@@ -22,7 +22,23 @@ SOFTWARE.
 
 ---
 
-NOTE: The MIT license above covers the source code (HTML, CSS, JavaScript,
-Python tools). The event datasets (`events.en.json`, `events.nl.json`,
-`events.min.json`) are derived from English Wikipedia and are licensed
-separately under CC BY-SA 4.0. See LICENSE-DATA.md for details.
+NOTE: The MIT license above covers the source code only (HTML, CSS, JavaScript,
+Python/Node tools). Third-party assets bundled in this repository keep their own
+licenses and are NOT covered by MIT:
+
+* Event texts and translations — served from Supabase, not stored in this repo.
+  Derived from English Wikipedia, licensed CC BY-SA 4.0.
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+* emoji/*.webp — animated emoji from Noto Emoji Animation, (c) Google,
+  licensed CC BY 4.0. Unmodified copies.
+  https://googlefonts.github.io/noto-emoji-animation/
+  https://creativecommons.org/licenses/by/4.0/
+
+* fonts/jaardle-emoji.woff2 — a subset of Noto Color Emoji (COLRv1),
+  (c) 2022 Google Inc., licensed under the SIL Open Font License 1.1.
+  Built by tools/build-emoji-font.py; full license text in fonts/OFL.txt.
+  https://github.com/googlefonts/noto-emoji
+
+* flags/*.svg — Flag Pack by Kenney (www.kenney.nl), released under CC0 1.0.
+  See flags/License.txt.

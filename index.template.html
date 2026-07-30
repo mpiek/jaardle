@@ -82,7 +82,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=124">
+<link rel="stylesheet" href="/style.css?v=125">
 </head>
 <body>
   <main>
@@ -186,6 +186,11 @@
       </header>
       <div class="modal-body">
         <ul id="help-list">{{i18nhtml:help_list}}</ul>
+        <!-- Colofon: bronvermelding voor Wikipedia (CC BY-SA) en de Noto-emoji
+             (animaties CC BY 4.0, webfont OFL 1.1). CC BY *eist* die credit op
+             de plek waar het materiaal getoond wordt — de README telt niet. -->
+        <h3 id="help-credits-title">{{i18n:credits_title}}</h3>
+        <p id="help-credits">{{i18nhtml:credits_note}}</p>
       </div>
     </div>
   </div>
@@ -358,7 +363,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=206"></script>
+  <script src="/game.js?v=207"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
