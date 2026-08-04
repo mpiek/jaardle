@@ -226,6 +226,7 @@ const I18N = {
     recap_faster: (pct) => `🎯 Beter dan ${pct}% van de spelers vandaag`,
     recap_firstguess: (avg, mine) => `📏 Eerste gok zat er gemiddeld ${avg} jaar naast${mine != null ? ` · jij: ${mine}` : ""}`,
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
+    recap_week_title: "⚔️ Weekstand",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
     recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
     recap_acct_title: "Met een gratis account",
@@ -454,6 +455,7 @@ const I18N = {
     recap_faster: (pct) => `🎯 Better than ${pct}% of players today`,
     recap_firstguess: (avg, mine, avgN) => `📏 First guess was ${avg} year${avgN === 1 ? "" : "s"} off on average${mine != null ? ` · you: ${mine}` : ""}`,
     recap_team_title: "Today's team standings", recap_today: "today",
+    recap_week_title: "⚔️ Week standings",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
     recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
     recap_acct_title: "With a free account",
@@ -676,6 +678,7 @@ const I18N = {
     recap_faster: (pct) => `🎯 Besser als ${pct}% der Spieler heute`,
     recap_firstguess: (avg, mine, avgN) => `📏 Erster Tipp im Schnitt ${avg} Jahr${avgN === 1 ? "" : "e"} daneben${mine != null ? ` · du: ${mine}` : ""}`,
     recap_team_title: "Team-Stand heute", recap_today: "heute",
+    recap_week_title: "⚔️ Wochenstand",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
     recap_pool_none: "Erstelle einen Pool oder tritt einem bei, um deine Freunde hier zu sehen.", recap_pool_btn: "🏆 Pool erstellen oder beitreten",
     recap_acct_title: "Mit einem kostenlosen Konto",
@@ -902,6 +905,7 @@ const I18N = {
     recap_faster: (pct) => `🎯 Mejor que el ${pct}% de los jugadores de hoy`,
     recap_firstguess: (avg, mine, avgN) => `📏 El primer intento falló por ${avg} año${avgN === 1 ? "" : "s"} de media${mine != null ? ` · tú: ${mine}` : ""}`,
     recap_team_title: "Marcador del equipo hoy", recap_today: "hoy",
+    recap_week_title: "⚔️ Clasificación semanal",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
     recap_pool_none: "Crea un grupo o únete a uno para ver aquí a tus amigos.", recap_pool_btn: "🏆 Crear o unirse a un grupo",
     recap_acct_title: "Con una cuenta gratuita",
@@ -1128,6 +1132,7 @@ const I18N = {
     recap_faster: (pct) => `🎯 Melhor que ${pct}% dos jogadores hoje`,
     recap_firstguess: (avg, mine, avgN) => `📏 O primeiro palpite errou por ${avg} ano${avgN === 1 ? "" : "s"} em média${mine != null ? ` · você: ${mine}` : ""}`,
     recap_team_title: "Placar da equipe hoje", recap_today: "hoje",
+    recap_week_title: "⚔️ Classificação da semana",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
     recap_pool_none: "Crie um grupo ou entre em um para ver seus amigos aqui.", recap_pool_btn: "🏆 Criar ou entrar em um grupo",
     recap_acct_title: "Com uma conta gratuita",
@@ -3189,6 +3194,7 @@ let lbWeekStart = null;               // maandag van de getoonde week (weekpodiu
 let lbWkReq = 0;                       // race-guard: alleen de laatste weekpodium-fetch mag renderen
 let lbTabLoaded = new Set();           // welke tabbladen deze render al lui geladen zijn
 let pendingLbTab = null;               // ?leaderboard=podium → open direct op de podium-tab
+let pendingLbWeek = null;              // recap-weekblok → podium direct op de LIVE week (niet de laatst-afgeronde)
 let podiumConfRAF = null;              // rAF-handle van de doorlopende podium-confetti (stop = geen leak)
 let weekPodiumResult = null;           // {weekStart, hasResult, placements:[…]} van de laatst-afgeronde week, of null
 // 1e week die het weekpodium telt (maandag, Europe/Amsterdam). Vóór deze week toont de
@@ -3919,6 +3925,16 @@ function showPodiumConfetti() {
   podiumConfRAF = requestAnimationFrame(step);
 }
 
+// ▲/▼ t.o.v. de stand van gisteravond (prev_rank uit db/51: dezelfde ranking maar
+// zonder de potten van vandaag). Alleen bij echte verschuiving; wie gisteravond nog
+// niet op het bord stond (prev_rank null — eerste pot van de week, of maandag) krijgt
+// niets. Afgeronde weken tonen géén pijltjes: een uitslag beweegt niet (caller gate).
+function wkDeltaHtml(r) {
+  if (r.prev_rank == null || r.prev_rank === r.rank) return "";
+  const up = r.prev_rank > r.rank;
+  return `<span class="wk-delta ${up ? "up" : "down"}">${up ? "▲" : "▼"}${Math.abs(r.prev_rank - r.rank)}</span>`;
+}
+
 // Bouwt het podium (🥇 midden-hoog · 🥈 links · 🥉 rechts, alleen gevulde treden)
 // met dansende flair + naam, en daaronder de resterende rijen (rang 4+) mét hun
 // score/potjes/dagzeges — niet langer alleen "meegedaan".
@@ -3938,7 +3954,7 @@ function podiumHtml(rows, isLive) {
     const tier = cls[Math.min(r.rank, 3) - 1];
     const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : r.rank === 3 ? "🥉" : String(r.rank);
     return `<div class="lb-pod-spot lb-pod-${tier}${r.is_me ? " lb-me" : ""}">` +
-      `<div class="lb-pod-name">${titleBadgeHtml(r.title)}${escHtml(r.display_name)}</div>` +
+      `<div class="lb-pod-name">${titleBadgeHtml(r.title)}${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</div>` +
       `<div class="lb-pod-flair">${flairDance(r.flair)}</div>` +
       `<div class="lb-pod-block"><div class="lb-pod-medal">${medal}</div>` +
       `<div class="lb-pod-count"><span class="lb-pod-n">${r.week_score}</span>` +
@@ -3950,7 +3966,7 @@ function podiumHtml(rows, isLive) {
     `<div class="lb-wk-restrow${r.is_me ? " lb-me" : ""}">` +
     `<span class="lb-wk-rk">${r.rank}</span>` +
     `<span class="lb-wk-rf">${r.flair ? escHtml(r.flair) : ""}</span>` +
-    `<span class="lb-wk-rn">${escHtml(r.display_name)}</span>` +
+    `<span class="lb-wk-rn">${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</span>` +
     `<span class="lb-wk-rc">${restStat(r)}</span></div>`
   ).join("") + `</div>` : "";
   const note = `<p class="lb-wk-note">${escHtml(isLive ? t("lb_wk_note_live") : t("lb_wk_formula"))}</p>`;
@@ -3973,7 +3989,8 @@ async function renderLeaderboard() {
   if (!myPool) { renderPoolEmptyState(body); return; }
 
   lbDailyDate = todayKey();   // begin altijd bij de daily van vandaag
-  lbWeekStart = weekPodiumDefaultWeek();   // weekpodium opent op de laatst-afgeronde week
+  lbWeekStart = pendingLbWeek || weekPodiumDefaultWeek();   // weekpodium opent op de laatst-afgeronde week, tenzij het weekblok de live week vroeg
+  pendingLbWeek = null;
   let overall = [];
   try { overall = await rpc("get_pool_leaderboard", { p_pool_id: myPool.id, p_min_games: 1 }); } catch (e) {}
   if (document.getElementById("modal-leaderboard").hidden) return;
@@ -4418,6 +4435,33 @@ function recapAccountHtml() {
   </div>`;
 }
 
+// ⚔️ Weekstand-blok in de recap: de weekstrijd op het moment dat hij spannend is
+// (net na je daily). Top-3 met medailles + jouw venster — sta je buiten de top-3,
+// dan ook de rij direct boven en onder je (je directe rivalen), met een ⋯-rij op
+// het gat; sta je er wél in, dan schuift nummer 4 (je jager) aan. Bewust een
+// lijst, géén podium-blokken: een podium is een uitslag, dit is een tussenstand —
+// het echte podium staat één tik verderop (grill-sessie 4/8).
+function recapWeekHtml(rows) {
+  if (!rows.length) return "";
+  const meIdx = rows.findIndex((r) => r.is_me);
+  const picks = new Set([0, 1, 2]);
+  if (meIdx > 2) [meIdx - 1, meIdx, meIdx + 1].forEach((i) => picks.add(i));
+  else picks.add(3);   // jij op het podium (of nog niet op het bord) → toon de jager
+  const idxs = [...picks].filter((i) => i >= 0 && i < rows.length).sort((a, b) => a - b);
+  let html = "", prev = -1;
+  for (const i of idxs) {
+    if (prev >= 0 && i - prev > 1) html += `<div class="lb-wk-gap" aria-hidden="true">⋯</div>`;
+    const r = rows[i];
+    html += `<div class="${lbRowCls(r.is_me)}${lbPodiumCls(r.rank)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
+      `<span class="lb-name">${lbNameCell(r, r.rank)}${wkDeltaHtml(r)}</span>` +
+      `<span class="lb-val"><span class="lb-score">${r.week_score}</span></span></div>`;
+    prev = i;
+  }
+  return `<div class="recap-week"><h3 class="stats-heading">${t("recap_week_title")}</h3>` +
+    `<div class="lb-table">${html}</div>` +
+    `<div class="recap-week-go"><button id="recap-week-btn" class="lb-pillbtn">${escHtml(t("lb_recap_view"))} ›</button></div></div>`;
+}
+
 // Teamstand van vandaag in het recap-scherm: zelfde rijen als het daily-bord van
 // het leaderboard. Niet ingelogd → login-nudge; ingelogd zonder pool → pool-nudge.
 async function loadRecapTeam() {
@@ -4447,11 +4491,24 @@ async function loadRecapTeam() {
   wirePoolChips(wrap, loadRecapTeam);
   lbDailyDate = todayKey();   // stuurt de lege-staat-tekst van dailyTableHtml
   const poolId = myPool.id;   // wisselt de gebruiker intussen van pool → gooi dit antwoord weg
-  let rows = [];
-  try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: poolId, p_date: todayKey() }); } catch (e) {}
+  // Dagbord + weekstand parallel; het weekblok verschijnt pas vanaf de podium-epoch
+  // en verdwijnt vanzelf bij een lege week (RPC geeft dan geen rijen).
+  const [rows, wkRows] = await Promise.all([
+    rpc("get_pool_daily_leaderboard", { p_pool_id: poolId, p_date: todayKey() }).catch(() => []),
+    currentWeekStart() >= PODIUM_EPOCH
+      ? rpc("get_pool_week_podium", { p_pool_id: poolId, p_week_start: currentWeekStart() }).catch(() => [])
+      : Promise.resolve([]),
+  ]);
   if (document.getElementById("modal-recap").hidden || myPool?.id !== poolId) return;
   const board = document.getElementById("recap-team-board");
-  if (board) setBoard(board, dailyTableHtml(Array.isArray(rows) ? rows : []));
+  if (!board) return;
+  setBoard(board, dailyTableHtml(Array.isArray(rows) ? rows : []) +
+    recapWeekHtml(Array.isArray(wkRows) ? wkRows : []));
+  const goBtn = document.getElementById("recap-week-btn");
+  if (goBtn) goBtn.onclick = () => {
+    pendingLbTab = "podium"; pendingLbWeek = currentWeekStart();
+    closeAllModals(); openModal("modal-leaderboard");
+  };
 }
 
 // --- Prestaties (achievements) ----------------------------------------------

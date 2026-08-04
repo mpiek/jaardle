@@ -1805,6 +1805,17 @@ footer {
 .lb-wk-rn { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-wk-rc { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
 
+/* ▲/▼-weekstand-delta t.o.v. gisteravond (recap-weekblok + live podium-tab);
+   zelfde kleurtaal als .rating-delta — richting zit in het symbool, kleur is extra */
+.wk-delta { font-size: 0.72em; font-weight: 700; margin-left: 0.35em; white-space: nowrap; }
+.wk-delta.up { color: var(--green-text); }
+.wk-delta.down { color: var(--red-text); }
+
+/* ⚔️ Weekstand-blok in de recap: venster-lijst met ⋯ op het gat + podium-link */
+.recap-week { margin-top: 1rem; }
+.lb-wk-gap { text-align: center; color: var(--muted); font-size: 0.85rem; line-height: 1; padding: 0.15rem 0; user-select: none; }
+.recap-week-go { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+
 .lb-wk-msg { text-align: center; padding: 1.6rem 1rem 1.4rem; }
 .lb-wk-msg-i { font-size: 2.2rem; margin-bottom: 0.5rem; }
 .lb-wk-msg h4 { margin: 0 0 0.3rem; font-size: 1rem; }
