@@ -243,6 +243,15 @@ const I18N = {
     makeup_body: (streak, dayNum) => `Speel puzzel #${dayNum} van gisteren alsnog en red je streak van ${streak} ${streak === 1 ? "dag" : "dagen"}.`,
     makeup_cta: "Speel gisteren",
     makeup_play_today: "▶️ Speel nu de daily van vandaag",
+    streak_shield: (n, l) => `🛡️ Streak van ${n} ${n === 1 ? "dag" : "dagen"} behouden — nog ${l} ${l === 1 ? "leven" : "levens"}`,
+    streak_lives: (l) => `🛡️ nog ${l} ${l === 1 ? "leven" : "levens"}`,
+    repair_title: "Win je streak terug",
+    repair_body: (n, left) => `Win nog ${left} ${left === 1 ? "potje" : "potjes"} vrij spel en je streak van ${n} ${n === 1 ? "dag" : "dagen"} telt weer door.`,
+    repair_meta: (done, need, days) => `${done}/${need} gewonnen · nog ${days} ${days === 1 ? "dag" : "dagen"}`,
+    repair_cta: "Speel vrij spel",
+    repair_progress_line: (done, need) => `🩹 Streak-reparatie: ${done}/${need} potjes gewonnen`,
+    repair_done: (n) => `🔥 Je streak van ${n} ${n === 1 ? "dag" : "dagen"} is terug!`,
+    cal_bridged: "overbrugd",
     tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
     dir_word: "richtingen",
     avg_word: "gem.",
@@ -462,6 +471,15 @@ const I18N = {
     makeup_body: (streak, dayNum) => `Play yesterday's puzzle #${dayNum} after all and save your ${streak}-day streak.`,
     makeup_cta: "Play yesterday",
     makeup_play_today: "▶️ Play today's daily now",
+    streak_shield: (n, l) => `🛡️ ${n}-day streak kept — ${l} ${l === 1 ? "life" : "lives"} left`,
+    streak_lives: (l) => `🛡️ ${l} ${l === 1 ? "life" : "lives"} left`,
+    repair_title: "Win your streak back",
+    repair_body: (n, left) => `Win ${left} more free-play ${left === 1 ? "game" : "games"} and your ${n}-day streak carries on.`,
+    repair_meta: (done, need, days) => `${done}/${need} won · ${days} ${days === 1 ? "day" : "days"} left`,
+    repair_cta: "Play free mode",
+    repair_progress_line: (done, need) => `🩹 Streak repair: ${done}/${need} games won`,
+    repair_done: (n) => `🔥 Your ${n}-day streak is back!`,
+    cal_bridged: "bridged",
     tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
     dir_word: "directions",
     avg_word: "avg.",
@@ -675,6 +693,15 @@ const I18N = {
     makeup_body: (streak, dayNum) => `Spiel das gestrige Rätsel #${dayNum} doch noch und rette deine Serie von ${streak} ${streak === 1 ? "Tag" : "Tagen"}.`,
     makeup_cta: "Gestern spielen",
     makeup_play_today: "▶️ Jetzt das heutige Rätsel spielen",
+    streak_shield: (n, l) => `🛡️ Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gehalten — noch ${l} Leben`,
+    streak_lives: (l) => `🛡️ noch ${l} Leben`,
+    repair_title: "Hol dir deine Serie zurück",
+    repair_body: (n, left) => `Gewinn noch ${left} ${left === 1 ? "Partie" : "Partien"} im freien Spiel und deine Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} läuft weiter.`,
+    repair_meta: (done, need, days) => `${done}/${need} gewonnen · noch ${days} ${days === 1 ? "Tag" : "Tage"}`,
+    repair_cta: "Frei spielen",
+    repair_progress_line: (done, need) => `🩹 Serien-Reparatur: ${done}/${need} Partien gewonnen`,
+    repair_done: (n) => `🔥 Deine Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} ist zurück!`,
+    cal_bridged: "überbrückt",
     tiers: { perfect: "Perfekt", impressive: "Beeindruckend", good: "Gut", solid: "Solide", justmade: "Gerade so", lost: "Nächstes Mal besser" },
     dir_word: "Richtungen",
     avg_word: "Ø",
@@ -892,6 +919,15 @@ const I18N = {
     makeup_body: (streak, dayNum) => `Juega el reto #${dayNum} de ayer y salva tu racha de ${streak} ${streak === 1 ? "día" : "días"}.`,
     makeup_cta: "Jugar el de ayer",
     makeup_play_today: "▶️ Juega ahora el reto de hoy",
+    streak_shield: (n, l) => `🛡️ Racha de ${n} ${n === 1 ? "día" : "días"} conservada — ${l === 1 ? "queda 1 vida" : `quedan ${l} vidas`}`,
+    streak_lives: (l) => l === 1 ? "🛡️ queda 1 vida" : `🛡️ quedan ${l} vidas`,
+    repair_title: "Recupera tu racha",
+    repair_body: (n, left) => `Gana ${left} ${left === 1 ? "partida" : "partidas"} más en juego libre y tu racha de ${n} ${n === 1 ? "día" : "días"} sigue contando.`,
+    repair_meta: (done, need, days) => `${done}/${need} ganadas · ${days === 1 ? "queda 1 día" : `quedan ${days} días`}`,
+    repair_cta: "Juego libre",
+    repair_progress_line: (done, need) => `🩹 Reparación de racha: ${done}/${need} partidas ganadas`,
+    repair_done: (n) => `🔥 ¡Tu racha de ${n} ${n === 1 ? "día" : "días"} ha vuelto!`,
+    cal_bridged: "recuperado",
     tiers: { perfect: "Perfecto", impressive: "Impresionante", good: "Bien", solid: "Sólido", justmade: "Por los pelos", lost: "La próxima irá mejor" },
     dir_word: "direcciones",
     avg_word: "med.",
@@ -1109,6 +1145,15 @@ const I18N = {
     makeup_body: (streak, dayNum) => `Jogue o desafio #${dayNum} de ontem e salve sua sequência de ${streak} ${streak === 1 ? "dia" : "dias"}.`,
     makeup_cta: "Jogar o de ontem",
     makeup_play_today: "▶️ Jogue agora o desafio de hoje",
+    streak_shield: (n, l) => `🛡️ Sequência de ${n} ${n === 1 ? "dia" : "dias"} mantida — ${l === 1 ? "resta 1 vida" : `restam ${l} vidas`}`,
+    streak_lives: (l) => l === 1 ? "🛡️ resta 1 vida" : `🛡️ restam ${l} vidas`,
+    repair_title: "Recupere sua sequência",
+    repair_body: (n, left) => `Vença mais ${left} ${left === 1 ? "partida" : "partidas"} no jogo livre e sua sequência de ${n} ${n === 1 ? "dia" : "dias"} continua valendo.`,
+    repair_meta: (done, need, days) => `${done}/${need} vencidas · ${days === 1 ? "resta 1 dia" : `restam ${days} dias`}`,
+    repair_cta: "Jogo livre",
+    repair_progress_line: (done, need) => `🩹 Reparo da sequência: ${done}/${need} partidas vencidas`,
+    repair_done: (n) => `🔥 Sua sequência de ${n} ${n === 1 ? "dia" : "dias"} está de volta!`,
+    cal_bridged: "recuperado",
     tiers: { perfect: "Perfeito", impressive: "Impressionante", good: "Bem", solid: "Sólido", justmade: "Por pouco", lost: "A próxima vai melhor" },
     dir_word: "direções",
     avg_word: "méd.",
@@ -2800,7 +2845,7 @@ function finishGame(won, fresh = false) {
   };
   if (fresh) sendTelemetry().then(afterSend, afterSend);
   else showFactStats(statsHash);
-  if (isMakeup(state)) refreshMakeupBanner();   // gisteren nu gespeeld → banner weg
+  if (isMakeup(state)) refreshStreakBanners();   // gisteren nu gespeeld → banner weg
   else startDailyCountdown();
 }
 
@@ -2831,6 +2876,7 @@ function sendTelemetry() {
     .then((id) => {
       invalidateHistory();  // verse stats bij volgende opening
       showLiveRating();     // ⚡-regel op het eindscherm (alleen ingelogd)
+      updateRepairAfterPlay();  // 🩹-voortgang/afronding + banners (alleen ingelogd)
       // Onthoud het rij-id zodat we de pot ná inloggen aan het account kunnen koppelen.
       try { if (id != null) localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); } catch (e) {}
     })
@@ -2900,14 +2946,21 @@ async function makeupRepairInfo() {
   const dayBefore = shiftDay(todayKey(), -2);
   // Gisteren mag niet vóór de eerste browsbare daily liggen.
   if (yesterday < EPOCH_KEY) return { eligible: false };
-  let hist;
-  try { hist = await dailyHistoryForDisplay(); } catch (e) { return { eligible: false }; }
+  let hist, extras;
+  try {
+    hist = await dailyHistoryForDisplay();
+    extras = await getStreakExtras();
+  } catch (e) { return { eligible: false }; }
   const played = new Set(hist.map((e) => e.date));
-  const won = new Set(hist.filter((e) => e.won).map((e) => e.date));
   if (played.has(yesterday)) return { eligible: false };  // al gespeeld (win óf verlies)
-  if (!won.has(dayBefore)) return { eligible: false };     // geen streak om te redden
-  let streak = 0, c = dayBefore;
-  while (won.has(c)) { streak += 1; c = shiftDay(c, -1); }
+  // Streak die op het spel staat = de stand aan het eind van eergisteren, mét
+  // levens/bruggen (db/50): ook na een vergeven verlies of over een brug heen
+  // valt er iets te redden. Eergisteren zelf moet wel gesloten zijn (gespeeld
+  // of overbrugd), anders is het gat groter dan de inhaalpot kan dichten.
+  const closed = played.has(dayBefore) ||
+    (extras.bridges || []).some((b) => dayBefore >= b.from && dayBefore <= b.to);
+  const streak = computeStats(hist, extras, dayBefore).currentStreak;
+  if (!closed || streak < 1) return { eligible: false };   // geen streak om te redden
   return { eligible: true, streak, dayNum: dayNumForKey(yesterday), dateKey: yesterday };
 }
 
@@ -2921,7 +2974,7 @@ function startMakeupCountdown() {
   if (!span) return;
   const tick = () => {
     const left = secsToNextDaily();
-    if (left <= 0) { stopMakeupCountdown(); refreshMakeupBanner(); return; }  // dag voorbij
+    if (left <= 0) { stopMakeupCountdown(); refreshStreakBanners(); return; }  // dag voorbij
     span.textContent = fmtCountdown(left);
   };
   tick();
@@ -2971,6 +3024,126 @@ function startMakeup() {
   if (el) el.hidden = true;
   els.tabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.mode === "daily")));
   startGame("daily", false, null, yesterday);
+}
+
+// --- 5-potjes-reparatie (streak terugverdienen, db/50) ----------------------
+// Wie een streak >= 7 brak met een gat van 2-7 dagen (te groot voor de
+// inhaal-daily) mag 'm terugverdienen: 5 gewonnen vrij-spel-potjes binnen 7
+// dagen na terugkomst, max 1x per 30 dagen. De server valideert álles
+// (start_streak_repair); de lokale check hieronder is er alleen om niet bij
+// elke pageload een kansloze RPC af te vuren. Alleen-ingelogd.
+const repairDismissKey = () => `jaardle:repairDismissed:${todayKey()}`;
+const repairNoKey = () => `jaardle:repairNo:${todayKey()}`;
+
+// Grove voorselectie op de lokale historie; vals-positief mag (de server wijst
+// dan af en we onthouden dat voor vandaag), vals-negatief liever niet.
+async function repairEligibleLocally() {
+  if (!auth.user) return false;
+  try { if (localStorage.getItem(repairNoKey())) return false; } catch (e) {}
+  const extras = await getStreakExtras();
+  if (extras.repair) return false;                 // loopt al
+  const hist = await dailyHistoryForDisplay();
+  const s = computeStats(hist, extras);
+  if (s.currentStreak > 0 || s.bestStreak < 7) return false;
+  const played = new Set(hist.map((e) => e.date));
+  const bridged = (d) => extras.bridges.some((b) => d >= b.from && d <= b.to);
+  // Minstens één definitief gemiste dag (ouder dan gisteren) in het venster
+  // waarin de terugkeer nog vers genoeg is (gap_to >= vandaag-7, dus t/m -8).
+  for (let i = 2; i <= 8; i++) {
+    const d = shiftDay(todayKey(), -i);
+    if (!played.has(d) && !bridged(d)) return true;
+  }
+  return false;
+}
+
+let repairCountdownTimer = null;
+function stopRepairCountdown() {
+  if (repairCountdownTimer) { clearInterval(repairCountdownTimer); repairCountdownTimer = null; }
+}
+
+// Toon/verberg de reparatie-uitnodiging. De inhaal-banner heeft voorrang: kan
+// het gat nog écht gedicht worden, dan is dat goedkoper (geen reparatie
+// verbruikt) én verdienstelijker. Start zo nodig de reparatie server-side —
+// de deadline is verankerd op de terugkeerdag, dus uitstel rekt niets op.
+async function refreshRepairBanner() {
+  const el = document.getElementById("repair-banner");
+  if (!el) return;
+  let dismissed = false;
+  try { dismissed = !!localStorage.getItem(repairDismissKey()); } catch (e) {}
+  const makeupVisible = !document.getElementById("makeup-banner")?.hidden;
+  if (!auth.resolved || !auth.user || dismissed || makeupVisible) {
+    stopRepairCountdown(); el.hidden = true; return;
+  }
+  let extras = await getStreakExtras();
+  if (!extras.repair && await repairEligibleLocally()) {
+    try {
+      const r = await rpc("start_streak_repair", {});
+      if (r && Array.isArray(r.bridges)) {
+        extras = { bridges: r.bridges, repair: r.repair || null, lives: true };
+        streakExtrasCache = extras;
+      }
+      // Server zegt nee (gat te groot/oud, streak < 7, cooldown) → vandaag
+      // niet meer proberen; morgen kan het anders liggen.
+      if (!extras.repair) try { localStorage.setItem(repairNoKey(), "1"); } catch (e) {}
+    } catch (e) { /* transiënt: volgende refresh probeert opnieuw */ }
+  }
+  const rep = extras.repair;
+  if (!rep) { stopRepairCountdown(); el.hidden = true; return; }
+  const daysLeft = Math.max(1, daysBetween(todayKey(), rep.deadline));
+  el.innerHTML = `
+    <span class="makeup-flame">${animEmojiHtml("🩹")}</span>
+    <div class="makeup-text">
+      <strong class="makeup-title">${escHtml(t("repair_title"))}</strong>
+      <span class="makeup-body">${escHtml(t("repair_body")(rep.streak_before, rep.wins_needed - rep.wins_done))}</span>
+      <span class="makeup-left">${escHtml(t("repair_meta")(rep.wins_done, rep.wins_needed, daysLeft))}</span>
+    </div>
+    <button class="makeup-cta" type="button">${escHtml(t("repair_cta"))}</button>
+    <button class="makeup-dismiss" type="button" aria-label="${escHtml(t("aria_close"))}">✕</button>`;
+  armEmojiFallbacks(el);
+  el.querySelector(".makeup-cta").onclick = () => switchMode("free");
+  el.querySelector(".makeup-dismiss").onclick = () => {
+    try { localStorage.setItem(repairDismissKey(), "1"); } catch (e) {}
+    el.hidden = true;
+  };
+  el.hidden = false;
+}
+
+// De twee banners samen, in vaste volgorde (inhaal eerst — die heeft voorrang
+// en de reparatie-banner kijkt of de inhaal-banner zichtbaar is).
+async function refreshStreakBanners() {
+  try { await refreshMakeupBanner(); } catch (e) {}
+  try { await refreshRepairBanner(); } catch (e) {}
+}
+
+// Ná elke weggeschreven pot: verse reparatie-stand ophalen (het luie onderhoud
+// zit in de RPC), op het vrij-spel-eindscherm de voortgang of de afronding
+// tonen, en de banners bijwerken.
+async function updateRepairAfterPlay() {
+  if (!auth.user) return;
+  const prev = streakExtrasCache?.repair || null;
+  invalidateStreakExtras();
+  const extras = await getStreakExtras();
+  if (state && state.done && state.mode === "free") {
+    if (extras.repair) {
+      appendRepairLine(t("repair_progress_line")(extras.repair.wins_done, extras.repair.wins_needed));
+    } else if (prev && extras.bridges.some((b) => b.from === prev.gap_from)) {
+      // Zojuist voltooid: de brug staat er — vier de teruggekeerde streak.
+      const s = computeStats(await dailyHistoryForDisplay(), extras);
+      appendRepairLine(t("repair_done")(Math.max(s.currentStreak, prev.streak_before)));
+    }
+  }
+  refreshStreakBanners();
+}
+
+// Zelfde plek en stijl als de streak-regel op het daily-eindscherm.
+function appendRepairLine(line) {
+  if (!line || !state || !state.done) return;
+  els.resultText.querySelectorAll(".streak-line").forEach((e) => e.remove());
+  const el = document.createElement("div");
+  el.className = "streak-line";
+  el.innerHTML = withAnimEmoji(line);
+  armEmojiFallbacks(el);
+  els.resultText.append(el);
 }
 
 // --- Vrienden-pools (custom leaderboards) ----------------------------------
@@ -4589,7 +4762,7 @@ function recordAchvLocal() {
 // nooit mínder toont dan de stats-modal (die merget lokale dagen ook al).
 async function fetchAchievements() {
   const hist = await dailyHistoryForDisplay();
-  const s = computeStats(hist);
+  const s = computeStats(hist, await getStreakExtras());
   let a = null;
   if (auth.user) {
     try { const r = await rpc("get_my_achievements", {}); if (r) a = achvNormalize(r); } catch (e) {}
@@ -5354,6 +5527,41 @@ function invalidateHistory() {
   myHistoryPromise = null;
 }
 
+// --- Streak-extras: levens + bruggen + lopende reparatie (db/50) -------------
+// Eén RPC (get_my_streak_state) levert de brug-records van voltooide reparaties
+// en de eventuele lopende reparatie, en doet server-side het luie onderhoud
+// (verlopen/vervallen opruimen, voltooien bij 5 gewonnen potjes). Anoniem is er
+// niets van dit alles: levens en reparaties zijn alleen-ingelogd (grill-sessie
+// 2026-08-04) — computeStats valt dan terug op de klassieke regels.
+let streakExtrasCache = null;
+let streakExtrasPromise = null;
+const NO_EXTRAS = { bridges: [], repair: null, lives: false };
+
+function getStreakExtras() {
+  if (!auth.user) return Promise.resolve(NO_EXTRAS);
+  if (streakExtrasCache) return Promise.resolve(streakExtrasCache);
+  if (!streakExtrasPromise) {
+    streakExtrasPromise = rpc("get_my_streak_state", {}).then((r) => {
+      streakExtrasCache = r && Array.isArray(r.bridges)
+        ? { bridges: r.bridges, repair: r.repair || null, lives: true }
+        : { ...NO_EXTRAS, lives: true };
+      streakExtrasPromise = null;
+      return streakExtrasCache;
+    }).catch(() => {
+      // Niet cachen (transiente fout) — maar levens gelden wél: liever een
+      // streak zonder brug-info dan terugvallen op de strenge anon-regels.
+      streakExtrasPromise = null;
+      return { ...NO_EXTRAS, lives: true };
+    });
+  }
+  return streakExtrasPromise;
+}
+
+function invalidateStreakExtras() {
+  streakExtrasCache = null;
+  streakExtrasPromise = null;
+}
+
 // De daghistorie zoals we 'm TONEN (stats, streak-regels). Anon: puur lokaal.
 // Ingelogd: DB is leidend (cross-device), maar lokale dagen die de DB niet kent
 // vullen aan — dekt de race waarin record_play nog onderweg is terwijl het
@@ -5371,9 +5579,14 @@ async function dailyHistoryForDisplay() {
 // De streak-regel voor het winmoment: bij winst de lopende streak (dag 1 krijgt
 // een "kom morgen terug"), bij verlies wat er sneuvelde (alleen als er iets
 // stónd — anders niets; het aftelklokje geeft de terugkeer-reden al).
+// Met levens (ingelogd): een vergeven verlies toont het schild i.p.v. 💔, en
+// zolang je niet op 3/3 staat hangt er een levens-suffix aan de winregel —
+// die dooft vanzelf uit zodra de levens terug zijn (30 dagen na het verlies).
 async function streakLineText(won) {
-  const s = computeStats(await dailyHistoryForDisplay());
-  if (won) return s.currentStreak >= 1 ? t("streak_won")(s.currentStreak) : "";
+  const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
+  const lives = s.livesMax > 0 && s.livesLeft < s.livesMax ? ` · ${t("streak_lives")(s.livesLeft)}` : "";
+  if (won) return s.currentStreak >= 1 ? t("streak_won")(s.currentStreak) + lives : "";
+  if (s.currentStreak >= 1) return t("streak_shield")(s.currentStreak, s.livesLeft);
   return s.yesterdayStreak > 0 ? t("streak_lost")(s.yesterdayStreak) : "";
 }
 
@@ -5385,7 +5598,7 @@ async function appendStreakLine(won) {
   if (isMakeup(state)) {
     // Inhaalpot: bij winst de (nu weer aaneengesloten) streak vieren als "gered",
     // bij verlies eerlijk melden dat de reparatie niet lukte.
-    const s = computeStats(await dailyHistoryForDisplay());
+    const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
     line = won ? t("streak_saved")(s.currentStreak) : t("streak_makeup_lost");
   } else {
     line = await streakLineText(won);
@@ -5586,7 +5799,19 @@ function recordDailyResult(won) {
   saveHistory(history);
 }
 
-function computeStats(history) {
+// Streak-semantiek — SPIEGEL van streak_state() in db/50 (wijzig je hier iets,
+// wijzig het daar):
+//  * gewonnen dag  → run+1;
+//  * verloren dag  → kost een leven (3 per rollend venster van 30 dagen; alleen
+//    ingelogd, extras.lives). De streak staat stil — een vergeven verlies telt
+//    niet mee in het getal. Het 4e actieve verlies breekt alsnog. Anoniem (geen
+//    extras) breekt élk verlies, zoals vanouds;
+//  * gemiste dag   → breekt direct, tenzij overbrugd door een voltooide
+//    5-potjes-reparatie (extras.bridges, db/50);
+//  * vandaag nog niet gespeeld is geen breuk; een onoverbrugd gat t/m gisteren wél.
+// `asof` beperkt de walk tot dagen t/m die datum (de inhaal-banner meet er de
+// streak mee die vlak vóór het gat stond).
+function computeStats(history, extras, asof) {
   const total = history.length;
   const wins = history.filter((e) => e.won);
   const winsN = wins.length;
@@ -5594,31 +5819,46 @@ function computeStats(history) {
   const avgScore = winsN ? Math.round(wins.reduce((s, e) => s + e.score, 0) / winsN) : 0;
   // Gem. pogingen alleen over winsten (een verlies is altijd 6 en zou 't vertekenen).
   const avgAttempts = winsN ? Math.round((wins.reduce((s, e) => s + (e.guesses || 0), 0) / winsN) * 10) / 10 : 0;
-  // Streaks worden geteld op opeenvolgende kalenderdagen dat je hebt GEWONNEN;
-  // zowel een gemiste dag als een verloren dag breekt de streak.
-  const dateSet = new Set(history.map((e) => e.date));
-  const wonSet = new Set(wins.map((e) => e.date));
-  let best = 0, run = 0;
-  const sortedWon = [...wins].sort((a, b) => a.date.localeCompare(b.date));
-  let prev = null;
-  for (const e of sortedWon) {
-    if (prev && daysBetween(prev, e.date) === 1) run += 1;
-    else run = 1;
-    if (run > best) best = run;
-    prev = e.date;
-  }
-  // Current streak: tel terug vanaf vandaag (of gister als vandaag nog niet
-  // gespeeld). Een verlies vandaag laat de eerste stap falen → streak 0.
-  let cur = 0;
-  let cursor = todayKey();
-  if (!dateSet.has(cursor)) cursor = shiftDay(cursor, -1);
-  while (wonSet.has(cursor)) { cur += 1; cursor = shiftDay(cursor, -1); }
+  const today = asof || todayKey();
+  const livesMax = extras?.lives ? 3 : 0;
+  const bridges = extras?.bridges || [];
+  const bridged = (d) => bridges.some((b) => d >= b.from && d <= b.to);
+  const byDate = new Map(history.filter((e) => e.date <= today).map((e) => [e.date, e]));
+  const days = [...byDate.keys()].sort();
+  let run = 0, best = 0, losses = [], prev = null;
+  const breakRun = () => { run = 0; losses = []; };
+  // Dagen strikt tussen `fromEx` en `toEx`: één onoverbrugde gemiste dag breekt.
+  const closeGap = (fromEx, toEx) => {
+    for (let m = shiftDay(fromEx, 1); m < toEx; m = shiftDay(m, 1)) {
+      if (!bridged(m)) { breakRun(); return; }
+    }
+  };
   // Streak t/m gisteren: wat er op het spel stond vóór de pot van vandaag.
   // Voedt de "streak van N gebroken"-regel op het eindscherm na een verlies.
-  let yday = 0;
-  let ycursor = shiftDay(todayKey(), -1);
-  while (wonSet.has(ycursor)) { yday += 1; ycursor = shiftDay(ycursor, -1); }
-  return { total, won: winsN, winRate, avgScore, avgAttempts, currentStreak: cur, bestStreak: best, yesterdayStreak: yday };
+  let yday = 0, snapped = false;
+  for (const d of days) {
+    if (prev !== null) closeGap(prev, d);
+    if (d === today) { yday = run; snapped = true; }
+    const e = byDate.get(d);
+    if (e.won) {
+      run += 1;
+      if (run > best) best = run;
+    } else {
+      losses = losses.filter((x) => daysBetween(x, d) < 30);
+      losses.push(d);
+      if (losses.length > livesMax) breakRun();
+    }
+    prev = d;
+  }
+  if (!snapped) {
+    // Vandaag (nog) niet gespeeld: geen breuk, maar het gat t/m gisteren telt.
+    if (prev !== null) closeGap(prev, today);
+    yday = run;
+  }
+  const livesLeft = livesMax - losses.filter((x) => daysBetween(x, today) < 30).length;
+  return { total, won: winsN, winRate, avgScore, avgAttempts,
+           currentStreak: prev === null ? 0 : run, bestStreak: best,
+           yesterdayStreak: yday, livesLeft, livesMax };
 }
 
 function shiftDay(yyyymmdd, delta) {
@@ -5663,10 +5903,11 @@ async function renderStats() {
   body.querySelectorAll(".lb-seg-btn").forEach((b) => { b.onclick = () => selectStatsTab(b.dataset.tab); });
 
   const dailyPane = body.querySelector('[data-pane="daily"]');
+  const streakExtras = await getStreakExtras();
   if (history.length === 0) {
     dailyPane.innerHTML = `<p class="stats-empty">${t("stats_empty")}</p>`;
   } else {
-    const s = computeStats(history);
+    const s = computeStats(history, streakExtras);
     dailyPane.innerHTML = `
     <div class="stats-grid">
       <div class="stat"><div class="num">${s.total}</div><div class="lbl">${t("stat_played")}</div></div>
@@ -5678,7 +5919,7 @@ async function renderStats() {
       <div class="stat"><div class="num">${s.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
   `;
-    dailyPane.appendChild(renderCalendar(history));
+    dailyPane.appendChild(renderCalendar(history, streakExtras.bridges));
   }
 
   const freePane = body.querySelector('[data-pane="free"]');
@@ -5925,9 +6166,12 @@ async function renderFreeStats(pane, req) {
 
 // Redactle-achtige bijdrage-grid: kolommen = weken, rijen = ma..zo. Gekleurd op
 // gewonnen / verloren / niet gespeeld. Puur uit de lokale history — geen DB.
-function renderCalendar(history) {
+function renderCalendar(history, bridges) {
   const WEEKS = 17;
   const map = new Map(history.map((e) => [e.date, e]));
+  // Overbrugde dagen (5-potjes-reparatie, db/50): geen winst, geen verlies —
+  // een eigen rustige tint + tooltip, zodat de kalender niet liegt.
+  const bridged = (d) => (bridges || []).some((b) => d >= b.from && d <= b.to);
   let cur = shiftDay(todayKey(), -(WEEKS * 7 - 1));
   const [sy, sm, sd] = cur.split("-").map(Number);
   const mondayOffset = (new Date(Date.UTC(sy, sm - 1, sd)).getUTCDay() + 6) % 7; // 0 = ma
@@ -5938,9 +6182,11 @@ function renderCalendar(history) {
   while (cur <= today) {
     const e = map.get(cur);
     const cell = document.createElement("div");
-    cell.className = "cal-cell " + (e ? (e.won ? "win" : "loss") : "none");
+    const bridge = !e && bridged(cur);
+    cell.className = "cal-cell " + (e ? (e.won ? "win" : "loss") : bridge ? "bridged" : "none");
     const solved = t("cal_solved")(e?.guesses, MAX_GUESSES);
-    cell.title = e ? `${cur} — ${e.won ? solved : t("cal_notsolved")}` : cur;
+    cell.title = e ? `${cur} — ${e.won ? solved : t("cal_notsolved")}`
+               : bridge ? `${cur} — ${t("cal_bridged")}` : cur;
     grid.appendChild(cell);
     cur = shiftDay(cur, 1);
   }
@@ -6566,7 +6812,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
 
   if (state.done) finishGame(state.won);
   updateDayLabel();          // #N (+ inhaal-markering) van de nu actieve daily
-  refreshMakeupBanner();     // toon/verberg de inhaal-uitnodiging (async, no-op bij free)
+  refreshStreakBanners();    // inhaal- + reparatie-uitnodiging (async; inhaal heeft voorrang)
 }
 
 function syncUrl() {
@@ -6743,6 +6989,7 @@ async function init() {
       : null;
     auth.resolved = true;  // historie-bron is nu bekend (ook bij anon: detail=null)
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
+    invalidateStreakExtras();  // levens/bruggen/reparatie horen bij de identiteit
     achvCache = null;      // prestaties horen bij de identiteit
     myTitle = null; myTitleLoaded = false;   // idem: gedragen titel is per account
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
@@ -6762,8 +7009,8 @@ async function init() {
     // maybeRestoreDailyAfterLogin stopt bij state.done, dus herteken 'm hier met
     // de nu-gezaghebbende DB-historie (werkt ook bij uitloggen → terug naar local).
     if (state?.done && state.mode === "daily") appendStreakLine(state.won);
-    // Historie-bron wisselde (login/logout) → herbeoordeel de inhaal-uitnodiging.
-    refreshMakeupBanner();
+    // Historie-bron wisselde (login/logout) → herbeoordeel inhaal + reparatie.
+    refreshStreakBanners();
   });
 
   // Pepertjes: tik toont het moeilijkheidslabel even (hover bestaat niet op mobiel).

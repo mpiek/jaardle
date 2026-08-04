@@ -333,8 +333,11 @@ main {
 
 /* Inhaal-daily-banner: verschijnt als je gisteren miste maar je streak nog kunt
    redden. Bewust opvallend (warm verloop, vlam, live afteller) — het is een
-   aflopende kans, dus hij mag om aandacht vragen. Wegklikbaar (✕, per dag). */
-#makeup-banner {
+   aflopende kans, dus hij mag om aandacht vragen. Wegklikbaar (✕, per dag).
+   De reparatie-banner (db/50) deelt de opbouw en .makeup-*-klassen, maar krijgt
+   een koeler verloop: het is een 7-daagse missie, geen aflopende dag-kans. */
+#makeup-banner,
+#repair-banner {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -347,6 +350,13 @@ main {
   box-shadow: 0 2px 12px rgba(217, 99, 26, 0.28);
   animation: makeup-pop 0.35s ease-out;
 }
+#repair-banner {
+  background: linear-gradient(135deg, #1f2c5c, #2c4085 55%, #3b58ad);
+  border-color: #4a69c4;
+  box-shadow: 0 2px 12px rgba(59, 88, 173, 0.28);
+}
+#repair-banner .makeup-cta { color: #2c4085; }
+#repair-banner .makeup-cta:hover { background: #dde6ff; }
 @keyframes makeup-pop {
   from { transform: translateY(-6px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
@@ -1640,6 +1650,9 @@ footer {
 .cal-cell { width: 12px; height: 12px; border-radius: 3px; background: var(--card-soft); }
 .cal-cell.win  { background: var(--green); }
 .cal-cell.loss { background: var(--red); opacity: 0.65; }
+/* Overbrugd via de 5-potjes-reparatie (db/50): geen winst, geen verlies —
+   een rustige blauwe ring zodat de kalender het gat eerlijk laat zien. */
+.cal-cell.bridged { background: transparent; box-shadow: inset 0 0 0 2px #4a69c4; }
 
 /* Taal-toggle (vlag) rechts in de optiebalk */
 .lang-btn {
