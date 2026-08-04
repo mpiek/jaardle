@@ -5594,6 +5594,10 @@ async function streakLineText(won) {
 // uit de DB komen; guard dat het spel intussen niet gewisseld/heropend is.
 async function appendStreakLine(won) {
   if (!state || state.mode !== "daily") return;
+  // Vóór het eerste auth-event weten we niet of de DB-historie leidend is; op een
+  // reload zou local-only "streak 1" flitsen die daarna naar de echte waarde springt.
+  // De sb-auth-changed-handler tekent ons dan alsnog (ook voor anon).
+  if (!auth.resolved) return;
   let line;
   if (isMakeup(state)) {
     // Inhaalpot: bij winst de (nu weer aaneengesloten) streak vieren als "gered",
