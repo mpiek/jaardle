@@ -185,7 +185,7 @@ const I18N = {
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
     lb_wk_punten: "punten",
     lb_recap_head: "Vorige week", lb_recap_view: "Bekijk het podium",
-    lb_wk_note_live: "Tussenstand — het podium klapt maandag dicht. Score = som van je dagscores + 25 bonuspunten per dagzege.",
+    lb_wk_live_note: "Tussenstand — sluit over",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
     lb_wk_empty_h: "Geen podium deze week",
     lb_wk_empty_p: "Er is deze week nog niet gespeeld in je pool.",
@@ -414,7 +414,7 @@ const I18N = {
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
     lb_wk_punten: "points",
     lb_recap_head: "Last week", lb_recap_view: "View the podium",
-    lb_wk_note_live: "Live standings — the podium locks on Monday. Score = sum of your daily scores + 25 bonus points per daily win.",
+    lb_wk_live_note: "Live standings — locks in",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
     lb_wk_empty_h: "No podium this week",
     lb_wk_empty_p: "No one has played in your pool this week yet.",
@@ -637,7 +637,7 @@ const I18N = {
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
     lb_wk_punten: "Punkte",
     lb_recap_head: "Letzte Woche", lb_recap_view: "Podest ansehen",
-    lb_wk_note_live: "Zwischenstand — das Podest schließt am Montag. Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
+    lb_wk_live_note: "Zwischenstand — schließt in",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
     lb_wk_empty_h: "Diese Woche kein Podest",
     lb_wk_empty_p: "In deinem Pool wurde diese Woche noch nicht gespielt.",
@@ -864,7 +864,7 @@ const I18N = {
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
     lb_wk_punten: "puntos",
     lb_recap_head: "La semana pasada", lb_recap_view: "Ver el podio",
-    lb_wk_note_live: "Clasificación en curso — el podio se cierra el lunes. Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
+    lb_wk_live_note: "Clasificación en curso — se cierra en",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
     lb_wk_empty_h: "Sin podio esta semana",
     lb_wk_empty_p: "Todavía nadie ha jugado en tu grupo esta semana.",
@@ -1091,7 +1091,7 @@ const I18N = {
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
     lb_wk_punten: "pontos",
     lb_recap_head: "Semana passada", lb_recap_view: "Ver o pódio",
-    lb_wk_note_live: "Parcial — o pódio fecha na segunda. Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
+    lb_wk_live_note: "Parcial — fecha em",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
     lb_wk_empty_h: "Sem pódio nesta semana",
     lb_wk_empty_p: "Ainda ninguém jogou no seu grupo esta semana.",
@@ -3719,6 +3719,23 @@ function podiumMinWeek() {
   return poolMon > PODIUM_EPOCH ? poolMon : PODIUM_EPOCH;
 }
 function fmtWeekRange(ws) { return `${fmtDailyDate(ws)} – ${fmtDailyDate(shiftDateKey(ws, 6))}`; }
+// Kalenderdagen tussen twee "YYYY-MM-DD"-sleutels (timezone-agnostisch: puur datumrekenen).
+function daysBetweenKeys(a, b) {
+  const [ay, am, ad] = a.split("-").map(Number);
+  const [by, bm, bd] = b.split("-").map(Number);
+  return Math.round((Date.UTC(by, bm - 1, bd) - Date.UTC(ay, am - 1, ad)) / 86400000);
+}
+// Seconden tot de eerstvolgende maandag-rollover (Europe/Amsterdam) — waar de live
+// weekstand op het podium dichtklapt. Zelfde opbouw als secsToNextDaily: volle dagen
+// tot morgen + de rest van vandaag.
+function secsToWeekEnd() {
+  const nextMon = shiftDateKey(currentWeekStart(), 7);
+  return (daysBetweenKeys(todayKey(), nextMon) - 1) * 86400 + secsToNextDaily();
+}
+function fmtWeekCountdown(secs) {
+  const days = Math.floor(secs / 86400);
+  return days > 0 ? `${days}d ${fmtCountdown(secs - days * 86400)}` : fmtCountdown(secs);
+}
 // Waar het weekpodium standaard op opent: de laatst-AFGERONDE week (het resultaat) als
 // die meetelt, anders de lopende week — zo zie je meteen "vorige week" i.p.v. een lege race.
 function weekPodiumDefaultWeek() {
@@ -3768,13 +3785,17 @@ function lbGuessBlocks(d) {
 
 // Alleen de inhoud van het daily-bord (tabel of lege staat) — de kop + ‹ ›-knoppen
 // staan vast in renderLeaderboard, zodat browsen alleen dit deel ververst.
+// Inhaalpotten (r.late, db/53) staan altijd onderaan (server sorteert al zo),
+// zonder rangnummer en gedimd — zelfde `.lb-prov`-behandeling als de
+// onder-de-drempel-rijen op het all-time statistiekbord.
 function dailyTableHtml(rows) {
   if (!rows.length) {
     return `<p class="lb-empty">${t(lbDailyDate === todayKey() ? "lb_empty_daily" : "lb_empty_daily_past")}</p>`;
   }
   return `<div class="lb-table">` + rows.map((r) =>
-    `<div class="${lbRowCls(r.is_me)}${lbPodiumCls(r.rank)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
-    `<span class="lb-name">${lbNameCell(r, r.rank)}</span>` +
+    `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}">` +
+    `<span class="lb-rank">${r.late ? "·" : lbMedal(r.rank)}</span>` +
+    `<span class="lb-name">${lbNameCell(r, r.late ? null : r.rank)}${r.late ? ` <span class="lb-tag">${escHtml(t("makeup_tag"))}</span>` : ""}</span>` +
     `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`).join("") + `</div>`;
 }
 
@@ -3841,6 +3862,7 @@ async function loadPodium() {
     prevBtn.disabled = true; nextBtn.disabled = true;
     setBoard(content, `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
       `<h4>${escHtml(t("lb_wk_soon_h"))}</h4><p>${escHtml(t("lb_wk_soon_p")(fmtDailyDate(PODIUM_EPOCH)))}</p></div>`);
+    stopPodiumCountdown();
     return;
   }
   const isLive = lbWeekStart >= cur;
@@ -3857,6 +3879,9 @@ async function loadPodium() {
   setBoard(content, podiumHtml(rows, isLive));
   // Een afgeronde week bekeken = "gezien" → de verse-uitslag-stip dooft.
   if (!isLive && !podiumSeen(lbWeekStart)) { podiumMarkSeen(lbWeekStart); renderPodiumDot(); }
+  // Live tussenstand → tik de countdown naar de maandag-rollover; een afgeronde
+  // week beweegt niet meer en krijgt geen timer.
+  if (isLive) { startPodiumCountdown(); } else { stopPodiumCountdown(); }
   // Doorlopende feest-confetti zolang je een AFGERONDE week bekijkt waarin jij top-3
   // stond; live weken (provisorisch) krijgen niets. Self-stoppend (zie hieronder).
   if (!isLive && rows.some((r) => r.is_me && r.rank <= 3)) {
@@ -3864,6 +3889,28 @@ async function loadPodium() {
   } else {
     stopPodiumConfetti();
   }
+}
+
+// Live countdown naar de maandag-rollover onder het podium (lb-wk-countdown, alleen
+// bij isLive). Zelfde self-stop-filosofie als showPodiumConfetti: de tick controleert
+// zelf of de span nog in de live DOM zit en of de modal nog open is, i.p.v. dat elke
+// tab-wissel/modal-close 'm expliciet moet afmelden.
+let podiumCountdownTimer = null;
+function stopPodiumCountdown() {
+  if (podiumCountdownTimer) { clearInterval(podiumCountdownTimer); podiumCountdownTimer = null; }
+}
+function startPodiumCountdown() {
+  stopPodiumCountdown();
+  const tick = () => {
+    const span = document.querySelector("#lb-body .lb-wk-countdown");
+    if (!span || !span.isConnected || document.getElementById("modal-leaderboard").hidden) {
+      stopPodiumCountdown();
+      return;
+    }
+    span.textContent = fmtWeekCountdown(secsToWeekEnd());
+  };
+  tick();
+  podiumCountdownTimer = setInterval(tick, 1000);
 }
 
 // Stopt de doorlopende podium-confetti en ruimt het canvas op. Voorkomt een eeuwige
@@ -3969,7 +4016,9 @@ function podiumHtml(rows, isLive) {
     `<span class="lb-wk-rn">${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</span>` +
     `<span class="lb-wk-rc">${restStat(r)}</span></div>`
   ).join("") + `</div>` : "";
-  const note = `<p class="lb-wk-note">${escHtml(isLive ? t("lb_wk_note_live") : t("lb_wk_formula"))}</p>`;
+  const liveLine = isLive
+    ? `<p>${escHtml(t("lb_wk_live_note"))} <span class="lb-wk-countdown"></span></p>` : "";
+  const note = `<div class="lb-wk-note">${liveLine}<p>${escHtml(t("lb_wk_formula"))}</p></div>`;
   return `<div class="lb-pod-stage">${podium}</div>${note}${restHtml}`;
 }
 
