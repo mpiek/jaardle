@@ -3985,6 +3985,13 @@ function wkDeltaHtml(r) {
 // Bouwt het podium (🥇 midden-hoog · 🥈 links · 🥉 rechts, alleen gevulde treden)
 // met dansende flair + naam, en daaronder de resterende rijen (rang 4+) mét hun
 // score/potjes/dagzeges — niet langer alleen "meegedaan".
+// Eén 🏆 per dagzege (dagen waarop je die week #1 stond in de pool), gecapt op 7
+// (max dagen/week). Gedeeld door het podiumblok en de recap-weekstand.
+function wkWinTrophies(dailyWins) {
+  const n = Math.min(dailyWins || 0, 7);
+  return n > 0 ? "🏆".repeat(n) : "";
+}
+
 function podiumHtml(rows, isLive) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const flairDance = (f) => (f ? (reduced ? escHtml(f) : flairPreviewHtml(f)) : "");
@@ -4000,12 +4007,16 @@ function podiumHtml(rows, isLive) {
     const r = top[i];
     const tier = cls[Math.min(r.rank, 3) - 1];
     const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : r.rank === 3 ? "🥉" : String(r.rank);
+    const trophies = wkWinTrophies(r.daily_wins);
+    const winsHtml = trophies
+      ? `<div class="lb-pod-wins" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</div>`
+      : "";
     return `<div class="lb-pod-spot lb-pod-${tier}${r.is_me ? " lb-me" : ""}">` +
       `<div class="lb-pod-name">${titleBadgeHtml(r.title)}${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</div>` +
       `<div class="lb-pod-flair">${flairDance(r.flair)}</div>` +
       `<div class="lb-pod-block"><div class="lb-pod-medal">${medal}</div>` +
       `<div class="lb-pod-count"><span class="lb-pod-n">${r.week_score}</span>` +
-      `<span class="lb-pod-u">${escHtml(t("lb_wk_punten"))}</span></div></div></div>`;
+      `<span class="lb-pod-u">${escHtml(t("lb_wk_punten"))}</span></div>${winsHtml}</div></div>`;
   }).join("");
   const rest = rows.slice(top.length);
   const restStat = (r) => `${r.week_score} ${escHtml(t("lb_wk_punten"))} · ${escHtml(t("lb_games_short")(r.played))} · ${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}`;
@@ -4501,9 +4512,12 @@ function recapWeekHtml(rows) {
   for (const i of idxs) {
     if (prev >= 0 && i - prev > 1) html += `<div class="lb-wk-gap" aria-hidden="true">⋯</div>`;
     const r = rows[i];
+    const trophies = wkWinTrophies(r.daily_wins);
+    const winsHtml = trophies
+      ? `<span class="lb-wk-wins" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</span>` : "";
     html += `<div class="${lbRowCls(r.is_me)}${lbPodiumCls(r.rank)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
       `<span class="lb-name">${lbNameCell(r, r.rank)}${wkDeltaHtml(r)}</span>` +
-      `<span class="lb-val"><span class="lb-score">${r.week_score}</span></span></div>`;
+      `<span class="lb-val">${winsHtml}<span class="lb-score">${r.week_score}</span></span></div>`;
     prev = i;
   }
   return `<div class="recap-week"><h3 class="stats-heading">${t("recap_week_title")}</h3>` +
