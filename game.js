@@ -5598,18 +5598,20 @@ function capstoneBarHtml(a) {
   if (!auth.user) return "";
   const ct = capstoneTier(a);
   const REWARD = ["⭐", "🎊", "🗓️", "🖼️", "🎨"];   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer
-  const SOON = 5;                                    // alle tredes hebben nu een beloning (niets meer "binnenkort")
   // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
   // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
   // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
   // reeksen eronder: klik = .cap-detail vult zich, nogmaals klikken sluit 'm).
   const pips = ACHV_TIER_KEYS.map((tk, i) => {
-    const reached = i + 1 <= ct, soon = i >= SOON;
+    const reached = i + 1 <= ct;
     const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2) || (i === 2 && ct >= 3) || (i === 3 && ct >= 4) || (i === 4 && ct >= 5);
     const tag = clickable ? "button" : "div";
     const attrs = clickable ? ` type="button" aria-expanded="false" data-tier="${i}"` : "";
-    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : ""}${soon ? " soon" : ""}${clickable ? " cap-pip-btn" : ""}"${attrs}>
-        <span class="cap-pip-ico">${REWARD[i]}</span>
+    // Vergrendeld toont 🔒, NIET de beloning: de trede-icoontjes onthullen zich
+    // pas als je die trede zélf haalt — dat houdt de verrassing/suspense erin.
+    const ico = reached ? REWARD[i] : "🔒";
+    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : " soon"}${clickable ? " cap-pip-btn" : ""}"${attrs}>
+        <span class="cap-pip-ico">${ico}</span>
         <span class="cap-pip-lbl">${escHtml(achvTierName(i))}</span>
       </${tag}>`;
   }).join("");
