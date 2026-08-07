@@ -274,7 +274,7 @@ const I18N = {
     achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair",
+    achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair", achv_cap_goldyears: "🗓️ Gouden jaartallen",
     achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
     achv_next: (k, tier) => `nog ${k} tot ${tier}`,
     achv_maxed: "hoogste trede behaald",
@@ -503,7 +503,7 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair",
+    achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair", achv_cap_goldyears: "🗓️ Golden years",
     achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
     achv_next: (k, tier) => `${k} to go until ${tier}`,
     achv_maxed: "highest tier reached",
@@ -726,7 +726,7 @@ const I18N = {
     achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen",
+    achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen", achv_cap_goldyears: "🗓️ Goldene Jahreszahlen",
     achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
     achv_next: (k, tier) => `noch ${k} bis ${tier}`,
     achv_maxed: "höchste Stufe erreicht",
@@ -953,7 +953,7 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo",
+    achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo", achv_cap_goldyears: "🗓️ Años dorados",
     achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
     achv_next: (k, tier) => `faltan ${k} para ${tier}`,
     achv_maxed: "nivel máximo alcanzado",
@@ -1180,7 +1180,7 @@ const I18N = {
     achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo",
+    achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo", achv_cap_goldyears: "🗓️ Anos dourados",
     achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
     achv_next: (k, tier) => `faltam ${k} para ${tier}`,
     achv_maxed: "nível máximo alcançado",
@@ -2532,6 +2532,75 @@ function fireworksLayer() {
 
 function showFireworks() { runFx([fireworksLayer()]); }
 
+// ── Gouden-jaartallen-viering (capstone-goud) ────────────────────────────────
+// Gouden jaartallen dwarrelen omlaag; het net-geraden ANTWOORDjaar valt er
+// groter/feller tussenuit. Self-facing beloning (alleen-ingelogd), draait op
+// dezelfde canvas-lus als vuurwerk/bier. Tekst-particles, dus ver onder het
+// ~150-budget (normaal 42, first-try 64 + vuurwerk). first-try = dichtere regen.
+function goldYearsLayer(answerYear, dense) {
+  const light = currentTheme() === "light";
+  // Op crème moet het goud een donkere kern hebben om te lezen; op donker een
+  // heldere. De rand geeft in beide thema's definitie aan het cijfer.
+  const gold    = light ? "#a9781a" : "#f4c430";
+  const goldAns = light ? "#6e4400" : "#ffe4a0";   // antwoordjaar: feller/dieper
+  const stroke  = light ? "rgba(90,60,10,0.40)" : "rgba(10,6,14,0.55)";
+  const N = dense ? 64 : 42;
+  const items = [];
+  for (let i = 0; i < N; i++) {
+    const isAns = i % 9 === 0;                      // ~1 op 9 is het antwoordjaar
+    const yr = isAns ? answerYear : 800 + Math.floor(Math.random() * 1221);  // 800–2020
+    items.push({
+      fx: Math.random(),                            // horizontale fractie van W
+      y0: -0.15 - Math.random() * 0.9,              // start bóven beeld (fractie H)
+      vy: 0.22 + Math.random() * 0.22,              // valsnelheid (fractie H / s)
+      drift: (Math.random() - 0.5) * 0.06,          // zijwaartse drift
+      rot: (Math.random() - 0.5) * 0.5,             // begin-rotatie (rad)
+      vrot: (Math.random() - 0.5) * 0.7,            // rotatiesnelheid
+      delay: Math.random() * (dense ? 0.9 : 1.3),
+      size: (isAns ? 30 : 15) + Math.random() * (isAns ? 10 : 9),
+      isAns,
+      txt: String(yr),
+    });
+  }
+  const dur = dense ? 2.6 : 3.0;
+  return {
+    end: dur + 1.4,
+    draw(ctx, t, W, H) {
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (const it of items) {
+        const lt = t - it.delay;
+        if (lt < 0) continue;
+        const y = (it.y0 + it.vy * lt) * H;
+        if (y > H + 40) continue;                   // onderaan uit beeld
+        const aIn = Math.min(1, lt / 0.25);         // korte fade-in
+        const aOut = Math.max(0, Math.min(1, (H - y) / (H * 0.22)));  // dooft onderin
+        const a = Math.max(0, Math.min(1, aIn * aOut));
+        if (a <= 0) continue;
+        ctx.save();
+        ctx.globalAlpha = a;
+        ctx.translate((it.fx + it.drift * lt) * W, y);
+        ctx.rotate(it.rot + it.vrot * lt);
+        ctx.font = `700 ${it.size}px system-ui, "Segoe UI", sans-serif`;
+        if (it.isAns && !light) { ctx.shadowColor = goldAns; ctx.shadowBlur = 14; }
+        ctx.lineWidth = it.isAns ? 3 : 2;
+        ctx.strokeStyle = stroke;
+        ctx.strokeText(it.txt, 0, 0);
+        ctx.fillStyle = it.isAns ? goldAns : gold;
+        ctx.fillText(it.txt, 0, 0);
+        ctx.restore();
+      }
+    },
+  };
+}
+
+function showGoldYears(firstTry) {
+  const yr = state.event?.year ?? "";
+  runFx(firstTry
+    ? [fireworksLayer(), goldYearsLayer(yr, true)]
+    : [goldYearsLayer(yr, false)]);
+}
+
 // ── Bier-viering (potjes-platina) ───────────────────────────────────────────
 // Kleuren per thema. De schuim-witte druppels hebben op het lichte thema een
 // randje nodig, anders vallen ze weg tegen het papierwit.
@@ -2806,12 +2875,15 @@ function finishGame(won, fresh = false) {
   // knop — maar niet bij een inhaalpot (die telt niet mee op het dagbord van gisteren).
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily" || isMakeup(state);
   renderHintStatus();
-  // Vieren. Bier (potjes-platina) gaat vóór de confetti: twee schermvullende
-  // effecten door elkaar is rommel, en bij een first-try zit het vuurwerk al ín
-  // showBeer(). Zonder bier blijft het precies zoals het was.
+  // Vieren. Hooguit één schermvullend effect (twee door elkaar is rommel): de
+  // exclusieve win-fx (gouden jaartallen = capstone-goud, bier = potjes-platina)
+  // gaan vóór de confetti; bij een first-try zit het vuurwerk al ín beide. De
+  // onderlinge uitsluiting + hiërarchische defaults zorgen dat er hooguit één
+  // actief is — de volgorde hier weerspiegelt alleen de prestige-rangorde.
   if (fresh && won) {
     const firstTry = state.guesses.length === 1;
-    if (beerFxActive()) showBeer(firstTry);
+    if (goldYearsFxActive()) showGoldYears(firstTry);
+    else if (beerFxActive()) showBeer(firstTry);
     else if (firstTry) showFireworks();
     else showConfetti();
   }
@@ -4715,19 +4787,25 @@ function capstoneLagging(a) {
 // Zilver-beloning aan/uit: aan is de default zodra je 'm verdient, uit is
 // opt-out per apparaat (jaardle:flairconfetti). Schakelaar zit in de
 // prestige-track zelf (capActionsHtml), niet in het ⋮-menu.
-// Bier en flair-confetti zijn twee win-effecten en er speelt er hooguit één:
-// zet je de één aan, dan gaat de ander uit (zie setFlairConfetti/setBeerFx).
-// Bij een onaangeraakte default (beide verdiend, nooit aangeklikt) wint bier —
-// dan is dat je win-effect en is confetti opt-in.
+// Er zijn nu DRIE exclusieve win-effecten en er speelt er hooguit één: flair-
+// confetti (zilver), bier (potjes-platina) en gouden jaartallen (capstone-goud).
+// Zet je de één aan, dan gaan de andere twee uit (zie de set*-functies). De
+// defaults zijn hiërarchisch — gouden jaartallen > bier > flair-confetti — zodat
+// bij een onaangeraakte stand steeds het hoogst-verdiende effect je default is.
 function flairConfettiEnabled() {
   const v = localStorage.getItem("jaardle:flairconfetti");
   if (v != null) return v !== "0";              // expliciete keuze wint altijd
-  return !beerFxUnlocked(achvCache);            // default aan, tenzij bier verdiend is
+  // Default aan, tenzij een hoger-prioritair win-effect verdiend is (bier of de
+  // gouden jaartallen) — dan is die de default en is flair-confetti opt-in.
+  return !beerFxUnlocked(achvCache) && !goldYearsFxUnlocked(achvCache);
 }
 function setFlairConfetti(on) {
   try {
     localStorage.setItem("jaardle:flairconfetti", on ? "1" : "0");
-    if (on) localStorage.setItem("jaardle:beerfx", "0");   // wederzijds uitsluitend
+    if (on) {                                   // wederzijds uitsluitend
+      localStorage.setItem("jaardle:beerfx", "0");
+      localStorage.setItem("jaardle:goldyears", "0");
+    }
   } catch (e) {}
 }
 
@@ -4742,12 +4820,17 @@ function beerFxUnlocked(a) {
   return achvTier(achvValue(a, s), s.steps) > BEER_FX.at;
 }
 function beerFxEnabled() {
-  return localStorage.getItem("jaardle:beerfx") !== "0";
+  const v = localStorage.getItem("jaardle:beerfx");
+  if (v != null) return v !== "0";              // expliciete keuze wint altijd
+  return !goldYearsFxUnlocked(achvCache);       // default aan, tenzij goud verdiend is
 }
 function setBeerFx(on) {
   try {
     localStorage.setItem("jaardle:beerfx", on ? "1" : "0");
-    if (on) localStorage.setItem("jaardle:flairconfetti", "0");   // wederzijds uitsluitend
+    if (on) {                                   // wederzijds uitsluitend
+      localStorage.setItem("jaardle:flairconfetti", "0");
+      localStorage.setItem("jaardle:goldyears", "0");
+    }
   } catch (e) {}
 }
 // Speelt het bier deze winst? achvCache is de stand van de huidige identiteit;
@@ -4759,9 +4842,37 @@ function setBeerFx(on) {
 function syncWinFxSwitches(root = document) {
   root.querySelectorAll('[data-action="cap-confetti"]').forEach((b) => b.setAttribute("aria-checked", String(flairConfettiEnabled())));
   root.querySelectorAll('[data-action="beer-fx"]').forEach((b) => b.setAttribute("aria-checked", String(beerFxEnabled())));
+  root.querySelectorAll('[data-action="cap-goldyears"]').forEach((b) => b.setAttribute("aria-checked", String(goldYearsFxEnabled())));
 }
 function beerFxActive() {
   return beerFxUnlocked(achvCache) && beerFxEnabled();
+}
+
+// Gouden-jaartallen-viering: verdiend op capstone-goud (alle 5 grind-ladders ≥
+// goud). Zelfde self-facing soort als bier/flair-confetti — alleen-ingelogd, per
+// apparaat uit te zetten, schakelaar onder de goud-pip. Hoogste prestige: zodra
+// verdiend is dit je default-effect en wijken bier + flair-confetti (zie hun
+// defaults). Uitzetten valt terug op de gewone confetti/vuurwerk, niet op de
+// andere twee — net als bij bier (expliciete keuze zetten ze weer aan).
+function goldYearsFxUnlocked(a) {
+  return !!(auth.user && a && capstoneTier(a) >= 3);
+}
+function goldYearsFxEnabled() {
+  const v = localStorage.getItem("jaardle:goldyears");
+  if (v != null) return v !== "0";              // expliciete keuze wint altijd
+  return true;                                  // default aan zodra verdiend (top-reward)
+}
+function setGoldYearsFx(on) {
+  try {
+    localStorage.setItem("jaardle:goldyears", on ? "1" : "0");
+    if (on) {                                   // wederzijds uitsluitend
+      localStorage.setItem("jaardle:beerfx", "0");
+      localStorage.setItem("jaardle:flairconfetti", "0");
+    }
+  } catch (e) {}
+}
+function goldYearsFxActive() {
+  return goldYearsFxUnlocked(achvCache) && goldYearsFxEnabled();
 }
 
 // Brons-beloning (⭐) direct dragen/afleggen vanuit de prestige-track, als
@@ -5455,15 +5566,15 @@ function achvAnonNoteHtml() {
 function capstoneBarHtml(a) {
   if (!auth.user) return "";
   const ct = capstoneTier(a);
-  const REWARD = ["⭐", "🎊", "🔒", "🔒", "🔒"];   // brons=flair, zilver=confetti, rest binnenkort
-  const SOON = 2;                                    // vanaf goud (index 2) = binnenkort
+  const REWARD = ["⭐", "🎊", "🗓️", "🔒", "🔒"];   // brons=flair, zilver=confetti, goud=gouden jaartallen, rest binnenkort
+  const SOON = 3;                                    // vanaf platina (index 3) = binnenkort
   // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
   // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
   // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
   // reeksen eronder: klik = .cap-detail vult zich, nogmaals klikken sluit 'm).
   const pips = ACHV_TIER_KEYS.map((tk, i) => {
     const reached = i + 1 <= ct, soon = i >= SOON;
-    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2);
+    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2) || (i === 2 && ct >= 3);
     const tag = clickable ? "button" : "div";
     const attrs = clickable ? ` type="button" aria-expanded="false" data-tier="${i}"` : "";
     return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : ""}${soon ? " soon" : ""}${clickable ? " cap-pip-btn" : ""}"${attrs}>
@@ -5485,12 +5596,16 @@ function capstoneBarHtml(a) {
     </div>`;
 }
 
-// Eén stuk bediening per trede — brons = ⭐ dragen/afleggen, zilver = confetti
-// aan/uit. data-tier komt overeen met ACHV_TIER_KEYS-index (0=brons, 1=zilver).
+// Eén stuk bediening per trede — brons = ⭐ dragen/afleggen, zilver = flair-
+// confetti aan/uit, goud = gouden jaartallen aan/uit. data-tier komt overeen met
+// ACHV_TIER_KEYS-index (0=brons, 1=zilver, 2=goud).
 function capActionHtml(tier) {
   if (tier === "0") {
     const on = myFlair === CAPSTONE_FLAIRS[0].emoji;
     return `<button type="button" class="cap-action" role="switch" aria-checked="${on}" data-action="cap-wear">${escHtml(t("achv_cap_wear"))}</button>`;
+  }
+  if (tier === "2") {
+    return `<button type="button" class="cap-action" role="switch" aria-checked="${goldYearsFxEnabled()}" data-action="cap-goldyears">${escHtml(t("achv_cap_goldyears"))}</button>`;
   }
   return `<button type="button" class="cap-action" role="switch" aria-checked="${flairConfettiEnabled()}" data-action="cap-confetti">${escHtml(t("achv_cap_confetti"))}</button>`;
 }
@@ -5521,7 +5636,12 @@ function wireCapAction(detail) {
   btn.onclick = async () => {
     if (btn.dataset.action === "cap-confetti") {
       setFlairConfetti(btn.getAttribute("aria-checked") !== "true");
-      syncWinFxSwitches();   // aan → bier-schakelaar elders gaat uit
+      syncWinFxSwitches();   // aan → bier/goud-schakelaars elders gaan uit
+      return;
+    }
+    if (btn.dataset.action === "cap-goldyears") {
+      setGoldYearsFx(btn.getAttribute("aria-checked") !== "true");
+      syncWinFxSwitches();   // aan → bier/confetti-schakelaars elders gaan uit
       return;
     }
     btn.disabled = true;
