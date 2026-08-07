@@ -956,6 +956,60 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   text-align: center;
 }
 
+/* ── Platina-sierrand (capstone-platina) ─────────────────────────────────────
+   Blijvend filigrein-kader om de result-kaart: een metallic platina-gradientrand
+   (padding-box houdt de kaart-bg thema-neutraal) + een ingezette haarlijn als
+   'certificaat'-dubbelkader. De rand is statisch en leest ook met reduced-motion;
+   alleen de glans-veeg (.platina-sheen) beweegt en gaat dan uit. Metallic werkt op
+   beide thema's doordat elk thema andere gradient-stops 'vangt'; op licht is de
+   set donkerder (zie de data-theme-override) zodat 'ie niet wegvalt op de crème. */
+#result.platina-frame {
+  position: relative;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, #dfe4ea 0%, #9aa7b4 22%, #f4f7fa 50%, #9aa7b4 78%, #dfe4ea 100%) border-box;
+  box-shadow: 0 0 0 1px rgba(143, 212, 205, 0.22), 0 6px 22px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+#result.platina-frame::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(198, 208, 218, 0.5);
+  border-radius: 8px;
+  pointer-events: none;
+}
+#result.platina-frame.platina-sheen::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-18deg);
+  animation: platina-sheen 1.15s ease-out 0.3s 1;
+  pointer-events: none;
+}
+@keyframes platina-sheen { to { left: 130%; } }
+
+html[data-theme="light"] #result.platina-frame {
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, #b7c0cb 0%, #7d8b99 24%, #d7dee6 50%, #7d8b99 76%, #b7c0cb 100%) border-box;
+  box-shadow: 0 0 0 1px rgba(120, 150, 160, 0.28), 0 6px 18px rgba(60, 60, 60, 0.14);
+}
+html[data-theme="light"] #result.platina-frame::before {
+  border-color: rgba(125, 139, 153, 0.5);
+}
+html[data-theme="light"] #result.platina-frame.platina-sheen::after {
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  #result.platina-frame.platina-sheen::after { display: none; }
+}
+
 #result-text {
   margin: 0 0 0.75rem;
   font-size: 1.1rem;

@@ -274,7 +274,7 @@ const I18N = {
     achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair", achv_cap_goldyears: "🗓️ Gouden jaartallen",
+    achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair", achv_cap_goldyears: "🗓️ Gouden jaartallen", achv_cap_platinaframe: "🖼️ Sierrand",
     achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
     achv_next: (k, tier) => `nog ${k} tot ${tier}`,
     achv_maxed: "hoogste trede behaald",
@@ -503,7 +503,7 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair", achv_cap_goldyears: "🗓️ Golden years",
+    achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair", achv_cap_goldyears: "🗓️ Golden years", achv_cap_platinaframe: "🖼️ Ornate frame",
     achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
     achv_next: (k, tier) => `${k} to go until ${tier}`,
     achv_maxed: "highest tier reached",
@@ -726,7 +726,7 @@ const I18N = {
     achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen", achv_cap_goldyears: "🗓️ Goldene Jahreszahlen",
+    achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen", achv_cap_goldyears: "🗓️ Goldene Jahreszahlen", achv_cap_platinaframe: "🖼️ Zierrahmen",
     achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
     achv_next: (k, tier) => `noch ${k} bis ${tier}`,
     achv_maxed: "höchste Stufe erreicht",
@@ -953,7 +953,7 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo", achv_cap_goldyears: "🗓️ Años dorados",
+    achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo", achv_cap_goldyears: "🗓️ Años dorados", achv_cap_platinaframe: "🖼️ Marco ornamental",
     achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
     achv_next: (k, tier) => `faltan ${k} para ${tier}`,
     achv_maxed: "nivel máximo alcanzado",
@@ -1180,7 +1180,7 @@ const I18N = {
     achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo", achv_cap_goldyears: "🗓️ Anos dourados",
+    achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo", achv_cap_goldyears: "🗓️ Anos dourados", achv_cap_platinaframe: "🖼️ Moldura ornamental",
     achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
     achv_next: (k, tier) => `faltam ${k} para ${tier}`,
     achv_maxed: "nível máximo alcançado",
@@ -2832,6 +2832,15 @@ function finishGame(won, fresh = false) {
   renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
   updateLiveScore(false);   // spel klaar → live-teller verbergen (eindscherm toont de score)
   els.result.hidden = false;
+  // Platina-sierrand (capstone-platina): blijvend filigrein-kader om de result-
+  // kaart, self-facing. Toont bij winst én verlies (decoratie, geen viering). De
+  // .platina-frame-class regelt de rand in CSS; de losse .platina-sheen-class laat
+  // de glans-veeg opnieuw spelen bij élke onthulling (reflow-hertriggering, en de
+  // media-query zet 'm uit bij reduced-motion).
+  const platinaOn = platinaFrameActive();
+  els.result.classList.toggle("platina-frame", platinaOn);
+  els.result.classList.remove("platina-sheen");
+  if (platinaOn) { void els.result.offsetWidth; els.result.classList.add("platina-sheen"); }
   els.revealRow.hidden = true;
   els.revealRow.innerHTML = "";
   const ev = state.event;
@@ -4875,6 +4884,23 @@ function goldYearsFxActive() {
   return goldYearsFxUnlocked(achvCache) && goldYearsFxEnabled();
 }
 
+// Platina-sierrand: verdiend op capstone-platina (alle 5 grind-ladders ≥
+// platina). Blijvende result-kaart-decoratie — GEEN win-effect, dus niet
+// wederzijds uitsluitend met de confetti/bier/goud-effecten; een eigen aan/uit
+// per apparaat, schakelaar onder de platina-pip.
+function platinaFrameUnlocked(a) {
+  return !!(auth.user && a && capstoneTier(a) >= 4);
+}
+function platinaFrameEnabled() {
+  return localStorage.getItem("jaardle:platinaframe") !== "0";   // default aan
+}
+function setPlatinaFrame(on) {
+  try { localStorage.setItem("jaardle:platinaframe", on ? "1" : "0"); } catch (e) {}
+}
+function platinaFrameActive() {
+  return platinaFrameUnlocked(achvCache) && platinaFrameEnabled();
+}
+
 // Brons-beloning (⭐) direct dragen/afleggen vanuit de prestige-track, als
 // snelkoppeling naast de volledige flair-kiezer op het leaderboard. Zet
 // alleen de globale myFlair bij server-succes; geen renderLeaderboard()-call
@@ -5566,15 +5592,15 @@ function achvAnonNoteHtml() {
 function capstoneBarHtml(a) {
   if (!auth.user) return "";
   const ct = capstoneTier(a);
-  const REWARD = ["⭐", "🎊", "🗓️", "🔒", "🔒"];   // brons=flair, zilver=confetti, goud=gouden jaartallen, rest binnenkort
-  const SOON = 3;                                    // vanaf platina (index 3) = binnenkort
+  const REWARD = ["⭐", "🎊", "🗓️", "🖼️", "🔒"];   // brons=flair, zilver=confetti, goud=gouden jaartallen, platina=sierrand, diamant binnenkort
+  const SOON = 4;                                    // vanaf diamant (index 4) = binnenkort
   // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
   // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
   // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
   // reeksen eronder: klik = .cap-detail vult zich, nogmaals klikken sluit 'm).
   const pips = ACHV_TIER_KEYS.map((tk, i) => {
     const reached = i + 1 <= ct, soon = i >= SOON;
-    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2) || (i === 2 && ct >= 3);
+    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2) || (i === 2 && ct >= 3) || (i === 3 && ct >= 4);
     const tag = clickable ? "button" : "div";
     const attrs = clickable ? ` type="button" aria-expanded="false" data-tier="${i}"` : "";
     return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : ""}${soon ? " soon" : ""}${clickable ? " cap-pip-btn" : ""}"${attrs}>
@@ -5597,8 +5623,8 @@ function capstoneBarHtml(a) {
 }
 
 // Eén stuk bediening per trede — brons = ⭐ dragen/afleggen, zilver = flair-
-// confetti aan/uit, goud = gouden jaartallen aan/uit. data-tier komt overeen met
-// ACHV_TIER_KEYS-index (0=brons, 1=zilver, 2=goud).
+// confetti aan/uit, goud = gouden jaartallen aan/uit, platina = sierrand aan/uit.
+// data-tier komt overeen met ACHV_TIER_KEYS-index (0=brons … 3=platina).
 function capActionHtml(tier) {
   if (tier === "0") {
     const on = myFlair === CAPSTONE_FLAIRS[0].emoji;
@@ -5606,6 +5632,9 @@ function capActionHtml(tier) {
   }
   if (tier === "2") {
     return `<button type="button" class="cap-action" role="switch" aria-checked="${goldYearsFxEnabled()}" data-action="cap-goldyears">${escHtml(t("achv_cap_goldyears"))}</button>`;
+  }
+  if (tier === "3") {
+    return `<button type="button" class="cap-action" role="switch" aria-checked="${platinaFrameEnabled()}" data-action="cap-platinaframe">${escHtml(t("achv_cap_platinaframe"))}</button>`;
   }
   return `<button type="button" class="cap-action" role="switch" aria-checked="${flairConfettiEnabled()}" data-action="cap-confetti">${escHtml(t("achv_cap_confetti"))}</button>`;
 }
@@ -5642,6 +5671,11 @@ function wireCapAction(detail) {
     if (btn.dataset.action === "cap-goldyears") {
       setGoldYearsFx(btn.getAttribute("aria-checked") !== "true");
       syncWinFxSwitches();   // aan → bier/confetti-schakelaars elders gaan uit
+      return;
+    }
+    if (btn.dataset.action === "cap-platinaframe") {
+      setPlatinaFrame(btn.getAttribute("aria-checked") !== "true");
+      btn.setAttribute("aria-checked", String(platinaFrameEnabled()));
       return;
     }
     btn.disabled = true;
