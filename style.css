@@ -2238,6 +2238,7 @@ footer {
   --achv-gold:    #f4c430;
   --achv-plat:    #8fd4cd;
   --achv-diamond: #9fc7ff;
+  --achv-obsidian: #a68fe0;
 }
 html[data-theme="light"] {
   --achv-bronze:  #a4692f;
@@ -2245,6 +2246,7 @@ html[data-theme="light"] {
   --achv-gold:    #b08d10;
   --achv-plat:    #4e8f8a;
   --achv-diamond: #3d74c9;
+  --achv-obsidian: #6a4bb0;
 }
 /* --tc = kleur van de huidige trede; t0 = nog geen trede (neutraal). */
 .achv-t0 { --tc: var(--border); }
@@ -2253,6 +2255,10 @@ html[data-theme="light"] {
 .achv-t3, .achv-line-t3 { --tc: var(--achv-gold); }
 .achv-t4, .achv-line-t4 { --tc: var(--achv-plat); }
 .achv-t5, .achv-line-t5 { --tc: var(--achv-diamond); }
+/* Obsidiaan = 6e trede, alléén de herhaalbare trofeeën gebruiken 'm (de grind-
+   ladders/capstone blijven 5-trede). Donker-glas-violet: onderscheiden van
+   diamant (blauw), en de zeldzaamste tint. */
+.achv-t6, .achv-line-t6 { --tc: var(--achv-obsidian); }
 
 /* Capstone-track: master-balk bovenaan het bord (alleen-ingelogd). Laagste
    trede over de 5 grind-ladders; goud/platina/diamant = "binnenkort" (fase 2+). */
@@ -2481,6 +2487,10 @@ html[data-theme="light"] {
   border-radius: 10px;
 }
 .achv-tring { width: 56px; height: 56px; }
+/* Getierde trofee: gekleurde ring om de badge (--tc komt van .achv-t{1..6} op de
+   tegel) + een kleine trede-chip naast de naam. */
+.achv-tring.tiered { border-radius: 50%; box-shadow: 0 0 0 2px var(--tc); }
+.achv-ttier { font-size: 0.7rem; font-weight: 700; color: var(--tc); text-transform: capitalize; white-space: nowrap; }
 .achv-trophy.locked .achv-tring { filter: grayscale(1) opacity(0.35); }
 .achv-trophy.locked .achv-tname { color: var(--muted); }
 .achv-tname { font-weight: 600; font-size: 0.88rem; line-height: 1.2; }

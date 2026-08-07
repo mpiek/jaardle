@@ -276,7 +276,7 @@ const I18N = {
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
     achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair", achv_cap_goldyears: "🗓️ Gouden jaartallen", achv_cap_platinaframe: "🖼️ Sierrand", achv_cap_theme: "Thema",
     theme_dark: "Donker", theme_light: "Licht", theme_parchment: "Perkament", theme_midnight: "Nachtpaars", theme_gold: "Goud",
-    achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
+    achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant", obsidian: "obsidiaan" },
     achv_next: (k, tier) => `nog ${k} tot ${tier}`,
     achv_maxed: "hoogste trede behaald",
     achv_games: "Veelspeler", achv_games_n: (n) => `${n} ${n === 1 ? "potje" : "potjes"}`,
@@ -506,7 +506,7 @@ const I18N = {
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
     achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair", achv_cap_goldyears: "🗓️ Golden years", achv_cap_platinaframe: "🖼️ Ornate frame", achv_cap_theme: "Theme",
     theme_dark: "Dark", theme_light: "Light", theme_parchment: "Parchment", theme_midnight: "Midnight", theme_gold: "Gold",
-    achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
+    achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond", obsidian: "obsidian" },
     achv_next: (k, tier) => `${k} to go until ${tier}`,
     achv_maxed: "highest tier reached",
     achv_games: "Frequent player", achv_games_n: (n) => `${n} ${n === 1 ? "game" : "games"}`,
@@ -730,7 +730,7 @@ const I18N = {
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
     achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen", achv_cap_goldyears: "🗓️ Goldene Jahreszahlen", achv_cap_platinaframe: "🖼️ Zierrahmen", achv_cap_theme: "Design",
     theme_dark: "Dunkel", theme_light: "Hell", theme_parchment: "Pergament", theme_midnight: "Mitternacht", theme_gold: "Gold",
-    achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
+    achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant", obsidian: "Obsidian" },
     achv_next: (k, tier) => `noch ${k} bis ${tier}`,
     achv_maxed: "höchste Stufe erreicht",
     achv_games: "Vielspieler", achv_games_n: (n) => `${n} ${n === 1 ? "Partie" : "Partien"}`,
@@ -958,7 +958,7 @@ const I18N = {
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
     achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo", achv_cap_goldyears: "🗓️ Años dorados", achv_cap_platinaframe: "🖼️ Marco ornamental", achv_cap_theme: "Tema",
     theme_dark: "Oscuro", theme_light: "Claro", theme_parchment: "Pergamino", theme_midnight: "Medianoche", theme_gold: "Oro",
-    achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
+    achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante", obsidian: "obsidiana" },
     achv_next: (k, tier) => `faltan ${k} para ${tier}`,
     achv_maxed: "nivel máximo alcanzado",
     achv_games: "Jugador asiduo", achv_games_n: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
@@ -1186,7 +1186,7 @@ const I18N = {
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
     achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo", achv_cap_goldyears: "🗓️ Anos dourados", achv_cap_platinaframe: "🖼️ Moldura ornamental", achv_cap_theme: "Tema",
     theme_dark: "Escuro", theme_light: "Claro", theme_parchment: "Pergaminho", theme_midnight: "Meia-noite", theme_gold: "Ouro",
-    achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
+    achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante", obsidian: "obsidiana" },
     achv_next: (k, tier) => `faltam ${k} para ${tier}`,
     achv_maxed: "nível máximo alcançado",
     achv_games: "Jogador assíduo", achv_games_n: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
@@ -4716,14 +4716,14 @@ const ACHV_SERIES = [
 // dagzege). compute_achievements (db/33+39) geeft `rematch` nog terug —
 // achvNormalize negeert het gewoon, zodat er geen migratie nodig was.
 const ACHV_TROPHIES = [
-  { key: "first_try", i18n: "achv_t_first",    art: "target",   repeatable: true },
-  { key: "last_gasp", i18n: "achv_t_last",     art: "chute",    repeatable: true },
-  { key: "zigzag",    i18n: "achv_t_zigzag",   art: "pendulum", repeatable: true }, // win na zowel te vroege als te late gok
-  { key: "nailbiter", i18n: "achv_t_nailbiter",art: "tightrope",repeatable: true }, // win na ≥2 gokken die ≤2 jaar ("veryclose") ernaast zaten
+  { key: "first_try", i18n: "achv_t_first",    art: "target",   repeatable: true, tiers: [1, 10, 30, 80, 200, 500] },
+  { key: "last_gasp", i18n: "achv_t_last",     art: "chute",    repeatable: true, tiers: [1, 8, 25, 70, 175, 400] },
+  { key: "zigzag",    i18n: "achv_t_zigzag",   art: "pendulum", repeatable: true, tiers: [1, 6, 18, 45, 90, 180] }, // win na zowel te vroege als te late gok
+  { key: "nailbiter", i18n: "achv_t_nailbiter",art: "tightrope",repeatable: true, tiers: [1, 6, 18, 45, 90, 180] }, // win na ≥2 gokken die ≤2 jaar ("veryclose") ernaast zaten
   { key: "spicy",     i18n: "achv_t_spicy",    art: "pepper",   repeatable: true }, // win een 🌶️🌶️🌶️-daily (hardste band)
   { key: "flawless",  i18n: "achv_t_flawless", art: "shine" },   // 5 perfecte 100's op rij
   { key: "saver",     i18n: "achv_t_saver",    art: "buoy" },
-  { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" }, repeatable: true },
+  { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" }, repeatable: true, tiers: [1, 5, 15, 35, 70, 130] },
   // Obsidiaan: de enige verborgen trofee. Hij bestaat niet op het bord tot je
   // piek-rating ooit OBSIDIAN_REVEAL was (= de diamant-trede), en is verdiend bij
   // OBSIDIAN_AT. Bewust géén 6e trede op de rating-ladder: het getal 5 zit hard
@@ -4747,6 +4747,15 @@ const OBSIDIAN_AT     = 1925;   // moet gelijklopen met award_titles() in db/48
 // zou de trofee weer verdwijnen bij wie hem al kon zien.
 const OBSIDIAN_REVEAL = 1850;   // = de diamant-trede van de rating-ladder
 const ACHV_REPEAT_KEYS = ACHV_TROPHIES.filter((tr) => tr.repeatable).map((tr) => tr.key);
+
+// Getierde herhaalbare trofeeën: een eigen 6-trede-schaal (brons→diamant +
+// obsidiaan), los van de 5-trede grind-ladders (die raken we niet aan). De teller
+// (a[key]) blijft; alleen de gehaalde trede bepaalt de kleur + wanneer je een
+// mijlpaal-notificatie krijgt. Vuurproef (spicy) heeft geen tiers → blijft platte ×N.
+const TROPHY_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond", "obsidian"];
+const TROPHY_TIER_WEIGHT = [3, 3, 4, 5, 6, 8];   // unlock-kaart-rangorde; obsidiaan (8) < de verborgen Obsidiaan-titeltrofee (10)
+function trophyTierOf(a, tr) { return tr.tiers ? achvTier(a[tr.key] || 0, tr.tiers) : 0; }   // hergebruikt achvTier (telt drempels ≤ n)
+function trophyTierName(tier) { return (t("achv_tiers") || {})[TROPHY_TIER_KEYS[tier - 1]] || TROPHY_TIER_KEYS[tier - 1]; }
 const FLAWLESS_RUN = 5;   // drempel voor de "Vlekkeloos"-trofee (moet gelijklopen met db/33)
 // Zegel-artwork per iconisch jaar (ids in ACHV_SVG).
 const ACHV_YEAR_ART = {
@@ -5096,7 +5105,11 @@ function achvSnapshot(a) {
   // los bij elke schrijver: anders vergeet een toekomstige aanroeper 'm ooit.
   const snap = { yearsList: a.years, __achvV2: true };
   for (const s of ACHV_SERIES) snap[s.key] = achvTier(achvValue(a, s), s.steps);
-  for (const tr of ACHV_TROPHIES) snap[tr.key] = tr.repeatable ? (a[tr.key] || 0) : (achvTrophyDone(a, tr) ? 1 : 0);
+  for (const tr of ACHV_TROPHIES) {
+    if (tr.tiers) snap[tr.key] = trophyTierOf(a, tr);                       // getierd: trede-index → notificatie alleen op tier-up
+    else if (tr.repeatable) snap[tr.key] = (a[tr.key] || 0) > 0 ? 1 : 0;    // ongetierd herhaalbaar (spicy): alleen de eerste keer
+    else snap[tr.key] = achvTrophyDone(a, tr) ? 1 : 0;                      // eenmalig
+  }
   return snap;
 }
 // Stille baseline (login/logout, eerste run): snapshot opslaan zonder regels.
@@ -5229,13 +5242,18 @@ function achvSeriesItem(a, s, tier, prev) {
     fx: s.fx && tier > s.fx.at && prev <= s.fx.at ? s.fx.emoji : null,
   };
 }
-function achvTrophyItem(tr, count) {
+function achvTrophyItem(tr, count, tier) {
   // Herhaalbare trofeeën melden ook een 2e, 3e, ... keer (met ×N erbij);
-  // eenmalige vuren toch maar één keer, dus count is daar altijd 1.
-  const suffix = tr.repeatable && count > 1 ? ` ×${count}` : "";
+  // eenmalige vuren toch maar één keer, dus count is daar altijd 1. Getierd
+  // (tier > 0) → de trede-naam in de titel + de kaart kleurt/ringt via it.tier
+  // (de 5-tick-rail blijft series-only, dus trofeeën krijgen 'm niet).
+  const suffix = tr.repeatable && count > 1 ? ` ×${fmtN(count)}` : "";
+  const tierTxt = tier > 0 ? ` · ${trophyTierName(tier)}` : "";
   return {
-    id: `t:${tr.key}`, kind: "trophy", weight: tr.weight || ACHV_TROPHY_WEIGHT, art: tr.art, tier: 0,
-    head: t("achv_unlocked"), title: `${t(tr.i18n)}${suffix}`, sub: t(`${tr.i18n}_sub`),
+    id: `t:${tr.key}`, kind: "trophy",
+    weight: tier > 0 ? TROPHY_TIER_WEIGHT[tier - 1] : (tr.weight || ACHV_TROPHY_WEIGHT),
+    art: tr.art, tier: tier || 0,
+    head: t("achv_unlocked"), title: `${t(tr.i18n)}${tierTxt}${suffix}`, sub: t(`${tr.i18n}_sub`),
     next: "", flair: tr.flair ? tr.flair.emoji : null,
   };
 }
@@ -5284,7 +5302,7 @@ function achvCardEl(it) {
   }
   el.innerHTML = `
     <div class="achv-card-main">
-      <span class="achv-card-art${it.kind === "series" ? " achv-card-ring" : ""}">${achvBadgeHtml(it.art, it.kind === "stamp")}</span>
+      <span class="achv-card-art${it.kind === "series" || (it.kind === "trophy" && it.tier) ? " achv-card-ring" : ""}">${achvBadgeHtml(it.art, it.kind === "stamp")}</span>
       <span class="achv-card-txt">
         <span class="achv-card-head">${escHtml(it.head)}</span>
         <span class="achv-card-title">${escHtml(it.title)}</span>
@@ -5360,12 +5378,14 @@ async function checkAchievements() {
   }
   for (const tr of ACHV_TROPHIES) {
     const prev = seen[tr.key] || 0;
-    if (cur[tr.key] > prev) {
-      items.push(achvTrophyItem(tr, cur[tr.key]));
-      // Rood bolletje alleen bij de állereerste keer: een herhaalde teller (×2,
-      // ×3, ...) krijgt wél de eindscherm-regel, maar voedt de "nieuw"-markering
-      // niet opnieuw — anders duikt die bij elke herhaling weer op.
-      if (prev === 0) newIds.push(`t:${tr.key}`);
+    const curv = cur[tr.key] || 0;   // getierd: trede-index · ongetierd: 0/1
+    if (curv > prev) {
+      // Getierd → kaart toont de nieuwe trede (+ ×N); ongetierd → gewone trofee.
+      items.push(achvTrophyItem(tr, a[tr.key] || 0, tr.tiers ? curv : 0));
+      // Rood bolletje bij élke MIJLPAAL: een tier-up (incl. de eerste keer = brons)
+      // is nieuw. Tussen tredes vuurt de diff niet, dus geen ×N-spam meer. Voor
+      // een ongetierde trofee (spicy) is curv 0/1, dus dit is alleen de eerste keer.
+      newIds.push(`t:${tr.key}`);
     }
   }
   const seenYears = new Set(Array.isArray(seen.yearsList) ? seen.yearsList : []);
@@ -5509,21 +5529,25 @@ function achvRowHtml(a, s) {
 function achvTrophyHtml(a, tr) {
   const done = achvTrophyDone(a, tr);
   const count = achvTrophyCount(a, tr);
-  // Geen tussentijdse voortgang tonen (bv. "4 van 6 tijdperken") — bewust
-  // simpel gehouden tot alleen het ×N-behaald-badge, zie repeatable-achievements-design.
+  const tier = trophyTierOf(a, tr);   // 0 = ongetierd of nog geen trede
   const badge = count > 0 ? `<span class="achv-tcount">×${fmtN(count)}</span>` : "";
-  const note = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"` : "";
+  const tierChip = tier > 0 ? ` <span class="achv-ttier">${escHtml(trophyTierName(tier))}</span>` : "";
+  // Voortgang naar de volgende trede als tooltip (één title per element, dus een
+  // flair-tooltip gaat vóór). Verder bewust géén tussenstand in de tegel zelf —
+  // het 2-koloms grid blijft strak (zie repeatable-achievements-design).
+  const nextTip = tr.tiers && tier < 6 ? t("achv_next")(fmtN(tr.tiers[tier] - count), trophyTierName(tier + 1)) : "";
+  const titleAttr = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"`
+    : (nextTip ? ` title="${escHtml(nextTip)}"` : "");
   // Een trofee met een titel-beloning krijgt dezelfde uitklap als de capstone-
-  // pips: tikken vult één gedeelde regel ónder het grid. Bewust niet in de tegel
-  // zelf — .achv-trophies is een 2-koloms grid en een paneel in één cel trekt de
-  // rasterrij scheef. Alleen zodra je 'm verdiend hebt.
+  // pips: tikken vult één gedeelde regel ónder het grid. Alleen zodra verdiend.
   const act = done && tr.titleCode;
   const art = !done && tr.lockedArt ? tr.lockedArt : tr.art;
+  const tierCls = tier > 0 ? ` achv-t${tier}` : "";   // zet --tc voor ring + chip
   const tag = act ? "button" : "div";
   const attrs = act ? ` type="button" aria-expanded="false" data-tkey="${tr.key}"` : "";
-  return `<${tag} class="achv-trophy${done ? "" : " locked"}${act ? " achv-trophy-btn" : ""}"${note}${attrs}>
-      <span class="achv-tring">${achvBadgeHtml(art)}${badge}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
-      <span class="achv-tname">${escHtml(t(tr.i18n))}</span>
+  return `<${tag} class="achv-trophy${done ? "" : " locked"}${tierCls}${act ? " achv-trophy-btn" : ""}"${titleAttr}${attrs}>
+      <span class="achv-tring${tier > 0 ? " tiered" : ""}">${achvBadgeHtml(art)}${badge}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
+      <span class="achv-tname">${escHtml(t(tr.i18n))}${tierChip}</span>
       <span class="achv-tsub">${escHtml(t(`${tr.i18n}_sub`))}</span>
     </${tag}>`;
 }
