@@ -4715,11 +4715,20 @@ function capstoneLagging(a) {
 // Zilver-beloning aan/uit: aan is de default zodra je 'm verdient, uit is
 // opt-out per apparaat (jaardle:flairconfetti). Schakelaar zit in de
 // prestige-track zelf (capActionsHtml), niet in het ⋮-menu.
+// Bier en flair-confetti zijn twee win-effecten en er speelt er hooguit één:
+// zet je de één aan, dan gaat de ander uit (zie setFlairConfetti/setBeerFx).
+// Bij een onaangeraakte default (beide verdiend, nooit aangeklikt) wint bier —
+// dan is dat je win-effect en is confetti opt-in.
 function flairConfettiEnabled() {
-  return localStorage.getItem("jaardle:flairconfetti") !== "0";
+  const v = localStorage.getItem("jaardle:flairconfetti");
+  if (v != null) return v !== "0";              // expliciete keuze wint altijd
+  return !beerFxUnlocked(achvCache);            // default aan, tenzij bier verdiend is
 }
 function setFlairConfetti(on) {
-  try { localStorage.setItem("jaardle:flairconfetti", on ? "1" : "0"); } catch (e) {}
+  try {
+    localStorage.setItem("jaardle:flairconfetti", on ? "1" : "0");
+    if (on) localStorage.setItem("jaardle:beerfx", "0");   // wederzijds uitsluitend
+  } catch (e) {}
 }
 
 // Bier-viering: verdiend op potjes-platina (2000). Zelfde soort self-facing
@@ -4736,10 +4745,21 @@ function beerFxEnabled() {
   return localStorage.getItem("jaardle:beerfx") !== "0";
 }
 function setBeerFx(on) {
-  try { localStorage.setItem("jaardle:beerfx", on ? "1" : "0"); } catch (e) {}
+  try {
+    localStorage.setItem("jaardle:beerfx", on ? "1" : "0");
+    if (on) localStorage.setItem("jaardle:flairconfetti", "0");   // wederzijds uitsluitend
+  } catch (e) {}
 }
 // Speelt het bier deze winst? achvCache is de stand van de huidige identiteit;
 // die is bij een winst al gevuld (dezelfde bron als de flair-confetti gebruikt).
+// De twee win-effect-schakelaars staan in verschillende uitklappen (bier onder de
+// potjes-rij, confetti onder de zilver-pip) die tegelijk open kunnen staan. Na een
+// klik op de één spiegelen we allebei naar hun canonieke stand, zodat de ander
+// zichtbaar meebeweegt in plaats van een nu-onjuist vinkje te tonen.
+function syncWinFxSwitches(root = document) {
+  root.querySelectorAll('[data-action="cap-confetti"]').forEach((b) => b.setAttribute("aria-checked", String(flairConfettiEnabled())));
+  root.querySelectorAll('[data-action="beer-fx"]').forEach((b) => b.setAttribute("aria-checked", String(beerFxEnabled())));
+}
 function beerFxActive() {
   return beerFxUnlocked(achvCache) && beerFxEnabled();
 }
@@ -5501,7 +5521,7 @@ function wireCapAction(detail) {
   btn.onclick = async () => {
     if (btn.dataset.action === "cap-confetti") {
       setFlairConfetti(btn.getAttribute("aria-checked") !== "true");
-      btn.setAttribute("aria-checked", String(flairConfettiEnabled()));
+      syncWinFxSwitches();   // aan → bier-schakelaar elders gaat uit
       return;
     }
     btn.disabled = true;
@@ -5538,7 +5558,7 @@ function renderAchvBoard(body, a) {
   body.querySelectorAll('[data-action="beer-fx"]').forEach((btn) => {
     btn.onclick = () => {
       setBeerFx(btn.getAttribute("aria-checked") !== "true");
-      btn.setAttribute("aria-checked", String(beerFxEnabled()));
+      syncWinFxSwitches();   // aan → confetti-schakelaar elders gaat uit
     };
   });
   body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
