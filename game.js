@@ -274,7 +274,8 @@ const I18N = {
     achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair", achv_cap_goldyears: "🗓️ Gouden jaartallen", achv_cap_platinaframe: "🖼️ Sierrand",
+    achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair", achv_cap_goldyears: "🗓️ Gouden jaartallen", achv_cap_platinaframe: "🖼️ Sierrand", achv_cap_theme: "Thema",
+    theme_dark: "Donker", theme_light: "Licht", theme_parchment: "Perkament", theme_midnight: "Nachtpaars", theme_gold: "Goud",
     achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant" },
     achv_next: (k, tier) => `nog ${k} tot ${tier}`,
     achv_maxed: "hoogste trede behaald",
@@ -503,7 +504,8 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair", achv_cap_goldyears: "🗓️ Golden years", achv_cap_platinaframe: "🖼️ Ornate frame",
+    achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair", achv_cap_goldyears: "🗓️ Golden years", achv_cap_platinaframe: "🖼️ Ornate frame", achv_cap_theme: "Theme",
+    theme_dark: "Dark", theme_light: "Light", theme_parchment: "Parchment", theme_midnight: "Midnight", theme_gold: "Gold",
     achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond" },
     achv_next: (k, tier) => `${k} to go until ${tier}`,
     achv_maxed: "highest tier reached",
@@ -726,7 +728,8 @@ const I18N = {
     achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen", achv_cap_goldyears: "🗓️ Goldene Jahreszahlen", achv_cap_platinaframe: "🖼️ Zierrahmen",
+    achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen", achv_cap_goldyears: "🗓️ Goldene Jahreszahlen", achv_cap_platinaframe: "🖼️ Zierrahmen", achv_cap_theme: "Design",
+    theme_dark: "Dunkel", theme_light: "Hell", theme_parchment: "Pergament", theme_midnight: "Mitternacht", theme_gold: "Gold",
     achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant" },
     achv_next: (k, tier) => `noch ${k} bis ${tier}`,
     achv_maxed: "höchste Stufe erreicht",
@@ -953,7 +956,8 @@ const I18N = {
     achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo", achv_cap_goldyears: "🗓️ Años dorados", achv_cap_platinaframe: "🖼️ Marco ornamental",
+    achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo", achv_cap_goldyears: "🗓️ Años dorados", achv_cap_platinaframe: "🖼️ Marco ornamental", achv_cap_theme: "Tema",
+    theme_dark: "Oscuro", theme_light: "Claro", theme_parchment: "Pergamino", theme_midnight: "Medianoche", theme_gold: "Oro",
     achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante" },
     achv_next: (k, tier) => `faltan ${k} para ${tier}`,
     achv_maxed: "nivel máximo alcanzado",
@@ -1180,7 +1184,8 @@ const I18N = {
     achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
-    achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo", achv_cap_goldyears: "🗓️ Anos dourados", achv_cap_platinaframe: "🖼️ Moldura ornamental",
+    achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo", achv_cap_goldyears: "🗓️ Anos dourados", achv_cap_platinaframe: "🖼️ Moldura ornamental", achv_cap_theme: "Tema",
+    theme_dark: "Escuro", theme_light: "Claro", theme_parchment: "Pergaminho", theme_midnight: "Meia-noite", theme_gold: "Ouro",
     achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante" },
     achv_next: (k, tier) => `faltam ${k} para ${tier}`,
     achv_maxed: "nível máximo alcançado",
@@ -5592,15 +5597,15 @@ function achvAnonNoteHtml() {
 function capstoneBarHtml(a) {
   if (!auth.user) return "";
   const ct = capstoneTier(a);
-  const REWARD = ["⭐", "🎊", "🗓️", "🖼️", "🔒"];   // brons=flair, zilver=confetti, goud=gouden jaartallen, platina=sierrand, diamant binnenkort
-  const SOON = 4;                                    // vanaf diamant (index 4) = binnenkort
+  const REWARD = ["⭐", "🎊", "🗓️", "🖼️", "🎨"];   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer
+  const SOON = 5;                                    // alle tredes hebben nu een beloning (niets meer "binnenkort")
   // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
   // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
   // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
   // reeksen eronder: klik = .cap-detail vult zich, nogmaals klikken sluit 'm).
   const pips = ACHV_TIER_KEYS.map((tk, i) => {
     const reached = i + 1 <= ct, soon = i >= SOON;
-    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2) || (i === 2 && ct >= 3) || (i === 3 && ct >= 4);
+    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2) || (i === 2 && ct >= 3) || (i === 3 && ct >= 4) || (i === 4 && ct >= 5);
     const tag = clickable ? "button" : "div";
     const attrs = clickable ? ` type="button" aria-expanded="false" data-tier="${i}"` : "";
     return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : ""}${soon ? " soon" : ""}${clickable ? " cap-pip-btn" : ""}"${attrs}>
@@ -5636,6 +5641,9 @@ function capActionHtml(tier) {
   if (tier === "3") {
     return `<button type="button" class="cap-action" role="switch" aria-checked="${platinaFrameEnabled()}" data-action="cap-platinaframe">${escHtml(t("achv_cap_platinaframe"))}</button>`;
   }
+  if (tier === "4") {
+    return themePickerHtml();   // diamant: geen switch maar een swatch-kiezer
+  }
   return `<button type="button" class="cap-action" role="switch" aria-checked="${flairConfettiEnabled()}" data-action="cap-confetti">${escHtml(t("achv_cap_confetti"))}</button>`;
 }
 
@@ -5660,6 +5668,10 @@ function wireCapPips(body) {
   });
 }
 function wireCapAction(detail) {
+  // Diamant: de kiezer heeft geen .cap-action-switch maar swatch-knoppen.
+  detail.querySelectorAll("[data-theme-pick]").forEach((b) => {
+    b.onclick = () => applyTheme(b.dataset.themePick);
+  });
   const btn = detail.querySelector(".cap-action");
   if (!btn) return;
   btn.onclick = async () => {
@@ -6502,24 +6514,54 @@ function renderCalendar(history, bridges) {
 // Donker is de default; licht is opt-in per apparaat (jaardle:theme). Het
 // head-script in de template zet data-theme al vóór de stylesheet laadt (geen
 // flits); hier alleen de wissel + vinkje in het menu + browserbalk-kleur.
-const THEME_COLORS = { dark: "#1a1a1a", light: "#f4f1ea" };   // sync met --bg in style.css + head-script
+// De vijf thema's: donker (default) + licht, plus de drie diamant-paletten
+// (perkament/nachtpaars/goud). De canvas-effecten vragen alleen "licht of donker
+// familie" (currentTheme); de kiezer + applyTheme werken met de exacte naam.
+const THEME_COLORS = { dark: "#1a1a1a", light: "#f4f1ea", parchment: "#e5d8bd", midnight: "#1e1030", gold: "#14110a" };   // sync met --bg in style.css + head-script
+const LIGHT_THEME_NAMES = new Set(["light", "parchment"]);
 
-function currentTheme() {
-  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+function currentThemeName() {
+  return document.documentElement.dataset.theme || "dark";
+}
+function currentTheme() {            // licht/donker-familie (voor de canvas-effecten)
+  return LIGHT_THEME_NAMES.has(currentThemeName()) ? "light" : "dark";
 }
 
 function applyTheme(theme) {
-  if (theme === "light") document.documentElement.dataset.theme = "light";
+  if (theme && theme !== "dark") document.documentElement.dataset.theme = theme;
   else delete document.documentElement.dataset.theme;
   try { localStorage.setItem("jaardle:theme", theme); } catch (e) {}
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = THEME_COLORS[theme];
+  if (meta) meta.content = THEME_COLORS[theme] || THEME_COLORS.dark;
   syncThemeCheck();
+  syncThemePicker();
 }
 
 function syncThemeCheck() {
   const btn = document.querySelector('[data-action="theme"]');
   if (btn) btn.setAttribute("aria-checked", String(currentTheme() === "light"));
+}
+// De diamant-kiezer-swatches: markeer het actieve thema. Werkt over elke root
+// (het paneel); no-op als de kiezer niet in beeld is.
+function syncThemePicker(root = document) {
+  const cur = currentThemeName();
+  root.querySelectorAll("[data-theme-pick]").forEach((b) => {
+    const on = b.dataset.themePick === cur;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+}
+// Diamant-beloning: de thema-kiezer. Alleen gerenderd in de diamant-pip-uitklap
+// (dus al gegate op ct>=5). Licht/donker staan er ook in zodat je vanuit de
+// kiezer terug kunt naar een basis-thema.
+const DIAMANT_THEMES = ["dark", "light", "parchment", "midnight", "gold"];
+function themePickerHtml() {
+  const cur = currentThemeName();
+  const btns = DIAMANT_THEMES.map((id) => {
+    const on = cur === id, lbl = escHtml(t("theme_" + id));
+    return `<button type="button" class="cap-theme cap-theme-${id}${on ? " on" : ""}" data-theme-pick="${id}" aria-pressed="${on}" title="${lbl}"><span class="cap-theme-sw" aria-hidden="true"></span><span>${lbl}</span></button>`;
+  }).join("");
+  return `<div class="cap-themes" role="group" aria-label="${escHtml(t("achv_cap_theme"))}">${btns}</div>`;
 }
 
 // --- Menu + modals --------------------------------------------------------

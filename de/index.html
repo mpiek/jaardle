@@ -24,7 +24,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-Y7rcFPf/sI0ks8lpxuwV639yE7ljjJbC0qZxt9kf9T0=' 'sha256-9phGxzewcZW1chQb98RptY7/kp7I43XU2XXO+UF5bsc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-kdjiuvjL5H6+9DYVPa8o42UNe3KOSNplFmg0tPDMaqE=' 'sha256-9phGxzewcZW1chQb98RptY7/kp7I43XU2XXO+UF5bsc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
 <title>Jaardle — errate das Jahr</title>
 <meta name="description" content="Jaardle ist ein kostenloses tägliches Jahreszahlen-Ratespiel — das Jahrdle der Geschichte, im Stil von Wordle: errate in sechs Versuchen das Jahr eines historischen Ereignisses. Tägliches Rätsel oder endloses freies Spiel.">
 <link rel="canonical" href="https://jaardle.com/de">
@@ -75,9 +75,11 @@
 <script>
   (function () {
     try {
-      if (localStorage.getItem("jaardle:theme") === "light") {
-        document.documentElement.dataset.theme = "light";
-        document.querySelector('meta[name="theme-color"]').content = "#f4f1ea";
+      var th = localStorage.getItem("jaardle:theme");
+      var C = { light: "#f4f1ea", parchment: "#e5d8bd", midnight: "#1e1030", gold: "#14110a" };
+      if (th && th !== "dark") {
+        document.documentElement.dataset.theme = th;
+        if (C[th]) document.querySelector('meta[name="theme-color"]').content = C[th];
       }
     } catch (e) { /* private mode zonder localStorage → donker */ }
   })();
@@ -87,7 +89,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=130">
+<link rel="stylesheet" href="/style.css?v=131">
 </head>
 <body>
   <main>
@@ -381,7 +383,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=218"></script>
+  <script src="/game.js?v=219"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

@@ -70,9 +70,11 @@
 <script>
   (function () {
     try {
-      if (localStorage.getItem("jaardle:theme") === "light") {
-        document.documentElement.dataset.theme = "light";
-        document.querySelector('meta[name="theme-color"]').content = "#f4f1ea";
+      var th = localStorage.getItem("jaardle:theme");
+      var C = { light: "#f4f1ea", parchment: "#e5d8bd", midnight: "#1e1030", gold: "#14110a" };
+      if (th && th !== "dark") {
+        document.documentElement.dataset.theme = th;
+        if (C[th]) document.querySelector('meta[name="theme-color"]').content = C[th];
       }
     } catch (e) { /* private mode zonder localStorage → donker */ }
   })();
@@ -82,7 +84,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=130">
+<link rel="stylesheet" href="/style.css?v=131">
 </head>
 <body>
   <main>
@@ -366,7 +368,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=218"></script>
+  <script src="/game.js?v=219"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

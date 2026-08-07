@@ -71,6 +71,82 @@ html[data-theme="light"] {
   --shadow-tip: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
 
+/* ── Diamant-thema's (capstone-diamant: thema-kiezer) ────────────────────────
+   Drie extra paletten naast licht/donker, alleen selecteerbaar zodra diamant is
+   gehaald (client-gate in de kiezer; permanent, dus geen load-gate nodig). Elk
+   palet overschrijft de rol-variabelen; badge-/chipkleuren (--green e.d.) blijven
+   bewust gelijk. De canvas-effecten (vuurwerk/bier/goud) kiezen licht/donker via
+   currentTheme() → parchment telt als 'light', midnight/gold als 'dark'. */
+
+/* Perkament — warm sepia, licht-familie (donkere inkt op perkament). */
+html[data-theme="parchment"] {
+  color-scheme: light;
+  --bg: #e5d8bd;
+  --fg: #3a2e1f;
+  --muted: #6b5c45;
+  --card: #f3e9cf;
+  --card-soft: #e8dab9;
+  --border: #cdbb98;
+  --accent: #9a4a24;          /* zegellak-sienna, ook als linktekst leesbaar */
+  --hint: #8a6a12;
+  --h-extra:   #8a6a12;
+  --h-later:   #9c4f13;
+  --h-dir:     #a83f2f;
+  --h-century: #6d6048;
+  --h-digit:   #3a5f95;
+  --on-accent: #fbf3df;
+  --green-text: #3a6a2f;
+  --red-text: #b23a26;
+  --gold-text: #7a5a10;
+  --danger: #a5321f;
+  --flame: #a85512;
+  --kbd-tint: rgba(60, 40, 10, 0.05);
+  --penalty-tint: rgba(60, 40, 10, 0.08);
+  --shadow-pop: 0 8px 20px rgba(70, 50, 20, 0.16);
+  --shadow-modal: 0 20px 50px rgba(70, 50, 20, 0.24);
+  --shadow-tip: 0 2px 8px rgba(70, 50, 20, 0.16);
+}
+
+/* Nachtpaars — het badge-palet (museum bij nacht), donker-familie. */
+html[data-theme="midnight"] {
+  color-scheme: dark;
+  --bg: #1e1030;
+  --fg: #f2e8c9;              /* room */
+  --muted: #b6a4cf;
+  --card: #2c1a40;
+  --card-soft: #35204d;
+  --border: #48305f;
+  --accent: #d4af37;          /* goud-accent i.p.v. blauw */
+  --on-accent: #241233;
+  --gold-text: #f4c430;
+  --flame: #ffab5e;
+  --kbd-tint: rgba(255, 255, 255, 0.05);
+  --penalty-tint: rgba(255, 255, 255, 0.07);
+  --shadow-pop: 0 8px 20px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.65);
+  --shadow-tip: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Goud-mode — luxe trofeekast: warm antraciet met goud, donker-familie. */
+html[data-theme="gold"] {
+  color-scheme: dark;
+  --bg: #14110a;
+  --fg: #f0e6cf;              /* champagne */
+  --muted: #b3a482;
+  --card: #201a10;
+  --card-soft: #282013;
+  --border: #4a3d22;
+  --accent: #c9a227;          /* bladgoud */
+  --on-accent: #201400;
+  --gold-text: #ffd76a;
+  --flame: #f0a24a;
+  --kbd-tint: rgba(255, 240, 200, 0.05);
+  --penalty-tint: rgba(255, 240, 200, 0.07);
+  --shadow-pop: 0 8px 20px rgba(0, 0, 0, 0.55);
+  --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.7);
+  --shadow-tip: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
 * { box-sizing: border-box; }
 
 [hidden] { display: none !important; }
@@ -994,16 +1070,19 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 @keyframes platina-sheen { to { left: 130%; } }
 
-html[data-theme="light"] #result.platina-frame {
+html[data-theme="light"] #result.platina-frame,
+html[data-theme="parchment"] #result.platina-frame {
   background:
     linear-gradient(var(--card), var(--card)) padding-box,
     linear-gradient(135deg, #b7c0cb 0%, #7d8b99 24%, #d7dee6 50%, #7d8b99 76%, #b7c0cb 100%) border-box;
   box-shadow: 0 0 0 1px rgba(120, 150, 160, 0.28), 0 6px 18px rgba(60, 60, 60, 0.14);
 }
-html[data-theme="light"] #result.platina-frame::before {
+html[data-theme="light"] #result.platina-frame::before,
+html[data-theme="parchment"] #result.platina-frame::before {
   border-color: rgba(125, 139, 153, 0.5);
 }
-html[data-theme="light"] #result.platina-frame.platina-sheen::after {
+html[data-theme="light"] #result.platina-frame.platina-sheen::after,
+html[data-theme="parchment"] #result.platina-frame.platina-sheen::after {
   background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.6), transparent);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2233,6 +2312,30 @@ html[data-theme="light"] {
    accessibility-tree staan, dus een uít-staande schakelaar heette "… ✓". */
 .cap-action::after { content: "✓"; font-weight: 700; color: var(--accent); visibility: hidden; }
 .cap-action[aria-checked="true"]::after { visibility: visible; }
+
+/* Diamant thema-kiezer: rij swatch-knoppen in de .cap-detail-uitklap. Elke
+   swatch toont de thema-bg met een kwart accentkleur (inset-schaduw rechtsonder). */
+.cap-themes { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.15rem 0.1rem; }
+.cap-theme {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: var(--card-soft); color: var(--fg);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.3rem 0.5rem 0.3rem 0.35rem; font: inherit; font-size: 0.76rem;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.cap-theme:hover { border-color: var(--muted); }
+.cap-theme.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 600; }
+.cap-theme-sw {
+  width: 1.1rem; height: 1.1rem; border-radius: 50%; flex: none;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  background: var(--sw-bg, #333);
+  box-shadow: inset -0.5rem -0.5rem 0 -0.28rem var(--sw-ac, #888);
+}
+.cap-theme-dark .cap-theme-sw      { --sw-bg: #1a1a1a; --sw-ac: #6ea8ff; }
+.cap-theme-light .cap-theme-sw     { --sw-bg: #f4f1ea; --sw-ac: #2456c4; }
+.cap-theme-parchment .cap-theme-sw { --sw-bg: #e5d8bd; --sw-ac: #9a4a24; }
+.cap-theme-midnight .cap-theme-sw  { --sw-bg: #1e1030; --sw-ac: #d4af37; }
+.cap-theme-gold .cap-theme-sw      { --sw-bg: #14110a; --sw-ac: #c9a227; }
 
 .achv-art { width: 100%; height: 100%; display: block; }
 
