@@ -5814,9 +5814,24 @@ function renderAchvBoard(body, a) {
   });
 }
 
-// Het album: 38 zegels, jaartal áltijd als bijschrift eronder — verzameld in
-// kleur mét gebeurtenis, niet-ontdekt gedimd met een "?" (de kunst is de
-// onthulling). Enige sub-scherm van het bord.
+// Vandaags dagpuzzel afgerond? Bepaalt of het jaartal-album z'n jaartallen toont
+// (zie renderAchvAlbum). Duurzame waarheid = de opgeslagen dagpuzzel; de in-memory
+// state vangt het moment vlak na afronden af (vóór/tijdens een makeup-pot telt de
+// echte daily van vandaag). Anon gaten we net zo hard: geen vriendenscore, maar
+// één voorwaarde is simpeler dan een login-uitzondering en de kosten (album even
+// jaartal-loos) zijn puur cosmetisch.
+function dailyDoneToday() {
+  if (state && state.mode === "daily" && !isMakeup() && state.done) return true;
+  return !!loadRecord("daily", todayKey())?.board?.done;
+}
+
+// Het album: 38 zegels — verzameld in kleur mét gebeurtenis, niet-ontdekt gedimd
+// met een "?" (de kunst is de onthulling). Zolang vandaags daily niet af is, staat
+// het jaartal-bijschrift er helemaal NIET (geen mask, geen uitleg) — het mag lezen
+// alsof er nooit een jaartal stond, en verschijnt "magisch" zodra je gespeeld hebt.
+// Reden: het album was anders een in-app spiekbriefje bij het vriendenspel (het
+// jaartal is de enige plek waar het jaar staat — plaatje + gebeurtenis blijven
+// zichtbaar; grill-sessie 13/8 → optie B). Enige sub-scherm van het bord.
 function renderAchvAlbum(body, a) {
   const got = new Set(a.years);
   const yearsSeries = ACHV_SERIES.find((s) => s.key === "years");
@@ -5824,14 +5839,16 @@ function renderAchvAlbum(body, a) {
   const tier = achvTier(n, yearsSeries.steps);
   const next = tier >= 5 ? t("achv_maxed")
     : t("achv_next")(fmtN(yearsSeries.steps[tier] - n), achvTierName(tier));
+  const hideYears = !dailyDoneToday();
   const stamps = ACHV_YEARS.map((y) => {
     const has = got.has(y);
     const art = has ? ACHV_YEAR_ART[String(y)] : "locked";
     const ev = has ? ((t("achv_events") || {})[String(y)] || "") : t("achv_year_locked");
+    // Jaartal weg zolang de daily loopt: geen placeholder, gewoon geen element.
+    const yr = hideYears ? "" : `<span class="achv-yr">${escHtml(achvYearLabel(y))}</span>`;
     return `<div class="achv-stamp${has ? "" : " locked"}">
         ${achvBadgeHtml(art, true)}${has ? achvNewMark(`y:${y}`) : ""}
-        <span class="achv-yr">${escHtml(achvYearLabel(y))}</span>
-        <span class="achv-ev">${escHtml(ev)}</span>
+        ${yr}<span class="achv-ev">${escHtml(ev)}</span>
       </div>`;
   }).join("");
   body.innerHTML = `
