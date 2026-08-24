@@ -3121,10 +3121,16 @@ async function makeupRepairInfo() {
   } catch (e) { return { eligible: false, days: [] }; }
   const played = new Set(hist.map((e) => e.date));
   const bridged = (d) => (extras.bridges || []).some((b) => d >= b.from && d <= b.to);
+  // Een dag telt alleen als "gemist" als je toen al speler was: vóór je
+  // allereerste pot valt er niets in te halen. Anders krijgt een verse speler
+  // (lege historie) meteen 3 "gemiste" dagen aangeboden en koopt hij op dag 1
+  // een streak bij elkaar.
+  const first = hist.reduce((m, e) => (m && m < e.date ? m : e.date), null);
   const days = [];
   for (let i = 1; i <= CATCHUP_WINDOW; i++) {
     const d = shiftDay(todayKey(), -i);
     if (d < EPOCH_KEY) break;                       // niet vóór de eerste daily
+    if (!first || d < first) break;                 // vóór (of zonder) je eerste pot
     if (!played.has(d) && !bridged(d)) days.push(d);
   }
   if (!days.length) return { eligible: false, days: [] };
@@ -3148,7 +3154,9 @@ function startMakeup(date) {
 async function nextCatchupOrToday() {
   let info;
   try { info = await makeupRepairInfo(); } catch (e) { info = { days: [] }; }
-  const remaining = info.days || [];
+  // De zojuist ingehaalde dag kan nog als "gemist" meekomen (recordDailyResult
+  // racet met deze fetch) — nooit terug naar de dag die je net afrondde.
+  const remaining = (info.days || []).filter((d) => d !== (state && state.puzzleDate));
   if (remaining.length) startMakeup(remaining[0]);
   else switchMode("daily");
 }
@@ -3159,7 +3167,9 @@ async function refineCatchupNextBtn() {
   let info;
   try { info = await makeupRepairInfo(); } catch (e) { return; }
   if (!state || !state.done || !isMakeup(state)) return;   // scherm intussen gewisseld
-  if ((info.days || []).length) els.nextBtn.textContent = t("catchup_next_btn");
+  // Zelfde race als in nextCatchupOrToday: dit label draait vóórdat de zojuist
+  // ingehaalde dag in de historie staat — die dag is geen "volgende gemiste dag".
+  if ((info.days || []).some((d) => d !== state.puzzleDate)) els.nextBtn.textContent = t("catchup_next_btn");
 }
 
 // PUSH — de inhaal-kaart op het daily-eindscherm (alleen op de daily van VANDAAG;
