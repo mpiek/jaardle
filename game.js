@@ -1705,19 +1705,17 @@ function factSlides() {
     if (f) slides.push({ kind: "extra", ...f });
   }
   // Betaalde hints (⏩/🏛️/🔢) verschijnen als gekleurde slide zodra je ze opent.
-  // Bij WINST tonen we alleen wat je echt opende (niet de ongebruikte spoilen);
-  // bij VERLIES klappen we alles open, ter lering (het jaar is dan toch onthuld).
-  const revealAll = state.done && !state.won;
+  // We tonen alleen wat je echt opende — óók bij verlies (ongebruikte hints niet
+  // spoilen, ze horen niet in jouw resultaat als je ze nooit hebt betaald).
   if (state.laterClues) {
-    const shown = revealAll ? availableLaterClues() : state.laterCluesShown;
-    for (let i = 0; i < shown; i++) {
+    for (let i = 0; i < state.laterCluesShown; i++) {
       slides.push({ kind: "later", text: laterSlotText(i), slot: i });
     }
   }
-  if (state.centuryRevealed || revealAll) {
+  if (state.centuryRevealed) {
     slides.push({ kind: "century", text: centuryBand(state.event.year), sub: eraName(state.event.year) });
   }
-  if (state.lastDigitRevealed || revealAll) {
+  if (state.lastDigitRevealed) {
     slides.push({ kind: "digit", text: String(Math.abs(state.event.year) % 10) });
   }
   return slides;
