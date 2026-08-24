@@ -3098,7 +3098,8 @@ function startDailyCountdown() {
 // (tot middernacht Europe/Amsterdam telkens één dag opschuivend). Alles sleutelt al
 // op puzzle_date, dus een inhaalpot dicht het gat vanzelf in computeStats()/
 // streak_state(). De pot telt NIET mee op het competitieve dagbord/dagzeges
-// (server-side `late`-flag, db/26) en cross-week ook niet op het weekpodium (db/52)
+// (server-side `late`-flag, db/26); op het weekpodium telt hij wél mee in de
+// weekscore zolang hij vóór maandag 12:00 ná die week gespeeld is (db/52+54)
 // — die regels staan al vast, we voeren er alleen méér datums aan.
 //
 // Twee surfaces, geen top-banner meer:
@@ -3931,19 +3932,33 @@ function daysBetweenKeys(a, b) {
   const [by, bm, bd] = b.split("-").map(Number);
   return Math.round((Date.UTC(by, bm - 1, bd) - Date.UTC(ay, am - 1, ad)) / 86400000);
 }
-// Seconden tot de eerstvolgende maandag-rollover (Europe/Amsterdam) — waar de live
-// weekstand op het podium dichtklapt. Zelfde opbouw als secsToNextDaily: volle dagen
-// tot morgen + de rest van vandaag.
-function secsToWeekEnd() {
-  const nextMon = shiftDateKey(currentWeekStart(), 7);
-  return (daysBetweenKeys(todayKey(), nextMon) - 1) * 86400 + secsToNextDaily();
+// Seconden tot de sluiting van de week die op `ws` (maandag) begint: de maandag
+// erná om 12:00 (Europe/Amsterdam) — géén middernacht meer, zodat een zondag-
+// inhaalpot op maandagochtend nog meetelt (db/54). Zelfde opbouw als
+// secsToNextDaily: volle dagen tot die maandag + de rest van vandaag + 12u.
+// Kan negatief zijn voor een al gesloten week (callers gaten daarop).
+function secsToWeekEnd(ws) {
+  const nextMon = shiftDateKey(ws, 7);
+  return (daysBetweenKeys(todayKey(), nextMon) - 1) * 86400 + secsToNextDaily() + 43200;
+}
+// Is de week die op `ws` begint definitief? Pas vanaf maandag 12:00 (Europe/
+// Amsterdam) ná die week — tot dan is hij "loopt nog": inhaalpotten voor die week
+// tellen server-side nog mee (db/54), dus de stand mag nog bewegen. Alles wat een
+// uitslag viert (pill, confetti, rode stip, recap-kaart) gate hierop.
+function weekIsFinal(ws) {
+  const cur = currentWeekStart();
+  if (ws >= cur) return false;                    // lopende (of toekomstige) week
+  if (ws < shiftDateKey(cur, -7)) return true;    // ouder dan vorige week: altijd dicht
+  // ws = vorige week: alleen op maandag zelf is er nog een ochtend-venster open.
+  return todayKey() !== cur || secsToNextDaily() <= 43200;
 }
 function fmtWeekCountdown(secs) {
   const days = Math.floor(secs / 86400);
   return days > 0 ? `${days}d ${fmtCountdown(secs - days * 86400)}` : fmtCountdown(secs);
 }
-// Waar het weekpodium standaard op opent: de laatst-AFGERONDE week (het resultaat) als
-// die meetelt, anders de lopende week — zo zie je meteen "vorige week" i.p.v. een lege race.
+// Waar het weekpodium standaard op opent: de vorige week (het resultaat — of op
+// maandagochtend de nog sluitende eindsprint) als die meetelt, anders de lopende
+// week — zo zie je meteen "vorige week" i.p.v. een lege race.
 function weekPodiumDefaultWeek() {
   const cur = currentWeekStart();
   const lastDone = shiftDateKey(cur, -7);
@@ -4071,7 +4086,7 @@ async function loadPodium() {
     stopPodiumCountdown();
     return;
   }
-  const isLive = lbWeekStart >= cur;
+  const isLive = !weekIsFinal(lbWeekStart);   // vorige week blijft "loopt nog" tot ma 12:00
   heading.innerHTML = `🏟️ ${escHtml(fmtWeekRange(lbWeekStart))} ` +
     `<span class="lb-wk-pill ${isLive ? "live" : "done"}">${escHtml(isLive ? t("lb_wk_live") : t("lb_wk_done"))}</span>`;
   prevBtn.disabled = lbWeekStart <= podiumMinWeek();
@@ -4085,8 +4100,8 @@ async function loadPodium() {
   setBoard(content, podiumHtml(rows, isLive));
   // Een afgeronde week bekeken = "gezien" → de verse-uitslag-stip dooft.
   if (!isLive && !podiumSeen(lbWeekStart)) { podiumMarkSeen(lbWeekStart); renderPodiumDot(); }
-  // Live tussenstand → tik de countdown naar de maandag-rollover; een afgeronde
-  // week beweegt niet meer en krijgt geen timer.
+  // Live tussenstand → tik de countdown naar de sluiting (maandag 12:00); een
+  // afgeronde week beweegt niet meer en krijgt geen timer.
   if (isLive) { startPodiumCountdown(); } else { stopPodiumCountdown(); }
   // Doorlopende feest-confetti zolang je een AFGERONDE week bekijkt waarin jij top-3
   // stond; live weken (provisorisch) krijgen niets. Self-stoppend (zie hieronder).
@@ -4097,7 +4112,7 @@ async function loadPodium() {
   }
 }
 
-// Live countdown naar de maandag-rollover onder het podium (lb-wk-countdown, alleen
+// Live countdown naar de week-sluiting (maandag 12:00) onder het podium (lb-wk-countdown, alleen
 // bij isLive). Zelfde self-stop-filosofie als showPodiumConfetti: de tick controleert
 // zelf of de span nog in de live DOM zit en of de modal nog open is, i.p.v. dat elke
 // tab-wissel/modal-close 'm expliciet moet afmelden.
@@ -4113,7 +4128,9 @@ function startPodiumCountdown() {
       stopPodiumCountdown();
       return;
     }
-    span.textContent = fmtWeekCountdown(secsToWeekEnd());
+    const secs = secsToWeekEnd(lbWeekStart);
+    if (secs <= 0) { stopPodiumCountdown(); loadPodium(); return; }   // ma 12:00 gepasseerd → flip naar "afgerond"
+    span.textContent = fmtWeekCountdown(secs);
   };
   tick();
   podiumCountdownTimer = setInterval(tick, 1000);
@@ -5324,7 +5341,9 @@ function renderPodiumDot() {
 // Vóór de 1e afgeronde week (< epoch) of als je 'm al zag: niets → nul kosten (geen fetch).
 async function refreshWeekPodiumResult() {
   const lastDone = shiftDateKey(currentWeekStart(), -7);
-  if (!auth.user || lastDone < PODIUM_EPOCH || podiumSeen(lastDone)) { weekPodiumResult = null; renderPodiumDot(); return; }
+  // Vorige week is op maandagochtend nog niet dicht (inhaal-venster tot 12:00,
+  // db/54) — dan nog geen stip/recap: de uitslag zou nog kunnen kantelen.
+  if (!auth.user || lastDone < PODIUM_EPOCH || !weekIsFinal(lastDone) || podiumSeen(lastDone)) { weekPodiumResult = null; renderPodiumDot(); return; }
   if (weekPodiumResult && weekPodiumResult.weekStart === lastDone) return;   // deze sessie al berekend
   let pools = [];
   try { pools = await rpc("my_pools", {}) || []; } catch (e) {}
