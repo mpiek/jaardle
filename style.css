@@ -407,12 +407,15 @@ main {
   border-color: var(--accent);
 }
 
-/* Inhaal-daily-banner: verschijnt als je gisteren miste maar je streak nog kunt
-   redden. Bewust opvallend (warm verloop, vlam, live afteller) — het is een
-   aflopende kans, dus hij mag om aandacht vragen. Wegklikbaar (✕, per dag).
+/* Inhaal-balk: de ENIGE ingang naar een gemiste dag (v231 — kaart + stepper zijn
+   geschrapt). Twee tonen op één element: reddings-toon = warm verloop + vlam, want
+   er staat een streak op het spel en het gat is nog te dichten; neutrale toon
+   (.catchup-plain) = dezelfde balk, gedempt en zonder gloed, want dat is een
+   suggestie (album/rating) en géén aflopende kans. Alleen de neutrale toon heeft
+   een ✕ — een stray tik mag geen streak van N dagen slopen.
    De reparatie-banner (db/50) deelt de opbouw en .makeup-*-klassen, maar krijgt
    een koeler verloop: het is een 7-daagse missie, geen aflopende dag-kans. */
-#makeup-banner,
+#catchup-bar,
 #repair-banner {
   display: flex;
   align-items: center;
@@ -425,6 +428,13 @@ main {
   color: #fff;
   box-shadow: 0 2px 12px rgba(217, 99, 26, 0.28);
   animation: makeup-pop 0.35s ease-out;
+}
+/* Neutrale toon: zelfde balk, één tandje stiller (vlak, geen gloed) — herkenbaar
+   als hetzelfde ding, duidelijk minder urgent. */
+#catchup-bar.catchup-plain {
+  background: #6b2f18;
+  border-color: #8f4a24;
+  box-shadow: none;
 }
 #repair-banner {
   background: linear-gradient(135deg, #1f2c5c, #2c4085 55%, #3b58ad);
@@ -472,55 +482,6 @@ main {
   .makeup-title { font-size: 0.92rem; }
   .makeup-body { font-size: 0.8rem; }
 }
-
-/* Inhaal-kaart op het daily-eindscherm (de PUSH). Reddbaar gat = warme vlam-
-   urgentie (.catchup-rescue); anders neutraal (kaart-tint). Wegklikbaar (per dag). */
-.catchup-card {
-  margin: 0.7rem 0 0;
-  border-radius: 12px;
-  padding: 0.6rem 0.7rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  text-align: left;
-  animation: makeup-pop 0.35s ease-out;
-}
-.catchup-card.catchup-rescue {
-  background: linear-gradient(135deg, #7a2e12, #b3480f 55%, #d9631a);
-  border-color: #e07a2c;
-  color: #fff;
-  box-shadow: 0 2px 12px rgba(217, 99, 26, 0.28);
-}
-.catchup-head { display: flex; align-items: flex-start; gap: 0.55rem; }
-.catchup-flame { flex: none; font-size: 1.5rem; line-height: 1; }
-.catchup-flame img.emoji-anim { width: 1.5rem; height: 1.5rem; vertical-align: middle; }
-.catchup-text { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; flex: 1; }
-.catchup-title { font-size: 0.98rem; font-weight: 700; }
-.catchup-body { font-size: 0.85rem; opacity: 0.95; }
-.catchup-dismiss {
-  flex: none; align-self: flex-start; background: none; border: none;
-  color: currentColor; opacity: 0.55; font-size: 0.9rem; line-height: 1;
-  padding: 0.1rem 0.15rem; cursor: pointer;
-}
-.catchup-dismiss:hover { opacity: 1; }
-.catchup-days { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
-.catchup-day {
-  border: none; border-radius: 8px; padding: 0.4rem 0.7rem;
-  font-weight: 700; font-size: 0.85rem; cursor: pointer;
-  background: var(--accent); color: #fff;
-}
-.catchup-day:hover { filter: brightness(1.08); }
-.catchup-rescue .catchup-day { background: #fff; color: #b3480f; }
-.catchup-rescue .catchup-day:hover { background: #ffe9d6; filter: none; }
-
-/* Inhaal-stepper ‹ #N › naast het daglabel (de PULL). Subtiel — een power-user-
-   afkorting; de kaart hierboven is de hoofd-ingang. */
-#day-wrap { display: inline-flex; align-items: center; gap: 0.15rem; }
-.day-step {
-  background: none; border: none; color: var(--accent);
-  font-size: 1rem; line-height: 1; padding: 0 0.15rem; cursor: pointer;
-}
-.day-step[hidden] { display: none; }
-.day-step:hover { color: var(--flame); }
 
 #event-card {
   position: relative;

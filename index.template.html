@@ -84,7 +84,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=134">
+<link rel="stylesheet" href="/style.css?v=135">
 </head>
 <body>
   <main>
@@ -112,9 +112,13 @@
       <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">{{i18n:tab_free}}</button>
     </nav>
 
+    <!-- Inhaal-balk: de enige ingang naar een gemiste dag uit de laatste 3 dagen
+         (v231; de eindscherm-kaart en de ‹#N›-stepper zijn geschrapt). Twee tonen
+         op één element, één knop = de oudste gemiste dag; game.js vult en toont. -->
+    <div id="catchup-bar" hidden></div>
     <!-- 5-potjes-reparatie (db/50): win een gebroken streak terug via vrij spel.
-         Verbergt zichzelf als het gat nog binnen het inhaal-venster valt (dan is de
-         inhaal-kaart op het eindscherm de weg); game.js vult en toont. -->
+         Verbergt zichzelf als het gat nog te dichten is (dan wint de balk
+         hierboven); game.js vult en toont. -->
     <div id="repair-banner" hidden></div>
 
     <section id="event-card">
@@ -306,13 +310,7 @@
     </button>
     <p>
       <span data-i18n-html="footer_note">{{i18nhtml:footer_note}}</span>
-      <!-- Inhaal-stepper (pull, Redactle-stijl): pijltjes verschijnen alleen als er
-           een recente gemiste dag te bladeren valt; game.js toont/wire't ze. -->
-      <span id="day-wrap">
-        <button id="day-prev" type="button" class="day-step" hidden aria-label="{{i18n:catchup_prev}}">‹</button>
-        <span id="day-label"></span>
-        <button id="day-next" type="button" class="day-step" hidden aria-label="{{i18n:catchup_next_aria}}">›</button>
-      </span>
+      <span id="day-label"></span>
     </p>
   </footer>
 
@@ -372,7 +370,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=230"></script>
+  <script src="/game.js?v=231"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

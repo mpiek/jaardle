@@ -244,22 +244,10 @@ const I18N = {
     streak_saved: (n) => `🔥 Streak gered — ${n} ${n === 1 ? "dag" : "dagen"} op rij!`,
     streak_makeup_lost: "💔 Helaas — de streak is niet gered.",
     makeup_tag: "inhaaldag",
-    makeup_title: "🔥 Je miste gisteren!",
-    makeup_body: (streak, dayNum) => `Speel puzzel #${dayNum} van gisteren alsnog en red je streak van ${streak} ${streak === 1 ? "dag" : "dagen"}.`,
-    makeup_cta: "Speel gisteren",
-    makeup_play_today: "▶️ Speel nu de daily van vandaag",
-    catchup_title_rescue: (streak) => `🔥 Red je streak van ${streak}!`,
-    catchup_body_rescue: (n, streak) => n === 1
-      ? `Haal je gemiste dag in en je streak van ${streak} blijft staan.`
-      : `Haal álle ${n} gemiste dagen in om je streak van ${streak} te redden.`,
-    catchup_title_plain: "📅 Haal gemiste dagen in",
-    catchup_body_plain: (n) => n === 1
-      ? `Je miste een recente dag. Speel 'm alsnog — telt voor je album en rating.`
-      : `Je miste ${n} recente dagen. Speel ze alsnog — ze tellen voor je album en rating.`,
+    catchup_title_rescue: (streak) => `Red je streak van ${streak}!`,
+    catchup_body_rescue: (n, streak) => `Haal álle ${n} gemiste dagen in om je streak van ${streak} te redden.`,
+    catchup_title_plain: "Haal gemiste dagen in",
     catchup_play: (dayNum) => `Speel #${dayNum}`,
-    catchup_next_btn: "▶️ Volgende gemiste dag",
-    catchup_prev: "Vorige gemiste dag",
-    catchup_next_aria: "Volgende dag",
     streak_shield: (n, l) => `🛡️ Streak van ${n} ${n === 1 ? "dag" : "dagen"} behouden — nog ${l} ${l === 1 ? "leven" : "levens"}`,
     streak_lives: (l) => `🛡️ nog ${l} ${l === 1 ? "leven" : "levens"}`,
     repair_title: "Win je streak terug",
@@ -487,22 +475,10 @@ const I18N = {
     streak_saved: (n) => `🔥 Streak saved — ${n} ${n === 1 ? "day" : "days"} in a row!`,
     streak_makeup_lost: "💔 Sorry — the streak wasn't saved.",
     makeup_tag: "catch-up",
-    makeup_title: "🔥 You missed yesterday!",
-    makeup_body: (streak, dayNum) => `Play yesterday's puzzle #${dayNum} after all and save your ${streak}-day streak.`,
-    makeup_cta: "Play yesterday",
-    makeup_play_today: "▶️ Play today's daily now",
-    catchup_title_rescue: (streak) => `🔥 Save your ${streak}-day streak!`,
-    catchup_body_rescue: (n, streak) => n === 1
-      ? `Catch up your missed day to keep your ${streak}-day streak alive.`
-      : `Catch up all ${n} missed days to save your ${streak}-day streak.`,
-    catchup_title_plain: "📅 Catch up missed days",
-    catchup_body_plain: (n) => n === 1
-      ? `You missed a recent day. Play it now — it counts for your album and rating.`
-      : `You missed ${n} recent days. Play them now — they count for your album and rating.`,
+    catchup_title_rescue: (streak) => `Save your ${streak}-day streak!`,
+    catchup_body_rescue: (n, streak) => `Catch up all ${n} missed days to save your ${streak}-day streak.`,
+    catchup_title_plain: "Catch up missed days",
     catchup_play: (dayNum) => `Play #${dayNum}`,
-    catchup_next_btn: "▶️ Next missed day",
-    catchup_prev: "Previous missed day",
-    catchup_next_aria: "Next day",
     streak_shield: (n, l) => `🛡️ ${n}-day streak kept — ${l} ${l === 1 ? "life" : "lives"} left`,
     streak_lives: (l) => `🛡️ ${l} ${l === 1 ? "life" : "lives"} left`,
     repair_title: "Win your streak back",
@@ -724,22 +700,10 @@ const I18N = {
     streak_saved: (n) => `🔥 Serie gerettet — ${n} ${n === 1 ? "Tag" : "Tage"} in Folge!`,
     streak_makeup_lost: "💔 Schade — die Serie wurde nicht gerettet.",
     makeup_tag: "Nachhol-Tag",
-    makeup_title: "🔥 Du hast gestern verpasst!",
-    makeup_body: (streak, dayNum) => `Spiel das gestrige Rätsel #${dayNum} doch noch und rette deine Serie von ${streak} ${streak === 1 ? "Tag" : "Tagen"}.`,
-    makeup_cta: "Gestern spielen",
-    makeup_play_today: "▶️ Jetzt das heutige Rätsel spielen",
-    catchup_title_rescue: (streak) => `🔥 Rette deine ${streak}-Tage-Serie!`,
-    catchup_body_rescue: (n, streak) => n === 1
-      ? `Hol deinen verpassten Tag nach, dann bleibt deine ${streak}-Tage-Serie erhalten.`
-      : `Hol alle ${n} verpassten Tage nach, um deine ${streak}-Tage-Serie zu retten.`,
-    catchup_title_plain: "📅 Verpasste Tage nachholen",
-    catchup_body_plain: (n) => n === 1
-      ? `Du hast einen der letzten Tage verpasst. Spiel ihn nach — er zählt für Album und Wertung.`
-      : `Du hast ${n} der letzten Tage verpasst. Spiel sie nach — sie zählen für Album und Wertung.`,
+    catchup_title_rescue: (streak) => `Rette deine ${streak}-Tage-Serie!`,
+    catchup_body_rescue: (n, streak) => `Hol alle ${n} verpassten Tage nach, um deine ${streak}-Tage-Serie zu retten.`,
+    catchup_title_plain: "Verpasste Tage nachholen",
     catchup_play: (dayNum) => `#${dayNum} spielen`,
-    catchup_next_btn: "▶️ Nächster verpasster Tag",
-    catchup_prev: "Vorheriger verpasster Tag",
-    catchup_next_aria: "Nächster Tag",
     streak_shield: (n, l) => `🛡️ Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gehalten — noch ${l} Leben`,
     streak_lives: (l) => `🛡️ noch ${l} Leben`,
     repair_title: "Hol dir deine Serie zurück",
@@ -965,22 +929,10 @@ const I18N = {
     streak_saved: (n) => `🔥 Racha salvada — ¡${n} ${n === 1 ? "día" : "días"} seguidos!`,
     streak_makeup_lost: "💔 Vaya — no se salvó la racha.",
     makeup_tag: "recuperación",
-    makeup_title: "🔥 ¡Te saltaste ayer!",
-    makeup_body: (streak, dayNum) => `Juega el reto #${dayNum} de ayer y salva tu racha de ${streak} ${streak === 1 ? "día" : "días"}.`,
-    makeup_cta: "Jugar el de ayer",
-    makeup_play_today: "▶️ Juega ahora el reto de hoy",
-    catchup_title_rescue: (streak) => `🔥 ¡Salva tu racha de ${streak}!`,
-    catchup_body_rescue: (n, streak) => n === 1
-      ? `Recupera el día que te perdiste y tu racha de ${streak} seguirá viva.`
-      : `Recupera los ${n} días que te perdiste para salvar tu racha de ${streak}.`,
-    catchup_title_plain: "📅 Recupera los días perdidos",
-    catchup_body_plain: (n) => n === 1
-      ? `Te perdiste un día reciente. Juégalo ahora — cuenta para tu álbum y tu clasificación.`
-      : `Te perdiste ${n} días recientes. Juégalos ahora — cuentan para tu álbum y tu clasificación.`,
+    catchup_title_rescue: (streak) => `¡Salva tu racha de ${streak}!`,
+    catchup_body_rescue: (n, streak) => `Recupera los ${n} días que te perdiste para salvar tu racha de ${streak}.`,
+    catchup_title_plain: "Recupera los días perdidos",
     catchup_play: (dayNum) => `Juega #${dayNum}`,
-    catchup_next_btn: "▶️ Siguiente día perdido",
-    catchup_prev: "Día perdido anterior",
-    catchup_next_aria: "Día siguiente",
     streak_shield: (n, l) => `🛡️ Racha de ${n} ${n === 1 ? "día" : "días"} conservada — ${l === 1 ? "queda 1 vida" : `quedan ${l} vidas`}`,
     streak_lives: (l) => l === 1 ? "🛡️ queda 1 vida" : `🛡️ quedan ${l} vidas`,
     repair_title: "Recupera tu racha",
@@ -1206,22 +1158,10 @@ const I18N = {
     streak_saved: (n) => `🔥 Sequência salva — ${n} ${n === 1 ? "dia" : "dias"} seguidos!`,
     streak_makeup_lost: "💔 Que pena — a sequência não foi salva.",
     makeup_tag: "recuperação",
-    makeup_title: "🔥 Você perdeu ontem!",
-    makeup_body: (streak, dayNum) => `Jogue o desafio #${dayNum} de ontem e salve sua sequência de ${streak} ${streak === 1 ? "dia" : "dias"}.`,
-    makeup_cta: "Jogar o de ontem",
-    makeup_play_today: "▶️ Jogue agora o desafio de hoje",
-    catchup_title_rescue: (streak) => `🔥 Salve sua sequência de ${streak}!`,
-    catchup_body_rescue: (n, streak) => n === 1
-      ? `Recupere o dia que você perdeu e sua sequência de ${streak} continua de pé.`
-      : `Recupere todos os ${n} dias perdidos para salvar sua sequência de ${streak}.`,
-    catchup_title_plain: "📅 Recupere os dias perdidos",
-    catchup_body_plain: (n) => n === 1
-      ? `Você perdeu um dia recente. Jogue agora — conta para o seu álbum e ranking.`
-      : `Você perdeu ${n} dias recentes. Jogue agora — contam para o seu álbum e ranking.`,
+    catchup_title_rescue: (streak) => `Salve sua sequência de ${streak}!`,
+    catchup_body_rescue: (n, streak) => `Recupere todos os ${n} dias perdidos para salvar sua sequência de ${streak}.`,
+    catchup_title_plain: "Recupere os dias perdidos",
     catchup_play: (dayNum) => `Jogar #${dayNum}`,
-    catchup_next_btn: "▶️ Próximo dia perdido",
-    catchup_prev: "Dia perdido anterior",
-    catchup_next_aria: "Próximo dia",
     streak_shield: (n, l) => `🛡️ Sequência de ${n} ${n === 1 ? "dia" : "dias"} mantida — ${l === 1 ? "resta 1 vida" : `restam ${l} vidas`}`,
     streak_lives: (l) => l === 1 ? "🛡️ resta 1 vida" : `🛡️ restam ${l} vidas`,
     repair_title: "Recupere sua sequência",
@@ -2945,11 +2885,17 @@ function finishGame(won, fresh = false) {
   if (state.mode === "free") {
     els.nextBtn.textContent = t("next");
   } else if (isMakeup(state)) {
-    // Inhaalpot afgerond → door naar de eerstvolgende gemiste dag, of anders de
-    // daily van vandaag (die houdt de streak vanaf hier levend). De knop-handler
-    // (nextCatchupOrToday) herkent de inhaal-state; het label wordt async verfijnd.
-    els.nextBtn.textContent = t("makeup_play_today");
-    refineCatchupNextBtn();
+    // Inhaalpot afgerond. Zolang het gat openstaat is de oranje balk de enige weg
+    // vooruit (één oppervlak) — dus hier géén knop die naar vrij spel wegleidt.
+    // Valt er niets meer in te halen, dan gedraagt de knop zich weer als na een
+    // gewone daily. De check is async; verborgen is de veilige beginstand.
+    els.nextBtn.hidden = true;
+    catchupPending().then((info) => {
+      if (!state || !state.done || !isMakeup(state) || !info.closed) return;
+      els.nextBtn.innerHTML = withAnimEmoji(escHtml(t(won ? "free_again" : "free_revenge")));
+      armEmojiFallbacks(els.nextBtn);
+      els.nextBtn.hidden = false;
+    });
   } else {
     els.nextBtn.innerHTML = withAnimEmoji(escHtml(t(won ? "free_again" : "free_revenge")));
     armEmojiFallbacks(els.nextBtn);
@@ -2973,7 +2919,7 @@ function finishGame(won, fresh = false) {
   if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
   if (fresh && state.mode === "daily") recordDailyResult(won);
   appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
-  appendCatchupCard();     // inhaal-PUSH: gemiste recente dagen (alleen op de daily van vandaag)
+  refreshCatchupBar();     // de oranje balk wijst nu de volgende gemiste dag aan
   // Bij een verse pot: eerst de play wegschrijven, DAARNA de globale stats ophalen,
   // zodat je eigen zojuist gespeelde pot meetelt (en bij een fact zonder eerdere
   // plays niet games:0 -> niks toont). Faalt het wegschrijven, toon dan alsnog.
@@ -3093,7 +3039,7 @@ function startDailyCountdown() {
   dailyCountdownTimer = setInterval(tick, 1000);
 }
 
-// --- Inhaal-daily (3-daags venster) -----------------------------------------
+// --- Inhaal-daily: één oranje balk (3-daags venster) -------------------------
 // Wie een daily van de laatste CATCHUP_WINDOW dagen miste, mag die alsnog spelen
 // (tot middernacht Europe/Amsterdam telkens één dag opschuivend). Alles sleutelt al
 // op puzzle_date, dus een inhaalpot dicht het gat vanzelf in computeStats()/
@@ -3102,9 +3048,23 @@ function startDailyCountdown() {
 // weekscore zolang hij vóór maandag 12:00 ná die week gespeeld is (db/52+54)
 // — die regels staan al vast, we voeren er alleen méér datums aan.
 //
-// Twee surfaces, geen top-banner meer:
-//   * PUSH  — de inhaal-kaart op het daily-eindscherm (appendCatchupCard);
-//   * PULL  — de ‹ #N › voetnoot-stepper (refreshDayNav), Redactle-stijl.
+// ÉÉN OPPERVLAK (grill-sessie 2026-09-03). De balk `#catchup-bar` is de enige
+// ingang naar een oude dag. De eindscherm-kaart met een knop per dag en de
+// ‹ #N ›-voetnoot-stepper (v227) zijn geschrapt: spelers vonden die knoppen niet.
+// Nu: één knop, altijd de oudste gemiste dag, altijd op dezelfde plek. De lus
+// loopt vía de balk — speel #121, en op het eindscherm wijst dezelfde balk #122.
+// Daarom (a) verbergt de balk zich alleen tijdens een nóg niet afgeronde
+// inhaalpot en staat hij er op het eindscherm weer, en (b) is `#next-btn`
+// verborgen zolang het gat openstaat: geen tweede knop die van het gat wegleidt.
+//
+// Twee tonen, één element — dismissbaarheid volgt de inzet:
+//   * REDDING (🔥, géén ✕) — het hele gat past in het venster én er stond een
+//     streak. Een stray tik op een ✕ mag geen streak van N dagen slopen.
+//   * NEUTRAAL (📅, wél ✕) — gemiste dagen zonder streak-inzet; een suggestie
+//     (album/rating) mag je wegwuiven.
+// Voorrang: redding > blauwe reparatie-balk > neutraal. Nooit twee balken met
+// twee streak-verhalen boven het spel: refreshRepairBanner wijkt bij `rescuable`,
+// de neutrale toon wijkt voor een lopende reparatie.
 const catchupDismissKey = () => `jaardle:catchupDismissed:${todayKey()}`;
 
 // Welke recente dagen kun je nog inhalen, en valt daarmee een streak te redden?
@@ -3141,6 +3101,20 @@ async function makeupRepairInfo() {
   return { eligible: true, days, rescuable: closed && streak >= 1, streak };
 }
 
+// De inhaal-stand zoals de oppervlakken hem nodig hebben: `days` zónder de pot
+// die nu op het scherm staat (die is klaar — daar wijzen we nooit naar terug) en
+// `closed` = is het gat daarmee dicht? Dat laatste is de waarheidstest voor
+// "streak gered": halverwege de keten is de streak nog niet veilig.
+// De filter is belt-and-braces — refreshCatchupBar draait ná recordDailyResult,
+// dat lokaal synchroon wegschrijft — maar de hertekening uit sb-auth-changed niet.
+async function catchupPending() {
+  let info;
+  try { info = await makeupRepairInfo(); } catch (e) { info = { eligible: false, days: [] }; }
+  const cur = state && state.done ? state.puzzleDate : null;
+  const days = (info.days || []).filter((d) => d !== cur);
+  return { ...info, days, closed: days.length === 0 };
+}
+
 // Start (of spring naar) de inhaalpot van een specifieke dag. Het daily-tabblad
 // blijft actief — het ís een daily. Zonder datum: gisteren (backwards-compat).
 function startMakeup(date) {
@@ -3149,100 +3123,78 @@ function startMakeup(date) {
   startGame("daily", false, null, d);
 }
 
-// Na een ingehaalde dag: chain naar de eerstvolgende nog-gemiste dag (oudste eerst,
-// zodat de streak aaneengesloten dichtgroeit), anders door naar de daily van vandaag.
-async function nextCatchupOrToday() {
-  let info;
-  try { info = await makeupRepairInfo(); } catch (e) { info = { days: [] }; }
-  // De zojuist ingehaalde dag kan nog als "gemist" meekomen (recordDailyResult
-  // racet met deze fetch) — nooit terug naar de dag die je net afrondde.
-  const remaining = (info.days || []).filter((d) => d !== (state && state.puzzleDate));
-  if (remaining.length) startMakeup(remaining[0]);
-  else switchMode("daily");
+// Afteller in de balk — alleen op de nacht dat er écht een dag uitvalt.
+let catchupCountdownTimer = null;
+function stopCatchupCountdown() {
+  if (catchupCountdownTimer) { clearInterval(catchupCountdownTimer); catchupCountdownTimer = null; }
 }
-
-// Als de "volgende"-knop op een inhaal-eindscherm nog een gemiste dag voor de boeg
-// heeft, benoem dat ("volgende gemiste dag"); anders blijft het "speel vandaag".
-async function refineCatchupNextBtn() {
-  let info;
-  try { info = await makeupRepairInfo(); } catch (e) { return; }
-  if (!state || !state.done || !isMakeup(state)) return;   // scherm intussen gewisseld
-  // Zelfde race als in nextCatchupOrToday: dit label draait vóórdat de zojuist
-  // ingehaalde dag in de historie staat — die dag is geen "volgende gemiste dag".
-  if ((info.days || []).some((d) => d !== state.puzzleDate)) els.nextBtn.textContent = t("catchup_next_btn");
-}
-
-// PUSH — de inhaal-kaart op het daily-eindscherm (alleen op de daily van VANDAAG;
-// op een inhaalpot zelf chaint de "volgende"-knop al). Reddbaar gat → vlam-urgentie
-// met alles-of-niets-frame; anders neutraal "speel ze alsnog". Per dag wegklikbaar.
-let catchupCardReq = 0;
-async function appendCatchupCard() {
-  const req = ++catchupCardReq;   // laatste aanroep wint (finishGame én sb-auth-changed roepen)
-  els.result.querySelectorAll(".catchup-card").forEach((e) => e.remove());
-  if (!auth.resolved || !state || state.mode !== "daily" || !state.done || isMakeup(state)) return;
-  let dismissed = false;
-  try { dismissed = !!localStorage.getItem(catchupDismissKey()); } catch (e) {}
-  if (dismissed) return;
-  let info;
-  try { info = await makeupRepairInfo(); } catch (e) { return; }
-  // Race-guard: nieuwere aanroep bezig, of eindscherm intussen weg/gewisseld.
-  if (req !== catchupCardReq) return;
-  if (!info.eligible || !info.days.length) return;
-  if (!state || !state.done || state.mode !== "daily" || isMakeup(state)) return;
-  const n = info.days.length;
-  const title = info.rescuable ? t("catchup_title_rescue")(info.streak) : t("catchup_title_plain");
-  const body  = info.rescuable ? t("catchup_body_rescue")(n, info.streak) : t("catchup_body_plain")(n);
-  const chips = info.days.map((d) =>
-    `<button type="button" class="catchup-day" data-date="${d}">${escHtml(t("catchup_play")(dayNumForKey(d)))}</button>`
-  ).join("");
-  const card = document.createElement("div");
-  card.className = "catchup-card" + (info.rescuable ? " catchup-rescue" : "");
-  card.innerHTML = `
-    <div class="catchup-head">
-      <span class="catchup-flame">${animEmojiHtml(info.rescuable ? "🔥" : "📅")}</span>
-      <div class="catchup-text">
-        <strong class="catchup-title">${escHtml(title)}</strong>
-        <span class="catchup-body">${escHtml(body)}</span>
-      </div>
-      <button class="catchup-dismiss" type="button" aria-label="${escHtml(t("aria_close"))}">✕</button>
-    </div>
-    <div class="catchup-days">${chips}</div>`;
-  armEmojiFallbacks(card);
-  card.querySelectorAll(".catchup-day").forEach((btn) => {
-    btn.onclick = () => startMakeup(btn.dataset.date);
-  });
-  card.querySelector(".catchup-dismiss").onclick = () => {
-    try { localStorage.setItem(catchupDismissKey(), "1"); } catch (e) {}
-    card.remove();
+function startCatchupCountdown() {
+  stopCatchupCountdown();
+  const span = document.querySelector("#catchup-bar .makeup-countdown");
+  if (!span) return;
+  const tick = () => {
+    const left = secsToNextDaily();
+    if (left <= 0) { stopCatchupCountdown(); refreshStreakBanners(); return; }   // dag voorbij
+    span.textContent = fmtCountdown(left);
   };
-  // Onder de actieknoppen (boven bron + aftelklok). Nog eens opruimen vlak vóór het
-  // toevoegen (synchroon, geen await meer) zodat een parallelle aanroep niet dubbelt.
-  els.result.querySelectorAll(".catchup-card").forEach((e) => e.remove());
-  (document.getElementById("result-actions") || els.source || els.resultText).after(card);
+  tick();
+  catchupCountdownTimer = setInterval(tick, 1000);
 }
 
-// PULL — de ‹ #N › voetnoot-stepper naast het daglabel. Verschijnt alleen als er
-// iets te bladeren valt: een inhaalbare dag in het venster, of je zít in een
-// inhaalpot. ‹ = een gemiste dag terug, › = een dag vooruit (richting vandaag).
-async function refreshDayNav() {
-  const prev = document.getElementById("day-prev");
-  const next = document.getElementById("day-next");
-  if (!prev || !next) return;
-  let info;
-  try { info = await makeupRepairInfo(); } catch (e) { info = { days: [] }; }
-  const days = info.days || [];
-  const onMakeup = isMakeup(state);
-  const cur = onMakeup ? state.puzzleDate : todayKey();
-  const older = days.filter((d) => d < cur);              // gemiste dagen vóór de huidige
-  const prevDay = older.length ? older[older.length - 1] : null;   // nieuwste daarvan
-  const newer = days.filter((d) => d > cur);              // gemiste dagen ná de huidige
-  const nextDay = newer.length ? newer[0] : (onMakeup ? todayKey() : null);
-  prev.hidden = !prevDay;
-  next.hidden = !nextDay;
-  prev.onclick = prevDay ? () => startMakeup(prevDay) : null;
-  next.onclick = nextDay
-    ? () => { if (nextDay === todayKey()) switchMode("daily"); else startMakeup(nextDay); }
-    : null;
+// Toon/verberg/vul de balk. Async: leest de (DB-)historie.
+async function refreshCatchupBar() {
+  const el = document.getElementById("catchup-bar");
+  if (!el) return;
+  const hide = () => { stopCatchupCountdown(); el.hidden = true; };
+  // Vóór het eerste auth-event weten we niet of de DB-historie (cross-device)
+  // leidend is; toon dan nog niets — de sb-auth-changed-handler roept ons zo
+  // opnieuw aan. Voorkomt de flits "haal gisteren in!" die weer verdwijnt zodra
+  // de DB meldt dat die dag elders al gespeeld is (v157).
+  if (!auth.resolved) return hide();
+  // Midden in een inhaalpot: geen ruis. Op het eindscherm ervan komt hij terug,
+  // dan wijzend op de volgende gemiste dag (dat ís de lus).
+  if (isMakeup(state) && !state.done) return hide();
+  const info = await catchupPending();
+  if (!info.days.length) return hide();
+  const rescue = !!info.rescuable;
+  if (!rescue) {
+    // Neutrale toon: wegklikbaar, en hij wijkt voor een lopende 5-potjes-
+    // reparatie — dát is dan het streak-verhaal, en een ingehaalde daily helpt
+    // er niets aan (reparatie telt vrij-spel-winsten). De reddings-toon gaat
+    // vóór alles: dat gat is nog echt te dichten.
+    let dismissed = false;
+    try { dismissed = !!localStorage.getItem(catchupDismissKey()); } catch (e) {}
+    if (dismissed) return hide();
+    let extras = NO_EXTRAS;
+    try { extras = await getStreakExtras(); } catch (e) {}
+    if (extras.repair) return hide();
+  }
+  const oldest = info.days[0];
+  const n = info.days.length;
+  // ⏳ alleen als er vanavond écht een dag uit het venster valt — dat is precies
+  // wanneer de oudste gemiste dag op de rand staat (vandaag − CATCHUP_WINDOW).
+  // Het venster schuift mee, dus op elke andere dag zou een afteller naar
+  // middernacht "nu of nooit" liegen terwijl er nog dagen slack zijn.
+  const expiring = oldest === shiftDay(todayKey(), -CATCHUP_WINDOW);
+  el.className = rescue ? "" : "catchup-plain";
+  el.innerHTML = `
+    <span class="makeup-flame">${animEmojiHtml(rescue ? "🔥" : "📅")}</span>
+    <div class="makeup-text">
+      <strong class="makeup-title">${escHtml(rescue ? t("catchup_title_rescue")(info.streak) : t("catchup_title_plain"))}</strong>
+      ${rescue && n > 1 ? `<span class="makeup-body">${escHtml(t("catchup_body_rescue")(n, info.streak))}</span>` : ""}
+      ${expiring ? `<span class="makeup-left">⏳ <span class="makeup-countdown"></span></span>` : ""}
+    </div>
+    <button class="makeup-cta" type="button">${escHtml(t("catchup_play")(dayNumForKey(oldest)))}</button>
+    ${rescue ? "" : `<button class="makeup-dismiss" type="button" aria-label="${escHtml(t("aria_close"))}">✕</button>`}`;
+  armEmojiFallbacks(el);
+  el.querySelector(".makeup-cta").onclick = () => startMakeup(oldest);
+  const x = el.querySelector(".makeup-dismiss");
+  if (x) x.onclick = () => {
+    try { localStorage.setItem(catchupDismissKey(), "1"); } catch (e) {}
+    hide();
+  };
+  el.hidden = false;
+  if (expiring) startCatchupCountdown(); else stopCatchupCountdown();
 }
 
 // --- 5-potjes-reparatie (streak terugverdienen, db/50) ----------------------
@@ -3280,8 +3232,8 @@ function stopRepairCountdown() {
   if (repairCountdownTimer) { clearInterval(repairCountdownTimer); repairCountdownTimer = null; }
 }
 
-// Toon/verberg de reparatie-uitnodiging. De inhaal-banner heeft voorrang: kan
-// het gat nog écht gedicht worden, dan is dat goedkoper (geen reparatie
+// Toon/verberg de reparatie-uitnodiging. De oranje inhaal-balk heeft voorrang:
+// kan het gat nog écht gedicht worden, dan is dat goedkoper (geen reparatie
 // verbruikt) én verdienstelijker. Start zo nodig de reparatie server-side —
 // de deadline is verankerd op de terugkeerdag, dus uitstel rekt niets op.
 async function refreshRepairBanner() {
@@ -3293,7 +3245,8 @@ async function refreshRepairBanner() {
     stopRepairCountdown(); el.hidden = true; return;
   }
   // Kan het gat nog via het 3-daagse inhaal-venster gedicht worden, dan is dát de
-  // goedkopere (en verdienstelijker) weg — geen reparatie tonen of starten.
+  // goedkopere (en verdienstelijker) weg — dan wint de oranje balk (redding) en
+  // tonen/starten we geen reparatie.
   try { if ((await makeupRepairInfo()).rescuable) { stopRepairCountdown(); el.hidden = true; return; } } catch (e) {}
   let extras = await getStreakExtras();
   if (!extras.repair && await repairEligibleLocally()) {
@@ -3329,12 +3282,12 @@ async function refreshRepairBanner() {
   el.hidden = false;
 }
 
-// Streak-oppervlakken bijwerken: de ‹ #N › inhaal-stepper (pull) en de
-// 5-potjes-reparatie-banner (die zichzelf verbergt als het gat nog inhaalbaar is).
-// De inhaal-PUSH (kaart) hangt aan het eindscherm (appendCatchupCard), niet hier.
+// Streak-oppervlakken bijwerken: de oranje inhaal-balk en de 5-potjes-reparatie-
+// banner (die zichzelf verbergt als het gat nog inhaalbaar is). Reparatie eerst:
+// de balk kijkt naar een lopende reparatie om de neutrale toon te onderdrukken.
 async function refreshStreakBanners() {
-  try { await refreshDayNav(); } catch (e) {}
   try { await refreshRepairBanner(); } catch (e) {}
+  try { await refreshCatchupBar(); } catch (e) {}
 }
 
 // Ná elke weggeschreven pot: verse reparatie-stand ophalen (het luie onderhoud
@@ -6191,11 +6144,15 @@ async function appendStreakLine(won) {
   if (!auth.resolved) return;
   let line;
   if (isMakeup(state)) {
-    // Inhaalpot: bij winst de (nu weer aaneengesloten) streak vieren als "gered".
+    // Inhaalpot: bij winst de (nu weer aaneengesloten) streak vieren als "gered"
+    // — maar alléén als het gat écht dicht is. Halverwege een keten van 2-3 dagen
+    // stond hier "Streak gered — 1 dag op rij" terwijl de volgende dag nog open
+    // was (relict van de gisteren-only-inhaal); dan zwijgen we en wijst de oranje
+    // balk de volgende dag aan.
     // Bij verlies: ving een leven het op (streak staat nog) → schild i.p.v. 💔;
     // pas als er echt niets meer staat, eerlijk melden dat het niet lukte.
     const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
-    if (won) line = t("streak_saved")(s.currentStreak);
+    if (won) line = (await catchupPending()).closed ? t("streak_saved")(s.currentStreak) : "";
     else if (s.currentStreak >= 1) line = t("streak_shield")(s.currentStreak, s.livesLeft);
     else line = t("streak_makeup_lost");
   } else {
@@ -7511,9 +7468,6 @@ async function init() {
   });
   els.shareBtn.addEventListener("click", () => doShare(els.shareBtn));
   els.nextBtn.addEventListener("click", () => {
-    // Na een inhaalpot: naar de eerstvolgende gemiste dag, anders de daily van
-    // vandaag (die houdt de streak levend).
-    if (isMakeup(state)) { nextCatchupOrToday(); return; }
     // Vanuit de daily wisselt het tabblad mee en loopt een onafgemaakt vrij spel
     // gewoon door; in vrij spel forceert de knop altijd een vers rondje.
     if (state?.mode === "daily") switchMode("free");
@@ -7637,7 +7591,7 @@ async function init() {
     // de streakregel is dan met local-only historie getekend (vaak "streak 1").
     // maybeRestoreDailyAfterLogin stopt bij state.done, dus herteken 'm hier met
     // de nu-gezaghebbende DB-historie (werkt ook bij uitloggen → terug naar local).
-    if (state?.done && state.mode === "daily") { appendStreakLine(state.won); appendCatchupCard(); }
+    if (state?.done && state.mode === "daily") appendStreakLine(state.won);
     // Historie-bron wisselde (login/logout) → herbeoordeel inhaal + reparatie.
     refreshStreakBanners();
   });
