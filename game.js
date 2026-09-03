@@ -4547,8 +4547,9 @@ async function showLiveRating() {
   num.className = "rating-num";
   num.textContent = String(prev ?? r.elo);
   el.append(label, num);
+  let badge = null;
   if (prev != null) {
-    const badge = document.createElement("span");
+    badge = document.createElement("span");
     badge.className = `rating-delta ${delta === 0 ? "zero" : delta > 0 ? "up" : "down"}`;
     badge.textContent = delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
     el.append(badge);
@@ -4566,18 +4567,67 @@ async function showLiveRating() {
   el.onclick = openRating;
   el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openRating(); } };
   els.resultText.after(el);
-  // Tel het getal van oud naar nieuw (ease-out); de delta-badge popt via CSS
-  // erachteraan. Bij reduced-motion of onbekende oude rating: meteen eindstand.
+  // Bij reduced-motion of onbekende oude rating: meteen de eindstand (badge erbij).
   const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-  if (delta === 0 || reduced) { num.textContent = String(r.elo); return; }
-  const dur = 1800, start = performance.now();
+  if (delta === 0 || reduced) {
+    num.textContent = String(r.elo);
+    if (badge) setTimeout(() => badge.classList.add("pop"), 150);
+    return;
+  }
+  animateRatingCount(el, num, badge, prev, r.elo);
+}
+
+// Timing van de ⚡-teller. De regel verschijnt zodra record_play klaar is, en dat
+// is juist het moment waarop de daily-recap of een unlock-kaart eroverheen kan
+// schuiven — of de regel staat op mobiel nog onder de vouw. Een teller die dan
+// meteen begint is al grotendeels klaar voor je kijkt: bij −4 zie je 'm oppikken
+// op −2. Daarom loopt de klok hieronder ALLEEN als de regel echt in beeld staat,
+// begint hij met een beat stilstand op de OUDE stand, en telt hij daarna met een
+// smoothstep (rustige start én landing, piektempo maar 1,5× het gemiddelde) op
+// een tempo per ratingpunt — zodat ook een daling van 3 zichtbaar stap voor stap
+// gaat in plaats van in één flits.
+const RATING_HOLD_MS = 550;    // stilstand op de oude stand voor het tellen begint
+const RATING_STEP_MS = 220;    // richttempo per ratingpunt
+const RATING_MIN_MS = 700, RATING_MAX_MS = 2000;
+const RATING_GIVEUP_MS = 120000;   // nooit in beeld gekomen: stil afronden
+
+// Staat de ⚡-regel daadwerkelijk voor de speler op het scherm? (geen modal
+// eroverheen, tab actief, en binnen de viewport)
+function ratingLineVisible(el) {
+  if (!el.isConnected || document.hidden) return false;
+  if ([...document.querySelectorAll(".modal")].some((m) => !m.hidden)) return false;
+  const r = el.getBoundingClientRect();
+  if (!r.width && !r.height) return false;
+  const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+  return r.bottom > 8 && r.top < vh - 8;
+}
+
+function animateRatingCount(line, num, badge, from, to) {
+  const delta = to - from;
+  const dur = Math.min(RATING_MAX_MS, Math.max(RATING_MIN_MS, Math.abs(delta) * RATING_STEP_MS));
+  let prevT = performance.now();
+  let elapsed = -RATING_HOLD_MS;   // negatieve tijd = de beat stilstand vooraf
+  let unseen = 0;
+  num.textContent = String(from);
   (function tick(now) {
-    const p = Math.min(1, (now - start) / dur);
-    const eased = 1 - Math.pow(1 - p, 3);
-    num.textContent = String(Math.round(prev + delta * eased));
+    if (!line.isConnected) return;   // nieuw potje begonnen — laat maar
+    const dt = Math.min(100, Math.max(0, now - prevT));   // na een tab-switch geen sprong
+    prevT = now;
+    if (ratingLineVisible(line)) {
+      unseen = 0;
+      if (badge) badge.classList.add("pop");   // de badge kondigt de beweging aan
+      elapsed += dt;
+    } else if ((unseen += dt) > RATING_GIVEUP_MS) {
+      num.textContent = String(to);
+      if (badge) badge.classList.add("pop");
+      return;
+    }
+    const p = Math.min(1, Math.max(0, elapsed / dur));
+    const eased = p * p * (3 - 2 * p);
+    num.textContent = String(Math.round(from + delta * eased));
     if (p < 1) requestAnimationFrame(tick);
     else num.classList.add("rating-num-settled");   // korte flash op de eindstand
-  })(start);
+  })(prevT);
 }
 
 // Cache de huidige rating zodat de volgende free-mode-pot een delta kan tonen.
