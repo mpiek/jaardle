@@ -249,7 +249,6 @@ const I18N = {
     catchup_title_plain: "Haal gemiste dagen in",
     catchup_play: (dayNum) => `Speel #${dayNum}`,
     streak_shield: (n, l) => `🛡️ Streak van ${n} ${n === 1 ? "dag" : "dagen"} behouden — nog ${l} ${l === 1 ? "leven" : "levens"}`,
-    streak_lives: (l) => `🛡️ nog ${l} ${l === 1 ? "leven" : "levens"}`,
     repair_title: "Win je streak terug",
     repair_body: (n, left) => `Win nog ${left} ${left === 1 ? "potje" : "potjes"} vrij spel en je streak van ${n} ${n === 1 ? "dag" : "dagen"} telt weer door.`,
     repair_meta: (done, need, days) => `${done}/${need} gewonnen · nog ${days} ${days === 1 ? "dag" : "dagen"}`,
@@ -480,7 +479,6 @@ const I18N = {
     catchup_title_plain: "Catch up missed days",
     catchup_play: (dayNum) => `Play #${dayNum}`,
     streak_shield: (n, l) => `🛡️ ${n}-day streak kept — ${l} ${l === 1 ? "life" : "lives"} left`,
-    streak_lives: (l) => `🛡️ ${l} ${l === 1 ? "life" : "lives"} left`,
     repair_title: "Win your streak back",
     repair_body: (n, left) => `Win ${left} more free-play ${left === 1 ? "game" : "games"} and your ${n}-day streak carries on.`,
     repair_meta: (done, need, days) => `${done}/${need} won · ${days} ${days === 1 ? "day" : "days"} left`,
@@ -705,7 +703,6 @@ const I18N = {
     catchup_title_plain: "Verpasste Tage nachholen",
     catchup_play: (dayNum) => `#${dayNum} spielen`,
     streak_shield: (n, l) => `🛡️ Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gehalten — noch ${l} Leben`,
-    streak_lives: (l) => `🛡️ noch ${l} Leben`,
     repair_title: "Hol dir deine Serie zurück",
     repair_body: (n, left) => `Gewinn noch ${left} ${left === 1 ? "Partie" : "Partien"} im freien Spiel und deine Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} läuft weiter.`,
     repair_meta: (done, need, days) => `${done}/${need} gewonnen · noch ${days} ${days === 1 ? "Tag" : "Tage"}`,
@@ -934,7 +931,6 @@ const I18N = {
     catchup_title_plain: "Recupera los días perdidos",
     catchup_play: (dayNum) => `Juega #${dayNum}`,
     streak_shield: (n, l) => `🛡️ Racha de ${n} ${n === 1 ? "día" : "días"} conservada — ${l === 1 ? "queda 1 vida" : `quedan ${l} vidas`}`,
-    streak_lives: (l) => l === 1 ? "🛡️ queda 1 vida" : `🛡️ quedan ${l} vidas`,
     repair_title: "Recupera tu racha",
     repair_body: (n, left) => `Gana ${left} ${left === 1 ? "partida" : "partidas"} más en juego libre y tu racha de ${n} ${n === 1 ? "día" : "días"} sigue contando.`,
     repair_meta: (done, need, days) => `${done}/${need} ganadas · ${days === 1 ? "queda 1 día" : `quedan ${days} días`}`,
@@ -1163,7 +1159,6 @@ const I18N = {
     catchup_title_plain: "Recupere os dias perdidos",
     catchup_play: (dayNum) => `Jogar #${dayNum}`,
     streak_shield: (n, l) => `🛡️ Sequência de ${n} ${n === 1 ? "dia" : "dias"} mantida — ${l === 1 ? "resta 1 vida" : `restam ${l} vidas`}`,
-    streak_lives: (l) => l === 1 ? "🛡️ resta 1 vida" : `🛡️ restam ${l} vidas`,
     repair_title: "Recupere sua sequência",
     repair_body: (n, left) => `Vença mais ${left} ${left === 1 ? "partida" : "partidas"} no jogo livre e sua sequência de ${n} ${n === 1 ? "dia" : "dias"} continua valendo.`,
     repair_meta: (done, need, days) => `${done}/${need} vencidas · ${days === 1 ? "resta 1 dia" : `restam ${days} dias`}`,
@@ -6123,13 +6118,13 @@ async function dailyHistoryForDisplay() {
 // De streak-regel voor het winmoment: bij winst de lopende streak (dag 1 krijgt
 // een "kom morgen terug"), bij verlies wat er sneuvelde (alleen als er iets
 // stónd — anders niets; het aftelklokje geeft de terugkeer-reden al).
-// Met levens (ingelogd): een vergeven verlies toont het schild i.p.v. 💔, en
-// zolang je niet op 3/3 staat hangt er een levens-suffix aan de winregel —
-// die dooft vanzelf uit zodra de levens terug zijn (30 dagen na het verlies).
+// Met levens (ingelogd): een vergeven verlies toont het schild i.p.v. 💔 — dát
+// moment noemt zelf hoeveel levens er nog zijn. De winregel zwijgt erover: een
+// levens-suffix die daarna 30 dagen lang op élke gewonnen dag terugkomt is
+// genag over iets waar je niets meer aan kunt doen.
 async function streakLineText(won) {
   const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
-  const lives = s.livesMax > 0 && s.livesLeft < s.livesMax ? ` · ${t("streak_lives")(s.livesLeft)}` : "";
-  if (won) return s.currentStreak >= 1 ? t("streak_won")(s.currentStreak) + lives : "";
+  if (won) return s.currentStreak >= 1 ? t("streak_won")(s.currentStreak) : "";
   if (s.currentStreak >= 1) return t("streak_shield")(s.currentStreak, s.livesLeft);
   return s.yesterdayStreak > 0 ? t("streak_lost")(s.yesterdayStreak) : "";
 }
