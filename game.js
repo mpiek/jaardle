@@ -189,6 +189,7 @@ const I18N = {
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
     lb_wk_punten: "punten",
     lb_recap_head: "Vorige week", lb_recap_view: "Bekijk het podium",
+    lb_pop_continue: "Verder", lb_pop_live: "Bekijk deze week",
     lb_wk_live_note: "Tussenstand — sluit over",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
     lb_wk_empty_h: "Geen podium deze week",
@@ -419,6 +420,7 @@ const I18N = {
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
     lb_wk_punten: "points",
     lb_recap_head: "Last week", lb_recap_view: "View the podium",
+    lb_pop_continue: "Continue", lb_pop_live: "See this week",
     lb_wk_live_note: "Live standings — locks in",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
     lb_wk_empty_h: "No podium this week",
@@ -643,6 +645,7 @@ const I18N = {
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
     lb_wk_punten: "Punkte",
     lb_recap_head: "Letzte Woche", lb_recap_view: "Podest ansehen",
+    lb_pop_continue: "Weiter", lb_pop_live: "Diese Woche ansehen",
     lb_wk_live_note: "Zwischenstand — schließt in",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
     lb_wk_empty_h: "Diese Woche kein Podest",
@@ -871,6 +874,7 @@ const I18N = {
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
     lb_wk_punten: "puntos",
     lb_recap_head: "La semana pasada", lb_recap_view: "Ver el podio",
+    lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
     lb_wk_live_note: "Clasificación en curso — se cierra en",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
     lb_wk_empty_h: "Sin podio esta semana",
@@ -1099,6 +1103,7 @@ const I18N = {
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
     lb_wk_punten: "pontos",
     lb_recap_head: "Semana passada", lb_recap_view: "Ver o pódio",
+    lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
     lb_wk_live_note: "Parcial — fecha em",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
     lb_wk_empty_h: "Sem pódio nesta semana",
@@ -2937,10 +2942,7 @@ function finishGame(won, fresh = false) {
         // Snelle speler kan inmiddels een nieuw potje zijn begonnen — dan is de
         // recap van dit feit niet meer aan de orde.
         if (!state || !state.done || `${state.mode}:${state.hashes?.[0]}` !== potKey) return;
-        // Weekpodium-recap stapelt onder een evt. unlock-kaart en verdringt — net als
-        // een unlock — de auto-open van de daily-recap (die blijft op de 📊-knop).
-        const podiumCard = showPodiumRecapCard();
-        if (hit || podiumCard) return;
+        if (hit) return;
         openDailyRecap();
       });
     }
@@ -3361,7 +3363,10 @@ let lbTabLoaded = new Set();           // welke tabbladen deze render al lui gel
 let pendingLbTab = null;               // ?leaderboard=podium → open direct op de podium-tab
 let pendingLbWeek = null;              // recap-weekblok → podium direct op de LIVE week (niet de laatst-afgeronde)
 let podiumConfRAF = null;              // rAF-handle van de doorlopende podium-confetti (stop = geen leak)
-let weekPodiumResult = null;           // {weekStart, hasResult, placements:[…]} van de laatst-afgeronde week, of null
+let weekPodiumResult = null;           // {weekStart, poolId, poolName, rows} = ONGEZIENE uitslag van de laatst-afgeronde week (server beslist, db/55), of null
+let podiumPendingReq = null;           // "<uid>:<weekStart>" die deze sessie al is opgehaald — sb-auth-changed vuurt 2-3× op load
+let podiumSeenReq = null;              // "<uid>:<weekStart>" die deze sessie al als gezien is gemeld (geen dubbele RPC)
+let podiumPopTimers = [];              // choreografie-timers van de pop-up (opruimen bij sluiten)
 // 1e week die het weekpodium telt (maandag, Europe/Amsterdam). Vóór deze week toont de
 // podium-tab een teaser — schone teamstart, iedereen op nul. Week 1 (27/7–2/8) is bewust
 // één week SUSPENSE: de eerste AFGERONDE uitslag + recap volgt pas op ma 3 aug. Week
@@ -3923,17 +3928,16 @@ function weekPodiumDefaultWeek() {
   return lastDone >= podiumMinWeek() ? lastDone : cur;
 }
 
-// Al gevierd? Eenmalige confetti (en later de recap-kaart) per gewonnen week,
-// bijgehouden per uid (of anon) in localStorage.
-function podiumSeenKey() { return `jaardle:podiumSeen:${auth.user ? auth.user.uid : "anon"}`; }
-function podiumSeen(ws) {
-  try { return (JSON.parse(localStorage.getItem(podiumSeenKey())) || []).includes(ws); } catch (e) { return false; }
-}
+// "Gezien" leeft server-side (profiles.podium_seen_week, db/55) — niet per apparaat,
+// dus telefoon én laptop krijgen hetzelfde feestje maar één keer. Markeren = de
+// ongeziene uitslag vergeten (stip dooft) + één RPC, gededupliceerd per sessie.
 function podiumMarkSeen(ws) {
-  try {
-    const a = JSON.parse(localStorage.getItem(podiumSeenKey())) || [];
-    if (!a.includes(ws)) { a.push(ws); localStorage.setItem(podiumSeenKey(), JSON.stringify(a.slice(-30))); }
-  } catch (e) {}
+  if (!auth.user || !ws) return;
+  if (weekPodiumResult && weekPodiumResult.weekStart === ws) { weekPodiumResult = null; renderPodiumDot(); }
+  const key = `${auth.user.uid}:${ws}`;
+  if (podiumSeenReq === key) return;
+  podiumSeenReq = key;
+  rpc("mark_podium_seen", { p_week: ws }).catch(() => { podiumSeenReq = null; });
 }
 
 // Gebruikte hints als iconen (⏩ "100 jaar later", 🧭 richting, 🏛️ eeuw, 🔢 laatste cijfer); leeg als geen.
@@ -4056,8 +4060,8 @@ async function loadPodium() {
   if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
   rows = Array.isArray(rows) ? rows : [];
   setBoard(content, podiumHtml(rows, isLive));
-  // Een afgeronde week bekeken = "gezien" → de verse-uitslag-stip dooft.
-  if (!isLive && !podiumSeen(lbWeekStart)) { podiumMarkSeen(lbWeekStart); renderPodiumDot(); }
+  // De verse (ongeziene) uitslag bekeken = "gezien" → stip dooft, server onthoudt het.
+  if (!isLive && weekPodiumResult && weekPodiumResult.weekStart === lbWeekStart) podiumMarkSeen(lbWeekStart);
   // Live tussenstand → tik de countdown naar de sluiting (maandag 12:00); een
   // afgeronde week beweegt niet meer en krijgt geen timer.
   if (isLive) { startPodiumCountdown(); } else { stopPodiumCountdown(); }
@@ -4098,18 +4102,20 @@ function startPodiumCountdown() {
 // rAF-lus / lek zodra je de podium-tab of het bord verlaat.
 function stopPodiumConfetti() {
   if (podiumConfRAF) { cancelAnimationFrame(podiumConfRAF); podiumConfRAF = null; }
-  document.querySelectorAll("#lb-body .lb-pod-conf").forEach((c) => c.remove());
+  document.querySelectorAll(".lb-pod-conf").forEach((c) => c.remove());
 }
 
-// Doorlopende, lichte dwarrel-confetti over het podium: een klein canvas over alléén
-// .lb-pod-stage met een VASTE pool van 14 deeltjes die telkens hergebruikt worden
-// (geen allocatie-groei → geen leak). De lus stopt zichzelf zodra het podium
-// onzichtbaar/weg is (tab-wissel, modal dicht, re-render) en respecteert
-// prefers-reduced-motion — phone-friendly, rAF pauzeert vanzelf op een achtergrond-tab.
-function showPodiumConfetti() {
+// Doorlopende, lichte dwarrel-confetti: een canvas over `host` (default: alléén de
+// .lb-pod-stage van de 🏟️-tab; de weekpodium-pop-up geeft z'n hele .modal mee) met
+// een VASTE pool deeltjes (14 op het podium, meer naar rato van oppervlak, max 36)
+// die telkens hergebruikt worden (geen allocatie-groei → geen leak). De lus stopt
+// zichzelf zodra het canvas onzichtbaar/weg is (tab-wissel, modal dicht, re-render)
+// en respecteert prefers-reduced-motion — phone-friendly, rAF pauzeert vanzelf op
+// een achtergrond-tab.
+function showPodiumConfetti(host) {
   stopPodiumConfetti();   // nooit twee lussen tegelijk
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const stage = document.querySelector("#lb-body .lb-pod-stage");
+  const stage = host || document.querySelector("#lb-body .lb-pod-stage");
   if (!stage) return;
   const dpr = Math.min(devicePixelRatio || 1, 2);
   const cv = document.createElement("canvas");
@@ -4131,10 +4137,11 @@ function showPodiumConfetti() {
     p.h = 6 + Math.random() * 4;
     p.color = COLORS[(Math.random() * COLORS.length) | 0];
   };
-  const parts = Array.from({ length: 14 }, () => { const p = {}; spawn(p, true); return p; });
+  const count = Math.min(36, Math.max(14, Math.round(14 * (W * H) / 75000)));   // podium ≈ 75k px² → 14
+  const parts = Array.from({ length: count }, () => { const p = {}; spawn(p, true); return p; });
   const step = () => {
     const pane = cv.closest(".lb-tabpane");
-    if (!cv.isConnected || document.getElementById("modal-leaderboard")?.hidden || (pane && pane.hidden)) {
+    if (!cv.isConnected || cv.closest(".modal")?.hidden || (pane && pane.hidden)) {
       stopPodiumConfetti();   // podium weg/onzichtbaar → stop netjes (geen achtergrond-lus)
       return;
     }
@@ -4165,7 +4172,8 @@ function wkDeltaHtml(r) {
 
 // Bouwt het podium (🥇 midden-hoog · 🥈 links · 🥉 rechts, alleen gevulde treden)
 // met dansende flair + naam, en daaronder de resterende rijen (rang 4+) mét hun
-// score/potjes/dagzeges — niet langer alleen "meegedaan".
+// score/potjes (+ 🏆 per dagzege) — niet langer alleen "meegedaan". Gedeeld door
+// de 🏟️-tab en de weekpodium-pop-up (showPodiumPopup).
 // Eén 🏆 per dagzege (dagen waarop je die week #1 stond in de pool), gecapt op 7
 // (max dagen/week). Gedeeld door het podiumblok en de recap-weekstand.
 function wkWinTrophies(dailyWins) {
@@ -4192,7 +4200,7 @@ function podiumHtml(rows, isLive) {
     const winsHtml = trophies
       ? `<div class="lb-pod-wins" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</div>`
       : "";
-    return `<div class="lb-pod-spot lb-pod-${tier}${r.is_me ? " lb-me" : ""}">` +
+    return `<div class="lb-pod-spot lb-pod-${tier}${r.is_me ? " lb-me" : ""}" data-rank="${r.rank}">` +
       `<div class="lb-pod-name">${titleBadgeHtml(r.title)}${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</div>` +
       `<div class="lb-pod-flair">${flairDance(r.flair)}</div>` +
       `<div class="lb-pod-block"><div class="lb-pod-medal">${medal}</div>` +
@@ -4200,7 +4208,9 @@ function podiumHtml(rows, isLive) {
       `<span class="lb-pod-u">${escHtml(t("lb_wk_punten"))}</span></div>${winsHtml}</div></div>`;
   }).join("");
   const rest = rows.slice(top.length);
-  const restStat = (r) => `${r.week_score} ${escHtml(t("lb_wk_punten"))} · ${escHtml(t("lb_games_short")(r.played))} · ${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}`;
+  // Compact: "0 dagzeges" drukte de naam weg ("Ma…" op 390px); trofeetjes alleen bij ≥1, zoals op de sokkels.
+  const restStat = (r) => `${r.week_score} ${escHtml(t("lb_wk_punten"))} · ${escHtml(t("lb_games_short")(r.played))}` +
+    (r.daily_wins > 0 ? ` · <span title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${wkWinTrophies(r.daily_wins)}</span>` : "");
   const restHtml = rest.length ? `<div class="lb-wk-rest">` + rest.map((r) =>
     `<div class="lb-wk-restrow${r.is_me ? " lb-me" : ""}">` +
     `<span class="lb-wk-rk">${r.rank}</span>` +
@@ -5334,68 +5344,113 @@ function renderAchvDot() {
   renderMenuDot();
 }
 
-// ── Weekpodium-surfacing: rode stip + recap-kaart ────────────────────────────
-// "Verse uitslag" = de laatst-AFGERONDE week (>= epoch) die je nog niet zag.
-function podiumHasNew() {
-  return !!(weekPodiumResult && weekPodiumResult.hasResult && !podiumSeen(weekPodiumResult.weekStart));
-}
+// ── Weekpodium-surfacing: pop-up bij openen + rode stip ──────────────────────
+// "Verse uitslag" = de laatst-AFGERONDE week die je nog niet zag. De SERVER beslist
+// (get_pending_podium, db/55: na ma 12:00, ≥ epoch, podium_seen_week < die week) en
+// geeft dan meteen de rijen mee — één roundtrip bij openen, geen polling, geen
+// localStorage. Stond jij die week op het bord → pop-up (voor iedereen die meedeed,
+// niet alleen top-3); anders alleen de stip als stil spoor. Sluiten = gezien.
+function podiumHasNew() { return !!weekPodiumResult; }
 function renderPodiumDot() {
   const has = podiumHasNew();
   document.querySelector('.menu-item[data-action="leaderboard"]')?.classList.toggle("has-new", has);
   document.querySelector('#lb-body .lb-seg-btn[data-tab="podium"]')?.classList.toggle("has-new", has);
   renderMenuDot();
 }
-// Haalt (max 1×/sessie/week) de uitslag van de laatst-afgeronde week op over al je pools.
-// Vóór de 1e afgeronde week (< epoch) of als je 'm al zag: niets → nul kosten (geen fetch).
+// Haalt (max 1×/sessie/week/speler) de ongeziene uitslag van de laatst-afgeronde week
+// op voor je ACTIEVE pool. Vóór de 1e afgeronde week (< epoch), op maandagochtend
+// (inhaal-venster tot 12:00, db/54) of zonder pool: niets → nul kosten (geen fetch).
 async function refreshWeekPodiumResult() {
   const lastDone = shiftDateKey(currentWeekStart(), -7);
-  // Vorige week is op maandagochtend nog niet dicht (inhaal-venster tot 12:00,
-  // db/54) — dan nog geen stip/recap: de uitslag zou nog kunnen kantelen.
-  if (!auth.user || lastDone < PODIUM_EPOCH || !weekIsFinal(lastDone) || podiumSeen(lastDone)) { weekPodiumResult = null; renderPodiumDot(); return; }
-  if (weekPodiumResult && weekPodiumResult.weekStart === lastDone) return;   // deze sessie al berekend
-  let pools = [];
-  try { pools = await rpc("my_pools", {}) || []; } catch (e) {}
-  if (!Array.isArray(pools) || !pools.length) { weekPodiumResult = null; renderPodiumDot(); return; }
-  let hasResult = false; const placements = [];
-  for (const p of pools) {
-    let rows = [];
-    try { rows = await rpc("get_pool_week_podium", { p_pool_id: p.id, p_week_start: lastDone }) || []; } catch (e) {}
-    if (!Array.isArray(rows)) continue;
-    if (rows.length) hasResult = true;
-    const me = rows.find((r) => r.is_me && r.rank <= 3);
-    if (me) placements.push({ poolName: p.name, rank: me.rank, weekScore: me.week_score });
-  }
-  placements.sort((a, b) => a.rank - b.rank);
-  weekPodiumResult = { weekStart: lastDone, hasResult, placements };
+  if (!auth.user || !myPool || lastDone < PODIUM_EPOCH || !weekIsFinal(lastDone)) { weekPodiumResult = null; renderPodiumDot(); return; }
+  const key = `${auth.user.uid}:${lastDone}`;
+  if (podiumPendingReq === key) return;   // deze sessie al opgehaald (of onderweg)
+  podiumPendingReq = key;
+  // Een deeplink (?join / ?leaderboard / ?rating …) wint van de pop-up: die opent zo
+  // z'n eigen scherm, de stip blijft als spoor. Vastleggen VÓÓR de await — de
+  // auth-handler consumeert de intenties direct na deze aanroep.
+  const deeplinked = !!(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal);
+  let rows = [];
+  try { rows = await rpc("get_pending_podium", { p_pool_id: myPool.id }) || []; }
+  catch (e) { podiumPendingReq = null; }   // netwerk-hik → volgende auth-event mag het opnieuw proberen
+  if (!Array.isArray(rows) || !rows.length) { weekPodiumResult = null; renderPodiumDot(); return; }
+  weekPodiumResult = { weekStart: rows[0].week_start || lastDone, poolId: myPool.id, poolName: myPool.name, rows };
   renderPodiumDot();
+  if (!deeplinked && rows.some((r) => r.is_me)) showPodiumPopup();
 }
-const podiumMedal = (r) => (r === 1 ? "🥇" : r === 2 ? "🥈" : "🥉");
-// Recap-kaart op het eindscherm: alleen als je in ≥1 pool top-3 stond en 'm nog niet zag.
-// Eén gecombineerde kaart (meerdere pools → "🥇 Team Jaardle · 🥉 Familie"). Tik → podium.
-function showPodiumRecapCard() {
+
+// De pop-up: een eigen .modal (dynamisch, niet in de template — géén i18n-placeholders
+// nodig), 1-op-1 het podium van de 🏟️-tab (podiumHtml) met de onthullings-choreografie
+// 🥉 → 🥈 → 🥇 (goud iets later dan het ritme) en confetti voor IEDEREEN: burst bij
+// goud (showConfetti, incl. flair-regen voor zilver-capstone) + dwarrel over het hele
+// scherm tot je sluit. Sluiten via ✕/Verder/Escape/achtergrond loopt via closeAllModals
+// → podiumPopClosed markeert gezien. Bewust "altijd direct", ook midden in een gok
+// (expliciete keuze 2026-09-06); alleen een al open scherm (deeplink/login) wint.
+function showPodiumPopup() {
   const res = weekPodiumResult;
-  if (!res || !res.placements.length || podiumSeen(res.weekStart)) return false;
-  podiumMarkSeen(res.weekStart);
-  renderPodiumDot();
-  const lines = res.placements.map((p) => `${podiumMedal(p.rank)} ${escHtml(p.poolName)}`).join(" · ");
-  const sub = res.placements.length === 1 ? escHtml(`${res.placements[0].weekScore} ${t("lb_wk_punten")}`) : "";
+  if (!res || document.getElementById("modal-podium-pop")) return;
+  if (document.querySelector(".modal:not([hidden])")) return;   // ander scherm open → stip blijft
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const el = document.createElement("div");
-  el.className = "lb-recap-card";
+  el.id = "modal-podium-pop";
+  el.className = "modal podpop" + (reduced ? "" : " podpop-anim");
+  el.hidden = true;
+  el.dataset.week = res.weekStart;
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "podpop-title");
   el.innerHTML =
-    `<div class="lb-recap-art">${podiumMedal(Math.min(...res.placements.map((p) => p.rank)))}</div>` +
-    `<div class="lb-recap-txt">` +
-      `<span class="lb-recap-head">🏟️ ${escHtml(t("lb_recap_head"))}</span>` +
-      `<span class="lb-recap-title">${lines}</span>` +
-      (sub ? `<span class="lb-recap-sub">${sub}</span>` : "") +
-    `</div><span class="lb-recap-go">${escHtml(t("lb_recap_view"))} ›</span>`;
-  const open = () => { pendingLbTab = "podium"; closeAllModals(); openModal("modal-leaderboard"); };
-  el.setAttribute("role", "button"); el.tabIndex = 0;
-  el.onclick = open;
-  el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
-  const anchor = els.resultText.querySelector(".score-line");
-  if (anchor) anchor.after(el); else els.resultText.append(el);
-  achvScrollIntoView(el);
-  return true;
+    `<div class="modal-backdrop" data-close></div>` +
+    `<div class="modal-card podpop-card">` +
+      `<button type="button" class="modal-close podpop-x" data-close aria-label="${escHtml(t("aria_close"))}">✕</button>` +
+      `<div class="podpop-head">` +
+        `<span class="podpop-eyebrow">🏟️ ${escHtml(t("lb_recap_head"))}</span>` +
+        `<h2 id="podpop-title" class="podpop-title">${escHtml(fmtWeekRange(res.weekStart))}</h2>` +
+        `<div class="podpop-sub">${escHtml(res.poolName)} <span class="lb-wk-pill done">${escHtml(t("lb_wk_done"))}</span></div>` +
+      `</div>` +
+      podiumHtml(res.rows, false) +
+      `<div class="podpop-foot">` +
+        `<button type="button" class="podpop-go" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
+        `<button type="button" class="podpop-live">${escHtml(t("lb_pop_live"))} ›</button>` +
+      `</div>` +
+    `</div>`;
+  document.body.appendChild(el);
+  el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeAllModals()));
+  el.querySelector(".podpop-live").addEventListener("click", () => {
+    pendingLbTab = "podium"; pendingLbWeek = currentWeekStart();   // van uitslag naar de nieuwe race
+    closeAllModals();
+    openModal("modal-leaderboard");
+  });
+  el.hidden = false;
+  lockBodyScroll();
+  requestAnimationFrame(() => el.classList.add("in"));
+  if (reduced) {   // alles meteen, geen confetti
+    el.querySelectorAll(".lb-pod-spot, .lb-wk-restrow, .lb-wk-note, .podpop-foot").forEach((n) => n.classList.add("in"));
+    return;
+  }
+  const at = (ms, fn) => podiumPopTimers.push(setTimeout(fn, ms));
+  // Sokkels van laag naar hoog (adaptief: 1, 2 of 3 treden; gedeelde plekken samen).
+  const spots = [...el.querySelectorAll(".lb-pod-spot")].sort((a, b) => +b.dataset.rank - +a.dataset.rank);
+  const last = spots.length - 1;
+  const lastAt = 700 + last * 400 + 200;
+  spots.forEach((sp, i) => at(i === last ? lastAt : 700 + i * 400, () => {
+    sp.classList.add("in");
+    if (i === last) { showConfetti(); showPodiumConfetti(el); }
+  }));
+  at(lastAt + 500, () => {
+    el.querySelector(".lb-wk-note")?.classList.add("in");
+    el.querySelectorAll(".lb-wk-restrow").forEach((r, i) => at(60 * i, () => r.classList.add("in")));
+    at(250, () => el.querySelector(".podpop-foot")?.classList.add("in"));
+  });
+}
+// Sluit-hook vanuit closeModal/closeAllModals (zelfde patroon als achvPanelClosed):
+// pop-up dicht = gezien (server), confetti + timers stoppen, element opruimen.
+function podiumPopClosed() {
+  const el = document.getElementById("modal-podium-pop");
+  if (!el || !el.hidden) return;
+  podiumPopTimers.forEach(clearTimeout); podiumPopTimers = [];
+  stopPodiumConfetti();
+  const ws = el.dataset.week;
+  el.remove();
+  podiumMarkSeen(ws);
 }
 
 // ── unlock-items: één kaart + smalle regels ───────────────────────────────────
@@ -6937,6 +6992,7 @@ function openModal(id, opts) {
 function closeModal(id) {
   document.getElementById(id).hidden = true;
   if (id === "modal-achv") achvPanelClosed();
+  if (id === "modal-podium-pop") podiumPopClosed();
   if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden)) unlockBodyScroll();
   setModalUrl(null);
 }
@@ -6945,6 +7001,7 @@ function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
   unlockBodyScroll();
   achvPanelClosed();   // NIEUW-markeringen die je gezien hebt, zijn hiermee gezien
+  podiumPopClosed();   // weekpodium-pop-up dicht = uitslag gezien (server-side)
   setModalUrl(null);
 }
 
@@ -7573,7 +7630,7 @@ async function init() {
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
-    refreshWeekPodiumResult(); // verse-weekuitslag-stip (fire-and-forget; nul kosten vóór de 1e afgeronde week)
+    refreshWeekPodiumResult(); // verse-weekuitslag: pop-up + stip (fire-and-forget; nul kosten vóór de 1e afgeronde week / ma-ochtend)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");

@@ -1984,22 +1984,39 @@ footer {
   background: var(--achv-new); box-shadow: 0 0 0 2px var(--card);
 }
 
-/* weekpodium-recap-kaart op het eindscherm (pal onder .score-line) */
-.lb-recap-card {
-  display: flex; align-items: center; gap: 0.7rem;
-  margin: 0.6rem auto 0; max-width: 22rem; padding: 0.65rem 0.9rem;
-  border: 1px solid color-mix(in srgb, var(--gold-text) 45%, var(--border));
-  border-radius: 0.7rem;
-  background: color-mix(in srgb, var(--gold-text) 8%, var(--card));
-  cursor: pointer; text-align: left;
+/* ── Weekpodium-pop-up (v233): automatische onthulling van vorige week bij openen.
+   Eigen .modal, dynamisch aangemaakt (showPodiumPopup); het podium zelf is de
+   ongewijzigde .lb-pod-*-opzet van de 🏟️-tab. Kaart schuift omhoog, sokkels groeien
+   uit de vloer (🥉 → 🥈 → 🥇), daarna druppelen de rest-rijen + knop binnen. ── */
+.podpop .modal-card { padding: 1rem 0.9rem 0.9rem; max-width: 26rem; }
+.podpop-card { opacity: 0; transform: translateY(28px) scale(0.98); transition: opacity 0.35s ease, transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.podpop.in .podpop-card { opacity: 1; transform: none; }
+.podpop .modal-backdrop { opacity: 0; transition: opacity 0.25s ease; }
+.podpop.in .modal-backdrop { opacity: 1; }
+.podpop-x { position: absolute; top: 0.4rem; right: 0.4rem; z-index: 1; }
+.podpop-head { text-align: center; display: flex; flex-direction: column; gap: 0.2rem; padding: 0.2rem 1.6rem 0.6rem; }
+.podpop-eyebrow { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.podpop-title { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; text-wrap: balance; }
+.podpop-sub { color: var(--muted); font-size: 0.85rem; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 0.45rem; }
+.podpop-foot { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding-top: 0.9rem; }
+.podpop-go { width: 100%; background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 0.8rem 1rem; font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
+.podpop-go:hover { filter: brightness(1.07); }
+.podpop-go:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.podpop-live { background: none; border: 0; color: var(--muted); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 6px; }
+.podpop-live:hover, .podpop-live:focus-visible { color: var(--accent); outline: none; }
+.podpop .lb-pod-conf { z-index: 3; }   /* dwarrel over het hele scherm, bóven de kaart */
+/* choreografie (alleen zonder prefers-reduced-motion: dan ontbreekt .podpop-anim en staat alles er meteen) */
+.podpop-anim .lb-pod-block { transform: scaleY(0); transform-origin: bottom center; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.15); }
+.podpop-anim .lb-pod-block > * { opacity: 0; transition: opacity 0.25s ease 0.3s; }
+.podpop-anim .lb-pod-name, .podpop-anim .lb-pod-flair { opacity: 0; transform: translateY(8px); transition: opacity 0.3s ease 0.35s, transform 0.3s ease 0.35s; }
+.podpop-anim .lb-pod-spot.in .lb-pod-block { transform: none; }
+.podpop-anim .lb-pod-spot.in .lb-pod-block > *, .podpop-anim .lb-pod-spot.in .lb-pod-name, .podpop-anim .lb-pod-spot.in .lb-pod-flair { opacity: 1; transform: none; }
+.podpop-anim .lb-pod-spot.in .lb-pod-u { opacity: 0.75; }   /* ná de > *-regel: label houdt z'n gedempte tint */
+.podpop-anim .lb-wk-restrow, .podpop-anim .lb-wk-note, .podpop-anim .podpop-foot { opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease, transform 0.3s ease; }
+.podpop-anim .lb-wk-restrow.in, .podpop-anim .lb-wk-note.in, .podpop-anim .podpop-foot.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .podpop-card, .podpop .modal-backdrop { transition: none; }
 }
-.lb-recap-card:hover { border-color: var(--gold-text); }
-.lb-recap-art { font-size: 1.9rem; line-height: 1; flex: none; }
-.lb-recap-txt { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; flex: 1; }
-.lb-recap-head { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.lb-recap-title { font-size: 0.95rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
-.lb-recap-sub { font-size: 0.78rem; color: var(--muted); }
-.lb-recap-go { flex: none; color: var(--gold-text); font-size: 0.8rem; font-weight: 650; white-space: nowrap; }
 
 .lb-table { display: flex; flex-direction: column; gap: 2px; }
 /* Bord dat op nieuwe data wacht: oude lijst blijft gedimd staan (geen inklap-sprong). */
