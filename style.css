@@ -1989,7 +1989,8 @@ footer {
    Eigen .modal, dynamisch aangemaakt (showPodiumPopup); het podium zelf is de
    ongewijzigde .lb-pod-*-opzet van de 🏟️-tab. Kaart schuift omhoog, sokkels groeien
    uit de vloer (🥉 → 🥈 → 🥇), daarna druppelen de rest-rijen + knop binnen. ── */
-.podpop .modal-card { padding: 1rem 0.9rem 0.9rem; max-width: 26rem; }
+.podpop .modal-card { padding: 0; max-width: 26rem; overflow: hidden; display: flex; flex-direction: column; }   /* vaste schil: canvas blijft staan, rondingen knippen 'm */
+.podpop-scroll { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 1rem 0.9rem 0.9rem; }
 .podpop-card { opacity: 0; transform: translateY(28px) scale(0.98); transition: opacity 0.35s ease, transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .podpop.in .podpop-card { opacity: 1; transform: none; }
 .podpop .modal-backdrop { opacity: 0; transition: opacity 0.25s ease; }
@@ -2005,7 +2006,7 @@ footer {
 .podpop-go:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .podpop-live { background: none; border: 0; color: var(--muted); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 6px; }
 .podpop-live:hover, .podpop-live:focus-visible { color: var(--accent); outline: none; }
-.podpop .lb-pod-conf { z-index: 3; }   /* dwarrel over het hele scherm, bóven de kaart */
+.podpop .lb-pod-conf { z-index: 3; }   /* confetti-canvas over de kaart (niet de pagina), bóven de inhoud */
 /* choreografie (alleen zonder prefers-reduced-motion: dan ontbreekt .podpop-anim en staat alles er meteen) */
 .podpop-anim .lb-pod-block { transform: scaleY(0); transform-origin: bottom center; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.15); }
 .podpop-anim .lb-pod-block > * { opacity: 0; transition: opacity 0.25s ease 0.3s; }

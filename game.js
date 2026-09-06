@@ -4112,7 +4112,7 @@ function stopPodiumConfetti() {
 // zichzelf zodra het canvas onzichtbaar/weg is (tab-wissel, modal dicht, re-render)
 // en respecteert prefers-reduced-motion — phone-friendly, rAF pauzeert vanzelf op
 // een achtergrond-tab.
-function showPodiumConfetti(host) {
+function showPodiumConfetti(host, opts = {}) {
   stopPodiumConfetti();   // nooit twee lussen tegelijk
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const stage = host || document.querySelector("#lb-body .lb-pod-stage");
@@ -4139,6 +4139,17 @@ function showPodiumConfetti(host) {
   };
   const count = Math.min(36, Math.max(14, Math.round(14 * (W * H) / 75000)));   // podium ≈ 75k px² → 14
   const parts = Array.from({ length: count }, () => { const p = {}; spawn(p, true); return p; });
+  // Eenmalige burst uit het midden van de host (opts.burst, de pop-up): 80 stukjes
+  // die omhoog spatten, met zwaartekracht en draai terugvallen en onderweg doven —
+  // Matthijs koos deze mockup-versie boven de standaard "val van boven" (showConfetti),
+  // en hij blijft zo binnen de kaart. Zelfde canvas en lus als de dwarrel.
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const BURST = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff"];
+  let burst = opts.burst ? Array.from({ length: 80 }, () => ({
+    x: W * 0.5 + rnd(-40, 40), y: H * 0.35, vx: rnd(-6, 6), vy: rnd(-11, -3),
+    rot: Math.random() * 6.28, vr: rnd(-0.2, 0.2), w: rnd(5, 9), h: rnd(8, 14),
+    color: BURST[(Math.random() * BURST.length) | 0], life: 0,
+  })) : [];
   const step = () => {
     const pane = cv.closest(".lb-tabpane");
     if (!cv.isConnected || cv.closest(".modal")?.hidden || (pane && pane.hidden)) {
@@ -4146,6 +4157,17 @@ function showPodiumConfetti(host) {
       return;
     }
     ctx.clearRect(0, 0, W, H);
+    if (burst.length) {
+      burst = burst.filter((p) => p.y < H + 20);   // onder de rand = klaar (array krimpt naar 0)
+      for (const p of burst) {
+        p.vy += 0.22; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0, Math.min(1, 1.6 - p.y / H));
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * (0.4 + 0.6 * Math.abs(Math.cos(p.life / 9))));
+        ctx.restore();
+      }
+    }
     for (const p of parts) {
       p.y += p.vy; p.ph += 0.06; p.x += Math.sin(p.ph) * 0.5;
       if (p.y >= ground) { spawn(p, false); continue; }   // hergebruik i.p.v. wegnemen
@@ -5381,9 +5403,11 @@ async function refreshWeekPodiumResult() {
 
 // De pop-up: een eigen .modal (dynamisch, niet in de template — géén i18n-placeholders
 // nodig), 1-op-1 het podium van de 🏟️-tab (podiumHtml) met de onthullings-choreografie
-// 🥉 → 🥈 → 🥇 (goud iets later dan het ritme) en confetti voor IEDEREEN: burst bij
-// goud (showConfetti, incl. flair-regen voor zilver-capstone) + dwarrel over het hele
-// scherm tot je sluit. Sluiten via ✕/Verder/Escape/achtergrond loopt via closeAllModals
+// 🥉 → 🥈 → 🥇 (goud iets later dan het ritme) en confetti voor IEDEREEN, BINNEN de
+// kaart (niet over de pagina — expliciete wens): burst uit het midden bij goud + dwarrel
+// tot je sluit, één canvas over de kaart. De kaart is daarvoor een vaste schil
+// (overflow hidden, rondingen knippen het canvas) met een eigen scroller erin.
+// Sluiten via ✕/Verder/Escape/achtergrond loopt via closeAllModals
 // → podiumPopClosed markeert gezien. Bewust "altijd direct", ook midden in een gok
 // (expliciete keuze 2026-09-06); alleen een al open scherm (deeplink/login) wint.
 function showPodiumPopup() {
@@ -5401,6 +5425,7 @@ function showPodiumPopup() {
     `<div class="modal-backdrop" data-close></div>` +
     `<div class="modal-card podpop-card">` +
       `<button type="button" class="modal-close podpop-x" data-close aria-label="${escHtml(t("aria_close"))}">✕</button>` +
+      `<div class="podpop-scroll">` +
       `<div class="podpop-head">` +
         `<span class="podpop-eyebrow">🏟️ ${escHtml(t("lb_recap_head"))}</span>` +
         `<h2 id="podpop-title" class="podpop-title">${escHtml(fmtWeekRange(res.weekStart))}</h2>` +
@@ -5410,6 +5435,7 @@ function showPodiumPopup() {
       `<div class="podpop-foot">` +
         `<button type="button" class="podpop-go" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
         `<button type="button" class="podpop-live">${escHtml(t("lb_pop_live"))} ›</button>` +
+      `</div>` +
       `</div>` +
     `</div>`;
   document.body.appendChild(el);
@@ -5433,7 +5459,7 @@ function showPodiumPopup() {
   const lastAt = 700 + last * 400 + 200;
   spots.forEach((sp, i) => at(i === last ? lastAt : 700 + i * 400, () => {
     sp.classList.add("in");
-    if (i === last) { showConfetti(); showPodiumConfetti(el); }
+    if (i === last) showPodiumConfetti(el.querySelector(".podpop-card"), { burst: true });
   }));
   at(lastAt + 500, () => {
     el.querySelector(".lb-wk-note")?.classList.add("in");
