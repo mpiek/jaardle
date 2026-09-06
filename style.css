@@ -1919,6 +1919,7 @@ footer {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;   /* vult de naam de kolom (titel-pil + naam), dan blijft hij gecentreerd i.p.v. links */
 }
 .lb-pod-spot.lb-me .lb-pod-name { color: var(--accent); }
 .lb-pod-flair { font-size: 1.9rem; line-height: 1; margin-bottom: 0.35rem; min-height: 1.9rem; }
@@ -2107,12 +2108,13 @@ footer {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  vertical-align: 0.05em;
+  line-height: 1.2;
+  vertical-align: middle;   /* optisch op de x-hoogte van de naam, niet op de baseline (zakte weg) */
   border-radius: 4px;
   cursor: help;
   -webkit-tap-highlight-color: transparent;
 }
-.lb-title-obs { background: #1f0f26; color: #e8c86a; border: 1px solid #c9a227; }
+.lb-title-gm { background: #1f0f26; color: #e8c86a; border: 1px solid #c9a227; }   /* Grootmeester: nachtpaars + goud */
 /* Uitleg bij aantikken. Bewust een los element aan <body> met position: fixed
    in plaats van een ::after op de pil: .lb-name heeft overflow: hidden (daar
    worden lange namen afgekapt) en knipt een ::after tot een paar pixels weg. */

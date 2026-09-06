@@ -298,7 +298,7 @@ const I18N = {
     // Het getal in _sub moet gelijklopen met OBSIDIAN_AT en award_titles() in db/43.
     achv_t_obsidian: "Obsidiaan", achv_t_obsidian_sub: "bereik ooit een rating van 1925",
     achv_title_wear: (code) => `${code} dragen`,
-    title_obs_note: "Obsidiaan — de zeldzaamste rating-prestatie.",
+    title_gm_note: "Grootmeester",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "gok zowel te vroeg als te laat vóór de winst",
     achv_t_nailbiter: "Nagelbijter", achv_t_nailbiter_sub: "win na 2× nog maar net mis (≤2 jaar)",
     achv_t_week: "Perfecte week", achv_t_week_sub: "win alle 7 dailies van één week (ma–zo)",
@@ -528,7 +528,7 @@ const I18N = {
     achv_t_eras: "Time traveller", achv_t_eras_sub: "win in each of the 6 eras",
     achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "reach a rating of 1925",
     achv_title_wear: (code) => `Wear ${code}`,
-    title_obs_note: "Obsidian — the rarest rating achievement.",
+    title_gm_note: "Grandmaster",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "guess both too early and too late before winning",
     achv_t_nailbiter: "Tightrope", achv_t_nailbiter_sub: "win after missing by ≤2 years, twice",
     achv_t_week: "Perfect week", achv_t_week_sub: "win all 7 dailies in one week (Mon–Sun)",
@@ -753,7 +753,7 @@ const I18N = {
     achv_t_eras: "Zeitreisender", achv_t_eras_sub: "gewinne in allen 6 Epochen",
     achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "erreiche eine Wertung von 1925",
     achv_title_wear: (code) => `${code} tragen`,
-    title_obs_note: "Obsidian — die seltenste Wertungs-Auszeichnung.",
+    title_gm_note: "Großmeister",
     achv_t_zigzag: "Zickzack", achv_t_zigzag_sub: "rate vor dem Sieg sowohl zu früh als auch zu spät",
     achv_t_nailbiter: "Drahtseilakt", achv_t_nailbiter_sub: "gewinne, nachdem du 2× nur knapp (≤2 Jahre) danebenlagst",
     achv_t_week: "Perfekte Woche", achv_t_week_sub: "gewinne alle 7 Dailies einer Woche (Mo–So)",
@@ -982,7 +982,7 @@ const I18N = {
     achv_t_eras: "Viajero del tiempo", achv_t_eras_sub: "gana en cada una de las 6 épocas",
     achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcanza una puntuación de 1925",
     achv_title_wear: (code) => `Llevar ${code}`,
-    title_obs_note: "Obsidiana: el logro de puntuación más raro.",
+    title_gm_note: "Gran Maestro",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "adivina antes de ganar tanto demasiado pronto como demasiado tarde",
     achv_t_nailbiter: "Cuerda floja", achv_t_nailbiter_sub: "gana tras fallar por ≤2 años, dos veces",
     achv_t_week: "Semana perfecta", achv_t_week_sub: "gana los 7 retos diarios de una semana (lun–dom)",
@@ -1211,7 +1211,7 @@ const I18N = {
     achv_t_eras: "Viajante do tempo", achv_t_eras_sub: "vença em cada uma das 6 eras",
     achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcance um rating de 1925",
     achv_title_wear: (code) => `Usar ${code}`,
-    title_obs_note: "Obsidiana — a conquista de rating mais rara.",
+    title_gm_note: "Grande Mestre",
     achv_t_zigzag: "Ziguezague", achv_t_zigzag_sub: "chute antes de vencer tanto cedo demais quanto tarde demais",
     achv_t_nailbiter: "Corda bamba", achv_t_nailbiter_sub: "vença após errar por ≤2 anos, duas vezes",
     achv_t_week: "Semana perfeita", achv_t_week_sub: "vença os 7 desafios diários de uma semana (seg–dom)",
@@ -3524,20 +3524,20 @@ document.addEventListener("mouseout", (e) => {
 // Lichess-model: een korte code vóór de naam, eigen kleur per titel. De code
 // komt van de server (profiles.title, gegate in set_my_title) en is bewust géén
 // onderdeel van de naam-string: set_my_username accepteert [A-Za-z0-9 _-], dus
-// "OBS Matthijs" is een geldige gebruikersnaam. Alleen een apart element met
+// "GM Matthijs" is een geldige gebruikersnaam. Alleen een apart element met
 // eigen styling is dus vervalsingsbestendig.
 //
 // note = wat je ziet als je de pil aanraakt. Buiten de diamant-poort krijg je
 // naam en aard, niet de drempel — zie de trofee zelf voor het getal.
 const TITLES = {
-  OBS: { cls: "lb-title-obs", note: "title_obs_note" },
+  GM: { cls: "lb-title-gm", note: "title_gm_note" },   // Grootmeester (verdiend met de Obsidiaan-trofee, db/56)
 };
 function titleBadgeHtml(code) {
   const def = TITLES[code];
   if (!def) return "";
   const note = t(def.note);
   return `<button type="button" class="lb-title ${def.cls}" data-note="${escHtml(note)}"` +
-    ` aria-label="${escHtml(note)}">${escHtml(code)}</button> `;
+    ` aria-label="${escHtml(note)}">${escHtml(code)}</button>`;
 }
 
 // Uitleg-bubbel bij een titel-pil: één gedeeld element aan <body>, fixed
@@ -4888,7 +4888,7 @@ const ACHV_TROPHIES = [
   // weight 10 > alles (diamant = 6, zegel = 4): de zeldzaamste prestatie van het
   // spel mag nooit door een toevallig jaar-zegel van de unlock-kaart geduwd worden.
   { key: "obsidian",  i18n: "achv_t_obsidian", art: "chest", lockedArt: "chest-closed",
-    authOnly: true, weight: 10, titleCode: "OBS",
+    authOnly: true, weight: 10, titleCode: "GM",
     reveal: (a) => (a.rating || 0) >= OBSIDIAN_REVEAL },
 ];
 // 1900 → 1925 (db/48): de rating-verruimingen van 30-07 tilden het haalbare plafond tot
@@ -4898,7 +4898,7 @@ const ACHV_TROPHIES = [
 // valt 1925 met ~31% binnen 500 potten en 88% binnen 2000 (jagen met een echte kans),
 // terwijl 1950 op 1% over 2000 potten uitkwam: geen zeldzame trofee maar een dode.
 // Bij wijziging: award_titles() in db/48 én het getal in achv_t_obsidian_sub (5 talen).
-const OBSIDIAN_AT     = 1925;   // moet gelijklopen met award_titles() in db/48
+const OBSIDIAN_AT     = 1925;   // moet gelijklopen met award_titles() in db/56 (was db/48)
 // Reveal bewust NIET meeverhoogd: bij de omzetting stond er al iemand boven 1850, en dan
 // zou de trofee weer verdwijnen bij wie hem al kon zien.
 const OBSIDIAN_REVEAL = 1850;   // = de diamant-trede van de rating-ladder
