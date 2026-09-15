@@ -297,8 +297,12 @@ const I18N = {
     achv_t_eras: "Tijdreiziger", achv_t_eras_sub: "win in elk van de 6 tijdperken",
     // Het getal in _sub moet gelijklopen met OBSIDIAN_AT en award_titles() in db/43.
     achv_t_obsidian: "Obsidiaan", achv_t_obsidian_sub: "bereik ooit een rating van 1925",
+    // Getal in _sub moet gelijklopen met GM_AT en award_titles() in db/59.
+    achv_t_legend: "Legende", achv_t_legend_sub: "bereik ooit een rating van 2000",
     achv_title_wear: (code) => `${code} dragen`,
     title_gm_note: "Grootmeester",
+    title_jm_note: "Jaardle Master",
+    cor_reached: "Gefeliciteerd — je hoort nu bij de allerbesten van Jaardle. Je titel staat voortaan naast je naam op de borden. Bedankt dat je speelt!",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "gok zowel te vroeg als te laat vóór de winst",
     achv_t_nailbiter: "Nagelbijter", achv_t_nailbiter_sub: "win na 2× nog maar net mis (≤2 jaar)",
     achv_t_week: "Perfecte week", achv_t_week_sub: "win alle 7 dailies van één week (ma–zo)",
@@ -527,8 +531,11 @@ const I18N = {
     achv_t_saver: "Rescue mission", achv_t_saver_sub: "save a streak with the make-up daily",
     achv_t_eras: "Time traveller", achv_t_eras_sub: "win in each of the 6 eras",
     achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "reach a rating of 1925",
+    achv_t_legend: "Legend", achv_t_legend_sub: "reach a rating of 2000",
     achv_title_wear: (code) => `Wear ${code}`,
     title_gm_note: "Grandmaster",
+    title_jm_note: "Jaardle Master",
+    cor_reached: "Congratulations — you're now among the very best of Jaardle. Your title will sit next to your name on the boards from now on. Thanks for playing!",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "guess both too early and too late before winning",
     achv_t_nailbiter: "Tightrope", achv_t_nailbiter_sub: "win after missing by ≤2 years, twice",
     achv_t_week: "Perfect week", achv_t_week_sub: "win all 7 dailies in one week (Mon–Sun)",
@@ -752,8 +759,11 @@ const I18N = {
     achv_t_saver: "Rettungsaktion", achv_t_saver_sub: "rette eine Serie mit dem Nachhol-Rätsel",
     achv_t_eras: "Zeitreisender", achv_t_eras_sub: "gewinne in allen 6 Epochen",
     achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "erreiche eine Wertung von 1925",
+    achv_t_legend: "Legende", achv_t_legend_sub: "erreiche eine Wertung von 2000",
     achv_title_wear: (code) => `${code} tragen`,
     title_gm_note: "Großmeister",
+    title_jm_note: "Jaardle Master",
+    cor_reached: "Glückwunsch — du gehörst jetzt zu den Allerbesten bei Jaardle. Dein Titel steht ab jetzt neben deinem Namen auf den Ranglisten. Danke, dass du spielst!",
     achv_t_zigzag: "Zickzack", achv_t_zigzag_sub: "rate vor dem Sieg sowohl zu früh als auch zu spät",
     achv_t_nailbiter: "Drahtseilakt", achv_t_nailbiter_sub: "gewinne, nachdem du 2× nur knapp (≤2 Jahre) danebenlagst",
     achv_t_week: "Perfekte Woche", achv_t_week_sub: "gewinne alle 7 Dailies einer Woche (Mo–So)",
@@ -981,8 +991,11 @@ const I18N = {
     achv_t_saver: "Rescate", achv_t_saver_sub: "salva una racha con el puzle de recuperación",
     achv_t_eras: "Viajero del tiempo", achv_t_eras_sub: "gana en cada una de las 6 épocas",
     achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcanza una puntuación de 1925",
+    achv_t_legend: "Leyenda", achv_t_legend_sub: "alcanza una puntuación de 2000",
     achv_title_wear: (code) => `Llevar ${code}`,
     title_gm_note: "Gran Maestro",
+    title_jm_note: "Jaardle Master",
+    cor_reached: "¡Enhorabuena! Ahora estás entre los mejores de Jaardle. Tu título aparecerá junto a tu nombre en las clasificaciones. ¡Gracias por jugar!",
     achv_t_zigzag: "Zigzag", achv_t_zigzag_sub: "adivina antes de ganar tanto demasiado pronto como demasiado tarde",
     achv_t_nailbiter: "Cuerda floja", achv_t_nailbiter_sub: "gana tras fallar por ≤2 años, dos veces",
     achv_t_week: "Semana perfecta", achv_t_week_sub: "gana los 7 retos diarios de una semana (lun–dom)",
@@ -1210,8 +1223,11 @@ const I18N = {
     achv_t_saver: "Resgate", achv_t_saver_sub: "salve uma sequência com o desafio de recuperação",
     achv_t_eras: "Viajante do tempo", achv_t_eras_sub: "vença em cada uma das 6 eras",
     achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcance um rating de 1925",
+    achv_t_legend: "Lenda", achv_t_legend_sub: "alcance um rating de 2000",
     achv_title_wear: (code) => `Usar ${code}`,
     title_gm_note: "Grande Mestre",
+    title_jm_note: "Jaardle Master",
+    cor_reached: "Parabéns — você agora está entre os melhores do Jaardle. Seu título aparecerá ao lado do seu nome nos rankings. Obrigado por jogar!",
     achv_t_zigzag: "Ziguezague", achv_t_zigzag_sub: "chute antes de vencer tanto cedo demais quanto tarde demais",
     achv_t_nailbiter: "Corda bamba", achv_t_nailbiter_sub: "vença após errar por ≤2 anos, duas vezes",
     achv_t_week: "Semana perfeita", achv_t_week_sub: "vença os 7 desafios diários de uma semana (seg–dom)",
@@ -3530,7 +3546,8 @@ document.addEventListener("mouseout", (e) => {
 // note = wat je ziet als je de pil aanraakt. Buiten de diamant-poort krijg je
 // naam en aard, niet de drempel — zie de trofee zelf voor het getal.
 const TITLES = {
-  GM: { cls: "lb-title-gm", note: "title_gm_note" },   // Grootmeester (verdiend met de Obsidiaan-trofee, db/56)
+  JM: { cls: "lb-title-jm", note: "title_jm_note" },   // Jaardle Master (Obsidiaan-trofee, piek ≥ 1925, db/59)
+  GM: { cls: "lb-title-gm", note: "title_gm_note" },   // Grootmeester (Legende-trofee, piek ≥ 2000, db/59)
 };
 function titleBadgeHtml(code) {
   const def = TITLES[code];
@@ -4910,8 +4927,13 @@ const ACHV_TROPHIES = [
   // weight 10 > alles (diamant = 6, zegel = 4): de zeldzaamste prestatie van het
   // spel mag nooit door een toevallig jaar-zegel van de unlock-kaart geduwd worden.
   { key: "obsidian",  i18n: "achv_t_obsidian", art: "chest", lockedArt: "chest-closed",
-    authOnly: true, weight: 10, titleCode: "GM",
+    authOnly: true, weight: 10, titleCode: "JM", coronation: true,
     reveal: (a) => (a.rating || 0) >= OBSIDIAN_REVEAL },
+  // Legende: nóg zeldzamer, en verborgen tot je JM-terrein (≥1925) hebt aangetikt.
+  // Piek ≥ 2000 is bewust ~onhaalbaar (db/48/59): een "nog nooit"-trede. Reward = GM.
+  { key: "legend",    i18n: "achv_t_legend", art: "chest", lockedArt: "chest-closed",
+    authOnly: true, weight: 11, titleCode: "GM", coronation: true,
+    reveal: (a) => (a.rating || 0) >= LEGEND_REVEAL },
 ];
 // 1900 → 1925 (db/48): de rating-verruimingen van 30-07 tilden het haalbare plafond tot
 // óp de oude drempel, waardoor die binnen een dag te halen werd. Een piek-drempel moet
@@ -4920,7 +4942,9 @@ const ACHV_TROPHIES = [
 // valt 1925 met ~31% binnen 500 potten en 88% binnen 2000 (jagen met een echte kans),
 // terwijl 1950 op 1% over 2000 potten uitkwam: geen zeldzame trofee maar een dode.
 // Bij wijziging: award_titles() in db/48 én het getal in achv_t_obsidian_sub (5 talen).
-const OBSIDIAN_AT     = 1925;   // moet gelijklopen met award_titles() in db/56 (was db/48)
+const OBSIDIAN_AT     = 1925;   // JM-drempel; moet gelijklopen met award_titles() in db/59
+const GM_AT           = 2000;   // GM/Legende-drempel; award_titles() in db/59. Bewust ~onhaalbaar.
+const LEGEND_REVEAL   = 1925;   // Legende-trofee verschijnt pas als je JM-terrein aantikte
 // Reveal bewust NIET meeverhoogd: bij de omzetting stond er al iemand boven 1850, en dan
 // zou de trofee weer verdwijnen bij wie hem al kon zien.
 const OBSIDIAN_REVEAL = 1850;   // = de diamant-trede van de rating-ladder
@@ -5136,7 +5160,8 @@ function achvNormalize(a) {
     eras: a.eras || 0,   // aantal voltooide cycli door alle 6 tijdperken (v192+; was ooit-array)
     zigzag: a.zigzag || 0, nailbiter: a.nailbiter || 0, spicy: a.spicy || 0,
     perfect_week: a.perfect_week || 0,   // volledig client-side afgeleid uit de daghistorie (zie fetchAchievements) — geen server-veld
-    obsidian: !!a.obsidian,   // gepinde titel uit player_titles (db/43), niet herberekend
+    obsidian: !!a.obsidian,   // gepinde titel JM uit player_titles (db/59), niet herberekend
+    legend: !!a.legend,       // gepinde titel GM uit player_titles (db/59)
   };
 }
 
@@ -5479,6 +5504,146 @@ function podiumPopClosed() {
   podiumMarkSeen(ws);
 }
 
+// ── kroning: de mijlpaal-pop-up voor JM (piek ≥ 1925) en GM (≥ 2000) ─────────
+// Zelfde "gezien"-filosofie als het weekpodium (db/59: get_pending_title beslist
+// server-side of er iets te vieren is), maar de rest is eigen: een verborgen
+// verrassing die maar één keer per titel valt. Aangeroepen bij het openen van de
+// app (auth-handler) én na een pot voor titelhouders (checkAchievements) — beide
+// via maybeShowCoronation, dat zelf op de server checkt en dubbel vieren voorkomt.
+let coronationTimers = [];
+let coronationRAF = 0;
+let coronationReq = false;
+let coronationOpenChecked = null;   // uid waarvoor het open-pad al keek (sb-auth-changed vuurt 2-3× op load)
+
+function stopCoronationGold() { cancelAnimationFrame(coronationRAF); coronationRAF = 0; }
+
+// force = na een pot (checkAchievements): negeer de open-pad-dedup, want er kan
+// nét een titel bijgekomen zijn. Zonder force = bij het openen: hooguit één RPC
+// per identiteit per sessie.
+async function maybeShowCoronation(force) {
+  if (!auth.user) return;
+  if (document.getElementById("modal-coronation")) return;         // al open
+  if (document.querySelector(".modal:not([hidden])")) return;      // ander scherm open → retry bij volgende trigger
+  if (coronationReq) return;                                       // auth-handler + checkAchievements niet tegelijk
+  if (!force && coronationOpenChecked === auth.user.uid) return;
+  coronationReq = true;
+  let code = null;
+  try { code = await rpc("get_pending_title", {}); }
+  catch (e) { coronationReq = false; return; }                     // netwerk-hik → retry mag
+  coronationReq = false;
+  coronationOpenChecked = auth.user.uid;                           // deze identiteit is nu gecheckt
+  if (!code || !TITLES[code]) return;
+  if (document.querySelector(".modal:not([hidden])")) return;      // inmiddels iets open
+  showCoronation(code);
+}
+
+// Gouden regen die van de kroon naar beneden valt — eigen palet, zelfde
+// zelf-stoppende rAF-vorm en vaste-schil-aanpak als showPodiumConfetti.
+function coronationGold(card) {
+  stopCoronationGold();
+  if (!card || !card.isConnected) return;
+  const cv = card.querySelector(".cor-conf");
+  if (!cv) return;
+  const ctx = cv.getContext("2d");
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const r = card.getBoundingClientRect();
+  const W = Math.max(1, r.width), H = Math.max(1, r.height);
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const GOLD = ["#f4c430", "#ffe08a", "#e8c86a", "#c9a227", "#fff6d8"];
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const crownY = 92;   // net onder de kroon
+  const mk = (shower) => ({
+    x: W * 0.5 + rnd(-58, 58), y: crownY + rnd(-10, 10),
+    vx: rnd(-1.1, 1.1), vy: shower ? rnd(1.6, 3.4) : rnd(0.7, 1.6),
+    ph: Math.random() * 6.28, w: rnd(3, 6), h: rnd(4, 8),
+    rot: Math.random() * 6.28, spin: rnd(-0.15, 0.15),
+    color: GOLD[(Math.random() * GOLD.length) | 0], life: 0, max: rnd(70, 150),
+  });
+  let parts = Array.from({ length: 46 }, () => mk(true));
+  let acc = 0;
+  const step = () => {
+    if (!cv.isConnected || cv.closest(".modal")?.hidden) { stopCoronationGold(); return; }
+    ctx.clearRect(0, 0, W, H);
+    if (++acc >= 6 && parts.length < 58) { parts.push(mk(false)); acc = 0; }   // lichte naregen
+    parts = parts.filter((p) => p.y < H + 16 && p.life < p.max);
+    for (const p of parts) {
+      p.vy += 0.05; p.x += p.vx + Math.sin(p.ph) * 0.4; p.y += p.vy; p.ph += 0.05; p.rot += p.spin; p.life++;
+      const fade = p.life < 10 ? p.life / 10 : Math.min(1, (p.max - p.life) / 20);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, fade) * (p.y > H * 0.8 ? Math.max(0, (H - p.y) / (H * 0.2)) : 1);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+    coronationRAF = requestAnimationFrame(step);
+  };
+  coronationRAF = requestAnimationFrame(step);
+}
+
+function showCoronation(code) {
+  if (document.getElementById("modal-coronation")) return;
+  const def = TITLES[code];
+  if (!def) return;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isGm = code === "GM";
+  const el = document.createElement("div");
+  el.id = "modal-coronation";
+  el.className = "modal cor" + (reduced ? "" : " cor-anim");
+  el.hidden = true;
+  el.dataset.code = code;
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "cor-title");
+  el.innerHTML =
+    `<div class="modal-backdrop" data-close></div>` +
+    `<div class="modal-card cor-card${isGm ? " gm" : ""}">` +
+      `<button type="button" class="cor-x" data-close aria-label="${escHtml(t("aria_close"))}">✕</button>` +
+      `<canvas class="cor-conf" aria-hidden="true"></canvas>` +
+      `<div class="cor-inner">` +
+        `<div class="cor-crownWrap"><span class="cor-glow"></span><img class="cor-crown" src="/emoji/flair-crown.webp" alt="👑"></div>` +
+        `<div class="cor-titleRow">` +
+          `<span class="cor-pill${isGm ? " gm" : ""}">${escHtml(code)}</span>` +
+          `<span class="cor-titleName" id="cor-title">${escHtml(t(def.note))}</span>` +
+        `</div>` +
+        `<p class="cor-reached">${escHtml(t("cor_reached"))}</p>` +
+        `<button type="button" class="cor-go" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
+      `</div>` +
+    `</div>`;
+  document.body.appendChild(el);
+  el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeAllModals()));
+  el.hidden = false;
+  lockBodyScroll();
+  requestAnimationFrame(() => el.classList.add("in"));
+  if (reduced) return;   // CSS toont alles in rust; geen canvas
+  const at = (ms, fn) => coronationTimers.push(setTimeout(fn, ms));
+  const crown = el.querySelector(".cor-crown");
+  // Kroon = zelf-animerende Noto-webp (loopt z'n eigen beweging); wij laten 'm
+  // alleen langzaam naar beneden zakken — "gekroond worden". Fallback naar de
+  // glyph als de webp niet laadt (offline/oude browser).
+  crown.addEventListener("error", () => {
+    const s = document.createElement("span");
+    s.className = "cor-crown cor-crown-glyph" + (crown.classList.contains("lower") ? " lower" : "");
+    s.textContent = "👑";
+    crown.replaceWith(s);
+  }, { once: true });
+  at(250, () => { (document.querySelector("#modal-coronation .cor-crown"))?.classList.add("lower"); el.querySelector(".cor-glow").classList.add("on"); });
+  at(700, () => coronationGold(el.querySelector(".cor-card")));   // goud valt terwijl de kroon zakt
+  at(2650, () => el.querySelector(".cor-titleRow").classList.add("in"));   // ná de trage daling (250 + 3000)
+  at(2900, () => el.querySelector(".cor-reached").classList.add("in"));
+  at(3150, () => el.querySelector(".cor-go").classList.add("in"));
+}
+
+// Sluit-hook (zelfde patroon als podiumPopClosed): dicht = gezien (server).
+function coronationClosed() {
+  const el = document.getElementById("modal-coronation");
+  if (!el || !el.hidden) return;
+  coronationTimers.forEach(clearTimeout); coronationTimers = [];
+  stopCoronationGold();
+  const code = el.dataset.code;
+  el.remove();
+  if (code) rpc("mark_title_seen", { p_code: code }).catch(() => {});
+}
+
 // ── unlock-items: één kaart + smalle regels ───────────────────────────────────
 // Rangorde bij meerdere unlocks in één pot: de zeldzaamste wordt de kaart. Zegel
 // en goud wegen gelijk (4); bij gelijkspel wint de zegel, want de onthulling
@@ -5635,6 +5800,7 @@ async function checkAchievements() {
   if (!seen || typeof seen !== "object") return false;   // eerste keer: stil (retroactief)
   const items = [];
   const newIds = [];
+  let coronationHit = false;
   for (const s of ACHV_SERIES) {
     const prev = seen[s.key] || 0;
     if (cur[s.key] > prev) { const it = achvSeriesItem(a, s, cur[s.key], prev); items.push(it); newIds.push(it.id); }
@@ -5643,6 +5809,9 @@ async function checkAchievements() {
     const prev = seen[tr.key] || 0;
     const curv = cur[tr.key] || 0;   // getierd: trede-index · ongetierd: 0/1
     if (curv > prev) {
+      // JM/GM (coronation) krijgen GEEN eindscherm-kaartje maar de schermvullende
+      // kroning-pop-up (server-gegated). Rode stip blijft wel als spoor.
+      if (tr.coronation) { coronationHit = true; newIds.push(`t:${tr.key}`); continue; }
       // Getierd → kaart toont de nieuwe trede (+ ×N); ongetierd → gewone trofee.
       items.push(achvTrophyItem(tr, a[tr.key] || 0, tr.tiers ? curv : 0));
       // Rood bolletje bij élke MIJLPAAL: een tier-up (incl. de eerste keer = brons)
@@ -5651,9 +5820,10 @@ async function checkAchievements() {
       newIds.push(`t:${tr.key}`);
     }
   }
+  if (coronationHit) maybeShowCoronation(true);   // async, self-gated op server-title_seen + open modal
   const seenYears = new Set(Array.isArray(seen.yearsList) ? seen.yearsList : []);
   for (const y of a.years) if (!seenYears.has(y)) { items.push(achvStampItem(a, y)); newIds.push(`y:${y}`); }
-  if (!items.length) return false;
+  if (!items.length) { if (newIds.length) achvNewAdd(newIds); return coronationHit; }
   achvNewAdd(newIds);
   items.sort((x, y) => (y.weight - x.weight) || ((y.kind === "stamp") - (x.kind === "stamp")));
   els.resultText.querySelectorAll(".achv-line, .achv-card").forEach((e) => e.remove());
@@ -5869,7 +6039,7 @@ async function renderAchievements() {
   const a = await fetchAchievements();
   if (document.getElementById("modal-achv").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
-  if (a.obsidian) await ensureMyTitle();   // de draag-schakelaar moet z'n stand kennen
+  if (a.obsidian || a.legend) await ensureMyTitle();   // de draag-schakelaar moet z'n stand kennen
   if (document.getElementById("modal-achv").hidden) return;
   renderAchvBoard(body, a);
 }
@@ -7028,6 +7198,7 @@ function closeAllModals() {
   unlockBodyScroll();
   achvPanelClosed();   // NIEUW-markeringen die je gezien hebt, zijn hiermee gezien
   podiumPopClosed();   // weekpodium-pop-up dicht = uitslag gezien (server-side)
+  coronationClosed();  // kroning dicht = titel-mijlpaal gezien (server-side, db/59)
   setModalUrl(null);
 }
 
@@ -7656,6 +7827,7 @@ async function init() {
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
+    await maybeShowCoronation();  // gemiste titel-mijlpaal? kroon eerst (rarer dan het weekpodium; self-gated, één lichte RPC)
     refreshWeekPodiumResult(); // verse-weekuitslag: pop-up + stip (fire-and-forget; nul kosten vóór de 1e afgeronde week / ma-ochtend)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.

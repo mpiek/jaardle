@@ -2020,6 +2020,71 @@ footer {
   .podpop-card, .podpop .modal-backdrop { transition: none; }
 }
 
+/* ── Kroning: de mijlpaal-pop-up voor JM/GM (game.js showCoronation). Vast
+   nachtpaars-goud badge-palet, thema-onafhankelijk (zoals de titel-pil zelf).
+   De kaart is een vaste schil (overflow hidden) zodat canvas + rand-glans binnen
+   de rondingen blijven, net als de weekpodium-pop-up. ─────────────────────── */
+.cor .modal-backdrop { opacity: 0; transition: opacity 0.25s ease; }
+.cor.in .modal-backdrop { opacity: 1; }
+.cor-card {
+  position: relative;
+  max-width: 22rem;
+  overflow: hidden;
+  border-radius: 16px;
+  background: radial-gradient(140% 100% at 50% 0%, #34194f 0%, #241230 55%, #190f22 100%);
+  border: 1px solid #3a2350;
+  box-shadow: 0 30px 70px -28px #000, inset 0 1px 0 #ffffff12;
+  opacity: 0; transform: translateY(28px) scale(0.98);
+  transition: opacity 0.35s ease, transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cor.in .cor-card { opacity: 1; transform: none; }
+.cor-card::before {   /* trage gouden rand-glans */
+  content: ""; position: absolute; inset: -1px; border-radius: 16px; padding: 1px; pointer-events: none;
+  background: linear-gradient(140deg, transparent 32%, #f4c43055 48%, #f4c430cc 50%, #f4c43055 52%, transparent 68%);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0;
+}
+.cor.in .cor-card::before { animation: corRim 6.5s ease-in-out 1.2s infinite; }
+@keyframes corRim { 0%,100% { background-position: 0% 50%; opacity: .3; } 50% { background-position: 100% 50%; opacity: .75; } }
+
+.cor-x { position: absolute; top: 0.4rem; right: 0.5rem; z-index: 4; background: transparent; border: none; color: #c9b8d8; font-size: 1.1rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 6px; }
+.cor-x:hover { background: #ffffff14; color: #fff; }
+.cor-conf { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+.cor-inner { position: relative; z-index: 2; padding: 40px 26px 28px; text-align: center; }
+
+.cor-crownWrap { position: relative; height: 116px; display: flex; align-items: center; justify-content: center; }
+.cor-glow {
+  position: absolute; width: 188px; height: 188px; border-radius: 50%;
+  background: radial-gradient(circle, #f4c43055 0%, #f4c43022 40%, transparent 70%);
+}
+.cor-crown {   /* zelf-animerende Noto-webp (flair-crown.webp) */
+  width: 104px; height: 104px; display: inline-block; object-fit: contain;
+  filter: drop-shadow(0 8px 14px #0008) drop-shadow(0 0 18px #f4c43066);
+}
+.cor-crown-glyph { width: auto; height: auto; font-size: 5rem; line-height: 1; }   /* fallback als de webp niet laadt */
+.cor-titleRow { margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+.cor-pill { display: inline-block; padding: 4px 11px; border-radius: 7px; font-size: 1rem; font-weight: 800; letter-spacing: 0.05em; background: #1f0f26; color: #e8c86a; border: 1.5px solid #c9a227; }
+.cor-pill.gm { background: #17040f; color: #ffdf8a; border-color: #f4c430; box-shadow: 0 0 16px -2px #f4c43077; }
+.cor-titleName { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; color: #f3ead9; }
+.cor-reached { margin: 12px auto 0; max-width: 30ch; font-size: 0.88rem; font-weight: 500; color: #cdb8e0; line-height: 1.5; }
+.cor-go { margin-top: 24px; font: inherit; font-weight: 800; font-size: 0.95rem; color: #1a0f10; background: linear-gradient(180deg, #f7d474, #c9a227); border: none; border-radius: 12px; padding: 11px 34px; cursor: pointer; box-shadow: 0 10px 22px -10px #f4c430aa; }
+.cor-go:hover { filter: brightness(1.05); }
+.cor-go:focus-visible { outline: 2px solid #fff6d8; outline-offset: 2px; }
+
+/* choreografie — alleen mét .cor-anim (reduced-motion: geen class, alles in rust) */
+.cor-anim .cor-crown { opacity: 0; transform: translateY(-130px) scale(0.6); }
+.cor-anim .cor-crown.lower { opacity: 1; transform: none; transition: opacity 0.8s ease, transform 3s cubic-bezier(0.22, 0.7, 0.2, 1); }   /* trage kroning-daling (2× langzamer); de webp animeert zichzelf */
+.cor-anim .cor-glow { opacity: 0; transform: scale(0.6); }
+.cor-anim .cor-glow.on { opacity: 1; transform: scale(1); transition: opacity 0.5s ease, transform 0.6s ease; animation: corGlow 3.2s ease-in-out 0.8s infinite; }
+@keyframes corGlow { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+.cor-anim .cor-titleRow, .cor-anim .cor-reached, .cor-anim .cor-go { opacity: 0; transform: translateY(8px); }
+.cor-anim .cor-titleRow.in, .cor-anim .cor-reached.in, .cor-anim .cor-go.in { opacity: 1; transform: none; transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .cor-card, .cor .modal-backdrop { transition: none; }
+}
+
 .lb-table { display: flex; flex-direction: column; gap: 2px; }
 /* Bord dat op nieuwe data wacht: oude lijst blijft gedimd staan (geen inklap-sprong). */
 .lb-loading { opacity: 0.4; pointer-events: none; transition: opacity 0.15s ease; }
@@ -2115,7 +2180,8 @@ footer {
   cursor: help;
   -webkit-tap-highlight-color: transparent;
 }
-.lb-title-gm { background: #1f0f26; color: #e8c86a; border: 1px solid #c9a227; }   /* Grootmeester: nachtpaars + goud */
+.lb-title-jm { background: #1f0f26; color: #e8c86a; border: 1px solid #c9a227; }   /* Jaardle Master: nachtpaars + goud */
+.lb-title-gm { background: #17040f; color: #ffdf8a; border: 1px solid #f4c430; box-shadow: 0 0 8px -2px #f4c43088; }   /* Grootmeester: dieper zwart, feller goud (zeldzamer) */
 /* Uitleg bij aantikken. Bewust een los element aan <body> met position: fixed
    in plaats van een ::after op de pil: .lb-name heeft overflow: hidden (daar
    worden lange namen afgekapt) en knipt een ::after tot een paar pixels weg. */
