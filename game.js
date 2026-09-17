@@ -281,8 +281,8 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "Eindscherm", rewards_sect_theme: "Thema",
     rewards_wineffect_none: "Standaard confetti",
     rewards_locked_hint: "Meer te verdienen — bekijk 🏅 Prestaties",
-    reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis",
-    reward_sub_flair: "Draag 'm in je 🪎-kluis.", reward_sub_effect: "Zet 'm aan in je 🪎-kluis.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
+    reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis", reward_equip: "Draag nu",
+    reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Zet 'm aan in je 🪎-kluis.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -524,8 +524,8 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "End screen", rewards_sect_theme: "Theme",
     rewards_wineffect_none: "Standard confetti",
     rewards_locked_hint: "More to earn — see 🏅 Achievements",
-    reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault",
-    reward_sub_flair: "Wear it in your 🪎 vault.", reward_sub_effect: "Switch it on in your 🪎 vault.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
+    reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault", reward_equip: "Wear it now",
+    reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "Switch it on in your 🪎 vault.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -760,8 +760,8 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "Endbildschirm", rewards_sect_theme: "Design",
     rewards_wineffect_none: "Standard-Konfetti",
     rewards_locked_hint: "Mehr zu verdienen — siehe 🏅 Erfolge",
-    reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe",
-    reward_sub_flair: "Trag es in deiner 🪎-Truhe.", reward_sub_effect: "Schalt es in deiner 🪎-Truhe ein.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
+    reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe", reward_equip: "Jetzt tragen",
+    reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Schalt es in deiner 🪎-Truhe ein.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -1000,8 +1000,8 @@ const I18N = {
     rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Pantalla final", rewards_sect_theme: "Tema",
     rewards_wineffect_none: "Confeti estándar",
     rewards_locked_hint: "Más por conseguir — mira 🏅 Logros",
-    reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja",
-    reward_sub_flair: "Llévalo en tu caja 🪎.", reward_sub_effect: "Actívalo en tu caja 🪎.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
+    reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja", reward_equip: "Usar ahora",
+    reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Actívalo en tu caja 🪎.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1240,8 +1240,8 @@ const I18N = {
     rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Tela final", rewards_sect_theme: "Tema",
     rewards_wineffect_none: "Confete padrão",
     rewards_locked_hint: "Mais a conquistar — veja 🏅 Conquistas",
-    reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre",
-    reward_sub_flair: "Use no seu cofre 🪎.", reward_sub_effect: "Ative no seu cofre 🪎.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
+    reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre", reward_equip: "Usar agora",
+    reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Ative no seu cofre 🪎.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -5789,7 +5789,8 @@ function showReward(key) {
   const r = REWARDS[key];
   if (!r) return;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const sub = t(r.cat === "flair" ? "reward_sub_flair" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
+  const isFlair = r.cat === "flair";   // flair → direct dragen; effect/thema → naar de kluis
+  const sub = t(isFlair ? "reward_sub_flair" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
   const el = document.createElement("div");
   el.id = "modal-reward";
   el.className = "modal rw-pop rw-" + r.cat + (reduced ? "" : " rw-pop-anim");
@@ -5806,14 +5807,22 @@ function showReward(key) {
         `<div class="rw-name" id="rw-pop-name">${escHtml(rewardName(key))}</div>` +
         `<p class="rw-sub">${escHtml(sub)}</p>` +
         `<div class="rw-btns">` +
-          `<button type="button" class="rw-go" data-rw-vault>${escHtml(t("reward_cta_vault"))}</button>` +
+          (isFlair
+            ? `<button type="button" class="rw-go" data-rw-equip>${escHtml(t("reward_equip"))}</button>`
+            : `<button type="button" class="rw-go" data-rw-vault>${escHtml(t("reward_cta_vault"))}</button>`) +
           `<button type="button" class="rw-more" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
         `</div>` +
       `</div>` +
     `</div>`;
   document.body.appendChild(el);
   el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeAllModals()));
-  el.querySelector("[data-rw-vault]").addEventListener("click", () => {
+  // Flair → draag 'm meteen (setMyFlair valideert server-side; earned → ok) en sluit.
+  el.querySelector("[data-rw-equip]")?.addEventListener("click", () => {
+    setMyFlair(r.emoji);
+    closeAllModals();                // → rewardClosed markeert deze gezien + keten door
+  });
+  // Effect/thema → naar de kluis (effect toggelen, thema kiezen).
+  el.querySelector("[data-rw-vault]")?.addEventListener("click", () => {
     rewardJumping = true;            // vault-sprong: rest van de wachtrij + kroning niet nu (komt vanzelf terug)
     rewardScrollSect = r.sect;
     closeAllModals();                // → rewardClosed markeert deze gezien
