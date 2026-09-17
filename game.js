@@ -1479,6 +1479,14 @@ function toggleSign() {
   else setYearString("-");
 }
 
+// ↑ = herhaal je laatste gok in het invoerveld (handig als je 1 jaar mist: haal
+// 'm terug en tik 'm bij). Werkt alleen tijdens het spelen; BC blijft negatief.
+function recallLastGuess() {
+  if (isKeypadDisabled()) return;
+  if (!state || state.done || !state.guesses || !state.guesses.length) return;
+  setYearString(String(state.guesses[state.guesses.length - 1].year));
+}
+
 function updateSignBtn() {
   const neg = getYearString().startsWith("-");
   els.signBtn.classList.toggle("negative", neg);
@@ -7392,7 +7400,20 @@ function unlockBodyScroll() {
   window.scrollTo(0, scrollY);
 }
 
+// De navigeerbare panelen (géén pop-ups: kroning/podium/beloning blokkeren de UI
+// zelf en beheren hun eigen sluiten). Eén tegelijk zichtbaar.
+const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards",
+  "modal-leaderboard", "modal-recap", "modal-login"];
+
 function openModal(id, opts) {
+  // Eén scherm tegelijk: een ander open paneel gaat éérst dicht (met z'n gezien-
+  // hook), zodat panelen niet stapelen — sluiten brengt je dan naar het spel terug,
+  // niet naar een half zichtbaar scherm eronder (bv. de kluis boven op 🏆).
+  for (const pid of MODAL_PANELS) {
+    if (pid === id) continue;
+    const p = document.getElementById(pid);
+    if (p && !p.hidden) { p.hidden = true; if (pid === "modal-achv") achvPanelClosed(); }
+  }
   document.getElementById(id).hidden = false;
   lockBodyScroll();
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
@@ -7964,6 +7985,7 @@ async function init() {
     if (state && state.done) return;
     if (/^[0-9]$/.test(e.key)) { appendDigit(e.key); e.preventDefault(); }
     else if (e.key === "Backspace") { backspaceYear(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { recallLastGuess(); e.preventDefault(); }   // ↑ = laatste gok terughalen
     else if (e.key === "Enter") { submitGuess(); e.preventDefault(); }
     else if (e.key === "-" || e.key === "+") { toggleSign(); e.preventDefault(); }
     else if (e.key === "e" || e.key === "E") {
