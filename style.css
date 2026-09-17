@@ -2501,6 +2501,19 @@ html[data-theme="light"] {
 
 #achv-body .stats-heading:not(:first-child) { margin-top: 1.25rem; }
 
+/* 🪎 Beloningen (de kluis): losse secties (flair / eindscherm / thema). Hergebruikt
+   .lb-flair-opts (flair-rooster), .cap-action (win-effect-radio + platina-toggle)
+   en .cap-themes (thema-kiezer); alleen de sectie-afstand + 🔒-regel zijn nieuw. */
+.rw-sect + .rw-sect { margin-top: 1.35rem; }
+#rewards-body .stats-heading { margin: 0 0 0.5rem; }
+.rw-sect [role="radiogroup"] { display: flex; flex-direction: column; gap: 0.1rem; }
+.rw-locked {
+  margin-top: 1.35rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+  font-size: 0.82rem; color: var(--muted); text-align: center;
+}
+/* Wegwijzer op het leaderboard waar de flair-kiezer stond. */
+.lb-flair-moved { margin: 0.35rem 0 0; font-size: 0.76rem; color: var(--muted); }
+
 /* Reeks-rijen: ring = huidige trede, balkje = voortgang naar de volgende. */
 .achv-rows { display: flex; flex-direction: column; gap: 0.45rem; }
 .achv-row {

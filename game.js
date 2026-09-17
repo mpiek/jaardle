@@ -277,6 +277,11 @@ const I18N = {
     rating_pool_none: "Nog geen pool · daag je vrienden uit",
     rating_pool_prov: "? = voorlopig · het bord rekent tot 25 potjes met onzekerheid",
     menu_achv: "🏅 Prestaties",
+    menu_rewards: "🪎 Beloningen",
+    rewards_sect_flair: "Flair", rewards_sect_endscreen: "Eindscherm", rewards_sect_theme: "Thema",
+    rewards_wineffect_none: "Standaard confetti",
+    rewards_locked_hint: "Meer te verdienen — bekijk 🏅 Prestaties",
+    lb_flair_moved: "Flair kies je nu in 🪎 Beloningen",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -514,6 +519,11 @@ const I18N = {
     rating_pool_none: "No pool yet · challenge your friends",
     rating_pool_prov: "? = provisional · the board allows for uncertainty until 25 rounds",
     menu_achv: "🏅 Achievements",
+    menu_rewards: "🪎 Rewards",
+    rewards_sect_flair: "Flair", rewards_sect_endscreen: "End screen", rewards_sect_theme: "Theme",
+    rewards_wineffect_none: "Standard confetti",
+    rewards_locked_hint: "More to earn — see 🏅 Achievements",
+    lb_flair_moved: "Pick your flair in 🪎 Rewards now",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -744,6 +754,11 @@ const I18N = {
     rating_pool_none: "Noch kein Pool · fordere deine Freunde heraus",
     rating_pool_prov: "? = vorläufig · bis 25 Runden rechnet die Tabelle mit Unsicherheit",
     menu_achv: "🏅 Erfolge",
+    menu_rewards: "🪎 Belohnungen",
+    rewards_sect_flair: "Flair", rewards_sect_endscreen: "Endbildschirm", rewards_sect_theme: "Design",
+    rewards_wineffect_none: "Standard-Konfetti",
+    rewards_locked_hint: "Mehr zu verdienen — siehe 🏅 Erfolge",
+    lb_flair_moved: "Deine Flair wählst du jetzt in 🪎 Belohnungen",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -978,6 +993,11 @@ const I18N = {
     rating_pool_none: "Todavía sin grupo · desafía a tus amigos",
     rating_pool_prov: "? = provisional · la tabla tiene en cuenta la incertidumbre hasta 25 partidas",
     menu_achv: "🏅 Logros",
+    menu_rewards: "🪎 Recompensas",
+    rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Pantalla final", rewards_sect_theme: "Tema",
+    rewards_wineffect_none: "Confeti estándar",
+    rewards_locked_hint: "Más por conseguir — mira 🏅 Logros",
+    lb_flair_moved: "Ahora eliges tu distintivo en 🪎 Recompensas",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1212,6 +1232,11 @@ const I18N = {
     rating_pool_none: "Ainda sem grupo · desafie seus amigos",
     rating_pool_prov: "? = provisório · a tabela considera a incerteza até 25 partidas",
     menu_achv: "🏅 Conquistas",
+    menu_rewards: "🪎 Recompensas",
+    rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Tela final", rewards_sect_theme: "Tema",
+    rewards_wineffect_none: "Confete padrão",
+    rewards_locked_hint: "Mais a conquistar — veja 🏅 Conquistas",
+    lb_flair_moved: "Agora você escolhe o distintivo em 🪎 Recompensas",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -3395,13 +3420,17 @@ let myPools = [];                     // alle pools van de speler, oudste eerst 
 let myPool = null;                    // de ACTIEVE pool {id,name,invite_code,is_owner,members,since} of null
 let myUsername = null;                // zelfgekozen weergavenaam (profiles.username) of null
 let myFlair = null;                   // zelfgekozen emoji-badge (profiles.flair) of null
+let myIdentityLoaded = false;         // naam+flair opgehaald? (kluis kan flair zetten zonder dat het bord ooit open ging)
 let myTitle = null;                   // gedragen titelcode (profiles.title) of null
 let myTitleLoaded = false;            // null = geen titel, dus "nog niet opgehaald" apart bijhouden
-let flairPickerOpen = false;          // flair-rooster ingeklapt tot je op ✏️ drukt (56 opties)
-let flairPickerAutoOpen = false;      // "kies <flair>" op de unlock-kaart → rooster open bij de volgende render
 // Vaste flair-keuzes — moet gelijklopen met de allow-list in set_my_flair (09d_flair.sql).
-const FLAIR_OPTIONS = ["🔥", "🕊️", "🎩", "👑", "🦊", "🐢", "🚀", "🥸", "🧠", "🍀", "🌟", "⚡", "🎲", "🦉", "🦫", "💎", "🐉", "🦄", "🐙", "💅", "🍻", "💥", "🎉", "🌌", "☄️", "🦞", "🍕", "☕",
-  "🐐", "🦇", "🦖", "🐦‍🔥", "🦭", "🐺", "🐻", "🐼", "🐷", "🦁", "🐸", "🐧", "🐱", "🦈", "🦋", "🐍", "🐳", "🦥", "🦔", "🦩", "🐝", "🦀", "🦅", "🪿", "🫏", "🪰", "💩", "💀", "🍄", "🌈", "🫪", "🎻", "🪙"];
+// Bewust lean gehouden (was 61): met een enorme gratis-set voelt een emoji
+// verdienen slap. Gesnoeid op live-gebruik + oordeel — elke flair die iemand nú
+// draagt staat er nog in (geen migratie nodig), de rest is de best-renderende /
+// iconische kern. De server-allowlist (set_my_flair) blijft een superset en is
+// dus onveranderd veilig: hij weigert alleen, en de UI biedt nooit een gesnoeide.
+const FLAIR_OPTIONS = ["🔥", "👑", "⚡", "🌟", "💎", "🚀", "🧠", "🍀", "🎲", "🥸", "💅", "🍻", "🍕", "☕", "🎉", "☄️", "🌈", "💀",
+  "🦊", "🦉", "🐉", "🦄", "🐙", "🐼", "🦁", "🐐", "🐢", "🦫", "🫪"];
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingOpenModal = null;          // ?rating / ?achievements / ?history-deeplink → modal-id
 let pendingJoinCode = null;           // ?join=CODE-deeplink
@@ -3521,21 +3550,15 @@ const lbPodiumCls = (rank) => (rank >= 1 && rank <= 3 ? ` lb-top${rank}` : "");
 // bord draagt z'n flair geanimeerd. 🎩/🦫/🐷 hebben (nog) geen Noto-animatie en
 // vallen terug op de CSS-"cheer" (.flair-fake-anim); 🔥 hergebruikt fire.webp.
 const FLAIR_ANIM = {
-  "🔥": "fire", "🕊️": "flair-dove", "👑": "flair-crown", "🦊": "flair-fox",
+  "🔥": "fire", "👑": "flair-crown", "🦊": "flair-fox",
   "🐢": "flair-turtle", "🚀": "flair-rocket", "🥸": "flair-disguise", "🧠": "flair-brain",
   "🍀": "flair-clover", "🌟": "flair-glowing-star", "⚡": "flair-zap", "🎲": "flair-die",
   "🦉": "flair-owl", "💎": "flair-gem", "🐉": "flair-dragon", "🦄": "flair-unicorn",
   "🐙": "flair-octopus", "💅": "flair-nails", "🍻": "flair-beer",
-  "💥": "flair-collision", "🎉": "flair-party", "🌌": "flair-milkyway",
-  "☄️": "flair-comet", "🦞": "flair-lobster", "🍕": "flair-pizza", "☕": "flair-coffee",
-  "🐐": "flair-goat", "🦇": "flair-bat", "🦖": "flair-trex", "🐦‍🔥": "flair-phoenix",
-  "🦭": "flair-seal", "🐺": "flair-wolf", "🐻": "flair-bear", "🐼": "flair-panda",
-  "🦁": "flair-lion", "🐸": "flair-frog", "🐧": "flair-penguin", "🐱": "flair-cat",
-  "🦈": "flair-shark", "🦋": "flair-butterfly", "🐍": "flair-snake", "🐳": "flair-whale",
-  "🦥": "flair-sloth", "🦔": "flair-hedgehog", "🦩": "flair-flamingo", "🐝": "flair-bee",
-  "🦀": "flair-crab", "🪰": "flair-fly", "💩": "flair-poop", "💀": "flair-skull",
-  "🍄": "flair-mushroom", "🎻": "flair-violin", "🪙": "flair-coin",
-  "🦅": "flair-eagle", "🪿": "flair-goose", "🫏": "flair-donkey",
+  "🎉": "flair-party",
+  "☄️": "flair-comet", "🍕": "flair-pizza", "☕": "flair-coffee",
+  "🐐": "flair-goat", "🐼": "flair-panda",
+  "🦁": "flair-lion", "💀": "flair-skull",
   "🌈": "flair-rainbow", "🫪": "flair-distorted",
   // Prestatie-flairs (unlockbaar via het 🏅-bord, gegate in set_my_flair/db36).
   "💯": "flair-hundred", "⏳": "flair-hourglass", "🗿": "flair-moai",
@@ -3817,39 +3840,8 @@ async function renderStatBoard() {
 
 // Naam-editor: toont je zelfgekozen weergavenaam (profiles.username) met een
 // wijzig-knop. Staat bovenaan het bord in beide states (met of zonder pool).
-// myUsername wordt in renderLeaderboard opgehaald via get_my_username.
-// Flair-kiezer: standaard ingeklapt tot één regel (zelfde patroon als de naam-
-// regel erboven) — met 56 opties zou het rooster de hele modal domineren.
-// ✏️ klapt het rooster uit, kiezen (of ✕) klapt weer in.
-function flairPickerHtml() {
-  const cur = myFlair
-    ? `<span class="lb-namecur">${escHtml(myFlair)}</span>`
-    : `<span class="lb-namecur lb-noname">${t("lb_flair_none")}</span>`;
-  const head = `<div class="lb-nameedit">
-      <span class="lb-namelabel">${t("lb_flair_label")}</span>${cur}
-      <button id="lb-flair-btn" class="lb-pillbtn" aria-expanded="${flairPickerOpen}">${flairPickerOpen ? "✕" : t("lb_name_edit")}</button>
-    </div>`;
-  const opt = (val, label, extra) =>
-    `<button type="button" class="lb-flair-opt${extra || ""}${(myFlair || "") === val ? " sel" : ""}" data-flair="${escHtml(val)}" aria-label="${label}" title="${label}">${val || "✖"}</button>`;
-  // Verdiende prestatie-flairs (💯⏳🗿🦕🥇) vooraan, met een gouden randje —
-  // de server hergate ze in set_my_flair, dus dit is puur weergave.
-  const earned = achvEarnedFlairs();
-  const grid = flairPickerOpen
-    ? `<div class="lb-flair-opts">${opt("", t("lb_flair_none"), " lb-flair-clear") +
-        earned.map((e) => opt(e, e, " lb-flair-achv")).join("") +
-        FLAIR_OPTIONS.map((e) => opt(e, e, "")).join("")}</div>`
-    : "";
-  return `<div class="lb-flair">${head}${grid}</div>`;
-}
-
-// Ververst alleen het naam+flair-blok (in- en uitklappen van de kiezer), zodat
-// de borden eronder niet opnieuw hoeven te laden.
-function rerenderIdentity() {
-  const el = document.querySelector("#lb-body .lb-identity");
-  if (!el) return;
-  el.outerHTML = nameEditorHtml();
-  wireNameEditor();
-}
+// myUsername wordt in renderLeaderboard opgehaald via get_my_username. De flair-
+// kiezer is verhuisd naar de 🪎-kluis; hier alleen een wegwijzer (nameEditorHtml).
 
 // Hover = voorproefje in de kiezer: de animatie van de flair speelt af.
 // Desktop-suiker; op touch bestaat hover niet.
@@ -3863,42 +3855,48 @@ function nameEditorHtml() {
   const cur = myUsername
     ? `<span class="lb-namecur">${escHtml(myUsername)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_name_unset")}</span>`;
+  // Flair-kiezer is verhuisd naar de 🪎-kluis (modal-rewards); hier alleen de naam
+  // + een subtiele wegwijzer, zodat wie 'm vroeger hier zocht 'm terugvindt.
+  const flairHint = myFlair
+    ? `<span class="lb-namecur">${escHtml(myFlair)}</span>`
+    : `<span class="lb-namecur lb-noname">${t("lb_flair_none")}</span>`;
   return `<div class="lb-identity">
     <div class="lb-nameedit">
       <span class="lb-namelabel">${t("lb_myname")}</span>${cur}
       <button id="lb-name-btn" class="lb-pillbtn">${t("lb_name_edit")}</button>
     </div>
-    ${flairPickerHtml()}
+    <div class="lb-nameedit">
+      <span class="lb-namelabel">${t("lb_flair_label")}</span>${flairHint}
+      <button type="button" class="lb-pillbtn" data-action="rewards">🪎</button>
+    </div>
+    <p class="lb-flair-moved">${escHtml(t("lb_flair_moved"))}</p>
   </div>`;
 }
 function wireNameEditor() {
   const btn = document.getElementById("lb-name-btn");
   if (btn) btn.onclick = promptSetUsername;
-  const fb = document.getElementById("lb-flair-btn");
-  if (fb) fb.onclick = () => { flairPickerOpen = !flairPickerOpen; rerenderIdentity(); };
-  document.querySelectorAll(".lb-flair-opt").forEach((b) => {
-    b.onclick = () => setMyFlair(b.dataset.flair || "");
-    wireFlairPreview(b, b.dataset.flair);
-  });
-  const cur = document.querySelector(".lb-flair .lb-namecur");
-  if (cur && myFlair) wireFlairPreview(cur, myFlair);
-  // Binnengekomen via "kies <flair>" op een unlock-kaart: rooster staat al open,
-  // breng het ook in beeld (het staat onder de naam-regel en de borden).
-  // block:"start", niet "nearest": het rooster is hoger dan de modal, en
-  // "nearest" lijnt dan de ónderkant uit — precies langs de verdiende flair,
-  // die bovenaan het rooster staat.
-  if (flairPickerAutoOpen) {
-    flairPickerAutoOpen = false;
-    document.querySelector("#lb-body .lb-flair")?.scrollIntoView({ block: "start" });
-  }
+  // Flair-wegwijzer → open de 🪎-kluis (de kiezer woont daar sinds v239).
+  document.querySelector('#lb-body [data-action="rewards"]')?.addEventListener("click", () => openModal("modal-rewards"));
+}
+
+// Laad naam+flair één keer per identiteit. De flair-kiezer woont sinds de 🪎-kluis
+// niet meer op het leaderboard, dus de kluis kan open zonder dat get_my_flair ooit
+// liep — daarom hier lui i.p.v. alleen in renderLeaderboard.
+async function ensureMyIdentity() {
+  if (myIdentityLoaded || !auth.user) return;
+  try { myUsername = await rpc("get_my_username", {}) || null; } catch (e) {}
+  try { myFlair = await rpc("get_my_flair", {}) || null; } catch (e) {}
+  myIdentityLoaded = true;
 }
 
 // Sla de gekozen flair op (server valideert tegen de allow-list); lege string wist.
+// De kiezer woont sinds v239 in de 🪎-kluis (modal-rewards); bij succes herrendert
+// die zichzelf zodat de selectie meebeweegt.
 async function setMyFlair(flair) {
-  if ((myFlair || "") === (flair || "")) { flairPickerOpen = false; rerenderIdentity(); return; }
+  if ((myFlair || "") === (flair || "")) return;   // al geselecteerd = niks
   let status = "err";
   try { status = await rpc("set_my_flair", { p_flair: flair }); } catch (e) {}
-  if (status === "ok") { myFlair = flair || null; renderLeaderboard(); return; }
+  if (status === "ok") { myFlair = flair || null; renderRewards(); return; }
   alert(t("lb_flair_err"));
 }
 
@@ -4312,15 +4310,12 @@ function podiumHtml(rows, isLive) {
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
 async function renderLeaderboard() {
   const body = document.getElementById("lb-body");
-  // Vol her-render (openen, pool-wissel) → kiezer weer dicht, tenzij je hier via
-  // "kies <flair>" op een unlock-kaart binnenkomt.
-  flairPickerOpen = flairPickerAutoOpen;
   if (!auth.user) { body.innerHTML = `<p class="lb-empty">${t("lb_not_member")}</p>`; return; }
   body.innerHTML = `<p class="lb-empty">${t("loading")}</p>`;
   await fetchMyPools();
   try { myUsername = await rpc("get_my_username", {}) || null; } catch (e) {}
   try { myFlair = await rpc("get_my_flair", {}) || null; } catch (e) {}
-  if (!achvCache) { try { await fetchAchievements(); } catch (e) {} }   // verdiende prestatie-flairs in de kiezer
+  myIdentityLoaded = true;
   if (document.getElementById("modal-leaderboard").hidden) return;
   if (!myPool) { renderPoolEmptyState(body); return; }
 
@@ -5106,15 +5101,9 @@ function setBeerFx(on) {
 }
 // Speelt het bier deze winst? achvCache is de stand van de huidige identiteit;
 // die is bij een winst al gevuld (dezelfde bron als de flair-confetti gebruikt).
-// De twee win-effect-schakelaars staan in verschillende uitklappen (bier onder de
-// potjes-rij, confetti onder de zilver-pip) die tegelijk open kunnen staan. Na een
-// klik op de één spiegelen we allebei naar hun canonieke stand, zodat de ander
-// zichtbaar meebeweegt in plaats van een nu-onjuist vinkje te tonen.
-function syncWinFxSwitches(root = document) {
-  root.querySelectorAll('[data-action="cap-confetti"]').forEach((b) => b.setAttribute("aria-checked", String(flairConfettiEnabled())));
-  root.querySelectorAll('[data-action="beer-fx"]').forEach((b) => b.setAttribute("aria-checked", String(beerFxEnabled())));
-  root.querySelectorAll('[data-action="cap-goldyears"]').forEach((b) => b.setAttribute("aria-checked", String(goldYearsFxEnabled())));
-}
+// De win-effecten sluiten elkaar uit; hun aan/uit-radiogroep woont sinds v239 in
+// de 🪎-kluis (renderRewardsBody), dus een aparte spiegel-functie is niet meer
+// nodig — de radiogroep herrendert zichzelf bij een keuze.
 function beerFxActive() {
   return beerFxUnlocked(achvCache) && beerFxEnabled();
 }
@@ -5163,19 +5152,8 @@ function platinaFrameActive() {
   return platinaFrameUnlocked(achvCache) && platinaFrameEnabled();
 }
 
-// Brons-beloning (⭐) direct dragen/afleggen vanuit de prestige-track, als
-// snelkoppeling naast de volledige flair-kiezer op het leaderboard. Zet
-// alleen de globale myFlair bij server-succes; geen renderLeaderboard()-call
-// (dat bord is hier vrijwel altijd dicht en ververst toch bij het openen).
-async function toggleCapWear() {
-  const star = CAPSTONE_FLAIRS[0].emoji;
-  const next = myFlair === star ? "" : star;
-  let status = "err";
-  try { status = await rpc("set_my_flair", { p_flair: next }); } catch (e) {}
-  if (status === "ok") { myFlair = next || null; return true; }
-  alert(t("lb_flair_err"));
-  return false;
-}
+// De brons-beloning (⭐) draag je sinds v239 gewoon via het flair-rooster in de
+// 🪎-kluis (⭐ zit tussen de verdiende flairs) — geen aparte snelkoppeling meer.
 function achvTrophyDone(a, tr) {
   return tr.repeatable ? (a[tr.key] || 0) > 0 : !!a[tr.key];
 }
@@ -5789,10 +5767,9 @@ function achvCardEl(it) {
   const btn = el.querySelector(".achv-card-btn");
   if (btn) {
     btn.onclick = (e) => {
-      e.stopPropagation();   // de kaart zelf opent het paneel; deze knop de kiezer
-      flairPickerAutoOpen = true;
+      e.stopPropagation();   // de kaart zelf opent het paneel; deze knop de kluis
       closeAllModals();
-      openModal("modal-leaderboard");
+      openModal("modal-rewards");   // flair-kiezer woont sinds v239 in 🪎 Beloningen
     };
   }
   armEmojiFallbacks(el);
@@ -5943,20 +5920,16 @@ function achvDetailHtml(a, s) {
     : `<p class="achv-flairnote">${escHtml(flairs.length === 1
         ? t("achv_flair_note")(flairs[0].emoji, achvTierName(flairs[0].at))
         : t("achv_flair_note_multi")(flairs.map((f) => `${f.emoji} ${achvTierName(f.at)}`).join(" · ")))}</p>`;
+  // De 🍻-pin + "verdien bij X"-note blijven als voortgang/eer staan; de aan/uit-
+  // schakelaar is naar de 🪎-kluis verhuisd (v239, win-effect-radiogroep).
   const fxNote = fx
     ? `<p class="achv-flairnote">${escHtml(t("achv_fx_note")(fx.emoji, achvTierName(fx.at)))}</p>`
-    : "";
-  // Aan/uit verschijnt pas als je hem verdiend hebt — anders is het een knop voor
-  // iets wat nog niet bestaat. Zelfde schakelaar-stijl als de capstone-beloningen.
-  const fxAction = fx && beerFxUnlocked(a)
-    ? `<button type="button" class="cap-action" role="switch" aria-checked="${beerFxEnabled()}"` +
-      ` data-action="beer-fx">${escHtml(t("achv_fx_beer"))}</button>`
     : "";
   return `<div class="achv-detail" hidden>
       <div class="achv-pinrow">${pins}</div>
       <div class="achv-rail"><i style="width:${achvRailPct(n, s).toFixed(1)}%"></i>${ticks}</div>
       <div class="achv-ticklabels">${labels}</div>
-      ${note}${fxNote}${fxAction}</div>`;
+      ${note}${fxNote}</div>`;
 }
 
 // NIEUW-markering: alles wat nog in de achvNew-lijst staat. Wat we hier tónen
@@ -6017,46 +5990,27 @@ function achvTrophyHtml(a, tr) {
   const nextTip = tr.tiers && tier < 6 ? t("achv_next")(fmtN(tr.tiers[tier] - count), trophyTierName(tier + 1)) : "";
   const titleAttr = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"`
     : (nextTip ? ` title="${escHtml(nextTip)}"` : "");
-  // Een trofee met een titel-beloning krijgt dezelfde uitklap als de capstone-
-  // pips: tikken vult één gedeelde regel ónder het grid. Alleen zodra verdiend.
-  const act = done && tr.titleCode;
+  // Een titel (JM/GM) is niet-aflegbaar: je hébt 'm of niet (zoals GM bij een
+  // schaakmeester). Geen draag-schakelaar meer — gewoon een tegel (v239).
   const art = !done && tr.lockedArt ? tr.lockedArt : tr.art;
   const tierCls = tier > 0 ? ` achv-t${tier}` : "";   // zet --tc voor ring + chip
-  const tag = act ? "button" : "div";
-  const attrs = act ? ` type="button" aria-expanded="false" data-tkey="${tr.key}"` : "";
-  return `<${tag} class="achv-trophy${done ? "" : " locked"}${tierCls}${act ? " achv-trophy-btn" : ""}"${titleAttr}${attrs}>
+  return `<div class="achv-trophy${done ? "" : " locked"}${tierCls}"${titleAttr}>
       <span class="achv-tring${tier > 0 ? " tiered" : ""}">${achvBadgeHtml(art)}${badge}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
       <span class="achv-tname">${escHtml(t(tr.i18n))}${tierChip}</span>
       <span class="achv-tsub">${escHtml(t(`${tr.i18n}_sub`))}</span>
-    </${tag}>`;
+    </div>`;
 }
 
-// Uitklap onder het trofee-grid: één gedeeld slot, precies zoals .cap-detail
-// onder de capstone-rail. Nu alleen gevuld door Obsidiaan (titel dragen/afleggen).
-function wireTrophyActions(body) {
-  const detail = body.querySelector(".achv-tdetail");
-  if (!detail) return;
-  body.querySelectorAll(".achv-trophy-btn").forEach((btn) => {
-    btn.onclick = () => {
-      const key = btn.dataset.tkey;
-      const tr = ACHV_TROPHIES.find((x) => x.key === key);
-      const wasOpenHere = !detail.hidden && detail.dataset.tkey === key;
-      body.querySelectorAll(".achv-trophy-btn").forEach((b) => b.setAttribute("aria-expanded", "false"));
-      if (wasOpenHere || !tr) { detail.hidden = true; detail.innerHTML = ""; delete detail.dataset.tkey; return; }
-      detail.dataset.tkey = key;
-      detail.innerHTML = `<button type="button" class="cap-action" role="switch"` +
-        ` aria-checked="${myTitle === tr.titleCode}">${escHtml(t("achv_title_wear")(tr.titleCode))}</button>`;
-      detail.hidden = false;
-      btn.setAttribute("aria-expanded", "true");
-      const act = detail.querySelector(".cap-action");
-      act.onclick = async () => {
-        act.disabled = true;
-        const ok = await toggleTitleWear(tr.titleCode);
-        act.disabled = false;
-        if (ok) act.setAttribute("aria-checked", String(myTitle === tr.titleCode));
-      };
-    };
-  });
+// Titel is niet-aflegbaar (v239): draag altijd de hoogst verdiende (GM > JM). De
+// server auto-equipt al bij het toekennen (award_titles); dit is het vangnet voor
+// wie 'm ooit met de oude schakelaar had afgelegd, zodat 'm terugkomt.
+async function ensureTitleEquipped(a) {
+  if (!auth.user) return;
+  const want = a.legend ? "GM" : (a.obsidian ? "JM" : null);
+  if (!want) return;
+  await ensureMyTitle();
+  if (myTitle === want) return;
+  try { const st = await rpc("set_my_title", { p_code: want }); if (st === "ok") { myTitle = want; myTitleLoaded = true; } } catch (e) {}
 }
 
 // Alleen nodig zodra je daadwerkelijk een titel hebt — daarom lui, en niet in
@@ -6067,15 +6021,122 @@ async function ensureMyTitle() {
   try { myTitle = (await rpc("get_my_title", {})) || null; myTitleLoaded = true; } catch (e) {}
 }
 
-// Dragen/afleggen. De server weigert een titel die niet in player_titles staat,
-// dus dit is puur de bediening — de gate zit in set_my_title (db/43).
-async function toggleTitleWear(code) {
-  const next = myTitle === code ? "" : code;
-  let status = "err";
-  try { status = await rpc("set_my_title", { p_code: next }); } catch (e) {}
-  if (status === "ok") { myTitle = next || null; myTitleLoaded = true; return true; }
-  alert(t("lb_flair_err"));
-  return false;
+// ── 🪎 Beloningen (de kluis) ─────────────────────────────────────────────────
+// Garderobe: één plek om te dragen/aanzetten wat je verdiend hebt. Voortgang
+// ("nog X tot goud") blijft bij 🏅 Prestaties; hier alleen equip-bediening. Login-
+// gated (menu-item verborgen voor anon). Toont alléén wat je nú kunt dragen; wat
+// nog op slot zit staat als één gedimde 🔒-verwijzing terug naar Prestaties.
+
+// Welke schermvullende win-effecten zijn ontgrendeld? (flair-confetti = capstone-
+// zilver, bier = 2000 potjes, gouden jaartallen = capstone-goud.)
+function winFxUnlockedMap(a) {
+  return {
+    flair: !!(auth.user && a && capstoneTier(a) >= 2),
+    beer: beerFxUnlocked(a),
+    gold: goldYearsFxUnlocked(a),
+  };
+}
+// Welk effect speelt nu? Spiegelt de precedentie in finishGame (goud > bier >
+// flair-confetti > gewone confetti), maar op de opgeslagen aan/uit-vlaggen.
+function currentWinFxChoice() {
+  if (goldYearsFxActive()) return "gold";
+  if (beerFxActive()) return "beer";
+  if (winFxUnlockedMap(achvCache).flair && flairConfettiEnabled()) return "flair";
+  return "none";
+}
+// Kies precies één win-effect. De set*-functies zetten de andere twee al op "0";
+// "none" (gewone confetti) zet alle drie expliciet uit.
+function setWinFx(choice) {
+  if (choice === "flair") setFlairConfetti(true);
+  else if (choice === "beer") setBeerFx(true);
+  else if (choice === "gold") setGoldYearsFx(true);
+  else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); }
+}
+function winFxRadioHtml(unlocked) {
+  const cur = currentWinFxChoice();
+  const opts = [["none", t("rewards_wineffect_none")]];
+  if (unlocked.flair) opts.push(["flair", t("achv_cap_confetti")]);
+  if (unlocked.beer) opts.push(["beer", t("achv_fx_beer")]);
+  if (unlocked.gold) opts.push(["gold", t("achv_cap_goldyears")]);
+  const rows = opts.map(([k, lbl]) =>
+    `<button type="button" class="cap-action" role="radio" aria-checked="${cur === k}" data-winfx="${k}">${escHtml(lbl)}</button>`).join("");
+  return `<div role="radiogroup" aria-label="${escHtml(t("rewards_sect_endscreen"))}">${rows}</div>`;
+}
+function platinaToggleHtml() {
+  return `<div class="cap-detail"><button type="button" class="cap-action" role="switch" aria-checked="${platinaFrameEnabled()}" data-action="rw-platina">${escHtml(t("achv_cap_platinaframe"))}</button></div>`;
+}
+// Flair-rooster: verdiende prestatie-flairs vooraan (gouden randje), dan de
+// gesnoeide gratis-set. Altijd open (de kluis draait om kiezen — geen inklap).
+function rewardsFlairHtml() {
+  const opt = (val, label, extra) =>
+    `<button type="button" class="lb-flair-opt${extra || ""}${(myFlair || "") === val ? " sel" : ""}" data-flair="${escHtml(val)}" aria-label="${label}" title="${label}">${val || "✖"}</button>`;
+  const earned = achvEarnedFlairs();
+  return `<div class="lb-flair-opts">${
+    opt("", t("lb_flair_none"), " lb-flair-clear") +
+    earned.map((e) => opt(e, e, " lb-flair-achv")).join("") +
+    FLAIR_OPTIONS.map((e) => opt(e, e, "")).join("")}</div>`;
+}
+
+async function renderRewards() {
+  const body = document.getElementById("rewards-body");
+  if (!body) return;
+  if (!auth.user) { body.innerHTML = `<p class="stats-empty">${escHtml(t("achv_anon_note"))}</p>`; return; }
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const a = await fetchAchievements();
+  await ensureMyIdentity();
+  if (document.getElementById("modal-rewards").hidden) return;
+  if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
+  renderRewardsBody(body, a);
+}
+
+function renderRewardsBody(body, a) {
+  const unlocked = winFxUnlockedMap(a);
+  const anyWinFx = unlocked.flair || unlocked.beer || unlocked.gold;
+  const platina = platinaFrameUnlocked(a);
+  const themed = capstoneTier(a) >= 5;
+
+  let html = `<section class="rw-sect">
+      <h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>
+      ${rewardsFlairHtml()}
+    </section>`;
+  if (anyWinFx || platina) {
+    html += `<section class="rw-sect">
+        <h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>
+        ${anyWinFx ? winFxRadioHtml(unlocked) : ""}
+        ${platina ? platinaToggleHtml() : ""}
+      </section>`;
+  }
+  if (themed) {
+    html += `<section class="rw-sect">
+        <h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>
+        ${themePickerHtml()}
+      </section>`;
+  }
+  // Alles verdiend = geen wegwijzer. Anders één gedimde 🔒-regel naar Prestaties.
+  if (!(themed && unlocked.beer)) {
+    html += `<p class="rw-locked">🔒 ${escHtml(t("rewards_locked_hint"))}</p>`;
+  }
+  body.innerHTML = html;
+  wireRewards(body);
+}
+
+function wireRewards(body) {
+  // Flair kiezen (server valideert/gate't; setMyFlair herrendert de kluis).
+  body.querySelectorAll(".lb-flair-opt").forEach((b) => {
+    b.onclick = () => setMyFlair(b.dataset.flair || "");
+    wireFlairPreview(b, b.dataset.flair);
+  });
+  // Win-effect: één keuze uit de radiogroep.
+  body.querySelectorAll("[data-winfx]").forEach((b) => {
+    b.onclick = () => { setWinFx(b.dataset.winfx); renderRewards(); };
+  });
+  // Platina-sierrand aan/uit (geen win-effect, dus geen wederzijdse uitsluiting).
+  const pf = body.querySelector('[data-action="rw-platina"]');
+  if (pf) pf.onclick = () => { setPlatinaFrame(pf.getAttribute("aria-checked") !== "true"); pf.setAttribute("aria-checked", String(platinaFrameEnabled())); };
+  // Thema-swatches (diamant): pas direct toe.
+  body.querySelectorAll("[data-theme-pick]").forEach((b) => {
+    b.onclick = () => applyTheme(b.dataset.themePick);
+  });
 }
 
 async function renderAchievements() {
@@ -6085,7 +6146,7 @@ async function renderAchievements() {
   const a = await fetchAchievements();
   if (document.getElementById("modal-achv").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
-  if (a.obsidian || a.legend) await ensureMyTitle();   // de draag-schakelaar moet z'n stand kennen
+  await ensureTitleEquipped(a);   // titel is niet-aflegbaar: draag altijd de hoogst verdiende
   if (document.getElementById("modal-achv").hidden) return;
   renderAchvBoard(body, a);
 }
@@ -6107,13 +6168,13 @@ function capstoneBarHtml(a) {
   // reeksen eronder: klik = .cap-detail vult zich, nogmaals klikken sluit 'm).
   const pips = ACHV_TIER_KEYS.map((tk, i) => {
     const reached = i + 1 <= ct;
-    const clickable = (i === 0 && ct >= 1) || (i === 1 && ct >= 2) || (i === 2 && ct >= 3) || (i === 3 && ct >= 4) || (i === 4 && ct >= 5);
-    const tag = clickable ? "button" : "div";
-    const attrs = clickable ? ` type="button" aria-expanded="false" data-tier="${i}"` : "";
-    // Vergrendeld toont 🔒, NIET de beloning: de trede-icoontjes onthullen zich
-    // pas als je die trede zélf haalt — dat houdt de verrassing/suspense erin.
+    // Read-only voortgang/eer sinds v239: de bediening (dragen/aanzetten) woont in
+    // de 🪎-kluis. Een gehaalde pip is een sprong daarheen; vergrendeld = 🔒 (de
+    // beloning onthult zich pas als je 'm haalt — suspense blijft).
+    const tag = reached ? "button" : "div";
+    const attrs = reached ? ` type="button" data-cap-rewards="1"` : "";
     const ico = reached ? REWARD[i] : "🔒";
-    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : " soon"}${clickable ? " cap-pip-btn" : ""}"${attrs}>
+    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : " soon"}${reached ? " cap-pip-btn" : ""}"${attrs}>
         <span class="cap-pip-ico">${ico}</span>
         <span class="cap-pip-lbl">${escHtml(achvTierName(i))}</span>
       </${tag}>`;
@@ -6128,78 +6189,15 @@ function capstoneBarHtml(a) {
       <div class="cap-head"><span class="cap-title">${escHtml(t("achv_cap_title"))}</span></div>
       <div class="cap-rail">${pips}</div>
       <p class="cap-next">${escHtml(hint)}</p>
-      <div class="cap-detail" hidden></div>
     </div>`;
 }
 
-// Eén stuk bediening per trede — brons = ⭐ dragen/afleggen, zilver = flair-
-// confetti aan/uit, goud = gouden jaartallen aan/uit, platina = sierrand aan/uit.
-// data-tier komt overeen met ACHV_TIER_KEYS-index (0=brons … 3=platina).
-function capActionHtml(tier) {
-  if (tier === "0") {
-    const on = myFlair === CAPSTONE_FLAIRS[0].emoji;
-    return `<button type="button" class="cap-action" role="switch" aria-checked="${on}" data-action="cap-wear">${escHtml(t("achv_cap_wear"))}</button>`;
-  }
-  if (tier === "2") {
-    return `<button type="button" class="cap-action" role="switch" aria-checked="${goldYearsFxEnabled()}" data-action="cap-goldyears">${escHtml(t("achv_cap_goldyears"))}</button>`;
-  }
-  if (tier === "3") {
-    return `<button type="button" class="cap-action" role="switch" aria-checked="${platinaFrameEnabled()}" data-action="cap-platinaframe">${escHtml(t("achv_cap_platinaframe"))}</button>`;
-  }
-  if (tier === "4") {
-    return themePickerHtml();   // diamant: geen switch maar een swatch-kiezer
-  }
-  return `<button type="button" class="cap-action" role="switch" aria-checked="${flairConfettiEnabled()}" data-action="cap-confetti">${escHtml(t("achv_cap_confetti"))}</button>`;
-}
-
-// Klik op de bereikte brons/zilver-pip vult (of leegt) de gedeelde .cap-detail
-// eronder — net als de uitklapbare reeks-rijen, maar dan met één slot voor de
-// hele balk zodat er nooit meer dan één regel bij komt.
+// Een gehaalde pip springt naar de 🪎-kluis, waar je de beloning van die trede
+// draagt/aanzet (de inline uitklap-bediening is naar de kluis verhuisd, v239).
 function wireCapPips(body) {
-  const detail = body.querySelector(".cap-detail");
-  if (!detail) return;
-  body.querySelectorAll(".cap-pip-btn").forEach((btn) => {
-    btn.onclick = () => {
-      const tier = btn.dataset.tier;
-      const wasOpenHere = !detail.hidden && detail.dataset.tier === tier;
-      body.querySelectorAll(".cap-pip-btn").forEach((b) => b.setAttribute("aria-expanded", "false"));
-      if (wasOpenHere) { detail.hidden = true; detail.innerHTML = ""; delete detail.dataset.tier; return; }
-      detail.dataset.tier = tier;
-      detail.innerHTML = capActionHtml(tier);
-      detail.hidden = false;
-      btn.setAttribute("aria-expanded", "true");
-      wireCapAction(detail);
-    };
+  body.querySelectorAll("[data-cap-rewards]").forEach((btn) => {
+    btn.onclick = () => openModal("modal-rewards");
   });
-}
-function wireCapAction(detail) {
-  // Diamant: de kiezer heeft geen .cap-action-switch maar swatch-knoppen.
-  detail.querySelectorAll("[data-theme-pick]").forEach((b) => {
-    b.onclick = () => applyTheme(b.dataset.themePick);
-  });
-  const btn = detail.querySelector(".cap-action");
-  if (!btn) return;
-  btn.onclick = async () => {
-    if (btn.dataset.action === "cap-confetti") {
-      setFlairConfetti(btn.getAttribute("aria-checked") !== "true");
-      syncWinFxSwitches();   // aan → bier/goud-schakelaars elders gaan uit
-      return;
-    }
-    if (btn.dataset.action === "cap-goldyears") {
-      setGoldYearsFx(btn.getAttribute("aria-checked") !== "true");
-      syncWinFxSwitches();   // aan → bier/confetti-schakelaars elders gaan uit
-      return;
-    }
-    if (btn.dataset.action === "cap-platinaframe") {
-      setPlatinaFrame(btn.getAttribute("aria-checked") !== "true");
-      btn.setAttribute("aria-checked", String(platinaFrameEnabled()));
-      return;
-    }
-    btn.disabled = true;
-    const ok = await toggleCapWear();
-    btn.disabled = false;
-    if (ok) btn.setAttribute("aria-checked", String(myFlair === CAPSTONE_FLAIRS[0].emoji));
-  };
 }
 
 function renderAchvBoard(body, a) {
@@ -6228,18 +6226,8 @@ function renderAchvBoard(body, a) {
     <div class="achv-trophies">${dailyTrophies}</div>
     <h3 class="stats-heading">${escHtml(t("achv_sect_trophies"))}</h3>
     <div class="achv-trophies">${milestones}</div>
-    <div class="achv-tdetail" hidden></div>
     ${achvAnonNoteHtml()}`;
   wireCapPips(body);
-  wireTrophyActions(body);
-  // Bier-schakelaar in de uitklap van de potjes-rij. Staat náást de rowbtn (niet
-  // erin), dus een klik hierop klapt de rij niet dicht.
-  body.querySelectorAll('[data-action="beer-fx"]').forEach((btn) => {
-    btn.onclick = () => {
-      setBeerFx(btn.getAttribute("aria-checked") !== "true");
-      syncWinFxSwitches();   // aan → confetti-schakelaar elders gaat uit
-    };
-  });
   body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
     btn.onclick = () => {
       const row = btn.closest(".achv-row");
@@ -7145,6 +7133,8 @@ function renderMenu() {
   const statsBtn = items.querySelector('[data-action="stats"]');
   const lbBtn = items.querySelector('[data-action="leaderboard"]');
   if (lbBtn) lbBtn.hidden = !auth.user;  // 🏆 zichtbaar zodra ingelogd (pool maken/joinen kan iedereen)
+  const rwBtn = items.querySelector('[data-action="rewards"]');
+  if (rwBtn) rwBtn.hidden = !auth.user;  // 🪎 alleen-ingelogd: alles in de kluis is login-gated (flair/effecten/thema)
   // Verwijder dynamische account-knoppen (action=login|logout) maar laat
   // statische knoppen (stats) staan.
   items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
@@ -7221,6 +7211,7 @@ function openModal(id, opts) {
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-history") { renderHistory(opts && opts.date); setModalUrl("history"); }
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
+  if (id === "modal-rewards") { renderRewards(); setModalUrl("rewards"); }
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
@@ -7848,6 +7839,7 @@ async function init() {
     if (action === "stats") openModal("modal-stats");
     else if (action === "history") openModal("modal-history");
     else if (action === "achievements") openModal("modal-achv");
+    else if (action === "rewards") openModal("modal-rewards");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
@@ -7908,6 +7900,7 @@ async function init() {
     invalidateStreakExtras();  // levens/bruggen/reparatie horen bij de identiteit
     achvCache = null;      // prestaties horen bij de identiteit
     myTitle = null; myTitleLoaded = false;   // idem: gedragen titel is per account
+    myFlair = null; myUsername = null; myIdentityLoaded = false;   // naam+flair horen bij de identiteit (kluis herlaadt ze)
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
