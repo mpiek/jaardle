@@ -934,6 +934,58 @@ kbd {
 
 #input-row {
   margin-bottom: 0.4rem;
+  position: relative;
+}
+
+/* Reden-bubble bij een geweigerde gok: zweeft boven het invoerveld met een klein
+   pijltje omlaag. Rode accent-rand (afwijzing), maar rustige card-achtergrond. */
+#guess-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 4px);
+  z-index: 5;
+  max-width: min(92%, 22rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: 10px;
+  box-shadow: var(--shadow-pop);
+  color: var(--fg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+#guess-bubble.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+#guess-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--card);
+}
+
+.gb-line {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #guess-bubble { transition: opacity 0.18s ease; transform: translate(-50%, 0); }
 }
 
 #year-input {

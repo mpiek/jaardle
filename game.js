@@ -262,9 +262,9 @@ const I18N = {
     avg_word: "gem.",
     copy_prompt: "Kopieer dit:",
     cal_solved: (g, max) => `opgelost (${g}/${max})`,
-    band_warn: (jaren) => `Volgens je dichtste gok ligt het antwoord dichterbij; deze gok ligt er ${jaren} jaar vandaan — buiten het bereik. Toch gokken?`,
-    century_warn: (band) => `Je weet de eeuw al (🏛️ ${band}); deze gok valt daarbuiten. Toch gokken?`,
-    digit_warn: (d) => `Je weet het laatste cijfer al (🔢 ${d}); deze gok eindigt daar niet op. Toch gokken?`,
+    band_warn: (jaren) => `🎯 ${jaren} jaar buiten het bereik van je gokken`,
+    century_warn: (band) => `🏛️ Buiten het tijdvak (${band})`,
+    digit_warn: (d) => `🔢 Eindigt niet op ${d}`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "speler" : "spelers"} · ${s.win_pct}% opgelost${hasScore ? ` · gem. score ${s.avg_score}/100` : ""} · gem. ${s.avg_guesses} pogingen · ${s.first_try_pct}% in één keer`,
     rating_line: "Jouw rating",
@@ -499,9 +499,9 @@ const I18N = {
     avg_word: "avg.",
     copy_prompt: "Copy this:",
     cal_solved: (g, max) => `solved (${g}/${max})`,
-    band_warn: (years) => `Your closest guess puts the answer nearer; this guess is ${years} years away — outside that range. Guess anyway?`,
-    century_warn: (band) => `You already know the century (🏛️ ${band}); this guess falls outside it. Guess anyway?`,
-    digit_warn: (d) => `You already know the last digit (🔢 ${d}); this guess doesn't end in it. Guess anyway?`,
+    band_warn: (years) => `🎯 ${years} years outside your guess range`,
+    century_warn: (band) => `🏛️ Outside the era (${band})`,
+    digit_warn: (d) => `🔢 Doesn't end in ${d}`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} ${s.games === 1 ? "player" : "players"} · ${s.win_pct}% solved${hasScore ? ` · avg. score ${s.avg_score}/100` : ""} · avg. ${s.avg_guesses} guesses · ${s.first_try_pct}% first try`,
     rating_line: "Your rating",
@@ -729,9 +729,9 @@ const I18N = {
     avg_word: "Ø",
     copy_prompt: "Kopiere das:",
     cal_solved: (g, max) => `gelöst (${g}/${max})`,
-    band_warn: (jahre) => `Laut deinem besten Tipp liegt die Antwort näher; dieser Tipp liegt ${jahre} Jahre entfernt — außerhalb der Spanne. Trotzdem raten?`,
-    century_warn: (band) => `Du kennst das Jahrhundert bereits (🏛️ ${band}); dieser Tipp liegt außerhalb. Trotzdem raten?`,
-    digit_warn: (d) => `Du kennst die letzte Ziffer bereits (🔢 ${d}); dieser Tipp endet nicht darauf. Trotzdem raten?`,
+    band_warn: (jahre) => `🎯 ${jahre} Jahre außerhalb deiner Spanne`,
+    century_warn: (band) => `🏛️ Außerhalb der Epoche (${band})`,
+    digit_warn: (d) => `🔢 Endet nicht auf ${d}`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} Spieler · ${s.win_pct}% gelöst${hasScore ? ` · Ø Punkte ${s.avg_score}/100` : ""} · Ø ${s.avg_guesses} Versuche · ${s.first_try_pct}% beim ersten Versuch`,
     rating_line: "Dein Rating",
@@ -963,9 +963,9 @@ const I18N = {
     avg_word: "med.",
     copy_prompt: "Copia esto:",
     cal_solved: (g, max) => `resuelto (${g}/${max})`,
-    band_warn: (anos) => `Según tu mejor intento, la respuesta está más cerca; este intento queda a ${anos} años — fuera del margen. ¿Adivinar de todos modos?`,
-    century_warn: (band) => `Ya conoces el siglo (🏛️ ${band}); este intento queda fuera. ¿Adivinar de todos modos?`,
-    digit_warn: (d) => `Ya conoces la última cifra (🔢 ${d}); este intento no termina en ella. ¿Adivinar de todos modos?`,
+    band_warn: (anos) => `🎯 ${anos} años fuera de tu margen`,
+    century_warn: (band) => `🏛️ Fuera de la época (${band})`,
+    digit_warn: (d) => `🔢 No termina en ${d}`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} jugadores · ${s.win_pct}% resuelto${hasScore ? ` · puntos medios ${s.avg_score}/100` : ""} · ${s.avg_guesses} intentos de media · ${s.first_try_pct}% al primer intento`,
     rating_line: "Tu rating",
@@ -1197,9 +1197,9 @@ const I18N = {
     avg_word: "méd.",
     copy_prompt: "Copie isto:",
     cal_solved: (g, max) => `resolvido (${g}/${max})`,
-    band_warn: (anos) => `Pelo seu melhor palpite, a resposta está mais perto; este palpite fica a ${anos} anos — fora da faixa. Adivinhar mesmo assim?`,
-    century_warn: (band) => `Você já sabe o século (🏛️ ${band}); este palpite fica fora dele. Adivinhar mesmo assim?`,
-    digit_warn: (d) => `Você já sabe o último algarismo (🔢 ${d}); este palpite não termina nele. Adivinhar mesmo assim?`,
+    band_warn: (anos) => `🎯 ${anos} anos fora da sua faixa`,
+    century_warn: (band) => `🏛️ Fora da era (${band})`,
+    digit_warn: (d) => `🔢 Não termina em ${d}`,
     fact_stats: (s, hasScore) =>
       `🌍 ${s.games} jogadores · ${s.win_pct}% resolvido${hasScore ? ` · pontos médios ${s.avg_score}/100` : ""} · ${s.avg_guesses} tentativas em média · ${s.first_try_pct}% no primeiro palpite`,
     rating_line: "Seu rating",
@@ -1412,6 +1412,7 @@ function getYearString() {
 function setYearString(s) {
   els.input.textContent = s;
   updateSignBtn();
+  clearGuessBubble();   // invoer gewijzigd → reden-bubble is niet meer relevant
 }
 
 function clearYear() {
@@ -1691,22 +1692,28 @@ function outOfBand(guesses, year) {
   return jump > outer + BAND_SLACK ? jump : 0;
 }
 
-// Waarschuw als een gok een al betaalde hint tegenspreekt: heb je 🏛️ (de eeuw)
-// of 🔢 (het laatste cijfer) onthuld, dan kan een gok daarbuiten logisch niet
-// kloppen. Zelfde vangnet-gedachte als outOfBand — één confirm i.p.v. een
-// verspilde poging + strafpunten. Geeft de waarschuwtekst terug of null.
-function hintConflict(year) {
-  if (!state || !state.event) return null;
-  const answer = state.event.year;
-  const msgs = [];
-  if (state.centuryRevealed) {
-    const start = Math.floor(answer / 100) * 100;
-    if (year < start || year > start + 99) msgs.push(t("century_warn")(centuryBand(answer)));
+// Redenen waarom een gok logisch niet kan kloppen — puur uit info die de speler
+// zélf al heeft, dus verklapt niets. Drie vangnetten, in oplopende zekerheid:
+//   🎯 verder van je dichtste gok dan die kleur toelaat (outOfBand),
+//   🏛️ buiten het betaalde eeuw-tijdvak,
+//   🔢 eindigt niet op het betaalde laatste cijfer.
+// Is er één, dan weigeren we de gok (rood + bubble) i.p.v. een poging +
+// strafpunten te verspillen. Geeft de reden-regels terug (leeg = gok mag).
+function guessBlockReason(year) {
+  const reasons = [];
+  const oob = outOfBand(state.guesses, year);
+  if (oob) reasons.push(t("band_warn")(oob));
+  if (state && state.event) {
+    const answer = state.event.year;
+    if (state.centuryRevealed) {
+      const start = Math.floor(answer / 100) * 100;
+      if (year < start || year > start + 99) reasons.push(t("century_warn")(centuryBand(answer)));
+    }
+    if (state.lastDigitRevealed && Math.abs(year) % 10 !== Math.abs(answer) % 10) {
+      reasons.push(t("digit_warn")(Math.abs(answer) % 10));
+    }
   }
-  if (state.lastDigitRevealed && Math.abs(year) % 10 !== Math.abs(answer) % 10) {
-    msgs.push(t("digit_warn")(Math.abs(answer) % 10));
-  }
-  return msgs.length ? msgs.join("\n\n") : null;
+  return reasons;
 }
 
 function displaySource(url) {
@@ -7411,17 +7418,16 @@ function submitGuess() {
     flashInput();
     return;
   }
-  // Buiten-bereik-guard: ligt deze gok verder van je dichtste eerdere gok dan het
-  // bereik dat die gok's badge aangeeft (zie outOfBand), dan kan 't logisch gezien
-  // niet kloppen → waarschijnlijk een typefout. Even bevestigen i.p.v. een poging +
-  // strafpunten te verspillen; annuleren laat de invoer staan om te corrigeren.
-  // Gebruikt alleen je eigen gokken (geen antwoord-info → verklapt niets).
-  const oob = outOfBand(state.guesses, year);
-  if (oob && !confirm(t("band_warn")(oob))) return;
-  // Spreekt de gok een al betaalde 🏛️/🔢-hint tegen? Even bevestigen — zelfde
-  // vangnet, verklapt niets nieuws (je betaalde die info zelf al).
-  const conflict = hintConflict(year);
-  if (conflict && !confirm(conflict)) return;
+  // Kan deze gok logisch niet kloppen (buiten je eigen bereik, of buiten een al
+  // betaalde 🏛️/🔢-hint)? Dan weigeren we 'm — invoer licht rood op + een bubble
+  // met de reden, net als bij een dubbele gok. Geen verspilde poging/strafpunten;
+  // de invoer blijft staan om te corrigeren. Verklapt niets: puur je eigen info.
+  const blocked = guessBlockReason(year);
+  if (blocked.length) {
+    flashInput();
+    showGuessBubble(blocked.join("\n"));
+    return;
+  }
   const diff = state.event.year - year;
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });
@@ -7453,6 +7459,37 @@ function flashInput() {
   // force reflow so animation restarts
   void els.input.offsetWidth;
   els.input.classList.add("flash");
+}
+
+// Kleine reden-bubble boven het invoerveld bij een geweigerde gok (buiten bereik /
+// hint-conflict). Dooft vanzelf uit; verdwijnt zodra je de invoer aanpast. Eén
+// bubble tegelijk. Meerdere redenen = meerdere regeltjes.
+let guessBubbleTimer = null;
+function showGuessBubble(text) {
+  clearGuessBubble();
+  const row = document.getElementById("input-row");
+  if (!row) return;
+  const b = document.createElement("div");
+  b.id = "guess-bubble";
+  b.setAttribute("role", "status");
+  text.split("\n").forEach((line) => {
+    const p = document.createElement("span");
+    p.className = "gb-line";
+    p.textContent = line;
+    b.appendChild(p);
+  });
+  row.appendChild(b);
+  requestAnimationFrame(() => requestAnimationFrame(() => b.classList.add("show")));
+  guessBubbleTimer = setTimeout(clearGuessBubble, 3200);
+}
+
+function clearGuessBubble() {
+  if (guessBubbleTimer) { clearTimeout(guessBubbleTimer); guessBubbleTimer = null; }
+  const b = document.getElementById("guess-bubble");
+  if (!b) return;
+  b.classList.remove("show");
+  const el = b;
+  setTimeout(() => el.remove(), 180);
 }
 
 // Bewaar de hele puzzel + het bord, zodat herladen instant/offline werkt en de
