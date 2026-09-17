@@ -281,7 +281,6 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "Eindscherm", rewards_sect_theme: "Thema",
     rewards_wineffect_none: "Standaard confetti",
     rewards_locked_hint: "Meer te verdienen — bekijk 🏅 Prestaties",
-    lb_flair_moved: "Flair kies je nu in 🪎 Beloningen",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -523,7 +522,6 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "End screen", rewards_sect_theme: "Theme",
     rewards_wineffect_none: "Standard confetti",
     rewards_locked_hint: "More to earn — see 🏅 Achievements",
-    lb_flair_moved: "Pick your flair in 🪎 Rewards now",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -758,7 +756,6 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "Endbildschirm", rewards_sect_theme: "Design",
     rewards_wineffect_none: "Standard-Konfetti",
     rewards_locked_hint: "Mehr zu verdienen — siehe 🏅 Erfolge",
-    lb_flair_moved: "Deine Flair wählst du jetzt in 🪎 Belohnungen",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -997,7 +994,6 @@ const I18N = {
     rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Pantalla final", rewards_sect_theme: "Tema",
     rewards_wineffect_none: "Confeti estándar",
     rewards_locked_hint: "Más por conseguir — mira 🏅 Logros",
-    lb_flair_moved: "Ahora eliges tu distintivo en 🪎 Recompensas",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1236,7 +1232,6 @@ const I18N = {
     rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Tela final", rewards_sect_theme: "Tema",
     rewards_wineffect_none: "Confete padrão",
     rewards_locked_hint: "Mais a conquistar — veja 🏅 Conquistas",
-    lb_flair_moved: "Agora você escolhe o distintivo em 🪎 Recompensas",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -3855,9 +3850,9 @@ function nameEditorHtml() {
   const cur = myUsername
     ? `<span class="lb-namecur">${escHtml(myUsername)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_name_unset")}</span>`;
-  // Flair-kiezer is verhuisd naar de 🪎-kluis (modal-rewards); hier alleen de naam
-  // + een subtiele wegwijzer, zodat wie 'm vroeger hier zocht 'm terugvindt.
-  const flairHint = myFlair
+  // Flair-kiezer is verhuisd naar de 🪎-kluis. De flair-regel is zélf de knop
+  // ernaartoe (op de flair drukken → kluis open); geen aparte wegwijzer-tekst.
+  const flairCur = myFlair
     ? `<span class="lb-namecur">${escHtml(myFlair)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_flair_none")}</span>`;
   return `<div class="lb-identity">
@@ -3865,11 +3860,10 @@ function nameEditorHtml() {
       <span class="lb-namelabel">${t("lb_myname")}</span>${cur}
       <button id="lb-name-btn" class="lb-pillbtn">${t("lb_name_edit")}</button>
     </div>
-    <div class="lb-nameedit">
-      <span class="lb-namelabel">${t("lb_flair_label")}</span>${flairHint}
-      <button type="button" class="lb-pillbtn" data-action="rewards">🪎</button>
-    </div>
-    <p class="lb-flair-moved">${escHtml(t("lb_flair_moved"))}</p>
+    <button type="button" class="lb-nameedit lb-flair-jump" data-action="rewards">
+      <span class="lb-namelabel">${t("lb_flair_label")}</span>${flairCur}
+      <span class="lb-flair-jump-ico" aria-hidden="true">🪎 ›</span>
+    </button>
   </div>`;
 }
 function wireNameEditor() {

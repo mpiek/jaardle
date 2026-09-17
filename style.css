@@ -2511,8 +2511,15 @@ html[data-theme="light"] {
   margin-top: 1.35rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
   font-size: 0.82rem; color: var(--muted); text-align: center;
 }
-/* Wegwijzer op het leaderboard waar de flair-kiezer stond. */
-.lb-flair-moved { margin: 0.35rem 0 0; font-size: 0.76rem; color: var(--muted); }
+/* Flair-regel op het leaderboard = knop naar de 🪎-kluis (kiezer woont daar). */
+.lb-flair-jump {
+  width: 100%; margin: 0.35rem 0 0; padding: 0.3rem 0; text-align: left;
+  background: transparent; border: none; color: inherit; font: inherit;
+  font-size: 0.85rem; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.lb-flair-jump .lb-namecur:not(.lb-noname) { font-size: 1.35rem; line-height: 1; }
+.lb-flair-jump-ico { margin-left: auto; color: var(--muted); }
+.lb-flair-jump:hover .lb-flair-jump-ico { color: var(--fg); }
 
 /* Reeks-rijen: ring = huidige trede, balkje = voortgang naar de volgende. */
 .achv-rows { display: flex; flex-direction: column; gap: 0.45rem; }
