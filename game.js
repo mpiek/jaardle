@@ -1466,6 +1466,15 @@ function setKeypadDisabled(disabled) {
 
 let state = null;
 let factSlideIndex = 0;   // actieve slide in de feiten-carrousel
+// "Ankerfeit": de laatste FÉIT-slide (hoofdfeit/💡-extra) die open stond — hint-slides
+// (⏩/🏛️/🔢) tellen niet mee. Bij de gok verklapt de speler zo zelf wélk feit 'm
+// kraakte; onderwater gelogd (record_play → plays.anchor_hash) voor stats per categorie.
+let anchorFactSlot = 0;
+function noteAnchorSlide() {
+  if (!state || !state.event) return;
+  const factCount = state.event.facts.length + availableExtras();
+  if (factSlideIndex < factCount) anchorFactSlot = factSlideIndex;   // hint-slides: anker ongemoeid
+}
 
 // --- Supabase RPC-bridge (window.sb wordt in index.html gezet) ---------------
 function rpc(fn, args) {
@@ -1965,6 +1974,7 @@ function positionDots() {
 }
 
 function updateFactDots() {
+  noteAnchorSlide();   // draait bij elke slide-wissel + (her)opbouw → onthoudt het laatste feit
   els.eventText.querySelectorAll(".fact-dot")
     .forEach((d, i) => d.classList.toggle("active", i === factSlideIndex));
   positionDots();
@@ -3027,6 +3037,7 @@ function sendTelemetry() {
     p_puzzle_date: state.mode === "daily" ? (state.puzzleDate || todayKey()) : null,
     p_score: computeScore(),
     p_guesses: state.guesses.map((g) => g.year),  // voor cross-device reconstructie
+    p_anchor_hash: state.anchorHash || hash,   // feit dat open stond bij de gok (categorie-signaal)
   })
     .then((id) => {
       invalidateHistory();  // verse stats bij volgende opening
@@ -7431,6 +7442,9 @@ function submitGuess() {
   const diff = state.event.year - year;
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });
+  // Snapshot het anker op het gok-moment. Elke gok overschrijft, dus na afloop houdt
+  // dit de laatste (bij winst: winnende) gok vast — "welk feit stond open toen ik gokte".
+  state.anchorHash = state.hashes?.[anchorFactSlot] || state.hashes?.[0] || null;
   clearYear();
   renderGuesses();
   // Pop-animatie op de zojuist toegevoegde penalty (zelfde double-rAF
@@ -7703,6 +7717,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   setKeypadDisabled(false);
   clearYear();
   factSlideIndex = 0;   // start altijd bij het hoofdfeit
+  anchorFactSlot = 0;   // anker reset mee (hoofdfeit tot de speler wegbladert)
   renderEvent();
   renderHintStatus();
   renderGuesses();
