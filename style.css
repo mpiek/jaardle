@@ -1553,6 +1553,9 @@ footer {
   color: var(--muted);
 }
 .stats-century strong { color: var(--fg); }
+/* Huidige streak, pal onder de sterkste-eeuw-regel (kleinere top-marge = zit eraan vast). */
+.stats-curstreak { margin: 0.35rem 0 0; text-align: center; font-size: 0.9rem; color: var(--muted); }
+.stats-curstreak strong { color: var(--fg); }
 
 /* 🏆 Pool-rating onderaan de ⚡-pane: de conclusie ("sta ik al eerste?") ná je
    eigen cijfer en verloop, dus met een scheidingslijn los van de blokken erboven

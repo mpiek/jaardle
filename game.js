@@ -7035,6 +7035,7 @@ async function renderRatingPane(pane, req) {
   if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
   if (!drawn) pane.innerHTML = `<p class="stats-empty">${t("rating_empty")}</p>`;
   await renderCenturyStats(pane, req);
+  await renderStreakStat(pane, req);
   await renderRatingPoolBoard(pane, req);
 }
 
@@ -7096,6 +7097,15 @@ async function renderRatingPoolBoard(pane, req) {
 // Piek/dal komen apart uit get_my_rating_extremes (db/32): per pót i.p.v. per
 // dag (de echte piek kan 's avonds alweer weggezakt zijn) en pas vanaf pot 25
 // (zelfde grens als is_provisional op het bord) — geeft null tot die tijd.
+// Rauwe rating met 2 decimalen (bv. "1924,78" NL / "1924.78" EN) — laat exact
+// zien hoe dicht je bij een drempel zit (award_titles rekent op de rauwe elo,
+// niet de afgeronde). De grafiek + tooltips blijven bewust op hele punten.
+function fmtEloRaw(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return String(v);
+  return n.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false });
+}
+
 async function renderRatingStats(pane, req) {
   let hist, ext;
   try {
@@ -7127,13 +7137,16 @@ async function renderRatingStats(pane, req) {
   const delta = last.elo - first.elo;
   const badge = delta === 0 ? "" :
     `<span class="rating-delta ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : "−"}${Math.abs(delta)}</span>`;
+  // Rauwe rating (2 decimalen) voor current/piek/dal; val terug op de int als een
+  // (oudere) server-respons nog geen elo_raw/cur meestuurt.
+  const curTxt = ext && ext.cur != null ? fmtEloRaw(ext.cur) : String(last.elo);
   const extremes = ext && ext.hi && ext.lo ? `
-    <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${ext.hi.elo}</strong> <span>(${fmtDailyDate(ext.hi.d)})</span>
-      · 📉 ${t("rating_low")}: <strong>${ext.lo.elo}</strong> <span>(${fmtDailyDate(ext.lo.d)})</span></p>` : "";
+    <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${fmtEloRaw(ext.hi.elo_raw ?? ext.hi.elo)}</strong> <span>(${fmtDailyDate(ext.hi.d)})</span>
+      · 📉 ${t("rating_low")}: <strong>${fmtEloRaw(ext.lo.elo_raw ?? ext.lo.elo)}</strong> <span>(${fmtDailyDate(ext.lo.d)})</span></p>` : "";
   const sec = document.createElement("div");
   sec.className = "stats-rating";
   sec.innerHTML = `
-    <p class="rating-cur"><span class="rating-num">${last.elo}</span>${badge}
+    <p class="rating-cur"><span class="rating-num">${curTxt}</span>${badge}
       <span class="rating-range">${fmtDailyDate(first.d)} – ${fmtDailyDate(last.d)}</span></p>
     <div class="rating-chart">
       <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${t("stats_rating")}">
@@ -7205,6 +7218,20 @@ async function renderCenturyStats(pane, req) {
   const p = document.createElement("p");
   p.className = "stats-century";
   p.innerHTML = `🏛️ <strong>${t("fav_century")}:</strong> ${label} · ${avg}`;
+  pane.appendChild(p);
+}
+
+// Huidige streak — direct onder de sterkste-eeuw-regel. Client-side uit de
+// (cross-device volledige) daghistorie + streak-brug, dus geen extra RPC en
+// dezelfde bron als de 🔥-regel op het eindscherm en het stats-tegeltje.
+async function renderStreakStat(pane, req) {
+  let s;
+  try { s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras()); }
+  catch (e) { return; }
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
+  const p = document.createElement("p");
+  p.className = "stats-curstreak";
+  p.innerHTML = `🔥 <strong>${t("stat_curstreak")}:</strong> ${s.currentStreak}`;
   pane.appendChild(p);
 }
 
