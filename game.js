@@ -171,7 +171,7 @@ const I18N = {
     history_empty: "Je hebt nog geen dailies gespeeld.",
     stats_daily: "Dagelijks", stats_free: "Vrij spelen",
     stats_free_empty: "Nog geen vrije potjes gespeeld.", stats_tab_aria: "Kies statistiek",
-    stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak",
+    stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak", stat_perfect_streak: "100-punters op rij",
     stat_beststreak: "Beste streak", stat_avgscore: "Gem. score", stat_won: "Gewonnen",
     stat_last10: "Gem. laatste 10", stat_perfect: "Keer 100", stat_avgtries: "Gem. pogingen",
     fav_century: "Sterkste eeuw",
@@ -409,7 +409,7 @@ const I18N = {
     history_empty: "You haven't played any dailies yet.",
     stats_daily: "Daily", stats_free: "Free play",
     stats_free_empty: "No free-play rounds yet.", stats_tab_aria: "Choose stat",
-    stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak",
+    stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak", stat_perfect_streak: "Perfect scores in a row",
     stat_beststreak: "Best streak", stat_avgscore: "Avg. score", stat_won: "Won",
     stat_last10: "Avg. last 10", stat_perfect: "Perfect 100s", stat_avgtries: "Avg. tries",
     fav_century: "Strongest century",
@@ -650,7 +650,7 @@ const I18N = {
     history_empty: "Du hast noch keine täglichen Rätsel gespielt.",
     stats_daily: "Täglich", stats_free: "Freies Spiel",
     stats_free_empty: "Noch keine Runden im freien Spiel.", stats_tab_aria: "Statistik wählen",
-    stat_played: "Gespielt", stat_winrate: "Gewinnrate", stat_curstreak: "Aktuelle Serie",
+    stat_played: "Gespielt", stat_winrate: "Gewinnrate", stat_curstreak: "Aktuelle Serie", stat_perfect_streak: "100er in Folge",
     stat_beststreak: "Beste Serie", stat_avgscore: "Ø Punkte", stat_won: "Gewonnen",
     stat_last10: "Ø letzte 10", stat_perfect: "100er", stat_avgtries: "Ø Versuche",
     fav_century: "Stärkstes Jahrhundert",
@@ -885,7 +885,7 @@ const I18N = {
     history_empty: "Aún no has jugado ningún diario.",
     stats_daily: "Diario", stats_free: "Partida libre",
     stats_free_empty: "Aún no has jugado ninguna partida libre.", stats_tab_aria: "Elegir estadística",
-    stat_played: "Jugadas", stat_winrate: "Aciertos", stat_curstreak: "Racha actual",
+    stat_played: "Jugadas", stat_winrate: "Aciertos", stat_curstreak: "Racha actual", stat_perfect_streak: "Perfectas seguidas",
     stat_beststreak: "Mejor racha", stat_avgscore: "Puntos medios", stat_won: "Ganadas",
     stat_last10: "Media últimas 10", stat_perfect: "100 perfectos", stat_avgtries: "Intentos medios",
     fav_century: "Siglo más fuerte",
@@ -1125,7 +1125,7 @@ const I18N = {
     history_empty: "Você ainda não jogou nenhum diário.",
     stats_daily: "Diário", stats_free: "Jogo livre",
     stats_free_empty: "Ainda não jogou nenhuma partida livre.", stats_tab_aria: "Escolher estatística",
-    stat_played: "Jogadas", stat_winrate: "Acertos", stat_curstreak: "Sequência atual",
+    stat_played: "Jogadas", stat_winrate: "Acertos", stat_curstreak: "Sequência atual", stat_perfect_streak: "Perfeitas seguidas",
     stat_beststreak: "Melhor sequência", stat_avgscore: "Pontos médios", stat_won: "Vitórias",
     stat_last10: "Média últimas 10", stat_perfect: "100 perfeitos", stat_avgtries: "Tentativas médias",
     fav_century: "Século mais forte",
@@ -5198,6 +5198,7 @@ function achvNormalize(a) {
     perfect_week: a.perfect_week || 0,   // volledig client-side afgeleid uit de daghistorie (zie fetchAchievements) — geen server-veld
     obsidian: !!a.obsidian,   // gepinde titel JM uit player_titles (db/59), niet herberekend
     legend: !!a.legend,       // gepinde titel GM uit player_titles (db/59)
+    perfect_cur: a.perfect_cur ?? null,   // lopende reeks 100-punters (db/63); null = niet-ingelogd (geen serverbron)
   };
 }
 
@@ -7221,17 +7222,21 @@ async function renderCenturyStats(pane, req) {
   pane.appendChild(p);
 }
 
-// Huidige streak — direct onder de sterkste-eeuw-regel. Client-side uit de
-// (cross-device volledige) daghistorie + streak-brug, dus geen extra RPC en
-// dezelfde bron als de 🔥-regel op het eindscherm en het stats-tegeltje.
+// Huidige reeks 100-punters — direct onder de sterkste-eeuw-regel: hoeveel
+// perfecte potten je NU achter elkaar hebt (over daily + vrij spel, breekt op
+// elke pot < 100). Server-berekend (db/63 compute_achievements.perfect_cur),
+// dus alleen ingelogd; warme achvCache of anders één verse ophaal.
 async function renderStreakStat(pane, req) {
-  let s;
-  try { s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras()); }
-  catch (e) { return; }
+  if (!auth.user) return;
+  let a;
+  try { a = achvCache || await fetchAchievements(); } catch (e) { return; }
+  if (!a || a.perfect_cur == null) return;
   if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
   const p = document.createElement("p");
   p.className = "stats-curstreak";
-  p.innerHTML = `🔥 <strong>${t("stat_curstreak")}:</strong> ${s.currentStreak}`;
+  // Icoon = het badge van de "Vlekkeloos"-trofee (art "shine"), zodat het getal
+  // visueel aan die achievement vastzit i.p.v. een losse emoji.
+  p.innerHTML = `<span class="stats-perf-ico">${achvBadgeHtml("shine")}</span> <strong>${t("stat_perfect_streak")}:</strong> ${a.perfect_cur}`;
   pane.appendChild(p);
 }
 

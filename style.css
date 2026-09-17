@@ -1556,6 +1556,8 @@ footer {
 /* Huidige streak, pal onder de sterkste-eeuw-regel (kleinere top-marge = zit eraan vast). */
 .stats-curstreak { margin: 0.35rem 0 0; text-align: center; font-size: 0.9rem; color: var(--muted); }
 .stats-curstreak strong { color: var(--fg); }
+/* Klein inline-vakje voor het trofee-badge (achv-art vult 100% van z'n container). */
+.stats-perf-ico { display: inline-block; width: 1.3em; height: 1.3em; vertical-align: -0.32em; }
 
 /* 🏆 Pool-rating onderaan de ⚡-pane: de conclusie ("sta ik al eerste?") ná je
    eigen cijfer en verloop, dus met een scheidingslijn los van de blokken erboven
