@@ -6278,8 +6278,12 @@ async function renderRewards() {
   const body = document.getElementById("rewards-body");
   if (!body) return;
   if (!auth.user) { body.innerHTML = `<p class="stats-empty">${escHtml(t("achv_anon_note"))}</p>`; return; }
-  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  const a = await fetchAchievements();
+  // Warme cache → meteen tonen. achvCache ververst na elke pot (en voedt de
+  // pop-ups); alleen de eerste schermopening van een sessie is koud. Scheelt de
+  // ~2s compute_achievements bij elke heropening van de kluis (zware accounts).
+  const warm = achvCache;
+  if (!warm) body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const a = warm || await fetchAchievements();
   await ensureMyIdentity();
   if (document.getElementById("modal-rewards").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
@@ -6346,8 +6350,9 @@ function wireRewards(body) {
 async function renderAchievements() {
   const body = document.getElementById("achv-body");
   if (!body) return;
-  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  const a = await fetchAchievements();
+  const warm = achvCache;   // zie renderRewards: warme cache → geen ~2s hercompute
+  if (!warm) body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  const a = warm || await fetchAchievements();
   if (document.getElementById("modal-achv").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
   await ensureTitleEquipped(a);   // titel is niet-aflegbaar: draag altijd de hoogst verdiende
