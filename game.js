@@ -281,6 +281,8 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "Eindscherm", rewards_sect_theme: "Thema",
     rewards_wineffect_none: "Standaard confetti",
     rewards_locked_hint: "Meer te verdienen — bekijk 🏅 Prestaties",
+    reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis",
+    reward_sub_flair: "Draag 'm in je 🪎-kluis.", reward_sub_effect: "Zet 'm aan in je 🪎-kluis.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -522,6 +524,8 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "End screen", rewards_sect_theme: "Theme",
     rewards_wineffect_none: "Standard confetti",
     rewards_locked_hint: "More to earn — see 🏅 Achievements",
+    reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault",
+    reward_sub_flair: "Wear it in your 🪎 vault.", reward_sub_effect: "Switch it on in your 🪎 vault.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -756,6 +760,8 @@ const I18N = {
     rewards_sect_flair: "Flair", rewards_sect_endscreen: "Endbildschirm", rewards_sect_theme: "Design",
     rewards_wineffect_none: "Standard-Konfetti",
     rewards_locked_hint: "Mehr zu verdienen — siehe 🏅 Erfolge",
+    reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe",
+    reward_sub_flair: "Trag es in deiner 🪎-Truhe.", reward_sub_effect: "Schalt es in deiner 🪎-Truhe ein.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -994,6 +1000,8 @@ const I18N = {
     rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Pantalla final", rewards_sect_theme: "Tema",
     rewards_wineffect_none: "Confeti estándar",
     rewards_locked_hint: "Más por conseguir — mira 🏅 Logros",
+    reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja",
+    reward_sub_flair: "Llévalo en tu caja 🪎.", reward_sub_effect: "Actívalo en tu caja 🪎.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1232,6 +1240,8 @@ const I18N = {
     rewards_sect_flair: "Distintivo", rewards_sect_endscreen: "Tela final", rewards_sect_theme: "Tema",
     rewards_wineffect_none: "Confete padrão",
     rewards_locked_hint: "Mais a conquistar — veja 🏅 Conquistas",
+    reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre",
+    reward_sub_flair: "Use no seu cofre 🪎.", reward_sub_effect: "Ative no seu cofre 🪎.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -5662,6 +5672,178 @@ function coronationClosed() {
   if (code) rpc("mark_title_seen", { p_code: code }).catch(() => {});
 }
 
+// ── beloning-unlock-pop-ups (de kluis-mijlpaal, db/61) ───────────────────────
+// Kleinere broer van de kroning: een GM-achtige kaart als je iets in de 🪎-kluis
+// ontgrendelt (flair / eindscherm-effect / thema). DETECTIE is client-side: na een
+// pot heeft de client achvCache toch al, en earnedRewardKeys() leidt daar de
+// verdiende beloningen uit af (hergebruikt achvEarnedFlairs + de capstone-checks —
+// dezelfde bron als de kluis/set_my_flair, dus geen drift, geen server-recompute).
+// De server bewaart enkel de gezien-lijst (get_rewards_seen / mark_rewards_seen)
+// voor cross-device + de retroactieve reset. Faken kan hooguit jezelf een kaartje
+// tonen; een flair drágen blijft server-gated (set_my_flair), dus het leaderboard
+// is veilig. Wachtrij toont de zeldzaamste als laatste; bij een pot met óók een
+// titel vallen de beloningen eerst en is de kroning de finale (rewardClosed →
+// maybeShowCoronation). Icoon = de zelf-animerende emoji (flairPreviewHtml).
+const REWARDS = {
+  fl_star:      { emoji: "⭐",  cat: "flair",  sect: "flair" },     // brons
+  fl_bronze:    { emoji: "🥉", cat: "flair",  sect: "flair" },
+  fl_silver:    { emoji: "🥈", cat: "flair",  sect: "flair" },
+  fl_gold:      { emoji: "🥇", cat: "flair",  sect: "flair" },
+  fl_100:       { emoji: "💯", cat: "flair",  sect: "flair" },
+  fl_hourglass: { emoji: "⏳", cat: "flair",  sect: "flair" },
+  fl_moai:      { emoji: "🗿", cat: "flair",  sect: "flair" },
+  fl_dino:      { emoji: "🦕", cat: "flair",  sect: "flair" },
+  fx_confetti:  { emoji: "🎊", cat: "effect", sect: "endscreen" },  // capstone-zilver
+  fx_beer:      { emoji: "🍻", cat: "effect", sect: "endscreen" },  // 2000 potjes
+  fx_goldyears: { emoji: "🗓️", cat: "effect", sect: "endscreen" },  // capstone-goud
+  fx_platina:   { emoji: "🖼️", cat: "effect", sect: "endscreen" },  // capstone-platina
+  theme:        { emoji: "🎨", cat: "theme",  sect: "theme" },      // capstone-diamant
+};
+// Volgorde van zeldzaamheid (oplopend) → de wachtrij eindigt op de zeldzaamste.
+const REWARD_ORDER = ["fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
+  "fl_dino", "fl_hourglass", "fx_beer", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme"];
+// Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
+// dragen zelf hun emoji; de flair-naam is gewoon "Flair"/"Distintivo"/…).
+const REWARD_NAME_KEY = {
+  fx_confetti: "achv_cap_confetti", fx_goldyears: "achv_cap_goldyears",
+  fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme",
+};
+function rewardName(key) {
+  const r = REWARDS[key];
+  return r.cat === "flair" ? t("rewards_sect_flair") : t(REWARD_NAME_KEY[key]);
+}
+
+// Welke beloningen heb je nú verdiend? Puur uit achvCache — dezelfde checks als de
+// kluis/Prestaties, dus consistent met wat je écht kunt dragen/aanzetten (flairs via
+// achvEarnedFlairs = gelijk aan de set_my_flair-gate; effecten/thema via capstone).
+function earnedRewardKeys() {
+  const a = achvCache;
+  if (!a || !auth.user) return [];
+  const got = new Set();
+  const flairs = new Set(achvEarnedFlairs());   // ⭐🥉🥈🥇💯⏳🗿🦕
+  for (const [key, r] of Object.entries(REWARDS)) if (r.cat === "flair" && flairs.has(r.emoji)) got.add(key);
+  const ct = capstoneTier(a);
+  if (ct >= 2) got.add("fx_confetti");
+  if (beerFxUnlocked(a)) got.add("fx_beer");
+  if (goldYearsFxUnlocked(a)) got.add("fx_goldyears");
+  if (platinaFrameUnlocked(a)) got.add("fx_platina");
+  if (ct >= 5) got.add("theme");
+  return REWARD_ORDER.filter((k) => got.has(k));
+}
+
+let rewardQueue = [];
+let rewardReq = false;          // gezien-lijst onderweg? (max één get_rewards_seen per sessie)
+let myRewardsSeen;              // undefined = nog niet geladen · null = nooit geseed · array = gezien-lijst
+let rewardTimers = [];
+let rewardJumping = false;      // "Bekijk in kluis" gedrukt → rest van de wachtrij/kroning niet nú tonen
+let rewardScrollSect = null;    // kluis-sectie om naartoe te scrollen na een vault-sprong
+
+// Aangeroepen na een pot (checkAchievements, achvCache is dan vers). Laadt de
+// gezien-lijst één keer per sessie, baseline't stil bij de allereerste keer
+// (bestaande spelers → geen lawine), en toont anders de nog-niet-geziene unlocks.
+// Retourneert of er een pop-up verscheen — de caller beslist of de kroning (finale)
+// direct mag, of pas als de wachtrij leeg is (via rewardClosed).
+async function maybeShowRewards() {
+  if (!auth.user || !achvCache) return false;                       // geen data → niet (voor)baseline'en op leeg
+  if (document.getElementById("modal-reward")) return true;         // al eentje open
+  if (document.querySelector(".modal:not([hidden])")) return false; // ander scherm → volgende trigger
+  if (myRewardsSeen === undefined) {
+    if (rewardReq) return false;
+    rewardReq = true;
+    try { myRewardsSeen = await rpc("get_rewards_seen", {}); }
+    catch (e) { rewardReq = false; return false; }                  // netwerk-hik → retry mag
+    rewardReq = false;
+    if (!auth.user) return false;
+    if (document.querySelector(".modal:not([hidden])")) return false;
+  }
+  const earned = earnedRewardKeys();
+  if (myRewardsSeen === null) {
+    // eerste keer (retroactief): stil baseline'en op je huidige verdiensten.
+    myRewardsSeen = earned.slice();
+    rpc("mark_rewards_seen", { p_keys: earned }).catch(() => {});   // leeg → seed '{}'
+    return false;
+  }
+  const seen = new Set(myRewardsSeen);
+  const pending = earned.filter((k) => !seen.has(k));               // al op zeldzaamheid gesorteerd
+  if (!pending.length) return false;
+  rewardQueue = pending;
+  showNextReward();
+  return true;
+}
+
+function showNextReward() {
+  const key = rewardQueue.shift();
+  if (key) showReward(key);
+}
+
+function showReward(key) {
+  if (document.getElementById("modal-reward")) return;
+  const r = REWARDS[key];
+  if (!r) return;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sub = t(r.cat === "flair" ? "reward_sub_flair" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
+  const el = document.createElement("div");
+  el.id = "modal-reward";
+  el.className = "modal rw-pop rw-" + r.cat + (reduced ? "" : " rw-pop-anim");
+  el.hidden = true;
+  el.dataset.key = key;
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "rw-pop-name");
+  el.innerHTML =
+    `<div class="modal-backdrop" data-close></div>` +
+    `<div class="modal-card rw-card">` +
+      `<button type="button" class="rw-x" data-close aria-label="${escHtml(t("aria_close"))}">✕</button>` +
+      `<div class="rw-inner">` +
+        `<span class="rw-eyebrow">${escHtml(t("reward_pop_eyebrow"))}</span>` +
+        `<div class="rw-heroWrap"><span class="rw-glow"></span><span class="rw-hero">${flairPreviewHtml(r.emoji)}</span></div>` +
+        `<div class="rw-name" id="rw-pop-name">${escHtml(rewardName(key))}</div>` +
+        `<p class="rw-sub">${escHtml(sub)}</p>` +
+        `<div class="rw-btns">` +
+          `<button type="button" class="rw-go" data-rw-vault>${escHtml(t("reward_cta_vault"))}</button>` +
+          `<button type="button" class="rw-more" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
+        `</div>` +
+      `</div>` +
+    `</div>`;
+  document.body.appendChild(el);
+  el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeAllModals()));
+  el.querySelector("[data-rw-vault]").addEventListener("click", () => {
+    rewardJumping = true;            // vault-sprong: rest van de wachtrij + kroning niet nu (komt vanzelf terug)
+    rewardScrollSect = r.sect;
+    closeAllModals();                // → rewardClosed markeert deze gezien
+    openModal("modal-rewards");
+  });
+  el.hidden = false;
+  lockBodyScroll();
+  requestAnimationFrame(() => el.classList.add("in"));
+  if (reduced) return;               // CSS toont alles in rust; geen confetti
+  showPodiumConfetti(el.querySelector(".rw-card"), { burst: true });   // burst uit het midden, binnen de kaart
+  const at = (ms, fn) => rewardTimers.push(setTimeout(fn, ms));
+  at(120, () => el.querySelector(".rw-glow")?.classList.add("on"));
+  at(300, () => el.querySelector(".rw-name")?.classList.add("in"));
+  at(430, () => el.querySelector(".rw-sub")?.classList.add("in"));
+  at(560, () => el.querySelector(".rw-btns")?.classList.add("in"));
+}
+
+// Sluit-hook (zelfde patroon als coronationClosed): dicht = gevierd → markeer de
+// key gezien (server + lokale cache). Ketent daarna door: volgende in de wachtrij,
+// of — als die leeg is — de kroning als finale. Bij een vault-sprong stopt de keten
+// (de rest komt bij een volgende pot vanzelf terug: earned − gezien blijft staan).
+function rewardClosed() {
+  const el = document.getElementById("modal-reward");
+  if (!el || !el.hidden) return;
+  rewardTimers.forEach(clearTimeout); rewardTimers = [];
+  stopPodiumConfetti();
+  const key = el.dataset.key;
+  el.remove();
+  if (key) {
+    if (Array.isArray(myRewardsSeen) && !myRewardsSeen.includes(key)) myRewardsSeen.push(key);
+    rpc("mark_rewards_seen", { p_keys: [key] }).catch(() => {});
+  }
+  const jumping = rewardJumping; rewardJumping = false;
+  if (jumping) { rewardQueue = []; return; }
+  if (rewardQueue.length) { showNextReward(); return; }
+  maybeShowCoronation(true);   // wachtrij leeg → kroning als finale (self-gated; meestal niets)
+}
+
 // ── unlock-items: één kaart + smalle regels ───────────────────────────────────
 // Rangorde bij meerdere unlocks in één pot: de zeldzaamste wordt de kaart. Zegel
 // en goud wegen gelijk (4); bij gelijkspel wint de zegel, want de onthulling
@@ -5837,7 +6019,11 @@ async function checkAchievements() {
       newIds.push(`t:${tr.key}`);
     }
   }
-  if (coronationHit) maybeShowCoronation(true);   // async, self-gated op server-title_seen + open modal
+  // Mijlpaal-pop-ups: beloningen (client-side, uit achvCache) eerst, kroning finale.
+  // Elke pot goedkoop: earnedRewardKeys is pure rekenkunde op de al-opgehaalde
+  // achvCache; de gezien-lijst laadt hooguit één keer per sessie. Geen reward vrij →
+  // alsnog de kroning als er een titel viel (anders ketent rewardClosed 'm).
+  maybeShowRewards().then((shown) => { if (!shown && coronationHit) maybeShowCoronation(true); });
   const seenYears = new Set(Array.isArray(seen.yearsList) ? seen.yearsList : []);
   for (const y of a.years) if (!seenYears.has(y)) { items.push(achvStampItem(a, y)); newIds.push(`y:${y}`); }
   if (!items.length) { if (newIds.length) achvNewAdd(newIds); return coronationHit; }
@@ -6089,19 +6275,19 @@ function renderRewardsBody(body, a) {
   const platina = platinaFrameUnlocked(a);
   const themed = capstoneTier(a) >= 5;
 
-  let html = `<section class="rw-sect">
+  let html = `<section class="rw-sect" data-rw-sect="flair">
       <h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>
       ${rewardsFlairHtml()}
     </section>`;
   if (anyWinFx || platina) {
-    html += `<section class="rw-sect">
+    html += `<section class="rw-sect" data-rw-sect="endscreen">
         <h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>
         ${anyWinFx ? winFxRadioHtml(unlocked) : ""}
         ${platina ? platinaToggleHtml() : ""}
       </section>`;
   }
   if (themed) {
-    html += `<section class="rw-sect">
+    html += `<section class="rw-sect" data-rw-sect="theme">
         <h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>
         ${themePickerHtml()}
       </section>`;
@@ -6112,6 +6298,13 @@ function renderRewardsBody(body, a) {
   }
   body.innerHTML = html;
   wireRewards(body);
+  // Na een vault-sprong vanuit een beloning-pop-up: scroll naar díe sectie.
+  if (rewardScrollSect) {
+    const sect = body.querySelector(`[data-rw-sect="${rewardScrollSect}"]`);
+    rewardScrollSect = null;
+    if (sect) requestAnimationFrame(() => sect.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }));
+  }
 }
 
 function wireRewards(body) {
@@ -7220,6 +7413,7 @@ function closeModal(id) {
   document.getElementById(id).hidden = true;
   if (id === "modal-achv") achvPanelClosed();
   if (id === "modal-podium-pop") podiumPopClosed();
+  if (id === "modal-reward") rewardClosed();
   if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden)) unlockBodyScroll();
   setModalUrl(null);
 }
@@ -7230,6 +7424,7 @@ function closeAllModals() {
   achvPanelClosed();   // NIEUW-markeringen die je gezien hebt, zijn hiermee gezien
   podiumPopClosed();   // weekpodium-pop-up dicht = uitslag gezien (server-side)
   coronationClosed();  // kroning dicht = titel-mijlpaal gezien (server-side, db/59)
+  rewardClosed();      // beloning-pop-up dicht = gevierd (server-side, db/61) + keten door
   setModalUrl(null);
 }
 
@@ -7895,10 +8090,11 @@ async function init() {
     achvCache = null;      // prestaties horen bij de identiteit
     myTitle = null; myTitleLoaded = false;   // idem: gedragen titel is per account
     myFlair = null; myUsername = null; myIdentityLoaded = false;   // naam+flair horen bij de identiteit (kluis herlaadt ze)
+    myRewardsSeen = undefined;                                     // beloning-gezien-lijst hoort bij de identiteit (herlaadt na de eerste pot)
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
-    await maybeShowCoronation();  // gemiste titel-mijlpaal? kroon eerst (rarer dan het weekpodium; self-gated, één lichte RPC)
+    await maybeShowCoronation();  // gemiste titel-mijlpaal? kroon (self-gated, één lichte RPC). Beloningen niet hier: die hebben achvCache nodig (komt na een pot), geen recompute bij het openen.
     refreshWeekPodiumResult(); // verse-weekuitslag: pop-up + stip (fire-and-forget; nul kosten vóór de 1e afgeronde week / ma-ochtend)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
