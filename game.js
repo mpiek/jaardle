@@ -265,8 +265,8 @@ const I18N = {
     recap_btn: "Verdeling & team",
     recap_title: "📊 Klaar voor vandaag", recap_vs_title: "🌍 Jij versus iedereen",
     recap_dist_empty: "Nog niemand heeft deze daily opgelost.",
-    recap_better: (pct) => `🎯 beter dan ${pct}%`, recap_avg: "gemiddeld", recap_lost_short: "verl.", recap_you: "jij", recap_players: (n) => `${n} spelers vandaag`,
-    recap_firstguess: (c) => `📏 1e gok ${c} jr mis`,
+    recap_better: (pct) => `🎯 beter dan ${pct}%`, recap_avg_short: "gem.", recap_avg: "gemiddeld", recap_players: (n) => `🌍 ${n} spelers vandaag`,
+    recap_firstguess: (c) => `📏 1e gok ${c} jr mis`, recap_bin_players: (n) => n === 1 ? "1 speler" : `${n} spelers`, recap_lost_word: "verloren", recap_lost_short: "verl.", recap_you: "jij",
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
     recap_week_title: "⚔️ Weekstand",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
@@ -510,8 +510,8 @@ const I18N = {
     recap_btn: "Distribution & team",
     recap_title: "📊 Done for today", recap_vs_title: "🌍 You versus everyone",
     recap_dist_empty: "Nobody has solved this daily yet.",
-    recap_better: (pct) => `🎯 better than ${pct}%`, recap_avg: "average", recap_lost_short: "lost", recap_you: "you", recap_players: (n) => `${n} players today`,
-    recap_firstguess: (c) => `📏 1st guess ${c} yrs off`,
+    recap_better: (pct) => `🎯 better than ${pct}%`, recap_avg_short: "avg.", recap_avg: "average", recap_players: (n) => `🌍 ${n} players today`,
+    recap_firstguess: (c) => `📏 1st guess ${c} yrs off`, recap_bin_players: (n) => n === 1 ? "1 player" : `${n} players`, recap_lost_word: "lost", recap_lost_short: "lost", recap_you: "you",
     recap_team_title: "Today's team standings", recap_today: "today",
     recap_week_title: "⚔️ Week standings",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
@@ -748,8 +748,8 @@ const I18N = {
     recap_btn: "Verteilung & Team",
     recap_title: "📊 Fertig für heute", recap_vs_title: "🌍 Du gegen alle",
     recap_dist_empty: "Noch niemand hat dieses Daily gelöst.",
-    recap_better: (pct) => `🎯 besser als ${pct}%`, recap_avg: "Durchschnitt", recap_lost_short: "verl.", recap_you: "du", recap_players: (n) => `${n} Spieler heute`,
-    recap_firstguess: (c) => `📏 1. Tipp ${c} J. daneben`,
+    recap_better: (pct) => `🎯 besser als ${pct}%`, recap_avg_short: "Ø", recap_avg: "Durchschnitt", recap_players: (n) => `🌍 ${n} Spieler heute`,
+    recap_firstguess: (c) => `📏 1. Tipp ${c} J. daneben`, recap_bin_players: (n) => n === 1 ? "1 Spieler" : `${n} Spieler`, recap_lost_word: "verloren", recap_lost_short: "verl.", recap_you: "du",
     recap_team_title: "Team-Stand heute", recap_today: "heute",
     recap_week_title: "⚔️ Wochenstand",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
@@ -990,8 +990,8 @@ const I18N = {
     recap_btn: "Distribución y equipo",
     recap_title: "📊 Listo por hoy", recap_vs_title: "🌍 Tú contra todos",
     recap_dist_empty: "Nadie ha resuelto todavía este diario.",
-    recap_better: (pct) => `🎯 mejor que el ${pct}%`, recap_avg: "promedio", recap_lost_short: "perd.", recap_you: "tú", recap_players: (n) => `${n} jugadores hoy`,
-    recap_firstguess: (c) => `📏 1.er intento: ${c} años`,
+    recap_better: (pct) => `🎯 mejor que el ${pct}%`, recap_avg_short: "prom.", recap_avg: "promedio", recap_players: (n) => `🌍 ${n} jugadores hoy`,
+    recap_firstguess: (c) => `📏 1.er intento: ${c} años`, recap_bin_players: (n) => n === 1 ? "1 jugador" : `${n} jugadores`, recap_lost_word: "perdido", recap_lost_short: "perd.", recap_you: "tú",
     recap_team_title: "Marcador del equipo hoy", recap_today: "hoy",
     recap_week_title: "⚔️ Clasificación semanal",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
@@ -1232,8 +1232,8 @@ const I18N = {
     recap_btn: "Distribuição e equipe",
     recap_title: "📊 Pronto por hoje", recap_vs_title: "🌍 Você contra todos",
     recap_dist_empty: "Ninguém resolveu este diário ainda.",
-    recap_better: (pct) => `🎯 melhor que ${pct}%`, recap_avg: "média", recap_lost_short: "perd.", recap_you: "você", recap_players: (n) => `${n} jogadores hoje`,
-    recap_firstguess: (c) => `📏 1º palpite: ${c} anos`,
+    recap_better: (pct) => `🎯 melhor que ${pct}%`, recap_avg_short: "méd.", recap_avg: "média", recap_players: (n) => `🌍 ${n} jogadores hoje`,
+    recap_firstguess: (c) => `📏 1º palpite: ${c} anos`, recap_bin_players: (n) => n === 1 ? "1 jogador" : `${n} jogadores`, recap_lost_word: "perdido", recap_lost_short: "perd.", recap_you: "você",
     recap_team_title: "Placar da equipe hoje", recap_today: "hoje",
     recap_week_title: "⚔️ Classificação da semana",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
@@ -4851,7 +4851,7 @@ function buildHistogram(dist, myScore, won) {
   bars.push({ count: fine[FINE_BINS - 1] || 0, from: 100 });
   const n = bars.length, loScore = lo * 5;
   const xOf = (sc) => {
-    if (sc >= 100) return ((n - 0.5) / n) * 100;
+    if (sc >= 100) return 99.7;   // 100 = het maximum: tegen de rechterrand (pin), geen lijn
     const idx = 1 + (Math.max(sc, loScore) - loScore) / step;   // 1 = de verl.-staaf
     return (Math.min(idx, n - 1) / n) * 100;
   };
@@ -4920,6 +4920,8 @@ function recapDistHtml(buckets, stats, scoreRank) {
   const first = state.guesses[0];
   const myFD = first ? Math.abs(first.diff) : null;
   const avgFD = stats && enough && stats.avg_first_dist != null ? Math.round(Number(stats.avg_first_dist)) : null;
+  // Twee tegels zoals live (v250): links jouw score, tier, "beter dan X%" en
+  // 📏-afstand; rechts het gemiddelde, aantal spelers en de gemiddelde 📏-afstand.
   const tiles = `<div class="score-tiles">` +
     `<div class="score-tile">` +
       `<span class="tile-val tile-me">${score}</span>` +
@@ -4937,8 +4939,12 @@ function recapDistHtml(buckets, stats, scoreRank) {
   const n = bars.length;
   const cols = `grid-template-columns:repeat(${n},minmax(0,1fr))`;
   const max = Math.max(1, ...bars.map((b) => b.count));
+  // Bereik-label per staaf voor de detailregel: "verloren", "70–79", "100".
+  const rangeOf = (b) => b.from == null ? t("recap_lost_word") : b.from === 100 ? "100" : `${b.from}–${b.from + step - 1}`;
+  // Elke kolom is een knop (hele hoogte = raakvlak); tikken vult de detailregel.
   const barsHtml = bars.map((b, i) =>
-    `<span class="hist-bar${i === mine ? " hist-me" : ""}" style="height:${b.count ? Math.max(4, Math.round((b.count / max) * 100)) : 0}%" title="${b.count}"></span>`).join("");
+    `<button type="button" class="hist-col${i === mine ? " hist-col-me" : ""}" data-range="${rangeOf(b)}" data-count="${b.count}" aria-label="${rangeOf(b)}: ${t("recap_bin_players")(b.count)}">` +
+    `<span class="hist-bar${i === mine ? " hist-me" : ""}" style="height:${b.count ? Math.max(4, Math.round((b.count / max) * 100)) : 0}%"></span></button>`).join("");
   // As-labels: verl., dan de staaf-ondergrenzen — bij 5-puntsstaven alleen de tientallen.
   const labels = bars.map((b, i) => {
     const txt = b.from == null ? t("recap_lost_short") : (step === 5 && b.from % 10 !== 0 && b.from !== 100) ? "" : String(b.from);
@@ -4950,9 +4956,18 @@ function recapDistHtml(buckets, stats, scoreRank) {
   const x = state.won ? xOf(score) : (0.5 / n) * 100;
   const pinCls = x < 9 ? "hist-pin hist-pin-left" : x > 91 ? "hist-pin hist-pin-right" : "hist-pin";
   const pinStyle = (x < 9 || x > 91) ? "" : ` style="left:${x.toFixed(1)}%"`;
-  const pin = `<div class="hist-pinrow"><span class="${pinCls}"${pinStyle}>${t("recap_you")} · ${score} ${tier.emoji}</span></div>`;
-  const meLine = `<span class="hist-me-line" style="left:${x.toFixed(1)}%"></span>`;
-  return `<section class="recap-section">${head}${tiles}${pin}<div class="hist" style="${cols}">${barsHtml}${meLine}</div><div class="hist-axis" style="${cols}">${labels}</div></section>`;
+  // De lijn markeert je exacte positie binnen een staaf; bij een perfecte 100 en
+  // bij verlies is er geen "positie" — dan alleen de groene staaf + pin.
+  const meLine = (state.won && score < 100) ? `<span class="hist-me-line" style="left:${x.toFixed(1)}%"></span>` : "";
+  // Gemiddelde van iedereen als grijze stippellijn met klein label in de pinrij
+  // (de pin ligt erboven als ze elkaar raken).
+  const avgX = avg != null ? xOf(avg).toFixed(1) : null;
+  const avgLine = avgX != null ? `<span class="hist-avg-line" style="left:${avgX}%"></span>` : "";
+  const avgLabel = avgX != null ? `<span class="hist-avg-label" style="left:${avgX}%">${t("recap_avg_short")}</span>` : "";
+  const pin = `<div class="hist-pinrow">${avgLabel}<span class="${pinCls}"${pinStyle}>${t("recap_you")} · ${score} ${tier.emoji}</span></div>`;
+  // Detailregel: standaard jouw eigen staaf.
+  const detail = `<p class="hist-detail" aria-live="polite">${rangeOf(bars[mine])} · ${t("recap_bin_players")(bars[mine].count)}</p>`;
+  return `<section class="recap-section">${head}${tiles}${pin}<div class="hist" style="${cols}">${barsHtml}${avgLine}${meLine}</div><div class="hist-axis" style="${cols}">${labels}</div>${detail}</section>`;
 }
 
 async function renderRecap() {
@@ -4981,6 +4996,15 @@ async function renderRecap() {
     if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
   }
   armEmojiFallbacks(body);
+  // Tik op een staaf → detailregel toont bereik + aantal spelers van die staaf.
+  const detailEl = body.querySelector(".hist-detail");
+  body.querySelectorAll(".hist-col").forEach((col) => {
+    col.onclick = () => {
+      body.querySelectorAll(".hist-col.active").forEach((c) => c.classList.remove("active"));
+      col.classList.add("active");
+      if (detailEl) detailEl.textContent = `${col.dataset.range} · ${t("recap_bin_players")(Number(col.dataset.count) || 0)}`;
+    };
+  });
   const sbtn = document.getElementById("recap-share-btn");
   if (sbtn) sbtn.onclick = () => doShare(sbtn);
 }
