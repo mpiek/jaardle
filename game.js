@@ -214,6 +214,8 @@ const I18N = {
     lb_invite_text: (name) => `🏆 Doe mee met "${name}" op Jaardle — raad elke dag het jaar van een historische gebeurtenis:`,
     lb_yes: "Ja", lb_no: "Nee", lb_err_code: "Onbekende code", lb_err_name: "Naam moet 2–30 tekens zijn", lb_err_generic: "Er ging iets mis",
     lb_myname: "Jouw naam:", lb_name_edit: "✏️ Wijzig", lb_name_unset: "(niet ingesteld)",
+    lb_myname_short: "Naam", lb_flair_label_short: "Flair",
+    lb_name_edit_title: "Tik om je naam te wijzigen", lb_name_save: "Opslaan", lb_name_cancel: "Annuleren",
     lb_name_prompt: "Kies je weergavenaam (2–20 tekens; letters, cijfers, spatie, _ of -):",
     lb_name_taken: "Die naam is al bezet — kies een andere.",
     lb_name_invalid_length: "Naam moet tussen 2 en 20 tekens lang zijn.",
@@ -457,6 +459,8 @@ const I18N = {
     lb_invite_text: (name) => `🏆 Join "${name}" on Jaardle — guess the year of a historic event every day:`,
     lb_yes: "Yes", lb_no: "No", lb_err_code: "Unknown code", lb_err_name: "Name must be 2–30 characters", lb_err_generic: "Something went wrong",
     lb_myname: "Your name:", lb_name_edit: "✏️ Edit", lb_name_unset: "(not set)",
+    lb_myname_short: "Name", lb_flair_label_short: "Flair",
+    lb_name_edit_title: "Tap to change your name", lb_name_save: "Save", lb_name_cancel: "Cancel",
     lb_name_prompt: "Choose your display name (2–20 chars; letters, digits, space, _ or -):",
     lb_name_taken: "That name is taken — pick another.",
     lb_name_invalid_length: "Name must be between 2 and 20 characters.",
@@ -693,6 +697,8 @@ const I18N = {
     lb_invite_text: (name) => `🏆 Mach mit bei "${name}" auf Jaardle — errate jeden Tag das Jahr eines historischen Ereignisses:`,
     lb_yes: "Ja", lb_no: "Nein", lb_err_code: "Unbekannter Code", lb_err_name: "Name muss 2–30 Zeichen lang sein", lb_err_generic: "Etwas ist schiefgelaufen",
     lb_myname: "Dein Name:", lb_name_edit: "✏️ Ändern", lb_name_unset: "(nicht festgelegt)",
+    lb_myname_short: "Name", lb_flair_label_short: "Flair",
+    lb_name_edit_title: "Zum Ändern deines Namens tippen", lb_name_save: "Speichern", lb_name_cancel: "Abbrechen",
     lb_name_prompt: "Wähle deinen Anzeigenamen (2–20 Zeichen; Buchstaben, Ziffern, Leerzeichen, _ oder -):",
     lb_name_taken: "Dieser Name ist vergeben — wähle einen anderen.",
     lb_name_invalid_length: "Name muss zwischen 2 und 20 Zeichen lang sein.",
@@ -933,6 +939,8 @@ const I18N = {
     lb_invite_text: (name) => `🏆 Únete a "${name}" en Jaardle — adivina cada día el año de un acontecimiento histórico:`,
     lb_yes: "Sí", lb_no: "No", lb_err_code: "Código desconocido", lb_err_name: "El nombre debe tener entre 2 y 30 caracteres", lb_err_generic: "Algo salió mal",
     lb_myname: "Tu nombre:", lb_name_edit: "✏️ Cambiar", lb_name_unset: "(sin definir)",
+    lb_myname_short: "Nombre", lb_flair_label_short: "Distintivo",
+    lb_name_edit_title: "Toca para cambiar tu nombre", lb_name_save: "Guardar", lb_name_cancel: "Cancelar",
     lb_name_prompt: "Elige tu nombre visible (2–20 caracteres; letras, cifras, espacios, _ o -):",
     lb_name_taken: "Ese nombre ya está cogido — elige otro.",
     lb_name_invalid_length: "El nombre debe tener entre 2 y 20 caracteres.",
@@ -1173,6 +1181,8 @@ const I18N = {
     lb_invite_text: (name) => `🏆 Entre em "${name}" no Jaardle — adivinhe todo dia o ano de um acontecimento histórico:`,
     lb_yes: "Sim", lb_no: "Não", lb_err_code: "Código desconhecido", lb_err_name: "O nome deve ter entre 2 e 30 caracteres", lb_err_generic: "Algo deu errado",
     lb_myname: "Seu nome:", lb_name_edit: "✏️ Alterar", lb_name_unset: "(não definido)",
+    lb_myname_short: "Nome", lb_flair_label_short: "Emblema",
+    lb_name_edit_title: "Toque para mudar seu nome", lb_name_save: "Salvar", lb_name_cancel: "Cancelar",
     lb_name_prompt: "Escolha seu nome visível (2–20 caracteres; letras, números, espaços, _ ou -):",
     lb_name_taken: "Esse nome já está em uso — escolha outro.",
     lb_name_invalid_length: "O nome deve ter entre 2 e 20 caracteres.",
@@ -3865,30 +3875,69 @@ function wireFlairPreview(el, flair) {
 }
 
 function nameEditorHtml() {
-  const cur = myUsername
+  const nm = myUsername
     ? `<span class="lb-namecur">${escHtml(myUsername)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_name_unset")}</span>`;
-  // Flair-kiezer is verhuisd naar de 🪎-kluis. De flair-regel is zélf de knop
-  // ernaartoe (op de flair drukken → kluis open); geen aparte wegwijzer-tekst.
   const flairCur = myFlair
     ? `<span class="lb-namecur">${escHtml(myFlair)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_flair_none")}</span>`;
+  // Één regel: naam+potloodje (= klik-trigger voor inline bewerken) links, flair-
+  // chip (= sprong naar de 🪎-kluis) rechts. De edit-rij en foutregel staan klaar
+  // maar verborgen; wireNameEditor wisselt ertussen zonder het bord te herladen.
   return `<div class="lb-identity">
-    <div class="lb-nameedit">
-      <span class="lb-namelabel">${t("lb_myname")}</span>${cur}
-      <button id="lb-name-btn" class="lb-pillbtn">${t("lb_name_edit")}</button>
+    <div class="lb-id-row" data-id-rest>
+      <button type="button" class="lb-name-trigger" data-action="name-edit" title="${t("lb_name_edit_title")}">
+        <span class="lb-namelabel">${t("lb_myname_short")}</span>${nm}
+        <span class="lb-pencil-hint" aria-hidden="true">✏️</span>
+      </button>
+      <button type="button" class="lb-flair-jump" data-action="rewards">
+        <span class="lb-namelabel">${t("lb_flair_label_short")}</span>${flairCur}
+        <span class="lb-flair-jump-ico" aria-hidden="true">›</span>
+      </button>
     </div>
-    <button type="button" class="lb-nameedit lb-flair-jump" data-action="rewards">
-      <span class="lb-namelabel">${t("lb_flair_label")}</span>${flairCur}
-      <span class="lb-flair-jump-ico" aria-hidden="true">🪎 ›</span>
-    </button>
+    <div class="lb-id-row" data-id-edit hidden>
+      <span class="lb-namelabel">${t("lb_myname_short")}</span>
+      <input type="text" class="lb-name-input" data-name-input maxlength="20" autocomplete="off" aria-label="${t("lb_myname")}">
+      <button type="button" class="lb-icon-ok" data-name-save title="${t("lb_name_save")}" aria-label="${t("lb_name_save")}">✓</button>
+      <button type="button" class="lb-icon-cancel" data-name-cancel title="${t("lb_name_cancel")}" aria-label="${t("lb_name_cancel")}">✕</button>
+    </div>
+    <p class="lb-name-err" data-name-err hidden></p>
   </div>`;
 }
 function wireNameEditor() {
-  const btn = document.getElementById("lb-name-btn");
-  if (btn) btn.onclick = promptSetUsername;
-  // Flair-wegwijzer → open de 🪎-kluis (de kiezer woont daar sinds v239).
-  document.querySelector('#lb-body [data-action="rewards"]')?.addEventListener("click", () => openModal("modal-rewards"));
+  const root = document.querySelector("#lb-body .lb-identity");
+  if (!root) return;
+  const rest = root.querySelector("[data-id-rest]");
+  const edit = root.querySelector("[data-id-edit]");
+  const input = root.querySelector("[data-name-input]");
+  const errEl = root.querySelector("[data-name-err]");
+  const enterEdit = () => {
+    rest.hidden = true; edit.hidden = false; errEl.hidden = true;
+    input.value = myUsername || "";
+    input.focus(); input.select();
+  };
+  const exitEdit = () => { edit.hidden = true; rest.hidden = false; errEl.hidden = true; };
+  const save = async () => {
+    const status = await saveUsername(input.value);
+    if (status === "ok") return;   // ok → renderLeaderboard() herbouwt de hele regel
+    errEl.textContent = {
+      taken: t("lb_name_taken"),
+      invalid_length: t("lb_name_invalid_length"),
+      invalid_chars: t("lb_name_invalid_chars"),
+    }[status] || t("lb_name_err");
+    errEl.hidden = false; input.focus();
+  };
+  root.querySelector('[data-action="name-edit"]')?.addEventListener("click", enterEdit);
+  root.querySelector("[data-name-save]")?.addEventListener("click", save);
+  root.querySelector("[data-name-cancel]")?.addEventListener("click", exitEdit);
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); save(); }
+    // Esc annuleert de edit; stopPropagation houdt de globale Esc (die álle modals
+    // sluit) tegen, zodat het leaderboard open blijft.
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); exitEdit(); }
+  });
+  // Flair-chip → open de 🪎-kluis mét terugkeer naar het bord (kiezer woont daar sinds v239).
+  root.querySelector('[data-action="rewards"]')?.addEventListener("click", () => openModal("modal-rewards", { returnTo: "modal-leaderboard" }));
 }
 
 // Laad naam+flair één keer per identiteit. De flair-kiezer woont sinds de 🪎-kluis
@@ -3905,33 +3954,44 @@ async function ensureMyIdentity() {
 // De kiezer woont sinds v239 in de 🪎-kluis (modal-rewards); bij succes herrendert
 // die zichzelf zodat de selectie meebeweegt.
 async function setMyFlair(flair) {
-  if ((myFlair || "") === (flair || "")) return;   // al geselecteerd = niks
+  if ((myFlair || "") === (flair || "")) {    // al geselecteerd = geen RPC…
+    if (rewardsReturnTo) flairPickedReturn();  // …maar wél terug als je vanaf het bord kwam
+    return;
+  }
   let status = "err";
   try { status = await rpc("set_my_flair", { p_flair: flair }); } catch (e) {}
-  if (status === "ok") { myFlair = flair || null; renderRewards(); return; }
+  if (status === "ok") {
+    myFlair = flair || null;
+    renderRewards();                 // selectie-ring verspringt naar de nieuwe keuze
+    if (rewardsReturnTo) flairPickedReturn();
+    return;
+  }
   alert(t("lb_flair_err"));
+}
+// Sprong je vanaf het bord naar de kluis? Na een korte bevestigings-beat (de ring
+// is zichtbaar) automatisch terug naar het bord, waar je flair groot bij je naam
+// staat. De guard vangt af dat je intussen zelf al terugging (rewardsReturnTo gewist).
+function flairPickedReturn() {
+  const target = rewardsReturnTo;
+  setTimeout(() => { if (rewardsReturnTo === target) rewardsReturn(); }, 450);
 }
 
 // Vraag een nieuwe weergavenaam en sla 'm op via set_my_username. De server
 // valideert (lengte 2–20, alleen [A-Za-z0-9 _-], hoofdletter-ongevoelig uniek)
 // en geeft een status-code terug die we naar een melding mappen. Render-laag
 // escapet de naam altijd (escHtml), dus geen HTML/script-injectie op het bord.
-async function promptSetUsername() {
-  const name = prompt(t("lb_name_prompt"), myUsername || "");
-  if (name == null) return;   // geannuleerd
+// Sla een nieuwe weergavenaam op via set_my_username en geef de status-code terug;
+// de inline editor (wireNameEditor) mapt die naar een eigen foutregel i.p.v. alert().
+// De server valideert (2–20, [A-Za-z0-9 _-], hoofdletter-ongevoelig uniek); de
+// render-laag escapet de naam altijd (escHtml), dus geen HTML/script-injectie.
+async function saveUsername(name) {
   let status = "err";
   try { status = await rpc("set_my_username", { p_name: name }); } catch (e) {}
   if (status === "ok") {
     myUsername = name.trim();
     renderLeaderboard();   // herlaadt bord → nieuwe naam verschijnt overal
-    return;
   }
-  const msg = {
-    taken: t("lb_name_taken"),
-    invalid_length: t("lb_name_invalid_length"),
-    invalid_chars: t("lb_name_invalid_chars"),
-  }[status] || t("lb_name_err");
-  alert(msg);
+  return status;
 }
 
 // "YYYY-MM-DD" → korte gelokaliseerde datum (bv. "12 jun" / "12 Jun") voor de daily-kop.
@@ -7470,6 +7530,17 @@ function unlockBodyScroll() {
 const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards",
   "modal-leaderboard", "modal-recap", "modal-login"];
 
+// Kwam je via de flair-chip op het bord in de 🪎-kluis? Dan onthouden we waarheen
+// je terug moet: de '‹ Leaderboard'-knop, een gekozen flair én ✕/backdrop/Esc
+// brengen je terug naar het bord i.p.v. naar het spel. Vanaf het menu blijft dit
+// null → geen terugknop, geen auto-terug (er is niks om naar terug te keren).
+let rewardsReturnTo = null;
+function rewardsReturn() {
+  const target = rewardsReturnTo || "modal-leaderboard";
+  rewardsReturnTo = null;
+  openModal(target);
+}
+
 function openModal(id, opts) {
   // Eén scherm tegelijk: een ander open paneel gaat éérst dicht (met z'n gezien-
   // hook), zodat panelen niet stapelen — sluiten brengt je dan naar het spel terug,
@@ -7484,7 +7555,12 @@ function openModal(id, opts) {
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-history") { renderHistory(opts && opts.date); setModalUrl("history"); }
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
-  if (id === "modal-rewards") { renderRewards(); setModalUrl("rewards"); }
+  if (id === "modal-rewards") {
+    rewardsReturnTo = (opts && opts.returnTo) || null;   // set door de flair-chip; anders geen terug
+    const backBtn = document.getElementById("rewards-back");
+    if (backBtn) backBtn.hidden = !rewardsReturnTo;
+    renderRewards(); setModalUrl("rewards");
+  }
   if (id === "modal-recap") renderRecap();
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
@@ -7506,6 +7582,7 @@ function closeModal(id) {
 
 function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+  rewardsReturnTo = null;   // alles dicht = geen openstaande terugkeer naar het bord
   unlockBodyScroll();
   achvPanelClosed();   // NIEUW-markeringen die je gezien hebt, zijn hiermee gezien
   podiumPopClosed();   // weekpodium-pop-up dicht = uitslag gezien (server-side)
@@ -8143,13 +8220,22 @@ async function init() {
   renderMenu();
   syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → vinkje bijzetten
 
-  // Modals: backdrop / ✕ knop / Escape.
-  document.querySelectorAll(".modal [data-close]").forEach((el) => {
+  // Modals: backdrop / ✕ knop / Escape. De kluis (modal-rewards) is bijzonder: kwam
+  // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc
+  // je terug naar het bord i.p.v. het hele scherm te sluiten. Daarom apart bedraad.
+  document.querySelectorAll(".modal:not(#modal-rewards) [data-close]").forEach((el) => {
     el.addEventListener("click", () => closeAllModals());
   });
+  document.querySelectorAll("#modal-rewards [data-close]").forEach((el) => {
+    el.addEventListener("click", () => { if (rewardsReturnTo) rewardsReturn(); else closeAllModals(); });
+  });
+  document.getElementById("rewards-back")?.addEventListener("click", rewardsReturn);
   document.getElementById("help-btn")?.addEventListener("click", () => openModal("modal-help"));
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeAllModals();
+    if (e.key !== "Escape") return;
+    const rw = document.getElementById("modal-rewards");
+    if (rewardsReturnTo && rw && !rw.hidden) { rewardsReturn(); return; }
+    closeAllModals();
   });
   const loginForm = document.getElementById("login-form");
   loginForm.addEventListener("submit", (e) => doAuth("signin", e));

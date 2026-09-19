@@ -1448,6 +1448,16 @@ footer {
   border-radius: 6px;
 }
 .modal-close:hover { background: var(--card-soft); color: var(--fg); }
+/* Contextuele terugknop in de kluis-header: alleen zichtbaar als je via de flair-
+   chip vanaf het bord sprong (JS toont/verbergt 'm). Brengt je terug naar 🏆. */
+.modal-back {
+  appearance: none; display: inline-flex; align-items: center; gap: 0.3rem;
+  background: var(--card-soft); border: 1px solid var(--border); color: var(--fg);
+  font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  padding: 0.34rem 0.7rem 0.34rem 0.55rem; border-radius: 999px; line-height: 1;
+}
+.modal-back:hover { background: var(--border); }
+.modal-back .mb-chev { color: var(--muted); font-size: 0.95rem; }
 .modal-body {
   padding: 1rem;
   display: flex;
@@ -2373,23 +2383,49 @@ footer {
   cursor: pointer;
 }
 .lb-form-row button:hover { background: var(--border); }
-/* zelfgekozen weergavenaam + flair (boven het bord) */
+/* zelfgekozen weergavenaam + flair (boven het bord) — één regel */
 .lb-identity {
   margin: 0 0 0.9rem; padding-bottom: 0.9rem;
   border-bottom: 1px solid var(--border);
 }
-.lb-nameedit {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+.lb-id-row {
+  display: flex; align-items: center; gap: 0.5rem;
   font-size: 0.85rem;
 }
-.lb-namelabel { color: var(--muted); }
+.lb-namelabel { color: var(--muted); flex: 0 0 auto; }
 .lb-namecur { font-weight: 700; }
 .lb-noname { color: var(--muted); font-weight: 400; font-style: italic; }
-.lb-nameedit .lb-pillbtn { margin-left: auto; }
-.lb-flair { margin-top: 0.65rem; font-size: 0.85rem; }
-/* Je eigen flair op de ingeklapte regel lekker groot — daar doe je het voor.
-   Alleen de emoji zelf; de "geen flair"-placeholder blijft gewone tekst. */
-.lb-flair .lb-namecur:not(.lb-noname) { font-size: 1.35rem; line-height: 1; }
+/* De naam zélf (met een subtiel potloodje als hint) is de klik-trigger — geen
+   apart knopje meer. Groter, makkelijker tikdoel; naam kapt af met … zodat de
+   flair-chip rechts altijd bereikbaar blijft. */
+.lb-name-trigger {
+  display: flex; align-items: center; gap: 0.45rem;
+  min-width: 0; flex: 1 1 auto;
+  appearance: none; cursor: pointer; font: inherit; text-align: left;
+  background: transparent; border: 1px solid transparent; color: var(--fg);
+  padding: 0.25rem 0.4rem; border-radius: 10px;
+}
+.lb-name-trigger:hover { background: var(--card-soft); border-color: var(--border); }
+.lb-name-trigger .lb-namecur { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.lb-pencil-hint { flex: 0 0 auto; color: var(--muted); font-size: 0.8rem; }
+.lb-name-trigger:hover .lb-pencil-hint { color: var(--fg); }
+/* Inline bewerken: het veld pakt de volle regelbreedte, de flair-chip wijkt. */
+.lb-name-input {
+  flex: 1 1 auto; min-width: 0; font: inherit; font-size: 0.95rem;
+  background: var(--card-soft); border: 1px solid var(--accent); border-radius: 8px;
+  color: var(--fg); padding: 0.4rem 0.55rem;
+}
+.lb-name-input:focus { outline: none; }
+.lb-icon-ok, .lb-icon-cancel {
+  flex: 0 0 auto; width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--card-soft);
+  cursor: pointer; font-size: 0.95rem; line-height: 1;
+}
+.lb-icon-ok { color: var(--green-text); }
+.lb-icon-cancel { color: var(--muted); }
+.lb-icon-ok:hover, .lb-icon-cancel:hover { background: var(--border); }
+.lb-name-err { margin: 0.5rem 0 0; font-size: 0.78rem; color: var(--danger); }
 .lb-flair-opts { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
 .lb-flair-opt {
   width: 38px; height: 38px;
@@ -2564,14 +2600,17 @@ html[data-theme="light"] {
   margin-top: 1.35rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
   font-size: 0.82rem; color: var(--muted); text-align: center;
 }
-/* Flair-regel op het leaderboard = knop naar de 🪎-kluis (kiezer woont daar). */
+/* Flair-chip rechts op de regel = knop naar de 🪎-kluis (kiezer woont daar). */
 .lb-flair-jump {
-  width: 100%; margin: 0.35rem 0 0; padding: 0.3rem 0; text-align: left;
-  background: transparent; border: none; color: inherit; font: inherit;
-  font-size: 0.85rem; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; gap: 0.4rem; flex: 0 0 auto;
+  margin-left: auto; padding: 0.25rem 0.35rem 0.25rem 0.55rem;
+  background: transparent; border: 1px solid transparent; border-radius: 10px;
+  color: var(--fg); font: inherit; font-size: 0.85rem;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
+.lb-flair-jump:hover { background: var(--card-soft); border-color: var(--border); }
 .lb-flair-jump .lb-namecur:not(.lb-noname) { font-size: 1.35rem; line-height: 1; }
-.lb-flair-jump-ico { margin-left: auto; color: var(--muted); }
+.lb-flair-jump-ico { color: var(--muted); font-size: 1rem; }
 .lb-flair-jump:hover .lb-flair-jump-ico { color: var(--fg); }
 
 /* Reeks-rijen: ring = huidige trede, balkje = voortgang naar de volgende. */
