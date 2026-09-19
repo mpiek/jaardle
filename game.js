@@ -1579,7 +1579,10 @@ function setPlayBarCollapsed(collapsed, animate = false) {
   };
   const onEnd = (e) => { if (e.target === bar && e.propertyName === "height") finish(); };
   bar.addEventListener("transitionend", onEnd);
-  setTimeout(finish, 450);   // vangnet: transitionend blijft uit als het blok intussen display:none kreeg
+  // Vangnet als transitionend uitblijft (blok kreeg intussen display:none). De duur
+  // komt uit de CSS (transition-duration van .collapsing), zodat er één bron is.
+  const ms = (parseFloat(getComputedStyle(bar).transitionDuration) || 0.25) * 1000;
+  setTimeout(finish, ms + 300);
 }
 
 let state = null;
@@ -6236,6 +6239,9 @@ function achvLineEl(it) {
 // vijf of zes gokrijen kan de kaart buiten beeld geboren worden. Alleen dán
 // scrollen — wie het eindscherm al ziet, merkt niets.
 function achvScrollIntoView(el) {
+  // Klapt het keypad nog in (#21), dan schuift de kaart nog omhoog: even wachten
+  // en opnieuw meten, anders scrollen we naar een plek waar de kaart straks niet meer is.
+  if (els.playBar?.classList.contains("collapsing")) { setTimeout(() => achvScrollIntoView(el), 150); return; }
   const r = el.getBoundingClientRect();
   const h = window.innerHeight || document.documentElement.clientHeight || 0;
   if (r.top >= 0 && r.bottom <= h) return;
