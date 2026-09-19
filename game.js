@@ -152,7 +152,7 @@ const MAIL_ICON = `<svg viewBox="0 0 512 512" aria-hidden="true" style="width:.9
 
 const I18N = {
   nl: {
-    tab_daily: "Dagelijkse Jaardle", tab_free: "Nieuw spel",
+    tab_daily: "Daily", tab_free: "Nieuw spel",
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     menu_login_short: "Inloggen",
     menu_theme: "☀️ Licht thema",
@@ -392,7 +392,7 @@ const I18N = {
     help_list: HELP_NL,
   },
   en: {
-    tab_daily: "Daily Jaardle", tab_free: "New game",
+    tab_daily: "Daily", tab_free: "New game",
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     menu_login_short: "Sign in",
     menu_theme: "☀️ Light theme",
@@ -635,7 +635,7 @@ const I18N = {
     help_list: HELP_EN,
   },
   de: {
-    tab_daily: "Tägliches Jaardle", tab_free: "Neues Spiel",
+    tab_daily: "Täglich", tab_free: "Neues Spiel",
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
     menu_login_short: "Anmelden",
     menu_theme: "☀️ Helles Design",
@@ -872,7 +872,7 @@ const I18N = {
     help_list: HELP_DE,
   },
   es: {
-    tab_daily: "Jaardle diario", tab_free: "Partida nueva",
+    tab_daily: "Diario", tab_free: "Partida nueva",
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
@@ -1114,7 +1114,7 @@ const I18N = {
     help_list: HELP_ES,
   },
   pt: {
-    tab_daily: "Jaardle diário", tab_free: "Jogo novo",
+    tab_daily: "Diário", tab_free: "Jogo novo",
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",

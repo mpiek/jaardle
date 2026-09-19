@@ -396,9 +396,9 @@ main {
   cursor: pointer;
 }
 .tab-icon {
-  width: 0.9em;
-  height: 0.9em;
   flex: none;
+  font-size: 1em;
+  line-height: 1;
 }
 
 .tab[aria-selected="true"] {

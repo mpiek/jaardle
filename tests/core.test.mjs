@@ -153,10 +153,11 @@ test("emojiFor — elke bucket heeft een emoji", () => {
 });
 
 test("i18n — t() wisselt NL/EN en dicts dekken dezelfde keys", () => {
+  // tab_free verschilt per taal (tab_daily is in NL én EN "Daily").
   T.setLang("nl");
-  assert.equal(T.t("tab_daily"), "Dagelijkse Jaardle");
+  assert.equal(T.t("tab_free"), "Nieuw spel");
   T.setLang("en");
-  assert.equal(T.t("tab_daily"), "Daily Jaardle");
+  assert.equal(T.t("tab_free"), "New game");
   assert.equal(T.t("nietbestaand") ?? null, T.I18N.nl["nietbestaand"] ?? null);  // fallback → nl/undefined
   const nlKeys = Object.keys(T.I18N.nl).sort();
   const enKeys = Object.keys(T.I18N.en).sort();
