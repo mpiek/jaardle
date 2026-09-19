@@ -488,7 +488,7 @@ main {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 0.3rem 1.1rem 0.5rem;
+  padding: 0.3rem 1.1rem 0.3rem;
   margin-bottom: 0.45rem;
   touch-action: pan-y;   /* verticaal scrollen blijft; horizontaal slepen = swipe */
 }
@@ -576,14 +576,14 @@ main {
 /* Hint-slides: geen gekleurde wash, alleen de gekleurde lijn links (op .fact).
    Strakker/platter — elk type herken je aan de kleur van de rand + het kopje. */
 .slide-main, .slide-extra, .slide-later, .slide-century, .slide-digit {
-  padding: 0.3rem 0.5rem;
+  padding: 0.15rem 0.5rem;
 }
 
 #event-text .fact {
   margin: 0;
   padding-left: 0.85rem;
   border-left: 3px solid var(--h-extra);
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 /* Zelfde-tijd extra feit (gratis, gok 2/4): geel, vaste lijn — "uit dezelfde tijd". */
@@ -599,9 +599,10 @@ main {
    💡 geel (zelfde tijd) · ⏩ oranje (100 jaar later) · 🏛️ paars (eeuw) · 🔢 blauw (cijfer). */
 .extra-tag, .later-tag, .century-tag, .digit-tag {
   display: flex;
+  flex-wrap: wrap;                      /* past een lang label niet naast de stippen: label onder de emoji */
   align-items: center;
   gap: 0.4rem;
-  margin: 0 0 0.25rem 0.85rem;
+  margin: 0 3.5rem 0.25rem 0.85rem;     /* rechts = ruimte voor de pepertjes; breed scherm: zie .fact-dots */
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -614,7 +615,10 @@ main {
 
 .extra-icon, .later-icon, .century-icon, .digit-icon { display: inline-block; }
 /* ⏩-emoji schuift kort naar voren; de andere poppen kort op. */
-.later-icon { font-size: 1.05em; animation: later-fwd 0.6s cubic-bezier(.22, 1.2, .36, 1) both; }
+.later-icon { font-size: 1.05em; letter-spacing: -0.08em; animation: later-fwd 0.6s cubic-bezier(.22, 1.2, .36, 1) both; }
+/* ⏩-kopje iets strakker gespatieerd: "⏩⏩⏩⏩ 1500 años después" moet op een breed
+   scherm naast de gecentreerde stippen passen (zie .fact-dots). */
+.later-tag { letter-spacing: 0.03em; }
 @keyframes later-fwd {
   0%   { opacity: 0; transform: translateX(-7px) scale(0.8); }
   100% { opacity: 1; transform: none; }
@@ -656,13 +660,30 @@ main {
   animation: tag-fade 0.4s ease 0.1s both;
 }
 
-/* Stippen onder het feit tonen de positie (en zijn ook klikbaar). */
-/* Klein venster (carrousel) dat maar een paar emoji-stippen toont; de track
-   erbinnen schuift zodat de actieve in het midden blijft (zie positionDots).
-   max-width wordt in JS gezet op het aantal zichtbare slots. */
+/* Stippen tonen de positie in de carrousel (en zijn ook klikbaar), altijd
+   horizontaal gecentreerd in de kaart. Klein venster dat maar een paar
+   emoji-stippen toont; de track erbinnen schuift zodat de actieve in het midden
+   blijft (zie positionDots). max-width wordt in JS gezet op het aantal slots.
+   Telefoon: in de flow onder de tekst (auto-marges centreren het blok). */
 .fact-dots {
-  margin: 0.85rem auto 0;
+  margin: 0.4rem auto 0;
   overflow: hidden;
+}
+.fact-dots[hidden] { display: none; }
+/* Breed scherm: op de kopregel van de slide, tussen kopje (links) en pepertjes
+   (rechts) — scheelt een hele rij onder de tekst. Het kopje houdt rechts ruimte
+   vrij tot net vóór de stippen (50% + halve stippenbreedte + marge), zodat een
+   lang label eronder wikkelt in plaats van eroverheen te lopen. */
+@media (min-width: 600px) {
+  .fact-dots {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    z-index: 3;
+  }
+  .extra-tag, .later-tag, .century-tag, .digit-tag { margin-right: calc(50% + 34px); }
 }
 .fact-dots-track {
   display: flex;
@@ -1423,7 +1444,7 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
    ongemoeid, ongeacht vensterhoogte; hoge telefoons houden de ruime layout
    (boven 860px hoog). */
 @media (max-height: 860px) and (pointer: coarse) {
-  #event-card { padding-top: 0.25rem; padding-bottom: 0.35rem; }
+  #event-card { padding-top: 0.25rem; padding-bottom: 0.25rem; }
   #event-text { font-size: 1rem; }
   #guesses { gap: 0.3rem; margin-bottom: 0.5rem; }
   .guess-row { min-height: 1.75rem; padding-top: 0.2rem; padding-bottom: 0.2rem; }

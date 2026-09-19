@@ -1450,6 +1450,7 @@ const els = {
   eventText: document.getElementById("event-text"),
   eventCard: document.getElementById("event-card"),
   diffHeat: document.getElementById("diff-heat"),
+  factDots: document.getElementById("fact-dots"),
   scoreBox: document.getElementById("live-score"),
   scoreVal: document.querySelector("#live-score .live-score-val"),
   factPrev: document.getElementById("fact-prev"),
@@ -2040,9 +2041,12 @@ function renderEvent() {
   carousel.appendChild(track);
   els.eventText.appendChild(carousel);
 
-  if (slides.length > 1) {
-    const dots = document.createElement("div");
-    dots.className = "fact-dots";
+  // Stippen-venster: vast element in de kaart (#fact-dots), altijd gecentreerd.
+  // Breed scherm: op de regel van het slide-kopje (geen eigen rij onder de
+  // tekst); telefoon: onder de tekst. Bij één slide blijft het leeg en verborgen.
+  const dots = els.factDots;
+  if (dots) { dots.innerHTML = ""; dots.hidden = slides.length <= 1; }
+  if (dots && slides.length > 1) {
     // Stip = de emoji van z'n hint (💡 hoofdfeit/extra · ⏩ 100 jaar later ·
     // 🏛️ eeuw · 🔢 cijfer). Geen kleurvlakjes: de actieve emoji licht op, de rest
     // is gedimd. Het venster toont er maar een paar (zie positionDots) en schuift
@@ -2060,7 +2064,6 @@ function renderEvent() {
       track.appendChild(d);
     });
     dots.appendChild(track);
-    els.eventText.appendChild(dots);
   }
   // Grote ‹ ›-knoppen flankeren de kaart (klik links = terug, rechts = verder);
   // ze verschijnen pas zodra er meer dan één feit is.
@@ -2085,8 +2088,8 @@ function applyFactTransform(animate) {
 const DOT_SLOT = 18;   // px — gelijk aan .fact-dot flex-basis
 const DOT_WIN = 3;     // hoeveel stippen tegelijk zichtbaar
 function positionDots() {
-  const wrap = els.eventText.querySelector(".fact-dots");
-  const track = els.eventText.querySelector(".fact-dots-track");
+  const wrap = els.factDots;
+  const track = wrap?.querySelector(".fact-dots-track");
   if (!wrap || !track) return;
   const n = track.children.length;
   wrap.style.maxWidth = (Math.min(n, DOT_WIN) * DOT_SLOT) + "px";
@@ -2096,7 +2099,7 @@ function positionDots() {
 
 function updateFactDots() {
   noteAnchorSlide();   // draait bij elke slide-wissel + (her)opbouw → onthoudt het laatste feit
-  els.eventText.querySelectorAll(".fact-dot")
+  els.factDots?.querySelectorAll(".fact-dot")
     .forEach((d, i) => d.classList.toggle("active", i === factSlideIndex));
   positionDots();
   const n = factSlides().length;
