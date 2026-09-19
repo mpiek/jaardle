@@ -89,7 +89,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=146">
+<link rel="stylesheet" href="/style.css?v=147">
 </head>
 <body>
   <main>
@@ -114,8 +114,8 @@
         <button id="lang-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Taal kiezen / Choose language"><span class="lang-globe">🌐</span></button>
         <div id="lang-pop" role="menu" hidden></div>
       </div>
-      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><svg class="tab-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L64 64C28.7 64 0 92.7 0 128l0 16 0 48L0 448c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-256 0-48 0-16c0-35.3-28.7-64-64-64l-40 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L152 64l0-40zM48 192l352 0 0 256c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256z"/></svg> <span data-i18n="tab_daily">Tägliches Jaardle</span></button>
-      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">Neues Spiel</button>
+      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><svg class="tab-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L64 64C28.7 64 0 92.7 0 128l0 16 0 48L0 448c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-256 0-48 0-16c0-35.3-28.7-64-64-64l-40 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L152 64l0-40zM48 192l352 0 0 256c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256z"/></svg> <span class="tab-label-long" data-i18n="tab_daily">Tägliches Jaardle</span><span class="tab-label-short" data-i18n="tab_daily_short">Täglich</span></button>
+      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N"><span class="tab-label-long" data-i18n="tab_free">Neues Spiel</span><span class="tab-label-short" data-i18n="tab_free_short">Neues Spiel</span></button>
     </nav>
 
     <!-- Inhaal-balk: de enige ingang naar een gemiste dag uit de laatste 3 dagen
@@ -152,13 +152,14 @@
     <!-- Score + invoer + keypad. Op lage schermen worden de verticale maten
          gecomprimeerd (zie @media max-height in style.css). -->
     <div id="play-bar">
-      <div id="live-score" class="live-score" hidden>
-        <span class="live-score-val">100</span>
-        <span class="live-score-lab" data-i18n="score_label">Punkte</span>
-      </div>
-
       <section id="input-row">
         <div id="year-input" aria-live="polite" aria-label="Eingegebenes Jahr" data-i18n-aria="aria_year_input"></div>
+        <!-- Live score als chip rechts in het invoerveld (was een eigen regel erboven:
+             26 px die de Gok-knop mee onder de vouw duwden, #20). -->
+        <div id="live-score" class="live-score" hidden>
+          <span class="live-score-val">100</span>
+          <span class="live-score-lab" data-i18n="score_label">Punkte</span>
+        </div>
       </section>
 
       <section id="keypad" aria-label="Ziffernblock" data-i18n-aria="aria_keypad">
@@ -405,7 +406,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=251"></script>
+  <script src="/game.js?v=252"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

@@ -407,6 +407,28 @@ main {
   border-color: var(--accent);
 }
 
+/* Smal scherm: korte tab-labels op één regel ("Dagelijks" i.p.v. "Dagelijkse
+   Jaardle"). De volle labels wrapten op 390 px naar twee regels en de rij paste
+   op 360–375 px niet eens (Nieuw spel afgeknipt) — #20/#23. */
+.tab-label-short { display: none; }
+@media (max-width: 480px) {
+  /* flex: auto i.p.v. 1: ruimte naar inhoud verdelen, anders krijgt "Nieuw spel"
+     (breder) dezelfde breedte als "Dagelijks" en valt hij als eerste af. */
+  #mode-tabs .tab { flex: 1 1 auto; padding: 0.5rem 0.4rem; font-size: 0.85rem; white-space: nowrap; min-width: 0; }
+  #mode-tabs .tab-icon { display: none; }   /* decoratie; "Dagelijks" zegt het al — 19 px */
+  #mode-tabs .tab-label-long { display: none; }
+  #mode-tabs .tab-label-short { display: inline; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+}
+/* 360 px (Galaxy S/A, kleine Androids): ook zonder icoon is "Inloggen ▾ · 🌐 ·
+   Dagelijks · Nieuw spel" (DE: Neues Spiel) nog ~10 px te breed voor 328 px.
+   Menu-caret weg, kleinere gaps en de kolom 4 px breder aan weerszijden. */
+@media (max-width: 370px) {
+  main { padding-left: 0.75rem; padding-right: 0.75rem; }
+  #mode-tabs { gap: 0.2rem; }
+  #mode-tabs .tab { padding: 0.5rem 0.3rem; }
+  #menu-btn .menu-caret { display: none; }
+}
+
 /* Inhaal-balk: de ENIGE ingang naar een gemiste dag (v231 — kaart + stepper zijn
    geschrapt). Twee tonen op één element: reddings-toon = warm verloop + vlam, want
    er staat een streak op het spel en het gat is nog te dichten; neutrale toon
@@ -561,10 +583,13 @@ main {
 .fact-side[hidden] { display: none; }
 
 /* Feiten-carrousel: één feit per slide, horizontaal schuivend (stippen + swipe). */
+/* Hoogte wordt in JS op de actieve slide gezet (syncFactHeight); zonder JS
+   valt hij terug op de hoogste slide. flex-start i.p.v. stretch zodat elke
+   slide z'n eigen natuurlijke hoogte houdt om te meten. */
 .fact-carousel { overflow: hidden; }
 .fact-track {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   will-change: transform;
 }
 .fact-slide {
@@ -671,13 +696,19 @@ main {
 
 /* Live score onder de stippen: start op 100 en telt zichtbaar omlaag bij elke
    (mis)gok of betaalde hint. Verborgen zodra het spel klaar is. */
+/* Chip rechts in het invoerveld (#input-row is position: relative); het jaartal
+   blijft gecentreerd, "−9999" en de chip raken elkaar op 360 px net niet. */
 .live-score {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: baseline;
-  justify-content: center;
   gap: 0.3rem;
-  margin-top: 0.5rem;
+  margin: 0;
   font-variant-numeric: tabular-nums;
+  pointer-events: none;
 }
 .live-score-val {
   display: inline-block;
@@ -781,6 +812,12 @@ main {
 @keyframes chip-pop {
   from { transform: scale(0.7); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  #hint-row { gap: 0.4rem 0.5rem; }
+  #hint-btn-later, #hint-btn-direction, #hint-btn-century, #hint-btn-digit { padding: 0.4rem 0.7rem; }
+  .hint-count-word { display: none; }   /* "⏩ 0/5 · 🧭 0/2" past dan naast de 🔢-knop */
 }
 
 .btn-cost {
@@ -931,6 +968,9 @@ kbd {
   font-size: 0.9rem;
   margin-left: auto;
 }
+/* Er is nog maar één lege rij (de eerstvolgende, "N/6"); staat hij alleen —
+   vóór de eerste gok — dan over de volle breedte i.p.v. een halve cel links. */
+.guess-row.empty:only-child { grid-column: 1 / -1; }
 
 #input-row {
   margin-bottom: 0.4rem;
@@ -1404,15 +1444,19 @@ footer {
    ongemoeid, ongeacht vensterhoogte; hoge telefoons houden de ruime layout
    (boven 860px hoog). */
 @media (max-height: 860px) and (pointer: coarse) {
-  #event-card { padding-top: 0.25rem; padding-bottom: 0.35rem; }
+  main { padding-top: 0.5rem; }
+  #mode-tabs { margin-bottom: 0.4rem; }
+  #event-card { padding-top: 0.25rem; padding-bottom: 0.35rem; margin-bottom: 0.35rem; }
   #event-text { font-size: 1rem; }
-  #guesses { gap: 0.3rem; margin-bottom: 0.5rem; }
+  .fact-dots { margin-top: 0.5rem; }
+  #hint-row { margin-bottom: 0.5rem; }
+  #guesses { gap: 0.3rem; margin-bottom: 0.4rem; }
   .guess-row { min-height: 1.75rem; padding-top: 0.2rem; padding-bottom: 0.2rem; }
   #input-row { margin-bottom: 0.35rem; }
   #year-input { min-height: 2.4rem; padding-top: 0.3rem; padding-bottom: 0.3rem; font-size: 1.7rem; }
-  #keypad { gap: 0.3rem; margin-bottom: 0; }
-  .key { padding: 0.55rem 0; font-size: 1.25rem; }
-  .key-wide { padding: 0.6rem 0; }
+  #keypad { gap: 0.25rem; margin-bottom: 0; }
+  .key { padding: 0.4rem 0; font-size: 1.25rem; }   /* rij 51 → 46 px, blijft ≥ 44 px raakbaar */
+  .key-wide { padding: 0.5rem 0; }
 }
 
 
