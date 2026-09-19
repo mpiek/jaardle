@@ -89,7 +89,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=151">
+<link rel="stylesheet" href="/style.css?v=152">
 </head>
 <body>
   <main>
@@ -130,10 +130,9 @@
     <section id="event-card">
       <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Fato anterior" data-i18n-aria="fact_prev" hidden>‹</button>
       <div id="event-text">Carregando…</div>
-      <!-- Stippen-venster van de carrousel (💡··), altijd horizontaal gecentreerd.
-           Op brede schermen staat het op de kopregel van de slide (scheelt een
-           rij), op telefoons in de flow onder de tekst (zie .fact-dots in CSS).
-           game.js vult het (renderEvent). -->
+      <!-- Stippen-venster van de carrousel (💡··): onder de tekst, horizontaal
+           gecentreerd, op alle schermen (zie .fact-dots in CSS). game.js vult
+           het (renderEvent). -->
       <div id="fact-dots" class="fact-dots" hidden></div>
       <button id="fact-next" class="fact-side fact-side-next" type="button" aria-label="Próximo fato" data-i18n-aria="fact_next" hidden>›</button>
       <span id="diff-heat" class="diff-heat" role="img" hidden></span>

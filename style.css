@@ -599,10 +599,10 @@ main {
    💡 geel (zelfde tijd) · ⏩ oranje (100 jaar later) · 🏛️ paars (eeuw) · 🔢 blauw (cijfer). */
 .extra-tag, .later-tag, .century-tag, .digit-tag {
   display: flex;
-  flex-wrap: wrap;                      /* past een lang label niet naast de stippen: label onder de emoji */
+  flex-wrap: wrap;                      /* past een lang label niet naast de pepertjes: label onder de emoji */
   align-items: center;
   gap: 0.4rem;
-  margin: 0 3.5rem 0.25rem 0.85rem;     /* rechts = ruimte voor de pepertjes; breed scherm: zie .fact-dots */
+  margin: 0 3.5rem 0.25rem 0.85rem;     /* rechts = ruimte voor de pepertjes */
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -615,10 +615,7 @@ main {
 
 .extra-icon, .later-icon, .century-icon, .digit-icon { display: inline-block; }
 /* ⏩-emoji schuift kort naar voren; de andere poppen kort op. */
-.later-icon { font-size: 1.05em; letter-spacing: -0.08em; animation: later-fwd 0.6s cubic-bezier(.22, 1.2, .36, 1) both; }
-/* ⏩-kopje iets strakker gespatieerd: "⏩⏩⏩⏩ 1500 años después" moet op een breed
-   scherm naast de gecentreerde stippen passen (zie .fact-dots). */
-.later-tag { letter-spacing: 0.03em; }
+.later-icon { font-size: 1.05em; animation: later-fwd 0.6s cubic-bezier(.22, 1.2, .36, 1) both; }
 @keyframes later-fwd {
   0%   { opacity: 0; transform: translateX(-7px) scale(0.8); }
   100% { opacity: 1; transform: none; }
@@ -660,31 +657,17 @@ main {
   animation: tag-fade 0.4s ease 0.1s both;
 }
 
-/* Stippen tonen de positie in de carrousel (en zijn ook klikbaar), altijd
-   horizontaal gecentreerd in de kaart. Klein venster dat maar een paar
-   emoji-stippen toont; de track erbinnen schuift zodat de actieve in het midden
-   blijft (zie positionDots). max-width wordt in JS gezet op het aantal slots.
-   Telefoon: in de flow onder de tekst (auto-marges centreren het blok). */
+/* Stippen onder het feit tonen de positie in de carrousel (en zijn ook
+   klikbaar), horizontaal gecentreerd (auto-marges; max-width wordt in JS gezet
+   op het aantal zichtbare slots). Klein venster dat maar een paar emoji-stippen
+   toont; de track erbinnen schuift zodat de actieve in het midden blijft (zie
+   positionDots). Bewust op álle schermen onder de tekst — een variant op de
+   kopregel (desktop) is afgewezen: de stippen horen op één vaste plek. */
 .fact-dots {
   margin: 0.4rem auto 0;
   overflow: hidden;
 }
 .fact-dots[hidden] { display: none; }
-/* Breed scherm: op de kopregel van de slide, tussen kopje (links) en pepertjes
-   (rechts) — scheelt een hele rij onder de tekst. Het kopje houdt rechts ruimte
-   vrij tot net vóór de stippen (50% + halve stippenbreedte + marge), zodat een
-   lang label eronder wikkelt in plaats van eroverheen te lopen. */
-@media (min-width: 600px) {
-  .fact-dots {
-    position: absolute;
-    top: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 0;
-    z-index: 3;
-  }
-  .extra-tag, .later-tag, .century-tag, .digit-tag { margin-right: calc(50% + 34px); }
-}
 .fact-dots-track {
   display: flex;
   transition: transform 0.25s ease;

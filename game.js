@@ -2041,9 +2041,8 @@ function renderEvent() {
   carousel.appendChild(track);
   els.eventText.appendChild(carousel);
 
-  // Stippen-venster: vast element in de kaart (#fact-dots), altijd gecentreerd.
-  // Breed scherm: op de regel van het slide-kopje (geen eigen rij onder de
-  // tekst); telefoon: onder de tekst. Bij één slide blijft het leeg en verborgen.
+  // Stippen-venster: vast element in de kaart (#fact-dots), onder de tekst en
+  // gecentreerd, op alle schermen. Bij één slide blijft het leeg en verborgen.
   const dots = els.factDots;
   if (dots) { dots.innerHTML = ""; dots.hidden = slides.length <= 1; }
   if (dots && slides.length > 1) {
