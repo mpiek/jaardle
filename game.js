@@ -3953,27 +3953,33 @@ async function ensureMyIdentity() {
 // Sla de gekozen flair op (server valideert tegen de allow-list); lege string wist.
 // De kiezer woont sinds v239 in de 🪎-kluis (modal-rewards); bij succes herrendert
 // die zichzelf zodat de selectie meebeweegt.
+// Optimistisch: de client gelooft de keuze meteen — de selectie-ring verspringt
+// direct (renderRewards is warm, zie achvCache) zonder op de server te wachten, en
+// de set_my_flair-RPC draait op de achtergrond. Mislukt die, dan rollen we terug en
+// melden we het. Kwam je via de flair-chip vanaf het bord (rewardsReturnTo), dan
+// volgt na een korte beat de auto-terug; we wachten dán wél op de RPC zodat
+// renderLeaderboard's get_my_flair de nieuwe waarheid ziet (geen terugflits).
 async function setMyFlair(flair) {
-  if ((myFlair || "") === (flair || "")) {    // al geselecteerd = geen RPC…
-    if (rewardsReturnTo) flairPickedReturn();  // …maar wél terug als je vanaf het bord kwam
+  const prev = myFlair;
+  const same = (prev || "") === (flair || "");
+  if (!same) { myFlair = flair || null; renderRewards(); }   // ring meteen, geen wachten
+  const rpcP = same
+    ? Promise.resolve("ok")
+    : rpc("set_my_flair", { p_flair: flair }).catch(() => "err");
+  if (rewardsReturnTo) {
+    const target = rewardsReturnTo;
+    const [status] = await Promise.all([rpcP, new Promise((r) => setTimeout(r, 450))]);
+    if (status !== "ok") {   // opslaan mislukt → rollback, blijf in de kluis
+      myFlair = prev;
+      if (!document.getElementById("modal-rewards").hidden) renderRewards();
+      alert(t("lb_flair_err"));
+      return;
+    }
+    if (rewardsReturnTo === target) rewardsReturn();   // niet al handmatig teruggegaan
     return;
   }
-  let status = "err";
-  try { status = await rpc("set_my_flair", { p_flair: flair }); } catch (e) {}
-  if (status === "ok") {
-    myFlair = flair || null;
-    renderRewards();                 // selectie-ring verspringt naar de nieuwe keuze
-    if (rewardsReturnTo) flairPickedReturn();
-    return;
-  }
-  alert(t("lb_flair_err"));
-}
-// Sprong je vanaf het bord naar de kluis? Na een korte bevestigings-beat (de ring
-// is zichtbaar) automatisch terug naar het bord, waar je flair groot bij je naam
-// staat. De guard vangt af dat je intussen zelf al terugging (rewardsReturnTo gewist).
-function flairPickedReturn() {
-  const target = rewardsReturnTo;
-  setTimeout(() => { if (rewardsReturnTo === target) rewardsReturn(); }, 450);
+  const status = await rpcP;
+  if (status !== "ok") { myFlair = prev; renderRewards(); alert(t("lb_flair_err")); }
 }
 
 // Vraag een nieuwe weergavenaam en sla 'm op via set_my_username. De server
