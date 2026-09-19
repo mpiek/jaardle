@@ -1046,6 +1046,20 @@ kbd {
 .key:active { transform: scale(0.97); }
 .key:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Na afloop klapt het hele #play-bar (invoerveld + keypad) in (#21). JS zet de
+   starthoogte inline, geeft deze class en laat de hoogte naar 0 lopen; pas ná
+   transitionend gaat hidden erop (display:none is niet animeerbaar). overflow
+   hidden knipt de toetsen tijdens de beweging af én houdt de kindmarges binnen,
+   zodat ook de witruimte onder het keypad meeschuift. */
+#play-bar.collapsing {
+  overflow: hidden;
+  opacity: 0;
+  transition: height 0.25s ease, opacity 0.25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  #play-bar.collapsing { transition: none; }
+}
+
 .key-sign {
   color: var(--accent);
 }

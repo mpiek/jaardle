@@ -89,7 +89,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=146">
+<link rel="stylesheet" href="/style.css?v=147">
 </head>
 <body>
   <main>
@@ -150,7 +150,8 @@
     <section id="guesses" aria-label="Versuche" data-i18n-aria="aria_guesses"></section>
 
     <!-- Score + invoer + keypad. Op lage schermen worden de verticale maten
-         gecomprimeerd (zie @media max-height in style.css). -->
+         gecomprimeerd (zie @media max-height in style.css). Na afloop klapt het
+         hele blok in (setPlayBarCollapsed, #21). -->
     <div id="play-bar">
       <div id="live-score" class="live-score" hidden>
         <span class="live-score-val">100</span>
@@ -405,7 +406,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=251"></script>
+  <script src="/game.js?v=252"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

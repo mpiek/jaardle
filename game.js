@@ -1464,6 +1464,7 @@ const els = {
   guesses: document.getElementById("guesses"),
   input: document.getElementById("year-input"),
   keypad: document.getElementById("keypad"),
+  playBar: document.getElementById("play-bar"),
   signBtn: document.getElementById("sign-btn"),
   backspaceBtn: document.getElementById("backspace-btn"),
   guessBtn: document.getElementById("guess-btn"),
@@ -1545,6 +1546,40 @@ function isKeypadDisabled() {
 function setKeypadDisabled(disabled) {
   els.keypad.classList.toggle("disabled", disabled);
   els.keypad.querySelectorAll("button").forEach((b) => (b.disabled = disabled));
+}
+
+// Invoerveld + keypad inklappen zodra de pot klaar is (#21): het dode, grijze
+// toetsenbord stond anders tussen het bord en de uitslag (op desktop 1440×900
+// begon de kaart daardoor pas rond 815 px). Alleen een vérse afronding animeert
+// (hoogte dicht + vervagen); herstel, taalwissel en de cross-device-reconcile
+// roepen finishGame opnieuw aan en zetten 'm direct op hidden. Nieuwe pot →
+// direct weer open (startGame). [hidden] is display:none !important, dus de
+// animatie loopt via een inline hoogte + .collapsing, en hidden komt pas daarna.
+let playBarSeq = 0;   // maakt een lopende inklap-animatie ongedaan als er intussen een nieuwe pot start
+function setPlayBarCollapsed(collapsed, animate = false) {
+  const bar = els.playBar;
+  if (!bar) return;
+  const seq = ++playBarSeq;
+  bar.classList.remove("collapsing");
+  bar.style.height = "";
+  if (!collapsed) { bar.hidden = false; return; }
+  if (bar.hidden) return;   // al dicht (her-render van een afgeronde pot)
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!animate || reduced) { bar.hidden = true; return; }
+  bar.style.height = `${bar.offsetHeight}px`;
+  void bar.offsetWidth;   // reflow: starthoogte staat vast vóór de transitie begint
+  bar.classList.add("collapsing");
+  bar.style.height = "0px";
+  const finish = () => {
+    bar.removeEventListener("transitionend", onEnd);
+    if (seq !== playBarSeq) return;   // inmiddels weer uitgeklapt (nieuwe pot)
+    bar.hidden = true;
+    bar.classList.remove("collapsing");
+    bar.style.height = "";
+  };
+  const onEnd = (e) => { if (e.target === bar && e.propertyName === "height") finish(); };
+  bar.addEventListener("transitionend", onEnd);
+  setTimeout(finish, 450);   // vangnet: transitionend blijft uit als het blok intussen display:none kreeg
 }
 
 let state = null;
@@ -2989,6 +3024,7 @@ function finishGame(won, fresh = false) {
   document.getElementById("hint-nudge")?.remove();   // duwtje is niet meer relevant
   save();
   setKeypadDisabled(true);
+  setPlayBarCollapsed(true, fresh);   // dood keypad weg, uitslag schuift omhoog (#21)
   renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
   updateLiveScore(false);   // spel klaar → live-teller verbergen (eindscherm toont de score)
   els.result.hidden = false;
@@ -8217,6 +8253,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   // kreeg anders de bierplaat en het vuurwerk over zijn verse bord heen.
   stopFx();
   els.result.hidden = true;
+  setPlayBarCollapsed(false);   // keypad terug (ingeklapt na de vorige pot, #21)
   els.nextBtn.hidden = true;
   if (els.recapBtn) els.recapBtn.hidden = true;
 
