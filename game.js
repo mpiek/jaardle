@@ -57,60 +57,95 @@ let lang = (() => {
 })();
 
 const HELP_NL = `
-  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel staan vanaf de start <strong>gratis</strong> twee extra feiten uit hetzelfde jaar (💡 geel) — swipe ernaartoe.</li>
-  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100, 250, 500, 1000 en 1500 jaar later</strong> (gebeurtenissen ná het antwoord), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
-  <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
-  <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. De gele extra-feiten zijn gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> en 🧭 <span data-penalty="dir-hint"></span> kosten punten. Verloren = 0–10, o.b.v. je dichtste gok.</li>
-  <li>Tiers: <span data-help="tiers"></span></li>
-  <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
-  <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
-  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>`;
+  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden.</li>
+  <li>De kaart is een carrousel: naast het hoofdfeit staan vanaf de start <strong>gratis</strong> twee extra feiten uit hetzelfde jaar (💡 geel) — swipe of gebruik de pijltjes.</li>
+  <li>Onder de kaart koop je met knoppen extra hints: <strong>⏩ 100 jaar later</strong>, <strong>🧭 Richting</strong>, <strong>🏛️ Eeuw</strong> en <strong>🔢 Laatste cijfer</strong>. Elke gekochte hint verschijnt als kleurenslide in de carrousel.</li>
+  <li><strong>Score (0–100)</strong>: je begint op 100 punten; misgokken en hints kosten punten.</li>
+  <li><strong>Dagelijkse Jaardle</strong> is voor iedereen gelijk; <strong>Nieuw spel</strong> is oneindig oefenen.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Details en scoring</summary>
+      <ul>
+        <li>Kleuren bij elke gok: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> per stuk · 🧭 <span data-penalty="dir-hint"></span> per stuk · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, op basis van je dichtste gok.</li>
+        <li>Tiers: <span data-help="tiers"></span></li>
+        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok buiten je bekende bereik (of buiten een gekochte eeuw/cijfer) wordt geweigerd zonder een poging te kosten.</li>
+        <li>Toetsen: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>↑</kbd> haalt je laatste gok terug, <kbd>←</kbd>/<kbd>→</kbd> door de carrousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> voor de hints, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>
+      </ul>
+    </details>
+  </li>`;
 const HELP_EN = `
-  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. From the start, the carousel holds two <strong>free</strong> extra facts from the same year (💡 yellow) — swipe to see them.</li>
-  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100, 250, 500, 1000 and 1500 years later</strong> (events after the answer), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
-  <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
-  <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. The yellow extra facts are free; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> and 🧭 <span data-penalty="dir-hint"></span> cost points. Lost = 0–10, based on your closest guess.</li>
-  <li>Tiers: <span data-help="tiers"></span></li>
-  <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
-  <li><strong>New game</strong>: endless rounds, a random event.</li>
-  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>`;
+  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year.</li>
+  <li>The card is a carousel: alongside the main fact, it holds two <strong>free</strong> extra facts from the same year from the start (💡 yellow) — swipe or use the arrows.</li>
+  <li>Below the card, buttons let you buy hints: <strong>⏩ 100 years later</strong>, <strong>🧭 Direction</strong>, <strong>🏛️ Century</strong> and <strong>🔢 Last digit</strong>. Each hint you buy appears as a coloured slide in the carousel.</li>
+  <li><strong>Score (0–100)</strong>: you start at 100 points; wrong guesses and hints cost points.</li>
+  <li><strong>Daily Jaardle</strong> is the same for everyone; <strong>New game</strong> is endless practice.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Details &amp; scoring</summary>
+      <ul>
+        <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
+        <li>Tiers: <span data-help="tiers"></span></li>
+        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess.</li>
+        <li>Keys: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>↑</kbd> recalls your last guess, <kbd>←</kbd>/<kbd>→</kbd> through the carousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> for the hints, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>
+      </ul>
+    </details>
+  </li>`;
 const HELP_DE = `
-  <li>Du bekommst ein Ereignis aus einem Jahr und <span data-help="max-guesses"></span> Versuche, dieses Jahr zu erraten. Im Karussell stehen von Anfang an <strong>gratis</strong> zwei zusätzliche Fakten aus demselben Jahr (💡 gelb) — wische einfach hin.</li>
-  <li><strong>Wische durch das Karussell für mehr Hinweise</strong> — tippe auf „Aufdecken" (kostet Punkte): <strong>⏩ 100, 250, 500, 1000 und 1500 Jahre später</strong> (Ereignisse nach dem Antwortjahr), <strong>🏛️ Epoche</strong> (das Jahrhundert) und die <strong>🔢 letzte Ziffer</strong> des Jahres.</li>
-  <li>Jeder Versuch zeigt ein farbiges Feld mit einer Spanne. Die Richtung (↑/↓) bleibt verborgen, bis du danach fragst.</li>
-  <li>Max. <strong><span data-help="max-dir-hints"></span> Richtungshinweise</strong> (🧭) pro Rätsel. Ein Richtungshinweis zeigt den Pfeil nur bei deinem letzten Versuch.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Punkte (0–100)</strong>: Start bei 100, Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Die gelben Extra-Fakten sind gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> und 🧭 <span data-penalty="dir-hint"></span> kosten Punkte. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
-  <li>Stufen: <span data-help="tiers"></span></li>
-  <li><strong>Tägliches Jaardle</strong>: ein Rätsel pro Tag, für alle gleich.</li>
-  <li><strong>Neues Spiel</strong>: endlose Runden, ein zufälliges Ereignis.</li>
-  <li><strong>Tasten</strong>: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>R</kbd> für einen Richtungshinweis, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>`;
+  <li>Du bekommst ein Ereignis aus einem Jahr und <span data-help="max-guesses"></span> Versuche, dieses Jahr zu erraten.</li>
+  <li>Die Karte ist ein Karussell: neben dem Hauptfakt stehen von Anfang an <strong>gratis</strong> zwei zusätzliche Fakten aus demselben Jahr (💡 gelb) — wische oder nutze die Pfeile.</li>
+  <li>Unter der Karte kaufst du mit Knöpfen zusätzliche Hinweise: <strong>⏩ 100 Jahre später</strong>, <strong>🧭 Richtung</strong>, <strong>🏛️ Jahrhundert</strong> und <strong>🔢 Letzte Ziffer</strong>. Jeder gekaufte Hinweis erscheint als farbige Folie im Karussell.</li>
+  <li><strong>Punkte (0–100)</strong>: du startest bei 100 Punkten; Fehlversuche und Hinweise kosten Punkte.</li>
+  <li><strong>Tägliches Jaardle</strong> ist für alle gleich; <strong>Neues Spiel</strong> ist endloses Üben.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Details &amp; Wertung</summary>
+      <ul>
+        <li>Farben pro Versuch: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hinweise: ⏩ <span data-penalty="later-clue"></span> je Stück · 🧭 <span data-penalty="dir-hint"></span> je Stück · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
+        <li>Stufen: <span data-help="tiers"></span></li>
+        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch außerhalb deines bekannten Bereichs (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer) wird abgelehnt, ohne einen Versuch zu kosten.</li>
+        <li>Tasten: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>↑</kbd> holt deinen letzten Versuch zurück, <kbd>←</kbd>/<kbd>→</kbd> durchs Karussell, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> für die Hinweise, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>
+      </ul>
+    </details>
+  </li>`;
 const HELP_ES = `
-  <li>Recibes un acontecimiento de un año y <span data-help="max-guesses"></span> intentos para adivinar ese año. Desde el inicio, el carrusel incluye <strong>gratis</strong> dos datos adicionales del mismo año (💡 amarillo) — desliza para verlos.</li>
-  <li><strong>Desliza el carrusel para más pistas</strong> — toca «Revelar» (resta puntos): <strong>⏩ 100, 250, 500, 1000 y 1500 años después</strong> (acontecimientos posteriores a la respuesta), <strong>🏛️ época</strong> (el siglo) y la <strong>🔢 última cifra</strong> del año.</li>
-  <li>Cada intento muestra una etiqueta de color con un margen. La dirección (↑/↓) permanece oculta hasta que la pidas.</li>
-  <li>Máx. <strong><span data-help="max-dir-hints"></span> pistas de dirección</strong> (🧭) por puzle. Una pista de dirección revela la flecha solo en tu último intento.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Puntos (0–100)</strong>: empiezas con 100, penalización por cada fallo: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Los datos extra amarillos son gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> y 🧭 <span data-penalty="dir-hint"></span> restan puntos. Perdida = 0–10, según tu intento más cercano.</li>
-  <li>Niveles: <span data-help="tiers"></span></li>
-  <li><strong>Jaardle diario</strong>: un puzle al día, igual para todos.</li>
-  <li><strong>Partida nueva</strong>: rondas infinitas, un acontecimiento aleatorio.</li>
-  <li><strong>Teclas</strong>: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>R</kbd> para una pista de dirección, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>`;
+  <li>Recibes un acontecimiento de un año y <span data-help="max-guesses"></span> intentos para adivinar ese año.</li>
+  <li>La tarjeta es un carrusel: junto al dato principal incluye <strong>gratis</strong> desde el inicio dos datos adicionales del mismo año (💡 amarillo) — desliza o usa las flechas.</li>
+  <li>Debajo de la tarjeta compras pistas con botones: <strong>⏩ 100 años después</strong>, <strong>🧭 Dirección</strong>, <strong>🏛️ Siglo</strong> y <strong>🔢 Última cifra</strong>. Cada pista comprada aparece como una diapositiva de color en el carrusel.</li>
+  <li><strong>Puntos (0–100)</strong>: empiezas con 100 puntos; los fallos y las pistas restan puntos.</li>
+  <li><strong>Jaardle diario</strong> es igual para todos; <strong>Partida nueva</strong> es práctica infinita.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Detalles y puntuación</summary>
+      <ul>
+        <li>Colores por intento: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalización por fallo: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Pistas: ⏩ <span data-penalty="later-clue"></span> cada una · 🧭 <span data-penalty="dir-hint"></span> cada una · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdida = 0–10, según tu intento más cercano.</li>
+        <li>Niveles: <span data-help="tiers"></span></li>
+        <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento fuera de tu rango conocido (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento.</li>
+        <li>Teclas: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>↑</kbd> recupera tu último intento, <kbd>←</kbd>/<kbd>→</kbd> por el carrusel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para las pistas, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>
+      </ul>
+    </details>
+  </li>`;
 const HELP_PT = `
-  <li>Você recebe um acontecimento de um ano e <span data-help="max-guesses"></span> tentativas para adivinhar esse ano. Desde o início, o carrossel traz <strong>grátis</strong> dois fatos extras do mesmo ano (💡 amarelo) — deslize para vê-los.</li>
-  <li><strong>Deslize o carrossel para mais dicas</strong> — toque em "Revelar" (custa pontos): <strong>⏩ 100, 250, 500, 1000 e 1500 anos depois</strong> (acontecimentos posteriores à resposta), <strong>🏛️ era</strong> (o século) e o <strong>🔢 último algarismo</strong> do ano.</li>
-  <li>Cada tentativa mostra uma etiqueta colorida com uma faixa. A direção (↑/↓) fica oculta até você pedir.</li>
-  <li>Máx. <strong><span data-help="max-dir-hints"></span> dicas de direção</strong> (🧭) por quebra-cabeça. Uma dica de direção revela a seta apenas na sua última tentativa.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Pontos (0–100)</strong>: começa em 100, penalidade por cada erro: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Os fatos extras amarelos são grátis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> e 🧭 <span data-penalty="dir-hint"></span> custam pontos. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
-  <li>Níveis: <span data-help="tiers"></span></li>
-  <li><strong>Jaardle diário</strong>: um quebra-cabeça por dia, igual para todos.</li>
-  <li><strong>Jogo novo</strong>: rodadas infinitas, um acontecimento aleatório.</li>
-  <li><strong>Teclas</strong>: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>R</kbd> para uma dica de direção, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li>`;
+  <li>Você recebe um acontecimento de um ano e <span data-help="max-guesses"></span> tentativas para adivinhar esse ano.</li>
+  <li>O card é um carrossel: além do fato principal, ele traz <strong>grátis</strong> desde o início dois fatos extras do mesmo ano (💡 amarelo) — deslize ou use as setas.</li>
+  <li>Abaixo do card, você compra dicas com botões: <strong>⏩ 100 anos depois</strong>, <strong>🧭 Direção</strong>, <strong>🏛️ Século</strong> e <strong>🔢 Último algarismo</strong>. Cada dica comprada aparece como um slide colorido no carrossel.</li>
+  <li><strong>Pontos (0–100)</strong>: você começa com 100 pontos; erros e dicas custam pontos.</li>
+  <li><strong>Jaardle diário</strong> é igual para todos; <strong>Jogo novo</strong> é prática infinita.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Detalhes e pontuação</summary>
+      <ul>
+        <li>Cores por tentativa: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalidade por erro: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Dicas: ⏩ <span data-penalty="later-clue"></span> cada · 🧭 <span data-penalty="dir-hint"></span> cada · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
+        <li>Níveis: <span data-help="tiers"></span></li>
+        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa fora do seu intervalo conhecido (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa.</li>
+        <li>Teclas: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>↑</kbd> recupera sua última tentativa, <kbd>←</kbd>/<kbd>→</kbd> pelo carrossel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para as dicas, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li>
+      </ul>
+    </details>
+  </li>`;
 
 // Inline envelope-icoon (monochroom, neemt de linkkleur over) voor de Contact-link.
 const MAIL_ICON = `<svg viewBox="0 0 512 512" aria-hidden="true" style="width:.95em;height:.95em;vertical-align:-.13em;margin-right:.35em;fill:currentColor"><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48L48 64zM0 176L0 384c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-208L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/></svg>`;

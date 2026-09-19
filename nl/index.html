@@ -89,7 +89,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=143">
+<link rel="stylesheet" href="/style.css?v=144">
 </head>
 <body>
   <main>
@@ -199,16 +199,23 @@
       </header>
       <div class="modal-body">
         <ul id="help-list">
-  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden. In de carrousel staan vanaf de start <strong>gratis</strong> twee extra feiten uit hetzelfde jaar (💡 geel) — swipe ernaartoe.</li>
-  <li><strong>Swipe de carrousel voor meer hints</strong> — tik "Onthul" (kost punten): <strong>⏩ 100, 250, 500, 1000 en 1500 jaar later</strong> (gebeurtenissen ná het antwoord), <strong>🏛️ tijdvak</strong> (de eeuw) en <strong>🔢 laatste cijfer</strong> van het jaartal.</li>
-  <li>Per gok zie je een gekleurde badge met range. Richting (↑/↓) is verborgen tot je 'm vraagt.</li>
-  <li>Max <strong><span data-help="max-dir-hints"></span> richting-hints</strong> (🧭) per puzzel. Een richting-hint onthult pijl alleen op je laatste gok.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Score (0–100)</strong>: start op 100, strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. De gele extra-feiten zijn gratis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> en 🧭 <span data-penalty="dir-hint"></span> kosten punten. Verloren = 0–10, o.b.v. je dichtste gok.</li>
-  <li>Tiers: <span data-help="tiers"></span></li>
-  <li><strong>Dagelijkse Jaardle</strong>: elke dag één puzzel die voor iedereen gelijk is.</li>
-  <li><strong>Nieuw spel</strong>: oneindig rondjes, willekeurige gebeurtenis.</li>
-  <li><strong>Toetsen</strong>: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>R</kbd> voor richting-hint, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li></ul>
+  <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden.</li>
+  <li>De kaart is een carrousel: naast het hoofdfeit staan vanaf de start <strong>gratis</strong> twee extra feiten uit hetzelfde jaar (💡 geel) — swipe of gebruik de pijltjes.</li>
+  <li>Onder de kaart koop je met knoppen extra hints: <strong>⏩ 100 jaar later</strong>, <strong>🧭 Richting</strong>, <strong>🏛️ Eeuw</strong> en <strong>🔢 Laatste cijfer</strong>. Elke gekochte hint verschijnt als kleurenslide in de carrousel.</li>
+  <li><strong>Score (0–100)</strong>: je begint op 100 punten; misgokken en hints kosten punten.</li>
+  <li><strong>Dagelijkse Jaardle</strong> is voor iedereen gelijk; <strong>Nieuw spel</strong> is oneindig oefenen.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Details en scoring</summary>
+      <ul>
+        <li>Kleuren bij elke gok: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> per stuk · 🧭 <span data-penalty="dir-hint"></span> per stuk · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, op basis van je dichtste gok.</li>
+        <li>Tiers: <span data-help="tiers"></span></li>
+        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok buiten je bekende bereik (of buiten een gekochte eeuw/cijfer) wordt geweigerd zonder een poging te kosten.</li>
+        <li>Toetsen: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>↑</kbd> haalt je laatste gok terug, <kbd>←</kbd>/<kbd>→</kbd> door de carrousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> voor de hints, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>
+      </ul>
+    </details>
+  </li></ul>
         <!-- Colofon: bronvermelding voor Wikipedia (CC BY-SA) en de Noto-emoji
              (animaties CC BY 4.0, webfont OFL 1.1). CC BY *eist* die credit op
              de plek waar het materiaal getoond wordt — de README telt niet. -->
@@ -398,7 +405,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=248"></script>
+  <script src="/game.js?v=249"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

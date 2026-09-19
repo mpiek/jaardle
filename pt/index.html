@@ -89,7 +89,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=143">
+<link rel="stylesheet" href="/style.css?v=144">
 </head>
 <body>
   <main>
@@ -199,16 +199,23 @@
       </header>
       <div class="modal-body">
         <ul id="help-list">
-  <li>Você recebe um acontecimento de um ano e <span data-help="max-guesses"></span> tentativas para adivinhar esse ano. Desde o início, o carrossel traz <strong>grátis</strong> dois fatos extras do mesmo ano (💡 amarelo) — deslize para vê-los.</li>
-  <li><strong>Deslize o carrossel para mais dicas</strong> — toque em "Revelar" (custa pontos): <strong>⏩ 100, 250, 500, 1000 e 1500 anos depois</strong> (acontecimentos posteriores à resposta), <strong>🏛️ era</strong> (o século) e o <strong>🔢 último algarismo</strong> do ano.</li>
-  <li>Cada tentativa mostra uma etiqueta colorida com uma faixa. A direção (↑/↓) fica oculta até você pedir.</li>
-  <li>Máx. <strong><span data-help="max-dir-hints"></span> dicas de direção</strong> (🧭) por quebra-cabeça. Uma dica de direção revela a seta apenas na sua última tentativa.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Pontos (0–100)</strong>: começa em 100, penalidade por cada erro: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Os fatos extras amarelos são grátis; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> e 🧭 <span data-penalty="dir-hint"></span> custam pontos. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
-  <li>Níveis: <span data-help="tiers"></span></li>
-  <li><strong>Jaardle diário</strong>: um quebra-cabeça por dia, igual para todos.</li>
-  <li><strong>Jogo novo</strong>: rodadas infinitas, um acontecimento aleatório.</li>
-  <li><strong>Teclas</strong>: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>R</kbd> para uma dica de direção, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li></ul>
+  <li>Você recebe um acontecimento de um ano e <span data-help="max-guesses"></span> tentativas para adivinhar esse ano.</li>
+  <li>O card é um carrossel: além do fato principal, ele traz <strong>grátis</strong> desde o início dois fatos extras do mesmo ano (💡 amarelo) — deslize ou use as setas.</li>
+  <li>Abaixo do card, você compra dicas com botões: <strong>⏩ 100 anos depois</strong>, <strong>🧭 Direção</strong>, <strong>🏛️ Século</strong> e <strong>🔢 Último algarismo</strong>. Cada dica comprada aparece como um slide colorido no carrossel.</li>
+  <li><strong>Pontos (0–100)</strong>: você começa com 100 pontos; erros e dicas custam pontos.</li>
+  <li><strong>Jaardle diário</strong> é igual para todos; <strong>Jogo novo</strong> é prática infinita.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Detalhes e pontuação</summary>
+      <ul>
+        <li>Cores por tentativa: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalidade por erro: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Dicas: ⏩ <span data-penalty="later-clue"></span> cada · 🧭 <span data-penalty="dir-hint"></span> cada · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
+        <li>Níveis: <span data-help="tiers"></span></li>
+        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa fora do seu intervalo conhecido (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa.</li>
+        <li>Teclas: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>↑</kbd> recupera sua última tentativa, <kbd>←</kbd>/<kbd>→</kbd> pelo carrossel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para as dicas, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li>
+      </ul>
+    </details>
+  </li></ul>
         <!-- Colofon: bronvermelding voor Wikipedia (CC BY-SA) en de Noto-emoji
              (animaties CC BY 4.0, webfont OFL 1.1). CC BY *eist* die credit op
              de plek waar het materiaal getoond wordt — de README telt niet. -->
@@ -398,7 +405,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=248"></script>
+  <script src="/game.js?v=249"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

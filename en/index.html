@@ -89,7 +89,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=143">
+<link rel="stylesheet" href="/style.css?v=144">
 </head>
 <body>
   <main>
@@ -199,16 +199,23 @@
       </header>
       <div class="modal-body">
         <ul id="help-list">
-  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year. From the start, the carousel holds two <strong>free</strong> extra facts from the same year (💡 yellow) — swipe to see them.</li>
-  <li><strong>Swipe the carousel for more hints</strong> — tap "Reveal" (costs points): <strong>⏩ 100, 250, 500, 1000 and 1500 years later</strong> (events after the answer), <strong>🏛️ era</strong> (the century) and the <strong>🔢 last digit</strong> of the year.</li>
-  <li>Each guess shows a coloured badge with a range. Direction (↑/↓) stays hidden until you ask for it.</li>
-  <li>Max <strong><span data-help="max-dir-hints"></span> direction hints</strong> (🧭) per puzzle. A direction hint reveals the arrow only on your latest guess.</li>
-  <li>🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+</li>
-  <li><strong>Score (0–100)</strong>: starts at 100, penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. The yellow extra facts are free; ⏩ <span data-penalty="later-clue"></span>, 🏛️ <span data-penalty="century-hint"></span>, 🔢 <span data-penalty="digit-hint"></span> and 🧭 <span data-penalty="dir-hint"></span> cost points. Lost = 0–10, based on your closest guess.</li>
-  <li>Tiers: <span data-help="tiers"></span></li>
-  <li><strong>Daily Jaardle</strong>: one puzzle a day, the same for everyone.</li>
-  <li><strong>New game</strong>: endless rounds, a random event.</li>
-  <li><strong>Keys</strong>: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>R</kbd> for a direction hint, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li></ul>
+  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year.</li>
+  <li>The card is a carousel: alongside the main fact, it holds two <strong>free</strong> extra facts from the same year from the start (💡 yellow) — swipe or use the arrows.</li>
+  <li>Below the card, buttons let you buy hints: <strong>⏩ 100 years later</strong>, <strong>🧭 Direction</strong>, <strong>🏛️ Century</strong> and <strong>🔢 Last digit</strong>. Each hint you buy appears as a coloured slide in the carousel.</li>
+  <li><strong>Score (0–100)</strong>: you start at 100 points; wrong guesses and hints cost points.</li>
+  <li><strong>Daily Jaardle</strong> is the same for everyone; <strong>New game</strong> is endless practice.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Details &amp; scoring</summary>
+      <ul>
+        <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
+        <li>Tiers: <span data-help="tiers"></span></li>
+        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess.</li>
+        <li>Keys: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>↑</kbd> recalls your last guess, <kbd>←</kbd>/<kbd>→</kbd> through the carousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> for the hints, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>
+      </ul>
+    </details>
+  </li></ul>
         <!-- Colofon: bronvermelding voor Wikipedia (CC BY-SA) en de Noto-emoji
              (animaties CC BY 4.0, webfont OFL 1.1). CC BY *eist* die credit op
              de plek waar het materiaal getoond wordt — de README telt niet. -->
@@ -398,7 +405,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=248"></script>
+  <script src="/game.js?v=249"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
