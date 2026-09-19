@@ -2174,6 +2174,7 @@ function requestLaterClue() {
   goToHintSlide("later");
   updateLiveScore(true);
   save();
+  syncDailyProgress();
 }
 
 // Haal de clue(s) op (uit de board-cache of via RPC). Idempotent; herrendert
@@ -2235,6 +2236,7 @@ function requestDirectionHint() {
   }
   updateLiveScore(true);
   save();
+  syncDailyProgress();
 }
 
 function requestCenturyHint() {
@@ -2246,6 +2248,7 @@ function requestCenturyHint() {
   goToHintSlide("century");   // voeg de 🏛️-band-slide toe en schuif erheen
   updateLiveScore(true);
   save();
+  syncDailyProgress();
 }
 
 function requestLastDigit() {
@@ -2257,6 +2260,7 @@ function requestLastDigit() {
   goToHintSlide("digit");   // voeg de 🔢-cijfer-slide toe en schuif erheen
   updateLiveScore(true);
   save();
+  syncDailyProgress();
 }
 
 // --- Hint-nudge -------------------------------------------------------------
@@ -3086,6 +3090,7 @@ function sendTelemetry() {
     p_score: computeScore(),
     p_guesses: state.guesses.map((g) => g.year),  // voor cross-device reconstructie
     p_anchor_hash: state.anchorHash || hash,   // feit dat open stond bij de gok (categorie-signaal)
+    p_dir_hint_idx: state.directionsRevealed,  // bij wélke gokken 🧭 (db/64) — exact bord bij herstel
   })
     .then((id) => {
       invalidateHistory();  // verse stats bij volgende opening
@@ -6742,53 +6747,111 @@ async function appendStreakLine(won) {
   els.resultText.append(el);
 }
 
-// Reconstrueer het AFGERONDE dagbord uit de DB (alleen ingelogd). De DB bewaart de
-// gegokte jaren (plays.guesses) + hint-aantallen; kleuren/afstanden leiden we af uit
-// het antwoordjaar. Geeft een board-object of null (anon / geen DB-rij voor vandaag).
+// Reconstrueer het dagbord uit de DB (alleen ingelogd): AFGEROND uit plays, of —
+// sinds db/64 — ONDERWEG uit daily_progress (halve pot van een ander apparaat).
+// De DB bewaart de gegokte jaren + hint-aantallen/-rijen; kleuren/afstanden leiden
+// we af uit het antwoordjaar. Geeft {done, ...board} of null (anon / geen rij).
 async function reconstructDailyBoard(answerYear, d = todayKey()) {
   if (!auth.user) return null;
   let row;
-  try { row = await rpc("get_my_daily", { d }); } catch (e) { return null; }
-  if (!row || !Array.isArray(row.guesses) || row.guesses.length === 0) return null;
+  try { row = await rpc("get_my_daily_state", { d }); } catch (e) { return null; }
+  if (!row || !Array.isArray(row.guesses)) return null;
   const guesses = row.guesses.map((year) => {
     const diff = answerYear - year;
     return { year, diff, cls: classify(diff) };
   });
-  const dir = Math.max(0, Math.min(2, row.dir_hints_used || 0));
-  return {
+  const dir = Math.max(0, Math.min(MAX_DIRECTION_HINTS, row.dir_hints_used || 0));
+  // Exacte 🧭-rijen (dir_hint_idx, sinds db/64). Oude rijen kennen alleen het
+  // AANTAL: leg ze dan op de laatste gokken (voor de score telt enkel .length).
+  // NB: slice(-0) === slice(0) → hele array; vang dir=0 expliciet af.
+  const idx = Array.isArray(row.dir_hint_idx)
+    ? [...new Set(row.dir_hint_idx.filter((i) => Number.isInteger(i) && i >= 0 && i < guesses.length))].sort((a, b) => a - b).slice(0, MAX_DIRECTION_HINTS)
+    : null;
+  const board = {
     guesses,
-    done: true,
+    done: !!row.done,
     won: !!row.won,
     laterCluesShown: Math.max(0, Math.min(LATER_CLUE_SLOTS, row.text_hints_used || 0)),
-    // We kennen alleen het AANTAL richting-hints, niet welke rijen; leg ze op de
-    // laatste gokken. Voor de score telt enkel het aantal (.length).
-    // NB: slice(-0) === slice(0) → hele array; vang dir=0 expliciet af.
-    directionsRevealed: dir > 0 ? guesses.map((_, i) => i).slice(-dir) : [],
+    directionsRevealed: idx ?? (dir > 0 ? guesses.map((_, i) => i).slice(-dir) : []),
     centuryRevealed: !!row.century_hint_used,
     lastDigitRevealed: !!row.last_digit_used,
   };
+  // Een onderweg-rij zonder enige voortgang is ruis (kan de server niet maken,
+  // maar wees robuust); een afgeronde rij zonder gokken evenmin bruikbaar.
+  if (!board.done && progressWeight(board) === 0) return null;
+  if (board.done && guesses.length === 0) return null;
+  return board;
 }
 
-// Net ingelogd terwijl de dagpuzzel nog open/onafgerond op het scherm staat?
-// (logout → cache wissen → opnieuw inloggen.) Haal het afgeronde resultaat uit de DB.
-async function maybeRestoreDailyAfterLogin() {
+// Hoe ver is een (half) dagbord? Gokken wegen zwaar, hints licht — zelfde
+// formule als de monotone guard in save_daily_progress (db/64), zodat client en
+// server dezelfde "wie is verder"-uitkomst hebben.
+function progressWeight(b) {
+  return (b.guesses?.length || 0) * 10 + (b.laterCluesShown || 0) + (b.directionsRevealed?.length || 0)
+    + (b.centuryRevealed ? 1 : 0) + (b.lastDigitRevealed ? 1 : 0);
+}
+
+// Cross-device (db/64): zet de halve dagpot in de DB zodat een ander apparaat 'm
+// kan oppakken. Alleen ingelogd, alleen daily, alleen onafgerond. Altijd de
+// VOLLEDIGE stand (idempotent: een gemiste write heelt bij de volgende); de server
+// houdt de verste stand vast. Fire-and-forget, net als record_play.
+function syncDailyProgress() {
   if (!auth.user || !state || state.mode !== "daily" || state.done) return;
+  if (progressWeight(state) === 0) return;
+  rpc("save_daily_progress", {
+    p_puzzle_date: state.puzzleDate || todayKey(),
+    p_guesses: state.guesses.map((g) => g.year),
+    p_text_hints_used: state.laterCluesShown,
+    p_dir_hint_idx: state.directionsRevealed,
+    p_century_hint_used: !!state.centuryRevealed,
+    p_last_digit_used: !!state.lastDigitRevealed,
+  }).catch(() => { /* offline / oude DB: lokaal blijft leidend */ });
+}
+
+// Ingelogd + dagpuzzel onafgerond op het scherm: leg de lokale stand naast de DB.
+//   • DB afgerond (ander apparaat, of logout→login) → toon het eindscherm. Sluit
+//     ook dubbel uitspelen af: dit apparaat kan geen tweede record_play meer doen.
+//   • DB verder dan lokaal → neem het bord stil over (device-switch halverwege).
+//   • Lokaal verder (of DB leeg) → push de lokale stand (anoniem begonnen → ingelogd).
+// Draait bij daily-start (als de puzzel uit de lokale cache kwam) en bij elke
+// auth-wissel; één tegelijk. Race-guard op puzzel-identiteit: tijdens de fetch kan
+// gewisseld/afgerond zijn.
+let reconcileBusy = false;
+async function reconcileDailyProgress() {
+  if (reconcileBusy || !auth.user || !state || state.mode !== "daily" || state.done) return;
   const answerYear = state.event?.year;
   if (answerYear == null) return;
-  const board = await reconstructDailyBoard(answerYear, state.puzzleDate || todayKey());
-  if (!board) return;
-  // Race-guard: kan tijdens de fetch gewisseld/afgerond zijn.
-  if (!state || state.mode !== "daily" || state.done) return;
+  const hash = state.hashes?.[0];
+  reconcileBusy = true;
+  let board;
+  try { board = await reconstructDailyBoard(answerYear, state.puzzleDate || todayKey()); }
+  finally { reconcileBusy = false; }
+  if (!state || state.mode !== "daily" || state.done || state.hashes?.[0] !== hash) return;
+  if (!board || (!board.done && progressWeight(board) <= progressWeight(state))) {
+    // Lokaal is verder of gelijk: DB bijwerken (no-op als gelijk; de server
+    // accepteert alleen minstens-zo-ver, dus dit kan niets terugzetten).
+    if (!board || progressWeight(board) < progressWeight(state)) syncDailyProgress();
+    return;
+  }
   state.guesses = board.guesses;
   state.laterCluesShown = board.laterCluesShown;
   state.directionsRevealed = board.directionsRevealed;
   state.centuryRevealed = board.centuryRevealed;
   state.lastDigitRevealed = board.lastDigitRevealed;
-  setKeypadDisabled(true);
+  if (board.done) {
+    setKeypadDisabled(true);
+    renderEvent();
+    renderHintStatus();
+    renderGuesses();
+    finishGame(board.won, false);  // fresh=false -> geen confetti/telemetrie/dubbeltelling
+    return;
+  }
+  // Halve pot van het andere apparaat overnemen: bord + hint-slides + teller.
   renderEvent();
   renderHintStatus();
   renderGuesses();
-  finishGame(board.won, false);  // fresh=false -> geen confetti/telemetrie/dubbeltelling
+  updateLiveScore(false);
+  save();
 }
 
 // "YYYY-MM-DD" → volledige gelokaliseerde datum ("15 jul 2026") voor de geschiedenislijst,
@@ -7814,6 +7877,7 @@ function submitGuess() {
     finishGame(false, true);
   } else {
     maybeShowHintNudge();   // gok 5, ver mis, hintloos → eenmalig duwtje
+    syncDailyProgress();    // halve dagpot naar de DB (ander apparaat kan 'm oppakken)
   }
 }
 
@@ -7995,9 +8059,11 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
     const p = await rpc("get_daily", { d });
     if (!p) return null;
     // Geen lokale cache (ander apparaat / cache gewist), maar ingelogd? Herstel het
-    // afgeronde bord uit de DB zodat de dagpuzzel niet opnieuw speelbaar lijkt.
+    // bord uit de DB: afgerond (niet opnieuw speelbaar) óf halverwege (db/64: de
+    // gokken/hints van je andere apparaat). synced=true: startGame hoeft daarna
+    // niet nóg eens te reconcilen.
     const board = await reconstructDailyBoard(p.year, d);
-    return { mode: "daily", puzzleDate: d, hashes: p.hashes, band: p.band ?? null, event: toEvent(p), board };
+    return { mode: "daily", puzzleDate: d, hashes: p.hashes, band: p.band ?? null, event: toEvent(p), board, synced: true };
   }
   // free
   if (!forceNew) {
@@ -8078,6 +8144,11 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   loadLaterClues();   // async: vult/herrendert de clues zodra binnen
 
   if (state.done) finishGame(state.won);
+  // Puzzel uit de lokale cache + ingelogd: is een ander apparaat verder (of al
+  // klaar)? Stil vergelijken en zo nodig overnemen (db/64). Bij een verse fetch
+  // (record.synced) is dat al gebeurd; is auth nog niet bekend, dan doet de
+  // sb-auth-changed-handler het zodra die binnenkomt.
+  else if (state.mode === "daily" && auth.user && !record.synced) reconcileDailyProgress();
   updateDayLabel();          // #N (+ inhaal-markering) van de nu actieve daily
   refreshStreakBanners();    // inhaal- + reparatie-uitnodiging (async; inhaal heeft voorrang)
 }
@@ -8279,13 +8350,14 @@ async function init() {
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();
-    // Net ingelogd terwijl de dagpuzzel nog open staat? Herstel 'm uit de DB.
+    // Net ingelogd terwijl de dagpuzzel nog open staat? Leg 'm naast de DB: afgerond
+    // → eindscherm, ander apparaat verder → overnemen, lokaal verder → pushen.
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
-    if (auth.user) { maybeRestoreDailyAfterLogin(); claimPlayOnLogin(); }
+    if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin(); }
     // Auth komt op een reload ná het herstellen van een afgerond dagbord binnen;
     // de streakregel is dan met local-only historie getekend (vaak "streak 1").
-    // maybeRestoreDailyAfterLogin stopt bij state.done, dus herteken 'm hier met
+    // reconcileDailyProgress stopt bij state.done, dus herteken 'm hier met
     // de nu-gezaghebbende DB-historie (werkt ook bij uitloggen → terug naar local).
     if (state?.done && state.mode === "daily") appendStreakLine(state.won);
     // Historie-bron wisselde (login/logout) → herbeoordeel inhaal + reparatie.
