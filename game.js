@@ -152,7 +152,7 @@ const MAIL_ICON = `<svg viewBox="0 0 512 512" aria-hidden="true" style="width:.9
 
 const I18N = {
   nl: {
-    tab_daily: "Dagelijkse Jaardle", tab_free: "Nieuw spel", tab_daily_short: "Dagelijks", tab_free_short: "Nieuw spel",
+    tab_daily: "Dagelijkse Jaardle", tab_free: "Nieuw spel",
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     menu_login_short: "Inloggen",
     menu_theme: "☀️ Licht thema",
@@ -392,7 +392,7 @@ const I18N = {
     help_list: HELP_NL,
   },
   en: {
-    tab_daily: "Daily Jaardle", tab_free: "New game", tab_daily_short: "Daily", tab_free_short: "New game",
+    tab_daily: "Daily Jaardle", tab_free: "New game",
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     menu_login_short: "Sign in",
     menu_theme: "☀️ Light theme",
@@ -635,7 +635,7 @@ const I18N = {
     help_list: HELP_EN,
   },
   de: {
-    tab_daily: "Tägliches Jaardle", tab_free: "Neues Spiel", tab_daily_short: "Täglich", tab_free_short: "Neues Spiel",
+    tab_daily: "Tägliches Jaardle", tab_free: "Neues Spiel",
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
     menu_login_short: "Anmelden",
     menu_theme: "☀️ Helles Design",
@@ -872,7 +872,7 @@ const I18N = {
     help_list: HELP_DE,
   },
   es: {
-    tab_daily: "Jaardle diario", tab_free: "Partida nueva", tab_daily_short: "Diario", tab_free_short: "Partida",
+    tab_daily: "Jaardle diario", tab_free: "Partida nueva",
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
@@ -1114,7 +1114,7 @@ const I18N = {
     help_list: HELP_ES,
   },
   pt: {
-    tab_daily: "Jaardle diário", tab_free: "Jogo novo", tab_daily_short: "Diário", tab_free_short: "Jogo novo",
+    tab_daily: "Jaardle diário", tab_free: "Jogo novo",
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
@@ -2001,7 +2001,6 @@ function renderEvent() {
   });
   carousel.appendChild(track);
   els.eventText.appendChild(carousel);
-  observeFactSlides(carousel);
 
   if (slides.length > 1) {
     const dots = document.createElement("div");
@@ -2040,34 +2039,6 @@ function applyFactTransform(animate) {
   if (!track) return;
   track.style.transition = animate ? "transform 0.25s ease" : "none";
   track.style.transform = `translateX(${-factSlideIndex * 100}%)`;
-  syncFactHeight(animate);
-}
-
-// De kaart volgt de hoogte van de actíeve slide i.p.v. de hoogste: met flex-stretch
-// stond er ~40 px lucht onder een kort hoofdfeit zodra er hogere hint-slides in de
-// carrousel zaten (#20/#33). De track houdt z'n natuurlijke hoogte; de carrousel-
-// viewport knipt op de actieve slide en animeert de wissel mee met de schuif.
-// Zelfde hoogte → niets doen, zodat een lopende animatie niet wordt afgebroken.
-let factResizeObs = null;
-function syncFactHeight(animate) {
-  const carousel = els.eventText.querySelector(".fact-carousel");
-  const slide = carousel?.querySelectorAll(".fact-slide")[factSlideIndex];
-  if (!carousel || !slide) return;
-  const h = slide.offsetHeight;
-  if (!h || carousel.style.height === `${h}px`) return;
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  carousel.style.transition = animate && !reduced ? "height 0.25s ease" : "none";
-  carousel.style.height = `${h}px`;
-}
-
-// Slides veranderen van hoogte bij een resize/rotatie of late font-load: volg dat
-// zonder animatie. Observeert alleen bij (her)opbouw — niet in syncFactHeight zelf,
-// want observe() vuurt meteen een callback en dat zou een lus geven.
-function observeFactSlides(carousel) {
-  if (!("ResizeObserver" in window)) return;
-  if (!factResizeObs) factResizeObs = new ResizeObserver(() => syncFactHeight(false));
-  factResizeObs.disconnect();
-  carousel.querySelectorAll(".fact-slide").forEach((s) => factResizeObs.observe(s));
 }
 
 // Schuif het emoji-stippen-venster zodat de actieve (zo veel mogelijk) in het
@@ -2130,11 +2101,7 @@ function renderHintStatus() {
   // Teller: ⏩ "100 jaar later" (altijd /2 zodra geladen — verraadt de toekomst-variant
   // niet) + 🧭 richtingen.
   const laterPart = availLater > 0 ? `⏩ ${state.laterCluesShown}/${availLater} · ` : "";
-  els.hintCount.textContent = `${laterPart}🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} `;
-  const word = document.createElement("span");
-  word.className = "hint-count-word";   // smal scherm verbergt het woord: teller past dan naast de 🔢-knop (#20)
-  word.textContent = t("dir_word");
-  els.hintCount.appendChild(word);
+  els.hintCount.textContent = `${laterPart}🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${t("dir_word")}`;
 }
 
 // Vul één 🏛️/🔢-waarde-chip (zie renderHintStatus). value is lazy zodat er
@@ -2560,17 +2527,11 @@ function renderGuesses() {
       }
       els.guesses.appendChild(row);
     } else {
-      // Alleen de eerstvolgende lege rij, gelabeld "N/6" — zes lege rijen bij de
-      // start kostten ~75 px en duwden de Gok-knop onder de vouw (#20). Na de
-      // winnende gok of na afloop geen lege rij meer (het bord wordt na
-      // finishGame niet herrenderd, dus kijk óók naar de laatste gok zelf).
-      const over = state.done || state.guesses[state.guesses.length - 1]?.cls === "correct";
-      if (over || idx !== state.guesses.length) continue;
       const row = document.createElement("div");
       row.className = "guess-row empty";
       const slot = document.createElement("span");
       slot.className = "slot-num";
-      slot.textContent = `${idx + 1}/${MAX_GUESSES}`;
+      slot.textContent = `${idx + 1}`;
       row.appendChild(slot);
       els.guesses.appendChild(row);
     }
