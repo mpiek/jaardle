@@ -1633,47 +1633,98 @@ footer {
   padding-top: 1.1rem;
   border-top: 1px solid var(--border);
 }
-.dist-chart { display: flex; flex-direction: column; gap: 4px; }
-.dist-row { display: flex; align-items: center; gap: 8px; }
-.dist-label {
-  flex: none;
-  width: 1ch;
-  text-align: center;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
+/* Recap-blok (issue #25, E2): twee tegels (jij | gemiddeld) boven het score-histogram. */
+.score-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
 }
-.dist-track { flex: 1 1 auto; min-width: 0; }
-.dist-bar {
-  display: inline-block;
+.score-tile {
   box-sizing: border-box;
-  min-width: 1.7em;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--card-soft);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.tile-val { font-size: 1.75rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile-tier { font-size: 0.95rem; font-weight: 600; }
+.tile-sub { font-size: 0.78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-sub .dist-chip { font-size: 0.72rem; padding: 0 0.35em; line-height: 1.4; vertical-align: 0.06em; }
+/* 📏-regel mag afbreken (langere talen), de rest van de tegel niet. */
+.tile-sub.tile-fg { white-space: normal; overflow: visible; line-height: 1.3; }
+.tile-me { color: var(--green-text); }
+.tile-sub.tile-me { font-weight: 600; }
+/* Histogram: 10 bins, jouw bin groen met pin erboven. Hoogtes in % van de 120px. */
+.hist-pinrow { position: relative; height: 26px; }
+.hist-pin {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
   padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--accent);
-  color: var(--on-accent);
+  border-radius: 6px;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.75rem;
   font-weight: 700;
-  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
-  text-align: right;
 }
-.dist-today .dist-bar { background: var(--green); color: #fff; }
-/* "Beter dan X%"-oordeel ónder de verdeling: zelfde groen als de eigen
-   'vandaag'-balk, zodat meteen duidelijk is dat het over jouw resultaat gaat. */
-.dist-faster {
-  text-align: center;
-  font-weight: 700;
-  color: var(--green-text);
-  margin: 0.7rem 0 0;
-  font-size: 0.98rem;
+.hist-pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top: 6px solid var(--green);
+  border-bottom: 0;
 }
-/* Gemiddelde eerste-gok-afstand onderaan de verdeling: neutraal/gedimd,
-   het is context (over iedereen), geen persoonlijk feestje. */
-.dist-firstguess {
-  text-align: center;
+/* Randbins: pin tegen de rand, pijltje boven het midden van de eerste/laatste staaf
+   (staafbreedte ≈ 10% minus de gaps → pijl op ~5% van de rij). */
+.hist-pin-left  { left: 0; transform: none; }
+.hist-pin-right { right: 0; left: auto; transform: none; }
+.hist-pin-left::after  { left: 14px; transform: none; }
+.hist-pin-right::after { left: auto; right: 14px; transform: none; }
+.hist {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));   /* overschreven inline: aantal staven varieert */
+  gap: 6px;
+  align-items: end;
+  height: 120px;
+  border-bottom: 1px solid var(--border);
+}
+.hist-bar { display: block; min-height: 2px; border-radius: 4px 4px 0 0; background: var(--accent); }
+.hist-bar.hist-me { background: var(--green); }
+/* Jouw exacte score: groene stippellijn door de grafiek, onder de pin. */
+.hist-me-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  transform: translateX(-50%);
+  border-left: 2px dashed var(--green);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.hist-axis {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 0.65rem;
   color: var(--muted);
-  margin: 0.5rem 0 0;
-  font-size: 0.88rem;
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
+.hist-axis .hist-me-label { color: var(--fg); font-weight: 700; }
 /* De getallen als kleine chips in de afstandskleur uit het spel (zie
    .delta-badge / classify): één blik en je ziet hoe warm/koud de eerste gok was. */
 .dist-chip {
@@ -1691,7 +1742,7 @@ footer {
 .dist-chip.cool      { background: var(--red);   color: #fff; }
 .dist-chip.far       { background: var(--brown); color: #fff; }
 .dist-chip.distant   { background: var(--gray);  color: #fff; }
-.dist-chip.farthest  { background: #333; color: #fff; box-shadow: inset 0 0 0 1px #555; }
+.dist-chip.farthest  { background: #000; color: #fff; box-shadow: inset 0 0 0 1.5px #555; }
 .recap-account {
   margin-top: 1.1rem;
   padding: 1rem;

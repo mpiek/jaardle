@@ -43,7 +43,7 @@ src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aan
 src += `
 ;globalThis.__T = {
   classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
-  BAND_OUTER, BAND_SLACK, fasterThanHtml,
+  BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -85,16 +85,56 @@ test("computeScore — penalties per gok + hints, niet onder 0", () => {
   assert.equal(T.computeScore(), 0);                       // clamp op 0, niet negatief
 });
 
-test("fasterThanHtml — score-percentiel: mid-rank, min-sample, clamps, alleen winst", () => {
+test("scoreRankPct — score-percentiel: mid-rank, min-sample, clamps, alleen winst", () => {
   T.setLang("nl");
   T.setState({ won: true, guesses: [{ cls: "correct", diff: 0 }] });
-  assert.equal(T.fasterThanHtml(null), "");                                            // RPC faalde → geen regel
-  assert.equal(T.fasterThanHtml({ lower: 3, same: 1, total: 4 }), "");                 // te weinig data
-  assert.match(T.fasterThanHtml({ lower: 6, same: 2, total: 10 }), /Beter dan 78%/);   // mid-rank: (6+1)/9, eigen play eruit
-  assert.match(T.fasterThanHtml({ lower: 8, same: 2, total: 10 }), /Beter dan 100%/);  // topscore: ties van anderen in je voordeel
-  assert.match(T.fasterThanHtml({ lower: 0, same: 1, total: 10 }), /Beter dan 1%/);    // vloer: hekkensluiter ziet geen 0%
+  assert.equal(T.scoreRankPct(null), null);                                  // RPC faalde → geen rangbalk
+  assert.equal(T.scoreRankPct({ lower: 3, same: 1, total: 4 }), null);       // te weinig data
+  assert.equal(T.scoreRankPct({ lower: 6, same: 2, total: 10 }), 78);        // mid-rank: (6+1)/9, eigen play eruit
+  assert.equal(T.scoreRankPct({ lower: 8, same: 2, total: 10 }), 100);       // topscore: ties van anderen in je voordeel
+  assert.equal(T.scoreRankPct({ lower: 0, same: 1, total: 10 }), 1);         // vloer: hekkensluiter ziet geen 0%
   T.setState({ won: false, guesses: [] });
-  assert.equal(T.fasterThanHtml({ lower: 8, same: 2, total: 10 }), "");                // verlies → geen regel
+  assert.equal(T.scoreRankPct({ lower: 8, same: 2, total: 10 }), null);      // verlies → geen rangbalk
+});
+
+test("scoreFineBin — 5-puntsbins, spiegel van db/65", () => {
+  assert.equal(T.scoreFineBin(0), 0);
+  assert.equal(T.scoreFineBin(4), 0);
+  assert.equal(T.scoreFineBin(5), 1);
+  assert.equal(T.scoreFineBin(77), 15);   // 75–79
+  assert.equal(T.scoreFineBin(99), 19);   // 95–99
+  assert.equal(T.scoreFineBin(100), 20);  // perfect apart
+});
+
+test("buildHistogram — zoomt op het bezette bereik, fijn per 5 of grof per 10", () => {
+  const dist = new Array(22).fill(0);
+  dist[0] = 2;                       // 2 verliezers
+  dist[1 + 10] = 12; dist[1 + 15] = 20; dist[1 + 20] = 4;  // scores 50–54, 75–79, 100 (36 winnaars ≥ 2,5 × 11 bins)
+  let h = T.buildHistogram(dist, 77, true);
+  assert.equal(h.step, 5);
+  assert.equal(h.loScore, 50);
+  assert.equal(h.bars.length, 12);                 // verl. + 50,55,…,95 + 100 (11 fijne bins ≤ 14)
+  assert.equal(h.bars[0].count, 2);
+  assert.equal(h.bars[h.mine].from, 75);           // 77 zit in 75–79
+  assert.equal(h.bars[h.bars.length - 1].count, 4);
+  assert.ok(h.xOf(50) > h.xOf(49) - 0.01 && h.xOf(77) > h.xOf(60) && h.xOf(100) > h.xOf(99));
+  // eigen lage winst-score trekt het venster open
+  h = T.buildHistogram(dist, 42, true);
+  assert.equal(h.loScore, 40);
+  // te weinig winnaars per staaf → per 10
+  const sparse = new Array(22).fill(0); sparse[0] = 2; sparse[1 + 10] = 3; sparse[1 + 15] = 5; sparse[1 + 20] = 1;
+  assert.equal(T.buildHistogram(sparse, 77, true).step, 10);
+  // wijd bereik → per 10, 100 apart
+  const wide = new Array(22).fill(1);
+  h = T.buildHistogram(wide, 77, true);
+  assert.equal(h.step, 10);
+  assert.equal(h.bars.length, 12);                 // verl. + 0,10,…,90 + 100
+  assert.equal(h.bars[1].count, 2);                // 0–4 + 5–9 samengevoegd
+  assert.equal(h.bars[h.mine].from, 70);
+  // verlies: pin op de verl.-staaf, venster op de anderen
+  h = T.buildHistogram(dist, 3, false);
+  assert.equal(h.mine, 0);
+  assert.equal(h.loScore, 50);
 });
 
 test("parseShareToken — N×10 hex of null", () => {
