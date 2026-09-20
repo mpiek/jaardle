@@ -3650,8 +3650,9 @@ function easterSunday(y) {
   const m = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * m + 114;
   return [Math.floor(n / 31), (n % 31) + 1];
 }
-// Maankalender-feesten: geen formule maar expliciete data (Umm al-Qura-/astronomische
-// voorspellingen; Eid hangt af van de maanwaarneming, ±1 dag → venster van 3 dagen).
+// Maankalender-feesten: geen formule maar expliciete data. Lunar Nieuwjaar is
+// astronomisch vastgelegd (exact); Eid (maanwaarneming per land) en Diwali (regionale
+// kalenders) kunnen ±1 dag afwijken → symmetrisch venster van 3 dagen rond de voorspelling.
 // Bij het jaarlijkse onderhoud de volgende jaargang toevoegen en de voorspelling
 // van het lopende jaar controleren.
 const LUNAR_NEW_YEAR = { 2026: "02-17", 2027: "02-06", 2028: "01-26", 2029: "02-13", 2030: "02-03", 2031: "01-23", 2032: "02-11" };
@@ -3680,8 +3681,8 @@ function holidayFxFor(date) {
   if (key === "12-31" || key === "01-01") return "newyear";
   if (key === "01-06") return "kings";
   if (LUNAR_NEW_YEAR[y] === key) return "lunar";
-  const eid = EID_AL_FITR[y];
-  if (eid) { const off = today - dayNum(y, +eid.slice(0, 2), +eid.slice(3)); if (off >= 0 && off <= 2) return "eid"; }
+  const near = (tab) => { const v = tab[y]; if (!v) return false; const off = today - dayNum(y, +v.slice(0, 2), +v.slice(3)); return off >= -1 && off <= 1; };
+  if (near(EID_AL_FITR)) return "eid";
   if (key === "02-14") return "valentine";
   if (key === "03-17") return "patrick";
   const [em, ed] = easterSunday(y), offE = today - dayNum(y, em, ed);
@@ -3690,7 +3691,7 @@ function holidayFxFor(date) {
   if (key === "06-28") return "pride";                 // Stonewall, 1969
   if (key === "10-31") return "halloween";
   if (key === "11-01" || key === "11-02") return "muertos";
-  if (DIWALI[y] === key) return "diwali";
+  if (near(DIWALI)) return "diwali";
   if (key === "12-24" || key === "12-25" || key === "12-26") return "xmas";
   return null;
 }

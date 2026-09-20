@@ -215,12 +215,15 @@ test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij 
   assert.equal(T.holidayFxFor(d(2026, 2, 16)), "carnival");
   assert.equal(T.holidayFxFor(d(2026, 2, 17)), "lunar");      // Lunar Nieuwjaar wint van carnavalsdinsdag
   assert.equal(T.holidayFxFor(d(2026, 2, 18)), null);          // Aswoensdag: niets
-  assert.equal(T.holidayFxFor(d(2026, 3, 20)), "eid");
-  assert.equal(T.holidayFxFor(d(2026, 3, 22)), "eid");
-  assert.equal(T.holidayFxFor(d(2026, 3, 23)), null);
+  assert.equal(T.holidayFxFor(d(2026, 3, 19)), "eid");      // ±1 dag rond de voorspelling (20 mrt)
+  assert.equal(T.holidayFxFor(d(2026, 3, 21)), "eid");
+  assert.equal(T.holidayFxFor(d(2026, 3, 22)), null);
   assert.equal(T.holidayFxFor(d(2029, 2, 14)), "eid");         // Eid wint van Valentijn
-  assert.equal(T.holidayFxFor(d(2026, 11, 8)), "diwali");
+  assert.equal(T.holidayFxFor(d(2026, 11, 7)), "diwali");    // ±1 dag rond de voorspelling (8 nov)
+  assert.equal(T.holidayFxFor(d(2026, 11, 9)), "diwali");
+  assert.equal(T.holidayFxFor(d(2026, 11, 10)), null);
   assert.equal(T.holidayFxFor(d(2027, 10, 29)), "diwali");
+  assert.equal(T.holidayFxFor(d(2026, 2, 16)), "carnival");  // Lunar NY (17-2) blijft exact: 16-2 is nog carnaval
   assert.equal(T.holidayFxFor(d(2026, 9, 20)), null);
   assert.equal(T.holidayFxFor(d(2033, 2, 10)), null);          // buiten de maankalender-tabel: stil null
 });
