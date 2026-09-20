@@ -2721,63 +2721,191 @@ function runFx(layers) {
 
 const easeOut = (u) => 1 - Math.pow(1 - u, 1.7);   // ≈ CSS ease-out
 
-// Ronde gloed-sprite: dekkende kern tot 35% van de STRAAL, daarna uitdovend —
-// dat benadert een `box-shadow: 0 0 6px 1px`. De kern is dus 0,35 × de
-// spritediameter; wie hem tekent rekent daarop terug.
-function fxGlowSprite(col) {
+// ── First-try-vuurwerk: twaalf pijlen die opstijgen en in vonkensporen knallen ──
+// Vervangt sinds v261 de 26 bursts van gloeibolletjes: die klonterden bij het
+// ontploffen samen tot "kransen", hadden geen richting of spoor en lagen in acht
+// losse kleuren over álle tekst. Nu: een pijl met komeetstaart stijgt op, een
+// flits, en een knal van 84–96 vonken als korte streepjes in de bewegingsrichting
+// (lengte = snelheid × tau) met luchtweerstand en zwaartekracht in gesloten vorm.
+// Eén kleurfamilie (kern + tint) per knal, finale met twee tegelijk. Op de
+// mockup-pagina van 20/9 zijn 6, 12, 18, 30 en 60 pijlen vergeleken; Matthijs
+// koos 12 (~4,9 s, piek ~740 vonken, 9 knallen tegelijk, 60 fps in de test).
+//
+// Tekenkosten: vonken worden per kleur × alfa-trede gebundeld in één pad, dus een
+// knal kost ~12 stroke()-aanroepen per frame, ongeacht het aantal vonken. Op het
+// donkere thema mengt "lighter" (overlappende vonken worden wit); op licht tekenen
+// we dekkend, met een donkerder palet en een veel zachtere flits.
+// Posities zijn fracties van het venster (rotatie neemt ze mee); de snelheden
+// worden bij het eerste frame op de schermmaat geschaald.
+const FW_SHELLS = 12;
+const FW_PHI = 0.6180339887;   // gulden snede: opeenvolgende knallen liggen niet op elkaar
+const FW_TYPES = {
+  peony:   { n: 84, speed: 265, k: 2.3, g: 210, life: [1.15, 1.6], tau: 0.055, width: 2.3, core: 0.3,  twinkle: 0 },
+  chrys:   { n: 84, speed: 300, k: 2.5, g: 190, life: [1.3, 1.75], tau: 0.1,   width: 2.0, core: 0.25, twinkle: 0 },
+  crackle: { n: 96, speed: 250, k: 2.4, g: 230, life: [1.2, 1.7],  tau: 0.05,  width: 2.2, core: 0.5,  twinkle: 0.4 },
+};
+const FW_ALPHA_STEPS = 6;
+
+function fwPalette() {
+  const dark = currentTheme() !== "light";
+  return dark ? {
+    dark, comp: "lighter", flashA: 0.9, rocket: "#ffe9b0", tail: "#ffd27a",
+    families: [["#fff6d5", "#ffc94d"], ["#ffe3ee", "#ff6f9c"], ["#e8f3ff", "#7db4ff"], ["#e6ffe9", "#62d98c"], ["#f3e8ff", "#c39bff"], ["#ffffff", "#d3dce2"]],
+  } : {
+    dark, comp: "source-over", flashA: 0.3, rocket: "#7a5200", tail: "#a9781a",
+    families: [["#7a5200", "#b8860b"], ["#8a0f3c", "#c2185b"], ["#0f3a8a", "#2456c4"], ["#145a26", "#2e7d32"], ["#4a1580", "#6a1b9a"], ["#263238", "#546e7a"]],
+  };
+}
+
+// Zachte flits-sprite: dekkende kern tot 8 % van de straal, daarna uitdovend naar
+// dezelfde tint met alfa 0 (niet naar zwart — dat gaf een grauwe rand).
+function fwFlashSprite(col) {
+  const n = parseInt(col.slice(1), 16);
   const s = document.createElement("canvas");
   s.width = s.height = 32;
   const g = s.getContext("2d");
   const rg = g.createRadialGradient(16, 16, 0, 16, 16, 16);
-  rg.addColorStop(0, col); rg.addColorStop(0.35, col); rg.addColorStop(1, "rgba(0,0,0,0)");
+  rg.addColorStop(0, col); rg.addColorStop(0.08, col);
+  rg.addColorStop(1, `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},0)`);
   g.fillStyle = rg;
   g.fillRect(0, 0, 32, 32);
   return s;
 }
 
-// Groots vuurwerk voor een first-try-winst: meerdere bursts die na elkaar
-// ontploffen, elk een ring deeltjes die naar buiten schiet (met een beetje
-// zwaartekracht). Bewust forser dan de confetti — dit is de zeldzame topscore.
-function fireworksLayer() {
-  // Wit spat het mooist op donker; op het lichte thema is het onzichtbaar → leigrijs.
-  const spark = currentTheme() === "light" ? "#37474f" : "#ffffff";
-  const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff", "#ff5fa2", spark];
-  const sprites = colors.map(fxGlowSprite);
-  // Middelpunten als frácties van het venster, zodat een rotatie ze meeneemt.
-  const parts = [];
-  let end = 0;
-  for (let b = 0; b < 26; b++) {
-    const fx = (8 + Math.random() * 84) / 100;
-    const fy = (8 + Math.random() * 60) / 100;
-    const ci = Math.floor(Math.random() * colors.length);
-    const delay = b * 0.16 + Math.random() * 0.14; // s, dicht op elkaar → veel tegelijk
-    const particles = 36 + Math.floor(Math.random() * 20);
-    const radius = 110 + Math.random() * 130;      // px
-    const dur = 1.1 + Math.random() * 0.7;         // s
-    end = Math.max(end, delay + dur);
-    for (let i = 0; i < particles; i++) {
-      const ang = (i / particles) * Math.PI * 2 + Math.random() * 0.25;
-      const dist = radius * (0.55 + Math.random() * 0.45);
-      parts.push({
-        fx, fy, ci, delay, dur,
-        dx: Math.cos(ang) * dist,
-        dy: Math.sin(ang) * dist + 60,             // +zwaartekracht
-        sz: 5 + Math.random() * 5,                 // wat variatie in grootte
-      });
+function fwShuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// Lineaire luchtweerstand + zwaartekracht, gesloten vorm:
+// x(s) = x0 + vx·E,  y(s) = y0 + (g/k)·s + (vy − g/k)·E,  E = (1 − e^(−ks))/k
+function fwKin(p, s, x0, y0) {
+  const ek = Math.exp(-p.k * s), E = (1 - ek) / p.k, gk = p.g / p.k;
+  return [x0 + p.vx * E, y0 + gk * s + (p.vy - gk) * E, p.vx * ek, gk + (p.vy - gk) * ek];
+}
+
+// Vonken van één knal: korte streepjes van (pos − v·tau) naar pos, gebundeld per
+// kleur × alfa-trede. Flikkeren (knetter-type) = een vonk om de paar frames overslaan.
+function fwDrawSparks(ctx, sh, t, P, x0, y0) {
+  const T = sh.type, tick = (t * 26) | 0;
+  ctx.globalCompositeOperation = P.comp;
+  ctx.lineCap = "round";
+  if (P.dark) {                                   // gloed-pas: brede, vage streep in de tint
+    let n = 0;
+    ctx.beginPath();
+    for (const p of sh.sparks) {
+      const s = t - sh.burst;
+      if (s > p.life * 0.75) continue;
+      const q = fwKin(p, s, x0, y0);
+      ctx.moveTo(q[0] - q[2] * T.tau, q[1] - q[3] * T.tau); ctx.lineTo(q[0], q[1]); n++;
     }
+    if (n) { ctx.globalAlpha = 0.16; ctx.lineWidth = sh.width * 3.4; ctx.strokeStyle = sh.col[1]; ctx.stroke(); }
   }
+  for (let c = 0; c < 2; c++) for (let b = 0; b < FW_ALPHA_STEPS; b++) {
+    let n = 0;
+    ctx.beginPath();
+    for (const p of sh.sparks) {
+      if (p.ci !== c) continue;
+      const s = t - sh.burst;
+      if (s > p.life) continue;
+      const u = s / p.life, a = u < 0.5 ? 1 : 2 - 2 * u;
+      if (Math.min(FW_ALPHA_STEPS - 1, (a * FW_ALPHA_STEPS) | 0) !== b) continue;
+      if (T.twinkle && u > T.twinkle && (p.seed + tick) % 3 === 0) continue;
+      const q = fwKin(p, s, x0, y0);
+      ctx.moveTo(q[0] - q[2] * T.tau, q[1] - q[3] * T.tau); ctx.lineTo(q[0], q[1]); n++;
+    }
+    if (!n) continue;
+    ctx.globalAlpha = (b + 1) / FW_ALPHA_STEPS;
+    ctx.lineWidth = sh.width * (0.45 + 0.55 * (b + 1) / FW_ALPHA_STEPS);
+    ctx.strokeStyle = sh.col[c];
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function fireworksLayer() {
+  const P = fwPalette();
+  const N = FW_SHELLS;
+  // Lanceervenster groeit met (N/6)^0,3: meer pijlen = vooral dichter, niet langer.
+  const win = 1.72 * Math.pow(N / 6, 0.3);
+  const typeNames = ["peony", "chrys", "crackle"];
+  let fams = fwShuffle(P.families.slice()), prev = null;
+  const shells = [];
+  for (let i = 0; i < N; i++) {
+    if (i && i % fams.length === 0) { do { fams = fwShuffle(P.families.slice()); } while (fams[0] === prev); }
+    const col = fams[i % fams.length];
+    prev = col;
+    const T = 0.72 + Math.random() * 0.18;                          // stijgtijd (s)
+    const launch = win * Math.pow(i / N, 0.92) + Math.random() * 0.05;   // crescendo
+    shells.push({
+      launch, T, burst: launch + T, type: FW_TYPES[typeNames[i % 3]], col,
+      fx: 0.18 + ((i * FW_PHI) % 1) * 0.64,                 // apex-x (fractie)
+      fy: 0.14 + ((i * (1 - FW_PHI) + 0.2) % 1) * 0.24,     // apex-y (fractie, 14–38 %)
+      dx: (Math.random() - 0.5) * 0.16,                     // lanceerpunt t.o.v. apex (fractie van W)
+      seed: Math.random() * 100,
+      flash: fwFlashSprite(col[0]),
+      sparks: null, width: 0,                               // bij het eerste frame (schermmaat)
+    });
+  }
+  for (let j = 0; j < 2; j++) {                              // finale: de laatste twee vrijwel tegelijk
+    const sh = shells[N - 1 - j];
+    sh.launch = win + j * 0.08; sh.burst = sh.launch + sh.T;
+  }
+  const end = shells.reduce((m, sh) => Math.max(m, sh.burst + sh.type.life[1]), 0) + 0.1;
+  let S = 0;
   return {
-    end: end + 0.2,
+    end,
     draw(ctx, t, W, H) {
-      for (const p of parts) {
-        const u = (t - p.delay) / p.dur;
-        if (u < 0 || u > 1) continue;
-        const e = easeOut(u);
-        // sprite zó groot dat de dekkende kern net zo breed is als de oude div
-        // (sz × scale 1.2 → 0.2); de rest van de sprite is de gloed eromheen
-        const d = (p.sz * (1.2 - e)) / 0.35;
-        ctx.globalAlpha = u < 0.7 ? 1 : Math.max(0, 1 - (u - 0.7) / 0.3);
-        ctx.drawImage(sprites[p.ci], p.fx * W + p.dx * e - d / 2, p.fy * H + p.dy * e - d / 2, d, d);
+      if (!S) {                                               // eerste frame: schaal op de schermmaat
+        S = Math.max(0.6, Math.min(1.5, Math.min(W, H) / 400));
+        for (const sh of shells) {
+          const T = sh.type;
+          sh.width = T.width * S;
+          sh.sparks = [];
+          for (let i = 0; i < T.n; i++) {
+            // bol geprojecteerd op het vlak: veel vonken aan de rand, weinig in het midden
+            const ang = Math.random() * Math.PI * 2, z = Math.random() * 2 - 1, f = Math.sqrt(1 - z * z);
+            const v = T.speed * S * f * (0.82 + Math.random() * 0.24);
+            sh.sparks.push({ vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, k: T.k, g: T.g * S,
+              life: T.life[0] + Math.random() * (T.life[1] - T.life[0]),
+              ci: Math.random() < T.core ? 0 : 1, seed: (Math.random() * 1e4) | 0 });
+          }
+        }
+      }
+      for (const sh of shells) {
+        const ax = sh.fx * W, ay = sh.fy * H;
+        // Pijl: komeet met staart, remt af richting apex (ease-out) en zwabbert licht.
+        const u = (t - sh.launch) / sh.T;
+        if (u >= 0 && u <= 1) {
+          const lx = (sh.fx + sh.dx) * W, ly = H + 10;
+          const pos = (v) => {
+            v = Math.max(0, Math.min(1, v));
+            const e = 1 - (1 - v) * (1 - v);
+            return [lx + (ax - lx) * v + Math.sin(v * 7 + sh.seed) * 5 * S * (1 - v), ly + (ay - ly) * e];
+          };
+          const [x, y] = pos(u), [px, py] = pos(u - 0.05);
+          ctx.globalCompositeOperation = P.comp;
+          ctx.globalAlpha = u < 0.85 ? 0.95 : 0.95 * (1 - u) / 0.15;
+          ctx.lineCap = "round"; ctx.lineWidth = 2.4 * S; ctx.strokeStyle = P.rocket;
+          ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(x, y); ctx.stroke();
+          ctx.fillStyle = P.tail;
+          for (let i = 1; i <= 6; i++) {
+            const [tx, ty] = pos(u - 0.018 * i);
+            ctx.globalAlpha *= 0.78;
+            ctx.beginPath(); ctx.arc(tx + (Math.random() * 6 - 3) * S, ty + (Math.random() * 8 - 2) * S, 1.1 * S, 0, 6.283); ctx.fill();
+          }
+          ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+        }
+        const s = t - sh.burst;
+        if (s < 0) continue;
+        if (s < 0.25) {                                       // flits
+          const f = s / 0.25, d = (60 + 160 * f) * S;
+          ctx.globalCompositeOperation = P.comp; ctx.globalAlpha = P.flashA * (1 - f);
+          ctx.drawImage(sh.flash, ax - d / 2, ay - d / 2, d, d);
+          ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+        }
+        if (s <= sh.type.life[1]) fwDrawSparks(ctx, sh, t, P, ax, ay);
       }
     },
   };
@@ -3064,9 +3192,9 @@ function clinkLayer(delay = 0, prefFrac = 0.24, floorFrac = 0) {
 }
 
 // Bij een gewone winst alleen de proost; bij een first-try het volle glas mét het
-// vuurwerk erboven. Ze vechten niet om dezelfde ruimte: vuurwerk zit op 8-68% van
-// de hoogte, het bier onderin. De bubbels blijven daarom in het glas — schermbreed
-// gaan ze verloren tussen de vuurwerkdeeltjes.
+// vuurwerk erboven. Ze vechten niet om dezelfde ruimte: de knallen zitten op 14-38%
+// van de hoogte, het bier onderin (alleen de pijlen kruisen kort de onderrand). De
+// bubbels blijven daarom in het glas — schermbreed gaan ze verloren tussen de vonken.
 function showBeer(firstTry) {
   // Glashoogte volgt de bierhoogte (+ een fractie, zodat de glazen net uít het
   // schuim komen i.p.v. erin te staan). Eén getal aanpassen = beide schuiven mee.
