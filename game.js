@@ -2330,6 +2330,7 @@ function requestLastDigit() {
   if (state.done || state.lastDigitRevealed) return;
   state.lastDigitRevealed = true;
   markPaidHintUsed();
+  try { localStorage.setItem("jaardle:digitused", "1"); } catch (e) {}   // 🔢-gloed dooft voorgoed
   renderEvent();
   renderHintStatus();
   goToHintSlide("digit");   // voeg de 🔢-cijfer-slide toe en schuif erheen
@@ -2369,6 +2370,47 @@ function maybeShowHintNudge() {
   el.textContent = t("hint_nudge")(LAST_DIGIT_PENALTY);
   document.getElementById("hint-row")?.after(el);
   setTimeout(() => el.remove(), 8000);   // dooft vanzelf uit
+}
+
+// --- 🔢-gloed in het eindspel -----------------------------------------------
+// Data (sept '26): twee derde van de anonieme daily-verliezers kwam tot op ≤10
+// jaar en strandde dáár; 65% van hen kocht niets, terwijl ingelogde spelers in
+// dezelfde situatie 3-4× vaker 🔢 pakken (20 kandidaten → 2). Eén zachte gloed
+// op de 🔢-knop zodra je dichtbij zit (🟪/🟨), nog ≤2 pogingen hebt en dit potje
+// geen 🧭/🔢 kocht. Zelfdovend: 1× per potje, nooit meer zodra 🔢 ooit gebruikt
+// is, max 3× ooit. Disjunct met de tekst-nudge hierboven (die is voor "ver mis").
+const DIGIT_GLOW_MAX = 3;
+let digitGlowDone = false;   // per potje; reset in startGame
+
+function maybeGlowDigitHint() {
+  if (digitGlowDone || state.done) return;
+  if (state.guesses.length < MAX_GUESSES - 2) return;   // pas bij gok 4 of 5
+  if (state.lastDigitRevealed || state.directionsRevealed.length > 0) return;
+  const btn = els.hintBtnDigit;
+  if (!btn || btn.hidden) return;
+  const closest = Math.min(...state.guesses.map((g) => Math.abs(g.diff)));
+  if (closest > 10) return;   // alleen 🟪/🟨: daar maakt het laatste cijfer het af
+  try {
+    if (localStorage.getItem("jaardle:digitused")) return;
+    const seen = Number(localStorage.getItem("jaardle:digitglow") || 0);
+    if (seen >= DIGIT_GLOW_MAX) return;
+    localStorage.setItem("jaardle:digitglow", String(seen + 1));
+  } catch (e) {}
+  digitGlowDone = true;
+  // Even wachten tot de penalty-pop van deze gok is uitgespeeld; daarna één
+  // cyclus (aanzwellen, wegebben), geen loop. Class weg na afloop zodat een
+  // volgend potje 'm opnieuw kan starten. Vangnet-timer: wordt de knop tijdens
+  // de gloed verborgen (🔢 gekocht) of staat reduced-motion aan, dan komt er
+  // geen animationend en zou de class blijven hangen (→ herspelen bij unhide).
+  setTimeout(() => {
+    if (state.done || btn.hidden) return;
+    btn.classList.remove("glow");
+    void btn.offsetWidth;
+    btn.classList.add("glow");
+    const off = () => btn.classList.remove("glow");
+    btn.addEventListener("animationend", off, { once: true });
+    setTimeout(off, 2000);
+  }, 700);
 }
 
 const RANGE_LABELS = {
@@ -8047,6 +8089,7 @@ function submitGuess() {
     finishGame(false, true);
   } else {
     maybeShowHintNudge();   // gok 5, ver mis, hintloos → eenmalig duwtje
+    maybeGlowDigitHint();   // gok 4/5, dichtbij, geen 🧭/🔢 → één zachte gloed op 🔢
     syncDailyProgress();    // halve dagpot naar de DB (ander apparaat kan 'm oppakken)
   }
 }
@@ -8304,6 +8347,8 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   clearYear();
   factSlideIndex = 0;   // start altijd bij het hoofdfeit
   anchorFactSlot = 0;   // anker reset mee (hoofdfeit tot de speler wegbladert)
+  digitGlowDone = false;   // 🔢-gloed mag in dit potje weer 1× (nooit op F5: alleen vanuit submitGuess)
+  els.hintBtnDigit?.classList.remove("glow");
   renderEvent();
   renderHintStatus();
   renderGuesses();
