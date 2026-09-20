@@ -3518,9 +3518,17 @@ const HolidayFx = (() => {
   };
 })();
 
+// Tot wanneer (performance.now) de lopende feestdag-/hoogtijdag-viering duurt.
+// De daily-recap opent daar niet overheen (finishGame): op een gewone dag zou de
+// recap ná ~0,5–1,8 s over de uitslag schuiven en de viering — bij Rome/maanlanding
+// verankerd aan het jaartal op de kaart — grotendeels verbergen. Bewust ALLEEN voor
+// deze vieringen; vuurwerk, bier en gouden jaartallen houden de gewone timing.
+let holidayFxUntil = 0;
 function showHolidayFx(id) {
   if (!HolidayFx.has(id)) return;
-  runFx(HolidayFx.build(id, innerWidth, innerHeight));
+  const layers = HolidayFx.build(id, innerWidth, innerHeight);
+  holidayFxUntil = performance.now() + layers.reduce((m, l) => Math.max(m, l.end), 0) * 1000 + 250;
+  runFx(layers);
 }
 
 // Paaszondag (Meeus/Jones/Butcher) → [maand, dag]. Basis voor Pasen én Carnaval.
@@ -3984,7 +3992,10 @@ function finishGame(won, fresh = false) {
     if (fresh && state.mode === "daily" && !isMakeup(state)) {
       const potKey = `${state.mode}:${statsHash}`;
       const guard = new Promise((r) => setTimeout(() => r(false), 1200));
-      Promise.race([unlocked, guard]).then((hit) => {
+      // Speelt er een feestdag-/hoogtijdag-viering, dan wacht de recap tot die
+      // klaar is (max ~4,5 s) — anders schuift hij over de viering heen.
+      const fxWait = new Promise((r) => setTimeout(r, Math.max(0, Math.min(4500, holidayFxUntil - performance.now()))));
+      Promise.all([Promise.race([unlocked, guard]), fxWait]).then(([hit]) => {
         // Snelle speler kan inmiddels een nieuw potje zijn begonnen — dan is de
         // recap van dit feit niet meer aan de orde.
         if (!state || !state.done || `${state.mode}:${state.hashes?.[0]}` !== potKey) return;
