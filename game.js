@@ -3658,7 +3658,7 @@ const LUNAR_NEW_YEAR = { 2026: "02-17", 2027: "02-06", 2028: "01-26", 2029: "02-
 const EID_AL_FITR    = { 2026: "03-20", 2027: "03-09", 2028: "02-26", 2029: "02-14", 2030: "02-04", 2031: "01-24", 2032: "01-14" };
 const DIWALI         = { 2026: "11-08", 2027: "10-29", 2028: "10-17", 2029: "11-05", 2030: "10-26", 2031: "11-14", 2032: "11-02" };
 // Historische hoogtijdagen: puzzeldag (MM-DD) → viering + het gepinde antwoordjaar.
-// Zeven dagen (db/69 + db/70); de gepinde feiten zijn uit de vrij-spel-trekking gehaald.
+// Zeven dagen (db/69 + db/70). De gepinde feiten blijven gewoon in vrij spel (bewust, 20/9).
 const HISTORIC_FX = {
   "03-15": { id: "ides", year: -44 },        // Iden van maart: Caesar vermoord
   "04-21": { id: "rome", year: -753 },       // Natale di Roma
