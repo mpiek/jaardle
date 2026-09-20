@@ -231,11 +231,15 @@ test("historicFxFor — puzzeldag + gepind jaar; ander jaar of andere dag = null
   assert.equal(T.historicFxFor("2027-07-20", 1969), "moon");
   assert.equal(T.historicFxFor("2026-10-15", 1582), "gregorian");
   assert.equal(T.historicFxFor("2026-10-16", 1582), null);
+  assert.equal(T.historicFxFor("2027-03-15", -44), "ides");
+  assert.equal(T.historicFxFor("2027-05-29", 1953), "everest");
+  assert.equal(T.historicFxFor("2026-10-12", 1492), "columbus");
+  assert.equal(T.historicFxFor("2026-12-17", 1903), "flight");
   assert.equal(T.historicFxFor(undefined, 1582), null);
 });
 
 test("HolidayFx — elke viering uit de tabellen heeft een laag", () => {
-  for (const id of ["newyear", "kings", "lunar", "eid", "valentine", "patrick", "carnival", "easter", "pride", "halloween", "muertos", "diwali", "xmas", "rome", "moon", "gregorian"]) {
+  for (const id of ["newyear", "kings", "lunar", "eid", "valentine", "patrick", "carnival", "easter", "pride", "halloween", "muertos", "diwali", "xmas", "rome", "moon", "gregorian", "ides", "everest", "columbus", "flight"]) {
     assert.ok(T.HolidayFx.has(id), id);
   }
   assert.equal(T.HolidayFx.has("stamp"), false);

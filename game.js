@@ -2968,6 +2968,14 @@ const HolidayFx = (() => {
                  : { star: "#6b7680", glow: "#c9d9e8", moon: "#cfd4da", crater: "#a9b1b9", line: "#7d8790", gold: "#d4a72c", goldDark: "#8a6a10", grey: "#5f6f7a", window: "#263238", leg: "#5f6f7a", flame: "#ef6c00", dust: "#a9b1b9" },
       gregorian: dark ? { page: "#f5efe0", line: null, band: "#e53935", ink: "#2b2b2b", cross: "#e53935" }
                       : { page: "#ffffff", line: "#bdbdbd", band: "#c62828", ink: "#222222", cross: "#c62828" },
+      ides: dark ? { numeral: ["#c39bff", "#f4c430", "#e8dcc0"], leaf: "#7cb342", vein: "#c9a227" }
+                 : { numeral: ["#6a1b9a", "#8a6a10", "#6d5a3a"], leaf: "#558b2f", vein: "#8a6a10" },
+      everest: dark ? { rock: "#3a4450", rockDark: "#2a313a", snow: "#f2f6fa", flag: "#e53935", pole: "#e0e0e0", flakes: ["#ffffff", "#e3f2ff"] }
+                    : { rock: "#5c6b7a", rockDark: "#46525e", snow: "#ffffff", flag: "#c62828", pole: "#455a64", flakes: ["#9dc7ea", "#7fb8e6"] },
+      columbus: dark ? { sea: "#4f8fc6", seaDark: "#2f6a9e", hull: "#6d4c2a", sail: "#f3e9d2", cross: "#c62828", mast: "#3e2a15" }
+                     : { sea: "#2f6a9e", seaDark: "#1f4f7a", hull: "#5a3d1e", sail: "#fffaf0", cross: "#c62828", mast: "#3e2a15" },
+      flight: dark ? { wing: "#e8dcc0", body: "#b8a888", strut: "#9a8a6a", prop: "#d3dce2", cloud: "rgba(255,255,255,.10)" }
+                   : { wing: "#5d4e37", body: "#8b7355", strut: "#6d5a3a", prop: "#546e7a", cloud: "rgba(60,50,40,.08)" },
       patrick: dark ? { greens: ["#2e7d32", "#43a047", "#66bb6a", "#81c784"], coin: "#f4c430", coinRim: "#c9962a" }
                     : { greens: ["#1b5e20", "#2e7d32", "#388e3c", "#43a047"], coin: "#d4a72c", coinRim: "#8a6a10" },
       muertos: dark ? { papel: ["#ff4fa3", "#ff9800", "#8e24aa", "#26a69a", "#fdd835", "#43a047"], hole: "rgba(26,26,26,.85)", string: "rgba(255,255,255,.5)", marigold: ["#ff9800", "#ffb300", "#ff7043"], bone: "#f5f5f5", line: null, socket: "#2a2233", petal: "#ff4fa3", accent: "#26a69a" }
@@ -3494,11 +3502,114 @@ const HolidayFx = (() => {
   }
 
 
+  // ── Iden van maart (−44): Romeinse cijfers in keizerlijk purper en goud, laurier ─
+  function idesLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.ides;
+    const numerals = Array.from({ length: 26 }, (_, i) => ({ x: 0.05 + ((i * PHI) % 1) * 0.9, delay: rnd(0, 1.3), dur: rnd(2.4, 3.2), top: 30, sway: rnd(6, 14) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(-0.4, 0.4), rnd(-1.2, 1.2)),
+      ch: pick(["I", "V", "X", "L", "C", "D", "M", "XV", "SPQR"]), size: rnd(15, 24) * S, col: pick(c.numeral),
+      draw(ctx) { ctx.fillStyle = this.col; ctx.font = `700 ${this.size}px Georgia, "Times New Roman", serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(this.ch, 0, 0); } }));
+    const leaves = Array.from({ length: 16 }, () => ({ x: Math.random(), delay: rnd(0.2, 1.4), dur: rnd(2.6, 3.3), top: 30, sway: rnd(10, 18) * S, swf: rnd(2, 3.5), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(0, TAU), rnd(-2, 2)),
+      l: rnd(6, 9) * S, draw(ctx) { leaf(ctx, this.l, this.l * 0.42, c.leaf, c.vein); } }));
+    return [fallLayer(numerals, 3.9, stats), fallLayer(leaves, 3.9, stats)];
+  }
+  // ── Everest (1953): een berg rijst onderin op, vlag op de top, sneeuw ───────
+  function everestLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.everest;
+    const dots = Array.from({ length: 70 }, () => ({ x: Math.random(), delay: rnd(0, 1.0), dur: rnd(2.4, 3.2), top: 10, sway: rnd(6, 16) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: () => 0,
+      r: rnd(1.2, 3) * S, col: pick(c.flakes), alpha: rnd(0.6, 1), draw(ctx) { ctx.fillStyle = this.col; ctx.beginPath(); ctx.arc(0, 0, this.r, 0, TAU); ctx.fill(); } }));
+    const snow = fallLayer(dots, 4.0, stats);
+    return [{ end: 4.0, draw(ctx, t, W2, H2) {
+      const fade = clamp((4.0 - t) / 0.6, 0, 1), rise = 1 - Math.pow(1 - clamp(t / 1.2, 0, 1), 3);
+      const mh = H2 * 0.34, base = H2 + 6, peakY = base - mh * rise, cx = W2 * 0.5;
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = c.rockDark; ctx.beginPath(); ctx.moveTo(W2 * -0.05, base); ctx.lineTo(W2 * 0.28, peakY + mh * 0.35); ctx.lineTo(W2 * 0.55, base); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(W2 * 0.5, base); ctx.lineTo(W2 * 0.78, peakY + mh * 0.42); ctx.lineTo(W2 * 1.05, base); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = c.rock; ctx.beginPath(); ctx.moveTo(W2 * 0.12, base); ctx.lineTo(cx, peakY); ctx.lineTo(W2 * 0.88, base); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = c.snow; ctx.beginPath(); ctx.moveTo(cx, peakY);                       // sneeuwkap
+      ctx.lineTo(cx + mh * 0.16, peakY + mh * 0.2); ctx.lineTo(cx + mh * 0.09, peakY + mh * 0.17); ctx.lineTo(cx + mh * 0.04, peakY + mh * 0.25);
+      ctx.lineTo(cx - mh * 0.05, peakY + mh * 0.19); ctx.lineTo(cx - mh * 0.11, peakY + mh * 0.24); ctx.lineTo(cx - mh * 0.16, peakY + mh * 0.2); ctx.closePath(); ctx.fill();
+      stats.drawn += 4;
+      const fu = clamp((t - 1.3) / 0.4, 0, 1);                                               // vlag komt op de top
+      if (fu > 0) {
+        const ph = 22 * S * fu, fx = cx + 2 * S, fy = peakY + 2 * S;
+        ctx.strokeStyle = c.pole; ctx.lineWidth = 1.6 * S; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx, fy - ph); ctx.stroke();
+        const wave = Math.sin(t * 9) * 2 * S;
+        ctx.fillStyle = c.flag; ctx.beginPath(); ctx.moveTo(fx, fy - ph); ctx.quadraticCurveTo(fx + 8 * S, fy - ph + wave - 2 * S, fx + 15 * S * fu, fy - ph + 4 * S + wave);
+        ctx.quadraticCurveTo(fx + 8 * S, fy - ph + 6 * S - wave, fx, fy - ph + 9 * S); ctx.closePath(); ctx.fill(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+      snow.draw(ctx, t, W2, H2);
+    } }];
+  }
+  // ── Columbus (1492): drie scheepjes zeilen over de golven van links naar rechts ─
+  function ship(ctx, s, c, big) {
+    ctx.fillStyle = c.hull; ctx.beginPath(); ctx.moveTo(-14 * s, 0); ctx.lineTo(14 * s, 0); ctx.lineTo(10 * s, 7 * s); ctx.lineTo(-10 * s, 7 * s); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = c.mast; ctx.lineWidth = Math.max(1, 1.4 * s); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -(big ? 26 : 20) * s); ctx.stroke();
+    ctx.fillStyle = c.sail; ctx.beginPath(); ctx.moveTo(-9 * s, -(big ? 24 : 18) * s); ctx.lineTo(9 * s, -(big ? 24 : 18) * s); ctx.quadraticCurveTo(12 * s, -12 * s, 9 * s, -4 * s); ctx.lineTo(-9 * s, -4 * s); ctx.quadraticCurveTo(-6 * s, -12 * s, -9 * s, -(big ? 24 : 18) * s); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = c.cross; ctx.lineWidth = Math.max(1, 1.6 * s); ctx.beginPath(); ctx.moveTo(0, -(big ? 22 : 16) * s); ctx.lineTo(0, -6 * s); ctx.moveTo(-6 * s, -(big ? 15 : 12) * s); ctx.lineTo(6 * s, -(big ? 15 : 12) * s); ctx.stroke();
+  }
+  function columbusLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.columbus;
+    const ships = [{ y: 0.80, s: 1.0, v: 0.27, d: 0.0, big: true }, { y: 0.845, s: 0.78, v: 0.24, d: 0.35 }, { y: 0.885, s: 0.72, v: 0.22, d: 0.7 }];
+    return [{ end: 4.4, draw(ctx, t, W2, H2) {
+      const fade = clamp(t / 0.4, 0, 1) * clamp((4.4 - t) / 0.6, 0, 1);
+      ctx.globalAlpha = fade;
+      for (const [yf, col, ph, amp] of [[0.86, c.seaDark, 0, 5], [0.9, c.sea, 1.7, 6]]) {          // golven
+        ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, H2);
+        for (let x = 0; x <= W2; x += 6) ctx.lineTo(x, H2 * yf + Math.sin(x / (26 * S) + t * 2.2 + ph) * amp * S);
+        ctx.lineTo(W2, H2); ctx.closePath(); ctx.fill();
+      }
+      for (const sh of ships) {
+        const u = (t - sh.d) * sh.v; if (u < 0) continue;
+        const x = -40 * S + (W2 + 80 * S) * u, y = H2 * sh.y + Math.sin(t * 2.2 + sh.d * 4) * 4 * S;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t * 2.2 + sh.d * 4) * 0.06); ship(ctx, sh.s * S, c, sh.big); ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+    } }];
+  }
+  // ── Eerste vlucht (1903): tweedekkers glijden van links naar rechts ─────────
+  function biplane(ctx, s, c, t) {
+    // Zijaanzicht: romp, bovenvleugel boven de romp, ondervleugel eronder, stijlen,
+    // staartvlak, wieltjes en een draaiende propellerschijf op de neus.
+    ctx.lineCap = "round";
+    ctx.strokeStyle = c.strut; ctx.lineWidth = Math.max(1, 1.1 * s);
+    for (const dx of [-3, 5]) { ctx.beginPath(); ctx.moveTo(dx * s, -9 * s); ctx.lineTo(dx * s, 3 * s); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(-3 * s, -9 * s); ctx.lineTo(5 * s, 3 * s); ctx.stroke();
+    ctx.fillStyle = c.body;                                                              // romp
+    ctx.beginPath(); ctx.moveTo(-16 * s, -2.5 * s); ctx.lineTo(10 * s, -3.5 * s); ctx.quadraticCurveTo(16 * s, -3 * s, 16 * s, 0); ctx.quadraticCurveTo(16 * s, 3 * s, 10 * s, 3 * s); ctx.lineTo(-16 * s, 1.5 * s); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-16 * s, -2.5 * s); ctx.lineTo(-13 * s, -9 * s); ctx.lineTo(-9 * s, -9 * s); ctx.lineTo(-8 * s, -3 * s); ctx.closePath(); ctx.fill();   // staartvin
+    ctx.fillRect(-18 * s, -3 * s, 8 * s, 1.6 * s);                                       // hoogteroer
+    ctx.fillStyle = c.wing;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-9 * s, -11 * s, 22 * s, 2.6 * s, 1.3 * s) : ctx.rect(-9 * s, -11 * s, 22 * s, 2.6 * s); ctx.fill();   // bovenvleugel
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-7 * s, 2 * s, 18 * s, 2.4 * s, 1.2 * s) : ctx.rect(-7 * s, 2 * s, 18 * s, 2.4 * s); ctx.fill();       // ondervleugel
+    ctx.fillStyle = c.strut; for (const dx of [-2, 6]) { ctx.beginPath(); ctx.arc(dx * s, 6 * s, 1.6 * s, 0, TAU); ctx.fill(); }   // wieltjes
+    ctx.globalAlpha *= 0.55; ctx.fillStyle = c.prop;                                      // propellerschijf
+    ctx.beginPath(); ctx.ellipse(17 * s, 0, 1.6 * s, 7 * s * (0.55 + 0.45 * Math.abs(Math.sin(t * 30))), 0, 0, TAU); ctx.fill();
+    ctx.globalAlpha /= 0.55;
+  }
+  function flightLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.flight;
+    const planes = Array.from({ length: 5 }, (_, i) => ({ y: 0.12 + ((i * PHI) % 1) * 0.5, s: rnd(0.75, 1.15), v: rnd(0.24, 0.34), d: i * 0.45, ph: rnd(0, TAU), bob: rnd(6, 12) * S }));
+    const clouds = Array.from({ length: 6 }, (_, i) => ({ x: ((i * PHI + 0.3) % 1), y: 0.08 + ((i * 0.37) % 1) * 0.55, r: rnd(22, 40) * S, v: rnd(0.02, 0.05) }));
+    return [{ end: 4.4, draw(ctx, t, W2, H2) {
+      const fade = clamp(t / 0.4, 0, 1) * clamp((4.4 - t) / 0.6, 0, 1);
+      ctx.fillStyle = c.cloud;
+      for (const cl of clouds) { const x = ((cl.x + t * cl.v) % 1.2 - 0.1) * W2; ctx.globalAlpha = fade; ctx.beginPath(); ctx.arc(x, cl.y * H2, cl.r, 0, TAU); ctx.arc(x + cl.r * 0.8, cl.y * H2 + cl.r * 0.15, cl.r * 0.7, 0, TAU); ctx.arc(x - cl.r * 0.7, cl.y * H2 + cl.r * 0.2, cl.r * 0.6, 0, TAU); ctx.fill(); }
+      for (const p of planes) {
+        const u = (t - p.d) * p.v; if (u < 0) continue;
+        const x = -60 * S + (W2 + 120 * S) * u, y = p.y * H2 + Math.sin(t * 1.6 + p.ph) * p.bob;
+        ctx.globalAlpha = fade; ctx.save(); ctx.translate(x, y); ctx.rotate(Math.cos(t * 1.6 + p.ph) * 0.08 - 0.05); biplane(ctx, p.s * S, c, t); ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+    } }];
+  }
+
   const LAYERS = {
     newyear: newYearLayers, kings: kingsLayers, lunar: lunarLayers, eid: eidLayers, valentine: valentineLayers,
     patrick: patrickLayers, carnival: carnivalLayers, easter: easterLayers, pride: prideLayers, halloween: halloweenLayers,
     muertos: muertosLayers, diwali: diwaliLayers, xmas: xmasLayers,
     rome: romeLayers, moon: moonLayers, gregorian: gregorianLayers,
+    ides: idesLayers, everest: everestLayers, columbus: columbusLayers, flight: flightLayers,
   };
   // Anker voor Rome/maanlanding: de groene jaartal-pil op de uitslagkaart, in
   // viewport-coördinaten (het fx-canvas is position:fixed). Ontbreekt hij, dan
@@ -3547,7 +3658,16 @@ const LUNAR_NEW_YEAR = { 2026: "02-17", 2027: "02-06", 2028: "01-26", 2029: "02-
 const EID_AL_FITR    = { 2026: "03-20", 2027: "03-09", 2028: "02-26", 2029: "02-14", 2030: "02-04", 2031: "01-24", 2032: "01-14" };
 const DIWALI         = { 2026: "11-08", 2027: "10-29", 2028: "10-17", 2029: "11-05", 2030: "10-26", 2031: "11-14", 2032: "11-02" };
 // Historische hoogtijdagen: puzzeldag (MM-DD) → viering + het gepinde antwoordjaar.
-const HISTORIC_FX = { "04-21": { id: "rome", year: -753 }, "07-20": { id: "moon", year: 1969 }, "10-15": { id: "gregorian", year: 1582 } };
+// Zeven dagen (db/69 + db/70); de gepinde feiten zijn uit de vrij-spel-trekking gehaald.
+const HISTORIC_FX = {
+  "03-15": { id: "ides", year: -44 },        // Iden van maart: Caesar vermoord
+  "04-21": { id: "rome", year: -753 },       // Natale di Roma
+  "05-29": { id: "everest", year: 1953 },    // Hillary & Tenzing op de Everest
+  "07-20": { id: "moon", year: 1969 },       // maanlanding
+  "10-12": { id: "columbus", year: 1492 },   // Columbus bereikt Amerika
+  "10-15": { id: "gregorian", year: 1582 },  // gregoriaanse kalender
+  "12-17": { id: "flight", year: 1903 },     // eerste vlucht, Wright Flyer
+};
 
 // Welke feestdag-viering hoort bij deze (lokale) datum? null = gewone dag.
 // Volgorde = voorrang bij overlap (Lunar Nieuwjaar valt soms op carnavalsdinsdag,
