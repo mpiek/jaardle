@@ -1918,14 +1918,38 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
 }
 .recap-streak + .recap-section { margin-top: 0; }
 
-/* Share-knop in de recap: .recap-cta-styling + icoon netjes naast het label. */
-.recap-share { margin-top: 0.9rem; }
+/* Share-knop in de recap: .recap-cta-styling + icoon netjes naast het label.
+   Sinds v260 staat er (bij winst) de Listdle-beoordeling naast: flex-rij die op een
+   smal scherm wikkelt; align-items stretch maakt knop en link even hoog. */
+.recap-share {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
 .recap-share button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
 }
+/* Ghost-variant in eigen stijl (geen Listdle-badge: blauw/oranje vloekt met het
+   nachtpaars). Delen blijft de gevulde hoofdknop, beoordelen de omlijnde bijknop. */
+.recap-rate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  background: transparent;
+  text-decoration: none;
+}
+.recap-rate:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 
 /* --- Login: Google button + separator --- */
 #login-form {

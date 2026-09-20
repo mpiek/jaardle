@@ -263,6 +263,7 @@ const I18N = {
     lb_pool_add: "➕ Pool erbij", lb_add_back: "‹ Terug",
     lb_err_pool_limit: "Je zit al in het maximale aantal pools (5).",
     recap_btn: "Verdeling & team",
+    rate_listdle: "Beoordeel op Listdle",
     recap_title: "📊 Klaar voor vandaag", recap_vs_title: "🌍 Jij versus iedereen",
     recap_dist_empty: "Nog niemand heeft deze daily opgelost.",
     recap_better: (pct) => `🎯 beter dan ${pct}%`, recap_avg_short: "gem.", recap_avg: "gemiddeld", recap_players: (n) => `🌍 ${n} spelers vandaag`,
@@ -508,6 +509,7 @@ const I18N = {
     lb_pool_add: "➕ Add pool", lb_add_back: "‹ Back",
     lb_err_pool_limit: "You're already in the maximum number of pools (5).",
     recap_btn: "Distribution & team",
+    rate_listdle: "Rate on Listdle",
     recap_title: "📊 Done for today", recap_vs_title: "🌍 You versus everyone",
     recap_dist_empty: "Nobody has solved this daily yet.",
     recap_better: (pct) => `🎯 better than ${pct}%`, recap_avg_short: "avg.", recap_avg: "average", recap_players: (n) => `🌍 ${n} players today`,
@@ -746,6 +748,7 @@ const I18N = {
     lb_pool_add: "➕ Pool dazu", lb_add_back: "‹ Zurück",
     lb_err_pool_limit: "Du bist schon in der maximalen Anzahl an Pools (5).",
     recap_btn: "Verteilung & Team",
+    rate_listdle: "Auf Listdle bewerten",
     recap_title: "📊 Fertig für heute", recap_vs_title: "🌍 Du gegen alle",
     recap_dist_empty: "Noch niemand hat dieses Daily gelöst.",
     recap_better: (pct) => `🎯 besser als ${pct}%`, recap_avg_short: "Ø", recap_avg: "Durchschnitt", recap_players: (n) => `🌍 ${n} Spieler heute`,
@@ -988,6 +991,7 @@ const I18N = {
     lb_pool_add: "➕ Otro grupo", lb_add_back: "‹ Volver",
     lb_err_pool_limit: "Ya estás en el número máximo de grupos (5).",
     recap_btn: "Distribución y equipo",
+    rate_listdle: "Valorar en Listdle",
     recap_title: "📊 Listo por hoy", recap_vs_title: "🌍 Tú contra todos",
     recap_dist_empty: "Nadie ha resuelto todavía este diario.",
     recap_better: (pct) => `🎯 mejor que el ${pct}%`, recap_avg_short: "prom.", recap_avg: "promedio", recap_players: (n) => `🌍 ${n} jugadores hoy`,
@@ -1230,6 +1234,7 @@ const I18N = {
     lb_pool_add: "➕ Outro grupo", lb_add_back: "‹ Voltar",
     lb_err_pool_limit: "Você já está no número máximo de grupos (5).",
     recap_btn: "Distribuição e equipe",
+    rate_listdle: "Avaliar no Listdle",
     recap_title: "📊 Pronto por hoje", recap_vs_title: "🌍 Você contra todos",
     recap_dist_empty: "Ninguém resolveu este diário ainda.",
     recap_better: (pct) => `🎯 melhor que ${pct}%`, recap_avg_short: "méd.", recap_avg: "média", recap_players: (n) => `🌍 ${n} jogadores hoje`,
@@ -4880,6 +4885,14 @@ function refreshMyRating() {
 // score-histogram over alle spelers van deze daily, jouw bin uitgelicht) + de
 // teamstand van vandaag uit je pool. Sluiten via ✕/backdrop/Escape laat het
 // resultaat eronder zien; de knop op het resultaatscherm heropent het.
+// Listdle (listdle.com) stuurt ons veel spelers en rangschikt op sterren; stemmen kan
+// daar zonder account. Eén klik op de knop = nooit meer vragen op dit apparaat.
+const LISTDLE_URL = "https://listdle.com/games/jaardle";
+const LISTDLE_RATED_KEY = "jaardle:listdle_rated";
+function listdleRated() {
+  try { return !!localStorage.getItem(LISTDLE_RATED_KEY); } catch (e) { return false; }
+}
+
 function openDailyRecap() {
   const modal = document.getElementById("modal-recap");
   if (!modal) return;
@@ -5064,7 +5077,14 @@ async function renderRecap() {
   const streakHtml = streak ? `<p class="recap-streak">${withAnimEmoji(streak)}</p>` : "";
   // Delen hoort bij dít scherm (het Wordle-moment): direct onder de verdeling,
   // zodat je niet eerst de recap hoeft te sluiten om bij de deel-knop te komen.
-  const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button></div>`;
+  // Ernaast (alleen bij winst, en tot je 'm één keer hebt aangeklikt) de Listdle-
+  // beoordeling: ghost-knop in eigen stijl, link naar onze Listdle-pagina. Alleen
+  // winnaars vragen — een net verloren pot levert drie sterren op. Daily-only,
+  // net als deze hele recap; de vlag is per apparaat (localStorage).
+  const rateHtml = (state.won && !listdleRated())
+    ? ` <a id="recap-rate-btn" class="recap-rate" href="${LISTDLE_URL}" target="_blank" rel="noopener">⭐ ${escHtml(t("rate_listdle"))}</a>`
+    : "";
+  const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button>${rateHtml}</div>`;
   if (auth.user) {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
     body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank) + shareHtml +
@@ -5078,6 +5098,14 @@ async function renderRecap() {
     const btn = body.querySelector(".js-acct-btn");
     if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
   }
+  const rateBtn = body.querySelector("#recap-rate-btn");
+  if (rateBtn) rateBtn.addEventListener("click", () => {
+    // De link opent gewoon (default niet onderdrukt); wij onthouden alleen dat
+    // je geweest bent en meten de klik. Knop verdwijnt zodra het nieuwe tabblad open is.
+    try { localStorage.setItem(LISTDLE_RATED_KEY, "1"); } catch (e) {}
+    try { window.goatcounter?.count?.({ path: "listdle-rate", title: "Rate on Listdle", event: true }); } catch (e) {}
+    setTimeout(() => rateBtn.remove(), 400);
+  });
   armEmojiFallbacks(body);
   // Tik op een staaf → detailregel toont bereik + aantal spelers van die staaf.
   const detailEl = body.querySelector(".hist-detail");
