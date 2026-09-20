@@ -8344,6 +8344,9 @@ function switchMode(mode) {
 }
 
 async function init() {
+  // Levend kalender-icoontje op de daily-tab: dagnummer van de puzzeldag.
+  const tabCal = document.getElementById("tab-cal");
+  if (tabCal) tabCal.dataset.day = String(Number(todayKey().slice(8)));
   applyLang();           // zet UI-taal + helptekst + daglabel (idempotent)
   injectAchvSvg();       // badge-artwork (SVG-defs) één keer in de DOM
   await whenSbReady();

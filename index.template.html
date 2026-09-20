@@ -84,7 +84,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
 <link rel="preload" href="/fonts/jaardle-emoji.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/style.css?v=152">
+<link rel="stylesheet" href="/style.css?v=153">
 </head>
 <body>
   <main>
@@ -109,7 +109,7 @@
         <button id="lang-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Taal kiezen / Choose language"><span class="lang-globe">🌐</span></button>
         <div id="lang-pop" role="menu" hidden></div>
       </div>
-      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><span class="tab-icon" aria-hidden="true">📅</span> <span data-i18n="tab_daily">{{i18n:tab_daily}}</span></button>
+      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><span class="tab-icon tab-cal" id="tab-cal" aria-hidden="true"></span> <span data-i18n="tab_daily">{{i18n:tab_daily}}</span></button>
       <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">{{i18n:tab_free}}</button>
     </nav>
 
@@ -388,7 +388,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=256"></script>
+  <script src="/game.js?v=257"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

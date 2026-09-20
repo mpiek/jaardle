@@ -400,6 +400,30 @@ main {
   font-size: 1em;
   line-height: 1;
 }
+/* Levend kalendertje (#23): de 📅-emoji staat vast op 17 juli, dit icoontje
+   toont het dagnummer van de puzzeldag (todayKey → Europe/Amsterdam). */
+.tab-cal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05em;
+  height: 1.05em;
+  box-sizing: border-box;
+  padding-top: 0.22em;
+  border-radius: 0.18em;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-top: 0.26em solid #d33;
+  color: #222;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1;
+}
+.tab-cal::before {
+  content: attr(data-day);
+  font-size: 0.6em;
+  font-variant-numeric: tabular-nums;
+}
 
 .tab[aria-selected="true"] {
   background: var(--accent);
