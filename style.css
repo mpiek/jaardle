@@ -390,7 +390,7 @@ main {
   color: var(--muted);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.6rem 0.8rem;
+  padding: 0.45rem 0.8rem; /* 0,6 → 0,45: kalender-icoontje (24 px) past zo binnen de 41 px van #23 */
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -404,24 +404,39 @@ main {
    toont het dagnummer van de puzzeldag (todayKey → Europe/Amsterdam). */
 .tab-cal {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.05em;
-  height: 1.05em;
+  flex-direction: column;
+  align-items: stretch;
+  width: 1.6em;
+  height: 1.6em;
   box-sizing: border-box;
-  padding-top: 0.22em;
-  border-radius: 0.18em;
+  border-radius: 0.2em;
+  overflow: hidden;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  border-top: 0.26em solid #d33;
+  border: 1px solid rgba(0, 0, 0, 0.3);
   color: #222;
   font-size: 1em;
   font-weight: 700;
   line-height: 1;
+  text-align: center;
 }
 .tab-cal::before {
+  content: attr(data-mon);
+  flex: none;
+  background: #d33;
+  color: #fff;
+  font-size: 0.42em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.25em 0 0.2em;
+}
+.tab-cal::after {
   content: attr(data-day);
-  font-size: 0.6em;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78em;
   font-variant-numeric: tabular-nums;
 }
 
