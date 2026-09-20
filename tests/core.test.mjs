@@ -44,6 +44,7 @@ src += `
 ;globalThis.__T = {
   classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram,
+  easterSunday, holidayFxFor, historicFxFor, HolidayFx,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -185,4 +186,57 @@ test("outOfBand — waarschuwt als de gok duidelijk buiten het bereik van je dic
   assert.equal(T.outOfBand([{ year: 1850, diff: 700, cls: "farthest" }], 0), 0);
   // pakt de DICHTSTE gok (smalste band), niet de meest recente
   assert.equal(T.outOfBand([close, { year: 1700, diff: 150, cls: "far" }], 1790), 60); // |1790-1850|
+});
+
+test("easterSunday — Meeus/Jones/Butcher, 2026–2032", () => {
+  const want = { 2026: [4, 5], 2027: [3, 28], 2028: [4, 16], 2029: [4, 1], 2030: [4, 21], 2031: [4, 13], 2032: [3, 28] };
+  for (const [y, md] of Object.entries(want)) assert.deepEqual(T.easterSunday(+y), md, `Pasen ${y}`);
+});
+
+test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij overlap, gewone dag = null", () => {
+  const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
+  assert.equal(T.holidayFxFor(d(2026, 1, 1)), "newyear");
+  assert.equal(T.holidayFxFor(d(2026, 12, 31)), "newyear");
+  assert.equal(T.holidayFxFor(d(2026, 1, 6)), "kings");
+  assert.equal(T.holidayFxFor(d(2026, 2, 14)), "valentine");
+  assert.equal(T.holidayFxFor(d(2026, 3, 17)), "patrick");
+  assert.equal(T.holidayFxFor(d(2026, 6, 28)), "pride");
+  assert.equal(T.holidayFxFor(d(2026, 10, 31)), "halloween");
+  assert.equal(T.holidayFxFor(d(2026, 11, 1)), "muertos");
+  assert.equal(T.holidayFxFor(d(2026, 11, 2)), "muertos");
+  assert.equal(T.holidayFxFor(d(2026, 12, 24)), "xmas");
+  assert.equal(T.holidayFxFor(d(2026, 12, 26)), "xmas");
+  assert.equal(T.holidayFxFor(d(2026, 12, 27)), null);
+  // Pasen 2026 = 5 april → paasmaandag 6 april; carnaval = 15–17 februari
+  assert.equal(T.holidayFxFor(d(2026, 4, 5)), "easter");
+  assert.equal(T.holidayFxFor(d(2026, 4, 6)), "easter");
+  assert.equal(T.holidayFxFor(d(2026, 4, 7)), null);
+  assert.equal(T.holidayFxFor(d(2026, 2, 15)), "carnival");
+  assert.equal(T.holidayFxFor(d(2026, 2, 16)), "carnival");
+  assert.equal(T.holidayFxFor(d(2026, 2, 17)), "lunar");      // Lunar Nieuwjaar wint van carnavalsdinsdag
+  assert.equal(T.holidayFxFor(d(2026, 2, 18)), null);          // Aswoensdag: niets
+  assert.equal(T.holidayFxFor(d(2026, 3, 20)), "eid");
+  assert.equal(T.holidayFxFor(d(2026, 3, 22)), "eid");
+  assert.equal(T.holidayFxFor(d(2026, 3, 23)), null);
+  assert.equal(T.holidayFxFor(d(2029, 2, 14)), "eid");         // Eid wint van Valentijn
+  assert.equal(T.holidayFxFor(d(2026, 11, 8)), "diwali");
+  assert.equal(T.holidayFxFor(d(2027, 10, 29)), "diwali");
+  assert.equal(T.holidayFxFor(d(2026, 9, 20)), null);
+  assert.equal(T.holidayFxFor(d(2033, 2, 10)), null);          // buiten de maankalender-tabel: stil null
+});
+
+test("historicFxFor — puzzeldag + gepind jaar; ander jaar of andere dag = null", () => {
+  assert.equal(T.historicFxFor("2027-04-21", -753), "rome");
+  assert.equal(T.historicFxFor("2027-04-21", 1994), null);
+  assert.equal(T.historicFxFor("2027-07-20", 1969), "moon");
+  assert.equal(T.historicFxFor("2026-10-15", 1582), "gregorian");
+  assert.equal(T.historicFxFor("2026-10-16", 1582), null);
+  assert.equal(T.historicFxFor(undefined, 1582), null);
+});
+
+test("HolidayFx — elke viering uit de tabellen heeft een laag", () => {
+  for (const id of ["newyear", "kings", "lunar", "eid", "valentine", "patrick", "carnival", "easter", "pride", "halloween", "muertos", "diwali", "xmas", "rome", "moon", "gregorian"]) {
+    assert.ok(T.HolidayFx.has(id), id);
+  }
+  assert.equal(T.HolidayFx.has("stamp"), false);
 });

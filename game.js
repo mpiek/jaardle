@@ -2913,6 +2913,675 @@ function fireworksLayer() {
 
 function showFireworks() { runFx([fireworksLayer()]); }
 
+// ── Feestdag- en hoogtijdag-vieringen (gewone winst) ───────────────────────
+// Op een handvol internationale feestdagen krijgt de gewone winst-confetti één
+// dag een ander jasje (sneeuw, paaseieren, lampions…), en op drie historische
+// hoogtijdagen is de daily de gebeurtenis zelf (Rome −753, maanlanding 1969,
+// gregoriaanse kalender 1582 — gepind in de daily-pijplijn, db/69) met een
+// viering die erbij hoort. Alles uit de mockup-ronde van 2026-09-20.
+//
+// Spelregels: alléén het standaardpad. Verdiende kluis-effecten (flair-confetti,
+// bier, gouden jaartallen) en het first-try-vuurwerk gaan vóór en veranderen niet.
+// Feestdagen triggeren op de echte lokale datum van het apparaat (niet de
+// puzzeldatum — een inhaalpot in januari krijgt geen kerstsneeuw); hoogtijdagen
+// juist op de PUZZELdatum + het antwoordjaar (de puzzel is datumgebonden, en het
+// jaar-check vangt een niet-gepinde dag af). Vormen zijn vector op canvas, geen
+// emoji: geen glyphs in de emoji-subset nodig en thema-bewust (currentTheme()).
+// Alles draait op dezelfde runFx-lus als vuurwerk en bier; onder ~260 elementen.
+const HolidayFx = (() => {
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const TAU = Math.PI * 2, PHI = 0.6180339887;
+  const scaleOf = (W, H) => clamp(Math.min(W, H) / 400, 0.6, 1.5);
+  const pick = (a) => a[(Math.random() * a.length) | 0];
+  // ── Paletten per feestdag (donker / licht) ──────────────────────────────────
+  // Op crème hebben pastel, wit en goud een donkerder tint of een randje nodig.
+  function palette(theme) {
+    const dark = theme !== "light";
+    return {
+      dark, comp: dark ? "lighter" : "source-over",
+      guess7: ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"],
+      newyear: dark ? { streamers: ["#f4c430", "#ffe9b0", "#d3dce2", "#ffffff"], glitter: ["#ffd76a", "#fff6dc", "#e6ebf0"] }
+                    : { streamers: ["#b8860b", "#d8b46a", "#8a949e", "#5f6a75"], glitter: ["#c9962a", "#8a6a10", "#6b7680"] },
+      hearts: dark ? ["#e53935", "#ff5fa2", "#ff8fb3", "#ffd1dc"] : ["#c62828", "#e53935", "#e91e63", "#f06292"],
+      carnival: ["#4caf50", "#f4c430", "#ab47bc", "#ff5fa2", "#ff9800", "#6ea8ff"],
+      eggs: dark ? ["#ffd1dc", "#c5e1a5", "#fff59d", "#b3e5fc", "#e1bee7", "#ffe0b2"] : ["#f48fb1", "#9ccc65", "#ffd54f", "#4fc3f7", "#ba68c8", "#ffb74d"],
+      eggLine: dark ? "rgba(0,0,0,.18)" : "rgba(60,40,20,.35)",
+      pumpkin: { body: "#ff9800", side: "#f57c00", deep: "#ef6c00", stem: "#6d8b3a", face: dark ? "#1a1a1a" : "#3e2723" },
+      ghost: dark ? { fill: "rgba(255,255,255,.92)", line: null, eye: "#37474f" } : { fill: "#fbfbfb", line: "#9e9e9e", eye: "#546e7a" },
+      snow: dark ? { dots: ["#ffffff", "#e3f2ff", "#b3e5fc"], flakes: ["#ffffff", "#e3f2ff"], star: "#ffd76a" }
+                 : { dots: ["#9dc7ea", "#7fb8e6", "#b0d4ef"], flakes: ["#5c9fd6", "#7fb8e6"], star: "#c9962a" },
+      // ronde 2
+      eid: dark ? { lantern: ["#f4c430", "#26a69a", "#ffb74d"], glow: "#ffe9b0", moon: "#ffe9b0", star: "#fff6dc" }
+                : { lantern: ["#b8860b", "#00796b", "#ef6c00"], glow: "#ffe082", moon: "#c9962a", star: "#8a6a10" },
+      diwali: dark ? { clay: "#a1552b", clayDark: "#6d3a1a", flame: "#ffb300", flameCore: "#fff3c4", spark: ["#ffd76a", "#ffb300", "#ff7043"], petals: ["#ff9800", "#ffc107", "#ff7043"] }
+                   : { clay: "#8d4a26", clayDark: "#5d2f14", flame: "#ff8f00", flameCore: "#fff3c4", spark: ["#c9962a", "#ef6c00", "#d84315"], petals: ["#ef6c00", "#f9a825", "#e64a19"] },
+      lunar: dark ? { body: "#e53935", bodyDark: "#9f1c1c", gold: "#f4c430", glitter: ["#ffd76a", "#fff6dc"] }
+                  : { body: "#c62828", bodyDark: "#7f0000", gold: "#b8860b", glitter: ["#c9962a", "#8a6a10"] },
+      kings: dark ? { gold: "#f4c430", goldDeep: "#c9962a", purple: "#8e24aa", red: "#c62828", star: "#fff6dc", trail: "#ffd76a" }
+                  : { gold: "#b8860b", goldDeep: "#8a6a10", purple: "#6a1b9a", red: "#b71c1c", star: "#c9962a", trail: "#c9962a" },
+      pride: ["#e53935", "#ff9800", "#fdd835", "#43a047", "#1e88e5", "#8e24aa"],
+      // historische hoogtijdagen
+      rome: dark ? { leaf: "#7cb342", vein: "#c9a227", stem: "#9ccc65", numeral: ["#e8dcc0", "#f4c430", "#cfd8dc"] }
+                 : { leaf: "#558b2f", vein: "#8a6a10", stem: "#33691e", numeral: ["#6d5a3a", "#8a6a10", "#546e7a"] },
+      moon: dark ? { star: "#ffffff", glow: "#e3f2ff", moon: "#d9d9d9", crater: "#b0b0b0", line: null, gold: "#f4c430", goldDark: "#c9962a", grey: "#cfd8dc", window: "#1a1a1a", leg: "#cfd8dc", flame: "#ffb300", dust: "#9e9e9e" }
+                 : { star: "#6b7680", glow: "#c9d9e8", moon: "#cfd4da", crater: "#a9b1b9", line: "#7d8790", gold: "#d4a72c", goldDark: "#8a6a10", grey: "#5f6f7a", window: "#263238", leg: "#5f6f7a", flame: "#ef6c00", dust: "#a9b1b9" },
+      gregorian: dark ? { page: "#f5efe0", line: null, band: "#e53935", ink: "#2b2b2b", cross: "#e53935" }
+                      : { page: "#ffffff", line: "#bdbdbd", band: "#c62828", ink: "#222222", cross: "#c62828" },
+      patrick: dark ? { greens: ["#2e7d32", "#43a047", "#66bb6a", "#81c784"], coin: "#f4c430", coinRim: "#c9962a" }
+                    : { greens: ["#1b5e20", "#2e7d32", "#388e3c", "#43a047"], coin: "#d4a72c", coinRim: "#8a6a10" },
+      muertos: dark ? { papel: ["#ff4fa3", "#ff9800", "#8e24aa", "#26a69a", "#fdd835", "#43a047"], hole: "rgba(26,26,26,.85)", string: "rgba(255,255,255,.5)", marigold: ["#ff9800", "#ffb300", "#ff7043"], bone: "#f5f5f5", line: null, socket: "#2a2233", petal: "#ff4fa3", accent: "#26a69a" }
+                    : { papel: ["#e91e63", "#ef6c00", "#6a1b9a", "#00897b", "#f9a825", "#2e7d32"], hole: "rgba(244,241,234,.9)", string: "rgba(60,50,40,.5)", marigold: ["#ef6c00", "#f9a825", "#e64a19"], bone: "#fbfbfb", line: "#8d8d8d", socket: "#2a2233", petal: "#e91e63", accent: "#00897b" },
+    };
+  }
+
+  // ── Vormen (getekend rond de oorsprong; de laag vertaalt/draait) ───────────
+  function heart(ctx, s) {                 // twee cirkels + gekantelde ruit
+    const a = s * 0.6;
+    ctx.beginPath();
+    ctx.arc(-a * 0.35, -a * 0.28, a * 0.5, 0, TAU);
+    ctx.arc(a * 0.35, -a * 0.28, a * 0.5, 0, TAU);
+    ctx.moveTo(-a * 0.83, -a * 0.05); ctx.lineTo(0, a * 0.8); ctx.lineTo(a * 0.83, -a * 0.05); ctx.closePath();
+    ctx.fill();
+  }
+  function egg(ctx, w, h, col, pat, col2, line) {
+    ctx.beginPath(); ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, TAU);
+    ctx.fillStyle = col; ctx.fill();
+    ctx.save(); ctx.clip();
+    ctx.fillStyle = col2;
+    if (pat === 0) { ctx.fillRect(-w, -h * 0.22, 2 * w, h * 0.12); ctx.fillRect(-w, h * 0.08, 2 * w, h * 0.12); }
+    else if (pat === 1) { for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) { ctx.beginPath(); ctx.arc(i * w * 0.28 + (j % 2 ? w * 0.14 : 0), j * h * 0.26, w * 0.09, 0, TAU); ctx.fill(); } }
+    else { ctx.beginPath(); for (let i = 0; i <= 8; i++) { const x = -w / 2 + (w / 8) * i, y = (i % 2 ? -1 : 1) * h * 0.07; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.lineWidth = h * 0.09; ctx.strokeStyle = col2; ctx.stroke(); }
+    ctx.restore();
+    ctx.lineWidth = 1; ctx.strokeStyle = line; ctx.beginPath(); ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, TAU); ctx.stroke();
+  }
+  function pumpkin(ctx, r, P) {
+    const c = P.pumpkin;
+    ctx.fillStyle = c.stem; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r * 0.12, -r * 1.25, r * 0.24, r * 0.4, r * 0.06) : ctx.rect(-r * 0.12, -r * 1.25, r * 0.24, r * 0.4); ctx.fill();
+    ctx.fillStyle = c.deep; ctx.beginPath(); ctx.ellipse(-r * 0.55, 0, r * 0.45, r * 0.9, 0, 0, TAU); ctx.ellipse(r * 0.55, 0, r * 0.45, r * 0.9, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = c.side; ctx.beginPath(); ctx.ellipse(-r * 0.3, 0, r * 0.45, r * 0.95, 0, 0, TAU); ctx.ellipse(r * 0.3, 0, r * 0.45, r * 0.95, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = c.body; ctx.beginPath(); ctx.ellipse(0, 0, r * 0.42, r, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = c.face;                                        // grijns
+    ctx.beginPath(); ctx.moveTo(-r * 0.45, -r * 0.15); ctx.lineTo(-r * 0.15, -r * 0.15); ctx.lineTo(-r * 0.3, -r * 0.45); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(r * 0.45, -r * 0.15); ctx.lineTo(r * 0.15, -r * 0.15); ctx.lineTo(r * 0.3, -r * 0.45); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-r * 0.5, r * 0.25);
+    for (let i = 1; i <= 6; i++) ctx.lineTo(-r * 0.5 + (r / 6) * i, r * 0.25 + (i % 2 ? r * 0.18 : 0));
+    ctx.lineTo(r * 0.5, r * 0.55); ctx.lineTo(-r * 0.5, r * 0.55); ctx.closePath(); ctx.fill();
+  }
+  function ghost(ctx, r, P) {
+    const g = P.ghost;
+    ctx.beginPath(); ctx.arc(0, -r * 0.2, r, Math.PI, 0);
+    ctx.lineTo(r, r * 0.9);
+    for (let i = 0; i < 3; i++) ctx.arc(r - r * (2 / 3) * (i + 0.5), r * 0.9, r / 3, 0, Math.PI);
+    ctx.closePath(); ctx.fillStyle = g.fill; ctx.fill();
+    if (g.line) { ctx.lineWidth = 1; ctx.strokeStyle = g.line; ctx.stroke(); }
+    ctx.fillStyle = g.eye; ctx.beginPath(); ctx.ellipse(-r * 0.35, -r * 0.3, r * 0.13, r * 0.2, 0, 0, TAU); ctx.ellipse(r * 0.35, -r * 0.3, r * 0.13, r * 0.2, 0, 0, TAU); ctx.fill();
+  }
+  function snowflake(ctx, r) {
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const a = k * Math.PI / 3, c = Math.cos(a), s = Math.sin(a);
+      ctx.moveTo(0, 0); ctx.lineTo(c * r, s * r);
+      for (const d of [-1, 1]) { const b = a + d * Math.PI / 3; ctx.moveTo(c * r * 0.55, s * r * 0.55); ctx.lineTo(c * r * 0.55 + Math.cos(b) * r * 0.3, s * r * 0.55 + Math.sin(b) * r * 0.3); }
+    }
+    ctx.stroke();
+  }
+  function star5(ctx, r) {
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    ctx.closePath(); ctx.fill();
+  }
+  function sparkle(ctx, r) { ctx.beginPath(); ctx.moveTo(-r, 0); ctx.lineTo(r, 0); ctx.moveTo(0, -r); ctx.lineTo(0, r); ctx.stroke(); }
+
+  // Gloed-sprite (ronde radial gradient naar dezelfde tint met alfa 0), gecachet per kleur.
+  const hexA = (col, a) => { const n = parseInt(col.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; };
+  const spriteCache = new Map();
+  function glowSprite(col, soft = false) {
+    const key = col + (soft ? "s" : "");
+    if (spriteCache.has(key)) return spriteCache.get(key);
+    const s = document.createElement("canvas"); s.width = s.height = 32;
+    const g = s.getContext("2d"), rg = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+    rg.addColorStop(0, col); rg.addColorStop(soft ? 0.08 : 0.35, col); rg.addColorStop(1, hexA(col, 0));
+    g.fillStyle = rg; g.fillRect(0, 0, 32, 32);
+    spriteCache.set(key, s); return s;
+  }
+  // lineaire luchtweerstand + zwaartekracht (gesloten vorm), zie vuurwerk
+  function kin(p, s) {
+    const ek = Math.exp(-p.k * s), E = (1 - ek) / p.k, gk = p.g / p.k;
+    return [p.x0 + p.vx * E, p.y0 + gk * s + (p.vy - gk) * E, p.vx * ek, gk + (p.vy - gk) * ek];
+  }
+
+  // ── Mechanieken ─────────────────────────────────────────────────────────────
+  // Vallen: items dalen lineair van boven naar onder met zwaai en (om)draai.
+  function fallLayer(items, end, stats) {
+    return { end, draw(ctx, t, W, H) {
+      for (const it of items) {
+        const u = (t - it.delay) / it.dur; if (u < 0 || u > 1) continue;
+        const x = it.x * W + Math.sin(it.ph + u * it.swf) * it.sway, y = -it.top + (H + it.top + 30) * u;
+        ctx.globalAlpha = (u < 0.88 ? 1 : 1 - (u - 0.88) / 0.12) * (it.alpha || 1);
+        ctx.save(); ctx.translate(x, y); ctx.rotate(it.rot(u)); it.draw(ctx, u, t); ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+    } };
+  }
+  // Stijgen: items zweven van onder naar boven, wiegend, en lossen bovenin op.
+  function riseLayer(items, end, stats) {
+    return { end, draw(ctx, t, W, H) {
+      for (const it of items) {
+        const s = t - it.delay; if (s < 0) continue;
+        const y = H + 40 - it.vy * s; if (y < -80) continue;
+        const x = it.x * W + Math.sin(it.ph + it.wob * s) * it.amp;
+        ctx.globalAlpha = clamp(s / 0.25, 0, 1) * clamp((y - 0.05 * H) / (0.18 * H), 0, 1) * clamp((end - t) / 0.4, 0, 1);
+        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.cos(it.ph + it.wob * s) * it.tilt); it.draw(ctx, s); ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+    } };
+  }
+  // Slingers (uit de confetti-mockup): krullinten met glansstreep.
+  function streamerLayer(cols, count, W, H, S, delay0, end, stats) {
+    const HS = H / 844, N = 16;
+    const ribs = Array.from({ length: count }, (_, i) => ({ x: 0.06 + ((i * PHI) % 1) * 0.88, birth: delay0 + rnd(0, 0.9), vy: rnd(130, 190) * HS,
+      len: rnd(160, 260) * S, amp: rnd(8, 16) * S, freq: rnd(0.05, 0.085), ph: rnd(0, TAU), drift: rnd(-22, 22) * S, w: rnd(3, 4.2) * S,
+      col: cols[i % cols.length], wob: rnd(2.4, 3.8) }));
+    return { end, draw(ctx, t, W2, H2) {
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      for (const r of ribs) {
+        const s = t - r.birth; if (s < 0) continue;
+        const hy = -r.len * 0.2 + r.vy * s, hx = r.x * W2 + r.drift * s;
+        if (hy - r.len > H2) continue;
+        const seg = r.len / N, pts = [];
+        for (let i = 0; i <= N; i++) pts.push([hx + Math.sin(r.ph + i * seg * r.freq + s * r.wob) * r.amp * (0.2 + 0.8 * i / N), hy - i * seg]);
+        const a = clamp(1 - Math.max(0, hy - H2) / r.len, 0, 1) * clamp((end - t) / 0.5, 0, 1);
+        const trace = (ox) => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x + ox, y) : ctx.moveTo(x + ox, y)); ctx.stroke(); };
+        ctx.globalAlpha = a; ctx.strokeStyle = r.col; ctx.lineWidth = r.w; trace(0);
+        ctx.globalAlpha = a * 0.4; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = r.w * 0.3; trace(-r.w * 0.22);
+        stats.drawn += N;
+      }
+      ctx.globalAlpha = 1;
+    } };
+  }
+  // Kanon (uit de confetti-mockup): twee party-poppers uit de onderhoeken.
+  function cannonLayer(cols, W, H, S, end, stats) {
+    const HS = H / 844, parts = [];
+    for (const [fx, dir] of [[0.03, 1], [0.97, -1]]) for (let i = 0; i < 60; i++) {
+      const ang = rnd(6, 26) * Math.PI / 180, v = rnd(1250, 1650) * HS;
+      parts.push({ x0: fx * W, y0: H + 6, vx: Math.sin(ang) * v * dir, vy: -Math.cos(ang) * v, k: 1.5, g: 700 * HS,
+        birth: rnd(0, 0.14), life: rnd(2.3, 2.9), w: rnd(6, 9) * S, h: rnd(9, 15) * S, rot: rnd(0, TAU), vr: rnd(-7, 7), ph: rnd(0, TAU), sw: rnd(1.6, 3.2), col: pick(cols) });
+    }
+    return { end, draw(ctx, t, W2, H2) {
+      for (const p of parts) {
+        const s = t - p.birth; if (s < 0 || s > p.life) continue;
+        const q = kin(p, s), u = s / p.life, x = q[0] + Math.sin(p.ph + s * p.sw) * 12 * S * Math.min(1, s), y = q[1];
+        if (y > H2 + 20) continue;
+        ctx.globalAlpha = u < 0.7 ? 1 : 1 - (u - 0.7) / 0.3;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(p.rot + p.vr * Math.min(s, 1.2) * Math.exp(-s * 0.6));
+        ctx.fillStyle = p.col; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * (0.35 + 0.65 * Math.abs(Math.cos(p.ph + s * 6))));
+        ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+    } };
+  }
+
+  // ── Nieuwjaar: gouden en zilveren slingers door een regen van glitter ───────
+  function newYearLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.newyear;
+    const glitter = Array.from({ length: 70 }, () => ({ x: Math.random(), delay: rnd(0, 1.0), dur: rnd(2.2, 3.0), top: 20, sway: rnd(6, 14) * S, swf: rnd(5, 9), ph: rnd(0, TAU),
+      rot: (u) => u * 3, r: rnd(2.2, 4.5) * S, tw: rnd(8, 14), col: pick(c.glitter),
+      draw(ctx, u, t) { const k = 0.45 + 0.55 * Math.abs(Math.sin(this.ph + this.tw * t)); ctx.globalAlpha *= k; ctx.strokeStyle = this.col; ctx.lineWidth = 1.3 * S; sparkle(ctx, this.r); } }));
+    const g = fallLayer(glitter, 3.6, stats);
+    const gl = { end: 3.6, draw(ctx, t, W2, H2) { ctx.globalCompositeOperation = P.comp; g.draw(ctx, t, W2, H2); ctx.globalCompositeOperation = "source-over"; } };
+    return [gl, streamerLayer(c.streamers, 12, W, H, S, 0, 3.6, stats)];
+  }
+
+  // ── Valentijn: hartjes zweven omhoog ────────────────────────────────────────
+  function valentineLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), HS = H / 844;
+    const items = Array.from({ length: 22 }, (_, i) => ({ x: 0.06 + ((i * PHI) % 1) * 0.88, delay: rnd(0, 1.1), vy: rnd(230, 340) * HS, ph: rnd(0, TAU), wob: rnd(1.4, 2.4), amp: rnd(8, 18) * S, tilt: 0.25,
+      s: rnd(9, 20) * S, col: pick(P.hearts), draw(ctx) { ctx.fillStyle = this.col; heart(ctx, this.s); } }));
+    return [riseLayer(items, 3.4, stats)];
+  }
+
+  // ── Carnaval: kanon in carnavalskleuren + serpentines ───────────────────────
+  function carnivalLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H);
+    return [cannonLayer(P.carnival, W, H, S, 3.2, stats), streamerLayer(P.carnival, 8, W, H, S, 0.25, 3.2, stats)];
+  }
+
+  // ── Pasen: beschilderde eieren tuimelen zachtjes omlaag ─────────────────────
+  function easterLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H);
+    const items = Array.from({ length: 26 }, (_, i) => {
+      const ci = (Math.random() * P.eggs.length) | 0, w = rnd(13, 19) * S;
+      return { x: 0.05 + ((i * PHI) % 1) * 0.9, delay: rnd(0, 0.8), dur: rnd(2.3, 3.0), top: 40, sway: rnd(8, 18) * S, swf: rnd(3, 5), ph: rnd(0, TAU),
+        rot: (u) => Math.sin(this_ph(i) + u * 4) * 0.55, w, h: w * 1.3, col: P.eggs[ci], col2: P.eggs[(ci + 2 + ((Math.random() * 3) | 0)) % P.eggs.length], pat: i % 3,
+        draw(ctx) { egg(ctx, this.w, this.h, this.col, this.pat, this.col2, P.eggLine); } };
+    });
+    return [fallLayer(items, 3.8, stats)];
+  }
+  const this_ph = (i) => i * 1.7;
+
+  // ── Halloween: pompoenen tuimelen omlaag, spookjes zweven omhoog ────────────
+  function halloweenLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), HS = H / 844;
+    const pumpkins = Array.from({ length: 16 }, (_, i) => ({ x: 0.06 + ((i * PHI) % 1) * 0.88, delay: rnd(0, 0.9), dur: rnd(2.2, 3.0), top: 50, sway: rnd(6, 14) * S, swf: rnd(3, 5), ph: rnd(0, TAU),
+      rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(-0.4, 0.4), rnd(-2.5, 2.5)), r: rnd(9, 14) * S, draw(ctx) { pumpkin(ctx, this.r, P); } }));
+    const ghosts = Array.from({ length: 5 }, (_, i) => ({ x: 0.12 + ((i * PHI + 0.3) % 1) * 0.76, delay: rnd(0.2, 1.4), vy: rnd(170, 240) * HS, ph: rnd(0, TAU), wob: rnd(1.2, 1.8), amp: rnd(14, 26) * S, tilt: 0.12,
+      r: rnd(13, 18) * S, draw(ctx) { ghost(ctx, this.r, P); } }));
+    return [fallLayer(pumpkins, 3.8, stats), riseLayer(ghosts, 3.8, stats)];
+  }
+
+  // ── Kerst: zachte sneeuwval met een paar sterretjes ─────────────────────────
+  function xmasLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.snow;
+    const dots = Array.from({ length: 90 }, () => ({ x: Math.random(), delay: rnd(0, 0.9), dur: rnd(2.4, 3.1), top: 10, sway: rnd(6, 16) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: () => 0,
+      r: rnd(1.4, 3.4) * S, col: pick(c.dots), alpha: rnd(0.6, 1), draw(ctx) { ctx.fillStyle = this.col; ctx.beginPath(); ctx.arc(0, 0, this.r, 0, TAU); ctx.fill(); } }));
+    const flakes = Array.from({ length: 12 }, (_, i) => ({ x: 0.05 + ((i * PHI) % 1) * 0.9, delay: rnd(0, 0.9), dur: rnd(2.6, 3.2), top: 30, sway: rnd(10, 20) * S, swf: rnd(2, 3.5), ph: rnd(0, TAU),
+      rot: ((vr) => (u) => vr * u)(rnd(-2, 2)), r: rnd(7, 12) * S, col: pick(c.flakes), draw(ctx) { ctx.strokeStyle = this.col; ctx.lineWidth = 1.4 * S; ctx.lineCap = "round"; snowflake(ctx, this.r); } }));
+    const stars = Array.from({ length: 6 }, (_, i) => ({ x: 0.1 + ((i * PHI + 0.5) % 1) * 0.8, delay: rnd(0, 0.8), dur: rnd(2.8, 3.2), top: 30, sway: rnd(4, 10) * S, swf: 2, ph: rnd(0, TAU),
+      rot: (u) => u * 1.5, r: rnd(5, 8) * S, tw: rnd(6, 10), draw(ctx, u, t) { ctx.globalAlpha *= 0.55 + 0.45 * Math.abs(Math.sin(this.ph + this.tw * t)); ctx.fillStyle = c.star; star5(ctx, this.r); } }));
+    const inner = [fallLayer(dots, 4.0, stats), fallLayer(flakes, 4.0, stats), fallLayer(stars, 4.0, stats)];
+    return [{ end: 4.0, draw(ctx, t, W2, H2) { ctx.globalCompositeOperation = P.comp; for (const l of inner) l.draw(ctx, t, W2, H2); ctx.globalCompositeOperation = "source-over"; } }];
+  }
+
+  // ── Ronde 2: extra vormen ───────────────────────────────────────────────────
+  function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  function fanous(ctx, w, h, col, glow) {         // Eid-lantaarn: kap, romp met verlicht venster, punt
+    ctx.fillStyle = col;
+    ctx.fillRect(-w * 0.06, -h * 0.5, w * 0.12, h * 0.1);
+    ctx.fillRect(-w * 0.32, -h * 0.42, w * 0.64, h * 0.12);
+    rrect(ctx, -w / 2, -h * 0.3, w, h * 0.6, w * 0.18); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-w * 0.3, h * 0.3); ctx.lineTo(0, h * 0.5); ctx.lineTo(w * 0.3, h * 0.3); ctx.closePath(); ctx.fill();
+    const a = ctx.globalAlpha; ctx.globalAlpha = a * 0.9; ctx.fillStyle = glow;
+    rrect(ctx, -w * 0.3, -h * 0.22, w * 0.6, h * 0.44, w * 0.14); ctx.fill(); ctx.globalAlpha = a;
+  }
+  function crescent(ctx, r, col) {                 // maansikkel, opening naar rechts
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.arc(0, 0, r, -1.115, 1.115, true);
+    ctx.arc(r * 0.5, 0, r * 0.9, 1.637, 4.646, false);
+    ctx.closePath(); ctx.fill();
+  }
+  function redLantern(ctx, r, c) {                 // Chinese lampion met gouden kap en kwast
+    ctx.fillStyle = c.gold; ctx.fillRect(-r * 0.35, -r * 0.95, r * 0.7, r * 0.18); ctx.fillRect(-r * 0.3, r * 0.75, r * 0.6, r * 0.16);
+    ctx.strokeStyle = c.gold; ctx.lineWidth = Math.max(1, r * 0.08); ctx.beginPath(); ctx.moveTo(0, r * 0.9); ctx.lineTo(0, r * 1.5); ctx.stroke();
+    ctx.fillStyle = c.gold; ctx.beginPath(); ctx.moveTo(-r * 0.12, r * 1.45); ctx.lineTo(r * 0.12, r * 1.45); ctx.lineTo(r * 0.16, r * 1.85); ctx.lineTo(-r * 0.16, r * 1.85); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = c.body; ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.8, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = c.bodyDark; ctx.lineWidth = Math.max(1, r * 0.07);
+    for (const k of [-0.5, 0, 0.5]) { ctx.beginPath(); ctx.ellipse(k * r * 0.6, 0, Math.max(1, r * (1 - Math.abs(k)) * 0.5), r * 0.8, 0, 0, TAU); ctx.stroke(); }
+    ctx.fillStyle = "rgba(255,255,255,.25)"; ctx.beginPath(); ctx.ellipse(-r * 0.4, -r * 0.3, r * 0.16, r * 0.28, -0.4, 0, TAU); ctx.fill();
+  }
+  function diya(ctx, r, c, flick) {                // olielampje: kommetje + vlam
+    ctx.fillStyle = c.clayDark; ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.28, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = c.clay; ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.28, 0, 0, Math.PI); ctx.lineTo(-r, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = c.clayDark; ctx.beginPath(); ctx.ellipse(0, r * 0.05, r * 0.72, r * 0.16, 0, 0, TAU); ctx.fill();
+    const fh = r * 1.05 * flick, fw = r * 0.32;
+    ctx.fillStyle = c.flame; ctx.beginPath(); ctx.moveTo(0, -fh); ctx.bezierCurveTo(fw, -fh * 0.55, fw * 1.1, -r * 0.1, 0, r * 0.02); ctx.bezierCurveTo(-fw * 1.1, -r * 0.1, -fw, -fh * 0.55, 0, -fh); ctx.fill();
+    ctx.fillStyle = c.flameCore; ctx.beginPath(); ctx.moveTo(0, -fh * 0.55); ctx.bezierCurveTo(fw * 0.45, -fh * 0.3, fw * 0.5, -r * 0.05, 0, r * 0.0); ctx.bezierCurveTo(-fw * 0.5, -r * 0.05, -fw * 0.45, -fh * 0.3, 0, -fh * 0.55); ctx.fill();
+  }
+  function crown(ctx, w, h, col, jewels) {
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(-w / 2, h * 0.5); ctx.lineTo(-w / 2, -h * 0.45); ctx.lineTo(-w / 6, -h * 0.05); ctx.lineTo(0, -h * 0.5); ctx.lineTo(w / 6, -h * 0.05); ctx.lineTo(w / 2, -h * 0.45); ctx.lineTo(w / 2, h * 0.5); ctx.closePath(); ctx.fill();
+    for (let i = 0; i < 3; i++) { ctx.fillStyle = jewels[i % jewels.length]; ctx.beginPath(); ctx.arc((i - 1) * w * 0.3, h * 0.22, h * 0.13, 0, TAU); ctx.fill(); }
+  }
+  function shamrock(ctx, r, col) {
+    ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, r * 0.2); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(0, r * 0.1); ctx.quadraticCurveTo(r * 0.15, r * 0.7, r * 0.35, r * 1.15); ctx.stroke();
+    for (const a of [-Math.PI / 2, Math.PI / 6, Math.PI * 5 / 6]) {
+      const cx = Math.cos(a) * r * 0.5, cy = Math.sin(a) * r * 0.5;
+      ctx.beginPath(); ctx.arc(cx + Math.cos(a + 0.9) * r * 0.22, cy + Math.sin(a + 0.9) * r * 0.22, r * 0.36, 0, TAU); ctx.arc(cx + Math.cos(a - 0.9) * r * 0.22, cy + Math.sin(a - 0.9) * r * 0.22, r * 0.36, 0, TAU); ctx.fill();
+    }
+  }
+  function coin(ctx, r, c, flip) {
+    const rx = Math.max(r * 0.12, r * Math.abs(flip));
+    ctx.fillStyle = c.coin; ctx.beginPath(); ctx.ellipse(0, 0, rx, r, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = c.coinRim; ctx.lineWidth = Math.max(1, r * 0.14); ctx.stroke();
+    if (rx > r * 0.5) { ctx.beginPath(); ctx.ellipse(0, 0, rx * 0.62, r * 0.62, 0, 0, TAU); ctx.stroke(); ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.beginPath(); ctx.ellipse(-rx * 0.35, -r * 0.35, rx * 0.2, r * 0.2, 0, 0, TAU); ctx.fill(); }
+  }
+
+  // ── Eid al-Fitr: maansikkel, fanous-lantaarns omhoog, zachte sterretjes ─────
+  function eidLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), HS = H / 844, c = P.eid;
+    const glow = glowSprite(c.glow, true);
+    const lanterns = Array.from({ length: 7 }, (_, i) => ({ x: 0.1 + ((i * PHI + 0.15) % 1) * 0.8, delay: rnd(0, 1.2), vy: rnd(180, 260) * HS, ph: rnd(0, TAU), wob: rnd(1.0, 1.6), amp: rnd(6, 12) * S, tilt: 0.08,
+      w: rnd(13, 19) * S, col: c.lantern[i % c.lantern.length], draw(ctx) { const d = this.w * 4; ctx.save(); ctx.globalAlpha *= 0.35; ctx.drawImage(glow, -d / 2, -d / 2, d, d); ctx.restore(); fanous(ctx, this.w, this.w * 1.6, this.col, c.glow); } }));
+    const stars = Array.from({ length: 40 }, () => ({ x: Math.random(), delay: rnd(0, 1.2), dur: rnd(2.4, 3.2), top: 20, sway: rnd(4, 10) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: (u) => u * 2, r: rnd(2, 4) * S, tw: rnd(6, 12), col: c.star,
+      draw(ctx, u, t) { ctx.globalAlpha *= 0.5 + 0.5 * Math.abs(Math.sin(this.ph + this.tw * t)); ctx.strokeStyle = this.col; ctx.lineWidth = 1.2 * S; sparkle(ctx, this.r); } }));
+    const rise = riseLayer(lanterns, 3.8, stats), fall = fallLayer(stars, 3.8, stats);
+    return [{ end: 3.8, draw(ctx, t, W2, H2) {
+      ctx.globalCompositeOperation = P.comp; fall.draw(ctx, t, W2, H2); ctx.globalCompositeOperation = "source-over";
+      const a = clamp(t / 0.6, 0, 1) * clamp((3.8 - t) / 0.6, 0, 1), r = 26 * S, mx = W2 * 0.8, my = H2 * 0.14;
+      ctx.globalAlpha = a * 0.5; const d = r * 5; ctx.globalCompositeOperation = P.comp; ctx.drawImage(glow, mx - d / 2, my - d / 2, d, d); ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = a; ctx.save(); ctx.translate(mx, my); ctx.rotate(-0.35); crescent(ctx, r, c.moon); ctx.restore();
+      ctx.save(); ctx.translate(mx + r * 0.95, my - r * 0.55); ctx.fillStyle = c.moon; star5(ctx, r * 0.28); ctx.restore(); stats.drawn += 2;
+      ctx.globalAlpha = 1;
+      rise.draw(ctx, t, W2, H2);
+    } }];
+  }
+
+  // ── Diwali: rij olielampjes onderin die één voor één aangaan, warme vonkjes ─
+  function diwaliLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.diwali, n = 9;
+    const glow = glowSprite(c.flame, true);
+    const diyas = Array.from({ length: n }, (_, i) => ({ x: (i + 0.5) / n, birth: 0.12 * i, seed: rnd(0, TAU), r: rnd(12, 15) * S }));
+    const sparks = Array.from({ length: 45 }, () => { const d = pick(diyas); return { dx: d.x, x0: 0, y0: 0, vx: rnd(-22, 22) * S, vy: rnd(-90, -170) * S, k: 1.2, g: -12 * S, birth: rnd(0.6, 2.8), life: rnd(0.9, 1.7), r: rnd(1.6, 3) * S, col: pick(c.spark), seed: (Math.random() * 1e4) | 0 }; });
+    const petals = Array.from({ length: 30 }, () => ({ x: Math.random(), delay: rnd(0, 1.2), dur: rnd(2.6, 3.3), top: 20, sway: rnd(8, 16) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(0, TAU), rnd(-3, 3)),
+      rx: rnd(2.5, 3.5) * S, col: pick(c.petals), draw(ctx) { ctx.fillStyle = this.col; ctx.beginPath(); ctx.ellipse(0, 0, this.rx, this.rx * 1.7, 0, 0, TAU); ctx.fill(); } }));
+    const fall = fallLayer(petals, 3.9, stats);
+    return [{ end: 3.9, draw(ctx, t, W2, H2) {
+      fall.draw(ctx, t, W2, H2);
+      const fadeOut = clamp((3.9 - t) / 0.6, 0, 1), baseY = H2 - 28 * S;
+      ctx.globalCompositeOperation = P.comp;
+      for (const d of diyas) {
+        const s = t - d.birth; if (s < 0) continue;
+        const sc = clamp(s / 0.25, 0, 1), flick = 0.85 + 0.15 * Math.sin(t * 17 + d.seed) + 0.05 * Math.sin(t * 31 + d.seed * 2);
+        const x = d.x * W2;
+        ctx.globalAlpha = 0.45 * sc * fadeOut; const g = d.r * 5 * flick; ctx.drawImage(glow, x - g / 2, baseY - d.r * 0.6 - g / 2, g, g);
+        ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = sc * fadeOut;
+        ctx.save(); ctx.translate(x, baseY); ctx.scale(0.6 + 0.4 * sc, 0.6 + 0.4 * sc); diya(ctx, d.r, c, flick); ctx.restore();
+        ctx.globalCompositeOperation = P.comp; stats.drawn++;
+      }
+      for (const p of sparks) {
+        const s = t - p.birth; if (s < 0 || s > p.life) continue;
+        const u = s / p.life; if (u > 0.5 && (p.seed + ((t * 20) | 0)) % 4 === 0) continue;
+        const q = kin(p, s), x = p.dx * W2 + q[0], y = baseY - 16 * S + q[1], dd = p.r / 0.35 * (1 - 0.3 * u);
+        ctx.globalAlpha = (u < 0.6 ? 1 : (1 - u) / 0.4) * fadeOut; ctx.drawImage(glowSprite(p.col), x - dd / 2, y - dd / 2, dd, dd); stats.drawn++;
+      }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    } }];
+  }
+
+  // ── Lunar Nieuwjaar: rode lampions omhoog, gouden glitter ───────────────────
+  function lunarLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), HS = H / 844, c = P.lunar;
+    const lanterns = Array.from({ length: 8 }, (_, i) => ({ x: 0.1 + ((i * PHI + 0.4) % 1) * 0.8, delay: rnd(0, 1.1), vy: rnd(200, 300) * HS, ph: rnd(0, TAU), wob: rnd(1.0, 1.7), amp: rnd(6, 14) * S, tilt: 0.1,
+      r: rnd(11, 17) * S, draw(ctx) { redLantern(ctx, this.r, c); } }));
+    const glitter = Array.from({ length: 40 }, () => ({ x: Math.random(), delay: rnd(0, 1.2), dur: rnd(2.4, 3.2), top: 20, sway: rnd(4, 10) * S, swf: rnd(3, 6), ph: rnd(0, TAU), rot: (u) => u * 3, r: rnd(2, 4) * S, tw: rnd(8, 14), col: pick(c.glitter),
+      draw(ctx, u, t) { ctx.globalAlpha *= 0.5 + 0.5 * Math.abs(Math.sin(this.ph + this.tw * t)); ctx.strokeStyle = this.col; ctx.lineWidth = 1.2 * S; sparkle(ctx, this.r); } }));
+    const fall = fallLayer(glitter, 3.8, stats);
+    return [{ end: 3.8, draw(ctx, t, W2, H2) { ctx.globalCompositeOperation = P.comp; fall.draw(ctx, t, W2, H2); ctx.globalCompositeOperation = "source-over"; } }, riseLayer(lanterns, 3.8, stats)];
+  }
+
+  // ── Driekoningen: de ster trekt over met een glitterspoor, kroontjes dalen ──
+  function kingsLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.kings;
+    const T = 1.7, path = (u) => [(-0.08 + 1.16 * u) * W, (0.17 - 0.07 * u) * H];
+    const trail = Array.from({ length: 44 }, (_, i) => ({ tb: (i / 44) * T, r: rnd(2, 4.5) * S, dx: rnd(-6, 6) * S, vy: rnd(20, 50) * S, ph: rnd(0, TAU), tw: rnd(8, 14) }));
+    const crowns = Array.from({ length: 3 }, (_, i) => ({ x: [0.2, 0.5, 0.8][i], delay: 0.5 + i * 0.55, dur: rnd(2.4, 2.8), top: 50, sway: rnd(8, 14) * S, swf: 2.5, ph: rnd(0, TAU), rot: ((r0) => (u) => r0 + Math.sin(u * 5) * 0.25)(rnd(-0.2, 0.2)),
+      w: rnd(24, 30) * S, jewels: [[c.red, c.purple], [c.purple, c.red], [c.red, c.purple]][i], draw(ctx) { crown(ctx, this.w, this.w * 0.7, c.gold, this.jewels); } }));
+    const stars = Array.from({ length: 22 }, () => ({ x: Math.random(), delay: rnd(0.3, 1.5), dur: rnd(2.3, 3.0), top: 20, sway: rnd(6, 12) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: (u) => u * 2.5, r: rnd(3.5, 6.5) * S, tw: rnd(6, 10), col: pick([c.gold, c.goldDeep, c.star]),
+      draw(ctx, u, t) { ctx.globalAlpha *= 0.6 + 0.4 * Math.abs(Math.sin(this.ph + this.tw * t)); ctx.fillStyle = this.col; star5(ctx, this.r); } }));
+    const fallC = fallLayer(crowns, 3.8, stats), fallS = fallLayer(stars, 3.8, stats), glow = glowSprite(c.trail, true);
+    return [{ end: 3.8, draw(ctx, t, W2, H2) {
+      ctx.globalCompositeOperation = P.comp;
+      for (const p of trail) {
+        const s = t - p.tb; if (s < 0 || s > 0.9) continue;
+        const [px, py] = path(p.tb / T), u = s / 0.9;
+        ctx.globalAlpha = (1 - u) * (0.55 + 0.45 * Math.abs(Math.sin(p.ph + p.tw * t)));
+        ctx.strokeStyle = c.trail; ctx.lineWidth = 1.2 * S; ctx.save(); ctx.translate(px + p.dx, py + p.vy * s); sparkle(ctx, p.r * (1 - 0.5 * u)); ctx.restore(); stats.drawn++;
+      }
+      if (t < T + 0.5) {
+        const u = clamp(t / T, 0, 1), [sx, sy] = path(u), a = clamp(t / 0.3, 0, 1) * clamp((T + 0.5 - t) / 0.5, 0, 1);
+        const d = 90 * S; ctx.globalAlpha = a * 0.6; ctx.drawImage(glow, sx - d / 2, sy - d / 2, d, d);
+        ctx.globalAlpha = a; ctx.save(); ctx.translate(sx, sy); ctx.rotate(t * 0.8); ctx.fillStyle = c.star; star5(ctx, 15 * S); ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+      fallS.draw(ctx, t, W2, H2); fallC.draw(ctx, t, W2, H2);
+    } }];
+  }
+
+  // ── Pride: regenboog trekt over de bovenkant, confetti in zes kleuren ───────
+  function prideLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), cols = P.pride;
+    const pieces = Array.from({ length: 70 }, () => ({ x: Math.random(), delay: rnd(0.4, 1.6), dur: rnd(2.0, 2.6), top: 20, sway: rnd(6, 14) * S, swf: rnd(3, 6), ph: rnd(0, TAU), rot: ((vr) => (u) => vr * u)(rnd(-8, 8)),
+      w: rnd(5, 7) * S, h: rnd(9, 12) * S, col: pick(cols), draw(ctx, u) { ctx.fillStyle = this.col; ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h * (0.35 + 0.65 * Math.abs(Math.cos(this.ph + u * 12)))); } }));
+    const fall = fallLayer(pieces, 3.7, stats);
+    return [{ end: 3.7, draw(ctx, t, W2, H2) {
+      const R = 0.54 * W2, cx = W2 / 2, cy = 0.08 * H2 + R, band = 7 * S;
+      const prog = 1 - Math.pow(1 - clamp(t / 1.2, 0, 1), 3), a = 0.85 * clamp((3.7 - t) / 0.7, 0, 1);
+      if (prog > 0.01 && a > 0) {
+        ctx.lineCap = "butt"; ctx.globalAlpha = a;
+        for (let i = 0; i < 6; i++) { ctx.strokeStyle = cols[i]; ctx.lineWidth = band + 0.6; ctx.beginPath(); ctx.arc(cx, cy, R - i * band, Math.PI, Math.PI + Math.PI * prog, false); ctx.stroke(); }
+        stats.drawn += 6; ctx.globalAlpha = 1;
+      }
+      fall.draw(ctx, t, W2, H2);
+    } }];
+  }
+
+  // ── St. Patrick: klavertjes en een paar gouden munten dwarrelen omlaag ──────
+  function patrickLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.patrick;
+    const clovers = Array.from({ length: 22 }, (_, i) => ({ x: 0.04 + ((i * PHI) % 1) * 0.92, delay: rnd(0, 1.0), dur: rnd(2.3, 3.0), top: 40, sway: rnd(8, 16) * S, swf: rnd(2.5, 4), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(0, TAU), rnd(-2.5, 2.5)),
+      r: rnd(7, 11) * S, col: pick(c.greens), draw(ctx) { shamrock(ctx, this.r, this.col); } }));
+    const coins = Array.from({ length: 8 }, (_, i) => ({ x: 0.1 + ((i * PHI + 0.5) % 1) * 0.8, delay: rnd(0.2, 1.2), dur: rnd(2.2, 2.8), top: 30, sway: rnd(4, 10) * S, swf: 2, ph: rnd(0, TAU), rot: () => 0,
+      r: rnd(6, 8) * S, spin: rnd(5, 9), draw(ctx, u) { coin(ctx, this.r, c, Math.cos(this.ph + u * this.spin)); } }));
+    return [fallLayer(clovers, 3.7, stats), fallLayer(coins, 3.7, stats)];
+  }
+
+  // ── Día de Muertos: papel-picado-slinger, goudsbloemblaadjes, calaveras ─────
+  function papelFlag(ctx, w, h, col, holeCol) {
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(-w / 2, 0); ctx.lineTo(w / 2, 0); ctx.lineTo(w / 2, h * 0.82);
+    for (let i = 4; i >= 0; i--) ctx.lineTo(-w / 2 + (w / 4) * i - w / 8, h); // zigzag-franje
+    ctx.lineTo(-w / 2, h * 0.82); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = holeCol;                                   // "uitgeknipte" gaatjes
+    for (const [px, py, pr] of [[0, 0.3, 0.16], [-0.28, 0.55, 0.09], [0.28, 0.55, 0.09], [0, 0.66, 0.08], [-0.25, 0.22, 0.07], [0.25, 0.22, 0.07]]) {
+      ctx.beginPath(); ctx.arc(px * w, py * h, pr * w, 0, TAU); ctx.fill();
+    }
+  }
+  function calavera(ctx, r, c) {
+    ctx.fillStyle = c.bone; ctx.beginPath(); ctx.arc(0, -r * 0.15, r, Math.PI, 0); ctx.lineTo(r, r * 0.25);
+    ctx.quadraticCurveTo(r, r * 0.6, r * 0.55, r * 0.62); ctx.lineTo(r * 0.55, r * 0.95); ctx.lineTo(-r * 0.55, r * 0.95); ctx.lineTo(-r * 0.55, r * 0.62);
+    ctx.quadraticCurveTo(-r, r * 0.6, -r, r * 0.25); ctx.closePath(); ctx.fill();
+    if (c.line) { ctx.strokeStyle = c.line; ctx.lineWidth = 1; ctx.stroke(); }
+    for (const sx of [-0.42, 0.42]) {                          // bloem-oogkassen
+      ctx.fillStyle = c.petal; for (let k = 0; k < 6; k++) { ctx.beginPath(); ctx.arc(sx * r + Math.cos(k * Math.PI / 3) * r * 0.3, -r * 0.2 + Math.sin(k * Math.PI / 3) * r * 0.3, r * 0.14, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = c.socket; ctx.beginPath(); ctx.arc(sx * r, -r * 0.2, r * 0.26, 0, TAU); ctx.fill();
+    }
+    ctx.fillStyle = c.socket; ctx.beginPath(); ctx.moveTo(0, r * 0.25); ctx.lineTo(-r * 0.1, r * 0.48); ctx.lineTo(r * 0.1, r * 0.48); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = c.socket; ctx.lineWidth = Math.max(1, r * 0.07);
+    for (let k = -2; k <= 2; k++) { ctx.beginPath(); ctx.moveTo(k * r * 0.2, r * 0.66); ctx.lineTo(k * r * 0.2, r * 0.92); ctx.stroke(); }
+    ctx.fillStyle = c.accent; ctx.beginPath(); ctx.arc(0, -r * 0.72, r * 0.12, 0, TAU); ctx.fill();
+    for (const sx of [-0.3, 0.3]) { ctx.beginPath(); ctx.arc(sx * r, -r * 0.62, r * 0.07, 0, TAU); ctx.fill(); }
+  }
+  function muertosLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.muertos;
+    const flags = Array.from({ length: 9 }, (_, i) => ({ u: (i + 0.5) / 9, col: c.papel[i % c.papel.length], ph: rnd(0, TAU), w: rnd(22, 28) * S }));
+    const petals = Array.from({ length: 44 }, () => ({ x: Math.random(), delay: rnd(0.2, 1.4), dur: rnd(2.4, 3.1), top: 20, sway: rnd(8, 16) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(0, TAU), rnd(-3, 3)),
+      rx: rnd(2.8, 4) * S, col: pick(c.marigold), draw(ctx) { ctx.fillStyle = this.col; ctx.beginPath(); ctx.ellipse(0, 0, this.rx, this.rx * 1.7, 0, 0, TAU); ctx.fill(); } }));
+    const skulls = Array.from({ length: 4 }, (_, i) => ({ x: [0.18, 0.62, 0.4, 0.82][i], delay: 0.4 + i * 0.5, dur: rnd(2.5, 3.0), top: 50, sway: rnd(8, 14) * S, swf: 2.5, ph: rnd(0, TAU), rot: ((r0) => (u) => r0 + Math.sin(u * 5) * 0.3)(rnd(-0.25, 0.25)),
+      r: rnd(12, 15) * S, draw(ctx) { calavera(ctx, this.r, c); } }));
+    const fallP = fallLayer(petals, 3.9, stats), fallS = fallLayer(skulls, 3.9, stats);
+    return [{ end: 3.9, draw(ctx, t, W2, H2) {
+      const a = clamp(t / 0.5, 0, 1) * clamp((3.9 - t) / 0.7, 0, 1), y0 = 0.045 * H2, sag = 0.035 * H2;
+      ctx.globalAlpha = a; ctx.strokeStyle = c.string; ctx.lineWidth = 1.2 * S;
+      ctx.beginPath(); ctx.moveTo(-10, y0); ctx.quadraticCurveTo(W2 / 2, y0 + 2 * sag, W2 + 10, y0); ctx.stroke();
+      for (const f of flags) {
+        const x = f.u * W2, y = y0 + 4 * sag * f.u * (1 - f.u);     // hangt aan het koord (parabool)
+        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(f.ph + t * 2.2) * 0.08); papelFlag(ctx, f.w, f.w * 1.3, f.col, c.hole); ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+      fallP.draw(ctx, t, W2, H2); fallS.draw(ctx, t, W2, H2);
+    } }];
+  }
+
+  // ── Historische hoogtijdagen: de daily van die dag ís de gebeurtenis ────────
+  function leaf(ctx, l, w, col, vein) {
+    ctx.fillStyle = col; ctx.beginPath(); ctx.ellipse(0, 0, l, w, 0, 0, TAU); ctx.fill();
+    if (vein) { ctx.strokeStyle = vein; ctx.lineWidth = Math.max(0.8, w * 0.25); ctx.beginPath(); ctx.moveTo(-l * 0.9, 0); ctx.lineTo(l * 0.9, 0); ctx.stroke(); }
+  }
+  // Stichting van Rome: lauwerkrans groeit blad voor blad om de jaartal-pil
+  function romeLayers(e) {
+    const { W, H, P, stats, anchors } = e, S = scaleOf(W, H), c = P.rome;
+    const N = 9;
+    const leaves = [];
+    for (const side of [-1, 1]) for (let i = 0; i < N; i++) leaves.push({ a: Math.PI / 2 + side * (Math.PI * (i + 0.5) / N), side, t0: 0.15 + i * 0.09, alt: i % 2 ? 1 : -1 });
+    const numerals = Array.from({ length: 22 }, (_, i) => ({ x: 0.05 + ((i * PHI) % 1) * 0.9, delay: rnd(0, 1.2), dur: rnd(2.4, 3.1), top: 30, sway: rnd(6, 14) * S, swf: rnd(2, 4), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(-0.4, 0.4), rnd(-1.2, 1.2)),
+      ch: pick(["I", "V", "X", "L", "C", "D", "M"]), size: rnd(15, 24) * S, col: pick(c.numeral),
+      draw(ctx) { ctx.fillStyle = this.col; ctx.font = `700 ${this.size}px Georgia, "Times New Roman", serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(this.ch, 0, 0); } }));
+    const falling = Array.from({ length: 14 }, () => ({ x: Math.random(), delay: rnd(0.2, 1.4), dur: rnd(2.6, 3.2), top: 30, sway: rnd(10, 18) * S, swf: rnd(2, 3.5), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(0, TAU), rnd(-2, 2)),
+      l: rnd(6, 9) * S, draw(ctx) { leaf(ctx, this.l, this.l * 0.42, c.leaf, c.vein); } }));
+    const fallN = fallLayer(numerals, 3.9, stats), fallL = fallLayer(falling, 3.9, stats);
+    return [{ end: 3.9, draw(ctx, t, W2, H2) {
+      fallN.draw(ctx, t, W2, H2); fallL.draw(ctx, t, W2, H2);
+      const pill = anchors.pill, rx = pill.w / 2 + 14 * S, ry = pill.h / 2 + 11 * S;   // per frame: de kaart kan nog schuiven
+      const fade = clamp((3.9 - t) / 0.7, 0, 1), prog = clamp((t - 0.1) / 1.0, 0, 1);
+      ctx.globalAlpha = fade; ctx.strokeStyle = c.stem; ctx.lineWidth = 1.6 * S; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.ellipse(pill.x, pill.y, rx, ry, 0, Math.PI / 2, Math.PI / 2 + Math.PI * prog, false); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(pill.x, pill.y, rx, ry, 0, Math.PI / 2, Math.PI / 2 - Math.PI * prog, true); ctx.stroke();
+      for (const lf of leaves) {
+        const u = clamp((t - lf.t0) / 0.25, 0, 1); if (u <= 0) continue;
+        const x = pill.x + Math.cos(lf.a) * rx, y = pill.y + Math.sin(lf.a) * ry;
+        const tangent = Math.atan2(Math.cos(lf.a) * ry, -Math.sin(lf.a) * rx);
+        ctx.save(); ctx.translate(x, y); ctx.rotate(tangent + lf.alt * 0.6); ctx.scale(u, u);
+        leaf(ctx, 7.5 * S, 3.2 * S, c.leaf, c.vein); ctx.restore(); stats.drawn++;
+      }
+      ctx.globalAlpha = 1;
+    } }];
+  }
+  // Maanlanding: maan komt op, sterren, de maanlander landt op het jaartal
+  function lmDraw(ctx, s, c, thrust, t) {
+    ctx.strokeStyle = c.leg; ctx.lineWidth = 1.4 * s; ctx.lineCap = "round";
+    for (const d of [-1, 1]) { ctx.beginPath(); ctx.moveTo(d * 7 * s, 4 * s); ctx.lineTo(d * 12 * s, 12 * s); ctx.stroke(); ctx.beginPath(); ctx.moveTo(d * 9.5 * s, 12 * s); ctx.lineTo(d * 14.5 * s, 12 * s); ctx.stroke(); }
+    ctx.fillStyle = c.gold; ctx.beginPath(); ctx.moveTo(-9 * s, -1 * s); ctx.lineTo(-6 * s, -5 * s); ctx.lineTo(6 * s, -5 * s); ctx.lineTo(9 * s, -1 * s); ctx.lineTo(9 * s, 5 * s); ctx.lineTo(-9 * s, 5 * s); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = c.goldDark; ctx.fillRect(-9 * s, 2 * s, 18 * s, 3 * s);
+    ctx.fillStyle = c.grey; ctx.beginPath(); ctx.arc(0, -10 * s, 6 * s, 0, TAU); ctx.fill(); ctx.fillRect(-7 * s, -10 * s, 14 * s, 5 * s);
+    ctx.fillStyle = c.window; ctx.beginPath(); ctx.arc(-2.5 * s, -11 * s, 1.6 * s, 0, TAU); ctx.fill();
+    ctx.strokeStyle = c.grey; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.moveTo(4 * s, -16 * s); ctx.lineTo(4 * s, -21 * s); ctx.stroke();
+    ctx.fillStyle = c.grey; ctx.beginPath(); ctx.arc(4 * s, -21.5 * s, 1.5 * s, 0, TAU); ctx.fill();
+    if (thrust > 0) { const fl = (6 + 5 * Math.abs(Math.sin(t * 40))) * s * thrust; ctx.fillStyle = c.flame; ctx.beginPath(); ctx.moveTo(-3 * s, 5 * s); ctx.lineTo(3 * s, 5 * s); ctx.lineTo(0, 5 * s + fl); ctx.closePath(); ctx.fill(); }
+  }
+  function moonLayers(e) {
+    const { W, H, P, stats, anchors } = e, S = scaleOf(W, H), c = P.moon;
+    const stars = Array.from({ length: 40 }, () => ({ x: Math.random(), y: rnd(0.02, 0.5), r: rnd(0.8, 2) * S, ph: rnd(0, TAU), tw: rnd(2, 6) }));
+    const craters = [[-0.35, -0.2, 0.18], [0.25, -0.35, 0.12], [0.3, 0.3, 0.2], [-0.15, 0.4, 0.1], [-0.55, 0.25, 0.09]];
+    const glow = glowSprite(c.glow, true), mx = 0.8 * W, my = 0.15 * H, mr = 32 * S;
+    const LAND = 2.2, sx = 0.22 * W, sy = -30 * S;
+    const dust = Array.from({ length: 14 }, () => ({ vx: rnd(-90, 90) * S, vy: rnd(-40, -5) * S, r: rnd(3, 6) * S, life: rnd(0.5, 0.9) }));
+    return [{ end: 4.0, draw(ctx, t, W2, H2) {
+      const fade = clamp((4.0 - t) / 0.5, 0, 1);
+      ctx.fillStyle = c.star;
+      for (const s of stars) { ctx.globalAlpha = fade * clamp(t / 0.6, 0, 1) * (0.35 + 0.65 * Math.abs(Math.sin(s.ph + s.tw * t))); ctx.beginPath(); ctx.arc(s.x * W2, s.y * H2, s.r, 0, TAU); ctx.fill(); }
+      stats.drawn += stars.length;
+      const mu = 1 - Math.pow(1 - clamp(t / 1.0, 0, 1), 3), yy = my + (1 - mu) * 40 * S;
+      ctx.globalAlpha = fade * mu * (P.dark ? 0.45 : 0.25); const d = mr * 5;
+      ctx.globalCompositeOperation = P.comp; ctx.drawImage(glow, mx - d / 2, yy - d / 2, d, d); ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = fade * mu; ctx.fillStyle = c.moon; ctx.beginPath(); ctx.arc(mx, yy, mr, 0, TAU); ctx.fill();
+      ctx.fillStyle = c.crater; for (const [cx, cy, cr] of craters) { ctx.beginPath(); ctx.arc(mx + cx * mr, yy + cy * mr, cr * mr, 0, TAU); ctx.fill(); }
+      if (c.line) { ctx.strokeStyle = c.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(mx, yy, mr, 0, TAU); ctx.stroke(); }
+      stats.drawn++;
+      const pill = anchors.pill, ex = pill.x, ey = pill.y - pill.h / 2 - 12 * S;   // landingsplek: bovenop de pil, per frame
+      const lu = clamp(t / LAND, 0, 1), le = lu < 0.5 ? 2 * lu * lu : 1 - Math.pow(-2 * lu + 2, 2) / 2;
+      const lx = sx + (ex - sx) * le, ly = sy + (ey - sy) * le + (lu < 1 ? Math.sin(t * 6) * 2 * S : 0);
+      ctx.globalAlpha = fade; ctx.save(); ctx.translate(lx, ly); ctx.rotate(lu < 1 ? (1 - lu) * 0.25 : 0); lmDraw(ctx, S, c, lu < 1 ? 1 : 0, t); ctx.restore(); stats.drawn++;
+      const ds = t - LAND;
+      if (ds >= 0) for (const p of dust) { const u = ds / p.life; if (u > 1) continue; ctx.globalAlpha = fade * 0.55 * (1 - u); ctx.fillStyle = c.dust; ctx.beginPath(); ctx.arc(ex + p.vx * ds, ey + 12 * S + p.vy * ds, p.r * (1 + u), 0, TAU); ctx.fill(); stats.drawn++; }
+      ctx.globalAlpha = 1;
+    } }];
+  }
+  // Gregoriaanse kalender: doorgestreepte blaadjes 5 t/m 14 oktober dwarrelen omlaag
+  function calPage(ctx, w, h, num, c) {
+    ctx.fillStyle = c.page; ctx.fillRect(-w / 2, -h / 2, w, h);
+    if (c.line) { ctx.strokeStyle = c.line; ctx.lineWidth = 1; ctx.strokeRect(-w / 2, -h / 2, w, h); }
+    ctx.fillStyle = c.band; ctx.fillRect(-w / 2, -h / 2, w, h * 0.22);
+    ctx.fillStyle = c.page; for (const d of [-0.28, 0.28]) { ctx.beginPath(); ctx.arc(d * w, -h / 2 + h * 0.11, h * 0.05, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = c.ink; ctx.font = `700 ${h * 0.46}px system-ui, sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(String(num), 0, h * 0.14);
+    ctx.strokeStyle = c.cross; ctx.lineWidth = Math.max(1.2, h * 0.07); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(-w * 0.32, -h * 0.12); ctx.lineTo(w * 0.32, h * 0.4); ctx.moveTo(w * 0.32, -h * 0.12); ctx.lineTo(-w * 0.32, h * 0.4); ctx.stroke();
+  }
+  function gregorianLayers(e) {
+    const { W, H, P, stats } = e, S = scaleOf(W, H), c = P.gregorian;
+    const pages = Array.from({ length: 24 }, (_, i) => ({ x: 0.04 + ((i * PHI) % 1) * 0.92, delay: rnd(0, 1.3), dur: rnd(2.4, 3.1), top: 40, sway: rnd(10, 20) * S, swf: rnd(2, 3.5), ph: rnd(0, TAU), rot: ((r0, vr) => (u) => r0 + Math.sin(u * 4 + vr) * 0.35)(rnd(-0.3, 0.3), rnd(0, TAU)),
+      num: 5 + (i % 10), h: rnd(20, 26) * S, flap: rnd(4, 7), draw(ctx, u) { ctx.scale(0.35 + 0.65 * Math.abs(Math.cos(this.ph + u * this.flap)), 1); calPage(ctx, this.h * 0.82, this.h, this.num, c); } }));
+    return [fallLayer(pages, 3.9, stats)];
+  }
+
+
+  const LAYERS = {
+    newyear: newYearLayers, kings: kingsLayers, lunar: lunarLayers, eid: eidLayers, valentine: valentineLayers,
+    patrick: patrickLayers, carnival: carnivalLayers, easter: easterLayers, pride: prideLayers, halloween: halloweenLayers,
+    muertos: muertosLayers, diwali: diwaliLayers, xmas: xmasLayers,
+    rome: romeLayers, moon: moonLayers, gregorian: gregorianLayers,
+  };
+  // Anker voor Rome/maanlanding: de groene jaartal-pil op de uitslagkaart, in
+  // viewport-coördinaten (het fx-canvas is position:fixed). Ontbreekt hij, dan
+  // het midden van het scherm.
+  function anchor() {
+    const el = document.querySelector("#result-text .year-pill");
+    if (!el) return { x: innerWidth / 2, y: innerHeight * 0.55, w: 72, h: 28 };
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height };
+  }
+  return {
+    has: (id) => Object.prototype.hasOwnProperty.call(LAYERS, id),
+    ids: Object.keys(LAYERS),
+    build(id, W, H) {
+      return LAYERS[id]({ W, H, P: palette(currentTheme()), stats: { drawn: 0 }, anchors: { get pill() { return anchor(); } } });
+    },
+  };
+})();
+
+function showHolidayFx(id) {
+  if (!HolidayFx.has(id)) return;
+  runFx(HolidayFx.build(id, innerWidth, innerHeight));
+}
+
+// Paaszondag (Meeus/Jones/Butcher) → [maand, dag]. Basis voor Pasen én Carnaval.
+function easterSunday(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+  const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * m + 114;
+  return [Math.floor(n / 31), (n % 31) + 1];
+}
+// Maankalender-feesten: geen formule maar expliciete data (Umm al-Qura-/astronomische
+// voorspellingen; Eid hangt af van de maanwaarneming, ±1 dag → venster van 3 dagen).
+// Bij het jaarlijkse onderhoud de volgende jaargang toevoegen en de voorspelling
+// van het lopende jaar controleren.
+const LUNAR_NEW_YEAR = { 2026: "02-17", 2027: "02-06", 2028: "01-26", 2029: "02-13", 2030: "02-03", 2031: "01-23", 2032: "02-11" };
+const EID_AL_FITR    = { 2026: "03-20", 2027: "03-09", 2028: "02-26", 2029: "02-14", 2030: "02-04", 2031: "01-24", 2032: "01-14" };
+const DIWALI         = { 2026: "11-08", 2027: "10-29", 2028: "10-17", 2029: "11-05", 2030: "10-26", 2031: "11-14", 2032: "11-02" };
+// Historische hoogtijdagen: puzzeldag (MM-DD) → viering + het gepinde antwoordjaar.
+const HISTORIC_FX = { "04-21": { id: "rome", year: -753 }, "07-20": { id: "moon", year: 1969 }, "10-15": { id: "gregorian", year: 1582 } };
+
+// Welke feestdag-viering hoort bij deze (lokale) datum? null = gewone dag.
+// Volgorde = voorrang bij overlap (Lunar Nieuwjaar valt soms op carnavalsdinsdag,
+// Eid soms op Valentijn of in het carnavalsweekend): één-daagse feesten winnen.
+function holidayFxFor(date) {
+  const y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate();
+  const key = `${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  const dayNum = (yy, mm, dd) => Date.UTC(yy, mm - 1, dd) / 86400000;
+  const today = dayNum(y, m, d);
+  if (key === "12-31" || key === "01-01") return "newyear";
+  if (key === "01-06") return "kings";
+  if (LUNAR_NEW_YEAR[y] === key) return "lunar";
+  const eid = EID_AL_FITR[y];
+  if (eid) { const off = today - dayNum(y, +eid.slice(0, 2), +eid.slice(3)); if (off >= 0 && off <= 2) return "eid"; }
+  if (key === "02-14") return "valentine";
+  if (key === "03-17") return "patrick";
+  const [em, ed] = easterSunday(y), offE = today - dayNum(y, em, ed);
+  if (offE >= -49 && offE <= -47) return "carnival";   // zondag t/m dinsdag vóór Aswoensdag
+  if (offE === 0 || offE === 1) return "easter";       // paaszondag + tweede paasdag
+  if (key === "06-28") return "pride";                 // Stonewall, 1969
+  if (key === "10-31") return "halloween";
+  if (key === "11-01" || key === "11-02") return "muertos";
+  if (DIWALI[y] === key) return "diwali";
+  if (key === "12-24" || key === "12-25" || key === "12-26") return "xmas";
+  return null;
+}
+// Hoogtijdag: alleen als de daily van die puzzeldag ook écht het gepinde jaar heeft.
+function historicFxFor(puzzleDate, year) {
+  const h = HISTORIC_FX[String(puzzleDate || "").slice(5)];
+  return h && h.year === year ? h.id : null;
+}
+// ?fx=<id> in de URL = voorvertoning: die viering bij élke winst (test op je telefoon).
+const previewFx = (() => { try { return new URLSearchParams(location.search).get("fx"); } catch (e) { return null; } })();
+// De viering voor déze winst op het standaardpad, of null (→ gewone confetti).
+function winCelebrationFx() {
+  if (state.mode === "daily") {
+    const h = historicFxFor(state.puzzleDate || todayKey(), state.event?.year);
+    if (h) return h;
+  }
+  return holidayFxFor(new Date());
+}
+
 // ── Gouden-jaartallen-viering (capstone-goud) ────────────────────────────────
 // Gouden jaartallen dwarrelen omlaag; het net-geraden ANTWOORDjaar valt er
 // groter/feller tussenuit. Self-facing beloning (alleen-ingelogd), draait op
@@ -3281,7 +3950,14 @@ function finishGame(won, fresh = false) {
   // actief is — de volgorde hier weerspiegelt alleen de prestige-rangorde.
   if (fresh && won) {
     const firstTry = state.guesses.length === 1;
-    if (goldYearsFxActive()) showGoldYears(firstTry);
+    // Feestdag-/hoogtijdag-viering (HolidayFx): alléén op het standaardpad, dus
+    // pas als er geen kluis-effect (goud/bier/flair-confetti) en geen first-try is.
+    // ?fx=<id> in de URL is de voorvertoning en gaat overal vóór.
+    const flairOn = !!(auth.user && myFlair && capstoneTier(achvCache) >= 2 && flairConfettiEnabled());
+    const celebration = previewFx && HolidayFx.has(previewFx) ? previewFx
+      : (goldYearsFxActive() || beerFxActive() || flairOn || firstTry) ? null : winCelebrationFx();
+    if (celebration) showHolidayFx(celebration);
+    else if (goldYearsFxActive()) showGoldYears(firstTry);
     else if (beerFxActive()) showBeer(firstTry);
     else if (firstTry) showFireworks();
     else showConfetti();
