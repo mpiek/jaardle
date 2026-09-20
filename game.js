@@ -8256,11 +8256,27 @@ function submitGuess() {
   }
 }
 
+// Class weer weg na de animatie: bleef die hangen, dan speelde de rode flits
+// opnieuw af zodra #play-bar na een afgeronde pot weer zichtbaar werd (display:none
+// → zichtbaar herstart CSS-animaties). Vangnet-timer voor reduced-motion / een
+// verborgen veld, waarbij animationend uitblijft.
+let inputFlashOff = null;
 function flashInput() {
-  els.input.classList.remove("flash");
+  const input = els.input;
+  if (inputFlashOff) inputFlashOff();
+  input.classList.remove("flash");
   // force reflow so animation restarts
-  void els.input.offsetWidth;
-  els.input.classList.add("flash");
+  void input.offsetWidth;
+  input.classList.add("flash");
+  const off = () => {
+    input.removeEventListener("animationend", off);
+    clearTimeout(timer);
+    input.classList.remove("flash");
+    inputFlashOff = null;
+  };
+  input.addEventListener("animationend", off);
+  const timer = setTimeout(off, 600);
+  inputFlashOff = off;
 }
 
 // Kleine reden-bubble boven het invoerveld bij een geweigerde gok (buiten bereik /
@@ -8507,6 +8523,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
 
   setKeypadDisabled(false);
   clearYear();
+  if (inputFlashOff) inputFlashOff();   // geen rode flits van de vorige pot bij het uitklappen
   factSlideIndex = 0;   // start altijd bij het hoofdfeit
   anchorFactSlot = 0;   // anker reset mee (hoofdfeit tot de speler wegbladert)
   digitGlowDone = false;   // 🔢-gloed mag in dit potje weer 1× (nooit op F5: alleen vanuit submitGuess)
