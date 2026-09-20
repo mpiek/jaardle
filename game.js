@@ -2186,7 +2186,7 @@ function eraName(year) {
   return e[lang] || e[DEFAULT_LANG];
 }
 
-// ⏩-clues: gebeurtenissen uit exact antwoordjaar + {100, 250, 500, 1000}
+// ⏩-clues: gebeurtenissen uit exact antwoordjaar + {100, 250, 500, 1000, 1500}
 // (deterministisch per antwoord-hash via get_century_clues) — grof tijdperk +
 // impliciet richting (antwoord ligt vóór die gebeurtenis). Opgevraagd via de
 // ⏩-knop (kost punten, één per venster) en getoond als oranje carrousel-slides.
@@ -2286,6 +2286,12 @@ async function loadLaterClues() {
 // dan al een "willekeurige" keuze die per puzzel verschilt, maar gelijk is voor
 // iedereen met dezelfde puzzel (daily op al je apparaten, gedeelde potjes).
 // In state bewaard, zodat de slide stabiel blijft bij herrenderen en herladen.
+// Sinds db/67 loot de server uit de bekendste helft van het venster-jaar
+// (laagste elo_seed; die is bevroren, dus een gedeeld potje of inhaal-daily
+// geeft een week later nog exact hetzelfde feit). Daily's t/m 2026-09-20 houden
+// de volledige pool (db/68): een pool-wissel midden op de dag gaf twee
+// verschillende +100-feiten binnen één daily, omdat de kandidaten hier bij het
+// openen worden opgehaald en in state blijven staan.
 function chooseLaterPicks() {
   const cc = state?.laterClues;
   if (!cc || !Array.isArray(cc.slot_cands)) return;
