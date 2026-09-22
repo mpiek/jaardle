@@ -1253,17 +1253,18 @@ html[data-theme="parchment"] #result.platina-frame.platina-sheen::after {
 @media (prefers-reduced-motion: reduce) { .hint-nudge { animation: none; } }
 
 /* Eenmalige zachte gloed op de 🔢-knop in het eindspel (zie maybeGlowDigitHint):
-   één cyclus van 1,8 s, aanzwellen en wegebben, geen herhaling. Tint = de eigen
-   knopkleur; de vulling op het hoogtepunt zit net boven hover (14%). */
+   doorlopend zolang het eindspel duurt (2026-09-22; was één cyclus van 1,8 s, maar
+   die viel te vaak buiten het moment waarop de speler naar de knop kijkt). Rustig
+   tempo en een lange pauze tussen de zwellingen, zodat het geen alarm wordt. Tint =
+   de eigen knopkleur; de vulling op het hoogtepunt zit net boven hover (14%). */
 #hint-btn-digit.glow {
-  animation: digit-glow 1.8s ease-in-out 1;
+  animation: digit-glow 2.4s ease-in-out infinite;
 }
 @keyframes digit-glow {
-  0%   { box-shadow: 0 0 0 0 transparent; background: transparent; }
-  45%  { box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-digit) 30%, transparent),
+  0%, 70%, 100% { box-shadow: 0 0 0 0 transparent; background: transparent; }
+  32%  { box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-digit) 30%, transparent),
                      0 0 16px color-mix(in srgb, var(--h-digit) 50%, transparent);
          background: color-mix(in srgb, var(--h-digit) 18%, transparent); }
-  100% { box-shadow: 0 0 0 0 transparent; background: transparent; }
 }
 @media (prefers-reduced-motion: reduce) { #hint-btn-digit.glow { animation: none; } }
 

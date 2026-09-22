@@ -44,6 +44,8 @@ src += `
 ;globalThis.__T = {
   classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram,
+  BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
+  intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HolidayFx,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
@@ -246,4 +248,104 @@ test("HolidayFx — elke viering uit de tabellen heeft een laag", () => {
     assert.ok(T.HolidayFx.has(id), id);
   }
   assert.equal(T.HolidayFx.has("stamp"), false);
+});
+
+// ── Strenge guard: bereiken, omslagpunt en de veiligheidsgarantie ────────────
+test("guessRanges — een gok laat twee vensters open, 🧭 knipt er één weg", () => {
+  const g = { year: 1450, diff: 51, cls: "far" };            // badge 51–200
+  assert.deepEqual(T.guessRanges(g, false), [[1250, 1399], [1501, 1650]]);
+  assert.deepEqual(T.guessRanges(g, true), [[1501, 1650]]);  // diff > 0 → omhoog
+  assert.deepEqual(T.guessRanges({ year: 1450, diff: -51, cls: "far" }, true), [[1250, 1399]]);
+  assert.deepEqual(T.guessRanges({ year: 1501, diff: 0, cls: "correct" }, false), []);
+});
+
+test("guessRanges — knipt op de speelbare jaren en houdt 600+ open", () => {
+  const r = T.guessRanges({ year: 1822, diff: -321, cls: "distant" }, false);
+  assert.deepEqual(r[0], [1223, 1621]);
+  assert.deepEqual(r[1], [2023, T.MAX_YEAR]);
+  assert.deepEqual(T.guessRanges({ year: 800, diff: 701, cls: "farthest" }, false),
+    [[T.MIN_YEAR, 200], [1400, T.MAX_YEAR]]);
+  const edge = T.guessRanges({ year: T.MIN_YEAR + 5, diff: 300, cls: "distant" }, false);
+  assert.equal(edge.length, 1);                              // linkerhelft valt weg
+  assert.equal(edge[0][0], T.MIN_YEAR + 206);
+});
+
+test("guessImpossibleAt — vangt 'te dicht bij de vorige gok', anders dan outOfBand", () => {
+  const rev = new Set();
+  const g1450 = { year: 1450, diff: 51, cls: "far" };         // 1250–1399 of 1501–1650
+  assert.equal(T.guessImpossibleAt([g1450], 1500, rev), 0);   // 50 weg, band zei ≥51
+  assert.equal(T.outOfBand([g1450], 1500), 0);                // flauwe guard laat 'm door
+  assert.equal(T.guessImpossibleAt([g1450], 1501, rev), -1);
+  assert.equal(T.guessImpossibleAt([g1450], 1650, rev), -1);
+  assert.equal(T.guessImpossibleAt([g1450], 1651, rev), 0);
+  assert.equal(T.guessImpossibleAt([g1450], 1300, new Set([0])), 0);   // 🧭 sluit links uit
+});
+
+test("strictGuardOn — pas na een gok die de speler zelf al uitsloot", () => {
+  const rev = new Set();
+  const g1450 = { year: 1450, diff: 51, cls: "far" };
+  const g1550 = { year: 1550, diff: -49, cls: "cool" };
+  assert.equal(T.strictGuardOn([], rev), false);
+  assert.equal(T.strictGuardOn([g1450], rev), false);         // gok 1 kan nooit fout zijn
+  assert.equal(T.strictGuardOn([g1450, g1550], rev), false);  // 1550 mocht (1501–1650)
+  assert.equal(T.strictGuardOn([g1450, { year: 1500, diff: 1, cls: "veryclose" }], rev), true);
+});
+
+test("remainingRanges — doorsnede van alle vensters, met de 🏛️-eeuw erbij", () => {
+  const rev = new Set();
+  const gs = [{ year: 1450, diff: 51, cls: "far" }, { year: 1555, diff: -54, cls: "far" }];
+  // 1450 laat 1250–1399 / 1501–1650 toe, 1555 laat 1355–1504 / 1606–1755 toe:
+  // drie stukken overlappen, waaronder het venster 1606–1650 rechtsboven.
+  assert.deepEqual(T.remainingRanges(gs, rev, null),
+    [[1355, 1399], [1501, 1504], [1606, 1650]]);
+  assert.deepEqual(T.remainingRanges(gs, rev, 1501), [[1501, 1504]]);   // 1500–1599
+  assert.deepEqual(T.remainingRanges([], rev, null), [[T.MIN_YEAR, T.MAX_YEAR]]);
+  assert.deepEqual(T.intersectRanges([[1, 10]], [[20, 30]]), []);
+});
+
+test("strenge guard blokkeert NOOIT het juiste antwoord", () => {
+  // De garantie waar alles op staat: wat de speler ook gokt, het echte jaartal moet
+  // altijd in elk venster blijven vallen — anders kan een potje onwinbaar worden.
+  const rev = new Set();
+  for (let answer = -753; answer <= 2026; answer += 7) {
+    const gs = [];
+    for (const g of [answer - 900, answer + 340, answer - 77, answer + 31, answer - 4, answer + 1]) {
+      const year = Math.max(T.MIN_YEAR, Math.min(T.MAX_YEAR, g));
+      if (year === answer) continue;
+      gs.push({ year, diff: answer - year, cls: T.classify(answer - year) });
+      assert.equal(T.guessImpossibleAt(gs, answer, rev), -1,
+        `antwoord ${answer} uitgesloten na gok ${year}`);
+      const left = T.remainingRanges(gs, rev, answer);
+      assert.ok(left.some(([a, b]) => answer >= a && answer <= b),
+        `antwoord ${answer} valt buiten de resterende bereiken`);
+    }
+  }
+});
+
+test("rangeLabel — v.Chr. telt aflopend en één jaar blijft één jaartal", () => {
+  T.setLang("nl");
+  assert.equal(T.rangeLabel(1250, 1399), "1250–1399");
+  assert.equal(T.rangeLabel(-753, -200), "753–200 v.Chr.");
+  assert.equal(T.rangeLabel(-50, 120), "50 v.Chr.–120");
+  assert.equal(T.rangeLabel(1501, 1501), "1501");
+  T.setLang("en");
+  assert.equal(T.rangeLabel(-753, -200), "753–200 BC");
+});
+
+test("digitGlowOn — puls vanaf gok 4, uit bij 🟪, gekochte 🔢 of einde", () => {
+  const g = (cls) => ({ year: 1500, diff: 30, cls });
+  const drie = [g("far"), g("cool"), g("warm")];
+  const vier = [...drie, g("close")];
+  assert.equal(T.digitGlowOn({ guesses: drie }), false);           // gok 3: nog te vroeg
+  assert.equal(T.digitGlowOn({ guesses: vier }), true);            // gok 4: aan
+  assert.equal(T.digitGlowOn({ guesses: [...vier, g("close")] }), true);   // gok 5: blijft
+  assert.equal(T.digitGlowOn({ guesses: vier, done: true }), false);
+  assert.equal(T.digitGlowOn({ guesses: vier, lastDigitRevealed: true }), false);
+  // De uitzondering hangt aan de KLEUR, niet aan de afstand in jaren: het uitblijven
+  // van de puls mag niets verraden wat niet al als badge op het bord staat.
+  assert.equal(T.digitGlowOn({ guesses: [...drie, g("veryclose")] }), false);
+  assert.equal(T.digitGlowOn({ guesses: [g("veryclose"), ...drie] }), false);
+  assert.equal(T.digitGlowOn({ guesses: [] }), false);
+  assert.equal(T.digitGlowOn(null), false);
+  assert.equal(T.MAX_GUESSES - 2, 4);   // "vanaf gok 4" staat of valt hiermee
 });

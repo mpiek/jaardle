@@ -69,7 +69,7 @@ const HELP_NL = `
         <li>Kleuren bij elke gok: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> per stuk · 🧭 <span data-penalty="dir-hint"></span> per stuk · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, op basis van je dichtste gok.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
-        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok buiten je bekende bereik (of buiten een gekochte eeuw/cijfer) wordt geweigerd zonder een poging te kosten.</li>
+        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok buiten je bekende bereik (of buiten een gekochte eeuw/cijfer) wordt geweigerd zonder een poging te kosten. Die controle is soepel tot je één gok doet die je eigen bord al uitsloot; daarna gaat hij op scherp en noemt hij de jaartallen die nog kunnen.</li>
         <li>Toetsen: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>↑</kbd> haalt je laatste gok terug, <kbd>←</kbd>/<kbd>→</kbd> door de carrousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> voor de hints, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>
       </ul>
     </details>
@@ -87,7 +87,7 @@ const HELP_EN = `
         <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
-        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess.</li>
+        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess. That check stays lenient until you make one guess your own board already ruled out; after that it tightens up and names the years still possible.</li>
         <li>Keys: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>↑</kbd> recalls your last guess, <kbd>←</kbd>/<kbd>→</kbd> through the carousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> for the hints, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>
       </ul>
     </details>
@@ -105,7 +105,7 @@ const HELP_DE = `
         <li>Farben pro Versuch: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hinweise: ⏩ <span data-penalty="later-clue"></span> je Stück · 🧭 <span data-penalty="dir-hint"></span> je Stück · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
         <li>Stufen: <span data-help="tiers"></span></li>
-        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch außerhalb deines bekannten Bereichs (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer) wird abgelehnt, ohne einen Versuch zu kosten.</li>
+        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch außerhalb deines bekannten Bereichs (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer) wird abgelehnt, ohne einen Versuch zu kosten. Diese Prüfung bleibt nachsichtig, bis du einen Versuch machst, den dein eigenes Feld schon ausgeschlossen hat; danach wird sie streng und nennt die noch möglichen Jahre.</li>
         <li>Tasten: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>↑</kbd> holt deinen letzten Versuch zurück, <kbd>←</kbd>/<kbd>→</kbd> durchs Karussell, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> für die Hinweise, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>
       </ul>
     </details>
@@ -123,7 +123,7 @@ const HELP_ES = `
         <li>Colores por intento: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalización por fallo: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Pistas: ⏩ <span data-penalty="later-clue"></span> cada una · 🧭 <span data-penalty="dir-hint"></span> cada una · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdida = 0–10, según tu intento más cercano.</li>
         <li>Niveles: <span data-help="tiers"></span></li>
-        <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento fuera de tu rango conocido (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento.</li>
+        <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento fuera de tu rango conocido (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento. Esa comprobación es indulgente hasta que haces un intento que tu propio tablero ya descartaba; a partir de ahí se vuelve estricta y nombra los años aún posibles.</li>
         <li>Teclas: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>↑</kbd> recupera tu último intento, <kbd>←</kbd>/<kbd>→</kbd> por el carrusel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para las pistas, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>
       </ul>
     </details>
@@ -141,7 +141,7 @@ const HELP_PT = `
         <li>Cores por tentativa: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalidade por erro: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Dicas: ⏩ <span data-penalty="later-clue"></span> cada · 🧭 <span data-penalty="dir-hint"></span> cada · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
         <li>Níveis: <span data-help="tiers"></span></li>
-        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa fora do seu intervalo conhecido (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa.</li>
+        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa fora do seu intervalo conhecido (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa. Essa verificação é tolerante até você fazer uma tentativa que seu próprio tabuleiro já descartava; depois disso ela fica rigorosa e indica os anos ainda possíveis.</li>
         <li>Teclas: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>↑</kbd> recupera sua última tentativa, <kbd>←</kbd>/<kbd>→</kbd> pelo carrossel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para as dicas, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li>
       </ul>
     </details>
@@ -301,6 +301,8 @@ const I18N = {
     copy_prompt: "Kopieer dit:",
     cal_solved: (g, max) => `opgelost (${g}/${max})`,
     band_warn: (jaren) => `🎯 ${jaren} jaar buiten het bereik van je gokken`,
+    range_warn: (bereiken) => `🎯 Je eigen gokken laten alleen ${bereiken} nog toe`,
+    range_or: " of ",
     century_warn: (band) => `🏛️ Buiten het tijdvak (${band})`,
     digit_warn: (d) => `🔢 Eindigt niet op ${d}`,
     fact_stats: (s, hasScore) =>
@@ -547,6 +549,8 @@ const I18N = {
     copy_prompt: "Copy this:",
     cal_solved: (g, max) => `solved (${g}/${max})`,
     band_warn: (years) => `🎯 ${years} years outside your guess range`,
+    range_warn: (ranges) => `🎯 Your own guesses leave only ${ranges}`,
+    range_or: " or ",
     century_warn: (band) => `🏛️ Outside the era (${band})`,
     digit_warn: (d) => `🔢 Doesn't end in ${d}`,
     fact_stats: (s, hasScore) =>
@@ -786,6 +790,8 @@ const I18N = {
     copy_prompt: "Kopiere das:",
     cal_solved: (g, max) => `gelöst (${g}/${max})`,
     band_warn: (jahre) => `🎯 ${jahre} Jahre außerhalb deiner Spanne`,
+    range_warn: (spannen) => `🎯 Deine eigenen Versuche lassen nur noch ${spannen} zu`,
+    range_or: " oder ",
     century_warn: (band) => `🏛️ Außerhalb der Epoche (${band})`,
     digit_warn: (d) => `🔢 Endet nicht auf ${d}`,
     fact_stats: (s, hasScore) =>
@@ -1029,6 +1035,8 @@ const I18N = {
     copy_prompt: "Copia esto:",
     cal_solved: (g, max) => `resuelto (${g}/${max})`,
     band_warn: (anos) => `🎯 ${anos} años fuera de tu margen`,
+    range_warn: (rangos) => `🎯 Tus propios intentos solo dejan ${rangos}`,
+    range_or: " o ",
     century_warn: (band) => `🏛️ Fuera de la época (${band})`,
     digit_warn: (d) => `🔢 No termina en ${d}`,
     fact_stats: (s, hasScore) =>
@@ -1272,6 +1280,8 @@ const I18N = {
     copy_prompt: "Copie isto:",
     cal_solved: (g, max) => `resolvido (${g}/${max})`,
     band_warn: (anos) => `🎯 ${anos} anos fora da sua faixa`,
+    range_warn: (faixas) => `🎯 Seus próprios palpites deixam apenas ${faixas}`,
+    range_or: " ou ",
     century_warn: (band) => `🏛️ Fora da era (${band})`,
     digit_warn: (d) => `🔢 Não termina em ${d}`,
     fact_stats: (s, hasScore) =>
@@ -1828,6 +1838,99 @@ function outOfBand(guesses, year) {
   return jump > outer + BAND_SLACK ? jump : 0;
 }
 
+// Ondergrens van elke band; samen met BAND_OUTER het venster dat één gok toelaat.
+const BAND_INNER = {
+  veryclose: 1, close: 3, warm: 11, cool: 26, far: 51, distant: 201, farthest: 600,
+};
+
+// De jaartallen die één gok nog toelaat: een venster links én rechts van die gok
+// (de badge zegt hoe VER het antwoord ligt, niet welke kant op), geknipt op de
+// speelbare jaren. Is bij deze rij een 🧭-pijl gekocht, dan valt één kant weg.
+function guessRanges(g, dirKnown) {
+  const inner = BAND_INNER[g.cls];
+  if (inner === undefined) return [];            // correct → niets meer te kiezen
+  const outer = BAND_OUTER[g.cls] ?? Infinity;   // farthest → open einde
+  const out = [];
+  const lo = [Math.max(MIN_YEAR, g.year - outer), g.year - inner];
+  const hi = [g.year + inner, Math.min(MAX_YEAR, g.year + outer)];
+  // g.diff = antwoord − gok, dus diff > 0 betekent: het antwoord ligt hoger.
+  if ((!dirKnown || g.diff < 0) && lo[0] <= lo[1] && lo[1] >= MIN_YEAR) out.push(lo);
+  if ((!dirKnown || g.diff > 0) && hi[0] <= hi[1] && hi[0] <= MAX_YEAR) out.push(hi);
+  return out;
+}
+
+// Doorsnede van twee lijsten intervallen; beide oplopend en niet-overlappend.
+function intersectRanges(a, b) {
+  const out = [];
+  for (const [al, ah] of a) {
+    for (const [bl, bh] of b) {
+      const lo = Math.max(al, bl), hi = Math.min(ah, bh);
+      if (lo <= hi) out.push([lo, hi]);
+    }
+  }
+  return out.sort((x, y) => x[0] - y[0]);
+}
+
+// Wat er na alle gokken nog overblijft: de vensters van elke rij over elkaar heen,
+// plus een gekochte 🏛️-eeuw. Puur informatie die de speler zelf al op het bord
+// heeft staan — alleen uitgerekend. (🔢 is geen aaneengesloten bereik en houdt
+// daarom z'n eigen regel in de waarschuwing.)
+function remainingRanges(guesses, revealedSet, century) {
+  let acc = [[MIN_YEAR, MAX_YEAR]];
+  (guesses || []).forEach((g, i) => {
+    const rs = guessRanges(g, revealedSet.has(i));
+    if (rs.length) acc = intersectRanges(acc, rs);
+  });
+  if (century != null) {
+    const start = Math.floor(century / 100) * 100;
+    acc = intersectRanges(acc, [[Math.max(MIN_YEAR, start), Math.min(MAX_YEAR, start + 99)]]);
+  }
+  return acc;
+}
+
+// Ligt `year` buiten wat een eerdere rij al toeliet? Geeft de laatste rij-index
+// terug die 'm uitsluit, anders -1. Een 🧭 wordt altijd op de op dat moment laatste
+// rij gekocht, dus voor elke eerdere rij j < i was die pijl toen al bekend.
+function guessImpossibleAt(guesses, year, revealedSet) {
+  let idx = -1;
+  (guesses || []).forEach((g, i) => {
+    const rs = guessRanges(g, revealedSet.has(i));
+    if (rs.length && !rs.some(([a, b]) => year >= a && year <= b)) idx = i;
+  });
+  return idx;
+}
+
+// Strenge modus. De guard hierboven (outOfBand) is met opzet flauw: hij kijkt alleen
+// naar je dichtste gok, alleen naar de bovengrens en laat 30 jaar speelruimte — een
+// vangnet tegen typefouten, geen betweter. Die flauwheid laat één hele klasse fouten
+// door: een gok die te DICHT bij een eerdere gok ligt. Uit de verliesanalyse van
+// 2026-09 is dat 63% van de misgokken van verliezers, en 93% van de verloren potjes
+// bevat er minstens één.
+//
+// Daarom: zodra de speler dit potje één keer een gok deed die zijn eigen bord al
+// uitsloot, gaat de guard voor de rest van dat potje op scherp — elke volgende gok
+// moet in de doorsnede van álle vensters liggen, zonder speelruimte. Je eerste fout
+// kost dus nog een beurt, daarna kun je er geen meer maken. Wie foutloos kruist merkt
+// hier nooit iets van, dus het rekenwerk blijft het spel voor wie dat leuk vindt.
+// Afgeleid uit het bord — geen opslag, dus ook na F5 of op een tweede apparaat gelijk.
+function strictGuardOn(guesses, revealedSet) {
+  const gs = guesses || [];
+  for (let i = 1; i < gs.length; i++) {
+    if (guessImpossibleAt(gs.slice(0, i), gs[i].year, revealedSet) >= 0) return true;
+  }
+  return false;
+}
+
+// "1250–1399", "753–200 v.Chr.", "50 v.Chr.–120", of één jaartal als het bereik tot
+// één jaar gekrompen is. BC telt aflopend, net als bij de eeuw-band (eraName()).
+function rangeLabel(lo, hi) {
+  const bc = t("bc");
+  if (lo === hi) return lo < 0 ? `${-lo} ${bc}` : String(lo);
+  if (hi < 0) return `${-lo}–${-hi} ${bc}`;
+  if (lo < 0) return `${-lo} ${bc}–${hi}`;
+  return `${lo}–${hi}`;
+}
+
 // Redenen waarom een gok logisch niet kan kloppen — puur uit info die de speler
 // zélf al heeft, dus verklapt niets. Drie vangnetten, in oplopende zekerheid:
 //   🎯 verder van je dichtste gok dan die kleur toelaat (outOfBand),
@@ -1837,11 +1940,25 @@ function outOfBand(guesses, year) {
 // strafpunten te verspillen. Geeft de reden-regels terug (leeg = gok mag).
 function guessBlockReason(year) {
   const reasons = [];
-  const oob = outOfBand(state.guesses, year);
-  if (oob) reasons.push(t("band_warn")(oob));
+  const revealed = new Set(state.directionsRevealed || []);
+  if (strictGuardOn(state.guesses, revealed)) {
+    // Op scherp: geen speelruimte meer, en de waarschuwing noemt meteen wat er nog
+    // wél kan. Dat moet ook — we blokkeren hier op de doorsnede, dus die stilhouden
+    // zou de speler dwingen 'm af te tasten met gokken die tóch geweigerd worden.
+    if (guessImpossibleAt(state.guesses, year, revealed) >= 0) {
+      const left = remainingRanges(state.guesses, revealed,
+        state.centuryRevealed && state.event ? state.event.year : null);
+      reasons.push(left.length
+        ? t("range_warn")(left.map(([a, b]) => rangeLabel(a, b)).join(t("range_or")))
+        : t("band_warn")(Math.abs(year - state.guesses[state.guesses.length - 1].year)));
+    }
+  } else {
+    const oob = outOfBand(state.guesses, year);
+    if (oob) reasons.push(t("band_warn")(oob));
+  }
   if (state && state.event) {
     const answer = state.event.year;
-    if (state.centuryRevealed) {
+    if (state.centuryRevealed && !reasons.length) {
       const start = Math.floor(answer / 100) * 100;
       if (year < start || year > start + 99) reasons.push(t("century_warn")(centuryBand(answer)));
     }
@@ -2147,6 +2264,7 @@ function renderHintStatus() {
   // niet) + 🧭 richtingen.
   const laterPart = availLater > 0 ? `⏩ ${state.laterCluesShown}/${availLater} · ` : "";
   els.hintCount.textContent = `${laterPart}🧭 ${state.directionsRevealed.length}/${MAX_DIRECTION_HINTS} ${t("dir_word")}`;
+  updateDigitGlow();   // staat, geen eenmalige animatie — zie updateDigitGlow()
 }
 
 // Vul één 🏛️/🔢-waarde-chip (zie renderHintStatus). value is lazy zodat er
@@ -2341,7 +2459,6 @@ function requestLastDigit() {
   if (state.done || state.lastDigitRevealed) return;
   state.lastDigitRevealed = true;
   markPaidHintUsed();
-  try { localStorage.setItem("jaardle:digitused", "1"); } catch (e) {}   // 🔢-gloed dooft voorgoed
   renderEvent();
   renderHintStatus();
   goToHintSlide("digit");   // voeg de 🔢-cijfer-slide toe en schuif erheen
@@ -2383,45 +2500,30 @@ function maybeShowHintNudge() {
   setTimeout(() => el.remove(), 8000);   // dooft vanzelf uit
 }
 
-// --- 🔢-gloed in het eindspel -----------------------------------------------
-// Data (sept '26): twee derde van de anonieme daily-verliezers kwam tot op ≤10
-// jaar en strandde dáár; 65% van hen kocht niets, terwijl ingelogde spelers in
-// dezelfde situatie 3-4× vaker 🔢 pakken (20 kandidaten → 2). Eén zachte gloed
-// op de 🔢-knop zodra je dichtbij zit (🟪/🟨), nog ≤2 pogingen hebt en dit potje
-// geen 🧭/🔢 kocht. Zelfdovend: 1× per potje, nooit meer zodra 🔢 ooit gebruikt
-// is, max 3× ooit. Disjunct met de tekst-nudge hierboven (die is voor "ver mis").
-const DIGIT_GLOW_MAX = 3;
-let digitGlowDone = false;   // per potje; reset in startGame
+// Puls op de 🔢-knop zodra het eindspel begint. Een STAAT, geen eenmalige animatie:
+// hij loopt door vanaf gok 4 en dooft vanzelf zodra 🔢 gekocht is, het potje klaar
+// is of er een 🟪 op het bord staat. Bewust doorlopend (2026-09-22): één cyclus van
+// 1,8 s viel te vaak buiten het moment waarop de speler naar de knop kijkt.
+//
+// De uitzondering hangt aan de KLEUR van een gok, niet aan de afstand in jaren. Dat
+// is geen detail: het uitblijven van de puls is zelf informatie, dus die mag alleen
+// afhangen van wat er al zichtbaar op het bord staat. 🟪 betekent 1–2 jaar ernaast,
+// en die handvol jaartallen loop je gratis af — dan is 10 punten weggegooid geld.
+// Elke andere kleur laat genoeg ruimte over om het laatste cijfer nuttig te maken.
+//
+// Waarom hij elk potje terugkomt in plaats van uit te doven: uit de verliesanalyse
+// van 2026-09 komt 66% van de verliezen tot op ≤10 jaar en koopt maar 9% daarvan
+// 🔢. Hij vraagt niets, blokkeert niets en zit op een knop die je toch al aankijkt.
+function digitGlowOn(st) {
+  const gs = (st && st.guesses) || [];
+  return !!st && !st.done
+    && gs.length >= MAX_GUESSES - 2            // eindspel: nog hooguit twee pogingen
+    && !st.lastDigitRevealed                   // al gekocht → niets meer te wijzen
+    && !gs.some((g) => g.cls === "veryclose"); // 🟪 op het bord → niet meer nodig
+}
 
-function maybeGlowDigitHint() {
-  if (digitGlowDone || state.done) return;
-  if (state.guesses.length < MAX_GUESSES - 2) return;   // pas bij gok 4 of 5
-  if (state.lastDigitRevealed || state.directionsRevealed.length > 0) return;
-  const btn = els.hintBtnDigit;
-  if (!btn || btn.hidden) return;
-  const closest = Math.min(...state.guesses.map((g) => Math.abs(g.diff)));
-  if (closest > 10) return;   // alleen 🟪/🟨: daar maakt het laatste cijfer het af
-  try {
-    if (localStorage.getItem("jaardle:digitused")) return;
-    const seen = Number(localStorage.getItem("jaardle:digitglow") || 0);
-    if (seen >= DIGIT_GLOW_MAX) return;
-    localStorage.setItem("jaardle:digitglow", String(seen + 1));
-  } catch (e) {}
-  digitGlowDone = true;
-  // Even wachten tot de penalty-pop van deze gok is uitgespeeld; daarna één
-  // cyclus (aanzwellen, wegebben), geen loop. Class weg na afloop zodat een
-  // volgend potje 'm opnieuw kan starten. Vangnet-timer: wordt de knop tijdens
-  // de gloed verborgen (🔢 gekocht) of staat reduced-motion aan, dan komt er
-  // geen animationend en zou de class blijven hangen (→ herspelen bij unhide).
-  setTimeout(() => {
-    if (state.done || btn.hidden) return;
-    btn.classList.remove("glow");
-    void btn.offsetWidth;
-    btn.classList.add("glow");
-    const off = () => btn.classList.remove("glow");
-    btn.addEventListener("animationend", off, { once: true });
-    setTimeout(off, 2000);
-  }, 700);
+function updateDigitGlow() {
+  els.hintBtnDigit?.classList.toggle("glow", digitGlowOn(state));
 }
 
 const RANGE_LABELS = {
@@ -9059,7 +9161,6 @@ function submitGuess() {
     finishGame(false, true);
   } else {
     maybeShowHintNudge();   // gok 5, ver mis, hintloos → eenmalig duwtje
-    maybeGlowDigitHint();   // gok 4/5, dichtbij, geen 🧭/🔢 → één zachte gloed op 🔢
     syncDailyProgress();    // halve dagpot naar de DB (ander apparaat kan 'm oppakken)
   }
 }
@@ -9334,8 +9435,6 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   if (inputFlashOff) inputFlashOff();   // geen rode flits van de vorige pot bij het uitklappen
   factSlideIndex = 0;   // start altijd bij het hoofdfeit
   anchorFactSlot = 0;   // anker reset mee (hoofdfeit tot de speler wegbladert)
-  digitGlowDone = false;   // 🔢-gloed mag in dit potje weer 1× (nooit op F5: alleen vanuit submitGuess)
-  els.hintBtnDigit?.classList.remove("glow");
   renderEvent();
   renderHintStatus();
   renderGuesses();
