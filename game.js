@@ -277,15 +277,6 @@ const I18N = {
     recap_acct_2: "☁️ Speel verder op al je apparaten",
     recap_acct_3: "🏆 Vergelijk je daily met vrienden in een pool",
     recap_acct_btn: "Inloggen of account maken",
-    recap_acct_quick: "⚡ Bewaren zonder e-mail",
-    recap_acct_quick_note: "Eén tik, geen gegevens. Blijft op dit apparaat — koppel later een e-mail om overal verder te spelen.",
-    menu_guest: "Gastaccount",
-    menu_link: "🔗 E-mail of Google koppelen",
-    auth_link_title: "Beveilig je gastaccount",
-    auth_link_note: "Je streak, rating en prestaties blijven staan. Zonder koppeling ben je ze kwijt als deze browser z'n gegevens wist.",
-    auth_link_btn: "Koppelen",
-    auth_link_sent: "Check je mail om het adres te bevestigen.",
-    auth_guest_fail: "Gastaccount aanmaken lukte niet. Probeer het later nog eens.",
     recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
     streak_won: (n) => n === 1 ? "🔥 Streak gestart — kom morgen terug!" : `🔥 ${n} dagen op rij!`,
     streak_lost: (n) => `💔 Streak van ${n} ${n === 1 ? "dag" : "dagen"} gebroken — morgen nieuwe kans!`,
@@ -534,15 +525,6 @@ const I18N = {
     recap_acct_2: "☁️ Keep playing across all your devices",
     recap_acct_3: "🏆 Compare your daily with friends in a pool",
     recap_acct_btn: "Sign in or create account",
-    recap_acct_quick: "⚡ Save without an email",
-    recap_acct_quick_note: "One tap, no details. Stays on this device — link an email later to play anywhere.",
-    menu_guest: "Guest account",
-    menu_link: "🔗 Link email or Google",
-    auth_link_title: "Secure your guest account",
-    auth_link_note: "Your streak, rating and achievements stay put. Without linking you lose them if this browser clears its data.",
-    auth_link_btn: "Link",
-    auth_link_sent: "Check your inbox to confirm the address.",
-    auth_guest_fail: "Could not create a guest account. Please try again later.",
     recap_acct_free: "Always 100% free — no paid tier, no ads.",
     streak_won: (n) => n === 1 ? "🔥 Streak started — come back tomorrow!" : `🔥 ${n} days in a row!`,
     streak_lost: (n) => `💔 ${n}-day streak broken — new chance tomorrow!`,
@@ -784,15 +766,6 @@ const I18N = {
     recap_acct_2: "☁️ Spiele auf all deinen Geräten weiter",
     recap_acct_3: "🏆 Vergleiche dein Daily mit Freunden in einem Pool",
     recap_acct_btn: "Anmelden oder Konto erstellen",
-    recap_acct_quick: "⚡ Ohne E-Mail speichern",
-    recap_acct_quick_note: "Ein Tipp, keine Daten. Bleibt auf diesem Gerät — verknüpfe später eine E-Mail, um überall zu spielen.",
-    menu_guest: "Gastkonto",
-    menu_link: "🔗 E-Mail oder Google verknüpfen",
-    auth_link_title: "Gastkonto sichern",
-    auth_link_note: "Serie, Rating und Erfolge bleiben erhalten. Ohne Verknüpfung sind sie weg, sobald dieser Browser seine Daten löscht.",
-    auth_link_btn: "Verknüpfen",
-    auth_link_sent: "Sieh in deinem Postfach nach, um die Adresse zu bestätigen.",
-    auth_guest_fail: "Gastkonto konnte nicht erstellt werden. Bitte später erneut versuchen.",
     recap_acct_free: "Immer 100% kostenlos — keine Bezahlversion, keine Werbung.",
     streak_won: (n) => n === 1 ? "🔥 Serie gestartet — komm morgen wieder!" : `🔥 ${n} Tage in Folge!`,
     streak_lost: (n) => `💔 Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gerissen — morgen neue Chance!`,
@@ -1038,15 +1011,6 @@ const I18N = {
     recap_acct_2: "☁️ Sigue jugando en todos tus dispositivos",
     recap_acct_3: "🏆 Compara tu diario con tus amigos en un grupo",
     recap_acct_btn: "Iniciar sesión o crear cuenta",
-    recap_acct_quick: "⚡ Guardar sin correo",
-    recap_acct_quick_note: "Un toque, sin datos. Se queda en este dispositivo — vincula un correo después para jugar en cualquier sitio.",
-    menu_guest: "Cuenta de invitado",
-    menu_link: "🔗 Vincular correo o Google",
-    auth_link_title: "Protege tu cuenta de invitado",
-    auth_link_note: "Tu racha, tu rating y tus logros se mantienen. Sin vincular los pierdes si este navegador borra sus datos.",
-    auth_link_btn: "Vincular",
-    auth_link_sent: "Revisa tu correo para confirmar la dirección.",
-    auth_guest_fail: "No se pudo crear la cuenta de invitado. Inténtalo más tarde.",
     recap_acct_free: "Siempre 100% gratis — sin versión de pago, sin anuncios.",
     streak_won: (n) => n === 1 ? "🔥 ¡Racha iniciada — vuelve mañana!" : `🔥 ¡${n} días seguidos!`,
     streak_lost: (n) => `💔 Racha de ${n} ${n === 1 ? "día" : "días"} perdida — ¡mañana, otra oportunidad!`,
@@ -1292,15 +1256,6 @@ const I18N = {
     recap_acct_2: "☁️ Continue jogando em todos os seus dispositivos",
     recap_acct_3: "🏆 Compare seu diário com seus amigos em um grupo",
     recap_acct_btn: "Entrar ou criar conta",
-    recap_acct_quick: "⚡ Salvar sem e-mail",
-    recap_acct_quick_note: "Um toque, sem dados. Fica neste aparelho — vincule um e-mail depois para jogar em qualquer lugar.",
-    menu_guest: "Conta de convidado",
-    menu_link: "🔗 Vincular e-mail ou Google",
-    auth_link_title: "Proteja sua conta de convidado",
-    auth_link_note: "Sua sequência, seu rating e suas conquistas continuam lá. Sem vincular, você os perde se este navegador apagar os dados.",
-    auth_link_btn: "Vincular",
-    auth_link_sent: "Confira seu e-mail para confirmar o endereço.",
-    auth_guest_fail: "Não foi possível criar a conta de convidado. Tente mais tarde.",
     recap_acct_free: "Sempre 100% grátis — sem versão paga, sem anúncios.",
     streak_won: (n) => n === 1 ? "🔥 Sequência iniciada — volte amanhã!" : `🔥 ${n} dias seguidos!`,
     streak_lost: (n) => `💔 Sequência de ${n} ${n === 1 ? "dia" : "dias"} perdida — amanhã tem outra chance!`,
@@ -6217,7 +6172,8 @@ async function renderRecap() {
   } else {
     // Uitgelogd: wijs op de voordelen van een (gratis) account.
     body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank) + shareHtml + recapAccountHtml();
-    wireAccountButtons(body);
+    const btn = body.querySelector(".js-acct-btn");
+    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
   }
   const rateBtn = body.querySelector("#recap-rate-btn");
   if (rateBtn) rateBtn.addEventListener("click", () => {
@@ -6252,11 +6208,7 @@ function recapAccountHtml() {
       <li>${t("recap_acct_2")}</li>
       <li>${t("recap_acct_3")}</li>
     </ul>
-    <div class="recap-cta">
-      <button class="js-guest-btn">${t("recap_acct_quick")}</button>
-      <button class="js-acct-btn secondary">${t("recap_acct_btn")}</button>
-    </div>
-    <p class="recap-quick-note">${t("recap_acct_quick_note")}</p>
+    <div class="recap-cta"><button class="js-acct-btn">${t("recap_acct_btn")}</button></div>
     <p class="recap-free">${t("recap_acct_free")}</p>
   </div>`;
 }
@@ -8516,37 +8468,8 @@ function selectStatsTab(name) {
 }
 
 function wireAcctPitch(container) {
-  wireAccountButtons(container);
-}
-
-// Beide knoppen van het voordelen-blok (recap én stats-modal, vandaar per
-// container i.p.v. per id). "Bewaren zonder e-mail" maakt een gastaccount en
-// claimt meteen de zojuist gespeelde pot, zodat de speler zijn eigen potje
-// terugziet in plaats van een leeg bord.
-function wireAccountButtons(container) {
   const btn = container.querySelector(".js-acct-btn");
   if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
-  const guest = container.querySelector(".js-guest-btn");
-  if (guest) guest.onclick = () => startGuestAccount(guest);
-}
-
-// Gastaccount: één tik, geen formulier. Verder hoeft hier niets te gebeuren — de
-// sessie vuurt sb-auth-changed, en die handler doet al het werk dat een gewone
-// login ook doet: claimPlayOnLogin() punt de zojuist gespeelde anon-rij om naar dit
-// account (via het bewaarde jaardle:playid) en hertekent de recap, zodat het
-// voordelen-blok ter plekke plaatsmaakt voor de eigen streak en teamstand.
-// De modal blijft dus bewust open: de speler is midden in zijn eindscherm.
-async function startGuestAccount(btn) {
-  if (!window.sbAuth?.signInAnonymously) return;
-  const was = btn.textContent;
-  btn.disabled = true;
-  try {
-    await window.sbAuth.signInAnonymously();
-  } catch (e) {
-    btn.disabled = false;
-    btn.textContent = t("auth_guest_fail");
-    setTimeout(() => { btn.textContent = was; }, 3200);
-  }
 }
 
 // ⚡ Rating-tab: grafiek (of leegmelding zolang er nog geen lijn te tekenen is),
@@ -8889,9 +8812,7 @@ function renderMenuButton() {
   // ingelogd alleen een avatar zonder klik-affordance).
   const caret = '<span class="menu-caret" aria-hidden="true">▾</span>';
   if (auth.user) {
-    // Gastaccount heeft geen naam of e-mail → een neutrale initiaal i.p.v. "?".
-    const initial = ((auth.user.name || auth.user.email || (auth.user.anon ? t("menu_guest") : "?"))
-      .trim().charAt(0) || "?").toUpperCase();
+    const initial = ((auth.user.name || auth.user.email || "?").trim().charAt(0) || "?").toUpperCase();
     if (auth.user.avatar) {
       btn.innerHTML = `<span class="avatar"><img alt="" referrerpolicy="no-referrer"></span>` + caret;
       const img = btn.querySelector("img");
@@ -8902,7 +8823,7 @@ function renderMenuButton() {
     } else {
       btn.innerHTML = `<span class="avatar initial">${initial}</span>` + caret;
     }
-    btn.setAttribute("aria-label", auth.user.email || t("menu_guest"));
+    btn.setAttribute("aria-label", auth.user.email);
   } else {
     // Twee labels: CSS toont het korte onder 480px (i.p.v. helemaal geen —
     // een naamloos silhouet verstopte de hele login/pool-funnel op mobiel).
@@ -8922,25 +8843,11 @@ function renderMenu() {
   if (rwBtn) rwBtn.hidden = !auth.user;  // 🪎 alleen-ingelogd: alles in de kluis is login-gated (flair/effecten/thema)
   // Verwijder dynamische account-knoppen (action=login|logout) maar laat
   // statische knoppen (stats) staan.
-  items.querySelectorAll('[data-action="login"], [data-action="logout"], [data-action="link"]')
-    .forEach((b) => b.remove());
+  items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
 
   if (auth.user) {
-    // Een gastaccount heeft geen adres om te tonen, en vooral: geen herstelweg.
-    // Daarom hier geen "ingelogd als …" maar de koppel-uitnodiging, met dezelfde
-    // rode stip-logica als elders: het is iets wat nog aandacht verdient.
-    section.innerHTML = auth.user.anon
-      ? `<span class="email">${t("menu_guest")}</span>${t("auth_link_note")}`
-      : `<span class="email">${auth.user.email}</span>${t("menu_loggedin")}`;
+    section.innerHTML = `<span class="email">${auth.user.email}</span>${t("menu_loggedin")}`;
     if (statsBtn) statsBtn.hidden = false;
-    if (auth.user.anon) {
-      const link = document.createElement("button");
-      link.className = "menu-item";
-      link.role = "menuitem";
-      link.dataset.action = "link";
-      link.textContent = t("menu_link");
-      items.insertBefore(link, items.firstChild);
-    }
     const out = document.createElement("button");
     out.className = "menu-item danger";
     out.role = "menuitem";
@@ -9045,11 +8952,6 @@ function openModal(id, opts) {
   if (id === "modal-login") {
     const err = document.getElementById("login-error");
     if (err) err.hidden = true;
-    // Koppelmodus: een gastaccount dat een e-mail of Google toevoegt. Zelfde
-    // formulier, maar de submit houdt het bestaande user-id in leven (updateUser /
-    // linkIdentity) i.p.v. een nieuw account te maken — anders zou de speler zijn
-    // streak, rating en prestaties kwijtraken op het moment dat hij ze veiligstelt.
-    renderLinkMode();
     document.querySelector('#login-form input[name="email"]')?.focus();
     setModalUrl("auth=login");
   }
@@ -9075,29 +8977,6 @@ function closeAllModals() {
   setModalUrl(null);
 }
 
-// Staat het login-scherm in koppelmodus? Afgeleid van de sessie, niet van een
-// losse vlag: dan kan hij nooit uit de pas lopen met wie er ingelogd is.
-function isLinkMode() {
-  return !!(auth.user && auth.user.anon);
-}
-
-// Zet de koptekst en de knoplabels van het login-scherm in de juiste stand.
-function renderLinkMode() {
-  const link = isLinkMode();
-  const title = document.getElementById("modal-login-title");
-  if (title) title.textContent = link ? t("auth_link_title") : t("login_title");
-  const note = document.getElementById("login-link-note");
-  if (note) { note.textContent = t("auth_link_note"); note.hidden = !link; }
-  // "Registreren" wordt "Koppelen"; de submit-knop ("Inloggen") verdwijnt, want
-  // inloggen als iemand anders zou het gastaccount weggooien zonder weg terug.
-  const reg = document.getElementById("login-register");
-  if (reg) reg.textContent = link ? t("auth_link_btn") : t("login_register");
-  const submit = document.querySelector('#login-form button[type="submit"]');
-  if (submit) submit.hidden = link;
-  const forgot = document.getElementById("login-forgot");
-  if (forgot) forgot.hidden = link;
-}
-
 async function doAuth(mode, e) {
   e.preventDefault();
   const form = document.getElementById("login-form");
@@ -9114,15 +8993,6 @@ async function doAuth(mode, e) {
   const submitBtns = form.querySelectorAll("button");
   submitBtns.forEach((b) => (b.disabled = true));
   try {
-    if (isLinkMode()) {
-      // Gast → permanent account. Supabase stuurt een bevestigingsmail naar het
-      // nieuwe adres; tot die geklikt is blijft de sessie gewoon werken.
-      await window.sbAuth.linkEmail(email, pw);
-      form.reset();
-      err.textContent = t("auth_link_sent");
-      err.hidden = false;
-      return;
-    }
     if (mode === "signup") {
       const data = await window.sbAuth.signUp(email, pw);
       // Met "Confirm email" aan retourneert signUp een user zonder session;
@@ -9255,10 +9125,8 @@ async function doGoogleSignIn() {
   btn.disabled = true;
   try {
     // Supabase redirect (geen popup): browser navigeert weg, sessie wordt
-    // bij terugkomst door getSession() in index.html opgepikt. Vanuit een
-    // gastaccount koppelen we in plaats van opnieuw in te loggen, zodat het
-    // user-id — en daarmee de hele historie — hetzelfde blijft.
-    await (isLinkMode() ? window.sbAuth.linkGoogle() : window.sbAuth.signInWithGoogle());
+    // bij terugkomst door getSession() in index.html opgepikt.
+    await window.sbAuth.signInWithGoogle();
   } catch (ex) {
     err.textContent = friendlyAuthError(ex);
     err.hidden = false;
@@ -9758,7 +9626,7 @@ async function init() {
     else if (action === "achievements") openModal("modal-achv");
     else if (action === "rewards") openModal("modal-rewards");
     else if (action === "leaderboard") openModal("modal-leaderboard");
-    else if (action === "login" || action === "link") openModal("modal-login");
+    else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
   });
   document.addEventListener("click", (e) => {
@@ -9819,8 +9687,7 @@ async function init() {
   // Sync auth-state vanuit de Supabase module-bridge.
   window.addEventListener("sb-auth-changed", async (e) => {
     auth.user = e.detail
-      ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null,
-          name: e.detail.name || null, anon: !!e.detail.anon }
+      ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null, name: e.detail.name || null }
       : null;
     auth.resolved = true;  // historie-bron is nu bekend (ook bij anon: detail=null)
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden

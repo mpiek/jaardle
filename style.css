@@ -1889,39 +1889,13 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
   line-height: 1.5;
 }
 .recap-perks li { margin: 0.3rem 0; }
-/* Gast-knop is de primaire actie; "inloggen of account maken" zakt naar een
-   tweede, rustiger knop eronder. Twee gelijkwaardige knoppen naast elkaar zouden
-   de keuze juist zwaarder maken, en het hele punt is dat de snelle weg licht voelt. */
-.recap-cta .secondary {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--border);
-  font-weight: 600;
-}
-
-.recap-quick-note {
-  margin: 0.35rem 0 0;
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-align: center;
-  max-width: 28rem;
-  margin-inline: auto;
-}
-
 .recap-free {
   margin: 0.7rem 0 0;
   text-align: center;
   color: var(--muted);
   font-size: 0.82rem;
 }
-.recap-cta {
-  text-align: center;
-  margin-top: 0.7rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-}
+.recap-cta { text-align: center; margin-top: 0.7rem; }
 .recap-cta button {
   background: var(--accent);
   color: var(--on-accent);
