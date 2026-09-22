@@ -1497,6 +1497,11 @@ const els = {
 
 const MAX_DIGITS = 4;
 
+// Toetsen waarbij ingedrukt houden juist prettig is: wissen en door de carrousel
+// bladeren (cijfers mogen ook herhalen, die gaan via een aparte test). Al het
+// andere achter een toets is een eenmalige actie — zie de keydown-handler.
+const REPEATABLE_KEYS = new Set(["Backspace", "ArrowLeft", "ArrowRight"]);
+
 function getYearString() {
   return els.input.textContent;
 }
@@ -9207,7 +9212,13 @@ function showGuessBubble(text) {
   });
   row.appendChild(b);
   requestAnimationFrame(() => requestAnimationFrame(() => b.classList.add("show")));
-  guessBubbleTimer = setTimeout(clearGuessBubble, 3200);
+  // Blijft staan tot de speler weer een cijfer intikt (zie clearGuessBubble-aanroepen
+  // in appendDigit/backspaceYear/toggleSign/recallLastGuess). Was een vaste 3,2 s,
+  // maar sinds de strenge guard noemt de bubble jaartallen die je moet ONTHOUDEN om
+  // je volgende gok te tikken — dan is hij weg precies wanneer je 'm nodig hebt. De
+  // lange timer is nog maar een vangnet voor wie 'm laat staan: hij dekt een stukje
+  // van het bord af, dus eeuwig mag hij ook niet blijven.
+  guessBubbleTimer = setTimeout(clearGuessBubble, 30000);
 }
 
 function clearGuessBubble() {
@@ -9501,6 +9512,12 @@ async function init() {
     // Niet onderscheppen wanneer iemand in een formulier-veld typt.
     const tag = e.target?.tagName;
     if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
+    // Een ingedrukte toets herhaalt keydown tientallen keren per seconde. Bij typen,
+    // wissen en bladeren is dat precies wat je wilt; bij een ACTIE niet — een
+    // vastgehouden E kocht zo alle vijf de ⏩-clues achter elkaar (−15 punten) en een
+    // vastgehouden Enter hield de weiger-bubble eindeloos in beeld doordat elke
+    // herhaling z'n timer opnieuw zette. Acties dus alleen op de eerste aanslag.
+    if (e.repeat && !REPEATABLE_KEYS.has(e.key) && !/^[0-9]$/.test(e.key)) return;
     // Tab-shortcuts werken altijd, ook nadat de puzzel klaar is.
     if (e.key === "d" || e.key === "D") { switchMode("daily"); e.preventDefault(); return; }
     if (e.key === "n" || e.key === "N") { switchMode("free"); e.preventDefault(); return; }
