@@ -5831,12 +5831,20 @@ async function shareInvite(url, btn) {
   }
 }
 
+// Feit-stats op de daily tellen alleen de daily-potjes van die puzzeldatum (db/73) —
+// spelers lezen "40 gespeeld" als "zoveel mensen speelden de daily". Vrij spel: alle plays.
+function factStatsArgs(hash, extra) {
+  const a = { h: hash, ...extra };
+  if (state?.mode === "daily") a.p_date = state.puzzleDate || todayKey();
+  return a;
+}
+
 // Globale statistieken van het hoofd-feit op het eindscherm.
 async function showFactStats(hash) {
   els.result.querySelectorAll(".fact-stats").forEach((e) => e.remove());
   if (!hash) return;
   let s;
-  try { s = await rpc("get_fact_stats", { h: hash }); } catch (e) { return; }
+  try { s = await rpc("get_fact_stats", factStatsArgs(hash)); } catch (e) { return; }
   if (!s || !s.games) return;
   const el = document.createElement("p");
   el.className = "fact-stats";
@@ -5986,7 +5994,7 @@ async function fetchGlobalScoreDist() {
   const hash = state.hashes?.[0];
   if (!hash) return zeros;
   let a;
-  try { a = await rpc("get_fact_score_distribution", { h: hash }); } catch (e) { return zeros; }
+  try { a = await rpc("get_fact_score_distribution", factStatsArgs(hash)); } catch (e) { return zeros; }
   return Array.isArray(a) && a.length === FINE_BINS + 1 ? a.map((n) => Number(n) || 0) : zeros;
 }
 
@@ -6041,7 +6049,7 @@ function buildHistogram(dist, myScore, won) {
 async function fetchFactStatsSafe() {
   const hash = state.hashes?.[0];
   if (!hash) return null;
-  try { return await rpc("get_fact_stats", { h: hash }); } catch (e) { return null; }
+  try { return await rpc("get_fact_stats", factStatsArgs(hash)); } catch (e) { return null; }
 }
 
 // Score-rang voor "Beter dan X%": {lower, same, total} van alle plays van dit
@@ -6051,7 +6059,7 @@ async function fetchFactStatsSafe() {
 async function fetchScoreRankSafe() {
   const hash = state.hashes?.[0];
   if (!hash || !state.won) return null;
-  try { return await rpc("get_fact_score_rank", { h: hash, s: computeScore() }); } catch (e) { return null; }
+  try { return await rpc("get_fact_score_rank", factStatsArgs(hash, { s: computeScore() })); } catch (e) { return null; }
 }
 
 // "Beter dan X%": percentiel-rang van de speler op SCORE (0–100, mét hint- en
