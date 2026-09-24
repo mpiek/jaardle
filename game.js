@@ -4240,10 +4240,11 @@ function finishGame(won, fresh = false) {
     // Unlock-kaart op het eindscherm (ná record_play, dus de pot telt mee).
     const unlocked = checkAchievements().catch(() => false);
     // Recap (verdeling + teamstand van vandaag) hoort niet bij een inhaalpot —
-    // en niet bovenop een unlock: twee feestjes tegelijk kan niet, de unlock is
-    // de zeldzame en de recap blijft op de 📊-knop staan. Wachten mét vangnet:
-    // duurt de check te lang, dan opent de recap alsnog (het stipje op ⋮ blijft
-    // dan het spoor naar de kaart).
+    // en niet bovenop een schermvullende beloning-/kroning-pop-up: twee modals
+    // tegelijk kan niet, en de recap blijft op de 📊-knop staan. Een gewoon
+    // unlock-kaartje houdt de recap níét tegen (die staat onder de recap op het
+    // eindscherm). Wachten mét vangnet: duurt de check te lang, dan opent de
+    // recap alsnog (de beloning wacht dan op de volgende trigger).
     if (fresh && state.mode === "daily" && !isMakeup(state)) {
       const potKey = `${state.mode}:${statsHash}`;
       const guard = new Promise((r) => setTimeout(() => r(false), 1200));
@@ -6965,6 +6966,7 @@ async function maybeShowCoronation(force) {
   if (!code || !TITLES[code]) return;
   if (document.querySelector(".modal:not([hidden])")) return;      // inmiddels iets open
   showCoronation(code);
+  return true;
 }
 
 // Gouden regen die van de kroon naar beneden valt — eigen palet, zelfde
@@ -7456,10 +7458,15 @@ async function checkAchievements() {
   // Elke pot goedkoop: earnedRewardKeys is pure rekenkunde op de al-opgehaalde
   // achvCache; de gezien-lijst laadt hooguit één keer per sessie. Geen reward vrij →
   // alsnog de kroning als er een titel viel (anders ketent rewardClosed 'm).
-  maybeShowRewards().then((shown) => { if (!shown && coronationHit) maybeShowCoronation(true); });
+  // Het resultaat van checkAchievements = "er kwam een schermvullende pop-up"
+  // (beloning of kroning) — alléén dan slaat de daily-recap over. Een gewoon
+  // unlock-kaartje staat op het eindscherm en verdraagt de recap er prima bij.
+  const bigPopup = maybeShowRewards()
+    .then((shown) => shown || (coronationHit ? maybeShowCoronation(true).then(Boolean) : false))
+    .catch(() => false);
   const seenYears = new Set(Array.isArray(seen.yearsList) ? seen.yearsList : []);
   for (const y of a.years) if (!seenYears.has(y)) { items.push(achvStampItem(a, y)); newIds.push(`y:${y}`); }
-  if (!items.length) { if (newIds.length) achvNewAdd(newIds); return coronationHit; }
+  if (!items.length) { if (newIds.length) achvNewAdd(newIds); return bigPopup; }
   achvNewAdd(newIds);
   items.sort((x, y) => (y.weight - x.weight) || ((y.kind === "stamp") - (x.kind === "stamp")));
   els.resultText.querySelectorAll(".achv-line, .achv-card").forEach((e) => e.remove());
@@ -7471,7 +7478,7 @@ async function checkAchievements() {
   let tail = card;
   for (const it of items.slice(1)) { const line = achvLineEl(it); tail.after(line); tail = line; }
   achvScrollIntoView(card);
-  return true;
+  return bigPopup;
 }
 
 // ── paneel: bord (reeksen + trofeeën) en het album als enige sub-scherm ──────
