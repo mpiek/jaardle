@@ -4112,8 +4112,9 @@ function clinkLayer(delay = 0, prefFrac = 0.24, floorFrac = 0) {
       // monochrome set, dan bepaalt fillStyle de kleur — en die is hier anders zwart
       // (canvas-default), dus onzichtbaar op het donkere thema.
       ctx.fillStyle = c.foam;
-      // Zelf-gehoste emoji-font eerst, net als in de CSS-stack (op Apple valt hij
-      // terug op de systeemset — dat is geen regressie, zie build-emoji-font.py).
+      // Zelf-gehoste emoji-font eerst, net als in de CSS-stack. Op Safari/iOS
+      // bestaat die face niet (gegate op tech(color-COLRv1), zie style.css), dus
+      // valt hij door naar de systeemset.
       ctx.font = `${size}px "JaardleEmoji", -apple-system, system-ui, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";

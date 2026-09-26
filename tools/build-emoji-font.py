@@ -5,8 +5,10 @@ Waarom: het spel is ontworpen op de Noto/Android-emojiset (de bewegende webp's i
 /emoji/ zijn óók Noto). Op Windows/Apple wijkt de systeem-emojiset daarvan af,
 waardoor de statische emoji anders ogen dan het ontwerp en dan de animaties.
 Een gesubsette Noto-COLRv1-webfont vooraan in de font-stack trekt dat recht op
-alle Chromium/Firefox-browsers (heel Windows + Linux). Safari/Apple ondersteunt
-COLRv1 niet en valt terug op de mooie Apple-set — geen regressie.
+alle Chromium/Firefox-browsers (heel Windows + Linux). De basisglyphs zijn leeg,
+dus een browser zonder COLRv1 zou lege plekken tonen; de @font-face in style.css
+laadt het font daarom alleen via tech(color-COLRv1) — de rest (Safari/iOS, alle
+versies) krijgt gewoon de systeem-emoji.
 
 Bron van waarheid voor de tekens is game.js + index.template.html (de taal-mirrors
 worden daaruit gegenereerd, dus die hoeven niet gescand). Zo groeit de subset
