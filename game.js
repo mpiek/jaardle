@@ -4245,7 +4245,7 @@ function finishGame(won, fresh = false) {
     // tegelijk kan niet, en de recap blijft op de 📊-knop staan. Een gewoon
     // unlock-kaartje houdt de recap níét tegen (die staat onder de recap op het
     // eindscherm). Wachten mét vangnet: duurt de check te lang, dan opent de
-    // recap alsnog (de beloning wacht dan op de volgende trigger).
+    // recap alsnog (de beloning komt dan zodra je de recap sluit — retryDeferredPopups).
     if (fresh && state.mode === "daily" && !isMakeup(state)) {
       const potKey = `${state.mode}:${statsHash}`;
       const guard = new Promise((r) => setTimeout(() => r(false), 1200));
@@ -6955,7 +6955,7 @@ function stopCoronationGold() { cancelAnimationFrame(coronationRAF); coronationR
 async function maybeShowCoronation(force) {
   if (!auth.user) return;
   if (document.getElementById("modal-coronation")) return;         // al open
-  if (document.querySelector(".modal:not([hidden])")) return;      // ander scherm open → retry bij volgende trigger
+  if (document.querySelector(".modal:not([hidden])")) { coronationRetry = true; return; }   // ander scherm open → zodra dat dicht is
   if (coronationReq) return;                                       // auth-handler + checkAchievements niet tegelijk
   if (!force && coronationOpenChecked === auth.user.uid) return;
   coronationReq = true;
@@ -6965,7 +6965,7 @@ async function maybeShowCoronation(force) {
   coronationReq = false;
   coronationOpenChecked = auth.user.uid;                           // deze identiteit is nu gecheckt
   if (!code || !TITLES[code]) return;
-  if (document.querySelector(".modal:not([hidden])")) return;      // inmiddels iets open
+  if (document.querySelector(".modal:not([hidden])")) { coronationRetry = true; return; }   // inmiddels iets open
   showCoronation(code);
   return true;
 }
@@ -7137,11 +7137,47 @@ function earnedRewardKeys() {
 }
 
 let rewardQueue = [];
-let rewardReq = false;          // gezien-lijst onderweg? (max één get_rewards_seen per sessie)
+let rewardsSeenLoad = null;     // lopende get_rewards_seen (gedeeld door prefetch + maybeShowRewards)
 let myRewardsSeen;              // undefined = nog niet geladen · null = nooit geseed · array = gezien-lijst
 let rewardTimers = [];
 let rewardJumping = false;      // "Bekijk in kluis" gedrukt → rest van de wachtrij/kroning niet nú tonen
 let rewardScrollSect = null;    // kluis-sectie om naartoe te scrollen na een vault-sprong
+
+// Gezien-lijst hooguit één keer per sessie laden. checkAchievements start 'm al
+// vóór fetchAchievements, zodat de twee parallel lopen i.p.v. na elkaar — anders
+// kwam de beloning-pop-up na een daily vaak ná het 1,2 s-vangnet van de recap.
+// Een antwoord voor een inmiddels uitgelogde/gewisselde identiteit wordt genegeerd.
+function loadRewardsSeen() {
+  if (myRewardsSeen !== undefined || !auth.user) return Promise.resolve();
+  if (!rewardsSeenLoad) {
+    const uid = auth.user.uid;
+    rewardsSeenLoad = rpc("get_rewards_seen", {})
+      .then((r) => { if (auth.user && auth.user.uid === uid) myRewardsSeen = r; })
+      .catch(() => {})                                              // netwerk-hik → volgende keer opnieuw
+      .finally(() => { rewardsSeenLoad = null; });
+  }
+  return rewardsSeenLoad;
+}
+
+// Pop-up die moest wijken voor een ander scherm (vooral de daily-recap, die na
+// 1,2 s alvast opent als de beloning-check nog loopt): niet wachten tot de
+// volgende pot, maar opnieuw proberen zodra dat scherm dicht is. Aangeroepen uit
+// closeModal/closeAllModals; de korte vertraging laat een closeAllModals();
+// openModal(x)-paar eerst uitspelen (dan is er wéér iets open → flag blijft staan).
+let rewardRetry = false;
+let coronationRetry = false;
+function retryDeferredPopups() {
+  if (!rewardRetry && !coronationRetry) return;
+  setTimeout(() => {
+    if (!rewardRetry && !coronationRetry) return;
+    if (document.querySelector(".modal:not([hidden])")) return;
+    const r = rewardRetry, c = coronationRetry;
+    rewardRetry = coronationRetry = false;
+    (r ? maybeShowRewards() : Promise.resolve(false))
+      .then((shown) => shown || (c && maybeShowCoronation(true)))   // beloning getoond → rewardClosed ketent de kroning
+      .catch(() => {});
+  }, 350);
+}
 
 // Aangeroepen na een pot (checkAchievements, achvCache is dan vers). Laadt de
 // gezien-lijst één keer per sessie, baseline't stil bij de allereerste keer
@@ -7151,15 +7187,11 @@ let rewardScrollSect = null;    // kluis-sectie om naartoe te scrollen na een va
 async function maybeShowRewards() {
   if (!auth.user || !achvCache) return false;                       // geen data → niet (voor)baseline'en op leeg
   if (document.getElementById("modal-reward")) return true;         // al eentje open
-  if (document.querySelector(".modal:not([hidden])")) return false; // ander scherm → volgende trigger
+  if (document.querySelector(".modal:not([hidden])")) { rewardRetry = true; return false; }   // ander scherm → zodra dat dicht is
   if (myRewardsSeen === undefined) {
-    if (rewardReq) return false;
-    rewardReq = true;
-    try { myRewardsSeen = await rpc("get_rewards_seen", {}); }
-    catch (e) { rewardReq = false; return false; }                  // netwerk-hik → retry mag
-    rewardReq = false;
-    if (!auth.user) return false;
-    if (document.querySelector(".modal:not([hidden])")) return false;
+    await loadRewardsSeen();
+    if (myRewardsSeen === undefined || !auth.user) return false;    // netwerk-hik → volgende pot
+    if (document.querySelector(".modal:not([hidden])")) { rewardRetry = true; return false; }
   }
   const earned = earnedRewardKeys();
   if (myRewardsSeen === null) {
@@ -7413,6 +7445,7 @@ function achvScrollIntoView(el) {
 // zeldzaamste unlock als kaart op het eindscherm (rest = smalle regels).
 // Retourneert of er iets vrijkwam — de daily-recap wacht daarop.
 async function checkAchievements() {
+  loadRewardsSeen();   // parallel met fetchAchievements (zie loadRewardsSeen)
   const a = await fetchAchievements();
   if (!a || !state || !state.done) return false;
   const key = achvSeenKey();
@@ -8980,6 +9013,7 @@ function closeModal(id) {
   if (id === "modal-reward") rewardClosed();
   if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden)) unlockBodyScroll();
   setModalUrl(null);
+  retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken
 }
 
 function closeAllModals() {
@@ -8991,6 +9025,7 @@ function closeAllModals() {
   coronationClosed();  // kroning dicht = titel-mijlpaal gezien (server-side, db/59)
   rewardClosed();      // beloning-pop-up dicht = gevierd (server-side, db/61) + keten door
   setModalUrl(null);
+  retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken (bv. de recap)
 }
 
 async function doAuth(mode, e) {
