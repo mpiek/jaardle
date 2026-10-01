@@ -9180,6 +9180,14 @@ function rewardsReturn() {
 const HW_ANSWER = 1815;
 let hw = null;   // { lang, cur, run, root, screens, … } — null = (her)bouwen bij openen
 
+// Tellers (GoatCounter-events, cookieloos): hoeveel mensen openen de uitleg, welke
+// kaarten bekijken ze en maken ze de hele tour af? Eén teller per kaart per keer
+// openen (herspelen telt niet dubbel). Basis voor de beslissing of we de uitleg ooit
+// actiever aanbieden. Paden: howto-open · howto-card-1…4 · howto-done (kaart 4 uit).
+function hwCount(path, title) {
+  try { window.goatcounter?.count?.({ path, title, event: true }); } catch (e) {}
+}
+
 function hwText(key, ...a) {
   const v = t("howto_" + key);
   return typeof v === "function" ? v(...a) : v;
@@ -9446,8 +9454,13 @@ function hwStart(i) {
   const scr = hw.screens[i];
   scr.innerHTML = hwScreenHtml(i);
   hwPrep(i, scr);
+  if (!hw.counted.has(i)) { hw.counted.add(i); hwCount("howto-card-" + (i + 1), "How-to: card " + (i + 1)); }
   HW_SEQ[i](run, scr)
-    .then(() => { if (!run.dead) hwq(".hw-replay", hw.root).hidden = false; })
+    .then(() => {
+      if (run.dead) return;
+      hwq(".hw-replay", hw.root).hidden = false;
+      if (i === HW_CARDS - 1 && !hw.counted.has("done")) { hw.counted.add("done"); hwCount("howto-done", "How-to: finished"); }
+    })
     .catch((e) => { if (e !== run) console.error(e); });
 }
 function hwGoTo(i, delay) {
@@ -9475,7 +9488,7 @@ function hwBuild() {
     [1, 2, 3, 4].map(() => `<div class="hw-slide"><div class="hw-screen" aria-hidden="true"></div></div>`).join("") + `</div></div>` +
     `<div class="hw-cap-row"><p class="hw-cap" aria-live="polite"></p><button type="button" class="hw-replay" hidden>${hwText("replay")}</button></div>` +
     `<div class="hw-nav"><button type="button" class="hw-nb hw-prev">${hwText("prev")}</button><button type="button" class="hw-nb hw-next hw-pri">${hwText("next")}</button></div>`;
-  hw = { lang, cur: 0, run: null, root, screens: hwQa(".hw-screen", root) };
+  hw = { lang, cur: 0, run: null, root, screens: hwQa(".hw-screen", root), counted: new Set() };
   hw.screens.forEach((s, i) => { s.innerHTML = hwScreenHtml(i); hwPrep(i, s); });   // rustbeeld: elke kaart staat er in z'n beginstand
 
   const steps = hwQa(".hw-step", root);
@@ -9510,7 +9523,10 @@ function hwBuild() {
 function hwOpen() {
   if (!document.getElementById("howto")) return;
   if (!hw || hw.lang !== lang) hwBuild();
-  if (hw) hwGoTo(0, 450);
+  if (!hw) return;
+  hw.counted = new Set();   // elke keer openen = een nieuwe sessie voor de tellers
+  hwCount("howto-open", "How-to: opened");
+  hwGoTo(0, 450);
 }
 
 function openModal(id, opts) {
