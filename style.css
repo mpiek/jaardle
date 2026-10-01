@@ -1363,6 +1363,166 @@ html[data-theme="parchment"] #result.platina-frame.platina-sheen::after {
   gap: 0.5rem;
 }
 
+/* ── Uitleg-demo in de ❓-modal (#howto, game.js: hw*-functies) ─────────────────
+   Vier zelfspelende kaarten die het echte spel nabouwen. Hergebruikt de échte
+   klassen (.guess-row, .delta-badge, .penalty, .key, .live-score, .hint-chip) en
+   tokens, zodat kleuren/badges/thema's vanzelf meelopen; alleen de kaart, de
+   hint-knoppen, het invoerveld en de legenda zijn eigen (.hw-*), omdat hun
+   spel-tegenhangers aan ids hangen. Maten in em: .hw-screen schaalt als geheel
+   (15px, op telefoon 13,6px ≈ 0,85× het echte scherm). */
+.howto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.howto:empty { display: none; }
+.hw-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.hw-step {
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.3rem 0.2rem; font-size: 0.82rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hw-step:hover { filter: none; background: var(--card-soft); }
+.hw-step[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.hw-step:focus-visible, .hw-nb:focus-visible, .hw-replay:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.hw-vp { overflow: hidden; border-radius: 14px; touch-action: pan-y; }
+.hw-track { display: flex; transition: transform 0.45s cubic-bezier(0.22, 0.9, 0.3, 1); }
+.hw-slide { flex: 0 0 100%; min-width: 0; }
+
+.hw-screen {
+  position: relative; font-size: 15px; height: 38em;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px;
+  display: flex; flex-direction: column; gap: 7px; overflow: hidden;
+  cursor: pointer; user-select: none; -webkit-user-select: none;
+}
+@media (max-width: 440px) { .hw-screen { font-size: 13.6px; height: 41em; } }
+.hw-screen > * { flex: none; pointer-events: none; }
+.hw-dim { opacity: 0.42; }
+.hw-col { display: flex; flex-direction: column; gap: 7px; }
+
+/* kaart + carrousel */
+.hw-ev { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 5px 8px 7px; }
+.hw-ev-vp { overflow: hidden; }
+.hw-ev-track { display: flex; transition: transform 0.38s ease; }
+.hw-fs { --c: var(--h-extra); flex: 0 0 100%; min-width: 0; padding: 3px 4px; min-height: 5.1em; }
+.hw-k-later { --c: var(--h-later); }
+.hw-k-digit { --c: var(--h-digit); }
+.hw-tag {
+  display: flex; align-items: center; gap: 0.4em; margin: 0 0 4px 0.85em;
+  font-size: 0.7em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c);
+}
+.hw-fact { margin: 0; padding-left: 0.85em; border-left: 3px solid var(--c); font-size: 1em; font-weight: 500; line-height: 1.3; }
+.hw-fact.hw-big { font-size: 1.7em; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hw-dots { display: flex; justify-content: center; gap: 4px; margin-top: 5px; font-size: 0.78em; min-height: 1.1em; }
+.hw-dots span { opacity: 0.35; filter: grayscale(1); transition: opacity 0.25s, filter 0.25s; }
+.hw-dots span.hw-on { opacity: 1; filter: none; }
+
+/* hint-knoppen + teller */
+.hw-hrow { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px; }
+.hw-hb { border: 1px solid currentColor; border-radius: 8px; padding: 0.25em 0.55em; font-size: 0.82em; line-height: 1.2; white-space: nowrap; }
+.hw-hb small { opacity: 0.7; font-size: 0.8em; }
+.hw-later { color: var(--h-later); } .hw-dir { color: var(--h-dir); } .hw-century { color: var(--h-century); } .hw-digit { color: var(--h-digit); }
+.hw-cnt { font-size: 0.82em; color: var(--muted); }
+.hw-cnt b { font-weight: 400; }
+.hw-screen .hint-chip { font-size: 0.85em; padding: 0.28em 0.7em; }
+.hw-chip-digit { color: var(--h-digit); }
+
+/* bord: de echte .guess-row/.delta-badge/.penalty, hier compacter */
+.hw-board { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.hw-board.hw-one { grid-template-columns: 1fr; }
+.hw-screen .guess-row { font-size: 0.95em; min-height: 1.95em; padding: 0.18em 0.5em; gap: 0.4em; }
+.hw-screen .guess-row.empty { min-height: 1.95em; }
+.hw-screen .guess-row.empty .slot-num { font-size: 0.85em; }
+.hw-screen .delta-badge { font-size: 0.78em; min-width: 2.7em; padding: 0.1em 0.5em; }
+.hw-screen .penalty { font-size: 0.75em; min-width: 1.9em; }
+.hw-new { animation: hw-rowin 0.35s ease; }
+
+/* score, invoer, toetsen */
+.hw-screen .live-score { position: relative; margin-top: 0; }
+.hw-screen .live-score-val { font-size: 1.15em; }
+.hw-flo { position: absolute; left: calc(50% + 3.2em); top: -2px; font-weight: 800; font-size: 0.95em; color: var(--danger); animation: hw-flo 1s ease-out forwards; pointer-events: none; }
+.hw-inp {
+  min-height: 40px; display: flex; align-items: center; justify-content: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  font-size: 1.5em; font-weight: 700; letter-spacing: 0.06em; font-variant-numeric: tabular-nums;
+}
+.hw-inp:empty::before { content: "—"; color: var(--muted); font-weight: 400; }
+.hw-inp.hw-go { animation: hw-inpgo 0.4s ease; }
+.hw-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.hw-screen .key { height: 2.05em; padding: 0; display: grid; place-items: center; font-size: 1.1em; border-radius: 9px; transition: transform 0.1s, background 0.1s; }
+.hw-screen .key-back { font-size: 1em; }
+.hw-screen .key-wide { height: 2.2em; font-size: 1.05em; }
+.hw-screen .key.hw-press { transform: scale(0.93); background: var(--card-soft); }
+.hw-screen .key-wide.hw-press { background: var(--accent); filter: brightness(1.12); }
+
+/* legenda (kaart 2) */
+.hw-legend { border: 1px solid var(--border); border-radius: 12px; padding: 8px 8px 6px; background: var(--card); }
+.hw-legend-t { margin: 0 0 6px 4px; font-size: 0.7em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.hw-legend-g { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; }
+.hw-lr { display: flex; align-items: center; gap: 0.55em; padding: 0.22em 0.4em; border-radius: 8px; border: 1px solid transparent; transition: background 0.3s, border-color 0.3s; }
+.hw-lr .delta-badge { min-width: 3.6em; }
+.hw-lp { font-size: 0.8em; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hw-lr.hw-on { background: var(--card-soft); border-color: var(--muted); }
+.hw-lr.hw-on .hw-lp { color: var(--fg); }
+
+/* kaart 4: daily, uitslag, delen */
+.hw-tabs { display: flex; gap: 8px; }
+.hw-tab { flex: 1; text-align: center; padding: 0.55em 0.4em; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-weight: 700; font-size: 0.95em; }
+.hw-tab.hw-on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.hw-today { display: flex; flex-direction: column; gap: 2px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 0.55em 0.8em; }
+.hw-today b { font-size: 0.7em; letter-spacing: 0.06em; text-transform: uppercase; color: var(--h-extra); }
+.hw-today span { font-size: 0.95em; font-weight: 500; }
+.hw-recap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 6px; }
+.hw-recap .live-score-val { font-size: 2em; line-height: 1; }
+.hw-share { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 0.55em 0.7em; }
+.hw-share pre { margin: 0; font: 600 0.8em/1.4 inherit; font-family: inherit; white-space: pre-wrap; min-width: 0; }
+.hw-sbtn { flex: none; font-size: 0.85em; font-weight: 700; padding: 0.4em 0.75em; border-radius: 9px; background: var(--accent); color: var(--on-accent); transition: transform 0.1s; }
+.hw-sbtn.hw-press { transform: scale(0.94); }
+.hw-sbtn.hw-ok { background: var(--green); color: var(--on-badge); }
+.hw-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.hw-chips span { padding: 0.35em 0.8em; border-radius: 999px; font-weight: 700; font-size: 0.9em; background: var(--penalty-tint); animation: hw-pop 0.3s ease backwards; }
+.hw-chips span:nth-child(2) { animation-delay: 0.25s; }
+.hw-chips .hw-fl { color: var(--flame); }
+
+/* tik-aanwijzer, bijschrift, navigatie */
+.hw-tapdot {
+  position: absolute; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; z-index: 4;
+  border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 28%, transparent);
+  pointer-events: none; animation: hw-tapd 0.6s ease-out forwards;
+}
+.hw-tapdot.hw-swipe { animation: hw-swp 0.9s ease-out forwards; }
+.hw-pop { animation: hw-pop 0.25s ease; }
+.hw-ring { animation: hw-ring 0.9s ease 2; }
+.hw-cap-row { display: flex; align-items: flex-start; gap: 12px; min-height: 4.6em; }
+.hw-cap { flex: 1; min-width: 0; margin: 0; font-size: 0.95rem; line-height: 1.4; font-weight: 500; text-wrap: pretty; }
+.hw-cap.hw-in { animation: hw-capin 0.35s ease; }
+.hw-replay {
+  flex: none; background: transparent; color: var(--accent); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.3rem 0.7rem; font-size: 0.82rem; font-weight: 700;
+}
+.hw-replay:hover { filter: none; background: var(--card-soft); }
+.hw-nav { display: flex; justify-content: space-between; gap: 8px; }
+.hw-nb { background: transparent; color: var(--fg); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.9rem; font-size: 0.9rem; font-weight: 700; }
+.hw-nb:hover { filter: none; background: var(--card-soft); }
+.hw-nb.hw-pri { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.hw-nb.hw-pri:hover { filter: brightness(1.1); background: var(--accent); }
+
+@keyframes hw-rowin { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+@keyframes hw-pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes hw-flo { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-16px); opacity: 0; } }
+@keyframes hw-inpgo { 0%, 100% { border-color: var(--border); } 50% { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card)); } }
+@keyframes hw-ring { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent); } }
+@keyframes hw-tapd { 0% { transform: scale(0.4); opacity: 0.95; } 70% { opacity: 0.8; } 100% { transform: scale(1.3); opacity: 0; } }
+@keyframes hw-swp { 0% { transform: translateX(40px) scale(0.8); opacity: 0; } 20% { opacity: 0.95; } 100% { transform: translateX(-40px) scale(1); opacity: 0; } }
+@keyframes hw-capin { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .hw-track, .hw-ev-track, .hw-dots span, .hw-lr, .hw-screen .key { transition: none; }
+  .hw-new, .hw-pop, .hw-ring, .hw-cap.hw-in, .hw-inp.hw-go, .hw-flo, .hw-tapdot, .hw-chips span { animation: none; }
+}
+
 /* Colofon onder de spelregels: bewust klein en grijs — het is een verplichting
    (CC BY 4.0 voor de Noto-animaties, CC BY-SA voor Wikipedia), geen inhoud. */
 #help-credits-title {

@@ -95,7 +95,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=160">
+<link rel="stylesheet" href="/style.css?v=161">
 </head>
 <body>
   <main>
@@ -209,6 +209,8 @@
         <button class="modal-close" data-close aria-label="{{i18n:aria_close}}" data-i18n-aria="aria_close">✕</button>
       </header>
       <div class="modal-body">
+        <!-- Uitleg-demo: vier zelfspelende kaarten (game.js hw*-functies); JS vult en toont. -->
+        <div id="howto" class="howto"></div>
         <ul id="help-list">{{i18nhtml:help_list}}</ul>
         <!-- Colofon: bronvermelding voor Wikipedia (CC BY-SA) en de Noto-emoji
              (animaties CC BY 4.0, webfont OFL 1.1). CC BY *eist* die credit op
@@ -399,7 +401,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=274"></script>
+  <script src="/game.js?v=275"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

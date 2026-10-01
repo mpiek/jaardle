@@ -100,7 +100,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=160">
+<link rel="stylesheet" href="/style.css?v=161">
 </head>
 <body>
   <main>
@@ -214,6 +214,8 @@
         <button class="modal-close" data-close aria-label="Sluiten" data-i18n-aria="aria_close">✕</button>
       </header>
       <div class="modal-body">
+        <!-- Uitleg-demo: vier zelfspelende kaarten (game.js hw*-functies); JS vult en toont. -->
+        <div id="howto" class="howto"></div>
         <ul id="help-list">
   <li>Je krijgt een gebeurtenis uit een jaar en <span data-help="max-guesses"></span> pogingen om dat jaar te raden.</li>
   <li>De kaart is een carrousel: naast het hoofdfeit staan vanaf de start <strong>gratis</strong> twee extra feiten uit hetzelfde jaar (💡 geel) — swipe of gebruik de pijltjes.</li>
@@ -421,7 +423,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=274"></script>
+  <script src="/game.js?v=275"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

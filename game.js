@@ -393,6 +393,44 @@ const I18N = {
     intro_h1: "Jaardle — het dagelijkse jaartal-raadspel",
     intro_html: `Jaardle is een gratis puzzelspel in Wordle-stijl: je krijgt een historische gebeurtenis en raadt in een paar pogingen in welk jaar die plaatsvond. Speel elke dag dezelfde <strong>dagelijkse puzzel</strong> als iedereen, of oneindig <strong>vrij spel</strong>, vergelijk je score met vrienden en bouw je streak op.`,
     help_list: HELP_NL,
+    // Uitleg-demo in de ❓-modal (howto*-functies): bijschriften, voorbeeldfeiten en labels.
+    howto_aria: "Uitleg-kaarten",
+    howto_s1: "Gokken",
+    howto_s2: "Kleuren",
+    howto_s3: "Hints",
+    howto_s4: "Score",
+    howto_prev: "‹ Vorige",
+    howto_next: "Volgende ›",
+    howto_restart: "Terug naar begin",
+    howto_replay: "↻ Opnieuw",
+    howto_tip: "Tik om opnieuw af te spelen, veeg voor de volgende kaart",
+    howto_f_main: "Napoleon wordt definitief verslagen bij Waterloo.",
+    howto_f_x1: "De vulkaan Tambora barst uit, de zwaarste uitbarsting ooit.",
+    howto_f_x2: "Het Congres van Wenen tekent de kaart van Europa opnieuw.",
+    howto_f_later: "Een Duitse onderzeeër torpedeert de Lusitania.",
+    howto_legend: "Jaren ernaast · punten eraf",
+    howto_today_t: "Vandaag",
+    howto_today: "Eén puzzel per dag, voor iedereen dezelfde.",
+    howto_copied: "✓ Gekopieerd",
+    howto_streak: "🔥 streak",
+    howto_rating: "⚡ rating",
+    howto_c1a: "Wanneer gebeurde dit? Typ je gok met de toetsen.",
+    howto_c1b: (g, n) => `Tik op ${g}. Je hebt ${n} pogingen.`,
+    howto_c1c: "Je gok staat op het bord, met een kleur. Op de volgende kaart lees je wat die kleur betekent.",
+    howto_c2a: "Je typt een jaar en het spel antwoordt met een kleur.",
+    howto_c2b: (e, r) => `${e} Je zit ${r} jaar ernaast. Of je te hoog of te laag zit, zie je niet.`,
+    howto_c2c: (e, r) => `${e} is dichterbij: ${r} jaar. Elke kleur kost een eigen aantal punten.`,
+    howto_c2d: (e, r) => `${e} Nog maar ${r} jaar te gaan. Zo zoom je in op het jaar.`,
+    howto_c2e: (e, n) => `${e} Raak! Je houdt ${n} punten over.`,
+    howto_c3a: (n) => `Zit je vast? Naast het hoofdfeit staan ${n} gratis feiten uit hetzelfde jaar. Swipe erdoorheen.`,
+    howto_c3b: (y, p) => `⏩ geeft een feit van rond ${y} jaar later. Dat kost ${p} punten.`,
+    howto_c3c: (p) => `🔢 verklapt het laatste cijfer van het jaar. Dat kost ${p} punten.`,
+    howto_c3d: (p) => `🧭 wijst bij je laatste gok naar eerder of later. Dat kost ${p} punten.`,
+    howto_c3e: (p) => `🏛️ Eeuw noemt de hele eeuw, maar is met ${p} punten de duurste hint.`,
+    howto_c4a: (d, f) => `${d}: elke dag één puzzel, voor iedereen dezelfde. Met ${f} oefen je zo lang als je wilt.`,
+    howto_c4b: (n) => `Je begint op ${n} punten. Elke misgok en elke hint kost punten.`,
+    howto_c4c: "Deel je uitslag met alleen kleuren, dus zonder te spoilen.",
+    howto_c4d: "Wie elke dag speelt, bouwt een streak 🔥 en een rating ⚡ op.",
   },
   en: {
     tab_daily: "Daily", tab_free: "New game",
@@ -639,6 +677,44 @@ const I18N = {
     intro_h1: "Jaardle — the daily year-guessing game",
     intro_html: `Jaardle is a free Wordle-style puzzle game: you get a historic event and guess the year it happened in a few tries. Play the same <strong>daily puzzle</strong> as everyone else, or endless <strong>free play</strong>, compare your score with friends and build your streak.`,
     help_list: HELP_EN,
+    // Uitleg-demo in de ❓-modal (howto*-functies): bijschriften, voorbeeldfeiten en labels.
+    howto_aria: "How-to cards",
+    howto_s1: "Guess",
+    howto_s2: "Colours",
+    howto_s3: "Hints",
+    howto_s4: "Score",
+    howto_prev: "‹ Back",
+    howto_next: "Next ›",
+    howto_restart: "Back to start",
+    howto_replay: "↻ Replay",
+    howto_tip: "Tap to replay, swipe for the next card",
+    howto_f_main: "Napoleon is finally defeated at Waterloo.",
+    howto_f_x1: "The volcano Tambora erupts, the most powerful eruption on record.",
+    howto_f_x2: "The Congress of Vienna redraws the map of Europe.",
+    howto_f_later: "A German submarine torpedoes the Lusitania.",
+    howto_legend: "Years off · points lost",
+    howto_today_t: "Today",
+    howto_today: "One puzzle a day, the same for everyone.",
+    howto_copied: "✓ Copied",
+    howto_streak: "🔥 streak",
+    howto_rating: "⚡ rating",
+    howto_c1a: "When did this happen? Type your guess with the keys.",
+    howto_c1b: (g, n) => `Tap “${g}”. You get ${n} guesses.`,
+    howto_c1c: "Your guess lands on the board, with a colour. The next card explains what the colour means.",
+    howto_c2a: "You type a year and the game answers with a colour.",
+    howto_c2b: (e, r) => `${e} You are ${r} years off. Whether you are too high or too low stays hidden.`,
+    howto_c2c: (e, r) => `${e} is closer: ${r} years. Every colour costs its own number of points.`,
+    howto_c2d: (e, r) => `${e} Only ${r} years to go. This is how you zoom in on the year.`,
+    howto_c2e: (e, n) => `${e} Spot on! You keep ${n} points.`,
+    howto_c3a: (n) => `Stuck? Besides the main fact there are ${n} free facts from the same year. Swipe through them.`,
+    howto_c3b: (y, p) => `⏩ gives an event from about ${y} years later. It costs ${p} points.`,
+    howto_c3c: (p) => `🔢 reveals the last digit of the year. It costs ${p} points.`,
+    howto_c3d: (p) => `🧭 points to earlier or later for your latest guess. It costs ${p} points.`,
+    howto_c3e: (p) => `🏛️ Century names the whole century, but at ${p} points it is the priciest hint.`,
+    howto_c4a: (d, f) => `${d}: one puzzle a day, the same for everyone. With ${f} you can practise as long as you like.`,
+    howto_c4b: (n) => `You start on ${n} points. Every wrong guess and every hint costs points.`,
+    howto_c4c: "Share your result with colours only, so no spoilers.",
+    howto_c4d: "Play every day to build a streak 🔥 and a rating ⚡.",
   },
   de: {
     tab_daily: "Täglich", tab_free: "Neues Spiel",
@@ -879,6 +955,44 @@ const I18N = {
     intro_h1: "Jaardle — das tägliche Jahreszahlen-Ratespiel",
     intro_html: `Jaardle ist ein kostenloses Rätselspiel im Wordle-Stil: Du bekommst ein historisches Ereignis und errätst in wenigen Versuchen, in welchem Jahr es stattfand. Spiele jeden Tag dasselbe <strong>tägliche Rätsel</strong> wie alle anderen oder endloses <strong>freies Spiel</strong>, vergleiche deinen Punktestand mit Freunden und baue deine Serie auf.`,
     help_list: HELP_DE,
+    // Uitleg-demo in de ❓-modal (howto*-functies): bijschriften, voorbeeldfeiten en labels.
+    howto_aria: "Anleitungskarten",
+    howto_s1: "Raten",
+    howto_s2: "Farben",
+    howto_s3: "Hinweise",
+    howto_s4: "Punkte",
+    howto_prev: "‹ Zurück",
+    howto_next: "Weiter ›",
+    howto_restart: "Zurück zum Anfang",
+    howto_replay: "↻ Nochmal",
+    howto_tip: "Tippen zum Wiederholen, wischen für die nächste Karte",
+    howto_f_main: "Napoleon wird bei Waterloo endgültig geschlagen.",
+    howto_f_x1: "Der Vulkan Tambora bricht aus, der stärkste Ausbruch der Geschichte.",
+    howto_f_x2: "Der Wiener Kongress zeichnet die Landkarte Europas neu.",
+    howto_f_later: "Ein deutsches U-Boot torpediert die Lusitania.",
+    howto_legend: "Jahre daneben · Punktabzug",
+    howto_today_t: "Heute",
+    howto_today: "Ein Rätsel pro Tag, für alle gleich.",
+    howto_copied: "✓ Kopiert",
+    howto_streak: "🔥 Serie",
+    howto_rating: "⚡ Rating",
+    howto_c1a: "Wann geschah das? Tippe deinen Versuch mit den Tasten ein.",
+    howto_c1b: (g, n) => `Tippe auf „${g}“. Du hast ${n} Versuche.`,
+    howto_c1c: "Dein Versuch steht auf dem Brett, mit einer Farbe. Was die Farbe bedeutet, siehst du auf der nächsten Karte.",
+    howto_c2a: "Du tippst ein Jahr und das Spiel antwortet mit einer Farbe.",
+    howto_c2b: (e, r) => `${e} Du liegst ${r} Jahre daneben. Ob zu hoch oder zu niedrig, siehst du nicht.`,
+    howto_c2c: (e, r) => `${e} ist näher dran: ${r} Jahre. Jede Farbe kostet eine eigene Anzahl Punkte.`,
+    howto_c2d: (e, r) => `${e} Nur noch ${r} Jahre. So grenzt du das Jahr ein.`,
+    howto_c2e: (e, n) => `${e} Treffer! Du behältst ${n} Punkte.`,
+    howto_c3a: (n) => `Steckst du fest? Neben dem Hauptfakt gibt es ${n} kostenlose Fakten aus demselben Jahr. Wische hindurch.`,
+    howto_c3b: (y, p) => `⏩ liefert ein Ereignis von etwa ${y} Jahre später. Das kostet ${p} Punkte.`,
+    howto_c3c: (p) => `🔢 verrät die letzte Ziffer des Jahres. Das kostet ${p} Punkte.`,
+    howto_c3d: (p) => `🧭 zeigt bei deinem letzten Versuch, ob das Jahr früher oder später liegt. Das kostet ${p} Punkte.`,
+    howto_c3e: (p) => `🏛️ Jahrhundert nennt das ganze Jahrhundert, ist mit ${p} Punkten aber der teuerste Hinweis.`,
+    howto_c4a: (d, f) => `${d}: ein Rätsel pro Tag, für alle gleich. Mit „${f}“ übst du, so lange du willst.`,
+    howto_c4b: (n) => `Du startest bei ${n} Punkten. Jeder Fehlversuch und jeder Hinweis kostet Punkte.`,
+    howto_c4c: "Teile dein Ergebnis nur mit Farben, also ohne Spoiler.",
+    howto_c4d: "Wer jeden Tag spielt, baut eine Serie 🔥 und ein Rating ⚡ auf.",
   },
   es: {
     tab_daily: "Diario", tab_free: "Partida nueva",
@@ -1124,6 +1238,44 @@ const I18N = {
     intro_h1: "Jaardle — el juego diario de adivinar años",
     intro_html: `Jaardle es un juego de puzles gratuito al estilo Wordle: recibes un acontecimiento histórico y adivinas en pocos intentos en qué año ocurrió. Juega cada día el mismo <strong>puzle diario</strong> que todos los demás o disfruta de la <strong>partida libre</strong> infinita, compara tu puntuación con tus amigos y construye tu racha.`,
     help_list: HELP_ES,
+    // Uitleg-demo in de ❓-modal (howto*-functies): bijschriften, voorbeeldfeiten en labels.
+    howto_aria: "Tarjetas de ayuda",
+    howto_s1: "Adivinar",
+    howto_s2: "Colores",
+    howto_s3: "Pistas",
+    howto_s4: "Puntos",
+    howto_prev: "‹ Anterior",
+    howto_next: "Siguiente ›",
+    howto_restart: "Volver al inicio",
+    howto_replay: "↻ Repetir",
+    howto_tip: "Toca para repetir, desliza para la siguiente tarjeta",
+    howto_f_main: "Napoleón es derrotado definitivamente en Waterloo.",
+    howto_f_x1: "El volcán Tambora entra en erupción, la más potente de la historia.",
+    howto_f_x2: "El Congreso de Viena redibuja el mapa de Europa.",
+    howto_f_later: "Un submarino alemán torpedea el Lusitania.",
+    howto_legend: "Años de diferencia · puntos menos",
+    howto_today_t: "Hoy",
+    howto_today: "Un puzle al día, el mismo para todos.",
+    howto_copied: "✓ Copiado",
+    howto_streak: "🔥 racha",
+    howto_rating: "⚡ rating",
+    howto_c1a: "¿Cuándo ocurrió esto? Escribe tu intento con las teclas.",
+    howto_c1b: (g, n) => `Toca «${g}». Tienes ${n} intentos.`,
+    howto_c1c: "Tu intento aparece en el tablero, con un color. En la siguiente tarjeta verás qué significa.",
+    howto_c2a: "Escribes un año y el juego responde con un color.",
+    howto_c2b: (e, r) => `${e} Te quedas a ${r} años. Si te pasas o te quedas corto, no se ve.`,
+    howto_c2c: (e, r) => `${e} está más cerca: ${r} años. Cada color cuesta su propio número de puntos.`,
+    howto_c2d: (e, r) => `${e} Solo quedan ${r} años. Así vas acotando el año.`,
+    howto_c2e: (e, n) => `${e} ¡Acierto! Te quedan ${n} puntos.`,
+    howto_c3a: (n) => `¿Atascado? Junto al dato principal hay ${n} datos gratis del mismo año. Desliza para verlos.`,
+    howto_c3b: (y, p) => `⏩ da un suceso de unos ${y} años después. Cuesta ${p} puntos.`,
+    howto_c3c: (p) => `🔢 revela la última cifra del año. Cuesta ${p} puntos.`,
+    howto_c3d: (p) => `🧭 indica en tu último intento si el año es anterior o posterior. Cuesta ${p} puntos.`,
+    howto_c3e: (p) => `🏛️ Siglo da el siglo completo, pero con ${p} puntos es la pista más cara.`,
+    howto_c4a: (d, f) => `${d}: un puzle al día, el mismo para todos. Con «${f}» practicas todo lo que quieras.`,
+    howto_c4b: (n) => `Empiezas con ${n} puntos. Cada fallo y cada pista cuestan puntos.`,
+    howto_c4c: "Comparte tu resultado solo con colores, sin spoilers.",
+    howto_c4d: "Quien juega cada día va sumando una racha 🔥 y un rating ⚡.",
   },
   pt: {
     tab_daily: "Diário", tab_free: "Jogo novo",
@@ -1369,6 +1521,44 @@ const I18N = {
     intro_h1: "Jaardle — o jogo diário de adivinhar anos",
     intro_html: `Jaardle é um jogo de quebra-cabeças gratuito no estilo Wordle: você recebe um acontecimento histórico e adivinha em poucas tentativas em que ano ele aconteceu. Jogue todo dia o mesmo <strong>quebra-cabeça diário</strong> que todo mundo ou aproveite o <strong>jogo livre</strong> infinito, compare sua pontuação com seus amigos e construa sua sequência.`,
     help_list: HELP_PT,
+    // Uitleg-demo in de ❓-modal (howto*-functies): bijschriften, voorbeeldfeiten en labels.
+    howto_aria: "Cartões de ajuda",
+    howto_s1: "Palpites",
+    howto_s2: "Cores",
+    howto_s3: "Dicas",
+    howto_s4: "Pontos",
+    howto_prev: "‹ Anterior",
+    howto_next: "Próximo ›",
+    howto_restart: "Voltar ao início",
+    howto_replay: "↻ Repetir",
+    howto_tip: "Toque para repetir, deslize para o próximo cartão",
+    howto_f_main: "Napoleão é derrotado de vez em Waterloo.",
+    howto_f_x1: "O vulcão Tambora entra em erupção, a mais potente da história.",
+    howto_f_x2: "O Congresso de Viena redesenha o mapa da Europa.",
+    howto_f_later: "Um submarino alemão torpedeia o Lusitania.",
+    howto_legend: "Anos de diferença · pontos a menos",
+    howto_today_t: "Hoje",
+    howto_today: "Um quebra-cabeça por dia, o mesmo para todos.",
+    howto_copied: "✓ Copiado",
+    howto_streak: "🔥 sequência",
+    howto_rating: "⚡ rating",
+    howto_c1a: "Quando isso aconteceu? Digite seu palpite com as teclas.",
+    howto_c1b: (g, n) => `Toque em “${g}”. Você tem ${n} tentativas.`,
+    howto_c1c: "Seu palpite vai para o quadro, com uma cor. No próximo cartão você vê o que a cor significa.",
+    howto_c2a: "Você digita um ano e o jogo responde com uma cor.",
+    howto_c2b: (e, r) => `${e} Você errou por ${r} anos. Se foi alto ou baixo demais, você não vê.`,
+    howto_c2c: (e, r) => `${e} está mais perto: ${r} anos. Cada cor custa um número próprio de pontos.`,
+    howto_c2d: (e, r) => `${e} Faltam só ${r} anos. É assim que você fecha o cerco ao ano.`,
+    howto_c2e: (e, n) => `${e} Acertou! Você fica com ${n} pontos.`,
+    howto_c3a: (n) => `Travou? Além do fato principal, há ${n} fatos grátis do mesmo ano. Deslize para vê-los.`,
+    howto_c3b: (y, p) => `⏩ mostra um acontecimento de cerca de ${y} anos depois. Custa ${p} pontos.`,
+    howto_c3c: (p) => `🔢 revela o último algarismo do ano. Custa ${p} pontos.`,
+    howto_c3d: (p) => `🧭 mostra, no seu último palpite, se o ano é anterior ou posterior. Custa ${p} pontos.`,
+    howto_c3e: (p) => `🏛️ Século revela o século inteiro, mas com ${p} pontos é a dica mais cara.`,
+    howto_c4a: (d, f) => `${d}: um quebra-cabeça por dia, o mesmo para todos. Com “${f}” você pratica quanto quiser.`,
+    howto_c4b: (n) => `Você começa com ${n} pontos. Cada erro e cada dica custam pontos.`,
+    howto_c4c: "Compartilhe seu resultado só com cores, sem spoilers.",
+    howto_c4d: "Quem joga todo dia constrói uma sequência 🔥 e um rating ⚡.",
   },
 };
 
@@ -1397,6 +1587,7 @@ function applyLang() {
   });
   const help = document.getElementById("help-list");
   if (help) help.innerHTML = t("help_list");
+  hwReset();   // uitleg-demo: andere taal = bij het volgende openen opnieuw opbouwen
   renderHelpConstants();
   renderLangMenu();
   updateDayLabel();
@@ -8976,6 +9167,352 @@ function rewardsReturn() {
   openModal(target);
 }
 
+// --- Uitleg-demo in de ❓-modal ---------------------------------------------
+// Vier korte, zelfspelende kaarten (Gokken · Kleuren · Hints · Score) boven de
+// tekstlijst van #modal-help. Geen video of GIF: het speelt het spel na met de
+// échte componenten en constanten (classify, renderDeltaBadge, GUESS_PENALTIES,
+// de hint-kosten, emojiFor, scoreTier), dus het veroudert niet mee met het spel,
+// volgt licht/donker/thema's en zit via I18N (howto_*) in alle talen. Elke kaart
+// speelt één keer af zodra je 'm opent; tik op de kaart = opnieuw. Het opent nooit
+// uit zichzelf (alleen via ❓): geen frictie voor wie het spel al kent. De scènes
+// raken geen spelstatus (puur DOM binnen #howto) en gebruiken een vast voorbeeld
+// (Waterloo, 1815) — nooit de echte daily.
+const HW_ANSWER = 1815;
+let hw = null;   // { lang, cur, run, root, screens, … } — null = (her)bouwen bij openen
+
+function hwText(key, ...a) {
+  const v = t("howto_" + key);
+  return typeof v === "function" ? v(...a) : v;
+}
+const hwq = (sel, root) => (root || document).querySelector(sel);
+const hwQa = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+const hwReduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hwCls = (year) => classify(HW_ANSWER - year);
+const hwPen = (year) => GUESS_PENALTIES[hwCls(year)] || 0;
+
+// ── bouwstenen (HTML-strings; alle tekst komt uit I18N) ──
+function hwSlideHtml(s) {
+  const body = s.big ? `<p class="hw-fact hw-big">${s.big}</p>` : `<p class="hw-fact">${s.text}</p>`;
+  return `<div class="hw-fs hw-k-${s.k}"><div class="hw-tag"><span>${s.e}</span><span>${s.tag}</span></div>${body}</div>`;
+}
+function hwEvHtml() {
+  const slides = [
+    { k: "main", e: "💡", tag: t("main_label"), text: hwText("f_main") },
+    { k: "extra", e: "💡", tag: t("extra_label"), text: hwText("f_x1") },
+    { k: "extra", e: "💡", tag: t("extra_label"), text: hwText("f_x2") },
+  ];
+  return `<div class="hw-ev"><div class="hw-ev-vp"><div class="hw-ev-track">${slides.map(hwSlideHtml).join("")}</div></div>` +
+    `<div class="hw-dots">${slides.map((s, i) => `<span class="${i ? "" : "hw-on"}">${s.e}</span>`).join("")}</div></div>`;
+}
+function hwHintRowHtml(o = {}) {
+  return `<div class="hw-hrow${o.dim ? " hw-dim" : ""}">` +
+    `<span class="hw-hb hw-later">${t("hint_later")} <small>(−${LATER_CLUE_PENALTY})</small></span>` +
+    `<span class="hw-hb hw-dir"${o.dir ? "" : " hidden"}>${t("hint_dir")} <small>(−${DIRECTION_HINT_PENALTY})</small></span>` +
+    `<span class="hw-hb hw-century">${t("hint_century")} <small>(−${CENTURY_HINT_PENALTY})</small></span>` +
+    `<span class="hw-hb hw-digit">${t("hint_digit")} <small>(−${LAST_DIGIT_PENALTY})</small></span>` +
+    `<span class="hw-cnt">⏩ <b data-n="later">0</b>/${LATER_CLUE_SLOTS} · 🧭 <b data-n="dir">0</b>/${MAX_DIRECTION_HINTS} ${t("dir_word")}</span></div>`;
+}
+function hwBoardHtml(one) {
+  let h = `<div class="hw-board${one ? " hw-one" : ""}">`;
+  if (!one) for (let i = 1; i <= MAX_GUESSES; i++) h += `<div class="guess-row empty"><span class="slot-num">${i}</span></div>`;
+  return h + "</div>";
+}
+const hwScoreHtml = (n) =>
+  `<div class="live-score hw-score"><span class="live-score-val">${n}</span><span class="live-score-lab">${t("score_label")}</span></div>`;
+const hwInpHtml = () => `<div class="hw-inp"></div>`;
+function hwPadHtml() {
+  let k = "";
+  for (let d = 1; d <= 9; d++) k += `<div class="key" data-d="${d}">${d}</div>`;
+  return `<div class="hw-pad">${k}<div class="key key-sign">−</div><div class="key" data-d="0">0</div><div class="key key-back">⌫</div><div class="key key-wide">${t("guess")}</div></div>`;
+}
+function hwLegendHtml() {
+  let h = `<div class="hw-legend"><p class="hw-legend-t">${hwText("legend")}</p><div class="hw-legend-g">`;
+  ["correct", "cool", "veryclose", "far", "close", "distant", "warm", "farthest"].forEach((c) => {
+    h += `<div class="hw-lr" data-c="${c}"><span class="delta-badge ${c}">${c === "correct" ? "✓" : RANGE_LABELS[c]}</span>` +
+      `<span class="hw-lp">${GUESS_PENALTIES[c] ? "−" + GUESS_PENALTIES[c] : "0"}</span></div>`;
+  });
+  return h + "</div></div>";
+}
+
+// Eén gokrij, exact zoals renderGuesses 'm maakt (zelfde klassen, badge en straf).
+function hwRowEl(year, showDir, quiet) {
+  const diff = HW_ANSWER - year, cls = classify(diff);
+  const row = document.createElement("div");
+  row.className = `guess-row ${cls}${quiet ? "" : " hw-new"}`;
+  const yr = document.createElement("span"); yr.className = "year"; yr.textContent = year;
+  const badge = document.createElement("span"); badge.className = `delta-badge ${cls}`;
+  renderDeltaBadge(badge, diff, cls, !!showDir);
+  row.append(yr, badge);
+  const p = GUESS_PENALTIES[cls] || 0;
+  if (p) {
+    const pen = document.createElement("span");
+    pen.className = "penalty" + (quiet ? "" : " just-added");
+    pen.textContent = `−${p}`;
+    row.appendChild(pen);
+  }
+  return row;
+}
+function hwPlace(board, i, year, quiet) {
+  const row = hwRowEl(year, false, quiet);
+  if (board.children[i]) board.children[i].replaceWith(row); else board.appendChild(row);
+}
+
+// Beginstand per kaart.
+function hwScreenHtml(i) {
+  const missScore = 100 - hwPen(1900) - hwPen(1850);
+  if (i === 0) return hwEvHtml() + hwHintRowHtml({ dim: true }) + hwBoardHtml() + hwScoreHtml(100) + hwInpHtml() + hwPadHtml();
+  if (i === 1) return hwEvHtml() + hwHintRowHtml({ dim: true, dir: true }) + hwBoardHtml() + hwScoreHtml(100) + hwInpHtml() + hwLegendHtml();
+  if (i === 2) return hwEvHtml() + hwHintRowHtml({ dir: true }) + hwBoardHtml() + hwScoreHtml(missScore) + `<div class="hw-dim hw-col">${hwInpHtml()}${hwPadHtml()}</div>`;
+  const tier = scoreTier(100 - [1900, 1850, 1820, 1815].reduce((a, y) => a + hwPen(y), 0), true);
+  return `<div class="hw-tabs"><span class="hw-tab hw-on">📅 ${t("tab_daily")}</span><span class="hw-tab">${t("tab_free")}</span></div>` +
+    `<div class="hw-today"><b>${hwText("today_t")}</b><span>${hwText("today")}</span></div>` +
+    `<div class="hw-recap" hidden>${hwScoreHtml(100)}${hwBoardHtml(true)}</div>` +
+    `<div class="hw-share" hidden><pre>Jaardle #${daysSince(EPOCH) + 1}: ${tier.emoji} ${tierLabel(tier)} (${100 - [1900, 1850, 1820, 1815].reduce((a, y) => a + hwPen(y), 0)}/100)\n🎯 4/${MAX_GUESSES} | 📊 ${[1900, 1850, 1820, 1815].map((y) => emojiFor(hwCls(y))).join("")}</pre><span class="hw-sbtn">${t("share")}</span></div>` +
+    `<div class="hw-chips" hidden><span class="hw-fl">${hwText("streak")}</span><span>${hwText("rating")}</span></div>`;
+}
+function hwPrep(i, scr) {
+  if (i === 2) { const b = hwq(".hw-board", scr); hwPlace(b, 0, 1900, true); hwPlace(b, 1, 1850, true); }
+}
+
+// ── animatiehulpjes ──
+function hwWait(run, ms) {
+  return new Promise((res, rej) => setTimeout(() => (run.dead ? rej(run) : res()), hwReduced() ? 0 : ms));
+}
+function hwCap(text) {
+  const el = hwq(".hw-cap", hw.root);
+  el.textContent = text;
+  el.classList.remove("hw-in"); void el.offsetWidth; el.classList.add("hw-in");
+}
+function hwTap(scr, el, swipe) {
+  const s = scr.getBoundingClientRect(), e = el.getBoundingClientRect();
+  const d = document.createElement("i");
+  d.className = "hw-tapdot" + (swipe ? " hw-swipe" : "");
+  d.style.left = (e.left - s.left + e.width / 2) + "px";
+  d.style.top = (e.top - s.top + e.height / 2) + "px";
+  scr.appendChild(d);
+  setTimeout(() => d.remove(), 950);
+  if (!swipe) { el.classList.add("hw-press"); setTimeout(() => el.classList.remove("hw-press"), 150); }
+}
+function hwTween(valEl, to, ms, flo) {
+  const box = valEl.parentNode, from = +valEl.textContent, t0 = performance.now();
+  const id = (valEl._tw = (valEl._tw || 0) + 1);
+  if (flo) {
+    const f = document.createElement("span"); f.className = "hw-flo"; f.textContent = flo;
+    box.appendChild(f); setTimeout(() => f.remove(), 1100);
+  }
+  box.classList.remove("ticking"); void box.offsetWidth; box.classList.add("ticking");
+  if (hwReduced()) { valEl.textContent = to; return; }
+  (function step(now) {
+    if (valEl._tw !== id) return;
+    const p = Math.min(1, (now - t0) / ms);
+    valEl.textContent = Math.round(from + (to - from) * p);
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+function hwEvGo(scr, i) {
+  hwq(".hw-ev-track", scr).style.transform = `translateX(-${i * 100}%)`;
+  hwQa(".hw-dots span", scr).forEach((d, j) => d.classList.toggle("hw-on", j === i));
+}
+function hwAddSlide(scr, s) {
+  hwq(".hw-ev-track", scr).insertAdjacentHTML("beforeend", hwSlideHtml(s));
+  hwq(".hw-dots", scr).insertAdjacentHTML("beforeend", `<span class="hw-pop">${s.e}</span>`);
+  return hwQa(".hw-fs", scr).length - 1;
+}
+function hwSetN(scr, key, v) { const n = hwq(`[data-n="${key}"]`, scr); if (n) n.textContent = v; }
+function hwLegendOn(scr, c) { hwQa(".hw-lr", scr).forEach((l) => l.classList.toggle("hw-on", l.dataset.c === c)); }
+
+// ── de vier scènes ──
+const HW_SEQ = [
+  // 1 · Gokken
+  async (r, scr) => {
+    const inp = hwq(".hw-inp", scr), board = hwq(".hw-board", scr), sc = hwq(".live-score-val", scr);
+    hwCap(hwText("c1a"));
+    await hwWait(r, 1200);
+    for (const d of "1850") { hwTap(scr, hwq(`.key[data-d="${d}"]`, scr)); inp.textContent += d; await hwWait(r, 420); }
+    await hwWait(r, 500);
+    hwCap(hwText("c1b", t("guess"), MAX_GUESSES));
+    await hwWait(r, 1100);
+    hwTap(scr, hwq(".key-wide", scr)); inp.classList.add("hw-go");
+    await hwWait(r, 250);
+    inp.textContent = ""; hwPlace(board, 0, 1850); hwTween(sc, 100 - hwPen(1850), 500, "−" + hwPen(1850));
+    const dir = hwq(".hw-dir", scr); dir.hidden = false; dir.classList.add("hw-pop");
+    await hwWait(r, 1500);
+    hwCap(hwText("c1c"));
+    await hwWait(r, 600);
+  },
+  // 2 · Kleuren
+  async (r, scr) => {
+    const inp = hwq(".hw-inp", scr), board = hwq(".hw-board", scr), sc = hwq(".live-score-val", scr);
+    const G = [1900, 1850, 1820, 1815];
+    let score = 100;
+    hwCap(hwText("c2a"));
+    await hwWait(r, 1100);
+    for (let g = 0; g < G.length; g++) {
+      for (const d of String(G[g])) { inp.textContent += d; await hwWait(r, 170); }
+      await hwWait(r, 250);
+      inp.classList.remove("hw-go"); void inp.offsetWidth; inp.classList.add("hw-go");
+      await hwWait(r, 200);
+      inp.textContent = ""; hwPlace(board, g, G[g]);
+      const c = hwCls(G[g]), p = GUESS_PENALTIES[c] || 0;
+      hwLegendOn(scr, c);
+      if (p) { score -= p; hwTween(sc, score, 450, "−" + p); }
+      const e = emojiFor(c), range = RANGE_LABELS[c];
+      hwCap(g === 0 ? hwText("c2b", e, range) : g === 1 ? hwText("c2c", e, range) : g === 2 ? hwText("c2d", e, range) : hwText("c2e", e, score));
+      await hwWait(r, g === G.length - 1 ? 600 : 2300);
+    }
+  },
+  // 3 · Hints (+ 🧭 en 🏛️)
+  async (r, scr) => {
+    const sc = hwq(".live-score-val", scr), board = hwq(".hw-board", scr);
+    let score = +sc.textContent;
+    hwCap(hwText("c3a", MAX_EXTRA_HINTS));
+    await hwWait(r, 1300);
+    hwTap(scr, hwq(".hw-ev", scr), true); await hwWait(r, 450); hwEvGo(scr, 1);
+    await hwWait(r, 1600);
+    hwTap(scr, hwq(".hw-ev", scr), true); await hwWait(r, 450); hwEvGo(scr, 2);
+    await hwWait(r, 1700);
+
+    hwCap(hwText("c3b", laterWindow(0), LATER_CLUE_PENALTY));
+    await hwWait(r, 900);
+    hwTap(scr, hwq(".hw-later", scr));
+    let ix = hwAddSlide(scr, { k: "later", e: "⏩", tag: t("later_label")(laterWindow(0)), text: hwText("f_later") });
+    score -= LATER_CLUE_PENALTY; hwTween(sc, score, 400, "−" + LATER_CLUE_PENALTY); hwSetN(scr, "later", 1);
+    await hwWait(r, 450); hwEvGo(scr, ix);
+    await hwWait(r, 2300);
+
+    hwCap(hwText("c3c", LAST_DIGIT_PENALTY));
+    await hwWait(r, 900);
+    const db = hwq(".hw-digit", scr); hwTap(scr, db);
+    await hwWait(r, 200);
+    const digit = Math.abs(HW_ANSWER) % 10;
+    db.outerHTML = `<span class="hint-chip hw-chip-digit">🔢 ${digit}</span>`;
+    ix = hwAddSlide(scr, { k: "digit", e: "🔢", tag: t("digit_label"), big: String(digit) });
+    score -= LAST_DIGIT_PENALTY; hwTween(sc, score, 400, "−" + LAST_DIGIT_PENALTY);
+    await hwWait(r, 450); hwEvGo(scr, ix);
+    await hwWait(r, 2300);
+
+    hwCap(hwText("c3d", DIRECTION_HINT_PENALTY));
+    await hwWait(r, 900);
+    hwTap(scr, hwq(".hw-dir", scr));
+    const badge = board.children[1].querySelector(".delta-badge");
+    renderDeltaBadge(badge, HW_ANSWER - 1850, hwCls(1850), true);
+    badge.querySelector(".arrow")?.classList.add("just-revealed");
+    score -= DIRECTION_HINT_PENALTY; hwTween(sc, score, 400, "−" + DIRECTION_HINT_PENALTY); hwSetN(scr, "dir", 1);
+    await hwWait(r, 2600);
+
+    hwCap(hwText("c3e", CENTURY_HINT_PENALTY));
+    hwq(".hw-century", scr).classList.add("hw-ring");
+    await hwWait(r, 700);
+  },
+  // 4 · Score
+  async (r, scr) => {
+    const today = hwq(".hw-today", scr), recap = hwq(".hw-recap", scr), board = hwq(".hw-board", recap), sc = hwq(".live-score-val", recap);
+    hwCap(hwText("c4a", t("tab_daily"), t("tab_free")));
+    today.classList.add("hw-ring");
+    await hwWait(r, 3200);
+
+    recap.hidden = false; recap.classList.add("hw-pop");
+    hwCap(hwText("c4b", 100));
+    await hwWait(r, 1000);
+    let score = 100;
+    for (const y of [1900, 1850, 1820, 1815]) {
+      hwPlace(board, board.children.length, y);
+      const p = hwPen(y);
+      if (p) { score -= p; hwTween(sc, score, 420, "−" + p); }
+      await hwWait(r, 900);
+    }
+    await hwWait(r, 700);
+
+    const sh = hwq(".hw-share", scr); sh.hidden = false; sh.classList.add("hw-pop");
+    hwCap(hwText("c4c"));
+    await hwWait(r, 1600);
+    const sb = hwq(".hw-sbtn", scr); hwTap(scr, sb); await hwWait(r, 250);
+    sb.classList.add("hw-ok"); sb.textContent = hwText("copied");
+    await hwWait(r, 1500);
+
+    hwq(".hw-chips", scr).hidden = false;
+    hwCap(hwText("c4d"));
+    await hwWait(r, 800);
+  },
+];
+
+// ── afspelen en navigeren ──
+function hwStop() { if (hw && hw.run) hw.run.dead = true; }
+function hwReset() { hwStop(); hw = null; }
+function hwStart(i) {
+  hwStop();
+  const run = (hw.run = { dead: false });
+  hwq(".hw-replay", hw.root).hidden = true;
+  const scr = hw.screens[i];
+  scr.innerHTML = hwScreenHtml(i);
+  hwPrep(i, scr);
+  HW_SEQ[i](run, scr)
+    .then(() => { if (!run.dead) hwq(".hw-replay", hw.root).hidden = false; })
+    .catch((e) => { if (e !== run) console.error(e); });
+}
+function hwGoTo(i, delay) {
+  i = Math.max(0, Math.min(HW_CARDS - 1, i));
+  const changed = i !== hw.cur;
+  hw.cur = i;
+  hwq(".hw-track", hw.root).style.transform = `translateX(-${i * 100}%)`;
+  hwQa(".hw-step", hw.root).forEach((s, j) => { s.setAttribute("aria-selected", j === i ? "true" : "false"); s.tabIndex = j === i ? 0 : -1; });
+  hwq(".hw-prev", hw.root).disabled = i === 0;
+  hwq(".hw-next", hw.root).textContent = i === HW_CARDS - 1 ? hwText("restart") : hwText("next");
+  hwStop();
+  hwq(".hw-replay", hw.root).hidden = true;
+  setTimeout(() => { if (hw && hw.cur === i) hwStart(i); }, delay != null ? delay : changed ? 320 : 0);
+}
+const HW_CARDS = 4;
+
+function hwBuild() {
+  const root = document.getElementById("howto");
+  if (!root) return;
+  hwStop();
+  root.innerHTML =
+    `<div class="hw-steps" role="tablist" aria-label="${hwText("aria")}">` +
+    [1, 2, 3, 4].map((n) => `<button type="button" class="hw-step" role="tab" aria-selected="false">${hwText("s" + n)}</button>`).join("") + `</div>` +
+    `<div class="hw-vp" title="${hwText("tip")}"><div class="hw-track">` +
+    [1, 2, 3, 4].map(() => `<div class="hw-slide"><div class="hw-screen" aria-hidden="true"></div></div>`).join("") + `</div></div>` +
+    `<div class="hw-cap-row"><p class="hw-cap" aria-live="polite"></p><button type="button" class="hw-replay" hidden>${hwText("replay")}</button></div>` +
+    `<div class="hw-nav"><button type="button" class="hw-nb hw-prev">${hwText("prev")}</button><button type="button" class="hw-nb hw-next hw-pri">${hwText("next")}</button></div>`;
+  hw = { lang, cur: 0, run: null, root, screens: hwQa(".hw-screen", root) };
+  hw.screens.forEach((s, i) => { s.innerHTML = hwScreenHtml(i); hwPrep(i, s); });   // rustbeeld: elke kaart staat er in z'n beginstand
+
+  const steps = hwQa(".hw-step", root);
+  steps.forEach((s, j) => s.addEventListener("click", () => hwGoTo(j)));
+  hwq(".hw-steps", root).addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.stopPropagation();   // ←/→ bladert anders óók de carrousel van het spel erachter
+    e.preventDefault();
+    const j = Math.max(0, Math.min(HW_CARDS - 1, hw.cur + (e.key === "ArrowRight" ? 1 : -1)));
+    hwGoTo(j); steps[j].focus();
+  });
+  hwq(".hw-prev", root).addEventListener("click", () => hwGoTo(hw.cur - 1));
+  hwq(".hw-next", root).addEventListener("click", () => hwGoTo(hw.cur === HW_CARDS - 1 ? 0 : hw.cur + 1));
+  hwq(".hw-replay", root).addEventListener("click", () => hwStart(hw.cur));
+
+  // Veeg = volgende/vorige kaart, tik = deze kaart opnieuw afspelen.
+  const vp = hwq(".hw-vp", root);
+  let sx = null, moved = false;
+  vp.addEventListener("pointerdown", (e) => { sx = e.clientX; moved = false; });
+  vp.addEventListener("pointermove", (e) => { if (sx !== null && Math.abs(e.clientX - sx) > 10) moved = true; });
+  vp.addEventListener("pointercancel", () => { sx = null; });
+  vp.addEventListener("pointerup", (e) => {
+    if (sx === null) return;
+    const dx = e.clientX - sx; sx = null;
+    if (Math.abs(dx) > 48) hwGoTo(hw.cur + (dx < 0 ? 1 : -1));
+  });
+  vp.addEventListener("click", () => { if (moved) { moved = false; return; } hwStart(hw.cur); });
+}
+
+// Aanroep vanuit openModal("modal-help"): bouwen (of opnieuw bij een andere taal) en
+// kaart 1 afspelen, met een korte adempauze zodat de modal eerst tot rust komt.
+function hwOpen() {
+  if (!document.getElementById("howto")) return;
+  if (!hw || hw.lang !== lang) hwBuild();
+  if (hw) hwGoTo(0, 450);
+}
+
 function openModal(id, opts) {
   // Eén scherm tegelijk: een ander open paneel gaat éérst dicht (met z'n gezien-
   // hook), zodat panelen niet stapelen — sluiten brengt je dan naar het spel terug,
@@ -8987,6 +9524,7 @@ function openModal(id, opts) {
   }
   document.getElementById(id).hidden = false;
   lockBodyScroll();
+  if (id === "modal-help") hwOpen();
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-history") { renderHistory(opts && opts.date); setModalUrl("history"); }
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
@@ -9008,6 +9546,7 @@ function openModal(id, opts) {
 
 function closeModal(id) {
   document.getElementById(id).hidden = true;
+  if (id === "modal-help") hwStop();
   if (id === "modal-achv") achvPanelClosed();
   if (id === "modal-podium-pop") podiumPopClosed();
   if (id === "modal-reward") rewardClosed();
@@ -9018,6 +9557,7 @@ function closeModal(id) {
 
 function closeAllModals() {
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+  hwStop();   // uitleg-demo stopt met afspelen als de ❓-modal dichtgaat
   rewardsReturnTo = null;   // alles dicht = geen openstaande terugkeer naar het bord
   unlockBodyScroll();
   achvPanelClosed();   // NIEUW-markeringen die je gezien hebt, zijn hiermee gezien
