@@ -10147,6 +10147,11 @@ async function init() {
     // Niet onderscheppen wanneer iemand in een formulier-veld typt.
     const tag = e.target?.tagName;
     if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
+    // Een open scherm (❓-uitleg, stats, login, pop-ups…) is modaal: de toetsen horen daar,
+    // niet bij het spel erachter. Zonder deze check typte je cijfers in het verborgen
+    // invoerveld, bladerde ←/→ door de kaart eronder en kocht E een ⏩-hint terwijl je
+    // de uitleg las (en Enter op een focus-knop diende óók een gok in).
+    if (document.querySelector(".modal:not([hidden])")) return;
     // Een ingedrukte toets herhaalt keydown tientallen keren per seconde. Bij typen,
     // wissen en bladeren is dat precies wat je wilt; bij een ACTIE niet — een
     // vastgehouden E kocht zo alle vijf de ⏩-clues achter elkaar (−15 punten) en een
