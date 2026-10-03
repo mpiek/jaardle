@@ -6678,8 +6678,8 @@ function mountRecapCarousel(root, oddsV) {
 // maar die steekproef is klein — vandaar het "schatting"-pilletje en geen cijfers achter de komma.
 // Geseed op de stand: dezelfde stand geeft dezelfde percentages bij heropenen (geen geflipper).
 const ODDS_RUNS = 3000;
-const ODDS_MIN_PLAYERS = 6;      // minder spelers in de pool → geen donut (te weinig kanshebbers; de slide zou de carrousel ook onnodig hoog maken)
-const ODDS_MIN_WEEK_ROWS = 3;    // en minstens 3 spelers met een pot deze week
+const ODDS_MIN_PLAYERS = 2;      // spelers in de pool-historie: vanaf 2 (een duel-donut; Matthijs wilde 'm ook bij Piekjes). Zo'n slide is hoger dan een kleine daily-tabel, dus de recap van een kleine pool wordt iets langer
+const ODDS_MIN_WEEK_ROWS = 2;    // en minstens 2 spelers met een pot deze week (anders is er niets te voorspellen)
 const ODDS_FOLD = 0.03;          // onder 3% → samen in "Overig" (zodra dat er ≥ 2 zijn)
 const DAGZEGE_ALONE_FROM = "2026-10-05";   // spiegel van db/74: vanaf deze puzzeldag telt de dagzege ook voor de eerste/enige van de dag
 
@@ -6844,7 +6844,9 @@ function oddsOnColor(slot) {   // wit of zwart, wat het meeste contrast geeft op
 const oddsFlair = (it) => it.flair || "🏃";
 function oddsPct(view, id) {
   const p = id === "other" ? view.other.prob : view.byId[id].prob;
-  return p < 0.005 ? "<1%" : Math.max(1, view.pc[id]) + "%";
+  if (p < 0.005) return "<1%";
+  if (p > 0.995) return ">99%";   // een schatting claimt nooit zekerheid (bij een duel met grote voorsprong is het anders "100%")
+  return Math.max(1, view.pc[id]) + "%";
 }
 function oddsAria(view, it) {
   const raw = oddsPct(view, it.id), lt1 = raw.startsWith("<"), num = raw.replace(/[<%]/g, "");

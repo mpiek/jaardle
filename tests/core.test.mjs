@@ -48,7 +48,7 @@ src += `
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HolidayFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
-  dagzegeApplies, forecastWins, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS,
+  dagzegeApplies, forecastWins, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -500,6 +500,32 @@ test("oddsBuild — drempels, kansen tellen op tot 1, stabiel per stand", () => 
   assert.deepEqual(T.oddsBuild(fc, daily, week, ctx).map((x) => x.prob), items.map((x) => x.prob));   // zelfde stand, zelfde getallen
   // drempels: te weinig spelers in de pool-historie, of te weinig weekrijen → geen donut
   assert.equal(T.oddsBuild({ ...fc, players: fc.players.slice(0, T.ODDS_MIN_PLAYERS - 1) }, daily, week, ctx), null);
-  assert.equal(T.oddsBuild(fc, daily, week.slice(0, 2), ctx), null);
+  assert.equal(T.oddsBuild(fc, daily, week.slice(0, T.ODDS_MIN_WEEK_ROWS - 1), ctx), null);
   assert.equal(T.oddsBuild(null, daily, week, ctx), null);   // RPC faalde/bestaat nog niet
+});
+
+test("oddsPct — nooit 100% of 0% beweren; een duel (2 spelers) is een geldige donut", () => {
+  assert.equal(T.ODDS_MIN_PLAYERS, 2);
+  assert.equal(T.ODDS_MIN_WEEK_ROWS, 2);
+  const v = T.oddsView(mkItems([0.9998, 0.0002]));
+  assert.equal(T.oddsPct(v, "p0"), ">99%");
+  assert.equal(T.oddsPct(v, "p1"), "<1%");
+  assert.equal(v.other, null);                      // één kleine speler: geen Overig-plak
+  assert.equal(v.items.length, 2);
+  const duel = T.oddsView(mkItems([0.62, 0.38]));
+  assert.equal(T.oddsPct(duel, "p0"), "62%");
+  assert.equal(T.oddsPct(duel, "p1"), "38%");
+  assert.equal(duel.items.reduce((a, x) => a + duel.pc[x.id], 0), 100);
+});
+
+test("oddsBuild — werkt voor een pool van twee (duel)", () => {
+  const fc = { day_mean: 90, day_sd: 1, hour_share: new Array(24).fill(1 / 24), players: [
+    { display_name: "A", flair: "", title: null, is_me: true, q: 0.95, lost_p: 0, mu: -4, sd: 14 },
+    { display_name: "B", flair: "", title: null, is_me: false, q: 0.85, lost_p: 0, mu: 6, sd: 4 }] };
+  const week = [{ rank: 1, display_name: "B", week_score: 750, played: 6, daily_wins: 6 }, { rank: 2, display_name: "A", week_score: 638, played: 6, daily_wins: 3 }];
+  const daily = [{ rank: 1, display_name: "A", won: true, score: 100, late: false }, { rank: 1, display_name: "B", won: true, score: 100, late: false }];   // gedeelde 1e plek
+  const items = T.oddsBuild(fc, daily, week, { poolId: "p", weekStart: "2026-09-28", todayKey: "2026-10-03", secsSinceMidnight: 18 * 3600 });
+  assert.equal(items.length, 2);
+  assert.ok(Math.abs(items[0].prob + items[1].prob - 1) < 1e-9);
+  assert.ok(items.find((x) => x.name === "B").prob > 0.95);   // 112 punten voorsprong, 1 dag te gaan
 });
