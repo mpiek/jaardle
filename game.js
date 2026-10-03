@@ -5680,7 +5680,10 @@ function showPodiumConfetti(host, opts = {}) {
   const W = Math.max(1, r.width), H = Math.max(1, r.height), ground = H - 2;
   cv.width = W * dpr; cv.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const COLORS = ["#f5c542", "#a970ff", "#58d6a6", "#ff7aa8", "#7ec8ff", "#ffffff"];
+  // opts.night = nachtpaars-goud palet van de weekpodium-pop-up (goud, room, violet); anders het feestelijke standaardpalet
+  const COLORS = opts.night
+    ? ["#f4c430", "#e8c86a", "#f2e8c9", "#c9a227", "#a970ff", "#ffffff"]
+    : ["#f5c542", "#a970ff", "#58d6a6", "#ff7aa8", "#7ec8ff", "#ffffff"];
   const spawn = (p, first) => {
     p.x = Math.random() * W;
     p.y = -8 - Math.random() * (first ? H : 30);   // 1e keer gespreid, daarna net boven de rand
@@ -5697,7 +5700,9 @@ function showPodiumConfetti(host, opts = {}) {
   // Matthijs koos deze mockup-versie boven de standaard "val van boven" (showConfetti),
   // en hij blijft zo binnen de kaart. Zelfde canvas en lus als de dwarrel.
   const rnd = (a, b) => a + Math.random() * (b - a);
-  const BURST = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff"];
+  const BURST = opts.night
+    ? ["#f4c430", "#e8c86a", "#f2e8c9", "#c9a227", "#a970ff", "#d9b8ff"]
+    : ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#6ea8ff"];
   let burst = opts.burst ? Array.from({ length: 80 }, () => ({
     x: W * 0.5 + rnd(-40, 40), y: H * 0.35, vx: rnd(-6, 6), vy: rnd(-11, -3),
     rot: Math.random() * 6.28, vr: rnd(-0.2, 0.2), w: rnd(5, 9), h: rnd(8, 14),
@@ -7235,7 +7240,7 @@ function showPodiumPopup() {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const el = document.createElement("div");
   el.id = "modal-podium-pop";
-  el.className = "modal podpop" + (reduced ? "" : " podpop-anim");
+  el.className = "modal podpop night night-b" + (reduced ? "" : " podpop-anim");   // nachtpaars-schil (kroning-look); night-b = donkerpaarse sokkels met metalen rand — zonder night-b zijn het de metalen sokkels (variant A)
   el.hidden = true;
   el.dataset.week = res.weekStart;
   el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "podpop-title");
@@ -7268,6 +7273,7 @@ function showPodiumPopup() {
   requestAnimationFrame(() => el.classList.add("in"));
   if (reduced) {   // alles meteen, geen confetti
     el.querySelectorAll(".lb-pod-spot, .lb-wk-restrow, .lb-wk-note, .podpop-foot").forEach((n) => n.classList.add("in"));
+    el.querySelector(".lb-pod-stage")?.classList.add("lit");
     return;
   }
   const at = (ms, fn) => podiumPopTimers.push(setTimeout(fn, ms));
@@ -7277,7 +7283,10 @@ function showPodiumPopup() {
   const lastAt = 700 + last * 400 + 200;
   spots.forEach((sp, i) => at(i === last ? lastAt : 700 + i * 400, () => {
     sp.classList.add("in");
-    if (i === last) showPodiumConfetti(el.querySelector(".podpop-card"), { burst: true });
+    if (i === last) {
+      el.querySelector(".lb-pod-stage")?.classList.add("lit");   // gouden gloed achter het podium faden in met de 🥇
+      showPodiumConfetti(el.querySelector(".podpop-card"), { burst: true, night: true });
+    }
   }));
   at(lastAt + 500, () => {
     el.querySelector(".lb-wk-note")?.classList.add("in");
