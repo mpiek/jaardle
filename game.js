@@ -6721,10 +6721,10 @@ function forecastWins(inp, runs, seed) {
     const s = clip(Math.round(D + p.mu + p.sd * gauss()));
     return [s, 1000 + s + (rnd() - 0.5) * 0.5];
   };
-  const dayBonus = (dayKey) => {   // de beste sleutel van de dag krijgt de dagzege
-    let best = NONE, bi = -1, heads = 0;
-    for (let i = 0; i < n; i++) if (key[i] > NONE) { heads++; if (key[i] > best) { best = key[i]; bi = i; } }
-    if (bi >= 0 && dagzegeApplies(heads, best >= 1000, dayKey)) tot[bi] += 25;
+  const dayBonus = (dayKey) => {   // de beste sleutel van de dag krijgt de dagzege — gedeelde 1e plek (zelfde sleutel) allemaal, zoals de SQL (rnk = 1)
+    let best = NONE, heads = 0;
+    for (let i = 0; i < n; i++) if (key[i] > NONE) { heads++; if (key[i] > best) best = key[i]; }
+    if (heads && dagzegeApplies(heads, best >= 1000, dayKey)) for (let i = 0; i < n; i++) if (key[i] === best) tot[i] += 25;
   };
   for (let s = 0; s < runs; s++) {
     for (let i = 0; i < n; i++) {

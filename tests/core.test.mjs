@@ -434,6 +434,17 @@ test("forecastWins — vandaag: vaste resultaten, wie nog moet spelen kan de dag
   assert.ok(may[1] > 0.95, `may=${may}`);
 });
 
+test("forecastWins — gedeelde 1e plek van vandaag: allebei de dagzege (zoals de SQL), niet alleen de eerste in de lijst", () => {
+  // A (base 90) en B (base 100) hebben vandaag precies hetzelfde resultaat en delen rang 1: beiden +25 → B blijft vóór A.
+  // (Een fout waarbij alleen de eerste in de lijst de bonus kreeg, zette A met 115 vóór B met 100.)
+  const tie = { won: true, score: 80, rank: 1 };
+  const r = T.forecastWins(mkSim({ todayKey: "2026-10-06", players: [pl({ base: 90, today: tie }), pl({ base: 100, today: tie })] }), 500, 11);
+  assert.equal(r[1], 1);
+  // vóór de grensdatum geldt de ≥2-regel: met twee deelnemers krijgen ze ook dan allebei de bonus
+  const old = T.forecastWins(mkSim({ todayKey: "2026-10-01", players: [pl({ base: 90, today: tie }), pl({ base: 100, today: tie })] }), 500, 11);
+  assert.equal(old[1], 1);
+});
+
 test("oddsShareAfter — aandeel van de dag dat nog komt", () => {
   const uni = new Array(24).fill(1 / 24);
   assert.ok(Math.abs(T.oddsShareAfter(uni, 0) - 1) < 1e-9);
