@@ -1019,6 +1019,8 @@ kbd {
   opacity: 1;
   transform: translate(-50%, 0);
 }
+/* Neutrale variant (geen afwijzing): accent-rand i.p.v. rood — bv. de ?recap-uitleg "speel eerst de daily". */
+#guess-bubble.info { border-left-color: var(--accent); }
 
 #guess-bubble::after {
   content: "";

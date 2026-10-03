@@ -272,6 +272,7 @@ const I18N = {
     recap_week_title: "⚔️ Weekstand",
     recap_tab_today: "📅 Vandaag", recap_tab_week: "⚔️ Week",
     recap_week_note: (d, h) => `🏁 sluit ma 12:00 · nog ${d > 0 ? d + " d" : h + " u"}`,
+    recap_play_first: "Speel eerst de daily — daarna zie je de stand van je team.",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
     recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
     recap_acct_title: "Met een gratis account",
@@ -560,6 +561,7 @@ const I18N = {
     recap_week_title: "⚔️ Week standings",
     recap_tab_today: "📅 Today", recap_tab_week: "⚔️ Week",
     recap_week_note: (d, h) => `🏁 closes Mon 12:00 · ${d > 0 ? d + " d" : h + " h"} left`,
+    recap_play_first: "Play today's daily first — then you'll see your team's standings.",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
     recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
     recap_acct_title: "With a free account",
@@ -841,6 +843,7 @@ const I18N = {
     recap_week_title: "⚔️ Wochenstand",
     recap_tab_today: "📅 Heute", recap_tab_week: "⚔️ Woche",
     recap_week_note: (d, h) => `🏁 schließt Mo 12:00 · noch ${d > 0 ? d + " d" : h + " Std."}`,
+    recap_play_first: "Spiel zuerst das Daily — dann siehst du den Teamstand.",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
     recap_pool_none: "Erstelle einen Pool oder tritt einem bei, um deine Freunde hier zu sehen.", recap_pool_btn: "🏆 Pool erstellen oder beitreten",
     recap_acct_title: "Mit einem kostenlosen Konto",
@@ -1126,6 +1129,7 @@ const I18N = {
     recap_week_title: "⚔️ Clasificación semanal",
     recap_tab_today: "📅 Hoy", recap_tab_week: "⚔️ Semana",
     recap_week_note: (d, h) => `🏁 cierra lun 12:00 · faltan ${d > 0 ? d + " d" : h + " h"}`,
+    recap_play_first: "Juega primero el diario — luego verás la clasificación de tu equipo.",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
     recap_pool_none: "Crea un grupo o únete a uno para ver aquí a tus amigos.", recap_pool_btn: "🏆 Crear o unirse a un grupo",
     recap_acct_title: "Con una cuenta gratuita",
@@ -1411,6 +1415,7 @@ const I18N = {
     recap_week_title: "⚔️ Classificação da semana",
     recap_tab_today: "📅 Hoje", recap_tab_week: "⚔️ Semana",
     recap_week_note: (d, h) => `🏁 fecha seg 12:00 · faltam ${d > 0 ? d + " d" : h + " h"}`,
+    recap_play_first: "Jogue primeiro o daily — depois você verá o placar da equipe.",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
     recap_pool_none: "Crie um grupo ou entre em um para ver seus amigos aqui.", recap_pool_btn: "🏆 Criar ou entrar em um grupo",
     recap_acct_title: "Com uma conta gratuita",
@@ -4864,6 +4869,7 @@ const FLAIR_OPTIONS = ["🔥", "👑", "⚡", "🌟", "💎", "🚀", "🧠", "�
   "🦊", "🦉", "🐉", "🦄", "🐙", "🐼", "🦁", "🐐", "🐢", "🦫", "🫪"];
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingOpenModal = null;          // ?rating / ?achievements / ?history-deeplink → modal-id
+let pendingOpenRecap = false;         // ?recap-deeplink: eindscherm openen zodra auth + daily bekend zijn (en je 'm gespeeld hebt)
 let pendingJoinCode = null;           // ?join=CODE-deeplink
 let pendingHistoryDate = null;        // ?history=YYYY-MM-DD → open direct de drill-down voor die dag
 let statsReq = 0;                     // race-guard: alleen de laatste Stats-render mag de body vullen
@@ -6187,6 +6193,27 @@ function openDailyRecap() {
   openModal("modal-recap");
 }
 
+// ?recap-deeplink: opent het eindscherm van vandaag — maar alleen als je de daily af
+// hebt (de recap toont de scores en gok-blokjes van anderen: een spoiler voor wie nog
+// moet spelen). Nog niet (af) gespeeld, of een inhaalpot → gewoon het spel, plus een
+// korte uitleg-bubbel; rond je 'm af, dan opent de recap vanzelf zoals altijd.
+// Twee aanroepers (auth-handler en startGame): wie het eerst alles weet beslist, de
+// intentie wordt vóór de await niet gewist maar daarna gecontroleerd. Ingelogd en
+// lokaal nog niet af: eerst de cross-device-check afwachten — op een ander apparaat
+// al gespeeld? Dan is de pot daarna "af" en opent de recap alsnog.
+async function maybeOpenRecapDeeplink() {
+  if (!pendingOpenRecap || !auth.resolved || !state) return;
+  if (state.mode !== "daily") { pendingOpenRecap = false; return; }   // vrij spel/gedeeld potje: niets te openen
+  if (!state.done && auth.user) await reconcileDailyProgress();
+  if (!pendingOpenRecap || !state || state.mode !== "daily") return;   // intussen afgehandeld of gewisseld
+  pendingOpenRecap = false;
+  if (state.done && !isMakeup(state)) { openDailyRecap(); return; }
+  showGuessBubble(t("recap_play_first"));
+  document.getElementById("guess-bubble")?.classList.add("info");   // geen rode afwijzings-rand: dit is uitleg
+  clearTimeout(guessBubbleTimer);
+  guessBubbleTimer = setTimeout(clearGuessBubble, 6000);   // kort: een uitleg, geen opdracht die blijft hangen
+}
+
 // Globale score-verdeling voor het feit van vandaag: 22 getallen — [verloren,
 // 21 bins van 5 punten: 0–4, 5–9, …, 95–99, 100] over alle spelers
 // (get_fact_score_distribution, db/65). Verliezers zitten in bin 0 op basis van
@@ -7182,7 +7209,7 @@ async function refreshWeekPodiumResult() {
   // Een deeplink (?join / ?leaderboard / ?rating …) wint van de pop-up: die opent zo
   // z'n eigen scherm, de stip blijft als spoor. Vastleggen VÓÓR de await — de
   // auth-handler consumeert de intenties direct na deze aanroep.
-  const deeplinked = !!(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal);
+  const deeplinked = !!(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap);
   let rows = [];
   try { rows = await rpc("get_pending_podium", { p_pool_id: myPool.id }) || []; }
   catch (e) { podiumPendingReq = null; }   // netwerk-hik → volgende auth-event mag het opnieuw proberen
@@ -8517,8 +8544,14 @@ function syncDailyProgress() {
 // auth-wissel; één tegelijk. Race-guard op puzzel-identiteit: tijdens de fetch kan
 // gewisseld/afgerond zijn.
 let reconcileBusy = false;
-async function reconcileDailyProgress() {
-  if (reconcileBusy || !auth.user || !state || state.mode !== "daily" || state.done) return;
+let reconcileRun = Promise.resolve();   // lopende reconcile — de ?recap-deeplink wacht erop voordat hij "nog niet gespeeld" zegt
+function reconcileDailyProgress() {
+  if (reconcileBusy) return reconcileRun;
+  reconcileRun = reconcileDailyProgressRun();
+  return reconcileRun;
+}
+async function reconcileDailyProgressRun() {
+  if (!auth.user || !state || state.mode !== "daily" || state.done) return;
   const answerYear = state.event?.year;
   if (answerYear == null) return;
   const hash = state.hashes?.[0];
@@ -9693,7 +9726,7 @@ function openModal(id, opts) {
     if (backBtn) backBtn.hidden = !rewardsReturnTo;
     renderRewards(); setModalUrl("rewards");
   }
-  if (id === "modal-recap") renderRecap();
+  if (id === "modal-recap") { renderRecap(); setModalUrl("recap"); }
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
     const err = document.getElementById("login-error");
@@ -10242,6 +10275,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   else if (state.mode === "daily" && auth.user && !record.synced) reconcileDailyProgress();
   updateDayLabel();          // #N (+ inhaal-markering) van de nu actieve daily
   refreshStreakBanners();    // inhaal- + reparatie-uitnodiging (async; inhaal heeft voorrang)
+  maybeOpenRecapDeeplink();  // ?recap: auth kan al binnen zijn vóór de puzzel (anders doet de auth-handler het)
 }
 
 function syncUrl() {
@@ -10465,6 +10499,7 @@ async function init() {
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
     if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin(); }
+    maybeOpenRecapDeeplink();   // ?recap: wacht (ingelogd) op de reconcile hierboven, dan eindscherm of 'speel eerst'
     // Auth komt op een reload ná het herstellen van een afgerond dagbord binnen;
     // de streakregel is dan met local-only historie getekend (vaak "streak 1").
     // reconcileDailyProgress stopt bij state.done, dus herteken 'm hier met
@@ -10568,7 +10603,8 @@ async function init() {
     if (/^\d{4}-\d{2}-\d{2}$/.test(hd || "")) pendingHistoryDate = hd;
     lbParams.delete("history");
   }
-  if (joinCode || pendingOpenLeaderboard || pendingOpenModal) {
+  if (lbParams.has("recap")) { pendingOpenRecap = true; lbParams.delete("recap"); }
+  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap) {
     const qs = lbParams.toString();
     history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);
   }
