@@ -2460,6 +2460,67 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
   .race-streak, .race-runner { transition: none !important; }
 }
 
+/* 🔮 Kans-tab: winkansen op de weekzege als klassieke donut (mockup "Winkans-donut varianten", variant A).
+   Spelerskleuren: 8 tinten in vaste volgorde (gevalideerd op alle vijf de kaartkleuren), speler 9+ hergebruikt ze
+   met arcering; de flair-emoji is het tweede kanaal. Donker-familie (donker/nachtpaars/goud) deelt de eerste set. */
+:root {
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+  --s-other: #8d8b87;
+}
+html[data-theme="light"], html[data-theme="parchment"] {
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
+  --s-other: #8a877f;
+}
+.rc-tabs.n3 { gap: 0.5rem; }
+.rc-tabs.n3 .rc-tab { font-size: 0.74rem; letter-spacing: 0.02em; }
+.odds { display: flex; flex-direction: column; gap: 0.55rem; }
+.odds-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); min-height: 1.3rem; }
+.odds-est { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.12rem 0.5rem; border-radius: 999px; color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); white-space: nowrap; }
+.odds-chart { position: relative; }
+.odds-chart svg { display: block; width: 100%; height: auto; overflow: visible; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.odds svg text { font-family: inherit; }
+.od-it { cursor: pointer; outline: none; transition: opacity 0.18s ease; }
+.odds.has-sel .od-it:not(.sel) { opacity: 0.42; }
+.od-arc { fill: none; }
+.od-halo { fill: none; stroke: var(--accent); opacity: 0; pointer-events: none; }
+.od-it:focus-visible .od-halo { opacity: 1; }
+.od-me { fill: none; stroke: var(--accent); pointer-events: none; }
+.od-it.sel .od-arc { filter: drop-shadow(0 0 3px var(--c)); }
+.od-lab { font-size: 16px; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.od-labp { font-size: 10px; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; font-variant-numeric: tabular-nums; }
+.odds.has-sel .od-labp.dl { fill: var(--fg) !important; opacity: 0.8; }
+.odds.has-sel .od-lab.dl { opacity: 0.55 !important; }
+.od-ctr { pointer-events: none; }
+.od-ctr-e { font-size: 24px; text-anchor: middle; dominant-baseline: central; }
+.od-ctr-p { font-size: 32px; font-weight: 800; fill: var(--fg); text-anchor: middle; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.od-ctr-n { font-size: 12px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
+.od-ctr-n .jij { fill: var(--accent); font-weight: 700; }
+.od-ctr-c { font-size: 8.5px; font-weight: 700; fill: var(--muted); text-anchor: middle; text-transform: uppercase; letter-spacing: 0.09em; }
+/* legenda: token (tint-cirkel met flair) + naam + kans; 2 kolommen */
+.od-tk { --c: var(--s-other); display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--c); font-size: 0.88rem; line-height: 1; flex: none; box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--card-soft) 70%, transparent); }
+.od-tk.hatch { background: repeating-linear-gradient(135deg, var(--c) 0 3px, color-mix(in srgb, var(--c) 38%, var(--card)) 3px 6px); }
+.od-tk.other { background: repeating-linear-gradient(135deg, var(--s-other) 0 3px, color-mix(in srgb, var(--s-other) 40%, var(--card)) 3px 6px); font-size: 0.6rem; font-weight: 800; color: var(--fg); }
+.od-tk.sm { width: 1.2rem; height: 1.2rem; font-size: 0.72rem; }
+.od-lgd { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
+.od-lg { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) auto; align-items: center; gap: 0.4rem; padding: 0.2rem 0.5rem 0.2rem 0.3rem; border: 0; border-radius: 8px; background: var(--card-soft); color: var(--fg); font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer; min-height: 1.95rem; -webkit-tap-highlight-color: transparent; }
+.od-lg.me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
+.od-lg.me .od-pc { color: var(--accent); }
+.od-lg[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--c, var(--fg)); }
+.od-lg:focus-visible, .od-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.od-lg.other { --c: var(--s-other); }
+.od-nm { display: flex; align-items: baseline; gap: 0.3rem; min-width: 0; }
+.od-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.od-nm .lb-tag { flex: none; margin: 0; font-size: 0.6rem; font-style: normal; }
+.od-pc { font-weight: 700; font-variant-numeric: tabular-nums; }
+.od-more { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 3px; padding: 0.35rem 0.35rem 0.4rem; border-radius: 8px; background: color-mix(in srgb, var(--fg) 5%, var(--card-soft)); }
+.od-more[hidden] { display: none; }
+.od-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.45rem 0.15rem 0.2rem; border: 0; border-radius: 999px; background: var(--card-soft); color: var(--fg); font: inherit; font-size: 0.74rem; cursor: pointer; }
+.od-chip b { font-variant-numeric: tabular-nums; }
+.od-chip.me { background: color-mix(in srgb, var(--accent) 24%, var(--card-soft)); }
+.od-chip[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--c, var(--fg)); }
+.odds .lb-wk-note { margin: 0.1rem 0 0; }
+@media (prefers-reduced-motion: reduce) { .od-it { transition: none; } }
+
 .lb-wk-msg { text-align: center; padding: 1.6rem 1rem 1.4rem; }
 .lb-wk-msg-i { font-size: 2.2rem; margin-bottom: 0.5rem; }
 .lb-wk-msg h4 { margin: 0 0 0.3rem; font-size: 1rem; }

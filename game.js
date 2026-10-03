@@ -271,6 +271,13 @@ const I18N = {
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
     recap_week_title: "⚔️ Weekstand",
     recap_tab_today: "📅 Vandaag", recap_tab_week: "⚔️ Week",
+    recap_tab_odds: "🔮 Kans",
+    odds_head: "kans op de weekzege", odds_est: "schatting",
+    odds_note: "Gebaseerd op recente scores en speelfrequentie",
+    odds_other: "Overig", odds_in_other: "zit in overig", odds_incl_you: "incl. jij",
+    odds_chart_aria: "Winkansen als donut", odds_legend_aria: "Spelers en hun kans",
+    odds_aria: (name, me, pct, lt1) => `${name}${me ? ", jij" : ""}, ${lt1 ? "minder dan 1" : pct} procent kans`,
+    odds_aria_other: (n, pct, me, lt1) => `Overig, ${n} spelers, ${lt1 ? "minder dan 1" : pct} procent kans${me ? ", jij zit hierin" : ""}`,
     recap_week_note: (d, h) => `🏁 sluit ma 12:00 · nog ${d > 0 ? d + " d" : h + " u"}`,
     recap_play_first: "Speel eerst de daily — daarna zie je de stand van je team.",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
@@ -560,6 +567,13 @@ const I18N = {
     recap_team_title: "Today's team standings", recap_today: "today",
     recap_week_title: "⚔️ Week standings",
     recap_tab_today: "📅 Today", recap_tab_week: "⚔️ Week",
+    recap_tab_odds: "🔮 Odds",
+    odds_head: "chance to win the week", odds_est: "estimate",
+    odds_note: "Based on recent scores and how often people play",
+    odds_other: "Others", odds_in_other: "in others", odds_incl_you: "incl. you",
+    odds_chart_aria: "Win chances as a donut chart", odds_legend_aria: "Players and their chance",
+    odds_aria: (name, me, pct, lt1) => `${name}${me ? ", you" : ""}, ${lt1 ? "less than 1" : pct} percent chance`,
+    odds_aria_other: (n, pct, me, lt1) => `Others, ${n} players, ${lt1 ? "less than 1" : pct} percent chance${me ? ", you are in this group" : ""}`,
     recap_week_note: (d, h) => `🏁 closes Mon 12:00 · ${d > 0 ? d + " d" : h + " h"} left`,
     recap_play_first: "Play today's daily first — then you'll see your team's standings.",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
@@ -842,6 +856,13 @@ const I18N = {
     recap_team_title: "Team-Stand heute", recap_today: "heute",
     recap_week_title: "⚔️ Wochenstand",
     recap_tab_today: "📅 Heute", recap_tab_week: "⚔️ Woche",
+    recap_tab_odds: "🔮 Chancen",
+    odds_head: "Chance auf den Wochensieg", odds_est: "Schätzung",
+    odds_note: "Basierend auf aktuellen Scores und Spielhäufigkeit",
+    odds_other: "Übrige", odds_in_other: "bei „Übrige“", odds_incl_you: "inkl. dir",
+    odds_chart_aria: "Gewinnchancen als Donut-Diagramm", odds_legend_aria: "Spieler und ihre Chance",
+    odds_aria: (name, me, pct, lt1) => `${name}${me ? ", du" : ""}, ${lt1 ? "weniger als 1" : pct} Prozent Chance`,
+    odds_aria_other: (n, pct, me, lt1) => `Übrige, ${n} Spieler, ${lt1 ? "weniger als 1" : pct} Prozent Chance${me ? ", du bist dabei" : ""}`,
     recap_week_note: (d, h) => `🏁 schließt Mo 12:00 · noch ${d > 0 ? d + " d" : h + " Std."}`,
     recap_play_first: "Spiel zuerst das Daily — dann siehst du den Teamstand.",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
@@ -1128,6 +1149,13 @@ const I18N = {
     recap_team_title: "Marcador del equipo hoy", recap_today: "hoy",
     recap_week_title: "⚔️ Clasificación semanal",
     recap_tab_today: "📅 Hoy", recap_tab_week: "⚔️ Semana",
+    recap_tab_odds: "🔮 Opciones",
+    odds_head: "probabilidad de ganar la semana", odds_est: "estimación",
+    odds_note: "Basado en puntuaciones recientes y en la frecuencia de juego",
+    odds_other: "Otros", odds_in_other: "está en «Otros»", odds_incl_you: "incl. tú",
+    odds_chart_aria: "Probabilidades de victoria en gráfico de anillo", odds_legend_aria: "Jugadores y su probabilidad",
+    odds_aria: (name, me, pct, lt1) => `${name}${me ? ", tú" : ""}, ${lt1 ? "menos de 1" : pct} por ciento de probabilidad`,
+    odds_aria_other: (n, pct, me, lt1) => `Otros, ${n} jugadores, ${lt1 ? "menos de 1" : pct} por ciento de probabilidad${me ? ", tú estás aquí" : ""}`,
     recap_week_note: (d, h) => `🏁 cierra lun 12:00 · faltan ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Juega primero el diario — luego verás la clasificación de tu equipo.",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
@@ -1414,6 +1442,13 @@ const I18N = {
     recap_team_title: "Placar da equipe hoje", recap_today: "hoje",
     recap_week_title: "⚔️ Classificação da semana",
     recap_tab_today: "📅 Hoje", recap_tab_week: "⚔️ Semana",
+    recap_tab_odds: "🔮 Chances",
+    odds_head: "chance de ganhar a semana", odds_est: "estimativa",
+    odds_note: "Com base em pontuações recentes e na frequência de jogo",
+    odds_other: "Outros", odds_in_other: "está em «Outros»", odds_incl_you: "incl. você",
+    odds_chart_aria: "Chances de vitória em gráfico de rosca", odds_legend_aria: "Jogadores e suas chances",
+    odds_aria: (name, me, pct, lt1) => `${name}${me ? ", você" : ""}, ${lt1 ? "menos de 1" : pct} por cento de chance`,
+    odds_aria_other: (n, pct, me, lt1) => `Outros, ${n} jogadores, ${lt1 ? "menos de 1" : pct} por cento de chance${me ? ", você está aqui" : ""}`,
     recap_week_note: (d, h) => `🏁 fecha seg 12:00 · faltam ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Jogue primeiro o daily — depois você verá o placar da equipe.",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
@@ -5151,8 +5186,9 @@ const LB_STATS = [
   // gewonnen potje in 1 gok zou anders bovenaan staan.
   { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true, note: () => t("lb_scope_all") },
   { key: "streak",      label: () => t("lb_stat_streak"),    val: (r) => `${r.streak}` },
-  // Dagzeges tellen alleen dagen sinds je pool-lidmaatschap én met ≥2 deelnemers
-  // die dag (db/23) — vandaar het bijschrift "sinds deelname".
+  // Dagzeges tellen alleen dagen sinds je pool-lidmaatschap én gewonnen, met ≥2 deelnemers
+  // die dag (db/23) — sinds db/74 geldt vanaf 2026-10-05 ook de eerste/enige van de dag
+  // (DAGZEGE_ALONE_FROM, spiegel in de winkans-simulatie). Vandaar het bijschrift "sinds deelname".
   { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}`, note: () => t("lb_scope_pool") },
   { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}`, note: () => t("lb_scope_all") },
   // Perfect-rate: als rauwe teller was dit vrijwel een kloon van "Gespeeld"
@@ -6510,22 +6546,24 @@ function recapRaceHtml(rows) {
     `<div class="lb-wk-note"><p>${escHtml(t("recap_week_note")(d, h))}</p></div>`;
 }
 
-// Tabs-als-kop "📅 Vandaag │ ⚔️ Week" + een horizontaal scroll-snap-spoor met twee
-// slides (daily-bord · race). De tabs-rij vervangt de h3 "Teamstand vandaag", geen
+// Tabs-als-kop "📅 Vandaag │ ⚔️ Week │ 🔮 Kans" + een horizontaal scroll-snap-spoor met twee
+// of drie slides (daily-bord · race · winkans-donut, die laatste alleen bij genoeg spelers). De tabs-rij vervangt de h3 "Teamstand vandaag", geen
 // stippen; tikken en swipen blijven in sync. Spoorhoogte = de langste slide (adaptief
 // is bij de feiten-carrousel al afgewezen: springt). Er is alleen een carrousel als
 // er weekrijen zijn — anders blijft het de kale daily-tabel met de gewone kop.
-let recapTab = 0;   // actieve slide (0 = vandaag, 1 = week); reset bij elke verse recap, blijft staan bij pool-wissel
-function recapCarouselHtml(dailyRows, weekRows) {
+let recapTab = 0;   // actieve slide (0 = vandaag, 1 = week, 2 = kans); reset bij elke verse recap, blijft staan bij pool-wissel
+function recapCarouselHtml(dailyRows, weekRows, oddsV) {
+  const tab = (i, key) => `<button type="button" role="tab" class="rc-tab" data-i="${i}" aria-selected="${i === 0}">${escHtml(t(key))}</button>`;
+  const sep = `<span class="rc-sep" aria-hidden="true"></span>`;
+  const n = oddsV ? 3 : 2;
   return `<div class="rc">` +
-    `<div class="rc-tabs" role="tablist" aria-label="${escHtml(t("recap_team_title"))}">` +
-      `<button type="button" role="tab" class="rc-tab" data-i="0" aria-selected="true">${escHtml(t("recap_tab_today"))}</button>` +
-      `<span class="rc-sep" aria-hidden="true"></span>` +
-      `<button type="button" role="tab" class="rc-tab" data-i="1" aria-selected="false">${escHtml(t("recap_tab_week"))}</button>` +
+    `<div class="rc-tabs${n === 3 ? " n3" : ""}" role="tablist" aria-label="${escHtml(t("recap_team_title"))}">` +
+      tab(0, "recap_tab_today") + sep + tab(1, "recap_tab_week") + (oddsV ? sep + tab(2, "recap_tab_odds") : "") +
     `</div>` +
     `<div class="rc-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${escHtml(t("recap_team_title"))}">` +
-      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/2 · ${escHtml(t("recap_team_title"))}">${dailyTableHtml(dailyRows)}</div>` +
-      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/2 · ${escHtml(t("recap_week_title"))}">${recapRaceHtml(weekRows)}</div>` +
+      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/${n} · ${escHtml(t("recap_team_title"))}">${dailyTableHtml(dailyRows)}</div>` +
+      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/${n} · ${escHtml(t("recap_week_title"))}">${recapRaceHtml(weekRows)}</div>` +
+      (oddsV ? `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="3/3 · ${escHtml(t("odds_head"))}">${oddsSlideHtml(oddsV)}</div>` : "") +
     `</div></div>`;
 }
 
@@ -6568,53 +6606,394 @@ function recapRacePlay(root) {
   }));
 }
 
-function mountRecapCarousel(root) {
+function mountRecapCarousel(root, oddsV) {
   const track = root.querySelector(".rc-track");
   const slides = [...track.querySelectorAll(".rc-slide")];
   const tabs = [...root.querySelectorAll(".rc-tab")];
+  const last = slides.length - 1;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const step = () => (slides[1].offsetLeft - slides[0].offsetLeft) || 1;
+  const cur = () => Math.max(0, Math.min(last, Math.round(track.scrollLeft / step())));
   const setActive = (i) => {
     recapTab = i;
     tabs.forEach((tb, j) => tb.setAttribute("aria-selected", String(i === j)));
   };
-  const goTo = (i, smooth) => track.scrollTo({ left: i * step(), behavior: smooth && !reduced ? "smooth" : "auto" });
+  const goTo = (i, smooth) => track.scrollTo({ left: Math.max(0, Math.min(last, i)) * step(), behavior: smooth && !reduced ? "smooth" : "auto" });
   let raf = 0;
   track.addEventListener("scroll", () => {
     cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => setActive(Math.max(0, Math.min(1, Math.round(track.scrollLeft / step())))));
+    raf = requestAnimationFrame(() => setActive(cur()));
   }, { passive: true });
   tabs.forEach((tb) => tb.addEventListener("click", () => goTo(Number(tb.dataset.i), true)));
   track.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") { goTo(1, true); e.preventDefault(); }
-    else if (e.key === "ArrowLeft") { goTo(0, true); e.preventDefault(); }
+    if (e.target !== track) return;   // pijltjes in een plak/knop zijn van die plak/knop
+    if (e.key === "ArrowRight") { goTo(cur() + 1, true); e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { goTo(cur() - 1, true); e.preventDefault(); }
   });
   // Muis-slepen (desktop); scroll-snap doet de rest. Aanraken scrollt gewoon native.
   track.addEventListener("pointerdown", (e) => {
-    if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("button")) return;
+    if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("button, [role=button]")) return;
     const sx = e.clientX, sl = track.scrollLeft;
     track.classList.add("dragging");
     const move = (ev) => { track.scrollLeft = sl - (ev.clientX - sx); };
     const up = () => {
       window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up);
       track.classList.remove("dragging");
-      goTo(Math.max(0, Math.min(1, Math.round(track.scrollLeft / step()))), true);
+      goTo(cur(), true);
     };
     window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
   });
-  // Run-in: bij reduced-motion/zonder IntersectionObserver meteen de eindstand.
+  // Eenmalige instappen: de race-banen en de donut spelen af zodra hun slide voor het eerst echt in
+  // beeld is. Reduced-motion (of geen IntersectionObserver): meteen de eindstand.
+  const odds = oddsV ? mountOdds(slides[2], oddsV) : null;
   const lanes = root.querySelectorAll(".race-lane");
   if (reduced || !("IntersectionObserver" in window)) {
     lanes.forEach((l) => l.classList.add("go"));
+    odds?.full();
   } else {
     recapRaceReset(root);
-    let seen = false;
-    new IntersectionObserver((es) => es.forEach((en) => {
-      if (en.isIntersecting && !seen) { seen = true; recapRacePlay(root); }
-    }), { root: track, threshold: 0.6 }).observe(slides[1]);
+    odds?.reset();
+    const seen = [false, false, false];
+    const io = new IntersectionObserver((es) => es.forEach((en) => {
+      const i = slides.indexOf(en.target);
+      if (!en.isIntersecting || seen[i]) return;
+      seen[i] = true;
+      if (i === 1) recapRacePlay(root);
+      else if (i === 2) odds?.play();
+    }), { root: track, threshold: 0.6 });
+    io.observe(slides[1]);
+    if (odds) io.observe(slides[2]);
   }
-  setActive(recapTab);
+  setActive(Math.min(recapTab, last));
   goTo(recapTab, false);
+}
+
+// ── 🔮 Kans: winkansen op de weekzege (grill 3/10, mockup "Winkans-donut varianten", variant A) ──
+// De derde tab van de recap-carrousel. Een Monte Carlo over de rest van de week (model "M3"
+// uit het onderzoek): per speler een speelkans per dag, kans op verlies en gemiddelde +
+// spreiding van een gewonnen pot, plus een gedeeld dag-effect (een zware dag raakt iedereen).
+// De stand tot nu toe staat vast; de rest wordt gesimuleerd, inclusief de dagzege (+25) per dag.
+// Parameters komen uit get_pool_week_forecast (db/75), de stand uit de twee RPC's die de recap
+// al ophaalt. Het is een SCHATTING: de backtest op ~15 weken van Team Jaardle was gekalibreerd,
+// maar die steekproef is klein — vandaar het "schatting"-pilletje en geen cijfers achter de komma.
+// Geseed op de stand: dezelfde stand geeft dezelfde percentages bij heropenen (geen geflipper).
+const ODDS_RUNS = 3000;
+const ODDS_MIN_PLAYERS = 6;      // minder spelers in de pool → geen donut (te weinig kanshebbers; de slide zou de carrousel ook onnodig hoog maken)
+const ODDS_MIN_WEEK_ROWS = 3;    // en minstens 3 spelers met een pot deze week
+const ODDS_FOLD = 0.03;          // onder 3% → samen in "Overig" (zodra dat er ≥ 2 zijn)
+const DAGZEGE_ALONE_FROM = "2026-10-05";   // spiegel van db/74: vanaf deze puzzeldag telt de dagzege ook voor de eerste/enige van de dag
+
+// Telt de dagzege (+25) voor de nummer 1 van een dag? Spiegel van de SQL (get_pool_week_podium, db/74):
+// gewonnen, en ≥ 2 deelnemers — of vanaf de grensdatum ook alleen.
+function dagzegeApplies(heads, won, dayKey) {
+  return !!won && (heads >= 2 || dayKey >= DAGZEGE_ALONE_FROM);
+}
+
+function oddsRng(seed) {   // mulberry32
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function oddsHash(str) {   // FNV-1a 32-bit
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return h >>> 0;
+}
+
+// inp = { players:[{base,q,lost,mu,sd,today,pToday}], dayMean, daySd, todayKey, todayD, todaySd, todayOpen, futureKeys:[…] }
+//   base   = weekscore tot nu ZONDER de voorlopige dagzege van vandaag (die wordt opnieuw uitgedeeld)
+//   today  = null | {won, score, rank}: vandaag al gespeeld (vast resultaat; zit al in base)
+//   pToday = kans dat wie vandaag nog niet speelde dat alsnog doet (0 voor wie al speelde)
+// Geeft per speler de kans (0–1) dat hij de week wint; tot 1 opgeteld.
+function forecastWins(inp, runs, seed) {
+  const rnd = oddsRng(seed);
+  const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += rnd(); return (u - 3) * Math.SQRT2; };
+  const P = inp.players, n = P.length, NONE = -1e9;
+  const tot = new Float64Array(n), key = new Float64Array(n), wins = new Float64Array(n);
+  const clip = (x) => Math.max(0, Math.min(100, x));
+  const draw = (i, D) => {   // één pot van speler i op een dag met dag-effect D → [score, rangsleutel]
+    const p = P[i];
+    if (rnd() < p.lost) { const s = clip(Math.round(7 + 3 * gauss())); return [s, s + (rnd() - 0.5) * 0.5]; }
+    const s = clip(Math.round(D + p.mu + p.sd * gauss()));
+    return [s, 1000 + s + (rnd() - 0.5) * 0.5];
+  };
+  const dayBonus = (dayKey) => {   // de beste sleutel van de dag krijgt de dagzege
+    let best = NONE, bi = -1, heads = 0;
+    for (let i = 0; i < n; i++) if (key[i] > NONE) { heads++; if (key[i] > best) { best = key[i]; bi = i; } }
+    if (bi >= 0 && dagzegeApplies(heads, best >= 1000, dayKey)) tot[bi] += 25;
+  };
+  for (let s = 0; s < runs; s++) {
+    for (let i = 0; i < n; i++) {
+      tot[i] = P[i].base;
+      const t = P[i].today;
+      key[i] = t ? (t.won ? 1000 : 0) + t.score - ((t.rank || 1) - 1) * 1e-3 : NONE;
+    }
+    if (inp.todayOpen) {
+      const D = inp.todayD + inp.todaySd * gauss();
+      for (let i = 0; i < n; i++) if (!P[i].today && rnd() < P[i].pToday) { const g = draw(i, D); tot[i] += g[0]; key[i] = g[1]; }
+    }
+    dayBonus(inp.todayKey);
+    for (const dk of inp.futureKeys) {
+      const D = inp.dayMean + inp.daySd * gauss();
+      for (let i = 0; i < n; i++) { key[i] = NONE; if (rnd() < P[i].q) { const g = draw(i, D); tot[i] += g[0]; key[i] = g[1]; } }
+      dayBonus(dk);
+    }
+    let best = -1, bi = -1;
+    for (let i = 0; i < n; i++) { const v = tot[i] > 0 ? tot[i] + rnd() * 0.01 : -1; if (v > best) { best = v; bi = i; } }
+    if (bi >= 0) wins[bi] += 1;
+  }
+  return Array.from(wins, (w) => w / runs);
+}
+
+// Aandeel van de dagelijkse potten dat ná dit moment van de dag valt (hour_share = 24 aandelen, Amsterdam).
+function oddsShareAfter(hourShare, secsSinceMidnight) {
+  if (!Array.isArray(hourShare) || hourShare.length !== 24) return 0.5;
+  const h = Math.max(0, Math.min(23, Math.floor(secsSinceMidnight / 3600))), frac = (secsSinceMidnight - h * 3600) / 3600;
+  let after = (Number(hourShare[h]) || 0) * (1 - frac);
+  for (let k = h + 1; k < 24; k++) after += Number(hourShare[k]) || 0;
+  return Math.max(0, Math.min(1, after));
+}
+
+// Bouwt de simulatie-invoer uit de forecast-RPC + de stand en draait 'm. null = geen donut tonen.
+// ctx = { poolId, weekStart, todayKey, secsSinceMidnight }
+function oddsBuild(fc, dailyRows, weekRows, ctx) {
+  const pls = fc && Array.isArray(fc.players) ? fc.players : [];
+  if (pls.length < ODDS_MIN_PLAYERS || weekRows.length < ODDS_MIN_WEEK_ROWS) return null;
+  const weekBy = new Map(weekRows.map((r) => [r.display_name, r]));
+  const nonLate = dailyRows.filter((r) => !r.late);
+  const todayBy = new Map(nonLate.map((r) => [r.display_name, r]));
+  const heads = nonLate.length;
+  const topRank = heads ? Math.min(...nonLate.map((r) => r.rank)) : null;
+  const holders = new Set(nonLate.filter((r) => r.rank === topRank && dagzegeApplies(heads, r.won, ctx.todayKey)).map((r) => r.display_name));
+  const dayMean = Number(fc.day_mean) || 75, daySd = Math.max(1, Number(fc.day_sd) || 6);
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const sAfter = oddsShareAfter(fc.hour_share, ctx.secsSinceMidnight);
+  const obs = [];
+  const sim = pls.map((p) => {
+    const mu = Number(p.mu) || 0, q = clamp(Number(p.q) || 0, 0.02, 0.99);
+    const tr = todayBy.get(p.display_name);
+    const today = tr ? { won: !!tr.won, score: Number(tr.score) || 0, rank: Number(tr.rank) || 1 } : null;
+    if (today && today.won) obs.push(today.score - mu);
+    const w = weekBy.get(p.display_name);
+    return {
+      base: (w ? Number(w.week_score) || 0 : 0) - (holders.has(p.display_name) ? 25 : 0),
+      q, lost: clamp(Number(p.lost_p) || 0, 0, 0.9), mu, sd: Math.max(3, Number(p.sd) || 14), today,
+      pToday: today ? 0 : (q * sAfter) / Math.max(1e-6, 1 - q + q * sAfter),
+    };
+  });
+  const dIdx = Math.max(0, Math.min(6, daysBetweenKeys(ctx.weekStart, ctx.todayKey)));
+  const futureKeys = [];
+  for (let k = dIdx + 1; k <= 6; k++) futureKeys.push(shiftDateKey(ctx.weekStart, k));
+  // Dag-effect van vandaag: wat de al gespeelde spelers zeggen over hoe zwaar vandaag is (gekrompen naar het gemiddelde).
+  const nObs = obs.length;
+  const todayD = nObs ? dayMean + (nObs / (nObs + 2)) * (obs.reduce((a, b) => a + b, 0) / nObs - dayMean) : dayMean;
+  const seed = oddsHash([ctx.poolId, ctx.weekStart, weekRows.map((r) => r.display_name + ":" + r.week_score).join("|"),
+    nonLate.map((r) => r.display_name + ":" + r.score).join("|")].join("#"));
+  const probs = forecastWins({
+    players: sim, dayMean, daySd, todayKey: ctx.todayKey, todayD, todaySd: daySd / Math.sqrt(nObs + 1),
+    todayOpen: true, futureKeys,
+  }, ODDS_RUNS, seed);
+  return pls.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: p.flair || "", title: p.title || "", me: !!p.is_me, prob: probs[i] }));
+}
+
+// Hele procenten die optellen tot 100 (grootste-rest-methode).
+function oddsHamilton(vals) {
+  const tot = vals.reduce((a, b) => a + b, 0) || 1;
+  const raw = vals.map((v) => (100 * v) / tot), fl = raw.map(Math.floor);
+  let left = 100 - fl.reduce((a, b) => a + b, 0);
+  raw.map((r, i) => [r - fl[i], i]).sort((a, b) => b[0] - a[0]).slice(0, left).forEach(([, i]) => { fl[i]++; });
+  return fl;
+}
+// Ring-indeling: grootste kans eerst; spelers onder ODDS_FOLD vouwen samen tot één "Overig"-plak (zodra er ≥ 2 zijn).
+function oddsView(items) {
+  const tot = items.reduce((a, b) => a + b.prob, 0) || 1;
+  const all = items.map((x) => Object.assign({}, x, { prob: x.prob / tot })).sort((a, b) => b.prob - a.prob || a.idx - b.idx);
+  const small = all.filter((x) => x.prob < ODDS_FOLD);
+  let big = all, other = null;
+  if (small.length >= 2 && small.length < all.length) {
+    big = all.filter((x) => x.prob >= ODDS_FOLD);
+    other = { id: "other", other: true, members: small, prob: small.reduce((a, b) => a + b.prob, 0), me: small.some((x) => x.me) };
+  }
+  const h = oddsHamilton(big.map((x) => x.prob).concat(other ? [other.prob] : []));
+  const pc = {};
+  big.forEach((x, i) => { pc[x.id] = h[i]; });
+  if (other) { pc.other = h[big.length]; other.members.forEach((m) => { pc[m.id] = Math.round(m.prob * 100); }); }
+  const byId = {};
+  all.forEach((x) => { byId[x.id] = x; });
+  return { items: big, other, pc, byId, meId: (all.find((x) => x.me) || all[0] || {}).id || null };
+}
+
+// ── donut (variant A: emoji op de ring, % op de grote plakken, legenda eronder) ──
+const ODDS_GEO = { cx: 162, cy: 100, r: 77, sw: 30 };
+const oddsR1 = (x) => Math.round(x * 10) / 10;
+const oddsSlot = (idx) => (idx % 8) + 1;   // 8 tinten in vaste volgorde; speler 9+ hergebruikt ze mét arcering
+function oddsLum(hex) {
+  const c = [1, 3, 5].map((i) => parseInt(hex.substr(i, 2), 16) / 255).map((v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function oddsOnColor(slot) {   // wit of zwart, wat het meeste contrast geeft op de tint van deze plak
+  const hex = (typeof getComputedStyle === "function" ? getComputedStyle(document.documentElement).getPropertyValue("--s" + slot) : "").trim();
+  if (!/^#[0-9a-f]{6}$/i.test(hex)) return "#fff";
+  const L = oddsLum(hex);
+  return 1.05 / (L + 0.05) >= (L + 0.05) / 0.05 ? "#fff" : "#111";
+}
+const oddsFlair = (it) => it.flair || "🏃";
+function oddsPct(view, id) {
+  const p = id === "other" ? view.other.prob : view.byId[id].prob;
+  return p < 0.005 ? "<1%" : Math.max(1, view.pc[id]) + "%";
+}
+function oddsAria(view, it) {
+  const raw = oddsPct(view, it.id), lt1 = raw.startsWith("<"), num = raw.replace(/[<%]/g, "");
+  return it.other ? t("odds_aria_other")(it.members.length, num, it.me, lt1) : t("odds_aria")(it.name, it.me, num, lt1);
+}
+function oddsLayout(view) {
+  const list = view.items.concat(view.other ? [view.other] : []);
+  let s = 0;
+  return list.map((it) => { const o = { it, start: s, sweep: it.prob * 360 }; s += o.sweep; return o; }).filter((a) => a.sweep >= 0.6);
+}
+const oddsColorVar = (it) => (it.other ? "var(--s-other)" : `var(--s${oddsSlot(it.idx)})`);
+const oddsFill = (it) => (it.other ? "url(#odds-hp-o)" : it.idx >= 8 ? `url(#odds-hp-${oddsSlot(it.idx)})` : `var(--s${oddsSlot(it.idx)})`);
+function oddsTokenHtml(it, cls) {
+  return `<span class="od-tk${it.idx >= 8 ? " hatch" : ""}${cls ? " " + cls : ""}" style="--c:var(--s${oddsSlot(it.idx)})">${escHtml(oddsFlair(it))}</span>`;
+}
+function oddsDonutHtml(view) {
+  const { cx, cy, r, sw } = ODDS_GEO, C = 2 * Math.PI * r, gapDeg = ((2.6 / r) * 180) / Math.PI, rad = (d) => (d * Math.PI) / 180;
+  const lay = oddsLayout(view);
+  let arcs = "", labs = "";
+  lay.forEach((a) => {
+    const it = a.it, len = Math.max(0.5, ((a.sweep - gapDeg) / 360) * C), off = -((a.start + gapDeg / 2) / 360) * C;
+    const dash = `stroke-dasharray:${oddsR1(len)} ${oddsR1(C)};stroke-dashoffset:${oddsR1(off)}`;
+    const k = (r + sw / 2 + 5) / r;
+    arcs += `<g class="od-it" data-od="${it.id}" role="button" tabindex="0" aria-pressed="false" aria-label="${escHtml(oddsAria(view, it))}" style="--c:${oddsColorVar(it)}">` +
+      `<circle class="od-halo" cx="${cx}" cy="${cy}" r="${r}" style="stroke-width:${sw + 7}px;${dash}"/>` +
+      `<circle class="od-arc" cx="${cx}" cy="${cy}" r="${r}" style="stroke:${oddsFill(it)};stroke-width:${sw}px;stroke-dasharray:0 ${oddsR1(C)};stroke-dashoffset:${oddsR1(off)}"/>` +
+      (it.me ? `<circle class="od-me" cx="${cx}" cy="${cy}" r="${oddsR1(r + sw / 2 + 5)}" style="stroke-width:3px;stroke-dasharray:0 ${oddsR1(C * k)};stroke-dashoffset:${oddsR1(off * k)}"/>` : "") +
+      "</g>";
+    const mid = rad(a.start + a.sweep / 2), x = cx + r * Math.sin(mid), y = cy - r * Math.cos(mid), arcLen = rad(a.sweep) * r;
+    if (arcLen >= 22) {
+      const big = a.sweep >= 52, col = it.other ? "var(--fg)" : oddsOnColor(oddsSlot(it.idx));
+      labs += `<text class="od-lab" data-odl="${it.id}" x="${oddsR1(x)}" y="${oddsR1(big ? y - 6 : y)}" style="font-size:${arcLen >= 32 ? 17 : 14}px">${it.other ? "👥" : escHtml(oddsFlair(it))}</text>`;
+      if (big) labs += `<text class="od-labp" data-odl="${it.id}" x="${oddsR1(x)}" y="${oddsR1(y + 11)}" style="fill:${col}">${escHtml(oddsPct(view, it.id))}</text>`;
+    }
+  });
+  let defs = "";
+  const slots = new Set();
+  lay.forEach((a) => { if (a.it.other) slots.add("o"); else if (a.it.idx >= 8) slots.add(oddsSlot(a.it.idx)); });
+  slots.forEach((s) => {
+    const c = s === "o" ? "var(--s-other)" : `var(--s${s})`;
+    defs += `<pattern id="odds-hp-${s}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:${c}"/><rect width="2.4" height="6" style="fill:var(--card)" opacity=".5"/></pattern>`;
+  });
+  return `<svg viewBox="0 0 324 200" role="group" aria-label="${escHtml(t("odds_chart_aria"))}"><defs>${defs}</defs>` +
+    `<g transform="rotate(-90 ${cx} ${cy})">${arcs}</g><g class="od-labs">${labs}</g>` +
+    `<g class="od-ctr" aria-hidden="true"><text class="od-ctr-e" x="${cx}" y="${cy - 21}" style="font-size:22px"></text>` +
+    `<text class="od-ctr-p" x="${cx}" y="${cy + 10}" style="font-size:29px"></text>` +
+    `<text class="od-ctr-n" x="${cx}" y="${cy + 26}"></text><text class="od-ctr-c" x="${cx}" y="${cy + 38}"></text></g></svg>`;
+}
+function oddsLegendHtml(view) {
+  const youTag = `<i class="lb-tag">${escHtml(t("lb_you"))}</i>`;
+  let h = `<div class="od-lgd" role="group" aria-label="${escHtml(t("odds_legend_aria"))}">` + view.items.map((it) =>
+    `<button type="button" class="od-lg${it.me ? " me" : ""}" data-od="${it.id}" aria-pressed="false" aria-label="${escHtml(oddsAria(view, it))}" style="--c:var(--s${oddsSlot(it.idx)})">` +
+    `${oddsTokenHtml(it)}<span class="od-nm"><span class="od-t">${escHtml(it.name)}</span>${it.me ? youTag : ""}</span><span class="od-pc">${escHtml(oddsPct(view, it.id))}</span></button>`).join("");
+  if (view.other) {
+    const o = view.other;
+    h += `<button type="button" class="od-lg other${o.me ? " me" : ""}" data-od="other" aria-pressed="false" aria-expanded="false" aria-label="${escHtml(oddsAria(view, o))}">` +
+      `<span class="od-tk other">+${o.members.length}</span><span class="od-nm"><span class="od-t">${escHtml(t("odds_other"))}</span>${o.me ? youTag : ""}</span><span class="od-pc">${escHtml(oddsPct(view, "other"))}</span></button>`;
+    h += `<div class="od-more" hidden>` + o.members.map((m) =>
+      `<button type="button" class="od-chip${m.me ? " me" : ""}" data-odm="${m.id}" aria-pressed="false" style="--c:var(--s${oddsSlot(m.idx)})" aria-label="${escHtml(oddsAria(view, m))}">` +
+      `${oddsTokenHtml(m, "sm")}<span>${escHtml(m.name)}${m.me ? " (" + escHtml(t("lb_you")) + ")" : ""}</span><b>${escHtml(oddsPct(view, m.id))}</b></button>`).join("") + `</div>`;
+  }
+  return h + "</div>";
+}
+function oddsSlideHtml(view) {
+  return `<div class="odds"><div class="odds-head"><span class="odds-est">${escHtml(t("odds_est"))}</span><span>${escHtml(t("odds_head"))}</span></div>` +
+    `<div class="odds-chart">${oddsDonutHtml(view)}</div>${oddsLegendHtml(view)}` +
+    `<p class="lb-wk-note">${escHtml(t("odds_note"))}</p></div>`;
+}
+
+// Selectie (sticky): jouw plak staat vooraf geselecteerd; tik = wisselen, dezelfde nog eens = deselecteren;
+// de rest dimt en het midden toont emoji, kans en naam. Tik op "Overig" klapt de leden uit (blijft staan).
+function mountOdds(root, view) {
+  const geo = ODDS_GEO, C = 2 * Math.PI * geo.r, gapDeg = ((2.6 / geo.r) * 180) / Math.PI;
+  const lay = oddsLayout(view);
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const folded = (id) => !!(view.other && view.other.members.some((m) => m.id === id));
+  let sel = view.meId, raf = 0, t1 = 1;
+  const els = lay.map((a) => ({ a, arc: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-arc`), me: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-me`), labs: [...root.querySelectorAll(`[data-odl="${a.it.id}"]`)] }));
+  const draw = (t) => {
+    t1 = t;
+    const th = t * 360;
+    els.forEach(({ a, arc, me, labs }) => {
+      const vis = Math.max(0, Math.min(a.sweep, th - a.start)), full = Math.max(0.5, ((a.sweep - gapDeg) / 360) * C);
+      const l = vis <= 0 ? 0 : Math.max(0.01, (vis / a.sweep) * full);
+      arc.style.strokeDasharray = `${oddsR1(l)} ${oddsR1(C)}`;
+      if (me) { const k = (geo.r + geo.sw / 2 + 5) / geo.r; me.style.strokeDasharray = `${oddsR1(l * k)} ${oddsR1(C * k)}`; }
+      const o = Math.max(0, Math.min(1, (th - (a.start + a.sweep * 0.6)) / 30));
+      labs.forEach((el) => { el.style.opacity = o; });
+    });
+  };
+  const apply = () => {
+    const hk = sel ? (folded(sel) ? "other" : sel) : null, odds = root.querySelector(".odds");
+    odds.classList.toggle("has-sel", !!hk);
+    root.querySelectorAll("[data-od]").forEach((el) => {
+      const on = !!hk && el.dataset.od === hk;
+      el.classList.toggle("sel", on);
+      if (el.matches("button, [role=button]")) el.setAttribute("aria-pressed", String(on));
+    });
+    root.querySelectorAll("[data-odl]").forEach((el) => el.classList.toggle("dl", !!hk && el.dataset.odl !== hk));
+    root.querySelectorAll("[data-odm]").forEach((el) => el.setAttribute("aria-pressed", String(!!sel && el.dataset.odm === sel)));
+    const open = sel === "other" || (!!sel && folded(sel)), more = root.querySelector(".od-more");
+    if (more) more.hidden = !open;
+    root.querySelector('.od-lg[data-od="other"]')?.setAttribute("aria-expanded", String(open));
+    // midden: de gekozen speler (of jij) — bij niets gekozen blijft jouw plak daar staan
+    const id = sel || view.meId;
+    let e, p, n, c;
+    if (id === "other") { const o = view.other; e = "👥"; p = oddsPct(view, "other"); n = `${t("odds_other")} · ${o.members.length}`; c = o.me ? t("odds_incl_you") : t("odds_est"); }
+    else { const it = view.byId[id]; e = oddsFlair(it); p = oddsPct(view, id); n = it.name; c = folded(id) ? t("odds_in_other") : t("odds_est"); }
+    const me = id !== "other" && view.byId[id].me;
+    const q = (s) => root.querySelector(s);
+    q(".od-ctr-e").textContent = e;
+    q(".od-ctr-p").textContent = p;
+    const nEl = q(".od-ctr-n");
+    nEl.textContent = n;
+    if (me) { const ts = document.createElementNS("http://www.w3.org/2000/svg", "tspan"); ts.setAttribute("class", "jij"); ts.textContent = ` · ${t("lb_you")}`; nEl.appendChild(ts); }
+    nEl.style.fontSize = n.length > 12 ? "10.5px" : "";
+    q(".od-ctr-c").textContent = c;
+  };
+  root.addEventListener("click", (e) => {
+    const m = e.target.closest("[data-odm]");
+    if (m) { sel = sel === m.dataset.odm ? "other" : m.dataset.odm; apply(); return; }
+    const it = e.target.closest("[data-od]");
+    if (!it) return;
+    sel = sel === it.dataset.od ? null : it.dataset.od;
+    apply();
+  });
+  root.addEventListener("keydown", (e) => {   // de plakken zijn role=button op een <g>: Enter/spatie doen wat een knop doet
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const g = e.target;
+    if (g.matches && g.matches("[role=button]") && !g.matches("button")) { e.preventDefault(); g.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+  });
+  apply();
+  draw(1);
+  return {
+    play() {   // eenmalige instap: de plakken vegen ~0,9 s rond (reduced-motion: meteen klaar)
+      cancelAnimationFrame(raf);
+      if (reduced) { draw(1); return; }
+      draw(0);
+      const t0 = performance.now(), dur = 900;
+      const frame = (now) => {
+        const t = Math.max(0, Math.min(1, (now - t0) / dur));
+        draw(1 - Math.pow(1 - t, 3));
+        if (t < 1) raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
+    },
+    reset() { cancelAnimationFrame(raf); draw(0); },
+    full() { cancelAnimationFrame(raf); draw(1); },
+  };
 }
 
 // Teamstand van vandaag in het recap-scherm: zelfde rijen als het daily-bord van
@@ -6648,11 +7027,15 @@ async function loadRecapTeam() {
   const poolId = myPool.id;   // wisselt de gebruiker intussen van pool → gooi dit antwoord weg
   // Dagbord + weekstand parallel; het weekblok verschijnt pas vanaf de podium-epoch
   // en verdwijnt vanzelf bij een lege week (RPC geeft dan geen rijen).
-  const [rows, wkRows] = await Promise.all([
+  // De winkans-donut (🔮 Kans) heeft ook de forecast-parameters nodig (db/75) — alleen opvragen bij
+  // een pool die groot genoeg is; een mislukte/ontbrekende RPC betekent gewoon: geen derde tab.
+  const wantOdds = (myPool.members || 0) >= ODDS_MIN_PLAYERS && currentWeekStart() >= PODIUM_EPOCH;
+  const [rows, wkRows, fc] = await Promise.all([
     rpc("get_pool_daily_leaderboard", { p_pool_id: poolId, p_date: todayKey() }).catch(() => []),
     currentWeekStart() >= PODIUM_EPOCH
       ? rpc("get_pool_week_podium", { p_pool_id: poolId, p_week_start: currentWeekStart() }).catch(() => [])
       : Promise.resolve([]),
+    wantOdds ? rpc("get_pool_week_forecast", { p_pool_id: poolId }).catch(() => null) : Promise.resolve(null),
   ]);
   if (document.getElementById("modal-recap").hidden || myPool?.id !== poolId) return;
   const board = document.getElementById("recap-team-board");
@@ -6664,8 +7047,15 @@ async function loadRecapTeam() {
   const head = document.getElementById("recap-team-head");
   if (head) head.hidden = weekRows.length > 0;
   if (!weekRows.length) { setBoard(board, dailyTableHtml(dailyRows)); return; }
-  setBoard(board, recapCarouselHtml(dailyRows, weekRows));
-  mountRecapCarousel(board.querySelector(".rc"));
+  let oddsV = null;
+  try {
+    const items = oddsBuild(fc, dailyRows, weekRows, {
+      poolId, weekStart: currentWeekStart(), todayKey: todayKey(), secsSinceMidnight: 86400 - secsToNextDaily(),
+    });
+    if (items) oddsV = oddsView(items);
+  } catch (e) { console.error(e); oddsV = null; }   // een rekenfout mag de recap nooit breken: dan gewoon geen derde tab
+  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsV));
+  mountRecapCarousel(board.querySelector(".rc"), oddsV);
 }
 
 // --- Prestaties (achievements) ----------------------------------------------

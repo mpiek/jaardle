@@ -48,6 +48,7 @@ src += `
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HolidayFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
+  dagzegeApplies, forecastWins, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -379,4 +380,115 @@ test("racePos — koploper-relatief, minimale spreiding, nooit buiten de baan", 
   const ps = [300, 280, 240, 150].map((sc) => T.racePos(sc, 300, 150));
   assert.deepEqual([...ps].sort((a, b) => b - a), ps);
   for (const p of ps) assert.ok(p >= T.RACE_LAST_POS - 1e-9 && p <= T.RACE_LEAD_POS + 1e-9);
+});
+
+// --- 🔮 Kans: winkansen op de weekzege (grill 3/10) ---
+test("dagzegeApplies — gewonnen, en ≥2 deelnemers of vanaf de grensdatum ook alleen (db/74)", () => {
+  assert.equal(T.DAGZEGE_ALONE_FROM, "2026-10-05");
+  assert.equal(T.dagzegeApplies(1, true, "2026-10-04"), false);    // alleen, vóór de grens
+  assert.equal(T.dagzegeApplies(1, true, "2026-10-05"), true);     // alleen, vanaf de grens
+  assert.equal(T.dagzegeApplies(2, true, "2026-09-01"), true);     // altijd bij ≥2
+  assert.equal(T.dagzegeApplies(1, false, "2026-10-12"), false);   // een verlies is nooit een dagzege
+  assert.equal(T.dagzegeApplies(5, false, "2026-10-12"), false);
+});
+
+const mkSim = (over = {}) => ({
+  players: [], dayMean: 75, daySd: 6, todayKey: "2026-10-06", todayD: 75, todaySd: 6, todayOpen: false, futureKeys: [], ...over,
+});
+const pl = (o = {}) => ({ base: 0, q: 1, lost: 0, mu: 0, sd: 8, today: null, pToday: 0, ...o });
+
+test("forecastWins — tellen op tot 1, deterministisch per seed", () => {
+  const inp = mkSim({ players: [pl({ base: 300 }), pl({ base: 280 }), pl({ base: 250, q: 0.7 })], futureKeys: ["2026-10-07", "2026-10-08", "2026-10-09"] });
+  const a = T.forecastWins(inp, 2000, 42), b = T.forecastWins(inp, 2000, 42), c = T.forecastWins(inp, 2000, 43);
+  assert.ok(Math.abs(a.reduce((x, y) => x + y, 0) - 1) < 1e-9);
+  assert.deepEqual(a, b);                 // zelfde seed = zelfde getallen (geen geflipper bij heropenen)
+  assert.notDeepEqual(a, c);              // andere seed = andere ruis
+  assert.ok(a[0] > a[2]);                 // meer punten + vaker spelen wint vaker
+});
+
+test("forecastWins — beslist is beslist, symmetrie is 50/50, wie niet speelt wint niet", () => {
+  // geen dagen meer: de koploper wint altijd
+  const done = T.forecastWins(mkSim({ players: [pl({ base: 400 }), pl({ base: 200 })] }), 500, 1);
+  assert.equal(done[0], 1);
+  // twee identieke spelers, zelfde stand → ± 50/50
+  const sym = T.forecastWins(mkSim({ players: [pl({ base: 100 }), pl({ base: 100 })], futureKeys: ["2026-10-07", "2026-10-08"] }), 6000, 7);
+  assert.ok(Math.abs(sym[0] - 0.5) < 0.05, `sym=${sym[0]}`);
+  // een betere speler (mu +12) met dezelfde stand en 5 dagen te gaan wint meestal
+  const better = T.forecastWins(mkSim({ players: [pl({ base: 100, mu: 12 }), pl({ base: 100 })], futureKeys: ["2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11"] }), 4000, 9);
+  assert.ok(better[0] > 0.6, `better=${better[0]}`);
+  // q = 0: speelt nooit meer, dus verliest van wie nog wel punten haalt
+  const idle = T.forecastWins(mkSim({ players: [pl({ base: 150, q: 0 }), pl({ base: 100 })], futureKeys: ["2026-10-07", "2026-10-08", "2026-10-09"] }), 1000, 3);
+  assert.ok(idle[1] > 0.9, `idle=${idle}`);
+});
+
+test("forecastWins — vandaag: vaste resultaten, wie nog moet spelen kan de dagzege afpakken", () => {
+  // A (net gespeeld, 80) en B (nog niet; speelt vandaag zeker, mu +15 = vaak beter). Zonder dagen erna beslist de dagzege.
+  const mk = (pToday) => mkSim({
+    todayOpen: true, todayD: 75, todaySd: 0.0001, players: [
+      pl({ base: 200, q: 1, today: { won: true, score: 80, rank: 1 } }),
+      pl({ base: 190, q: 1, mu: 15, sd: 1, pToday }),
+    ] });
+  const stays = T.forecastWins(mk(0), 2000, 5);          // B speelt niet meer → A houdt 200 (+25 als er een 2e deelnemer is: hier niet)
+  assert.equal(stays[0], 1);
+  const may = T.forecastWins(mk(1), 2000, 5);            // B speelt zeker: ±90 → 280 vs 200 (+ dagzege voor B)
+  assert.ok(may[1] > 0.95, `may=${may}`);
+});
+
+test("oddsShareAfter — aandeel van de dag dat nog komt", () => {
+  const uni = new Array(24).fill(1 / 24);
+  assert.ok(Math.abs(T.oddsShareAfter(uni, 0) - 1) < 1e-9);
+  assert.ok(Math.abs(T.oddsShareAfter(uni, 12 * 3600) - 0.5) < 1e-9);
+  assert.ok(Math.abs(T.oddsShareAfter(uni, 12 * 3600 + 1800) - (0.5 - 1 / 48)) < 1e-9);   // halverwege uur 12
+  assert.ok(T.oddsShareAfter(uni, 86399) < 0.001);
+  assert.equal(T.oddsShareAfter(null, 100), 0.5);   // geen verdeling → neutraal
+});
+
+test("oddsHamilton — hele procenten, altijd 100", () => {
+  assert.equal(T.oddsHamilton([0.333, 0.333, 0.334]).reduce((a, b) => a + b, 0), 100);
+  assert.deepEqual(T.oddsHamilton([0.5, 0.25, 0.25]), [50, 25, 25]);
+  for (let k = 0; k < 20; k++) {
+    const v = Array.from({ length: 2 + (k % 9) }, (_, i) => ((k * 7 + i * 13) % 17) + 1);
+    assert.equal(T.oddsHamilton(v).reduce((a, b) => a + b, 0), 100);
+  }
+});
+
+const mkItems = (probs, me = 0) => probs.map((p, i) => ({ id: "p" + i, idx: i, name: "S" + i, flair: "", title: "", me: i === me, prob: p }));
+
+test("oddsView — onder 3% vouwt samen tot Overig (alleen bij ≥ 2), jij blijft vindbaar", () => {
+  const v = T.oddsView(mkItems([0.4, 0.3, 0.2, 0.05, 0.02, 0.01, 0.01, 0.01], 5));
+  assert.equal(v.items.length, 4);                               // 40/30/20/5
+  assert.ok(v.other && v.other.members.length === 4);            // 2+1+1+1 %
+  assert.equal(v.other.me, true);                                // jij zit in Overig
+  assert.equal(v.meId, "p5");
+  const sum = v.items.reduce((a, x) => a + v.pc[x.id], 0) + v.pc.other;
+  assert.equal(sum, 100);
+  assert.deepEqual(v.items.map((x) => x.id), ["p0", "p1", "p2", "p3"]);   // grootste kans eerst
+  // één kleine speler = geen Overig-plak (een plak voor één persoon zou alleen verwarren)
+  const one = T.oddsView(mkItems([0.5, 0.3, 0.19, 0.01]));
+  assert.equal(one.other, null);
+  assert.equal(one.items.length, 4);
+  // kansen die niet precies tot 1 optellen worden genormaliseerd
+  const raw = T.oddsView(mkItems([0.2, 0.2, 0.2, 0.2]));
+  assert.deepEqual(raw.items.map((x) => raw.pc[x.id]), [25, 25, 25, 25]);
+});
+
+test("oddsBuild — drempels, kansen tellen op tot 1, stabiel per stand", () => {
+  const names = ["Anna", "Joris", "Piet", "Lisa", "Mo", "Sanne", "Daan"];
+  const fc = {
+    day_mean: 76, day_sd: 6, hour_share: new Array(24).fill(1 / 24),
+    players: names.map((n, i) => ({ display_name: n, flair: "", title: null, is_me: i === 3, n: 30, q: 0.9 - i * 0.05, lost_p: 0.05, mu: 6 - i * 2, sd: 11 })),
+  };
+  const week = [["Anna", 300], ["Joris", 290], ["Piet", 250], ["Lisa", 240], ["Mo", 200]].map(([n, w], i) => ({ rank: i + 1, display_name: n, week_score: w, daily_wins: 0, played: 4, is_me: n === "Lisa" }));
+  const daily = [{ rank: 1, display_name: "Anna", won: true, score: 90, late: false }, { rank: 2, display_name: "Lisa", won: true, score: 80, late: false }];
+  const ctx = { poolId: "p1", weekStart: "2026-09-28", todayKey: "2026-10-01", secsSinceMidnight: 14 * 3600 };
+  const items = T.oddsBuild(fc, daily, week, ctx);
+  assert.equal(items.length, 7);
+  assert.ok(Math.abs(items.reduce((a, x) => a + x.prob, 0) - 1) < 1e-9);
+  assert.ok(items.find((x) => x.name === "Anna").prob > items.find((x) => x.name === "Daan").prob);   // koploper > achterstand
+  assert.equal(items.filter((x) => x.me).length, 1);
+  assert.deepEqual(T.oddsBuild(fc, daily, week, ctx).map((x) => x.prob), items.map((x) => x.prob));   // zelfde stand, zelfde getallen
+  // drempels: te weinig spelers in de pool-historie, of te weinig weekrijen → geen donut
+  assert.equal(T.oddsBuild({ ...fc, players: fc.players.slice(0, T.ODDS_MIN_PLAYERS - 1) }, daily, week, ctx), null);
+  assert.equal(T.oddsBuild(fc, daily, week.slice(0, 2), ctx), null);
+  assert.equal(T.oddsBuild(null, daily, week, ctx), null);   // RPC faalde/bestaat nog niet
 });
