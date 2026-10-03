@@ -278,6 +278,9 @@ const I18N = {
     odds_chart_aria: "Winkansen als donut", odds_legend_aria: "Spelers en hun kans",
     odds_aria: (name, me, pct, lt1) => `${name}${me ? ", jij" : ""}, ${lt1 ? "minder dan 1" : pct} procent kans`,
     odds_aria_other: (n, pct, me, lt1) => `Overig, ${n} spelers, ${lt1 ? "minder dan 1" : pct} procent kans${me ? ", jij zit hierin" : ""}`,
+    odds_places_aria: "Kies de plek", odds_hole_aria: "Volgende plek",
+    odds_place: (k) => ["winnaar", "2e plek", "3e plek"][k],
+    odds_place_aria: (k) => ["kans op de weekzege", "kans op de 2e plek", "kans op de 3e plek"][k],
     recap_week_note: (d, h) => `🏁 sluit ma 12:00 · nog ${d > 0 ? d + " d" : h + " u"}`,
     recap_play_first: "Speel eerst de daily — daarna zie je de stand van je team.",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
@@ -574,6 +577,9 @@ const I18N = {
     odds_chart_aria: "Win chances as a donut chart", odds_legend_aria: "Players and their chance",
     odds_aria: (name, me, pct, lt1) => `${name}${me ? ", you" : ""}, ${lt1 ? "less than 1" : pct} percent chance`,
     odds_aria_other: (n, pct, me, lt1) => `Others, ${n} players, ${lt1 ? "less than 1" : pct} percent chance${me ? ", you are in this group" : ""}`,
+    odds_places_aria: "Choose the place", odds_hole_aria: "Next place",
+    odds_place: (k) => ["winner", "2nd place", "3rd place"][k],
+    odds_place_aria: (k) => ["chance to win the week", "chance of finishing 2nd", "chance of finishing 3rd"][k],
     recap_week_note: (d, h) => `🏁 closes Mon 12:00 · ${d > 0 ? d + " d" : h + " h"} left`,
     recap_play_first: "Play today's daily first — then you'll see your team's standings.",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
@@ -863,6 +869,9 @@ const I18N = {
     odds_chart_aria: "Gewinnchancen als Donut-Diagramm", odds_legend_aria: "Spieler und ihre Chance",
     odds_aria: (name, me, pct, lt1) => `${name}${me ? ", du" : ""}, ${lt1 ? "weniger als 1" : pct} Prozent Chance`,
     odds_aria_other: (n, pct, me, lt1) => `Übrige, ${n} Spieler, ${lt1 ? "weniger als 1" : pct} Prozent Chance${me ? ", du bist dabei" : ""}`,
+    odds_places_aria: "Platz wählen", odds_hole_aria: "Nächster Platz",
+    odds_place: (k) => ["Sieger", "Platz 2", "Platz 3"][k],
+    odds_place_aria: (k) => ["Chance auf den Wochensieg", "Chance auf Platz 2", "Chance auf Platz 3"][k],
     recap_week_note: (d, h) => `🏁 schließt Mo 12:00 · noch ${d > 0 ? d + " d" : h + " Std."}`,
     recap_play_first: "Spiel zuerst das Daily — dann siehst du den Teamstand.",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
@@ -1156,6 +1165,9 @@ const I18N = {
     odds_chart_aria: "Probabilidades de victoria en gráfico de anillo", odds_legend_aria: "Jugadores y su probabilidad",
     odds_aria: (name, me, pct, lt1) => `${name}${me ? ", tú" : ""}, ${lt1 ? "menos de 1" : pct} por ciento de probabilidad`,
     odds_aria_other: (n, pct, me, lt1) => `Otros, ${n} jugadores, ${lt1 ? "menos de 1" : pct} por ciento de probabilidad${me ? ", tú estás aquí" : ""}`,
+    odds_places_aria: "Elige el puesto", odds_hole_aria: "Siguiente puesto",
+    odds_place: (k) => ["ganador", "2.º puesto", "3.er puesto"][k],
+    odds_place_aria: (k) => ["probabilidad de ganar la semana", "probabilidad de quedar 2.º", "probabilidad de quedar 3.º"][k],
     recap_week_note: (d, h) => `🏁 cierra lun 12:00 · faltan ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Juega primero el diario — luego verás la clasificación de tu equipo.",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
@@ -1449,6 +1461,9 @@ const I18N = {
     odds_chart_aria: "Chances de vitória em gráfico de rosca", odds_legend_aria: "Jogadores e suas chances",
     odds_aria: (name, me, pct, lt1) => `${name}${me ? ", você" : ""}, ${lt1 ? "menos de 1" : pct} por cento de chance`,
     odds_aria_other: (n, pct, me, lt1) => `Outros, ${n} jogadores, ${lt1 ? "menos de 1" : pct} por cento de chance${me ? ", você está aqui" : ""}`,
+    odds_places_aria: "Escolha o lugar", odds_hole_aria: "Próximo lugar",
+    odds_place: (k) => ["vencedor", "2.º lugar", "3.º lugar"][k],
+    odds_place_aria: (k) => ["chance de ganhar a semana", "chance de ficar em 2.º", "chance de ficar em 3.º"][k],
     recap_week_note: (d, h) => `🏁 fecha seg 12:00 · faltam ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Jogue primeiro o daily — depois você verá o placar da equipe.",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
@@ -6552,18 +6567,18 @@ function recapRaceHtml(rows) {
 // is bij de feiten-carrousel al afgewezen: springt). Er is alleen een carrousel als
 // er weekrijen zijn — anders blijft het de kale daily-tabel met de gewone kop.
 let recapTab = 0;   // actieve slide (0 = vandaag, 1 = week, 2 = kans); reset bij elke verse recap, blijft staan bij pool-wissel
-function recapCarouselHtml(dailyRows, weekRows, oddsV) {
+function recapCarouselHtml(dailyRows, weekRows, oddsItems) {
   const tab = (i, key) => `<button type="button" role="tab" class="rc-tab" data-i="${i}" aria-selected="${i === 0}">${escHtml(t(key))}</button>`;
   const sep = `<span class="rc-sep" aria-hidden="true"></span>`;
-  const n = oddsV ? 3 : 2;
+  const n = oddsItems ? 3 : 2;
   return `<div class="rc">` +
     `<div class="rc-tabs${n === 3 ? " n3" : ""}" role="tablist" aria-label="${escHtml(t("recap_team_title"))}">` +
-      tab(0, "recap_tab_today") + sep + tab(1, "recap_tab_week") + (oddsV ? sep + tab(2, "recap_tab_odds") : "") +
+      tab(0, "recap_tab_today") + sep + tab(1, "recap_tab_week") + (oddsItems ? sep + tab(2, "recap_tab_odds") : "") +
     `</div>` +
     `<div class="rc-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${escHtml(t("recap_team_title"))}">` +
       `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/${n} · ${escHtml(t("recap_team_title"))}">${dailyTableHtml(dailyRows)}</div>` +
       `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/${n} · ${escHtml(t("recap_week_title"))}">${recapRaceHtml(weekRows)}</div>` +
-      (oddsV ? `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="3/3 · ${escHtml(t("odds_head"))}">${oddsSlideHtml(oddsV)}</div>` : "") +
+      (oddsItems ? `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="3/3 · ${escHtml(t("odds_head"))}">${oddsSlideHtml(oddsItems)}</div>` : "") +
     `</div></div>`;
 }
 
@@ -6606,7 +6621,7 @@ function recapRacePlay(root) {
   }));
 }
 
-function mountRecapCarousel(root, oddsV) {
+function mountRecapCarousel(root, oddsItems) {
   const track = root.querySelector(".rc-track");
   const slides = [...track.querySelectorAll(".rc-slide")];
   const tabs = [...root.querySelectorAll(".rc-tab")];
@@ -6645,7 +6660,7 @@ function mountRecapCarousel(root, oddsV) {
   });
   // Eenmalige instappen: de race-banen en de donut spelen af zodra hun slide voor het eerst echt in
   // beeld is. Reduced-motion (of geen IntersectionObserver): meteen de eindstand.
-  const odds = oddsV ? mountOdds(slides[2], oddsV) : null;
+  const odds = oddsItems ? mountOdds(slides[2], oddsItems) : null;
   const lanes = root.querySelectorAll(".race-lane");
   if (reduced || !("IntersectionObserver" in window)) {
     lanes.forEach((l) => l.classList.add("go"));
@@ -6681,6 +6696,8 @@ const ODDS_RUNS = 3000;
 const ODDS_MIN_PLAYERS = 2;      // spelers in de pool-historie: vanaf 2 (een duel-donut; Matthijs wilde 'm ook bij Piekjes). Zo'n slide is hoger dan een kleine daily-tabel, dus de recap van een kleine pool wordt iets langer
 const ODDS_MIN_WEEK_ROWS = 2;    // en minstens 2 spelers met een pot deze week (anders is er niets te voorspellen)
 const ODDS_FOLD = 0.03;          // onder 3% → samen in "Overig" (zodra dat er ≥ 2 zijn)
+const ODDS_PLACES_MIN = 4;       // de plek-schakelaar 🥇 🥈 🥉 pas vanaf 4 spelers: bij 2–3 is plek 2/3 vanzelf bekend of niet te voorspellen
+const ODDS_MEDALS = ["🥇", "🥈", "🥉"];
 const DAGZEGE_ALONE_FROM = "2026-10-05";   // spiegel van db/74: vanaf deze puzzeldag telt de dagzege ook voor de eerste/enige van de dag
 
 // Telt de dagzege (+25) voor de nummer 1 van een dag? Spiegel van de SQL (get_pool_week_podium, db/74):
@@ -6708,12 +6725,13 @@ function oddsHash(str) {   // FNV-1a 32-bit
 //   base   = weekscore tot nu ZONDER de voorlopige dagzege van vandaag (die wordt opnieuw uitgedeeld)
 //   today  = null | {won, score, rank}: vandaag al gespeeld (vast resultaat; zit al in base)
 //   pToday = kans dat wie vandaag nog niet speelde dat alsnog doet (0 voor wie al speelde)
-// Geeft per speler de kans (0–1) dat hij de week wint; tot 1 opgeteld.
-function forecastWins(inp, runs, seed) {
+// Geeft per plek (1e, 2e, 3e) per speler de kans (0–1) dat hij daar eindigt: places[k][i]. Elke plek telt op tot 1.
+function forecastPlaces(inp, runs, seed) {
   const rnd = oddsRng(seed);
   const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += rnd(); return (u - 3) * Math.SQRT2; };
   const P = inp.players, n = P.length, NONE = -1e9;
-  const tot = new Float64Array(n), key = new Float64Array(n), wins = new Float64Array(n);
+  const tot = new Float64Array(n), key = new Float64Array(n);
+  const places = [new Float64Array(n), new Float64Array(n), new Float64Array(n)];
   const clip = (x) => Math.max(0, Math.min(100, x));
   const draw = (i, D) => {   // één pot van speler i op een dag met dag-effect D → [score, rangsleutel]
     const p = P[i];
@@ -6742,12 +6760,22 @@ function forecastWins(inp, runs, seed) {
       for (let i = 0; i < n; i++) { key[i] = NONE; if (rnd() < P[i].q) { const g = draw(i, D); tot[i] += g[0]; key[i] = g[1]; } }
       dayBonus(dk);
     }
-    let best = -1, bi = -1;
-    for (let i = 0; i < n; i++) { const v = tot[i] > 0 ? tot[i] + rnd() * 0.01 : -1; if (v > best) { best = v; bi = i; } }
-    if (bi >= 0) wins[bi] += 1;
+    // top 3 van de eindstand (spelers zonder punten doen niet mee; willekeurige tiebreak ~ de RPC-tiebreak op pogingen)
+    let v1 = -1, v2 = -1, v3 = -1, i1 = -1, i2 = -1, i3 = -1;
+    for (let i = 0; i < n; i++) {
+      const v = tot[i] > 0 ? tot[i] + rnd() * 0.01 : -1;
+      if (v > v1) { v3 = v2; i3 = i2; v2 = v1; i2 = i1; v1 = v; i1 = i; }
+      else if (v > v2) { v3 = v2; i3 = i2; v2 = v; i2 = i; }
+      else if (v > v3) { v3 = v; i3 = i; }
+    }
+    if (i1 >= 0) places[0][i1] += 1;
+    if (i2 >= 0) places[1][i2] += 1;
+    if (i3 >= 0) places[2][i3] += 1;
   }
-  return Array.from(wins, (w) => w / runs);
+  return places.map((a) => Array.from(a, (c) => c / runs));
 }
+// De kans op de weekzege alleen (de 1e plek).
+const forecastWins = (inp, runs, seed) => forecastPlaces(inp, runs, seed)[0];
 
 // Aandeel van de dagelijkse potten dat ná dit moment van de dag valt (hour_share = 24 aandelen, Amsterdam).
 function oddsShareAfter(hourShare, secsSinceMidnight) {
@@ -6793,11 +6821,13 @@ function oddsBuild(fc, dailyRows, weekRows, ctx) {
   const todayD = nObs ? dayMean + (nObs / (nObs + 2)) * (obs.reduce((a, b) => a + b, 0) / nObs - dayMean) : dayMean;
   const seed = oddsHash([ctx.poolId, ctx.weekStart, weekRows.map((r) => r.display_name + ":" + r.week_score).join("|"),
     nonLate.map((r) => r.display_name + ":" + r.score).join("|")].join("#"));
-  const probs = forecastWins({
+  const pl = forecastPlaces({
     players: sim, dayMean, daySd, todayKey: ctx.todayKey, todayD, todaySd: daySd / Math.sqrt(nObs + 1),
     todayOpen: true, futureKeys,
   }, ODDS_RUNS, seed);
-  return pls.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: p.flair || "", title: p.title || "", me: !!p.is_me, prob: probs[i] }));
+  // prob = kans op de weekzege (1e plek); probs = [1e, 2e, 3e] voor de plek-schakelaar
+  return pls.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: p.flair || "", title: p.title || "", me: !!p.is_me,
+    prob: pl[0][i], probs: [pl[0][i], pl[1][i], pl[2][i]] }));
 }
 
 // Hele procenten die optellen tot 100 (grootste-rest-methode).
@@ -6809,9 +6839,10 @@ function oddsHamilton(vals) {
   return fl;
 }
 // Ring-indeling: grootste kans eerst; spelers onder ODDS_FOLD vouwen samen tot één "Overig"-plak (zodra er ≥ 2 zijn).
-function oddsView(items) {
-  const tot = items.reduce((a, b) => a + b.prob, 0) || 1;
-  const all = items.map((x) => Object.assign({}, x, { prob: x.prob / tot })).sort((a, b) => b.prob - a.prob || a.idx - b.idx);
+function oddsView(items, place = 0) {
+  const val = (x) => (x.probs ? x.probs[place] : x.prob);   // items zonder probs (alleen prob) = alleen de winnaar
+  const tot = items.reduce((a, b) => a + val(b), 0) || 1;
+  const all = items.map((x) => Object.assign({}, x, { prob: val(x) / tot })).sort((a, b) => b.prob - a.prob || a.idx - b.idx);
   const small = all.filter((x) => x.prob < ODDS_FOLD);
   let big = all, other = null;
   if (small.length >= 2 && small.length < all.length) {
@@ -6824,7 +6855,7 @@ function oddsView(items) {
   if (other) { pc.other = h[big.length]; other.members.forEach((m) => { pc[m.id] = Math.round(m.prob * 100); }); }
   const byId = {};
   all.forEach((x) => { byId[x.id] = x; });
-  return { items: big, other, pc, byId, meId: (all.find((x) => x.me) || all[0] || {}).id || null };
+  return { items: big, other, pc, byId, meId: (all.find((x) => x.me) || all[0] || {}).id || null, place, places: items.length >= ODDS_PLACES_MIN };
 }
 
 // ── donut (variant A: emoji op de ring, % op de grote plakken, legenda eronder) ──
@@ -6850,7 +6881,8 @@ function oddsPct(view, id) {
 }
 function oddsAria(view, it) {
   const raw = oddsPct(view, it.id), lt1 = raw.startsWith("<"), num = raw.replace(/[<%]/g, "");
-  return it.other ? t("odds_aria_other")(it.members.length, num, it.me, lt1) : t("odds_aria")(it.name, it.me, num, lt1);
+  const txt = it.other ? t("odds_aria_other")(it.members.length, num, it.me, lt1) : t("odds_aria")(it.name, it.me, num, lt1);
+  return view.places ? `${txt}, ${t("odds_place")(view.place)}` : txt;
 }
 function oddsLayout(view) {
   const list = view.items.concat(view.other ? [view.other] : []);
@@ -6893,11 +6925,16 @@ function oddsDonutHtml(view) {
     `<g transform="rotate(-90 ${cx} ${cy})">${arcs}</g><g class="od-labs">${labs}</g>` +
     `<g class="od-ctr" aria-hidden="true"><text class="od-ctr-e" x="${cx}" y="${cy - 21}" style="font-size:22px"></text>` +
     `<text class="od-ctr-p" x="${cx}" y="${cy + 10}" style="font-size:29px"></text>` +
-    `<text class="od-ctr-n" x="${cx}" y="${cy + 26}"></text><text class="od-ctr-c" x="${cx}" y="${cy + 38}"></text></g></svg>`;
+    `<text class="od-ctr-n" x="${cx}" y="${cy + 26}"></text><text class="od-ctr-c" x="${cx}" y="${cy + 38}"></text></g>` +
+    // tik op het midden = volgende plek (🥇 → 🥈 → 🥉 → 🥇), een snelkoppeling naast de chips in de kop
+    (view.places ? `<circle class="od-hole" cx="${cx}" cy="${cy}" r="50" role="button" tabindex="0" aria-label="${escHtml(t("odds_hole_aria"))}"/>` : "") + `</svg>`;
 }
-function oddsLegendHtml(view) {
+// Rijen die de legenda per plek nodig heeft (2 kolommen); de hoogste telt, zodat wisselen van plek niets laat springen.
+const oddsLegendRows = (views) => Math.max(1, ...views.map((v) => Math.ceil((v.items.length + (v.other ? 1 : 0)) / 2)));
+function oddsLegendHtml(view, minRows) {
   const youTag = `<i class="lb-tag">${escHtml(t("lb_you"))}</i>`;
-  let h = `<div class="od-lgd" role="group" aria-label="${escHtml(t("odds_legend_aria"))}">` + view.items.map((it) =>
+  const minH = minRows ? ` style="min-height:calc(${minRows} * 1.95rem + ${minRows - 1} * 3px)"` : "";
+  let h = `<div class="od-lgd" role="group" aria-label="${escHtml(t("odds_legend_aria"))}"${minH}>` + view.items.map((it) =>
     `<button type="button" class="od-lg${it.me ? " me" : ""}" data-od="${it.id}" aria-pressed="false" aria-label="${escHtml(oddsAria(view, it))}" style="--c:var(--s${oddsSlot(it.idx)})">` +
     `${oddsTokenHtml(it)}<span class="od-nm"><span class="od-t">${escHtml(it.name)}</span>${it.me ? youTag : ""}</span><span class="od-pc">${escHtml(oddsPct(view, it.id))}</span></button>`).join("");
   if (view.other) {
@@ -6910,23 +6947,35 @@ function oddsLegendHtml(view) {
   }
   return h + "</div>";
 }
-function oddsSlideHtml(view) {
-  return `<div class="odds"><div class="odds-head"><span class="odds-est">${escHtml(t("odds_est"))}</span><span>${escHtml(t("odds_head"))}</span></div>` +
-    `<div class="odds-chart">${oddsDonutHtml(view)}</div>${oddsLegendHtml(view)}` +
+const oddsBodyHtml = (view, minRows) => `<div class="odds-chart">${oddsDonutHtml(view)}</div>${oddsLegendHtml(view, minRows)}`;
+function oddsSlideHtml(items) {
+  const views = [0, 1, 2].map((k) => oddsView(items, k));
+  const places = views[0].places;
+  const head = places
+    ? `<div class="odds-places" role="group" aria-label="${escHtml(t("odds_places_aria"))}">` + ODDS_MEDALS.map((m, k) =>
+        `<button type="button" class="odds-place" data-place="${k}" aria-pressed="${k === 0}" aria-label="${escHtml(t("odds_place_aria")(k))}" title="${escHtml(t("odds_place_aria")(k))}">${m}</button>`).join("") + `</div>`
+    : `<span>${escHtml(t("odds_head"))}</span>`;
+  return `<div class="odds"><div class="odds-head"><span class="odds-est">${escHtml(t("odds_est"))}</span>${head}</div>` +
+    `<div class="odds-body">${oddsBodyHtml(views[0], oddsLegendRows(views))}</div>` +
     `<p class="lb-wk-note">${escHtml(t("odds_note"))}</p></div>`;
 }
 
 // Selectie (sticky): jouw plak staat vooraf geselecteerd; tik = wisselen, dezelfde nog eens = deselecteren;
 // de rest dimt en het midden toont emoji, kans en naam. Tik op "Overig" klapt de leden uit (blijft staan).
-function mountOdds(root, view) {
+// Plek-schakelaar (vanaf 4 spelers): de chips 🥇🥈🥉 in de kop, of een tik op het midden, wisselen de donut tussen
+// de kans op de 1e, 2e en 3e plek (elke plek telt op tot 100%); selectie en kleuren blijven staan.
+function mountOdds(root, items) {
   const geo = ODDS_GEO, C = 2 * Math.PI * geo.r, gapDeg = ((2.6 / geo.r) * 180) / Math.PI;
-  const lay = oddsLayout(view);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const views = [0, 1, 2].map((k) => oddsView(items, k));
+  const minRows = oddsLegendRows(views);
+  const body = root.querySelector(".odds-body");
+  let place = 0, view = views[0], sel = view.meId, raf = 0, els = [];
   const folded = (id) => !!(view.other && view.other.members.some((m) => m.id === id));
-  let sel = view.meId, raf = 0, t1 = 1;
-  const els = lay.map((a) => ({ a, arc: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-arc`), me: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-me`), labs: [...root.querySelectorAll(`[data-odl="${a.it.id}"]`)] }));
+  const bind = () => {
+    els = oddsLayout(view).map((a) => ({ a, arc: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-arc`), me: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-me`), labs: [...root.querySelectorAll(`[data-odl="${a.it.id}"]`)] }));
+  };
   const draw = (t) => {
-    t1 = t;
     const th = t * 360;
     els.forEach(({ a, arc, me, labs }) => {
       const vis = Math.max(0, Math.min(a.sweep, th - a.start)), full = Math.max(0.5, ((a.sweep - gapDeg) / 360) * C);
@@ -6950,11 +6999,11 @@ function mountOdds(root, view) {
     const open = sel === "other" || (!!sel && folded(sel)), more = root.querySelector(".od-more");
     if (more) more.hidden = !open;
     root.querySelector('.od-lg[data-od="other"]')?.setAttribute("aria-expanded", String(open));
-    // midden: de gekozen speler (of jij) — bij niets gekozen blijft jouw plak daar staan
-    const id = sel || view.meId;
+    // midden: de gekozen speler (of jij) — bij niets gekozen blijft jouw plak daar staan; onderschrift = welke plek (of "zit in overig")
+    const id = sel || view.meId, cap = view.places ? t("odds_place")(place) : t("odds_est");
     let e, p, n, c;
-    if (id === "other") { const o = view.other; e = "👥"; p = oddsPct(view, "other"); n = `${t("odds_other")} · ${o.members.length}`; c = o.me ? t("odds_incl_you") : t("odds_est"); }
-    else { const it = view.byId[id]; e = oddsFlair(it); p = oddsPct(view, id); n = it.name; c = folded(id) ? t("odds_in_other") : t("odds_est"); }
+    if (id === "other") { const o = view.other; e = "👥"; p = oddsPct(view, "other"); n = `${t("odds_other")} · ${o.members.length}`; c = o.me ? t("odds_incl_you") : cap; }
+    else { const it = view.byId[id]; e = oddsFlair(it); p = oddsPct(view, id); n = it.name; c = folded(id) ? t("odds_in_other") : cap; }
     const me = id !== "other" && view.byId[id].me;
     const q = (s) => root.querySelector(s);
     q(".od-ctr-e").textContent = e;
@@ -6965,7 +7014,30 @@ function mountOdds(root, view) {
     nEl.style.fontSize = n.length > 12 ? "10.5px" : "";
     q(".od-ctr-c").textContent = c;
   };
+  const play = (dur = 900) => {   // eenmalige instap/wissel: de plakken vegen rond (reduced-motion: meteen klaar)
+    cancelAnimationFrame(raf);
+    if (reduced) { draw(1); return; }
+    draw(0);
+    const t0 = performance.now();
+    const frame = (now) => {
+      const t = Math.max(0, Math.min(1, (now - t0) / dur));
+      draw(1 - Math.pow(1 - t, 3));
+      if (t < 1) raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+  };
+  const setPlace = (k) => {
+    place = k; view = views[k];
+    if (sel === "other" && !view.other) sel = view.meId;   // de Overig-groep bestaat niet in elke plek
+    body.innerHTML = oddsBodyHtml(view, minRows);
+    bind(); apply();
+    root.querySelectorAll(".odds-place").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.place) === place)));
+    play(650);
+  };
   root.addEventListener("click", (e) => {
+    const pb = e.target.closest(".odds-place");
+    if (pb) { if (Number(pb.dataset.place) !== place) setPlace(Number(pb.dataset.place)); return; }
+    if (e.target.closest(".od-hole")) { setPlace((place + 1) % 3); return; }
     const m = e.target.closest("[data-odm]");
     if (m) { sel = sel === m.dataset.odm ? "other" : m.dataset.odm; apply(); return; }
     const it = e.target.closest("[data-od]");
@@ -6973,26 +7045,14 @@ function mountOdds(root, view) {
     sel = sel === it.dataset.od ? null : it.dataset.od;
     apply();
   });
-  root.addEventListener("keydown", (e) => {   // de plakken zijn role=button op een <g>: Enter/spatie doen wat een knop doet
+  root.addEventListener("keydown", (e) => {   // de plakken zijn role=button op een <g>/<circle>: Enter/spatie doen wat een knop doet
     if (e.key !== "Enter" && e.key !== " ") return;
     const g = e.target;
     if (g.matches && g.matches("[role=button]") && !g.matches("button")) { e.preventDefault(); g.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
   });
-  apply();
-  draw(1);
+  bind(); apply(); draw(1);
   return {
-    play() {   // eenmalige instap: de plakken vegen ~0,9 s rond (reduced-motion: meteen klaar)
-      cancelAnimationFrame(raf);
-      if (reduced) { draw(1); return; }
-      draw(0);
-      const t0 = performance.now(), dur = 900;
-      const frame = (now) => {
-        const t = Math.max(0, Math.min(1, (now - t0) / dur));
-        draw(1 - Math.pow(1 - t, 3));
-        if (t < 1) raf = requestAnimationFrame(frame);
-      };
-      raf = requestAnimationFrame(frame);
-    },
+    play: () => play(900),
     reset() { cancelAnimationFrame(raf); draw(0); },
     full() { cancelAnimationFrame(raf); draw(1); },
   };
@@ -7049,15 +7109,14 @@ async function loadRecapTeam() {
   const head = document.getElementById("recap-team-head");
   if (head) head.hidden = weekRows.length > 0;
   if (!weekRows.length) { setBoard(board, dailyTableHtml(dailyRows)); return; }
-  let oddsV = null;
+  let oddsItems = null;
   try {
-    const items = oddsBuild(fc, dailyRows, weekRows, {
+    oddsItems = oddsBuild(fc, dailyRows, weekRows, {
       poolId, weekStart: currentWeekStart(), todayKey: todayKey(), secsSinceMidnight: 86400 - secsToNextDaily(),
     });
-    if (items) oddsV = oddsView(items);
-  } catch (e) { console.error(e); oddsV = null; }   // een rekenfout mag de recap nooit breken: dan gewoon geen derde tab
-  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsV));
-  mountRecapCarousel(board.querySelector(".rc"), oddsV);
+  } catch (e) { console.error(e); oddsItems = null; }   // een rekenfout mag de recap nooit breken: dan gewoon geen derde tab
+  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsItems));
+  mountRecapCarousel(board.querySelector(".rc"), oddsItems);
 }
 
 // --- Prestaties (achievements) ----------------------------------------------

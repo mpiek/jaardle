@@ -2475,6 +2475,15 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .rc-tabs.n3 .rc-tab { font-size: 0.74rem; letter-spacing: 0.02em; }
 .odds { display: flex; flex-direction: column; gap: 0.55rem; }
 .odds-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); min-height: 1.3rem; }
+/* plek-schakelaar 🥇 🥈 🥉 in de kopregel van de Kans-slide (geen eigen rij: ± 4 px extra hoogte) + tik op het midden = volgende plek */
+.odds-places { display: flex; gap: 4px; }
+.odds-place { --m: var(--gold-text); appearance: none; border: 0; border-radius: 999px; width: 2.1rem; height: 1.55rem; padding: 0; background: var(--card-soft); font-size: 0.95rem; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.odds-place[data-place="1"] { --m: #c9ced6; }
+.odds-place[data-place="2"] { --m: #cd7f32; }
+.odds-place[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--m); background: color-mix(in srgb, var(--m) 18%, var(--card-soft)); }
+.odds-place:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.od-hole { fill: transparent; stroke: none; cursor: pointer; outline: none; }
+.od-hole:focus-visible { stroke: var(--accent); stroke-width: 2px; }
 .odds-est { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.12rem 0.5rem; border-radius: 999px; color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); white-space: nowrap; }
 .odds-chart { position: relative; }
 .odds-chart svg { display: block; width: 100%; height: auto; overflow: visible; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -2501,7 +2510,7 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .od-tk.hatch { background: repeating-linear-gradient(135deg, var(--c) 0 3px, color-mix(in srgb, var(--c) 38%, var(--card)) 3px 6px); }
 .od-tk.other { background: repeating-linear-gradient(135deg, var(--s-other) 0 3px, color-mix(in srgb, var(--s-other) 40%, var(--card)) 3px 6px); font-size: 0.6rem; font-weight: 800; color: var(--fg); }
 .od-tk.sm { width: 1.2rem; height: 1.2rem; font-size: 0.72rem; }
-.od-lgd { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
+.od-lgd { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; align-content: start; }
 .od-lg { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) auto; align-items: center; gap: 0.4rem; padding: 0.2rem 0.5rem 0.2rem 0.3rem; border: 0; border-radius: 8px; background: var(--card-soft); color: var(--fg); font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer; min-height: 1.95rem; -webkit-tap-highlight-color: transparent; }
 .od-lg.me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
 .od-lg.me .od-pc { color: var(--accent); }

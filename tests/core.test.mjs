@@ -48,7 +48,7 @@ src += `
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HolidayFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
-  dagzegeApplies, forecastWins, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS,
+  dagzegeApplies, forecastWins, forecastPlaces, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -528,4 +528,49 @@ test("oddsBuild — werkt voor een pool van twee (duel)", () => {
   assert.equal(items.length, 2);
   assert.ok(Math.abs(items[0].prob + items[1].prob - 1) < 1e-9);
   assert.ok(items.find((x) => x.name === "B").prob > 0.95);   // 112 punten voorsprong, 1 dag te gaan
+});
+
+test("forecastPlaces — elke plek telt op tot 1, 1e plek = forecastWins, beslist is beslist", () => {
+  const inp = mkSim({ players: [pl({ base: 300 }), pl({ base: 280 }), pl({ base: 250, q: 0.7 }), pl({ base: 200, q: 0.5 })], futureKeys: ["2026-10-07", "2026-10-08", "2026-10-09"] });
+  const pp = T.forecastPlaces(inp, 2000, 42);
+  assert.equal(pp.length, 3);
+  for (const place of pp) assert.ok(Math.abs(place.reduce((a, b) => a + b, 0) - 1) < 1e-9);
+  assert.deepEqual(pp[0], T.forecastWins(inp, 2000, 42));                     // zelfde simulatie, zelfde getallen voor de winnaar
+  // geen dagen meer: de eindstand staat vast → 1e/2e/3e zijn exact bekend
+  const fin = T.forecastPlaces(mkSim({ players: [pl({ base: 400 }), pl({ base: 300 }), pl({ base: 200 }), pl({ base: 100 })] }), 300, 5);
+  assert.deepEqual(fin[0], [1, 0, 0, 0]);
+  assert.deepEqual(fin[1], [0, 1, 0, 0]);
+  assert.deepEqual(fin[2], [0, 0, 1, 0]);
+  // een gedeelde stand: twee spelers wisselen 1e en 2e af (≈ 50/50), de derde blijft derde
+  const sw = T.forecastPlaces(mkSim({ players: [pl({ base: 300 }), pl({ base: 300 }), pl({ base: 100 }), pl({ base: 50 })] }), 4000, 8);
+  assert.ok(Math.abs(sw[0][0] - 0.5) < 0.05 && Math.abs(sw[1][0] - 0.5) < 0.05, `sw=${sw[0][0]},${sw[1][0]}`);
+  assert.equal(sw[2][2], 1);
+});
+
+test("oddsView(items, plek) — per plek een eigen verdeling; schakelaar pas vanaf 4 spelers", () => {
+  assert.equal(T.ODDS_PLACES_MIN, 4);
+  const mk = (n, i) => ({ id: "p" + i, idx: i, name: "S" + i, flair: "", title: "", me: i === 0, prob: 0, probs: [] });
+  const items = [0, 1, 2, 3].map((i) => mk(4, i));
+  const P1 = [0.7, 0.2, 0.1, 0], P2 = [0.2, 0.5, 0.2, 0.1], P3 = [0.05, 0.2, 0.4, 0.35];
+  items.forEach((x, i) => { x.prob = P1[i]; x.probs = [P1[i], P2[i], P3[i]]; });
+  const v1 = T.oddsView(items, 0), v2 = T.oddsView(items, 1), v3 = T.oddsView(items, 2);
+  assert.equal(v1.places, true);
+  assert.deepEqual(v2.items.map((x) => x.id), ["p1", "p0", "p2", "p3"]);   // 2e plek: p1 het vaakst
+  assert.deepEqual(v3.items.map((x) => x.id), ["p2", "p3", "p1", "p0"]);   // 3e plek: p2 het vaakst
+  for (const v of [v1, v2, v3]) assert.equal(v.items.reduce((a, x) => a + v.pc[x.id], 0) + (v.other ? v.pc.other : 0), 100);
+  assert.equal(v2.place, 1);
+  assert.equal(T.oddsView(items.slice(0, 3), 0).places, false);          // 3 spelers: geen schakelaar
+});
+
+test("oddsBuild — levert probs [1e, 2e, 3e] die per plek optellen tot 1", () => {
+  const names = ["Anna", "Joris", "Piet", "Lisa", "Mo", "Sanne"];
+  const fc = { day_mean: 76, day_sd: 6, hour_share: new Array(24).fill(1 / 24),
+    players: names.map((n, i) => ({ display_name: n, flair: "", title: null, is_me: i === 3, q: 0.9 - i * 0.05, lost_p: 0.05, mu: 6 - i * 2, sd: 11 })) };
+  const week = [["Anna", 300], ["Joris", 290], ["Piet", 250], ["Lisa", 240], ["Mo", 200]].map(([n, w], i) => ({ rank: i + 1, display_name: n, week_score: w, daily_wins: 0, played: 4, is_me: n === "Lisa" }));
+  const items = T.oddsBuild(fc, [], week, { poolId: "p1", weekStart: "2026-09-28", todayKey: "2026-10-01", secsSinceMidnight: 14 * 3600 });
+  for (let k = 0; k < 3; k++) assert.ok(Math.abs(items.reduce((a, x) => a + x.probs[k], 0) - 1) < 1e-9, `plek ${k + 1}`);
+  assert.ok(items.every((x) => x.prob === x.probs[0]));
+  // wie een grote kans op de winst heeft, heeft zelden de 3e plek
+  const anna = items.find((x) => x.name === "Anna");
+  assert.ok(anna.probs[0] > anna.probs[2]);
 });
