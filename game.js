@@ -223,7 +223,7 @@ const I18N = {
     lb_wk_live: "loopt nog", lb_wk_done: "afgerond",
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
     lb_wk_punten: "punten",
-    lb_recap_head: "Vorige week", lb_recap_view: "Bekijk het podium",
+    lb_recap_head: "Vorige week",
     lb_pop_continue: "Verder", lb_pop_live: "Bekijk deze week",
     lb_wk_live_note: "Tussenstand — sluit over",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
@@ -270,6 +270,8 @@ const I18N = {
     recap_firstguess: (c) => `📏 1e gok ${c} jr mis`, recap_bin_players: (n) => n === 1 ? "1 speler" : `${n} spelers`, recap_lost_word: "verloren", recap_lost_short: "verl.", recap_you: "jij",
     recap_team_title: "Teamstand vandaag", recap_today: "vandaag",
     recap_week_title: "⚔️ Weekstand",
+    recap_tab_today: "📅 Vandaag", recap_tab_week: "⚔️ Week",
+    recap_week_note: (d, h) => `🏁 sluit ma 12:00 · nog ${d > 0 ? d + " d" : h + " u"}`,
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
     recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
     recap_acct_title: "Met een gratis account",
@@ -509,7 +511,7 @@ const I18N = {
     lb_wk_live: "live", lb_wk_done: "final",
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
     lb_wk_punten: "points",
-    lb_recap_head: "Last week", lb_recap_view: "View the podium",
+    lb_recap_head: "Last week",
     lb_pop_continue: "Continue", lb_pop_live: "See this week",
     lb_wk_live_note: "Live standings — locks in",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
@@ -556,6 +558,8 @@ const I18N = {
     recap_firstguess: (c) => `📏 1st guess ${c} yrs off`, recap_bin_players: (n) => n === 1 ? "1 player" : `${n} players`, recap_lost_word: "lost", recap_lost_short: "lost", recap_you: "you",
     recap_team_title: "Today's team standings", recap_today: "today",
     recap_week_title: "⚔️ Week standings",
+    recap_tab_today: "📅 Today", recap_tab_week: "⚔️ Week",
+    recap_week_note: (d, h) => `🏁 closes Mon 12:00 · ${d > 0 ? d + " d" : h + " h"} left`,
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
     recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
     recap_acct_title: "With a free account",
@@ -788,7 +792,7 @@ const I18N = {
     lb_wk_live: "läuft noch", lb_wk_done: "beendet",
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
     lb_wk_punten: "Punkte",
-    lb_recap_head: "Letzte Woche", lb_recap_view: "Podest ansehen",
+    lb_recap_head: "Letzte Woche",
     lb_pop_continue: "Weiter", lb_pop_live: "Diese Woche ansehen",
     lb_wk_live_note: "Zwischenstand — schließt in",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
@@ -835,6 +839,8 @@ const I18N = {
     recap_firstguess: (c) => `📏 1. Tipp ${c} J. daneben`, recap_bin_players: (n) => n === 1 ? "1 Spieler" : `${n} Spieler`, recap_lost_word: "verloren", recap_lost_short: "verl.", recap_you: "du",
     recap_team_title: "Team-Stand heute", recap_today: "heute",
     recap_week_title: "⚔️ Wochenstand",
+    recap_tab_today: "📅 Heute", recap_tab_week: "⚔️ Woche",
+    recap_week_note: (d, h) => `🏁 schließt Mo 12:00 · noch ${d > 0 ? d + " d" : h + " Std."}`,
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
     recap_pool_none: "Erstelle einen Pool oder tritt einem bei, um deine Freunde hier zu sehen.", recap_pool_btn: "🏆 Pool erstellen oder beitreten",
     recap_acct_title: "Mit einem kostenlosen Konto",
@@ -1071,7 +1077,7 @@ const I18N = {
     lb_wk_live: "en curso", lb_wk_done: "cerrada",
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
     lb_wk_punten: "puntos",
-    lb_recap_head: "La semana pasada", lb_recap_view: "Ver el podio",
+    lb_recap_head: "La semana pasada",
     lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
     lb_wk_live_note: "Clasificación en curso — se cierra en",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
@@ -1118,6 +1124,8 @@ const I18N = {
     recap_firstguess: (c) => `📏 1.er intento: ${c} años`, recap_bin_players: (n) => n === 1 ? "1 jugador" : `${n} jugadores`, recap_lost_word: "perdido", recap_lost_short: "perd.", recap_you: "tú",
     recap_team_title: "Marcador del equipo hoy", recap_today: "hoy",
     recap_week_title: "⚔️ Clasificación semanal",
+    recap_tab_today: "📅 Hoy", recap_tab_week: "⚔️ Semana",
+    recap_week_note: (d, h) => `🏁 cierra lun 12:00 · faltan ${d > 0 ? d + " d" : h + " h"}`,
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
     recap_pool_none: "Crea un grupo o únete a uno para ver aquí a tus amigos.", recap_pool_btn: "🏆 Crear o unirse a un grupo",
     recap_acct_title: "Con una cuenta gratuita",
@@ -1354,7 +1362,7 @@ const I18N = {
     lb_wk_live: "em andamento", lb_wk_done: "encerrada",
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
     lb_wk_punten: "pontos",
-    lb_recap_head: "Semana passada", lb_recap_view: "Ver o pódio",
+    lb_recap_head: "Semana passada",
     lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
     lb_wk_live_note: "Parcial — fecha em",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
@@ -1401,6 +1409,8 @@ const I18N = {
     recap_firstguess: (c) => `📏 1º palpite: ${c} anos`, recap_bin_players: (n) => n === 1 ? "1 jogador" : `${n} jogadores`, recap_lost_word: "perdido", recap_lost_short: "perd.", recap_you: "você",
     recap_team_title: "Placar da equipe hoje", recap_today: "hoje",
     recap_week_title: "⚔️ Classificação da semana",
+    recap_tab_today: "📅 Hoje", recap_tab_week: "⚔️ Semana",
+    recap_week_note: (d, h) => `🏁 fecha seg 12:00 · faltam ${d > 0 ? d + " d" : h + " h"}`,
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
     recap_pool_none: "Crie um grupo ou entre em um para ver seus amigos aqui.", recap_pool_btn: "🏆 Criar ou entrar em um grupo",
     recap_acct_title: "Com uma conta gratuita",
@@ -4873,7 +4883,7 @@ let lbWeekStart = null;               // maandag van de getoonde week (weekpodiu
 let lbWkReq = 0;                       // race-guard: alleen de laatste weekpodium-fetch mag renderen
 let lbTabLoaded = new Set();           // welke tabbladen deze render al lui geladen zijn
 let pendingLbTab = null;               // ?leaderboard=podium → open direct op de podium-tab
-let pendingLbWeek = null;              // recap-weekblok → podium direct op de LIVE week (niet de laatst-afgeronde)
+let pendingLbWeek = null;              // pop-up "live"-knop → podium direct op de LIVE week (niet de laatst-afgeronde)
 let podiumConfRAF = null;              // rAF-handle van de doorlopende podium-confetti (stop = geen leak)
 let weekPodiumResult = null;           // {weekStart, poolId, poolName, rows} = ONGEZIENE uitslag van de laatst-afgeronde week (server beslist, db/55), of null
 let podiumPendingReq = null;           // "<uid>:<weekStart>" die deze sessie al is opgehaald — sb-auth-changed vuurt 2-3× op load
@@ -5734,7 +5744,7 @@ function wkDeltaHtml(r) {
 // score/potjes (+ 🏆 per dagzege) — niet langer alleen "meegedaan". Gedeeld door
 // de 🏟️-tab en de weekpodium-pop-up (showPodiumPopup).
 // Eén 🏆 per dagzege (dagen waarop je die week #1 stond in de pool), gecapt op 7
-// (max dagen/week). Gedeeld door het podiumblok en de recap-weekstand.
+// (max dagen/week). Gebruikt door het podiumblok.
 function wkWinTrophies(dailyWins) {
   const n = Math.min(dailyWins || 0, 7);
   return n > 0 ? "🏆".repeat(n) : "";
@@ -6367,8 +6377,9 @@ async function renderRecap() {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
     body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank) + shareHtml +
       `<section class="recap-section">` +
-      `<h3 class="stats-heading">${t("recap_team_title")}</h3>` +
+      `<h3 class="stats-heading" id="recap-team-head">${t("recap_team_title")}</h3>` +
       `<div id="recap-team"></div></section>`;
+    recapTab = 0;   // een verse recap opent altijd op "Vandaag"
     loadRecapTeam();
   } else {
     // Uitgelogd: wijs op de voordelen van een (gratis) account.
@@ -6414,34 +6425,164 @@ function recapAccountHtml() {
   </div>`;
 }
 
-// ⚔️ Weekstand-blok in de recap: de weekstrijd op het moment dat hij spannend is
-// (net na je daily). Top-3 met medailles + jouw venster — sta je buiten de top-3,
-// dan ook de rij direct boven en onder je (je directe rivalen), met een ⋯-rij op
-// het gat; sta je er wél in, dan schuift nummer 4 (je jager) aan. Bewust een
-// lijst, géén podium-blokken: een podium is een uitslag, dit is een tussenstand —
-// het echte podium staat één tik verderop (grill-sessie 4/8).
-function recapWeekHtml(rows) {
-  if (!rows.length) return "";
+// ⚔️ Weekstand als RACE in de recap (grill 3/10). Een podium is een uitslag, de
+// lopende week is een race die nog bezig is — dus geen sokkels maar banen: elke
+// speler een gewone bord-rij met een baan erin, de flair is de renner (zonder flair
+// 🏃) en de streep is de puntenkloof tot de koploper. Schaal "koploper-relatief": de
+// koploper staat net voor de 🏁, de rest erachter naar rato van de kloof, met een
+// minimale spreiding zodat 5 punten achter ook klein oogt. (De tijd-gestuurde
+// schaal — koploper schuift mee met de week — is afgewezen: maandag zit het hele
+// veld dan in 5 px.) Het venster is dat van de oude lijst: top-3 + jij ±1 met een
+// ⋯ op het gat; sta je in de top-3, dan schuift nummer 4 (je jager) aan.
+const RACE_MIN_SPREAD = 60;                          // punten
+const RACE_LEAD_POS = 0.9, RACE_LAST_POS = 0.06;     // koploper vóór de 🏁 · achterste nooit onzichtbaar
+function raceWindow(rows) {
   const meIdx = rows.findIndex((r) => r.is_me);
   const picks = new Set([0, 1, 2]);
   if (meIdx > 2) [meIdx - 1, meIdx, meIdx + 1].forEach((i) => picks.add(i));
   else picks.add(3);   // jij op het podium (of nog niet op het bord) → toon de jager
-  const idxs = [...picks].filter((i) => i >= 0 && i < rows.length).sort((a, b) => a - b);
+  return [...picks].filter((i) => i >= 0 && i < rows.length).sort((a, b) => a - b);
+}
+// Positie 0–1 op de baan: `lead` = score van de koploper, `min` = laagste getoonde score.
+function racePos(score, lead, min) {
+  const span = Math.max(lead - min, RACE_MIN_SPREAD);
+  return RACE_LEAD_POS - ((lead - score) / span) * (RACE_LEAD_POS - RACE_LAST_POS);
+}
+function raceLaneHtml(r, k, pos) {
+  // 🏆 per dagzege tot 2, daarna "🏆×n" (een vaste kolom houdt de banen netjes onder elkaar).
+  const trophies = r.daily_wins > 0 ? (r.daily_wins <= 2 ? "🏆".repeat(r.daily_wins) : `🏆×${Math.min(r.daily_wins, 7)}`) : "";
+  const winsHtml = trophies
+    ? `<span class="race-tro" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</span>` : "";
+  const runner = r.flair ? flairBadgeHtml(r.flair, r.rank).trim() : "🏃";
+  const youTag = r.is_me && r.rank <= 3 ? ` <span class="lb-tag">${t("lb_you")}</span>` : "";   // top-3-tint overschrijft de .lb-me-tint → tag houdt "jij" leesbaar
+  return `<div class="${lbRowCls(r.is_me)} race-lane${lbPodiumCls(r.rank)}" style="--p:${pos.toFixed(3)};--i:${k}">` +
+    `<span class="lb-rank">${lbMedal(r.rank)}</span>` +
+    `<span class="lb-name race-name">${titleBadgeHtml(r.title)}<span class="nm">${escHtml(r.display_name)}</span>${youTag}${wkDeltaHtml(r)}</span>` +
+    `<span class="race-track"><i class="race-streak"></i><span class="race-runner">${runner}</span></span>` +
+    `<span class="lb-val">${winsHtml}<span class="lb-score" data-v="${r.week_score}">${r.week_score}</span></span></div>`;
+}
+function recapRaceHtml(rows) {
+  const idxs = raceWindow(rows);
+  const lead = Math.max(...rows.map((r) => r.week_score));
+  const min = Math.min(...idxs.map((i) => rows[i].week_score));
   let html = "", prev = -1;
-  for (const i of idxs) {
+  idxs.forEach((i, k) => {
     if (prev >= 0 && i - prev > 1) html += `<div class="lb-wk-gap" aria-hidden="true">⋯</div>`;
-    const r = rows[i];
-    const trophies = wkWinTrophies(r.daily_wins);
-    const winsHtml = trophies
-      ? `<span class="lb-wk-wins" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</span>` : "";
-    html += `<div class="${lbRowCls(r.is_me)}${lbPodiumCls(r.rank)}"><span class="lb-rank">${lbMedal(r.rank)}</span>` +
-      `<span class="lb-name">${lbNameCell(r, r.rank)}${wkDeltaHtml(r)}</span>` +
-      `<span class="lb-val">${winsHtml}<span class="lb-score">${r.week_score}</span></span></div>`;
+    html += raceLaneHtml(rows[i], k, racePos(rows[i].week_score, lead, min));
     prev = i;
+  });
+  // Statisch bij het openen (geen tikkende timer): "nog 3 d", op de laatste dag in uren.
+  const secs = secsToWeekEnd(currentWeekStart());
+  const d = Math.floor(secs / 86400), h = Math.max(1, Math.floor(secs / 3600));
+  return `<div class="lb-table race-table">${html}</div>` +
+    `<div class="lb-wk-note"><p>${escHtml(t("recap_week_note")(d, h))}</p></div>`;
+}
+
+// Tabs-als-kop "📅 Vandaag │ ⚔️ Week" + een horizontaal scroll-snap-spoor met twee
+// slides (daily-bord · race). De tabs-rij vervangt de h3 "Teamstand vandaag", geen
+// stippen; tikken en swipen blijven in sync. Spoorhoogte = de langste slide (adaptief
+// is bij de feiten-carrousel al afgewezen: springt). Er is alleen een carrousel als
+// er weekrijen zijn — anders blijft het de kale daily-tabel met de gewone kop.
+let recapTab = 0;   // actieve slide (0 = vandaag, 1 = week); reset bij elke verse recap, blijft staan bij pool-wissel
+function recapCarouselHtml(dailyRows, weekRows) {
+  return `<div class="rc">` +
+    `<div class="rc-tabs" role="tablist" aria-label="${escHtml(t("recap_team_title"))}">` +
+      `<button type="button" role="tab" class="rc-tab" data-i="0" aria-selected="true">${escHtml(t("recap_tab_today"))}</button>` +
+      `<span class="rc-sep" aria-hidden="true"></span>` +
+      `<button type="button" role="tab" class="rc-tab" data-i="1" aria-selected="false">${escHtml(t("recap_tab_week"))}</button>` +
+    `</div>` +
+    `<div class="rc-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${escHtml(t("recap_team_title"))}">` +
+      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/2 · ${escHtml(t("recap_team_title"))}">${dailyTableHtml(dailyRows)}</div>` +
+      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/2 · ${escHtml(t("recap_week_title"))}">${recapRaceHtml(weekRows)}</div>` +
+    `</div></div>`;
+}
+
+// De run-in van de renners: eenmalig per opbouw, zodra de week-slide voor het eerst
+// echt in beeld is (niet bij het openen van de recap — dan staat de daily-slide
+// voorop). Streep + renner lopen ~0,9 s naar hun plek, de score telt mee omhoog.
+// Reduced-motion (of geen IntersectionObserver): meteen de eindstand, geen animatie.
+let recapRaceRun = 0;   // elke start/reset verhoogt 'm; oudere score-frames stoppen daardoor vanzelf
+function recapRaceCountUp(root, run) {
+  const els = [...root.querySelectorAll(".race-lane .lb-score[data-v]")];
+  const t0 = performance.now(), dur = 900;
+  const frame = (now) => {
+    if (run !== recapRaceRun) return;
+    let busy = false;
+    els.forEach((e) => {
+      const delay = Number(e.closest(".race-lane").style.getPropertyValue("--i")) * 45;
+      const p = Math.min(1, Math.max(0, (now - t0 - delay) / dur));
+      e.textContent = String(Math.round(Number(e.dataset.v) * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) busy = true;
+    });
+    if (busy) requestAnimationFrame(frame);
+  };
+  frame(t0);
+}
+function recapRaceReset(root) {   // streep + renner terug naar de start (zonder transition), scores op 0
+  recapRaceRun++;
+  const lanes = [...root.querySelectorAll(".race-lane")];
+  lanes.forEach((l) => { l.classList.add("reset"); l.classList.remove("go"); });
+  root.querySelectorAll(".race-lane .lb-score[data-v]").forEach((s) => { s.textContent = "0"; });
+  void root.offsetWidth;
+  lanes.forEach((l) => l.classList.remove("reset"));
+}
+function recapRacePlay(root) {
+  const run = ++recapRaceRun;
+  const lanes = [...root.querySelectorAll(".race-lane")];
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (run !== recapRaceRun) return;
+    lanes.forEach((l) => l.classList.add("go"));
+    recapRaceCountUp(root, run);
+  }));
+}
+
+function mountRecapCarousel(root) {
+  const track = root.querySelector(".rc-track");
+  const slides = [...track.querySelectorAll(".rc-slide")];
+  const tabs = [...root.querySelectorAll(".rc-tab")];
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const step = () => (slides[1].offsetLeft - slides[0].offsetLeft) || 1;
+  const setActive = (i) => {
+    recapTab = i;
+    tabs.forEach((tb, j) => tb.setAttribute("aria-selected", String(i === j)));
+  };
+  const goTo = (i, smooth) => track.scrollTo({ left: i * step(), behavior: smooth && !reduced ? "smooth" : "auto" });
+  let raf = 0;
+  track.addEventListener("scroll", () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => setActive(Math.max(0, Math.min(1, Math.round(track.scrollLeft / step())))));
+  }, { passive: true });
+  tabs.forEach((tb) => tb.addEventListener("click", () => goTo(Number(tb.dataset.i), true)));
+  track.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { goTo(1, true); e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { goTo(0, true); e.preventDefault(); }
+  });
+  // Muis-slepen (desktop); scroll-snap doet de rest. Aanraken scrollt gewoon native.
+  track.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("button")) return;
+    const sx = e.clientX, sl = track.scrollLeft;
+    track.classList.add("dragging");
+    const move = (ev) => { track.scrollLeft = sl - (ev.clientX - sx); };
+    const up = () => {
+      window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up);
+      track.classList.remove("dragging");
+      goTo(Math.max(0, Math.min(1, Math.round(track.scrollLeft / step()))), true);
+    };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  });
+  // Run-in: bij reduced-motion/zonder IntersectionObserver meteen de eindstand.
+  const lanes = root.querySelectorAll(".race-lane");
+  if (reduced || !("IntersectionObserver" in window)) {
+    lanes.forEach((l) => l.classList.add("go"));
+  } else {
+    recapRaceReset(root);
+    let seen = false;
+    new IntersectionObserver((es) => es.forEach((en) => {
+      if (en.isIntersecting && !seen) { seen = true; recapRacePlay(root); }
+    }), { root: track, threshold: 0.6 }).observe(slides[1]);
   }
-  return `<div class="recap-week"><h3 class="stats-heading">${t("recap_week_title")}</h3>` +
-    `<div class="lb-table">${html}</div>` +
-    `<div class="recap-week-go"><button id="recap-week-btn" class="lb-pillbtn">${escHtml(t("lb_recap_view"))} ›</button></div></div>`;
+  setActive(recapTab);
+  goTo(recapTab, false);
 }
 
 // Teamstand van vandaag in het recap-scherm: zelfde rijen als het daily-bord van
@@ -6484,13 +6625,15 @@ async function loadRecapTeam() {
   if (document.getElementById("modal-recap").hidden || myPool?.id !== poolId) return;
   const board = document.getElementById("recap-team-board");
   if (!board) return;
-  setBoard(board, dailyTableHtml(Array.isArray(rows) ? rows : []) +
-    recapWeekHtml(Array.isArray(wkRows) ? wkRows : []));
-  const goBtn = document.getElementById("recap-week-btn");
-  if (goBtn) goBtn.onclick = () => {
-    pendingLbTab = "podium"; pendingLbWeek = currentWeekStart();
-    closeAllModals(); openModal("modal-leaderboard");
-  };
+  const dailyRows = Array.isArray(rows) ? rows : [];
+  const weekRows = Array.isArray(wkRows) ? wkRows : [];
+  // Met weekrijen: tabs-als-kop + carrousel (de kale h3 gaat weg). Zonder: de daily-tabel
+  // onder de gewone kop, precies zoals vóór de carrousel.
+  const head = document.getElementById("recap-team-head");
+  if (head) head.hidden = weekRows.length > 0;
+  if (!weekRows.length) { setBoard(board, dailyTableHtml(dailyRows)); return; }
+  setBoard(board, recapCarouselHtml(dailyRows, weekRows));
+  mountRecapCarousel(board.querySelector(".rc"));
 }
 
 // --- Prestaties (achievements) ----------------------------------------------

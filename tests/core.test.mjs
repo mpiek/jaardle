@@ -47,6 +47,7 @@ src += `
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HolidayFx,
+  raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -348,4 +349,34 @@ test("digitGlowOn — puls vanaf gok 4, uit bij 🟪, gekochte 🔢 of einde", (
   assert.equal(T.digitGlowOn({ guesses: [] }), false);
   assert.equal(T.digitGlowOn(null), false);
   assert.equal(T.MAX_GUESSES - 2, 4);   // "vanaf gok 4" staat of valt hiermee
+});
+
+// --- ⚔️ Weekstand-race in de recap (grill 3/10) ---
+const mkRows = (n, meIdx) => Array.from({ length: n }, (_, i) => ({ rank: i + 1, week_score: 300 - i * 20, is_me: i === meIdx }));
+
+test("raceWindow — top-3 + jouw buren, jager als je op het podium staat", () => {
+  assert.deepEqual(T.raceWindow(mkRows(1, 0)), [0]);                    // alleen jij
+  assert.deepEqual(T.raceWindow(mkRows(2, -1)), [0, 1]);                // nog niet op het bord, 2 rijen
+  assert.deepEqual(T.raceWindow(mkRows(8, 0)), [0, 1, 2, 3]);           // 1e → top-3 + jager
+  assert.deepEqual(T.raceWindow(mkRows(8, 2)), [0, 1, 2, 3]);           // 3e → top-3 + jager
+  assert.deepEqual(T.raceWindow(mkRows(8, 3)), [0, 1, 2, 3, 4]);        // 4e → aaneengesloten, geen ⋯
+  assert.deepEqual(T.raceWindow(mkRows(8, 5)), [0, 1, 2, 4, 5, 6]);     // 6e → ⋯ op index 3
+  assert.deepEqual(T.raceWindow(mkRows(6, 5)), [0, 1, 2, 4, 5]);        // laatste → geen rij onder je
+  assert.deepEqual(T.raceWindow(mkRows(5, -1)), [0, 1, 2, 3]);          // niet op het bord → jager
+});
+
+test("racePos — koploper-relatief, minimale spreiding, nooit buiten de baan", () => {
+  // Koploper staat op RACE_LEAD_POS; de achterste bij een ruime spreiding op RACE_LAST_POS.
+  assert.equal(T.racePos(300, 300, 150), T.RACE_LEAD_POS);
+  assert.ok(Math.abs(T.racePos(150, 300, 150) - T.RACE_LAST_POS) < 1e-9);
+  // Kleine spreiding (10 punten) telt als RACE_MIN_SPREAD: de achterste ligt dan dicht bij de kop.
+  const near = T.racePos(290, 300, 290);
+  assert.ok(near > 0.75 && near < T.RACE_LEAD_POS, `near=${near}`);
+  assert.ok(Math.abs(near - (T.RACE_LEAD_POS - (10 / T.RACE_MIN_SPREAD) * (T.RACE_LEAD_POS - T.RACE_LAST_POS))) < 1e-9);
+  // Iedereen gelijk (maandagochtend, 1 speler): alles op de kop, geen NaN.
+  assert.equal(T.racePos(120, 120, 120), T.RACE_LEAD_POS);
+  // Monotoon: meer punten = verder op de baan.
+  const ps = [300, 280, 240, 150].map((sc) => T.racePos(sc, 300, 150));
+  assert.deepEqual([...ps].sort((a, b) => b - a), ps);
+  for (const p of ps) assert.ok(p >= T.RACE_LAST_POS - 1e-9 && p <= T.RACE_LEAD_POS + 1e-9);
 });
