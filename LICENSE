@@ -1,16 +1,24 @@
-MIT License
+Copyright (c) 2026 mpiek. All rights reserved.
 
-Copyright (c) 2026 mpiek and contributors
+This repository is public so that the Jaardle game (https://jaardle.nl) can be
+inspected and so that bugs and translation errors can be reported. It is NOT
+open source.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+No permission is granted to copy, modify, merge, publish, distribute,
+sublicense, sell, host or deploy this software (HTML, CSS, JavaScript,
+Python/Node tools, graphics, badge art and the "Jaardle" name and branding), or
+any substantial part of it, or to create derivative works from it, without the
+prior written permission of the copyright holder.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Reading the source, and using the viewing and forking features that GitHub
+provides under its Terms of Service, is allowed.
+
+To ask for permission: contact@jaardle.com
+
+Earlier versions: versions of this software up to and including commit dc263c9
+(2026-10-03) were published under the MIT License. Copies that were obtained
+under those terms remain under MIT. Everything published after that commit is
+covered by this notice.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,9 +30,8 @@ SOFTWARE.
 
 ---
 
-NOTE: The MIT license above covers the source code only (HTML, CSS, JavaScript,
-Python/Node tools). Third-party assets bundled in this repository keep their own
-licenses and are NOT covered by MIT:
+NOTE: The notice above covers the Jaardle source code only. Third-party assets
+bundled in this repository keep their own licenses and are NOT covered by it:
 
 * Event texts and translations — served from Supabase, not stored in this repo.
   Derived from English Wikipedia, licensed CC BY-SA 4.0.
