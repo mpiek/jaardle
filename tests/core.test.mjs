@@ -50,6 +50,7 @@ src += `
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
+  ACHV_SERIES, ACHV_TIER_KEYS, CAPSTONE_MAX, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -667,4 +668,72 @@ test("recapArrowKey — ←/→ sturen de recap-tabs zodra het eindscherm gemoun
   T.setRecapArrow(mk(0, 0));              // verborgen (modal dicht): hoogte 0
   assert.equal(T.recapArrowKey(1, false), false);
   T.setRecapArrow(null);
+});
+
+test("grind-ladders — 6 treden (obsidiaan = de oude diamant), brons/zilver bevroren, flairs aan hun getal", () => {
+  const S = (k) => T.ACHV_SERIES.find((x) => x.key === k);
+  // brons/zilver zijn bewust nooit gewijzigd (retro tier-bump); de top is de oude diamant-waarde
+  const want = {
+    games:   [10, 100, 250, 750, 2000, 5000],
+    dailies: [7, 30, 60, 120, 200, 365],
+    streak:  [7, 30, 60, 90, 180, 365],
+    perfect: [1, 10, 25, 50, 100, 250],
+    pure:    [5, 25, 50, 100, 250, 500],
+  };
+  for (const [k, steps] of Object.entries(want)) assert.deepEqual(S(k).steps, steps, k);
+  assert.equal(T.CAPSTONE_MAX, 6);
+  assert.equal(T.ACHV_TIER_KEYS.length, 6);
+  assert.equal(T.ACHV_TIER_KEYS[5], "obsidian");
+  // rating/jaren houden 5 treden (talent-/albumplafond)
+  assert.equal(S("rating").steps.length, 5);
+  assert.equal(S("years").steps.length, 5);
+  // De server-gate (db/41: ⏳ ≥90, 💯 ≥50) en het bier (2000) hangen aan een GETAL: de pin staat op de
+  // trede waar dat getal valt. Verschuift een trede, dan klopt dit niet meer met set_my_flair.
+  assert.equal(S("streak").steps[S("streak").flairs[0].at], 90);
+  assert.equal(S("perfect").steps[S("perfect").flairs[0].at], 50);
+  assert.equal(S("games").steps[T.BEER_FX.at], 2000);
+});
+
+test("capstoneTier — laagste trede over de 5 ladders, max 6", () => {
+  const a = (games, dailies, streak, perfect, pure) => ({ games, dailies, streak, perfect, pure, years: [], rating: null });
+  assert.equal(T.capstoneTier(null), 0);
+  assert.equal(T.capstoneTier(a(0, 0, 0, 0, 0)), 0);
+  assert.equal(T.capstoneTier(a(33, 26, 5, 3, 5)), 0);          // streak 5 < 7 houdt brons tegen
+  assert.equal(T.capstoneTier(a(1133, 119, 89, 80, 218)), 3);   // goud (dailies/streak: 60 / 60)
+  assert.equal(T.capstoneTier(a(4261, 121, 98, 297, 807)), 4);  // platina: dailies 120 + streak 90 halen platina, de rest ver erboven
+  assert.equal(T.capstoneTier(a(5000, 365, 365, 250, 500)), 6); // alles op de top = obsidiaan
+  assert.equal(T.capstoneTier(a(5000, 364, 365, 250, 500)), 5); // één dag te weinig = diamant
+});
+
+test("achvTickPos — tick-posities per aantal treden (5 = 10/30/50/70/90, 6 = gelijke vakken)", () => {
+  const five = [0, 1, 2, 3, 4].map((i) => T.achvTickPos(i, 5));
+  assert.deepEqual(five, [10, 30, 50, 70, 90]);
+  const six = [0, 1, 2, 3, 4, 5].map((i) => T.achvTickPos(i, 6));
+  assert.ok(Math.abs(six[0] - 100 / 12) < 1e-9 && Math.abs(six[5] - 1100 / 12) < 1e-9);
+  assert.ok(six.every((p, i) => i === 0 || p > six[i - 1]) && six[5] < 100);
+});
+
+test("achvRailPct — loopt monotoon op en bereikt 100 pas op de hoogste trede (5 én 6 treden)", () => {
+  for (const s of T.ACHV_SERIES.filter((x) => x.key !== "rating" && x.key !== "years")) {
+    let prev = -1;
+    for (const n of [0, ...s.steps, s.steps[s.steps.length - 1] * 2]) {
+      const pct = T.achvRailPct(n, s);
+      assert.ok(pct >= prev, `${s.key} @${n}`);
+      prev = pct;
+    }
+    assert.equal(T.achvRailPct(s.steps[s.steps.length - 1], s), 100, s.key);
+    assert.ok(T.achvRailPct(s.steps[s.steps.length - 2], s) < 100, s.key);
+  }
+  // rating start op 1500 (floor): 5 treden, ongewijzigd gedrag
+  const rating = T.ACHV_SERIES.find((x) => x.key === "rating");
+  assert.equal(T.achvRailPct(1850, rating), 100);
+  assert.ok(T.achvRailPct(1500, rating) === 0);
+});
+
+test("achvTierName — obsidiaan is de 6e trede in elke taal", () => {
+  for (const l of ["nl", "en", "de", "es", "pt"]) {
+    T.setLang(l);
+    assert.equal(T.achvTierName(5), T.I18N[l].achv_tiers.obsidian, l);
+  }
+  T.setLang("nl");
 });

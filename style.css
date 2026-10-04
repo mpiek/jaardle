@@ -1612,7 +1612,7 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
   90%  { opacity: 1; }
   100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
 }
-/* Viering-canvas: vuurwerk (first-try) en de bier-viering (potjes-platina) delen
+/* Viering-canvas: vuurwerk (first-try) en de bier-viering (potjes-diamant) delen
    sinds v206 één canvas en één rAF-lus — als losse deeltjes-divs haalde het
    vuurwerk op een middenklasse-telefoon ~11 fps, en canvas náást CSS-animaties
    kost óók 10-15 fps. De animatie zit volledig in game.js (runFx); hier staat
@@ -3051,9 +3051,9 @@ html[data-theme="light"] {
 .achv-t3, .achv-line-t3 { --tc: var(--achv-gold); }
 .achv-t4, .achv-line-t4 { --tc: var(--achv-plat); }
 .achv-t5, .achv-line-t5 { --tc: var(--achv-diamond); }
-/* Obsidiaan = 6e trede, alléén de herhaalbare trofeeën gebruiken 'm (de grind-
-   ladders/capstone blijven 5-trede). Donker-glas-violet: onderscheiden van
-   diamant (blauw), en de zeldzaamste tint. */
+/* Obsidiaan = 6e trede: de herhaalbare trofeeën én de 5 capstone-ladders (rating
+   en jaren blijven 5-trede). Donker-glas-violet: onderscheiden van diamant
+   (blauw), en de zeldzaamste tint. */
 .achv-t6, .achv-line-t6 { --tc: var(--achv-obsidian); }
 
 /* Capstone-track: master-balk bovenaan het bord (alleen-ingelogd). Laagste
@@ -3066,14 +3066,14 @@ html[data-theme="light"] {
 }
 .cap-head { margin-bottom: 0.55rem; }
 .cap-title { font-weight: 700; font-size: 0.95rem; }
-.cap-rail { display: flex; gap: 0.4rem; }
+.cap-rail { display: flex; gap: 0.2rem; }   /* 6 pips (obsidiaan): krappere ruggen, anders loopt de rij op 360px de padding in */
 .cap-pip {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  padding: 0.4rem 0.15rem;
+  padding: 0.4rem 0.1rem;
   border-radius: 9px;
   background: var(--card);
   border: 1px solid var(--border);
@@ -3081,7 +3081,7 @@ html[data-theme="light"] {
 }
 .cap-pip.on { opacity: 1; border-color: var(--pc); box-shadow: inset 0 0 0 1px var(--pc); }
 .cap-pip-ico { font-size: 1.15rem; line-height: 1; }
-.cap-pip-lbl { font-size: 0.62rem; color: var(--muted); text-transform: capitalize; }
+.cap-pip-lbl { font-size: clamp(0.5rem, 2.5vw, 0.62rem); color: var(--muted); text-transform: capitalize; }   /* meeschalen: "obsidiaan"/"obsidiana" is het breedste label */
 .cap-pip.on .cap-pip-lbl { color: var(--pc); font-weight: 600; }
 .cap-pip.soon .cap-pip-ico { filter: grayscale(1); }
 .cap-bronze   { --pc: var(--achv-bronze); }
@@ -3089,6 +3089,8 @@ html[data-theme="light"] {
 .cap-gold     { --pc: var(--achv-gold); }
 .cap-platinum { --pc: var(--achv-plat); }
 .cap-diamond  { --pc: var(--achv-diamond); }
+.cap-obsidian { --pc: var(--achv-obsidian); }
+@media (max-width: 340px) { .achv-capstone { padding-inline: 0.5rem; } }   /* 320px-telefoons: zes pips (pt "obsidiana") passen anders net niet */
 .cap-next { margin: 0.55rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; }
 
 /* Bereikte brons/zilver-pip is zelf een knop: aantikken vult .cap-detail
@@ -3279,7 +3281,7 @@ html[data-theme="light"] {
   font-size: 0.75rem;
   color: var(--muted);
 }
-/* Beloning-schakelaar in een reeks-uitklap (nu de bier-viering op potjes-platina):
+/* Beloning-schakelaar in een reeks-uitklap (nu de bier-viering op potjes-diamant):
    zelfde scheidingslijn als .cap-detail onder de capstone-rail. */
 .achv-detail .cap-action {
   margin-top: 0.5rem;

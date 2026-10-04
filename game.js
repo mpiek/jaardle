@@ -4170,7 +4170,7 @@ function showGoldYears(firstTry) {
     : [goldYearsLayer(yr, false)]);
 }
 
-// ── Bier-viering (potjes-platina) ───────────────────────────────────────────
+// ── Bier-viering (potjes-diamant) ───────────────────────────────────────────
 // Kleuren per thema. De schuim-witte druppels hebben op het lichte thema een
 // randje nodig, anders vallen ze weg tegen het papierwit.
 function beerPalette() {
@@ -4464,7 +4464,7 @@ function finishGame(won, fresh = false) {
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily" || isMakeup(state);
   renderHintStatus();
   // Vieren. Hooguit één schermvullend effect (twee door elkaar is rommel): de
-  // exclusieve win-fx (gouden jaartallen = capstone-goud, bier = potjes-platina)
+  // exclusieve win-fx (gouden jaartallen = capstone-goud, bier = potjes-diamant)
   // gaan vóór de confetti; bij een first-try zit het vuurwerk al ín beide. De
   // onderlinge uitsluiting + hiërarchische defaults zorgen dat er hooguit één
   // actief is — de volgorde hier weerspiegelt alleen de prestige-rangorde.
@@ -7204,7 +7204,7 @@ async function loadRecapTeam() {
 }
 
 // --- Prestaties (achievements) ----------------------------------------------
-// Bord van 7 getrapte reeksen (brons→diamant) + 8 trofeeën + het
+// Bord van 7 getrapte reeksen (brons→obsidiaan; rating/jaren stoppen bij diamant) + 8 trofeeën + het
 // iconische-jaren-album. Van de trofeeën zijn er 6 herhaalbaar/telbaar
 // (first_try, last_gasp, zigzag, nailbiter, spicy, eras — ×N-badge, eigen
 // sectie) en 2 strikt eenmalig (flawless, saver — bewust: een teller
@@ -7226,24 +7226,29 @@ async function loadRecapTeam() {
 const ACHV_YEARS = [-509, -336, -221, -44, 79, 476, 622, 793, 800, 1066, 1215, 1347, 1431,
   1440, 1453, 1485, 1492, 1517, 1543, 1588, 1648, 1687, 1776, 1789, 1815, 1859, 1889, 1903,
   1912, 1914, 1929, 1945, 1953, 1957, 1969, 1989, 2008, 2020];
-const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond"];
-// Reeksen: steps = de vijf treden; flairs = [{emoji, at}] (0-based trede) — de
-// server-gate in set_my_flair (db/36) moet dezelfde drempels hanteren.
+const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond", "obsidian"];
+// Reeksen: steps = de treden (6 voor de 5 capstone-ladders, 5 voor rating/jaren:
+// die hebben een talent-/albumplafond en geen 6e trede); flairs = [{emoji, at}]
+// (0-based trede) — de server-gate in set_my_flair (db/41) moet dezelfde
+// drempels hanteren, dus een flair blijft aan zijn GETAL hangen: schuift een trede,
+// verhuis dan alleen `at` zodat het getal gelijk blijft.
 // floor = ondergrens voor het voortgangsbalkje vóór de eerste trede (rating
 // start op 1500, dus 0..1600 zou het balkje meteen vol tekenen).
 // De rating-ladder is de enige met meer dan één flair: de drie medailles staan
 // op brons/zilver/diamant, zodat de klim ook onderweg iets zichtbaars oplevert.
+// Obsidiaan (6e trede) = de oude diamant-waarde; goud/platina/diamant liggen sinds
+// de 6e trede lager (okt 2026), brons/zilver bleven staan (zie capstone-track-design).
 // fx = {emoji, at}: een niet-flair-beloning op een trede (nu alleen het biertje
-// op potjes-platina). Staat als pin op de rail, precies als een flair, en heeft
+// op potjes-diamant). Staat als pin op de rail, precies als een flair, en heeft
 // géén server-gate nodig — het is puur cosmetisch en alleen zichtbaar voor
 // jezelf. Zie showBeer().
-const BEER_FX = { key: "games", at: 3, emoji: "🍻" };   // at = 0-based trede-index → 2000
+const BEER_FX = { key: "games", at: 4, emoji: "🍻" };   // at = 0-based trede-index → 2000 (diamant)
 const ACHV_SERIES = [
-  { key: "dailies", art: "cal",        steps: [7, 30, 100, 200, 365] },   // ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
-  { key: "streak",  art: "flame",      steps: [7, 30, 90, 180, 365],  flairs: [{ emoji: "⏳", at: 2 }] },
-  { key: "games",   art: "dice",       steps: [10, 100, 500, 2000, 5000], fx: BEER_FX },
-  { key: "perfect", art: "100",        steps: [1, 10, 50, 100, 250],  flairs: [{ emoji: "💯", at: 2 }] },
-  { key: "pure",    art: "zen",        steps: [5, 25, 100, 250, 500] },
+  { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365] },   // ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
+  { key: "streak",  art: "flame",      steps: [7, 30, 60, 90, 180, 365],  flairs: [{ emoji: "⏳", at: 3 }] },   // ⏳ = 90 (db/41)
+  { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 2000, 5000], fx: BEER_FX },
+  { key: "perfect", art: "100",        steps: [1, 10, 25, 50, 100, 250],  flairs: [{ emoji: "💯", at: 3 }] },   // 💯 = 50 (db/41)
+  { key: "pure",    art: "zen",        steps: [5, 25, 50, 100, 250, 500] },
   { key: "rating",  art: "bolt",       steps: [1600, 1700, 1775, 1825, 1850], floor: 1500, authOnly: true,
     flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }] },
   { key: "years",   art: "albumcover", steps: [4, 10, 18, 28, 38], flairs: [{ emoji: "🗿", at: 3 }], album: true },
@@ -7270,10 +7275,10 @@ const ACHV_TROPHIES = [
   { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" }, repeatable: true, tiers: [1, 5, 15, 35, 70, 130] },
   // Obsidiaan: de enige verborgen trofee. Hij bestaat niet op het bord tot je
   // piek-rating ooit OBSIDIAN_REVEAL was (= de diamant-trede), en is verdiend bij
-  // OBSIDIAN_AT. Bewust géén 6e trede op de rating-ladder: het getal 5 zit hard
-  // in ACHV_TIER_KEYS/ACHV_TIER_WEIGHT/REWARD/achv-t5, en een verborgen trede op
-  // een zichtbare ladder is een gat waar iedereen naar staart.
-  // weight 10 > alles (diamant = 6, zegel = 4): de zeldzaamste prestatie van het
+  // OBSIDIAN_AT. Bewust géén 6e trede op de rating-ladder (ook niet sinds de
+  // 6e trede op de grind-ladders): een verborgen trede op een zichtbare ladder is
+  // een gat waar iedereen naar staart.
+  // weight 10 > alles (obsidiaan-trede = 8, zegel = 4): de zeldzaamste prestatie van het
   // spel mag nooit door een toevallig jaar-zegel van de unlock-kaart geduwd worden.
   { key: "obsidian",  i18n: "achv_t_obsidian", art: "chest", lockedArt: "chest-closed",
     authOnly: true, weight: 10, titleCode: "JM", coronation: true,
@@ -7320,7 +7325,7 @@ const ACHV_YEAR_ART = {
   "1989": "wall", "2008": "bull", "2020": "virus",
 };
 
-function achvTier(n, steps) {           // 0 = nog geen trede, 5 = diamant
+function achvTier(n, steps) {           // 0 = nog geen trede, steps.length = hoogste trede
   let tier = 0;
   for (const s of steps) if (n >= s) tier += 1;
   return tier;
@@ -7342,9 +7347,10 @@ const CAPSTONE_KEYS = ["games", "dailies", "streak", "perfect", "pure"];
 const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "⭐" }];   // brons; zilver = confetti, goud+ later
 const capstoneSeries = (k) => ACHV_SERIES.find((x) => x.key === k);
 
-function capstoneTier(a) {              // 0 = nog geen trede, 5 = diamant
+const CAPSTONE_MAX = 6;                 // = steps.length van de 5 capstone-ladders (obsidiaan)
+function capstoneTier(a) {              // 0 = nog geen trede, 6 = obsidiaan
   if (!a) return 0;
-  let min = 5;
+  let min = CAPSTONE_MAX;
   for (const k of CAPSTONE_KEYS) {
     const s = capstoneSeries(k);
     min = Math.min(min, achvTier(achvValue(a, s), s.steps));
@@ -7354,7 +7360,7 @@ function capstoneTier(a) {              // 0 = nog geen trede, 5 = diamant
 // De ladder(s) die je op de laagste trede tegenhouden — voedt de master-balk.
 function capstoneLagging(a) {
   const tier = capstoneTier(a);
-  if (tier >= 5) return [];
+  if (tier >= CAPSTONE_MAX) return [];
   return CAPSTONE_KEYS.filter((k) => achvTier(achvValue(a, capstoneSeries(k)), capstoneSeries(k).steps) === tier);
 }
 
@@ -7362,7 +7368,7 @@ function capstoneLagging(a) {
 // opt-out per apparaat (jaardle:flairconfetti). Schakelaar zit in de
 // prestige-track zelf (capActionsHtml), niet in het ⋮-menu.
 // Er zijn nu DRIE exclusieve win-effecten en er speelt er hooguit één: flair-
-// confetti (zilver), bier (potjes-platina) en gouden jaartallen (capstone-goud).
+// confetti (zilver), bier (potjes-diamant) en gouden jaartallen (capstone-goud).
 // Zet je de één aan, dan gaan de andere twee uit (zie de set*-functies). De
 // defaults zijn hiërarchisch — gouden jaartallen > bier > flair-confetti — zodat
 // bij een onaangeraakte stand steeds het hoogst-verdiende effect je default is.
@@ -7383,7 +7389,7 @@ function setFlairConfetti(on) {
   } catch (e) {}
 }
 
-// Bier-viering: verdiend op potjes-platina (2000). Zelfde soort self-facing
+// Bier-viering: verdiend op potjes-diamant (2000). Zelfde soort self-facing
 // beloning als de flair-confetti — alleen-ingelogd (een lokale teller is voor
 // 2000 potjes niet te vertrouwen, en get_my_achievements heeft het cijfer al) en
 // per apparaat uit te zetten. Schakelaar zit in de uitklap van de potjes-rij.
@@ -8218,7 +8224,7 @@ function rewardClosed() {
 // Rangorde bij meerdere unlocks in één pot: de zeldzaamste wordt de kaart. Zegel
 // en goud wegen gelijk (4); bij gelijkspel wint de zegel, want de onthulling
 // zelf is daar de beloning.
-const ACHV_TIER_WEIGHT = [1, 2, 4, 5, 6];   // brons, zilver, goud, platina, diamant
+const ACHV_TIER_WEIGHT = [1, 2, 4, 5, 6, 8];   // brons, zilver, goud, platina, diamant, obsidiaan (= TROPHY_TIER_WEIGHT)
 const ACHV_STAMP_WEIGHT = 4;
 const ACHV_TROPHY_WEIGHT = 3;
 
@@ -8227,10 +8233,10 @@ function achvSeriesItem(a, s, tier, prev) {
   const unit = t(`achv_${s.key}_n`);
   return {
     id: `s:${s.key}:${tier}`, kind: "series", weight: ACHV_TIER_WEIGHT[tier - 1],
-    art: s.art, tier, head: t("achv_unlocked"),
+    art: s.art, tier, tiers: s.steps.length, head: t("achv_unlocked"),
     title: `${t(`achv_${s.key}`)} · ${achvTierName(tier - 1)}`,
     sub: s.key === "years" ? unit(n, ACHV_YEARS.length) : unit(fmtN(n)),
-    next: tier >= 5 ? t("achv_maxed") : t("achv_next")(fmtN(s.steps[tier] - n), achvTierName(tier)),
+    next: tier >= s.steps.length ? t("achv_maxed") : t("achv_next")(fmtN(s.steps[tier] - n), achvTierName(tier)),
     // Flair alleen melden op de trede die hem vrijspeelt — en niet opnieuw als
     // je in één keer twee treden pakt terwijl je de flair al had. Pak je er in
     // één klap twee, dan wint de hoogste.
@@ -8278,7 +8284,7 @@ function achvCardEl(it) {
   const el = document.createElement("div");
   el.className = `achv-card${it.tier ? ` achv-t${it.tier}` : ""}`;
   const rail = it.kind === "series"
-    ? `<span class="achv-card-rail">${Array.from({ length: 5 }, (_, i) =>
+    ? `<span class="achv-card-rail">${Array.from({ length: it.tiers || 5 }, (_, i) =>
         `<b class="achv-tk${i}${i < it.tier ? " done" : ""}"></b>`).join("")}</span>` : "";
   const meta = it.kind === "series" ? it.next : (it.extra || "");
   // Flair = het enige publiek zichtbare gevolg van een unlock, dus die krijgt de
@@ -8425,14 +8431,17 @@ function achvBadgeHtml(art, isStamp) {
   return `<svg viewBox="0 0 100 100" class="achv-art${isStamp ? " achv-art-stamp" : ""}" aria-hidden="true"><use href="#achv-art-${art}"/></svg>`;
 }
 
-// Voortgang binnen de rail (tick-posities 10/30/50/70/90%): tot de vorige trede
-// vol, daarbinnen naar rato richting de volgende.
+// Tick-positie (% van de rail) van trede i bij `count` treden: gelijke vakken met de
+// tick in het midden — 10/30/50/70/90 bij 5 treden, 8,3/25/…/91,7 bij 6.
+function achvTickPos(i, count) { return (100 * (i + 0.5)) / count; }
+// Voortgang binnen de rail: tot de vorige trede vol, daarbinnen naar rato
+// richting de volgende.
 function achvRailPct(n, s) {
   const tier = achvTier(n, s.steps);
-  if (tier >= 5) return 100;
+  if (tier >= s.steps.length) return 100;
   const prevStep = tier === 0 ? (s.floor || 0) : s.steps[tier - 1];
-  const prevPos = tier === 0 ? 0 : 10 + 20 * (tier - 1);
-  const nextPos = 10 + 20 * tier;
+  const prevPos = tier === 0 ? 0 : achvTickPos(tier - 1, s.steps.length);
+  const nextPos = achvTickPos(tier, s.steps.length);
   const frac = Math.max(0, Math.min(1, (n - prevStep) / (s.steps[tier] - prevStep)));
   return prevPos + frac * (nextPos - prevPos);
 }
@@ -8447,7 +8456,7 @@ function achvRowSub(a, s) {
   // tellen terwijl je op 1500 start — laat het nog-stuk dan weg.
   if (s.key === "rating" && a.rating == null) return unitLine;
   const tier = achvTier(n, s.steps);
-  const next = tier >= 5 ? t("achv_maxed")
+  const next = tier >= s.steps.length ? t("achv_maxed")
     : t("achv_next")(fmtN(s.steps[tier] - n), achvTierName(tier));
   return `${unitLine} · ${next}`;
 }
@@ -8457,10 +8466,10 @@ function achvDetailHtml(a, s) {
   const tier = achvTier(n, s.steps);
   const ticks = s.steps.map((step, i) => {
     const done = tier > i;
-    return `<b class="achv-tick achv-tk${i}${done ? " done" : ""}" style="left:${10 + 20 * i}%"></b>`;
+    return `<b class="achv-tick achv-tk${i}${done ? " done" : ""}" style="left:${achvTickPos(i, s.steps.length)}%"></b>`;
   }).join("");
   const labels = s.steps.map((step, i) =>
-    `<span class="${tier === i ? "next" : ""}" style="left:${10 + 20 * i}%">${fmtN(step)}</span>`).join("");
+    `<span class="${tier === i ? "next" : ""}" style="left:${achvTickPos(i, s.steps.length)}%">${fmtN(step)}</span>`).join("");
   const flairs = s.flairs || [];
   // Een fx-beloning (het biertje) hangt als pin op dezelfde rail als de flairs —
   // zo zie je hem hangen lang voordat je hem haalt. Maar alleen als je ingelogd
@@ -8471,8 +8480,8 @@ function achvDetailHtml(a, s) {
   // Eigen klasse voor de fx-pin: 🍻 zit óók in FLAIR_OPTIONS, dus zonder verschil
   // leest hij als "hier verdien je de 🍻-flair" i.p.v. een viering.
   const pins = flairs.map((f) =>
-    `<span class="achv-flairpin" style="left:${10 + 20 * f.at}%">${f.emoji}</span>`).join("")
-    + (fx ? `<span class="achv-flairpin achv-fxpin" style="left:${10 + 20 * fx.at}%">${fx.emoji}</span>` : "");
+    `<span class="achv-flairpin" style="left:${achvTickPos(f.at, s.steps.length)}%">${f.emoji}</span>`).join("")
+    + (fx ? `<span class="achv-flairpin achv-fxpin" style="left:${achvTickPos(fx.at, s.steps.length)}%">${fx.emoji}</span>` : "");
   // Eén flair → de hele zin; meerdere (de rating-medailles) → een opsomming,
   // anders staat dezelfde regel drie keer onder elkaar.
   const note = !flairs.length ? ""
@@ -8519,7 +8528,7 @@ function achvRowHtml(a, s) {
   const n = achvValue(a, s);
   const tier = achvTier(n, s.steps);
   const prevStep = tier === 0 ? (s.floor || 0) : s.steps[tier - 1];
-  const barPct = tier >= 5 ? 100
+  const barPct = tier >= s.steps.length ? 100
     : Math.max(0, Math.min(100, ((n - prevStep) / (s.steps[tier] - prevStep)) * 100));
   const chip = tier > 0 ? `<span class="achv-chip">${escHtml(achvTierName(tier - 1))}</span>` : "";
   const chev = s.album ? `${achvNewDot("y:")}<span class="achv-chev">›</span>` : "";
@@ -8728,11 +8737,12 @@ function achvAnonNoteHtml() {
 
 // Master-balk bovenaan het bord: de capstone-track (laagste trede over de 5
 // grind-ladders). Alleen-ingelogd; toont welke ladder je tegenhoudt naar de
-// volgende trede. Goud/platina/diamant staan als "binnenkort" (fase 2+).
+// volgende trede. De 6e pip (obsidiaan) heeft nog geen beloning: die wordt in het
+// voorjaar van 2027 gekozen, voordat iemand 'm kan halen (365 dailies + streak 365).
 function capstoneBarHtml(a) {
   if (!auth.user) return "";
   const ct = capstoneTier(a);
-  const REWARD = ["⭐", "🎊", "🗓️", "🖼️", "🎨"];   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer
+  const REWARD = ["⭐", "🎊", "🗓️", "🖼️", "🎨"];   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer; obsidiaan = nog geen
   // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
   // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
   // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
@@ -8742,16 +8752,17 @@ function capstoneBarHtml(a) {
     // Read-only voortgang/eer sinds v239: de bediening (dragen/aanzetten) woont in
     // de 🪎-kluis. Een gehaalde pip is een sprong daarheen; vergrendeld = 🔒 (de
     // beloning onthult zich pas als je 'm haalt — suspense blijft).
-    const tag = reached ? "button" : "div";
-    const attrs = reached ? ` type="button" data-cap-rewards="1"` : "";
-    const ico = reached ? REWARD[i] : "🔒";
-    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : " soon"}${reached ? " cap-pip-btn" : ""}"${attrs}>
+    const hasReward = i < REWARD.length;
+    const tag = reached && hasReward ? "button" : "div";
+    const attrs = reached && hasReward ? ` type="button" data-cap-rewards="1"` : "";
+    const ico = reached ? (REWARD[i] || "🖤") : "🔒";
+    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : " soon"}${reached && hasReward ? " cap-pip-btn" : ""}"${attrs}>
         <span class="cap-pip-ico">${ico}</span>
         <span class="cap-pip-lbl">${escHtml(achvTierName(i))}</span>
       </${tag}>`;
   }).join("");
   let hint;
-  if (ct >= 5) hint = t("achv_cap_done");
+  if (ct >= CAPSTONE_MAX) hint = t("achv_cap_done");
   else {
     const lag = capstoneLagging(a).map((k) => `${t("achv_" + k)} +${fmtN(capstoneSeries(k).steps[ct] - achvValue(a, capstoneSeries(k)))}`).join(" · ");
     hint = t("achv_cap_next")(achvTierName(ct), lag);
@@ -8835,7 +8846,7 @@ function renderAchvAlbum(body, a) {
   const yearsSeries = ACHV_SERIES.find((s) => s.key === "years");
   const n = a.years.length;
   const tier = achvTier(n, yearsSeries.steps);
-  const next = tier >= 5 ? t("achv_maxed")
+  const next = tier >= yearsSeries.steps.length ? t("achv_maxed")
     : t("achv_next")(fmtN(yearsSeries.steps[tier] - n), achvTierName(tier));
   const hideYears = !dailyDoneToday();
   const stamps = ACHV_YEARS.map((y) => {
