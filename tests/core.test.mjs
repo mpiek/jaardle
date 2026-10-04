@@ -54,7 +54,7 @@ src += `
   ACHV_SERIES, ACHV_TIER_KEYS, CAPSTONE_MAX, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
-  teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
+  recapAccountHtml, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
@@ -1063,4 +1063,18 @@ test("teamTeaserHtml — verlies: 💀 op de dag-rij, geen dagzege in de week", 
   assert.ok(h.includes("💀"));
   assert.ok(!h.includes("race-tro"), "geen dagzege-trofee bij verlies");
   assert.ok(h.includes(T.t("lb_you")), "zonder profielnaam staat er 'jij'");
+});
+
+// ── Pitch-kaartje voor uitgelogde spelers: Google direct, e-mail als link ─────────────────────────────
+test("recapAccountHtml — Google-knop als hoofdactie, 'of met e-mail' als link naar de login-modal", () => {
+  for (const l of Object.keys(T.I18N)) {
+    T.setLang(l);
+    const h = T.recapAccountHtml();
+    assert.match(h, /class="google-btn js-google-btn"/, `${l}: Google-knop`);
+    assert.ok(h.includes(T.I18N[l].login_google), `${l}: label uit login_google`);
+    assert.match(h, /class="link-btn js-acct-btn"/, `${l}: e-mail-link houdt de js-acct-btn-hook`);
+    assert.ok(h.includes(T.I18N[l].login_or), `${l}: label uit login_or`);
+    assert.ok(!h.includes("undefined"), `${l}: geen ontbrekende sleutel`);
+  }
+  T.setLang("nl");
 });

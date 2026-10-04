@@ -290,7 +290,6 @@ const I18N = {
     recap_acct_1: "📊 Je statistieken & streak blijven bewaard",
     recap_acct_2: "☁️ Speel verder op al je apparaten",
     recap_acct_3: "🏆 Vergelijk je daily met vrienden in een pool",
-    recap_acct_btn: "Inloggen of account maken",
     recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
     streak_won: (n) => n === 1 ? "🔥 Streak gestart — kom morgen terug!" : `🔥 ${n} dagen op rij!`,
     streak_lost: (n) => `💔 Streak van ${n} ${n === 1 ? "dag" : "dagen"} gebroken — morgen nieuwe kans!`,
@@ -594,7 +593,6 @@ const I18N = {
     recap_acct_1: "📊 Your stats & streak are saved",
     recap_acct_2: "☁️ Keep playing across all your devices",
     recap_acct_3: "🏆 Compare your daily with friends in a pool",
-    recap_acct_btn: "Sign in or create account",
     recap_acct_free: "Always 100% free — no paid tier, no ads.",
     streak_won: (n) => n === 1 ? "🔥 Streak started — come back tomorrow!" : `🔥 ${n} days in a row!`,
     streak_lost: (n) => `💔 ${n}-day streak broken — new chance tomorrow!`,
@@ -891,7 +889,6 @@ const I18N = {
     recap_acct_1: "📊 Deine Statistiken & Serie bleiben erhalten",
     recap_acct_2: "☁️ Spiele auf all deinen Geräten weiter",
     recap_acct_3: "🏆 Vergleiche dein Daily mit Freunden in einem Pool",
-    recap_acct_btn: "Anmelden oder Konto erstellen",
     recap_acct_free: "Immer 100% kostenlos — keine Bezahlversion, keine Werbung.",
     streak_won: (n) => n === 1 ? "🔥 Serie gestartet — komm morgen wieder!" : `🔥 ${n} Tage in Folge!`,
     streak_lost: (n) => `💔 Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gerissen — morgen neue Chance!`,
@@ -1192,7 +1189,6 @@ const I18N = {
     recap_acct_1: "📊 Tus estadísticas y tu racha se conservan",
     recap_acct_2: "☁️ Sigue jugando en todos tus dispositivos",
     recap_acct_3: "🏆 Compara tu diario con tus amigos en un grupo",
-    recap_acct_btn: "Iniciar sesión o crear cuenta",
     recap_acct_free: "Siempre 100% gratis — sin versión de pago, sin anuncios.",
     streak_won: (n) => n === 1 ? "🔥 ¡Racha iniciada — vuelve mañana!" : `🔥 ¡${n} días seguidos!`,
     streak_lost: (n) => `💔 Racha de ${n} ${n === 1 ? "día" : "días"} perdida — ¡mañana, otra oportunidad!`,
@@ -1493,7 +1489,6 @@ const I18N = {
     recap_acct_1: "📊 Suas estatísticas e sua sequência são preservadas",
     recap_acct_2: "☁️ Continue jogando em todos os seus dispositivos",
     recap_acct_3: "🏆 Compare seu diário com seus amigos em um grupo",
-    recap_acct_btn: "Entrar ou criar conta",
     recap_acct_free: "Sempre 100% grátis — sem versão paga, sem anúncios.",
     streak_won: (n) => n === 1 ? "🔥 Sequência iniciada — volte amanhã!" : `🔥 ${n} dias seguidos!`,
     streak_lost: (n) => `💔 Sequência de ${n} ${n === 1 ? "dia" : "dias"} perdida — amanhã tem outra chance!`,
@@ -5919,8 +5914,7 @@ async function renderRecap() {
   } else {
     // Uitgelogd: wijs op de voordelen van een (gratis) account.
     body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank) + shareHtml + recapAccountHtml();
-    const btn = body.querySelector(".js-acct-btn");
-    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
+    wireAcctPitch(body, "recap");
   }
   const rateBtn = body.querySelector("#recap-rate-btn");
   if (rateBtn) rateBtn.addEventListener("click", () => {
@@ -5947,7 +5941,11 @@ async function renderRecap() {
 // Voordelen-blok voor uitgelogde spelers op het recap-scherm: een gecentreerd,
 // omlijnd accent-kaartje dat als call-to-action opvalt. Ook hergebruikt in de
 // stats-modal (anon) — daarom een class i.p.v. id op de knop (kan 2× in de DOM).
+// De hoofdknop is direct "Doorgaan met Google" (één tik minder dan eerst de login-modal openen);
+// "of met e-mail" opent die modal nog steeds (inloggen/registreren/wachtwoord vergeten).
 function recapAccountHtml() {
+  // Het Google-logo komt uit de login-modal (één bron, officiële kleuren); zonder DOM (tests) gewoon geen icoon.
+  const googleIcon = document.querySelector("#login-google svg")?.outerHTML || "";
   return `<div class="recap-account">
     <h3 class="stats-heading">${t("recap_acct_title")}</h3>
     <ul class="recap-perks">
@@ -5955,7 +5953,10 @@ function recapAccountHtml() {
       <li>${t("recap_acct_2")}</li>
       <li>${t("recap_acct_3")}</li>
     </ul>
-    <div class="recap-cta"><button class="js-acct-btn">${t("recap_acct_btn")}</button></div>
+    <div class="recap-signin">
+      <button type="button" class="google-btn js-google-btn">${googleIcon}<span>${t("login_google")}</span></button>
+      <button type="button" class="link-btn js-acct-btn">${t("login_or")}</button>
+    </div>
     <p class="recap-free">${t("recap_acct_free")}</p>
   </div>`;
 }
@@ -9096,9 +9097,11 @@ function selectStatsTab(name) {
   try { localStorage.setItem("jaardle:statsTab", name); } catch (e) {}
 }
 
-function wireAcctPitch(container) {
-  const btn = container.querySelector(".js-acct-btn");
-  if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-login"); };
+function wireAcctPitch(container, from) {
+  const mail = container.querySelector(".js-acct-btn");
+  if (mail) mail.onclick = () => { closeAllModals(); openModal("modal-login"); };
+  const google = container.querySelector(".js-google-btn");
+  if (google) google.onclick = () => doGoogleSignIn(google, from);
 }
 
 // ⚡ Rating-tab: grafiek (of leegmelding zolang er nog geen lijn te tekenen is),
@@ -10119,24 +10122,37 @@ async function doSignOut() {
   }
 }
 
-async function doGoogleSignIn() {
+// Terugkeer na Google: de OAuth-redirect gooit de pagina weg. Kwam je vanuit het eindscherm-kaartje, dan
+// parkeren we dat (zoals jaardle:pendingJoin) en openen we het eindscherm weer zodra je ingelogd terug bent —
+// daar staat dan meteen het team-voorproefje. Hangt bewust niet van Supabase's redirect-allowlist af.
+const PENDING_RECAP_KEY = "jaardle:pendingRecap";   // tijdstip (ms); ouder dan 15 min = vergeten
+let pendingRecapAfterLogin = false;
+
+// `arg` is de knop (kaartje) of het click-event (login-modal); `from` = waar je vandaan komt ("recap").
+async function doGoogleSignIn(arg, from) {
   const err = document.getElementById("login-error");
+  const btn = arg && arg.nodeType === 1 ? arg : document.getElementById("login-google");
+  // Het kaartje staat buiten de login-modal: bij een fout openen we die, zodat de melding zichtbaar is.
+  const fail = (msg) => {
+    if (document.getElementById("modal-login").hidden) { closeAllModals(); openModal("modal-login"); }
+    err.textContent = msg;
+    err.hidden = false;
+  };
   err.hidden = true;
   err.textContent = "";
   if (!window.sbAuth?.signInWithGoogle) {
-    err.textContent = "Google-login niet beschikbaar.";
-    err.hidden = false;
+    fail("Google-login niet beschikbaar.");
     return;
   }
-  const btn = document.getElementById("login-google");
   btn.disabled = true;
+  if (from === "recap") { try { localStorage.setItem(PENDING_RECAP_KEY, String(Date.now())); } catch (e) {} }
   try {
     // Supabase redirect (geen popup): browser navigeert weg, sessie wordt
     // bij terugkomst door getSession() in index.html opgepikt.
     await window.sbAuth.signInWithGoogle();
   } catch (ex) {
-    err.textContent = friendlyAuthError(ex);
-    err.hidden = false;
+    try { localStorage.removeItem(PENDING_RECAP_KEY); } catch (e) {}
+    fail(friendlyAuthError(ex));
   } finally {
     btn.disabled = false;
   }
@@ -10732,6 +10748,7 @@ async function init() {
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
     if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin(); }
+    if (pendingRecapAfterLogin && auth.user) { pendingRecapAfterLogin = false; pendingOpenRecap = true; }   // net ingelogd vanuit het eindscherm-kaartje
     maybeOpenRecapDeeplink();   // ?recap: wacht (ingelogd) op de reconcile hierboven, dan eindscherm of 'speel eerst'
     // Auth komt op een reload ná het herstellen van een afgerond dagbord binnen;
     // de streakregel is dan met local-only historie getekend (vaak "streak 1").
@@ -10837,6 +10854,12 @@ async function init() {
     lbParams.delete("history");
   }
   if (lbParams.has("recap")) { pendingOpenRecap = true; lbParams.delete("recap"); }
+  // Terug van Google-login vanuit het eindscherm-kaartje (doGoogleSignIn): verse intentie, één keer te gebruiken.
+  try {
+    const parked = Number(localStorage.getItem(PENDING_RECAP_KEY));
+    localStorage.removeItem(PENDING_RECAP_KEY);
+    if (parked && Date.now() - parked < 15 * 60 * 1000) pendingRecapAfterLogin = true;
+  } catch (e) {}
   if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap) {
     const qs = lbParams.toString();
     history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);
