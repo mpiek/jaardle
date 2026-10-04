@@ -1582,6 +1582,13 @@ footer {
   padding: 0 1rem 0.5rem;
 }
 footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én onder */
+/* Socials onder de footer-regel: kleine, rustige iconen (muted → vol bij hover/focus; Discord krijgt z'n merkblauw). */
+#footer-socials { display: flex; justify-content: center; gap: 0.6rem; margin: 0.35rem 0 0.6rem; }
+#footer-socials a { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; color: var(--muted); transition: color 0.15s ease, background 0.15s ease; }
+#footer-socials a:hover, #footer-socials a:focus-visible { color: var(--fg); background: var(--card-soft); }
+#footer-socials a[data-social="discord"]:hover, #footer-socials a[data-social="discord"]:focus-visible { color: #7983f5; }
+html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[data-theme="light"] #footer-socials a[data-social="discord"]:focus-visible { color: #4752c4; }
+#footer-socials svg { width: 1.25rem; height: 1.25rem; }
 #help-btn {
   display: inline-flex;
   align-items: center;

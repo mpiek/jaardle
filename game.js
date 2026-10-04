@@ -158,7 +158,7 @@ const I18N = {
     menu_theme: "☀️ Licht thema", menu_discord: "💬 Discord",
     menu_history: "📅 Geschiedenis",
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
-    aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten",
+    aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten", aria_discord: "Doe mee op Discord",
     hint_nudge: (p) => `Tip: 🔢 verklapt het laatste cijfer (−${p} punten)`,
     guess: "Gok", share: "Deel resultaat", next: "Nieuw rondje",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Richting", hint_century: "🏛️ Eeuw",
@@ -456,7 +456,7 @@ const I18N = {
     menu_theme: "☀️ Light theme", menu_discord: "💬 Discord",
     menu_history: "📅 History",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
-    aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close",
+    aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close", aria_discord: "Join us on Discord",
     hint_nudge: (p) => `Tip: 🔢 reveals the last digit (−${p} points)`,
     guess: "Guess", share: "Share result", next: "New round",
     hint_text: "💡 Extra hint", hint_dir: "🧭 Direction", hint_century: "🏛️ Century",
@@ -757,7 +757,7 @@ const I18N = {
     menu_theme: "☀️ Helles Design", menu_discord: "💬 Discord",
     menu_history: "📅 Verlauf",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
-    aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen",
+    aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen", aria_discord: "Tritt uns auf Discord bei",
     hint_nudge: (p) => `Tipp: 🔢 verrät die letzte Ziffer (−${p} Punkte)`,
     guess: "Raten", share: "Ergebnis teilen", next: "Neue Runde",
     hint_text: "💡 Extra-Hinweis", hint_dir: "🧭 Richtung", hint_century: "🏛️ Jahrhundert",
@@ -1052,7 +1052,7 @@ const I18N = {
     menu_theme: "☀️ Tema claro", menu_discord: "💬 Discord",
     menu_history: "📅 Historial",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
-    aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar",
+    aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar", aria_discord: "Únete a nuestro Discord",
     hint_nudge: (p) => `Consejo: 🔢 revela el último dígito (−${p} puntos)`,
     guess: "Adivinar", share: "Compartir resultado", next: "Nueva ronda",
     hint_text: "💡 Pista extra", hint_dir: "🧭 Dirección", hint_century: "🏛️ Siglo",
@@ -1352,7 +1352,7 @@ const I18N = {
     menu_theme: "☀️ Tema claro", menu_discord: "💬 Discord",
     menu_history: "📅 Histórico",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
-    aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar",
+    aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar", aria_discord: "Entre no nosso Discord",
     hint_nudge: (p) => `Dica: 🔢 revela o último dígito (−${p} pontos)`,
     guess: "Adivinhar", share: "Compartilhar resultado", next: "Nova rodada",
     hint_text: "💡 Dica extra", hint_dir: "🧭 Direção", hint_century: "🏛️ Século",
@@ -10672,6 +10672,12 @@ async function init() {
     // over een maand ziet hoeveel interesse er was.
     else if (action === "discord") { try { window.goatcounter?.count?.({ path: "discord-click", title: "Discord", event: true }); } catch (e) {} }
     else if (action === "logout") doSignOut();
+  });
+  // Footer-socials: één generieke klikteller (cookieloos) per icoon, als "<social>-footer" (bv. discord-footer),
+  // naast "discord-click" voor het menu — zo zie je welke plek het beter doet.
+  document.getElementById("footer-socials")?.addEventListener("click", (e) => {
+    const a = e.target.closest("a[data-social]");
+    if (a) { try { window.goatcounter?.count?.({ path: a.dataset.social + "-footer", title: a.dataset.social, event: true }); } catch (err) {} }
   });
   document.addEventListener("click", (e) => {
     if (!menuPop.hidden && !menuPop.contains(e.target) && e.target !== menuBtn) {
