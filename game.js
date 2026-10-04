@@ -6567,6 +6567,20 @@ function recapRaceHtml(rows) {
 // is bij de feiten-carrousel al afgewezen: springt). Er is alleen een carrousel als
 // er weekrijen zijn — anders blijft het de kale daily-tabel met de gewone kop.
 let recapTab = 0;   // actieve slide (0 = vandaag, 1 = week, 2 = kans); reset bij elke verse recap, blijft staan bij pool-wissel
+let recapArrow = null;   // { track, go(dir) } — gezet door mountRecapCarousel, voor ←/→ buiten de carrousel zelf
+// ←/→ sturen de recap-tabs (Vandaag · Week · Kans) zodra de carrousel echt in beeld is (minstens de helft
+// van z'n hoogte); anders blijven de pijltjes voor de hint-slides van het spel. Zo hoef je 'm niet eerst
+// aan te klikken. Aan de uiteinden doet de toets niets (geen plots omspringen naar de hints) en een
+// vastgehouden toets schuift maar één tab op. Geeft true terug als de toets hier is afgehandeld.
+function recapArrowKey(dir, repeat) {
+  const r = recapArrow;
+  if (!r || !r.track.isConnected) return false;
+  const b = r.track.getBoundingClientRect();
+  const seen = Math.min(b.bottom, innerHeight) - Math.max(b.top, 0);
+  if (!(b.height > 0) || seen < b.height * 0.5) return false;
+  if (!repeat) r.go(dir);
+  return true;
+}
 function recapCarouselHtml(dailyRows, weekRows, oddsItems) {
   const tab = (i, key) => `<button type="button" role="tab" class="rc-tab" data-i="${i}" aria-selected="${i === 0}">${escHtml(t(key))}</button>`;
   const sep = `<span class="rc-sep" aria-hidden="true"></span>`;
@@ -6640,11 +6654,9 @@ function mountRecapCarousel(root, oddsItems) {
     raf = requestAnimationFrame(() => setActive(cur()));
   }, { passive: true });
   tabs.forEach((tb) => tb.addEventListener("click", () => goTo(Number(tb.dataset.i), true)));
-  track.addEventListener("keydown", (e) => {
-    if (e.target !== track) return;   // pijltjes in een plak/knop zijn van die plak/knop
-    if (e.key === "ArrowRight") { goTo(cur() + 1, true); e.preventDefault(); }
-    else if (e.key === "ArrowLeft") { goTo(cur() - 1, true); e.preventDefault(); }
-  });
+  // ←/→ loopt via de globale toets-handler (recapArrowKey): die heeft de focus niet nodig en voorkomt dat
+  // dezelfde toets ook nog de hint-slides verschuift.
+  recapArrow = { track, go: (dir) => goTo(Math.max(0, Math.min(last, cur() + dir)), true) };
   // Muis-slepen (desktop); scroll-snap doet de rest. Aanraken scrollt gewoon native.
   track.addEventListener("pointerdown", (e) => {
     if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("button, [role=button]")) return;
@@ -10870,7 +10882,9 @@ async function init() {
     // Tab-shortcuts werken altijd, ook nadat de puzzel klaar is.
     if (e.key === "d" || e.key === "D") { switchMode("daily"); e.preventDefault(); return; }
     if (e.key === "n" || e.key === "N") { switchMode("free"); e.preventDefault(); return; }
-    // ←/→ bladert door de carrousel (ook na afloop, om alle hints na te lezen).
+    // ←/→ bladert door het eindscherm-carrousel (Vandaag · Week · Kans) als dat in beeld is, anders door
+    // de hint-slides (ook na afloop, om alle hints na te lezen).
+    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && recapArrowKey(e.key === "ArrowRight" ? 1 : -1, e.repeat)) { e.preventDefault(); return; }
     if (e.key === "ArrowLeft")  { goToSlide(factSlideIndex - 1); e.preventDefault(); return; }
     if (e.key === "ArrowRight") { goToSlide(factSlideIndex + 1); e.preventDefault(); return; }
     // C/L ná aankoop = spring naar de 🏛️/🔢-slide (ook na afloop, net als ←/→);

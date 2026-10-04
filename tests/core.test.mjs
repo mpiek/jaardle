@@ -49,6 +49,7 @@ src += `
   easterSunday, holidayFxFor, historicFxFor, HolidayFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
+  recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -643,4 +644,32 @@ test("oddsBuild — levert probs [1e, 2e, 3e] die per plek optellen tot 1", () =
   // wie een grote kans op de winst heeft, heeft zelden de 3e plek
   const anna = items.find((x) => x.name === "Anna");
   assert.ok(anna.probs[0] > anna.probs[2]);
+});
+
+test("recapArrowKey — ←/→ sturen de recap-tabs alleen als de carrousel echt in beeld is", () => {
+  globalThis.innerHeight = 800;
+  const calls = [];
+  const mk = (top, bottom, connected = true) => ({
+    track: { isConnected: connected, getBoundingClientRect: () => ({ top, bottom, height: bottom - top }) },
+    go: (d) => calls.push(d),
+  });
+  T.setRecapArrow(null);
+  assert.equal(T.recapArrowKey(1, false), false, "niet gemount → pijltjes blijven voor de hints");
+  T.setRecapArrow(mk(300, 700));
+  assert.equal(T.recapArrowKey(1, false), true);
+  assert.equal(T.recapArrowKey(-1, false), true);
+  assert.deepEqual(calls, [1, -1], "richting wordt doorgegeven");
+  assert.equal(T.recapArrowKey(1, true), true, "een vastgehouden toets wordt opgeslokt…");
+  assert.deepEqual(calls, [1, -1], "…maar schuift niet nog een tab op");
+  T.setRecapArrow(mk(700, 1100));   // 100 van 400px in beeld (25%) → de hints krijgen de toets
+  assert.equal(T.recapArrowKey(1, false), false);
+  T.setRecapArrow(mk(500, 900));    // 300 van 400px (75%) → in beeld
+  assert.equal(T.recapArrowKey(1, false), true);
+  T.setRecapArrow(mk(-500, -100));  // helemaal boven de rand
+  assert.equal(T.recapArrowKey(1, false), false);
+  T.setRecapArrow(mk(300, 700, false));   // niet meer in de DOM (recap herbouwd/weg)
+  assert.equal(T.recapArrowKey(1, false), false);
+  T.setRecapArrow(mk(0, 0));              // verborgen: hoogte 0
+  assert.equal(T.recapArrowKey(1, false), false);
+  T.setRecapArrow(null);
 });
