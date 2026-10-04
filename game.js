@@ -6598,17 +6598,17 @@ function recapCarouselHtml(dailyRows, weekRows, oddsItems) {
 
 // De run-in van de renners: eenmalig per opbouw, zodra de week-slide voor het eerst
 // echt in beeld is (niet bij het openen van de recap — dan staat de daily-slide
-// voorop). Streep + renner lopen ~0,9 s naar hun plek, de score telt mee omhoog.
+// voorop). Streep + renner lopen ~1,8 s naar hun plek, de score telt mee omhoog.
 // Reduced-motion (of geen IntersectionObserver): meteen de eindstand, geen animatie.
 let recapRaceRun = 0;   // elke start/reset verhoogt 'm; oudere score-frames stoppen daardoor vanzelf
 function recapRaceCountUp(root, run) {
   const els = [...root.querySelectorAll(".race-lane .lb-score[data-v]")];
-  const t0 = performance.now(), dur = 900;
+  const t0 = performance.now(), dur = 1800;   // gelijk aan de streep/renner in de CSS (1,8 s + 90 ms per baan)
   const frame = (now) => {
     if (run !== recapRaceRun) return;
     let busy = false;
     els.forEach((e) => {
-      const delay = Number(e.closest(".race-lane").style.getPropertyValue("--i")) * 45;
+      const delay = Number(e.closest(".race-lane").style.getPropertyValue("--i")) * 90;
       const p = Math.min(1, Math.max(0, (now - t0 - delay) / dur));
       e.textContent = String(Math.round(Number(e.dataset.v) * (1 - Math.pow(1 - p, 3))));
       if (p < 1) busy = true;
@@ -6983,7 +6983,7 @@ function oddsDonutHtml(view) {
   const lay = oddsLayout(view);
   let arcs = "", labs = "";
   lay.forEach((a) => {
-    const it = a.it, len = Math.max(0.5, ((a.sweep - gapDeg) / 360) * C), off = -((a.start + gapDeg / 2) / 360) * C;
+    const it = a.it, g = a.sweep >= 359.5 ? 0 : gapDeg, len = Math.max(0.5, ((a.sweep - g) / 360) * C), off = -((a.start + g / 2) / 360) * C;   // één plak van 100%: geen kier in de ring
     const dash = `stroke-dasharray:${oddsR1(len)} ${oddsR1(C)};stroke-dashoffset:${oddsR1(off)}`;
     const k = (r + sw / 2 + 5) / r;
     arcs += `<g class="od-it" data-od="${it.id}" role="button" tabindex="0" aria-pressed="false" aria-label="${escHtml(oddsAria(view, it))}" style="--c:${oddsColorVar(it)}">` +
@@ -7044,8 +7044,8 @@ function oddsSlideHtml(items) {
     `<p class="lb-wk-note">${escHtml(t("odds_note"))}</p></div>`;
 }
 
-// Selectie (sticky): jouw plak staat vooraf geselecteerd; tik = wisselen, dezelfde nog eens = deselecteren;
-// de rest dimt en het midden toont emoji, kans en naam. Tik op "Overig" klapt de leden uit (blijft staan).
+// Selectie (sticky): er staat vooraf niemand geselecteerd (het midden toont dan de medaille + welke plek);
+// tik = wisselen, dezelfde nog eens = deselecteren; de rest dimt en het midden toont emoji, kans en naam. Tik op "Overig" klapt de leden uit (blijft staan).
 // Plek-schakelaar (vanaf 4 spelers): de chips 🥇🥈🥉 in de kop, of een tik op het midden, wisselen de donut tussen
 // de kans op de 1e, 2e en 3e plek (elke plek telt op tot 100%); selectie en kleuren blijven staan.
 function mountOdds(root, items) {
@@ -7054,7 +7054,7 @@ function mountOdds(root, items) {
   const views = [0, 1, 2].map((k) => oddsView(items, k));
   const minRows = oddsLegendRows(views);
   const body = root.querySelector(".odds-body");
-  let place = 0, view = views[0], sel = view.meId, raf = 0, els = [];
+  let place = 0, view = views[0], sel = null, raf = 0, els = [];
   const folded = (id) => !!(view.other && view.other.members.some((m) => m.id === id));
   const bind = () => {
     els = oddsLayout(view).map((a) => ({ a, arc: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-arc`), me: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-me`), labs: [...root.querySelectorAll(`[data-odl="${a.it.id}"]`)] }));
@@ -7062,7 +7062,7 @@ function mountOdds(root, items) {
   const draw = (t) => {
     const th = t * 360;
     els.forEach(({ a, arc, me, labs }) => {
-      const vis = Math.max(0, Math.min(a.sweep, th - a.start)), full = Math.max(0.5, ((a.sweep - gapDeg) / 360) * C);
+      const vis = Math.max(0, Math.min(a.sweep, th - a.start)), full = Math.max(0.5, ((a.sweep - (a.sweep >= 359.5 ? 0 : gapDeg)) / 360) * C);
       const l = vis <= 0 ? 0 : Math.max(0.01, (vis / a.sweep) * full);
       arc.style.strokeDasharray = `${oddsR1(l)} ${oddsR1(C)}`;
       if (me) { const k = (geo.r + geo.sw / 2 + 5) / geo.r; me.style.strokeDasharray = `${oddsR1(l * k)} ${oddsR1(C * k)}`; }
@@ -7083,12 +7083,15 @@ function mountOdds(root, items) {
     const open = sel === "other" || (!!sel && folded(sel)), more = root.querySelector(".od-more");
     if (more) more.hidden = !open;
     root.querySelector('.od-lg[data-od="other"]')?.setAttribute("aria-expanded", String(open));
-    // midden: de gekozen speler (of jij) — bij niets gekozen blijft jouw plak daar staan; onderschrift = welke plek (of "zit in overig")
-    const id = sel || view.meId, cap = view.places ? t("odds_place")(place) : t("odds_est");
+    // midden: de gekozen speler; bij niets gekozen de medaille van de getoonde plek (geen standaard-focus op jou of de koploper).
+    // Onderschrift = welke plek (of "zit in overig")
+    const id = sel, cap = view.places ? t("odds_place")(place) : t("odds_est");
     let e, p, n, c;
-    if (id === "other") { const o = view.other; e = "👥"; p = oddsPct(view, "other"); n = `${t("odds_other")} · ${o.members.length}`; c = o.me ? t("odds_incl_you") : cap; }
+    root.querySelector(".od-ctr").classList.toggle("idle", !id);
+    if (!id) { e = ODDS_MEDALS[place]; p = ""; n = ""; c = t("odds_place")(place); }
+    else if (id === "other") { const o = view.other; e = "👥"; p = oddsPct(view, "other"); n = `${t("odds_other")} · ${o.members.length}`; c = o.me ? t("odds_incl_you") : cap; }
     else { const it = view.byId[id]; e = oddsFlair(it); p = oddsPct(view, id); n = it.name; c = folded(id) ? t("odds_in_other") : cap; }
-    const me = id !== "other" && view.byId[id].me;
+    const me = !!id && id !== "other" && view.byId[id].me;
     const q = (s) => root.querySelector(s);
     q(".od-ctr-e").textContent = e;
     q(".od-ctr-p").textContent = p;
@@ -7112,7 +7115,7 @@ function mountOdds(root, items) {
   };
   const setPlace = (k) => {
     place = k; view = views[k];
-    if (sel === "other" && !view.other) sel = view.meId;   // de Overig-groep bestaat niet in elke plek
+    if (sel === "other" && !view.other) sel = null;   // de Overig-groep bestaat niet in elke plek
     body.innerHTML = oddsBodyHtml(view, minRows);
     bind(); apply();
     root.querySelectorAll(".odds-place").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.place) === place)));

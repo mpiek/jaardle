@@ -2448,8 +2448,8 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
 .race-track { position: relative; align-self: stretch; min-width: 0; }
 .race-track::before { content: ""; position: absolute; left: 0; right: 6px; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 2px; background: color-mix(in srgb, var(--fg) 13%, transparent); }
 .race-track::after { content: ""; position: absolute; right: 0; top: 50%; height: 18px; margin-top: -9px; width: 6px; background: repeating-conic-gradient(var(--fg) 0 25%, transparent 0 50%) 0 0 / 6px 6px; opacity: 0.32; }
-.race-streak { position: absolute; left: 0; top: 50%; height: 5px; margin-top: -2.5px; width: 10px; border-radius: 3px; background: linear-gradient(90deg, var(--c1), var(--c2)); transition: width 0.9s cubic-bezier(0.16, 0.84, 0.24, 1) calc(var(--i, 0) * 45ms); }
-.race-runner { position: absolute; top: 50%; left: 10px; transform: translate(-50%, -50%); font-size: 1.1rem; line-height: 1; z-index: 1; display: grid; place-items: center; transition: left 0.9s cubic-bezier(0.16, 0.84, 0.24, 1) calc(var(--i, 0) * 45ms); }
+.race-streak { position: absolute; left: 0; top: 50%; height: 5px; margin-top: -2.5px; width: 10px; border-radius: 3px; background: linear-gradient(90deg, var(--c1), var(--c2)); transition: width 1.8s cubic-bezier(0.16, 0.84, 0.24, 1) calc(var(--i, 0) * 90ms); }
+.race-runner { position: absolute; top: 50%; left: 10px; transform: translate(-50%, -50%); font-size: 1.1rem; line-height: 1; z-index: 1; display: grid; place-items: center; transition: left 1.8s cubic-bezier(0.16, 0.84, 0.24, 1) calc(var(--i, 0) * 90ms); }
 .race-runner .lb-flair-badge { font-size: 1em; }
 .race-lane.go .race-streak { width: calc(10px + var(--p) * (100% - 28px)); }
 .race-lane.go .race-runner { left: calc(10px + var(--p) * (100% - 28px)); }
@@ -2505,6 +2505,9 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .od-ctr-n { font-size: 12px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
 .od-ctr-n .jij { fill: var(--accent); font-weight: 700; }
 .od-ctr-c { font-size: 8.5px; font-weight: 700; fill: var(--muted); text-anchor: middle; text-transform: uppercase; letter-spacing: 0.09em; }
+/* Niets geselecteerd: alleen de medaille (iets groter, naar het midden) + welke plek */
+.od-ctr.idle .od-ctr-e { font-size: 34px !important; transform: translateY(14px); }
+.od-ctr.idle .od-ctr-c { font-size: 9.5px; transform: translateY(-6px); }
 /* legenda: token (tint-cirkel met flair) + naam + kans; 2 kolommen */
 .od-tk { --c: var(--s-other); display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--c); font-size: 0.88rem; line-height: 1; flex: none; box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--card-soft) 70%, transparent); }
 .od-tk.hatch { background: repeating-linear-gradient(135deg, var(--c) 0 3px, color-mix(in srgb, var(--c) 38%, var(--card)) 3px 6px); }
