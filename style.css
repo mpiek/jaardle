@@ -308,6 +308,7 @@ main {
   cursor: pointer;
 }
 .menu-item:hover { background: var(--card-soft); }
+a.menu-item { text-decoration: none; }   /* de Discord-link in het ⋮-menu */
 .menu-item.danger { color: var(--danger); }
 
 /* Thema-schakelaar (☀️): vinkje rechts zodra het lichte thema aanstaat. */
