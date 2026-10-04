@@ -5202,7 +5202,7 @@ const LB_STATS = [
   { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true, note: () => t("lb_scope_all") },
   { key: "streak",      label: () => t("lb_stat_streak"),    val: (r) => `${r.streak}` },
   // Dagzeges tellen alleen dagen sinds je pool-lidmaatschap én gewonnen, met ≥2 deelnemers
-  // die dag (db/23) — sinds db/74 geldt vanaf 2026-10-05 ook de eerste/enige van de dag
+  // die dag (db/23) — sinds db/74+76 geldt vanaf 2026-10-04 ook de eerste/enige van de dag
   // (DAGZEGE_ALONE_FROM, spiegel in de winkans-simulatie). Vandaar het bijschrift "sinds deelname".
   { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}`, note: () => t("lb_scope_pool") },
   { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}`, note: () => t("lb_scope_all") },
@@ -6698,9 +6698,9 @@ const ODDS_MIN_WEEK_ROWS = 2;    // en minstens 2 spelers met een pot deze week 
 const ODDS_FOLD = 0.03;          // onder 3% → samen in "Overig" (zodra dat er ≥ 2 zijn)
 const ODDS_PLACES_MIN = 4;       // de plek-schakelaar 🥇 🥈 🥉 pas vanaf 4 spelers: bij 2–3 is plek 2/3 vanzelf bekend of niet te voorspellen
 const ODDS_MEDALS = ["🥇", "🥈", "🥉"];
-const DAGZEGE_ALONE_FROM = "2026-10-05";   // spiegel van db/74: vanaf deze puzzeldag telt de dagzege ook voor de eerste/enige van de dag
+const DAGZEGE_ALONE_FROM = "2026-10-04";   // spiegel van db/74+76: vanaf deze puzzeldag telt de dagzege ook voor de eerste/enige van de dag
 
-// Telt de dagzege (+25) voor de nummer 1 van een dag? Spiegel van de SQL (get_pool_week_podium, db/74):
+// Telt de dagzege (+25) voor de nummer 1 van een dag? Spiegel van de SQL (get_pool_week_podium, db/74+76):
 // gewonnen, en ≥ 2 deelnemers — of vanaf de grensdatum ook alleen.
 function dagzegeApplies(heads, won, dayKey) {
   return !!won && (heads >= 2 || dayKey >= DAGZEGE_ALONE_FROM);
@@ -6721,49 +6721,62 @@ function oddsHash(str) {   // FNV-1a 32-bit
   return h >>> 0;
 }
 
-// inp = { players:[{base,q,lost,mu,sd,today,pToday}], dayMean, daySd, todayKey, todayD, todaySd, todayOpen, futureKeys:[…] }
+// inp = { players:[{base,wins,q,lost,mu,sd,today,pToday,late,miss}], dayMean, daySd, todayKey, todayD, todaySd, todayOpen, futureKeys:[…] }
 //   base   = weekscore tot nu ZONDER de voorlopige dagzege van vandaag (die wordt opnieuw uitgedeeld)
+//   wins   = dagzeges tot nu, idem zonder die van vandaag (weekrang-tiebreak, zoals de RPC: score, dan dagzeges)
 //   today  = null | {won, score, rank}: vandaag al gespeeld (vast resultaat; zit al in base)
 //   pToday = kans dat wie vandaag nog niet speelde dat alsnog doet (0 voor wie al speelde)
+//   late   = kans dat een gemiste dag alsnog wordt ingehaald (telt voor de score, nooit voor de dagzege; db/52+54)
+//   miss   = gemiste dagen van deze week die nog ingehaald kúnnen worden (bovengrens: het venster is 3 dagen)
 // Geeft per plek (1e, 2e, 3e) per speler de kans (0–1) dat hij daar eindigt: places[k][i]. Elke plek telt op tot 1.
+// Na de Monte Carlo legt oddsLimits de harde regelgrens erover: wat volgens de regels niet meer kan, wordt exact 0,
+// en wie als enige nog op een plek kan eindigen, krijgt exact 1 (de rest van de massa wordt herverdeeld).
 function forecastPlaces(inp, runs, seed) {
   const rnd = oddsRng(seed);
   const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += rnd(); return (u - 3) * Math.SQRT2; };
   const P = inp.players, n = P.length, NONE = -1e9;
-  const tot = new Float64Array(n), key = new Float64Array(n);
+  const tot = new Float64Array(n), key = new Float64Array(n), wins = new Float64Array(n);
   const places = [new Float64Array(n), new Float64Array(n), new Float64Array(n)];
   const clip = (x) => Math.max(0, Math.min(100, x));
-  const draw = (i, D) => {   // één pot van speler i op een dag met dag-effect D → [score, rangsleutel]
+  // Eén pot van speler i op een dag met dag-effect D → [score, rangsleutel]. De SQL rangschikt op won, score,
+  // pogingen, hints; de simulatie kent alleen de score. Een 100 is altijd één poging zonder hints, dus twee 100's
+  // zijn een volledig gelijkspel (zelfde sleutel → gedeelde dagzege). Bij een lagere score beslist in het echt
+  // het aantal pogingen/hints; dat kennen we niet, dus een gelijke score wordt daar met een muntje beslist.
+  const draw = (i, D) => {
     const p = P[i];
     if (rnd() < p.lost) { const s = clip(Math.round(7 + 3 * gauss())); return [s, s + (rnd() - 0.5) * 0.5]; }
     const s = clip(Math.round(D + p.mu + p.sd * gauss()));
-    return [s, 1000 + s + (rnd() - 0.5) * 0.5];
+    return [s, s >= 100 ? 1100 : 1000 + s + (rnd() - 0.5) * 0.5];
   };
+  const catchUp = (i) => { if (P[i].late && rnd() < P[i].late) tot[i] += draw(i, inp.dayMean + inp.daySd * gauss())[0]; };   // inhaalpot: alleen score
   const dayBonus = (dayKey) => {   // de beste sleutel van de dag krijgt de dagzege — gedeelde 1e plek (zelfde sleutel) allemaal, zoals de SQL (rnk = 1)
     let best = NONE, heads = 0;
     for (let i = 0; i < n; i++) if (key[i] > NONE) { heads++; if (key[i] > best) best = key[i]; }
-    if (heads && dagzegeApplies(heads, best >= 1000, dayKey)) for (let i = 0; i < n; i++) if (key[i] === best) tot[i] += 25;
+    if (heads && dagzegeApplies(heads, best >= 1000, dayKey)) for (let i = 0; i < n; i++) if (key[i] === best) { tot[i] += 25; wins[i]++; }
   };
   for (let s = 0; s < runs; s++) {
     for (let i = 0; i < n; i++) {
       tot[i] = P[i].base;
+      wins[i] = P[i].wins || 0;
       const t = P[i].today;
       key[i] = t ? (t.won ? 1000 : 0) + t.score - ((t.rank || 1) - 1) * 1e-3 : NONE;
+      for (let k = 0; k < (P[i].miss || 0); k++) catchUp(i);   // eerder gemiste dagen die nog in het inhaalvenster vallen
     }
     if (inp.todayOpen) {
       const D = inp.todayD + inp.todaySd * gauss();
-      for (let i = 0; i < n; i++) if (!P[i].today && rnd() < P[i].pToday) { const g = draw(i, D); tot[i] += g[0]; key[i] = g[1]; }
+      for (let i = 0; i < n; i++) if (!P[i].today) { if (rnd() < P[i].pToday) { const g = draw(i, D); tot[i] += g[0]; key[i] = g[1]; } else catchUp(i); }
     }
     dayBonus(inp.todayKey);
     for (const dk of inp.futureKeys) {
       const D = inp.dayMean + inp.daySd * gauss();
-      for (let i = 0; i < n; i++) { key[i] = NONE; if (rnd() < P[i].q) { const g = draw(i, D); tot[i] += g[0]; key[i] = g[1]; } }
+      for (let i = 0; i < n; i++) { key[i] = NONE; if (rnd() < P[i].q) { const g = draw(i, D); tot[i] += g[0]; key[i] = g[1]; } else catchUp(i); }
       dayBonus(dk);
     }
-    // top 3 van de eindstand (spelers zonder punten doen niet mee; willekeurige tiebreak ~ de RPC-tiebreak op pogingen)
+    // top 3 van de eindstand (spelers zonder punten doen niet mee): score, dan dagzeges (zoals de RPC), dan een
+    // muntje voor de laatste tiebreak van de RPC (minste pogingen — kent de simulatie niet)
     let v1 = -1, v2 = -1, v3 = -1, i1 = -1, i2 = -1, i3 = -1;
     for (let i = 0; i < n; i++) {
-      const v = tot[i] > 0 ? tot[i] + rnd() * 0.01 : -1;
+      const v = tot[i] > 0 ? tot[i] * 1000 + wins[i] * 10 + rnd() * 5 : -1;
       if (v > v1) { v3 = v2; i3 = i2; v2 = v1; i2 = i1; v1 = v; i1 = i; }
       else if (v > v2) { v3 = v2; i3 = i2; v2 = v; i2 = i; }
       else if (v > v3) { v3 = v; i3 = i; }
@@ -6772,7 +6785,50 @@ function forecastPlaces(inp, runs, seed) {
     if (i2 >= 0) places[1][i2] += 1;
     if (i3 >= 0) places[2][i3] += 1;
   }
-  return places.map((a) => Array.from(a, (c) => c / runs));
+  const lim = oddsLimits(inp);
+  return places.map((a, k) => {
+    const v = Array.from(a, (c, i) => (lim.can[k][i] ? c / runs : 0)), s = v.reduce((x, y) => x + y, 0);
+    const nCan = lim.can[k].filter(Boolean).length;
+    return v.map((x, i) => (lim.sure[k][i] ? 1 : s > 0 ? x / s : lim.can[k][i] ? 1 / nCan : 0));
+  });
+}
+
+// Harde regelgrens over de simulatie (4/10: de donut gaf 95% aan een koploper die wiskundig al binnen was).
+// Per paar (j, i): het grootst mogelijke verschil eindscore(j) − eindscore(i) over alle uitkomsten die de regels
+// toelaten — j haalt alles wat hij nog kan halen, i alleen wat hem niet meer te ontnemen is:
+//   * elke resterende dag: 100 punten + 25 dagzege voor j (i speelt niet);
+//   * vandaag: wie nog niet speelde kan een 100 halen (+25; staat er al een 100, dan gedeeld — een 100 is één
+//     poging zonder hints, dus niet te verslaan); wie als nr. 1 staat houdt hooguit de +25;
+//   * i houdt zijn +25 van vandaag alleen zeker als zijn 100 niet te verslaan is, als hij de 1e plek met j deelt
+//     (zelfde lot) of als niemand meer kan spelen;
+//   * inhaalpotten: 100 per nog inhaalbare gemiste dag (score, geen dagzege).
+// Is dat verschil < 0, dan eindigt i zéker vóór j. Daaruit volgt per speler de beste en slechtste plek die nog kan;
+// een plek daarbuiten heeft kans 0, en kan er op een plek nog maar één speler eindigen, dan is dat zeker (1).
+// Bewust ruim (bovengrenzen): de controle snoeit alleen wat écht onmogelijk is en vertekent een open week niet.
+function oddsLimits(inp) {
+  const P = inp.players, n = P.length, F = inp.futureKeys.length;
+  let top = Infinity, heads = 0;
+  for (const p of P) if (p.today) { heads++; top = Math.min(top, p.today.rank || 1); }
+  const isTop = (p) => !!p.today && p.today.won && (p.today.rank || 1) === top;   // (gedeeld) nr. 1 van vandaag
+  const open = inp.todayOpen && P.some((p) => !p.today);                          // kan er vandaag nog iemand spelen?
+  const maxDelta = (j, i) => {
+    const pj = P[j], pi = P[i], plays = inp.todayOpen && !pj.today;   // j speelt vandaag nog (zijn gunstigste scenario)
+    let d = pj.base - pi.base + 125 * F + 100 * (pj.miss || 0);
+    d += plays ? 125 : isTop(pj) ? 25 : 0;
+    // i's +25 van vandaag staat vast als hij nr. 1 is, de dagzege-regel dan geldt (deelnemers incl. j) en niemand hem
+    // nog kan passeren: zijn 100 is onverslaanbaar, j deelt de 1e plek met hem (zelfde lot), of niemand kan nog spelen
+    if (isTop(pi) && dagzegeApplies(heads + (plays ? 1 : 0), true, inp.todayKey) && (pi.today.score >= 100 || isTop(pj) || !open)) d -= 25;
+    return d;
+  };
+  const can = [0, 1, 2].map(() => new Array(n).fill(false)), sure = [0, 1, 2].map(() => new Array(n).fill(false));
+  for (let i = 0; i < n; i++) {
+    let best = 1, worst = 1;
+    for (let j = 0; j < n; j++) if (j !== i) { if (maxDelta(i, j) < 0) best++; if (maxDelta(j, i) >= 0) worst++; }
+    for (let k = 0; k < 3; k++) can[k][i] = best <= k + 1 && k + 1 <= worst;
+  }
+  const scored = P.filter((p) => p.base > 0).length;   // zoveel plekken zijn aan het eind zeker bezet
+  for (let k = 0; k < 3; k++) if (scored >= k + 1 && can[k].filter(Boolean).length === 1) sure[k] = can[k].slice();
+  return { can, sure };
 }
 // De kans op de weekzege alleen (de 1e plek).
 const forecastWins = (inp, runs, seed) => forecastPlaces(inp, runs, seed)[0];
@@ -6800,20 +6856,32 @@ function oddsBuild(fc, dailyRows, weekRows, ctx) {
   const dayMean = Number(fc.day_mean) || 75, daySd = Math.max(1, Number(fc.day_sd) || 6);
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const sAfter = oddsShareAfter(fc.hour_share, ctx.secsSinceMidnight);
+  const dIdx = Math.max(0, Math.min(6, daysBetweenKeys(ctx.weekStart, ctx.todayKey)));   // dagen van deze week vóór vandaag
+  // Wie wél weekpunten heeft maar buiten het forecast-universum valt (alleen inhaalpotten in 28 dagen) doet toch mee:
+  // zijn stand telt en kan een plek bezetten; zelf speelt hij in de simulatie niet meer (q = 0), de regelgrens
+  // houdt wél rekening met wat hij nog zou kúnnen halen.
+  const known = new Set(pls.map((p) => p.display_name));
+  const all = pls.concat(weekRows.filter((r) => !known.has(r.display_name))
+    .map((r) => ({ display_name: r.display_name, flair: r.flair, title: r.title, is_me: r.is_me, fixed: true })));
   const obs = [];
-  const sim = pls.map((p) => {
-    const mu = Number(p.mu) || 0, q = clamp(Number(p.q) || 0, 0.02, 0.99);
+  const sim = all.map((p) => {
+    const mu = Number(p.mu) || 0, q = p.fixed ? 0 : clamp(Number(p.q) || 0, 0.02, 0.99);
     const tr = todayBy.get(p.display_name);
     const today = tr ? { won: !!tr.won, score: Number(tr.score) || 0, rank: Number(tr.rank) || 1 } : null;
     if (today && today.won) obs.push(today.score - mu);
-    const w = weekBy.get(p.display_name);
+    const w = weekBy.get(p.display_name), holder = holders.has(p.display_name);
+    const playedBefore = Math.max(0, (w ? Number(w.played) || 0 : 0) - (today ? 1 : 0));
     return {
-      base: (w ? Number(w.week_score) || 0 : 0) - (holders.has(p.display_name) ? 25 : 0),
+      base: (w ? Number(w.week_score) || 0 : 0) - (holder ? 25 : 0),
+      wins: Math.max(0, (w ? Number(w.daily_wins) || 0 : 0) - (holder ? 1 : 0)),
       q, lost: clamp(Number(p.lost_p) || 0, 0, 0.9), mu, sd: Math.max(3, Number(p.sd) || 14), today,
       pToday: today ? 0 : (q * sAfter) / Math.max(1e-6, 1 - q + q * sAfter),
+      // inhalen: late_p komt (nog) niet uit db/75 → 0 = geen inhaalpotten in de Monte Carlo; de regelgrens rekent er wél mee.
+      // Welke dagen gemist zijn weet de client niet, dus miss = een bovengrens (gemist, en hooguit het venster).
+      late: p.fixed ? 0 : clamp(Number(p.late_p) || 0, 0, 0.95),
+      miss: Math.max(0, Math.min(dIdx - playedBefore, CATCHUP_WINDOW)),
     };
   });
-  const dIdx = Math.max(0, Math.min(6, daysBetweenKeys(ctx.weekStart, ctx.todayKey)));
   const futureKeys = [];
   for (let k = dIdx + 1; k <= 6; k++) futureKeys.push(shiftDateKey(ctx.weekStart, k));
   // Dag-effect van vandaag: wat de al gespeelde spelers zeggen over hoe zwaar vandaag is (gekrompen naar het gemiddelde).
@@ -6821,13 +6889,15 @@ function oddsBuild(fc, dailyRows, weekRows, ctx) {
   const todayD = nObs ? dayMean + (nObs / (nObs + 2)) * (obs.reduce((a, b) => a + b, 0) / nObs - dayMean) : dayMean;
   const seed = oddsHash([ctx.poolId, ctx.weekStart, weekRows.map((r) => r.display_name + ":" + r.week_score).join("|"),
     nonLate.map((r) => r.display_name + ":" + r.score).join("|")].join("#"));
-  const pl = forecastPlaces({
+  const inp = {
     players: sim, dayMean, daySd, todayKey: ctx.todayKey, todayD, todaySd: daySd / Math.sqrt(nObs + 1),
     todayOpen: true, futureKeys,
-  }, ODDS_RUNS, seed);
-  // prob = kans op de weekzege (1e plek); probs = [1e, 2e, 3e] voor de plek-schakelaar
-  return pls.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: p.flair || "", title: p.title || "", me: !!p.is_me,
-    prob: pl[0][i], probs: [pl[0][i], pl[1][i], pl[2][i]] }));
+  };
+  const pl = forecastPlaces(inp, ODDS_RUNS, seed), lim = oddsLimits(inp);
+  // prob = kans op de weekzege (1e plek); probs = [1e, 2e, 3e] voor de plek-schakelaar;
+  // sures = per plek of die uitkomst volgens de regels vaststaat (exact 100% of 0% — geen schatting meer)
+  return all.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: p.flair || "", title: p.title || "", me: !!p.is_me,
+    prob: pl[0][i], probs: [pl[0][i], pl[1][i], pl[2][i]], sures: [0, 1, 2].map((k) => lim.sure[k][i] || !lim.can[k][i]) }));
 }
 
 // Hele procenten die optellen tot 100 (grootste-rest-methode).
@@ -6839,15 +6909,16 @@ function oddsHamilton(vals) {
   return fl;
 }
 // Ring-indeling: grootste kans eerst; spelers onder ODDS_FOLD vouwen samen tot één "Overig"-plak (zodra er ≥ 2 zijn).
+// `sure` = de uitkomst staat volgens de regels vast (oddsLimits): dan toont oddsPct exact 100%/0% i.p.v. ">99%"/"<1%".
 function oddsView(items, place = 0) {
   const val = (x) => (x.probs ? x.probs[place] : x.prob);   // items zonder probs (alleen prob) = alleen de winnaar
   const tot = items.reduce((a, b) => a + val(b), 0) || 1;
-  const all = items.map((x) => Object.assign({}, x, { prob: val(x) / tot })).sort((a, b) => b.prob - a.prob || a.idx - b.idx);
+  const all = items.map((x) => Object.assign({}, x, { prob: val(x) / tot, sure: !!(x.sures && x.sures[place]) })).sort((a, b) => b.prob - a.prob || a.idx - b.idx);
   const small = all.filter((x) => x.prob < ODDS_FOLD);
   let big = all, other = null;
   if (small.length >= 2 && small.length < all.length) {
     big = all.filter((x) => x.prob >= ODDS_FOLD);
-    other = { id: "other", other: true, members: small, prob: small.reduce((a, b) => a + b.prob, 0), me: small.some((x) => x.me) };
+    other = { id: "other", other: true, members: small, prob: small.reduce((a, b) => a + b.prob, 0), me: small.some((x) => x.me), sure: small.every((x) => x.sure) };
   }
   const h = oddsHamilton(big.map((x) => x.prob).concat(other ? [other.prob] : []));
   const pc = {};
@@ -6874,9 +6945,10 @@ function oddsOnColor(slot) {   // wit of zwart, wat het meeste contrast geeft op
 }
 const oddsFlair = (it) => it.flair || "🏃";
 function oddsPct(view, id) {
-  const p = id === "other" ? view.other.prob : view.byId[id].prob;
+  const it = id === "other" ? view.other : view.byId[id], p = it.prob;
+  if (it.sure) return p >= 0.5 ? "100%" : "0%";   // staat volgens de regels vast (oddsLimits): geen schatting meer
   if (p < 0.005) return "<1%";
-  if (p > 0.995) return ">99%";   // een schatting claimt nooit zekerheid (bij een duel met grote voorsprong is het anders "100%")
+  if (p > 0.995) return ">99%";   // een schatting claimt nooit zekerheid
   return Math.max(1, view.pc[id]) + "%";
 }
 function oddsAria(view, it) {

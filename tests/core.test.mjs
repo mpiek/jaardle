@@ -48,7 +48,7 @@ src += `
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HolidayFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
-  dagzegeApplies, forecastWins, forecastPlaces, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
+  dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -383,10 +383,10 @@ test("racePos — koploper-relatief, minimale spreiding, nooit buiten de baan", 
 });
 
 // --- 🔮 Kans: winkansen op de weekzege (grill 3/10) ---
-test("dagzegeApplies — gewonnen, en ≥2 deelnemers of vanaf de grensdatum ook alleen (db/74)", () => {
-  assert.equal(T.DAGZEGE_ALONE_FROM, "2026-10-05");
-  assert.equal(T.dagzegeApplies(1, true, "2026-10-04"), false);    // alleen, vóór de grens
-  assert.equal(T.dagzegeApplies(1, true, "2026-10-05"), true);     // alleen, vanaf de grens
+test("dagzegeApplies — gewonnen, en ≥2 deelnemers of vanaf de grensdatum ook alleen (db/74+76)", () => {
+  assert.equal(T.DAGZEGE_ALONE_FROM, "2026-10-04");
+  assert.equal(T.dagzegeApplies(1, true, "2026-10-03"), false);    // alleen, vóór de grens
+  assert.equal(T.dagzegeApplies(1, true, "2026-10-04"), true);     // alleen, vanaf de grens
   assert.equal(T.dagzegeApplies(2, true, "2026-09-01"), true);     // altijd bij ≥2
   assert.equal(T.dagzegeApplies(1, false, "2026-10-12"), false);   // een verlies is nooit een dagzege
   assert.equal(T.dagzegeApplies(5, false, "2026-10-12"), false);
@@ -527,7 +527,77 @@ test("oddsBuild — werkt voor een pool van twee (duel)", () => {
   const items = T.oddsBuild(fc, daily, week, { poolId: "p", weekStart: "2026-09-28", todayKey: "2026-10-03", secsSinceMidnight: 18 * 3600 });
   assert.equal(items.length, 2);
   assert.ok(Math.abs(items[0].prob + items[1].prob - 1) < 1e-9);
-  assert.ok(items.find((x) => x.name === "B").prob > 0.95);   // 112 punten voorsprong, 1 dag te gaan
+  // 112 punten voorsprong, 1 dag te gaan — niet zeker: A kan zondag alleen spelen (B slaat over) en met ≥ 88 + de
+  // solo-dagzege (db/76: vanaf 4 okt ook alleen) nog passeren; ±6%
+  const B = items.find((x) => x.name === "B");
+  assert.ok(B.prob > 0.9 && B.prob < 0.99, `B=${B.prob}`);
+  assert.equal(B.sures[0], false);
+});
+
+test("oddsLimits / forecastPlaces — wat volgens de regels niet meer kan is exact 0, een onhaalbare koploper exact 1", () => {
+  // Zondag 8:30 (4 okt, laatste dag): L heeft een 100 (1 poging, 0 hints) en staat 118 voor op R. R kan hooguit
+  // 100 + 25 halen, maar die 25 deelt hij dan met L (een 100 is niet te verslaan) → netto 100 < 118: L is binnen.
+  const L = pl({ base: 738, today: { won: true, score: 100, rank: 1 } }), R = pl({ base: 620, pToday: 0.9 }), S = pl({ base: 300, pToday: 0.9 });
+  const inp = mkSim({ todayKey: "2026-10-04", todayOpen: true, players: [L, R, S] });
+  const lim = T.oddsLimits(inp);
+  assert.deepEqual(lim.can[0], [true, false, false]);
+  assert.deepEqual(lim.sure[0], [true, false, false]);
+  assert.deepEqual(lim.can[1], [false, true, false]);    // R is zeker 2e: S haalt met 125 R's 620 niet
+  assert.deepEqual(lim.sure[2], [false, false, true]);
+  const pp = T.forecastPlaces(inp, 500, 3);
+  assert.deepEqual(pp[0], [1, 0, 0]);
+  assert.deepEqual(pp[1], [0, 1, 0]);
+  // 100 voorsprong = net niet veilig (R kan gelijk komen; de tiebreak kent de simulatie niet) → niets staat vast
+  const edge = T.oddsLimits(mkSim({ todayKey: "2026-10-04", todayOpen: true, players: [pl({ base: 720, today: { won: true, score: 100, rank: 1 } }), pl({ base: 620 })] }));
+  assert.deepEqual(edge.can[0], [true, true]);
+  assert.deepEqual(edge.sure[0], [false, false]);
+  // een 95 ís te verslaan: dan verliest L de voorlopige +25 (zit niet in base) en kan R met 125 een gat tot 125 dichten
+  const beat = T.oddsLimits(mkSim({ todayKey: "2026-10-04", todayOpen: true, players: [pl({ base: 745, today: { won: true, score: 95, rank: 1 } }), pl({ base: 620 })] }));
+  assert.deepEqual(beat.can[0], [true, true]);
+  const safe = T.oddsLimits(mkSim({ todayKey: "2026-10-04", todayOpen: true, players: [pl({ base: 746, today: { won: true, score: 95, rank: 1 } }), pl({ base: 620 })] }));
+  assert.deepEqual(safe.sure[0], [true, false]);
+  // inhaalpot: een gemiste dag in het venster is 100 punten waard (zonder dagzege)
+  const miss = T.oddsLimits(mkSim({ todayKey: "2026-10-04", todayOpen: true, players: [pl({ base: 800 }), pl({ base: 620, miss: 1 })] }));
+  assert.deepEqual(miss.can[0], [true, true]);     // 620 + 125 + 100 = 845 > 800
+  const miss0 = T.oddsLimits(mkSim({ todayKey: "2026-10-04", todayOpen: true, players: [pl({ base: 800 }), pl({ base: 620 })] }));
+  assert.deepEqual(miss0.sure[0], [true, false]);
+  // open week: niets staat vast, kansen blijven kansen
+  const open = T.forecastPlaces(mkSim({ players: [pl({ base: 300 }), pl({ base: 280 }), pl({ base: 250 })], futureKeys: ["2026-10-07", "2026-10-08", "2026-10-09"] }), 1000, 5);
+  assert.ok(open[0].every((p) => p > 0 && p < 1));
+});
+
+test("forecastPlaces — twee 100's delen de dagzege (één poging zonder hints is een volledig gelijkspel)", () => {
+  // L (al 100 vandaag, 118 voor) vs R die zeker nog speelt en vrijwel zeker een 100 haalt: R kan hooguit delen → L wint altijd.
+  const inp = mkSim({ todayKey: "2026-10-04", todayOpen: true, todayD: 100, todaySd: 0.0001, players: [
+    pl({ base: 738, today: { won: true, score: 100, rank: 1 } }), pl({ base: 620, mu: 30, sd: 0.001, pToday: 1 })] });
+  assert.deepEqual(T.forecastPlaces(inp, 300, 8)[0], [1, 0]);
+});
+
+test("oddsPct — vaststaande uitkomst toont exact 100% / 0% (ook voor een Overig-plak van zekere nullen)", () => {
+  const mk = (probs, sures) => probs.map((p, i) => ({ id: "p" + i, idx: i, name: "S" + i, flair: "", title: "", me: i === 0, prob: p, probs: [p, 0, 0], sures: [sures[i], false, false] }));
+  const v = T.oddsView(mk([1, 0, 0, 0], [true, true, true, true]));
+  assert.equal(T.oddsPct(v, "p0"), "100%");
+  assert.ok(v.other && v.other.sure);
+  assert.equal(T.oddsPct(v, "other"), "0%");
+  const duel = T.oddsView(mk([1, 0], [true, true]));
+  assert.equal(T.oddsPct(duel, "p1"), "0%");
+  // zonder zekerheid blijft de schatting een schatting
+  const est = T.oddsView(mk([0.9998, 0.0002], [false, false]));
+  assert.equal(T.oddsPct(est, "p0"), ">99%");
+  assert.equal(T.oddsPct(est, "p1"), "<1%");
+});
+
+test("oddsBuild — wie weekpunten heeft maar niet in het forecast-universum zit, doet toch mee", () => {
+  const fc = { day_mean: 80, day_sd: 6, hour_share: new Array(24).fill(1 / 24), players: [
+    { display_name: "A", flair: "", title: null, is_me: true, q: 0.9, lost_p: 0, mu: 0, sd: 10 },
+    { display_name: "B", flair: "", title: null, is_me: false, q: 0.9, lost_p: 0, mu: 0, sd: 10 }] };
+  const week = [{ rank: 1, display_name: "Spook", week_score: 700, played: 6, daily_wins: 0, flair: "👻" }, { rank: 2, display_name: "A", week_score: 500, played: 6, daily_wins: 2 }, { rank: 3, display_name: "B", week_score: 300, played: 6, daily_wins: 1 }];
+  const items = T.oddsBuild(fc, [], week, { poolId: "p", weekStart: "2026-09-28", todayKey: "2026-10-04", secsSinceMidnight: 10 * 3600 });
+  assert.equal(items.length, 3);
+  const g = items.find((x) => x.name === "Spook");
+  assert.ok(g && g.flair === "👻");
+  assert.equal(g.sures[0], true);     // 200 voor op de laatste dag: niemand haalt hem meer in (ook niet met een inhaalpot: A/B misten niets)
+  assert.equal(g.probs[0], 1);
 });
 
 test("forecastPlaces — elke plek telt op tot 1, 1e plek = forecastWins, beslist is beslist", () => {
