@@ -2423,7 +2423,6 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
    achtergrond, tinten en typografie) met een dunne baan erin: streep = puntenkloof tot
    de koploper, de flair is de renner. Geen eigen kaart/omlijsting — het eindscherm
    blijft er verder uitzien zoals het deed. Spoorhoogte = de langste slide. */
-.lb-wk-gap { text-align: center; color: var(--muted); font-size: 0.85rem; line-height: 1; padding: 0.15rem 0; user-select: none; }
 .rc-tabs { display: flex; align-items: center; gap: 0.7rem; margin: 0 0 0.5rem; }
 .rc-tab { appearance: none; border: 0; border-bottom: 2px solid transparent; background: none; padding: 0.1rem 0; margin: 0; font: inherit; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); opacity: 0.6; cursor: pointer; }
 .rc-tab[aria-selected="true"] { color: var(--fg); opacity: 1; border-bottom-color: var(--accent); }

@@ -6577,11 +6577,9 @@ function recapAccountHtml() {
 const RACE_MIN_SPREAD = 60;                          // punten
 const RACE_LEAD_POS = 0.9, RACE_LAST_POS = 0.06;     // koploper vóór de 🏁 · achterste nooit onzichtbaar
 function raceWindow(rows) {
-  const meIdx = rows.findIndex((r) => r.is_me);
-  const picks = new Set([0, 1, 2]);
-  if (meIdx > 2) [meIdx - 1, meIdx, meIdx + 1].forEach((i) => picks.add(i));
-  else picks.add(3);   // jij op het podium (of nog niet op het bord) → toon de jager
-  return [...picks].filter((i) => i >= 0 && i < rows.length).sort((a, b) => a - b);
+  // Iedereen staat in de race. Was: top-3 + jouw buren met ⋯ ertussen — op verzoek van Matthijs (4/10)
+  // teruggedraaid: een pool is klein genoeg om alle banen te tonen en je ziet zo ook wie er achter je rijdt.
+  return rows.map((_, i) => i);
 }
 // Positie 0–1 op de baan: `lead` = score van de koploper, `min` = laagste getoonde score.
 function racePos(score, lead, min) {
@@ -6605,12 +6603,7 @@ function recapRaceHtml(rows) {
   const idxs = raceWindow(rows);
   const lead = Math.max(...rows.map((r) => r.week_score));
   const min = Math.min(...idxs.map((i) => rows[i].week_score));
-  let html = "", prev = -1;
-  idxs.forEach((i, k) => {
-    if (prev >= 0 && i - prev > 1) html += `<div class="lb-wk-gap" aria-hidden="true">⋯</div>`;
-    html += raceLaneHtml(rows[i], k, racePos(rows[i].week_score, lead, min));
-    prev = i;
-  });
+  const html = idxs.map((i, k) => raceLaneHtml(rows[i], k, racePos(rows[i].week_score, lead, min))).join("");
   // Statisch bij het openen (geen tikkende timer): "nog 3 d", op de laatste dag in uren.
   const secs = secsToWeekEnd(currentWeekStart());
   const d = Math.floor(secs / 86400), h = Math.max(1, Math.floor(secs / 3600));

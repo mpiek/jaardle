@@ -358,15 +358,12 @@ test("digitGlowOn — puls vanaf gok 4, uit bij 🟪, gekochte 🔢 of einde", (
 // --- ⚔️ Weekstand-race in de recap (grill 3/10) ---
 const mkRows = (n, meIdx) => Array.from({ length: n }, (_, i) => ({ rank: i + 1, week_score: 300 - i * 20, is_me: i === meIdx }));
 
-test("raceWindow — top-3 + jouw buren, jager als je op het podium staat", () => {
-  assert.deepEqual(T.raceWindow(mkRows(1, 0)), [0]);                    // alleen jij
-  assert.deepEqual(T.raceWindow(mkRows(2, -1)), [0, 1]);                // nog niet op het bord, 2 rijen
-  assert.deepEqual(T.raceWindow(mkRows(8, 0)), [0, 1, 2, 3]);           // 1e → top-3 + jager
-  assert.deepEqual(T.raceWindow(mkRows(8, 2)), [0, 1, 2, 3]);           // 3e → top-3 + jager
-  assert.deepEqual(T.raceWindow(mkRows(8, 3)), [0, 1, 2, 3, 4]);        // 4e → aaneengesloten, geen ⋯
-  assert.deepEqual(T.raceWindow(mkRows(8, 5)), [0, 1, 2, 4, 5, 6]);     // 6e → ⋯ op index 3
-  assert.deepEqual(T.raceWindow(mkRows(6, 5)), [0, 1, 2, 4, 5]);        // laatste → geen rij onder je
-  assert.deepEqual(T.raceWindow(mkRows(5, -1)), [0, 1, 2, 3]);          // niet op het bord → jager
+test("raceWindow — iedereen staat in de race (geen top-3-uitsnede, geen ⋯)", () => {
+  assert.deepEqual(T.raceWindow(mkRows(1, 0)), [0]);
+  assert.deepEqual(T.raceWindow(mkRows(2, -1)), [0, 1]);
+  assert.deepEqual(T.raceWindow(mkRows(8, 0)), [0, 1, 2, 3, 4, 5, 6, 7]);
+  assert.deepEqual(T.raceWindow(mkRows(8, 5)), [0, 1, 2, 3, 4, 5, 6, 7], "ook als jij ver achterin staat");
+  assert.deepEqual(T.raceWindow(mkRows(12, -1)), Array.from({ length: 12 }, (_, i) => i), "ook zonder jou op het bord");
 });
 
 test("racePos — koploper-relatief, minimale spreiding, nooit buiten de baan", () => {
