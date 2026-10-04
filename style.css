@@ -2172,6 +2172,23 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
 }
 .google-btn:hover { background: #f5f5f5; }
 .google-btn:disabled { opacity: 0.6; cursor: default; }
+/* Discord: tweede, rustigere keuze onder Google. Donkerder blurple dan het merk (#5865F2) voor wit-op-kleur-contrast ≥ 4.5. */
+.discord-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: #4752c4;
+  color: #fff;
+  border: 1px solid #4752c4;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.discord-btn:hover { background: #3c45a5; border-color: #3c45a5; }
+.discord-btn:disabled { opacity: 0.6; cursor: default; }
 
 .link-btn {
   display: inline-block;

@@ -174,7 +174,7 @@ const I18N = {
     later_future: (y) => `${y} jaar later is nog niet geweest — het antwoord ligt in de afgelopen ~${y} jaar.`,
     later_none: (y) => `Geen gebeurtenis van rond ${y} jaar later bekend.`,
     help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
-    login_title: "Inloggen", login_google: "Doorgaan met Google", login_or: "of met e-mail",
+    login_title: "Inloggen", login_google: "Doorgaan met Google", login_discord: "Doorgaan met Discord", login_or: "of met e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
     login_forgot: "Wachtwoord vergeten?",
     login_reset_email_needed: "Vul eerst je e-mailadres in.",
@@ -194,7 +194,7 @@ const I18N = {
     auth_provider_disabled: "Deze inlogmethode staat niet aan.",
     auth_network: "Netwerkfout, controleer je verbinding.",
     auth_failed: "Inloggen mislukt.",
-    login_note: `Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.`,
+    login_note: `Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.`,
     footer_note: `Gebeurtenissen van <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contact</a>`,
     credits_title: "Colofon",
     credits_note: `Gebeurtenissen: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaties <a href="https://creativecommons.org/licenses/by/4.0/deed.nl" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Vlaggen: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
@@ -472,7 +472,7 @@ const I18N = {
     later_future: (y) => `${y} years later hasn't happened yet — so the answer is within the last ~${y} years.`,
     later_none: (y) => `No event from around ${y} years later is known.`,
     help_summary: "How to play?", stats_title: "📊 Statistics",
-    login_title: "Sign in", login_google: "Continue with Google", login_or: "or with email",
+    login_title: "Sign in", login_google: "Continue with Google", login_discord: "Continue with Discord", login_or: "or with email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
     login_forgot: "Forgot password?",
     login_reset_email_needed: "Enter your email address first.",
@@ -492,7 +492,7 @@ const I18N = {
     auth_provider_disabled: "This sign-in method is not enabled.",
     auth_network: "Network error, check your connection.",
     auth_failed: "Sign-in failed.",
-    login_note: `Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.`,
+    login_note: `Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.`,
     footer_note: `Events from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contact</a>`,
     credits_title: "Credits",
     credits_note: `Events: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animations <a href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Flags: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
@@ -773,7 +773,7 @@ const I18N = {
     later_future: (y) => `${y} Jahre später ist noch nicht gewesen — die Antwort liegt also in den letzten ~${y} Jahren.`,
     later_none: (y) => `Kein Ereignis von rund ${y} Jahren später bekannt.`,
     help_summary: "Wie funktioniert es?", stats_title: "📊 Statistiken",
-    login_title: "Anmelden", login_google: "Mit Google fortfahren", login_or: "oder mit E-Mail",
+    login_title: "Anmelden", login_google: "Mit Google fortfahren", login_discord: "Mit Discord fortfahren", login_or: "oder mit E-Mail",
     login_email: "E-Mail", login_password: "Passwort", login_submit: "Anmelden", login_register: "Registrieren",
     login_forgot: "Passwort vergessen?",
     login_reset_email_needed: "Gib zuerst deine E-Mail-Adresse ein.",
@@ -793,7 +793,7 @@ const I18N = {
     auth_provider_disabled: "Diese Anmeldemethode ist nicht aktiviert.",
     auth_network: "Netzwerkfehler, prüfe deine Verbindung.",
     auth_failed: "Anmeldung fehlgeschlagen.",
-    login_note: `Die Anmeldung läuft über <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Passwörter werden gehasht gespeichert (bcrypt), nie als Klartext, und nur deine E-Mail und Spielergebnisse werden gespeichert — nicht an Dritte weitergegeben.`,
+    login_note: `Die Anmeldung läuft über <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwörter werden gehasht gespeichert (bcrypt), nie als Klartext, und nur deine E-Mail und Spielergebnisse werden gespeichert — nicht an Dritte weitergegeben.`,
     footer_note: `Ereignisse von <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Kontakt</a>`,
     credits_title: "Credits",
     credits_note: `Ereignisse: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — Animationen <a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">Webfont</a> (Subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Flaggen: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
@@ -1068,7 +1068,7 @@ const I18N = {
     later_future: (y) => `${y} años después aún no ha ocurrido — así que la respuesta está en los últimos ~${y} años.`,
     later_none: (y) => `No se conoce ningún acontecimiento de unos ${y} años después.`,
     help_summary: "¿Cómo se juega?", stats_title: "📊 Estadísticas",
-    login_title: "Iniciar sesión", login_google: "Continuar con Google", login_or: "o con correo electrónico",
+    login_title: "Iniciar sesión", login_google: "Continuar con Google", login_discord: "Continuar con Discord", login_or: "o con correo electrónico",
     login_email: "Correo electrónico", login_password: "Contraseña", login_submit: "Iniciar sesión", login_register: "Registrarse",
     login_forgot: "¿Olvidaste tu contraseña?",
     login_reset_email_needed: "Introduce primero tu correo electrónico.",
@@ -1088,7 +1088,7 @@ const I18N = {
     auth_provider_disabled: "Este método de inicio de sesión no está activado.",
     auth_network: "Error de red, comprueba tu conexión.",
     auth_failed: "Error al iniciar sesión.",
-    login_note: `El inicio de sesión funciona a través de <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). Las contraseñas se guardan cifradas (bcrypt), nunca en texto plano, y solo se almacenan tu correo y tus resultados de juego — no se comparten con terceros.`,
+    login_note: `El inicio de sesión funciona a través de <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Las contraseñas se guardan cifradas (bcrypt), nunca en texto plano, y solo se almacenan tu correo y tus resultados de juego — no se comparten con terceros.`,
     footer_note: `Acontecimientos de <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contacto</a>`,
     credits_title: "Créditos",
     credits_note: `Acontecimientos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaciones <a href="https://creativecommons.org/licenses/by/4.0/deed.es" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fuente web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Banderas: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
@@ -1368,7 +1368,7 @@ const I18N = {
     later_future: (y) => `${y} anos depois ainda não aconteceu — então a resposta está nos últimos ~${y} anos.`,
     later_none: (y) => `Não se conhece nenhum acontecimento de cerca de ${y} anos depois.`,
     help_summary: "Como jogar?", stats_title: "📊 Estatísticas",
-    login_title: "Entrar", login_google: "Continuar com o Google", login_or: "ou com e-mail",
+    login_title: "Entrar", login_google: "Continuar com o Google", login_discord: "Continuar com o Discord", login_or: "ou com e-mail",
     login_email: "E-mail", login_password: "Senha", login_submit: "Entrar", login_register: "Cadastrar-se",
     login_forgot: "Esqueceu a senha?",
     login_reset_email_needed: "Digite primeiro o seu e-mail.",
@@ -1388,7 +1388,7 @@ const I18N = {
     auth_provider_disabled: "Este método de login não está ativado.",
     auth_network: "Erro de rede, verifique sua conexão.",
     auth_failed: "Falha ao entrar.",
-    login_note: `O login é feito através do <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google). As senhas são armazenadas com hash (bcrypt), nunca em texto puro, e apenas o seu e-mail e os resultados de jogo são guardados — não compartilhados com terceiros.`,
+    login_note: `O login é feito através do <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). As senhas são armazenadas com hash (bcrypt), nunca em texto puro, e apenas o seu e-mail e os resultados de jogo são guardados — não compartilhados com terceiros.`,
     footer_note: `Acontecimentos da <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contato</a>`,
     credits_title: "Créditos",
     credits_note: `Acontecimentos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animações <a href="https://creativecommons.org/licenses/by/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fonte web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Bandeiras: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
@@ -10128,10 +10128,11 @@ async function doSignOut() {
 const PENDING_RECAP_KEY = "jaardle:pendingRecap";   // tijdstip (ms); ouder dan 15 min = vergeten
 let pendingRecapAfterLogin = false;
 
-// `arg` is de knop (kaartje) of het click-event (login-modal); `from` = waar je vandaan komt ("recap").
-async function doGoogleSignIn(arg, from) {
+// Eén OAuth-ingang voor alle providers ("google", "discord"). `arg` is de knop (kaartje) of het click-event
+// (login-modal); `from` = waar je vandaan komt ("recap").
+async function doOAuthSignIn(provider, arg, from) {
   const err = document.getElementById("login-error");
-  const btn = arg && arg.nodeType === 1 ? arg : document.getElementById("login-google");
+  const btn = arg && arg.nodeType === 1 ? arg : document.getElementById("login-" + provider);
   // Het kaartje staat buiten de login-modal: bij een fout openen we die, zodat de melding zichtbaar is.
   const fail = (msg) => {
     if (document.getElementById("modal-login").hidden) { closeAllModals(); openModal("modal-login"); }
@@ -10140,8 +10141,8 @@ async function doGoogleSignIn(arg, from) {
   };
   err.hidden = true;
   err.textContent = "";
-  if (!window.sbAuth?.signInWithGoogle) {
-    fail("Google-login niet beschikbaar.");
+  if (!window.sbAuth?.signInWithProvider) {
+    fail("Inloggen niet beschikbaar.");
     return;
   }
   btn.disabled = true;
@@ -10149,7 +10150,7 @@ async function doGoogleSignIn(arg, from) {
   try {
     // Supabase redirect (geen popup): browser navigeert weg, sessie wordt
     // bij terugkomst door getSession() in index.html opgepikt.
-    await window.sbAuth.signInWithGoogle();
+    await window.sbAuth.signInWithProvider(provider);
   } catch (ex) {
     try { localStorage.removeItem(PENDING_RECAP_KEY); } catch (e) {}
     fail(friendlyAuthError(ex));
@@ -10157,6 +10158,8 @@ async function doGoogleSignIn(arg, from) {
     btn.disabled = false;
   }
 }
+const doGoogleSignIn = (arg, from) => doOAuthSignIn("google", arg, from);
+const doDiscordSignIn = (arg, from) => doOAuthSignIn("discord", arg, from);
 
 function submitGuess() {
   if (state.done) return;
@@ -10711,6 +10714,7 @@ async function init() {
   loginForm.addEventListener("submit", (e) => doAuth("signin", e));
   document.getElementById("login-register").addEventListener("click", (e) => doAuth("signup", e));
   document.getElementById("login-google").addEventListener("click", doGoogleSignIn);
+  document.getElementById("login-discord").addEventListener("click", doDiscordSignIn);
   document.getElementById("login-forgot").addEventListener("click", doForgot);
   document.getElementById("newpw-form").addEventListener("submit", doUpdatePassword);
 
