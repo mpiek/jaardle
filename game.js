@@ -155,7 +155,7 @@ const I18N = {
     tab_daily: "Daily", tab_free: "Nieuw spel",
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     menu_login_short: "Inloggen",
-    menu_theme: "☀️ Licht thema", menu_discord: "💬 Discord",
+    menu_theme: "☀️ Licht thema",
     menu_history: "📅 Geschiedenis",
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
     aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten", aria_discord: "Doe mee op Discord",
@@ -453,7 +453,7 @@ const I18N = {
     tab_daily: "Daily", tab_free: "New game",
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     menu_login_short: "Sign in",
-    menu_theme: "☀️ Light theme", menu_discord: "💬 Discord",
+    menu_theme: "☀️ Light theme",
     menu_history: "📅 History",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
     aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close", aria_discord: "Join us on Discord",
@@ -754,7 +754,7 @@ const I18N = {
     tab_daily: "Täglich", tab_free: "Neues Spiel",
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
     menu_login_short: "Anmelden",
-    menu_theme: "☀️ Helles Design", menu_discord: "💬 Discord",
+    menu_theme: "☀️ Helles Design",
     menu_history: "📅 Verlauf",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
     aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen", aria_discord: "Tritt uns auf Discord bei",
@@ -1049,7 +1049,7 @@ const I18N = {
     tab_daily: "Diario", tab_free: "Partida nueva",
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
     menu_login_short: "Entrar",
-    menu_theme: "☀️ Tema claro", menu_discord: "💬 Discord",
+    menu_theme: "☀️ Tema claro",
     menu_history: "📅 Historial",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar", aria_discord: "Únete a nuestro Discord",
@@ -1349,7 +1349,7 @@ const I18N = {
     tab_daily: "Diário", tab_free: "Jogo novo",
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
     menu_login_short: "Entrar",
-    menu_theme: "☀️ Tema claro", menu_discord: "💬 Discord",
+    menu_theme: "☀️ Tema claro",
     menu_history: "📅 Histórico",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar", aria_discord: "Entre no nosso Discord",
@@ -10668,13 +10668,9 @@ async function init() {
     else if (action === "rewards") openModal("modal-rewards");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
-    // Discord is een gewone link (nieuw tabblad); wij sluiten alleen het menu en tellen de klik (cookieloos), zodat je
-    // over een maand ziet hoeveel interesse er was.
-    else if (action === "discord") { try { window.goatcounter?.count?.({ path: "discord-click", title: "Discord", event: true }); } catch (e) {} }
     else if (action === "logout") doSignOut();
   });
-  // Footer-socials: één generieke klikteller (cookieloos) per icoon, als "<social>-footer" (bv. discord-footer),
-  // naast "discord-click" voor het menu — zo zie je welke plek het beter doet.
+  // Footer-socials: één generieke klikteller (cookieloos) per icoon, als "<social>-footer" (bv. discord-footer).
   document.getElementById("footer-socials")?.addEventListener("click", (e) => {
     const a = e.target.closest("a[data-social]");
     if (a) { try { window.goatcounter?.count?.({ path: a.dataset.social + "-footer", title: a.dataset.social, event: true }); } catch (err) {} }
