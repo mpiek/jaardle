@@ -46,7 +46,7 @@ src += `
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
-  easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx,
+  easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
@@ -237,6 +237,59 @@ test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij 
   assert.equal(T.holidayFxFor(d(2033, 2, 10)), null);          // buiten de maankalender-tabel: stil null
 });
 
+test("holidayFxFor — ronde 4: Halloween 29–31 okt, Eid al-Adha, 1 april, Moederdag, verjaardag, Mid-Autumn, schrikkeldag", () => {
+  const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
+  // Halloween: aanloop 29–30 okt, de 31e blijft altijd Halloween; Diwali gaat voor op de schouderdagen
+  assert.equal(T.holidayFxFor(d(2026, 10, 28)), null);
+  assert.equal(T.holidayFxFor(d(2026, 10, 29)), "halloween");
+  assert.equal(T.holidayFxFor(d(2026, 10, 30)), "halloween");
+  assert.equal(T.holidayFxFor(d(2026, 10, 31)), "halloween");
+  assert.equal(T.holidayFxFor(d(2027, 10, 28)), "diwali");     // Diwali 29 okt 2027 ±1
+  assert.equal(T.holidayFxFor(d(2027, 10, 29)), "diwali");
+  assert.equal(T.holidayFxFor(d(2027, 10, 30)), "diwali");
+  assert.equal(T.holidayFxFor(d(2027, 10, 31)), "halloween");
+  // Eid al-Adha hergebruikt het eid-effect, venster ±1 dag (27 mei 2026)
+  assert.equal(T.holidayFxFor(d(2026, 5, 26)), "eid");
+  assert.equal(T.holidayFxFor(d(2026, 5, 27)), "eid");
+  assert.equal(T.holidayFxFor(d(2026, 5, 28)), "eid");
+  assert.equal(T.holidayFxFor(d(2026, 5, 29)), null);          // Everest is een hoogtijdag (puzzeldatum), geen feestdag
+  assert.equal(T.holidayFxFor(d(2031, 4, 1)), "eid");          // Eid al-Adha-venster (2 apr 2031) wint van 1 april
+  // 1 april (Pasen 2029 valt óp 1 april en wint)
+  assert.equal(T.holidayFxFor(d(2026, 4, 1)), "april");
+  assert.equal(T.holidayFxFor(d(2029, 4, 1)), "easter");
+  // Moederdag = 2e zondag van mei
+  assert.equal(T.holidayFxFor(d(2026, 5, 10)), "mothers");
+  assert.equal(T.holidayFxFor(d(2027, 5, 9)), "mothers");
+  assert.equal(T.holidayFxFor(d(2028, 5, 14)), "mothers");
+  assert.equal(T.holidayFxFor(d(2026, 5, 3)), null);           // 1e zondag
+  assert.equal(T.holidayFxFor(d(2026, 5, 17)), null);          // 3e zondag
+  // Jaardle-verjaardag pas vanaf 2027
+  assert.equal(T.holidayFxFor(d(2026, 6, 6)), null);
+  assert.equal(T.holidayFxFor(d(2027, 6, 6)), "birthday");
+  assert.equal(T.holidayFxFor(d(2030, 6, 6)), "birthday");
+  // Mid-Autumn (exact) en schrikkeldag (wint van carnavalsdinsdag in 2028)
+  assert.equal(T.holidayFxFor(d(2027, 9, 15)), "midautumn");
+  assert.equal(T.holidayFxFor(d(2027, 9, 14)), null);
+  assert.equal(T.holidayFxFor(d(2028, 10, 3)), "midautumn");
+  assert.equal(T.holidayFxFor(d(2028, 2, 28)), "carnival");
+  assert.equal(T.holidayFxFor(d(2028, 2, 29)), "leap");
+});
+
+test("holidayFxFor — elke dag van 2026 t/m 2032 levert null of een id dat (na fxResolve) een laag heeft", () => {
+  let n = 0;
+  for (let t = new Date(2026, 0, 1, 12); t.getFullYear() <= 2032; t.setDate(t.getDate() + 1)) {
+    const id = T.holidayFxFor(new Date(t));
+    if (!id) continue;
+    n++;
+    const ids = FX_ALL(id);
+    for (const v of ids) assert.ok(T.HOLIDAY_FX_IDS.includes(v), `${t.toDateString()}: ${id} → ${v}`);
+  }
+  assert.ok(n > 150 && n < 400, `aantal themadagen ${n}`);   // ± 25–40 per jaar
+  for (let i = 0; i < 20; i++) assert.ok(["aprilup", "aprilfish"].includes(T.fxResolve("april")));
+  assert.equal(T.fxResolve("xmas"), "xmas");
+});
+const FX_ALL = (id) => globalThis.__T.FX_ALIASES[id] || [id];
+
 test("historicFxFor — puzzeldag + gepind jaar; ander jaar of andere dag = null", () => {
   assert.equal(T.historicFxFor("2027-04-21", -753), "rome");
   assert.equal(T.historicFxFor("2027-04-21", 1994), null);
@@ -312,6 +365,27 @@ function strictCtx() {
     },
   });
 }
+
+test("HolidayFx aprilup — het echte jaartal-pilletje draait op zijn kop, hangt even en komt rechtop terug", () => {
+  const saveQ = document.querySelector, saveCreate = document.createElement, saveDs = document.documentElement.dataset, el = { style: {} };
+  document.documentElement.dataset = {};
+  document.querySelector = (q) => (q === "#result-text .year-pill" ? el : null);
+  document.createElement = () => ({ width: 0, height: 0, __sprite: true, getContext: () => strictCtx() });
+  globalThis.innerWidth = 390; globalThis.innerHeight = 844;
+  try {
+    const layers = globalThis.HolidayFx.build("aprilup", 390, 844), ctx = strictCtx(), end = Math.max(...layers.map((l) => l.end));
+    let hold = null, seenScale = false;
+    for (let t = 0; t <= end; t += 1 / 60) {
+      for (const l of layers) l.draw(ctx, t, 390, 844);
+      if (Math.abs(t - 1.5) < 1 / 120) hold = parseFloat(el.style.rotate);
+      if (el.style.scale) seenScale = true;
+    }
+    assert.ok(hold > 170 && hold < 190, "halverwege hangt hij op zijn kop: " + hold);
+    assert.ok(seenScale);
+    assert.equal(el.style.rotate, "");                              // aan het eind netjes teruggezet
+    assert.equal(el.style.scale, "");
+  } finally { document.querySelector = saveQ; document.createElement = saveCreate; document.documentElement.dataset = saveDs; }
+});
 
 test("HolidayFx — elke laag tekent zonder fouten (strikte nep-canvas, donker en licht, drie formaten)", () => {
   const HF = globalThis.HolidayFx, saveCreate = document.createElement, saveTheme = document.documentElement.dataset;

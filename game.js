@@ -3343,7 +3343,11 @@ const HOLIDAY_FX_IDS = [
   "muertos", "diwali", "xmas",
   "rome", "moon", "gregorian", "ides", "everest", "columbus", "flight",
   "galileo", "magna", "rome476", "tut", "nobel",
+  "aprilup", "aprilfish", "mothers", "midautumn", "birthday", "leap",
 ];
+// Eén datum, meerdere vieringen: elke winst kiest er willekeurig één (1 april: twee grappen).
+const FX_ALIASES = { april: ["aprilup", "aprilfish"] };
+const fxResolve = (id) => { const v = FX_ALIASES[id]; return v ? v[(Math.random() * v.length) | 0] : id; };
 // Zelfde ?v= als game.js zelf: een nieuwe game.js-versie ververst ook dit bestand.
 const GAME_V = (() => { try { return new URL(document.currentScript.src).searchParams.get("v") || ""; } catch (e) { return ""; } })();
 let holidayFxLoad = null;
@@ -3381,7 +3385,7 @@ async function showHolidayFx(id) {
   try {
     const fx = await loadHolidayFx();
     if (!fx.has(id)) throw new Error("onbekende viering " + id);
-    const layers = fx.build(id, innerWidth, innerHeight);
+    const layers = fx.build(id, innerWidth, innerHeight, { years: new Date().getFullYear() - 2026 });   // years: voor de verjaardag
     holidayFxUntil = performance.now() + layers.reduce((m, l) => Math.max(m, l.end), 0) * 1000 + 250;
     runFx(layers);
   } catch (e) {
@@ -3406,6 +3410,11 @@ function easterSunday(y) {
 const LUNAR_NEW_YEAR = { 2026: "02-17", 2027: "02-06", 2028: "01-26", 2029: "02-13", 2030: "02-03", 2031: "01-23", 2032: "02-11" };
 const EID_AL_FITR    = { 2026: "03-20", 2027: "03-09", 2028: "02-26", 2029: "02-14", 2030: "02-04", 2031: "01-24", 2032: "01-14" };
 const DIWALI         = { 2026: "11-08", 2027: "10-29", 2028: "10-17", 2029: "11-05", 2030: "10-26", 2031: "11-14", 2032: "11-02" };
+// Eid al-Adha = 10 Dhu al-Hijjah (Umm al-Qura, zelfde bron/venster van 3 dagen als Eid al-Fitr; hergebruikt het
+// eid-effect). Mid-Autumn = 15e dag van de 8e maand (exact; Chinese kalender, zelfde dag als Chuseok).
+// Beide tabellen gecontroleerd met hijri-converter en lunardate (4/10/2026); jaarlijks de volgende jaargang erbij.
+const EID_AL_ADHA    = { 2026: "05-27", 2027: "05-16", 2028: "05-05", 2029: "04-24", 2030: "04-13", 2031: "04-02", 2032: "03-22" };
+const MID_AUTUMN     = { 2026: "09-25", 2027: "09-15", 2028: "10-03", 2029: "09-22", 2030: "09-12", 2031: "10-01", 2032: "09-19" };
 // Historische hoogtijdagen: puzzeldag (MM-DD) → viering + het gepinde antwoordjaar.
 // Twaalf dagen (db/69 + db/70 + db/78). De gepinde feiten blijven gewoon in vrij spel (bewust, 20/9).
 const HISTORIC_FX = {
@@ -3436,16 +3445,22 @@ function holidayFxFor(date) {
   if (key === "01-06") return "kings";
   if (LUNAR_NEW_YEAR[y] === key) return "lunar";
   const near = (tab) => { const v = tab[y]; if (!v) return false; const off = today - dayNum(y, +v.slice(0, 2), +v.slice(3)); return off >= -1 && off <= 1; };
-  if (near(EID_AL_FITR)) return "eid";
+  if (near(EID_AL_FITR) || near(EID_AL_ADHA)) return "eid";
   if (key === "02-14") return "valentine";
   if (key === "03-17") return "patrick";
+  if (key === "02-29") return "leap";                  // schrikkeldag wint van carnavalsdinsdag (2028)
   const [em, ed] = easterSunday(y), offE = today - dayNum(y, em, ed);
   if (offE >= -49 && offE <= -47) return "carnival";   // zondag t/m dinsdag vóór Aswoensdag
   if (offE === 0 || offE === 1) return "easter";       // paaszondag + tweede paasdag
+  if (key === "04-01") return "april";                 // twee grappen, zie FX_ALIASES (Pasen 2029 wint)
+  if (m === 5 && date.getDay() === 0 && d >= 8 && d <= 14) return "mothers";   // 2e zondag van mei
+  if (key === "06-06" && y >= 2027) return "birthday"; // Jaardle-verjaardag (eerste potjes 6/6/2026)
   if (key === "06-28") return "pride";                 // Stonewall, 1969
+  if (MID_AUTUMN[y] === key) return "midautumn";
   if (key === "10-31") return "halloween";
   if (key === "11-01" || key === "11-02") return "muertos";
   if (near(DIWALI)) return "diwali";
+  if (m === 10 && d >= 29) return "halloween";         // 29–30 okt: de aanloop (Diwali gaat voor)
   if (key === "12-24" || key === "12-25" || key === "12-26") return "xmas";
   return null;
 }
@@ -3462,7 +3477,7 @@ function winCelebrationFx() {
     const h = historicFxFor(state.puzzleDate || todayKey(), state.event?.year);
     if (h) return h;
   }
-  return holidayFxFor(new Date());
+  return fxResolve(holidayFxFor(new Date()));
 }
 
 // ── Gouden-jaartallen-viering (capstone-goud) ────────────────────────────────
@@ -3838,7 +3853,7 @@ function finishGame(won, fresh = false) {
     // pas als er geen kluis-effect (goud/bier/flair-confetti) en geen first-try is.
     // ?fx=<id> in de URL is de voorvertoning en gaat overal vóór.
     const flairOn = !!(auth.user && myFlair && capstoneTier(achvCache) >= 2 && flairConfettiEnabled());
-    const celebration = previewFx && HOLIDAY_FX_IDS.includes(previewFx) ? previewFx
+    const celebration = previewFx && HOLIDAY_FX_IDS.includes(fxResolve(previewFx)) ? fxResolve(previewFx)
       : (goldYearsFxActive() || beerFxActive() || flairOn || firstTry) ? null : winCelebrationFx();
     if (celebration) showHolidayFx(celebration);
     else if (goldYearsFxActive()) showGoldYears(firstTry);
