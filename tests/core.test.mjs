@@ -646,30 +646,25 @@ test("oddsBuild — levert probs [1e, 2e, 3e] die per plek optellen tot 1", () =
   assert.ok(anna.probs[0] > anna.probs[2]);
 });
 
-test("recapArrowKey — ←/→ sturen de recap-tabs alleen als de carrousel echt in beeld is", () => {
-  globalThis.innerHeight = 800;
+test("recapArrowKey — ←/→ sturen de recap-tabs zodra het eindscherm gemount en zichtbaar is", () => {
   const calls = [];
   const mk = (top, bottom, connected = true) => ({
     track: { isConnected: connected, getBoundingClientRect: () => ({ top, bottom, height: bottom - top }) },
     go: (d) => calls.push(d),
   });
   T.setRecapArrow(null);
-  assert.equal(T.recapArrowKey(1, false), false, "niet gemount → pijltjes blijven voor de hints");
+  assert.equal(T.recapArrowKey(1, false), false, "niet gemount → niets af te handelen");
   T.setRecapArrow(mk(300, 700));
   assert.equal(T.recapArrowKey(1, false), true);
   assert.equal(T.recapArrowKey(-1, false), true);
   assert.deepEqual(calls, [1, -1], "richting wordt doorgegeven");
   assert.equal(T.recapArrowKey(1, true), true, "een vastgehouden toets wordt opgeslokt…");
   assert.deepEqual(calls, [1, -1], "…maar schuift niet nog een tab op");
-  T.setRecapArrow(mk(700, 1100));   // 100 van 400px in beeld (25%) → de hints krijgen de toets
-  assert.equal(T.recapArrowKey(1, false), false);
-  T.setRecapArrow(mk(500, 900));    // 300 van 400px (75%) → in beeld
+  T.setRecapArrow(mk(900, 1300));   // onder de vouw van het eindscherm (modal scrolt): toch direct bruikbaar
   assert.equal(T.recapArrowKey(1, false), true);
-  T.setRecapArrow(mk(-500, -100));  // helemaal boven de rand
-  assert.equal(T.recapArrowKey(1, false), false);
   T.setRecapArrow(mk(300, 700, false));   // niet meer in de DOM (recap herbouwd/weg)
   assert.equal(T.recapArrowKey(1, false), false);
-  T.setRecapArrow(mk(0, 0));              // verborgen: hoogte 0
+  T.setRecapArrow(mk(0, 0));              // verborgen (modal dicht): hoogte 0
   assert.equal(T.recapArrowKey(1, false), false);
   T.setRecapArrow(null);
 });

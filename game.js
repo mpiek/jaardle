@@ -6568,16 +6568,13 @@ function recapRaceHtml(rows) {
 // er weekrijen zijn — anders blijft het de kale daily-tabel met de gewone kop.
 let recapTab = 0;   // actieve slide (0 = vandaag, 1 = week, 2 = kans); reset bij elke verse recap, blijft staan bij pool-wissel
 let recapArrow = null;   // { track, go(dir) } — gezet door mountRecapCarousel, voor ←/→ buiten de carrousel zelf
-// ←/→ sturen de recap-tabs (Vandaag · Week · Kans) zodra de carrousel echt in beeld is (minstens de helft
-// van z'n hoogte); anders blijven de pijltjes voor de hint-slides van het spel. Zo hoef je 'm niet eerst
-// aan te klikken. Aan de uiteinden doet de toets niets (geen plots omspringen naar de hints) en een
-// vastgehouden toets schuift maar één tab op. Geeft true terug als de toets hier is afgehandeld.
+// ←/→ sturen de recap-tabs (Vandaag · Week · Kans) zodra het eindscherm open staat, zonder dat je de
+// carrousel eerst hoeft aan te klikken. De carrousel woont in #modal-recap, dus de globale toets-handler
+// roept dit aan vóór z'n modaal-guard (zie init). Aan de uiteinden doet de toets niets en een vastgehouden
+// toets schuift maar één tab op. Geeft true terug als de toets hier is afgehandeld.
 function recapArrowKey(dir, repeat) {
   const r = recapArrow;
-  if (!r || !r.track.isConnected) return false;
-  const b = r.track.getBoundingClientRect();
-  const seen = Math.min(b.bottom, innerHeight) - Math.max(b.top, 0);
-  if (!(b.height > 0) || seen < b.height * 0.5) return false;
+  if (!r || !r.track.isConnected || !(r.track.getBoundingClientRect().height > 0)) return false;   // niet gemount / verborgen
   if (!repeat) r.go(dir);
   return true;
 }
@@ -8770,7 +8767,7 @@ function capstoneBarHtml(a) {
 // draagt/aanzet (de inline uitklap-bediening is naar de kluis verhuisd, v239).
 function wireCapPips(body) {
   body.querySelectorAll("[data-cap-rewards]").forEach((btn) => {
-    btn.onclick = () => openModal("modal-rewards");
+    btn.onclick = () => openModal("modal-rewards", { returnTo: "modal-achv" });
   });
 }
 
@@ -9879,11 +9876,13 @@ function unlockBodyScroll() {
 const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards",
   "modal-leaderboard", "modal-recap", "modal-login"];
 
-// Kwam je via de flair-chip op het bord in de 🪎-kluis? Dan onthouden we waarheen
-// je terug moet: de '‹ Leaderboard'-knop, een gekozen flair én ✕/backdrop/Esc
-// brengen je terug naar het bord i.p.v. naar het spel. Vanaf het menu blijft dit
-// null → geen terugknop, geen auto-terug (er is niks om naar terug te keren).
+// Kwam je via de flair-chip op het bord of via een capstone-pip in Prestaties in de
+// 🪎-kluis? Dan onthouden we waarheen je terug moet: de '‹ Leaderboard' / '‹ Prestaties'-
+// knop, een gekozen flair én ✕/backdrop/Esc brengen je daarheen terug i.p.v. naar het
+// spel. Vanaf het menu blijft dit null → geen terugknop, geen auto-terug (er is niks
+// om naar terug te keren).
 let rewardsReturnTo = null;
+const REWARDS_BACK_LABEL = { "modal-leaderboard": "lb_title", "modal-achv": "menu_achv" };
 function rewardsReturn() {
   const target = rewardsReturnTo || "modal-leaderboard";
   rewardsReturnTo = null;
@@ -10270,7 +10269,14 @@ function openModal(id, opts) {
   if (id === "modal-rewards") {
     rewardsReturnTo = (opts && opts.returnTo) || null;   // set door de flair-chip; anders geen terug
     const backBtn = document.getElementById("rewards-back");
-    if (backBtn) backBtn.hidden = !rewardsReturnTo;
+    if (backBtn) {
+      backBtn.hidden = !rewardsReturnTo;
+      const lbl = backBtn.querySelector("[data-i18n]");
+      if (lbl && rewardsReturnTo) {
+        const key = REWARDS_BACK_LABEL[rewardsReturnTo] || "lb_title";
+        lbl.dataset.i18n = key; lbl.textContent = t(key);
+      }
+    }
     renderRewards(); setModalUrl("rewards");
   }
   if (id === "modal-recap") { renderRecap(); setModalUrl("recap"); }
@@ -10875,7 +10881,15 @@ async function init() {
     // niet bij het spel erachter. Zonder deze check typte je cijfers in het verborgen
     // invoerveld, bladerde ←/→ door de kaart eronder en kocht E een ⏩-hint terwijl je
     // de uitleg las (en Enter op een focus-knop diende óók een gok in).
-    if (document.querySelector(".modal:not([hidden])")) return;
+    const openModals = document.querySelectorAll(".modal:not([hidden])");
+    if (openModals.length) {
+      // Enige uitzondering: het eindscherm — daar sturen ←/→ de tabs Vandaag · Week · Kans, meteen na
+      // openen, zonder eerst op de carrousel te klikken.
+      if (openModals.length === 1 && openModals[0].id === "modal-recap"
+          && (e.key === "ArrowLeft" || e.key === "ArrowRight")
+          && recapArrowKey(e.key === "ArrowRight" ? 1 : -1, e.repeat)) e.preventDefault();
+      return;
+    }
     // Een ingedrukte toets herhaalt keydown tientallen keren per seconde. Bij typen,
     // wissen en bladeren is dat precies wat je wilt; bij een ACTIE niet — een
     // vastgehouden E kocht zo alle vijf de ⏩-clues achter elkaar (−15 punten) en een
@@ -10885,9 +10899,8 @@ async function init() {
     // Tab-shortcuts werken altijd, ook nadat de puzzel klaar is.
     if (e.key === "d" || e.key === "D") { switchMode("daily"); e.preventDefault(); return; }
     if (e.key === "n" || e.key === "N") { switchMode("free"); e.preventDefault(); return; }
-    // ←/→ bladert door het eindscherm-carrousel (Vandaag · Week · Kans) als dat in beeld is, anders door
-    // de hint-slides (ook na afloop, om alle hints na te lezen).
-    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && recapArrowKey(e.key === "ArrowRight" ? 1 : -1, e.repeat)) { e.preventDefault(); return; }
+    // ←/→ bladert door de hint-slides (ook na afloop, om alle hints na te lezen); het eindscherm
+    // handelt z'n eigen pijltjes hierboven af.
     if (e.key === "ArrowLeft")  { goToSlide(factSlideIndex - 1); e.preventDefault(); return; }
     if (e.key === "ArrowRight") { goToSlide(factSlideIndex + 1); e.preventDefault(); return; }
     // C/L ná aankoop = spring naar de 🏛️/🔢-slide (ook na afloop, net als ←/→);
