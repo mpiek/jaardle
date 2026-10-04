@@ -284,7 +284,8 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 sluit ma 12:00 · nog ${d > 0 ? d + " d" : h + " u"}`,
     recap_play_first: "Speel eerst de daily — daarna zie je de stand van je team.",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
-    recap_pool_none: "Maak of join een pool om je vrienden hier te zien.", recap_pool_btn: "🏆 Pool maken of joinen",
+    recap_team_ghost: "Je eerste teamgenoot", recap_team_cap: "Zo ziet je team eruit zodra er vrienden meedoen.", recap_team_make: "🏆 Maak je team",
+    recap_team_slim: "Met vrienden?", recap_team_slim_btn: "🏆 Team maken ›",
     recap_acct_title: "Met een gratis account",
     recap_acct_1: "📊 Je statistieken & streak blijven bewaard",
     recap_acct_2: "☁️ Speel verder op al je apparaten",
@@ -587,7 +588,8 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 closes Mon 12:00 · ${d > 0 ? d + " d" : h + " h"} left`,
     recap_play_first: "Play today's daily first — then you'll see your team's standings.",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
-    recap_pool_none: "Create or join a pool to see your friends here.", recap_pool_btn: "🏆 Create or join a pool",
+    recap_team_ghost: "Your first teammate", recap_team_cap: "This is what your team looks like once friends join.", recap_team_make: "🏆 Create your team",
+    recap_team_slim: "With friends?", recap_team_slim_btn: "🏆 Create a team ›",
     recap_acct_title: "With a free account",
     recap_acct_1: "📊 Your stats & streak are saved",
     recap_acct_2: "☁️ Keep playing across all your devices",
@@ -883,7 +885,8 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 schließt Mo 12:00 · noch ${d > 0 ? d + " d" : h + " Std."}`,
     recap_play_first: "Spiel zuerst das Daily — dann siehst du den Teamstand.",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
-    recap_pool_none: "Erstelle einen Pool oder tritt einem bei, um deine Freunde hier zu sehen.", recap_pool_btn: "🏆 Pool erstellen oder beitreten",
+    recap_team_ghost: "Dein erstes Teammitglied", recap_team_cap: "So sieht dein Team aus, sobald Freunde mitspielen.", recap_team_make: "🏆 Team erstellen",
+    recap_team_slim: "Mit Freunden?", recap_team_slim_btn: "🏆 Team gründen ›",
     recap_acct_title: "Mit einem kostenlosen Konto",
     recap_acct_1: "📊 Deine Statistiken & Serie bleiben erhalten",
     recap_acct_2: "☁️ Spiele auf all deinen Geräten weiter",
@@ -1183,7 +1186,8 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 cierra lun 12:00 · faltan ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Juega primero el diario — luego verás la clasificación de tu equipo.",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
-    recap_pool_none: "Crea un grupo o únete a uno para ver aquí a tus amigos.", recap_pool_btn: "🏆 Crear o unirse a un grupo",
+    recap_team_ghost: "Tu primer compañero", recap_team_cap: "Así se verá tu equipo cuando se unan tus amigos.", recap_team_make: "🏆 Crea tu equipo",
+    recap_team_slim: "¿Con amigos?", recap_team_slim_btn: "🏆 Crear equipo ›",
     recap_acct_title: "Con una cuenta gratuita",
     recap_acct_1: "📊 Tus estadísticas y tu racha se conservan",
     recap_acct_2: "☁️ Sigue jugando en todos tus dispositivos",
@@ -1483,7 +1487,8 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 fecha seg 12:00 · faltam ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Jogue primeiro o daily — depois você verá o placar da equipe.",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
-    recap_pool_none: "Crie um grupo ou entre em um para ver seus amigos aqui.", recap_pool_btn: "🏆 Criar ou entrar em um grupo",
+    recap_team_ghost: "Seu primeiro colega", recap_team_cap: "Assim ficará sua equipe quando seus amigos entrarem.", recap_team_make: "🏆 Crie sua equipe",
+    recap_team_slim: "Com amigos?", recap_team_slim_btn: "🏆 Criar equipe ›",
     recap_acct_title: "Com uma conta gratuita",
     recap_acct_1: "📊 Suas estatísticas e sua sequência são preservadas",
     recap_acct_2: "☁️ Continue jogando em todos os seus dispositivos",
@@ -5017,15 +5022,17 @@ function lbGuessBlocks(d) {
 // Inhaalpotten (r.late, db/53) staan altijd onderaan (server sorteert al zo),
 // zonder rangnummer en gedimd — zelfde `.lb-prov`-behandeling als de
 // onder-de-drempel-rijen op het all-time statistiekbord.
+function dailyRowHtml(r) {
+  return `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}">` +
+    `<span class="lb-rank">${r.late ? "·" : lbMedal(r.rank)}</span>` +
+    `<span class="lb-name">${lbNameCell(r, r.late ? null : r.rank)}${r.late ? ` <span class="lb-tag">${escHtml(t("makeup_tag"))}</span>` : ""}</span>` +
+    `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`;
+}
 function dailyTableHtml(rows) {
   if (!rows.length) {
     return `<p class="lb-empty">${t(lbDailyDate === todayKey() ? "lb_empty_daily" : "lb_empty_daily_past")}</p>`;
   }
-  return `<div class="lb-table">` + rows.map((r) =>
-    `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}">` +
-    `<span class="lb-rank">${r.late ? "·" : lbMedal(r.rank)}</span>` +
-    `<span class="lb-name">${lbNameCell(r, r.late ? null : r.rank)}${r.late ? ` <span class="lb-tag">${escHtml(t("makeup_tag"))}</span>` : ""}</span>` +
-    `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`).join("") + `</div>`;
+  return `<div class="lb-table">` + rows.map(dailyRowHtml).join("") + `</div>`;
 }
 
 // Vroegste browsbare daily-dag: de startdag van de actieve pool (my_pools geeft
@@ -6016,7 +6023,9 @@ function recapArrowKey(dir, repeat) {
   if (!repeat) r.go(dir);
   return true;
 }
-function recapCarouselHtml(dailyRows, weekRows, oddsItems) {
+// `slides` ({ day, week } html) vervangt de twee echte slides — alleen gebruikt door het voorproefje voor
+// spelers zonder team (teamTeaserHtml); tabs, spoor en mount zijn dan exact die van een echt team.
+function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides) {
   const tab = (i, key) => `<button type="button" role="tab" class="rc-tab" data-i="${i}" aria-selected="${i === 0}">${escHtml(t(key))}</button>`;
   const sep = `<span class="rc-sep" aria-hidden="true"></span>`;
   const n = oddsItems ? 3 : 2;
@@ -6025,8 +6034,8 @@ function recapCarouselHtml(dailyRows, weekRows, oddsItems) {
       tab(0, "recap_tab_today") + sep + tab(1, "recap_tab_week") + (oddsItems ? sep + tab(2, "recap_tab_odds") : "") +
     `</div>` +
     `<div class="rc-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${escHtml(t("recap_team_title"))}">` +
-      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/${n} · ${escHtml(t("recap_team_title"))}">${dailyTableHtml(dailyRows)}</div>` +
-      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/${n} · ${escHtml(t("recap_week_title"))}">${recapRaceHtml(weekRows)}</div>` +
+      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/${n} · ${escHtml(t("recap_team_title"))}">${slides ? slides.day : dailyTableHtml(dailyRows)}</div>` +
+      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/${n} · ${escHtml(t("recap_week_title"))}">${slides ? slides.week : recapRaceHtml(weekRows)}</div>` +
       (oddsItems ? `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="3/3 · ${escHtml(t("odds_head"))}">${oddsSlideHtml(oddsItems)}</div>` : "") +
     `</div></div>`;
 }
@@ -6580,8 +6589,74 @@ function mountOdds(root, items) {
   };
 }
 
+// ── Voorproefje voor ingelogd-zonder-team (grill 4/10, mockup "Team-nudge eindscherm", variant A) ──
+// In plaats van een zin + knop zie je wat je mist: dezelfde Vandaag/Week-tabs en banen als een echt team, met
+// jouw eigen rij (uit de lokale spelstand, zoals de server 'm na het maken zou tonen: een nieuw team telt
+// vanaf joined_at, dus alleen de daily van vandaag, mét dagzege +25 als je won) en gestippelde spookrijen
+// voor wie er nog niet is. De knop opent het 🏆-bord, waar je maakt of joint.
+// Dooft zelf uit (ux-no-friction-for-experts): de eerste TEAM_NUDGE_FULL dagen het hele voorproefje, tot en
+// met dag TEAM_NUDGE_SLIM één slanke regel met ✕, daarna niets; ✕ is direct en voorgoed. Per apparaat
+// (localStorage), geteld in dágen — heropenen van de recap op dezelfde dag telt niet mee.
+const TEAM_NUDGE_KEY = "jaardle:team-nudge";   // { n: dagen gezien, d: laatste dag, x: weggeklikt }
+const TEAM_NUDGE_FULL = 3, TEAM_NUDGE_SLIM = 10;
+function teamNudgeSave(s) { try { localStorage.setItem(TEAM_NUDGE_KEY, JSON.stringify(s)); } catch (e) {} }
+function teamNudgeStage() {   // 0 = voorproefje · 1 = slanke regel · 2 = weg
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(TEAM_NUDGE_KEY)); } catch (e) {}
+  if (!s || typeof s !== "object") s = {};
+  const day = todayKey();
+  if (s.d !== day) { s.d = day; s.n = (Number(s.n) || 0) + 1; teamNudgeSave(s); }
+  if (s.x || s.n > TEAM_NUDGE_SLIM) return 2;
+  return s.n > TEAM_NUDGE_FULL ? 1 : 0;
+}
+function teamTeaserHtml() {
+  const won = !!state.won, score = computeScore();
+  const me = {
+    rank: 1, is_me: true, display_name: myUsername || t("lb_you"), flair: myFlair, title: myTitle, won, score,
+    guess_blocks: state.guesses.slice(0, 6).map((g) => LB_BLOCK_CLS.indexOf(g.cls || classify(g.diff))).filter((i) => i >= 0),
+    text_hints: state.laterCluesShown, dir_hints: state.directionsRevealed.length,
+    century_hint: !!state.centuryRevealed, last_digit: !!state.lastDigitRevealed,
+  };
+  const wins = dagzegeApplies(1, won, state.puzzleDate || todayKey()) ? 1 : 0;
+  const lane = { ...me, daily_wins: wins, week_score: score + wins * 25 };
+  const ghostRow = (rank, label, dim) =>
+    `<div class="lb-row lb-ghost${dim ? " dim" : ""}"><span class="lb-rank">${rank}</span><span class="lb-name">${label}</span><span class="lb-val">–</span></div>`;
+  const ghostLane = (rank, k, dim) =>
+    `<div class="lb-row race-lane race-ghost${dim ? " dim" : ""}" style="--p:0;--i:${k}"><span class="lb-rank">${rank}</span>` +
+    `<span class="lb-name race-name"></span><span class="race-track"><span class="race-runner"></span></span><span class="lb-val">–</span></div>`;
+  const day = `<div class="lb-table">${dailyRowHtml(me)}${ghostRow(2, escHtml(t("recap_team_ghost")), false)}${ghostRow(3, "", true)}</div>`;
+  const week = `<div class="lb-table race-table">${raceLaneHtml(lane, 0, RACE_LEAD_POS)}${ghostLane(2, 1, false)}${ghostLane(3, 2, true)}</div>`;
+  return recapCarouselHtml(null, null, null, { day, week }) +
+    `<p class="lb-wk-note recap-team-cap">${escHtml(t("recap_team_cap"))}</p>` +
+    `<div class="recap-cta"><button id="recap-pool-btn">${escHtml(t("recap_team_make"))}</button></div>`;
+}
+function teamNudgeSlimHtml() {
+  return `<div class="recap-slim"><button type="button" id="recap-pool-btn" class="recap-slim-go"><span>${escHtml(t("recap_team_slim"))}</span><b>${escHtml(t("recap_team_slim_btn"))}</b></button>` +
+    `<button type="button" id="recap-slim-x" class="recap-slim-x" aria-label="${escHtml(t("aria_close"))}">✕</button></div>`;
+}
+// Toont het uitdovende team-nudge-blok in #recap-team (ingelogd, nog geen pool).
+function renderTeamNudge(wrap) {
+  const stage = teamNudgeStage();
+  const section = wrap.closest(".recap-section");
+  if (stage === 2) { if (section) section.hidden = true; return; }
+  const head = document.getElementById("recap-team-head");
+  if (head) head.hidden = true;   // het voorproefje heeft de tabs als kop, de slanke regel heeft geen kop nodig
+  wrap.innerHTML = stage === 0 ? teamTeaserHtml() : teamNudgeSlimHtml();
+  armEmojiFallbacks(wrap);
+  const go = document.getElementById("recap-pool-btn");
+  if (go) go.onclick = () => { closeAllModals(); openModal("modal-leaderboard"); };
+  const x = document.getElementById("recap-slim-x");
+  if (x) x.onclick = () => {
+    let s = null;
+    try { s = JSON.parse(localStorage.getItem(TEAM_NUDGE_KEY)); } catch (e) {}
+    teamNudgeSave({ ...(s && typeof s === "object" ? s : {}), x: 1 });
+    if (section) section.hidden = true;
+  };
+  if (stage === 0) mountRecapCarousel(wrap.querySelector(".rc"), null);
+}
+
 // Teamstand van vandaag in het recap-scherm: zelfde rijen als het daily-bord van
-// het leaderboard. Niet ingelogd → login-nudge; ingelogd zonder pool → pool-nudge.
+// het leaderboard. Niet ingelogd → login-nudge; ingelogd zonder pool → voorproefje (renderTeamNudge).
 async function loadRecapTeam() {
   const wrap = document.getElementById("recap-team");
   if (!wrap) return;
@@ -6597,10 +6672,11 @@ async function loadRecapTeam() {
     if (document.getElementById("modal-recap").hidden) return;
   }
   if (!myPool) {
-    wrap.innerHTML = `<p class="lb-empty">${t("recap_pool_none")}</p>` +
-      `<div class="recap-cta"><button id="recap-pool-btn">${t("recap_pool_btn")}</button></div>`;
-    const btn = document.getElementById("recap-pool-btn");
-    if (btn) btn.onclick = () => { closeAllModals(); openModal("modal-leaderboard"); };
+    // Naam, flair en titel zijn lui geladen en meestal al klaar; bij een koude start wacht het voorproefje er
+    // even op (anders staat er "jij" en springt het niet meer om).
+    if (!myIdentityLoaded || !myTitleLoaded) await Promise.all([ensureMyIdentity(), ensureMyTitle()]);
+    if (document.getElementById("modal-recap").hidden) return;
+    renderTeamNudge(wrap);
     return;
   }
   // Bij 2+ pools staan dezelfde wissel-chips boven het teambord; het bord zelf

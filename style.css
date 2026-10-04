@@ -2481,6 +2481,28 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
 .race-lane.reset .race-streak, .race-lane.reset .race-runner { transition: none !important; }
 .race-lane .lb-val { justify-self: end; min-width: 0; }
 .race-tro { font-size: 0.62rem; letter-spacing: -0.06em; line-height: 1; font-weight: 400; white-space: nowrap; }
+
+/* Voorproefje voor spelers zonder team (mockup "Team-nudge eindscherm", variant A): jouw rij/baan als
+   in een echt team, plus gestippelde spookrijen en lege banen. De stippelrand is een outline naar binnen
+   (geen border): die telt niet mee in de layout, dus een spookrij is precies even hoog als een echte rij. */
+.lb-row.lb-ghost, .lb-row.race-ghost { background: transparent; outline: 1.5px dashed var(--border); outline-offset: -1.5px; color: var(--muted); }
+.lb-ghost .lb-name { font-style: italic; }
+.lb-row.lb-ghost.dim, .lb-row.race-ghost.dim { opacity: 0.55; }
+.race-ghost .race-streak { display: none; }
+.race-ghost .race-track::before { background: none; height: 0; border-top: 2px dashed var(--border); margin-top: -1px; }
+.race-ghost .race-runner { width: 16px; height: 16px; border: 1.5px dashed var(--muted); border-radius: 50%; }
+.recap-team-cap { margin: 0.55rem 0 0; }
+/* Slanke regel (dag 4–10 van het uitdovende voorproefje): één regel met ✕ om 'm voorgoed weg te halen. */
+.recap-slim { display: flex; align-items: center; gap: 0.3rem; background: var(--card-soft); border-radius: 8px; padding-right: 0.2rem; }
+.recap-slim button { appearance: none; border: 0; background: none; font: inherit; cursor: pointer; }
+.recap-slim-go { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.55rem 0 0.55rem 0.7rem; font-size: 0.88rem; color: var(--muted); text-align: left; }
+.recap-slim-go span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 370px) { .recap-slim-go span { display: none; } .recap-slim-go { justify-content: flex-start; } }   /* smalle telefoon: alleen de actie, geen afgekapt vraagje */
+.recap-slim-go b { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.recap-slim-go:hover b { text-decoration: underline; }
+.recap-slim-x { flex: none; padding: 0.45rem 0.6rem; color: var(--muted); border-radius: 6px; }
+.recap-slim-x:hover { color: var(--fg); }
+.recap-slim button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; }
 @media (prefers-reduced-motion: reduce) {
   .race-streak, .race-runner { transition: none !important; }
 }

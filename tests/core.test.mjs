@@ -29,6 +29,7 @@ setGlobal("window", globalThis);
 setGlobal("location", { pathname: "/", search: "", hostname: "localhost", origin: "http://localhost" });
 setGlobal("history", { replaceState() {} });
 setGlobal("requestAnimationFrame", () => {});
+setGlobal("matchMedia", () => ({ matches: false, addEventListener() {} }));
 setGlobal("localStorage", {
   _: {}, getItem(k) { return k in this._ ? this._[k] : null; },
   setItem(k, v) { this._[k] = String(v); }, removeItem(k) { delete this._[k]; },
@@ -53,6 +54,8 @@ src += `
   ACHV_SERIES, ACHV_TIER_KEYS, CAPSTONE_MAX, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
+  teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
+  setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -995,4 +998,69 @@ test("RW_SECT_TAB — elke sectie waar een pop-up naartoe springt landt op een b
     assert.ok(T.RW_SECT_TAB[sect], `reward ${key}: sectie "${sect}" mist in RW_SECT_TAB`);
   }
   assert.ok(["flair", "vier", "frame", "theme"].every((x) => Object.values(T.RW_SECT_TAB).includes(x)), "elke tab is een sprong-doel");
+});
+
+// ── Team-voorproefje in het eindscherm (ingelogd, nog geen pool) ──────────────────────────────────────
+test("teamNudgeStage — voorproefje 3 dagen, slanke regel t/m dag 10, daarna weg; zelfde dag telt niet dubbel", () => {
+  const set = (v) => { if (v == null) localStorage.removeItem(T.TEAM_NUDGE_KEY); else localStorage.setItem(T.TEAM_NUDGE_KEY, JSON.stringify(v)); };
+  const today = T.todayKey(), old = "2000-01-01";
+  set(null);
+  assert.equal(T.teamNudgeStage(), 0, "eerste keer: het volledige voorproefje");
+  assert.equal(T.teamNudgeStage(), 0, "heropenen op dezelfde dag verhoogt de teller niet");
+  assert.equal(JSON.parse(localStorage.getItem(T.TEAM_NUDGE_KEY)).n, 1);
+  set({ d: old, n: T.TEAM_NUDGE_FULL - 1 });
+  assert.equal(T.teamNudgeStage(), 0, "dag 3 is nog het voorproefje");
+  set({ d: old, n: T.TEAM_NUDGE_FULL });
+  assert.equal(T.teamNudgeStage(), 1, "dag 4: slanke regel");
+  set({ d: old, n: T.TEAM_NUDGE_SLIM - 1 });
+  assert.equal(T.teamNudgeStage(), 1, "dag 10 is nog de slanke regel");
+  set({ d: old, n: T.TEAM_NUDGE_SLIM });
+  assert.equal(T.teamNudgeStage(), 2, "dag 11: weg");
+  set({ d: today, n: 1, x: 1 });
+  assert.equal(T.teamNudgeStage(), 2, "✕ is voorgoed");
+  set({ d: today, n: 5 });
+  assert.equal(T.teamNudgeStage(), 1, "dezelfde dag blijft dezelfde stap");
+  localStorage.setItem(T.TEAM_NUDGE_KEY, "{kapot");
+  assert.equal(T.teamNudgeStage(), 0, "kapotte opslag = opnieuw beginnen, geen crash");
+  set(null);
+});
+
+test("teamTeaserHtml — jouw rij + baan zoals de server ze na het maken zou tonen, plus spooklijnen", () => {
+  const was = T.auth.user;
+  try {
+    T.setPlayer("Joris", "🦊", null);
+    T.setState({ won: true, puzzleDate: "2026-10-05", guesses: [{ cls: "close" }, { cls: "warm" }, { cls: "correct" }],
+      directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false });
+    const score = T.computeScore();
+    const h = T.teamTeaserHtml();
+    // Dezelfde tabs en spoor als een echt team
+    assert.match(h, /class="rc-tab"[^>]*data-i="0"/);
+    assert.match(h, /class="rc-tab"[^>]*data-i="1"/);
+    assert.equal((h.match(/class="rc-slide"/g) || []).length, 2, "twee slides: vandaag en week");
+    // Dag-slide: jouw rij (gemarkeerd, #1, met naam, 3 gok-blokjes en je score) en twee spookrijen
+    assert.match(h, /lb-row lb-me lb-top1/);
+    assert.ok(h.includes("Joris"));
+    assert.equal((h.match(/class="lb-blk /g) || []).length, 3);
+    assert.ok(h.includes(String(score)));
+    assert.equal((h.match(/lb-row lb-ghost/g) || []).length, 2);
+    assert.ok(h.includes(T.t("recap_team_ghost")));
+    // Week-slide: jouw baan met dagzege (+25, want de enige van de dag telt vanaf 4/10) en twee lege banen
+    assert.match(h, /race-lane lb-top1/);
+    assert.ok(h.includes(`data-v="${score + 25}"`), "weekscore = score + dagzege");
+    assert.match(h, /class="race-tro"[^>]*>🏆</, "één 🏆 voor de dagzege");
+    assert.equal((h.match(/race-ghost/g) || []).length, 2);
+    // Onderaan: uitleg en de knop die #recap-pool-btn heet (daar hangt de klik aan)
+    assert.ok(h.includes(T.t("recap_team_cap")));
+    assert.match(h, /<button id="recap-pool-btn">/);
+  } finally { T.auth.user = was; T.setPlayer(null, null, null); }
+});
+
+test("teamTeaserHtml — verlies: 💀 op de dag-rij, geen dagzege in de week", () => {
+  T.setPlayer(null, null, null);
+  T.setState({ won: false, puzzleDate: "2026-10-05", guesses: [{ cls: "far" }, { cls: "farthest" }],
+    directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false });
+  const h = T.teamTeaserHtml();
+  assert.ok(h.includes("💀"));
+  assert.ok(!h.includes("race-tro"), "geen dagzege-trofee bij verlies");
+  assert.ok(h.includes(T.t("lb_you")), "zonder profielnaam staat er 'jij'");
 });
