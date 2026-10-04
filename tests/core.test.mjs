@@ -51,6 +51,7 @@ src += `
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   ACHV_SERIES, ACHV_TIER_KEYS, CAPSTONE_MAX, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
+  parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -736,4 +737,56 @@ test("achvTierName — obsidiaan is de 6e trede in elke taal", () => {
     assert.equal(T.achvTierName(5), T.I18N[l].achv_tiers.obsidian, l);
   }
   T.setLang("nl");
+});
+
+// ── Flair-effecten ("flair+"): opslag-formaat, rendering en registry-integriteit ──
+test("parseFlair/joinFlair — '🔥~sparkle' rondt netjes af en weigert onbekende effecten", () => {
+  assert.deepEqual(T.parseFlair("🔥~sparkle"), { emoji: "🔥", fx: "sparkle" });
+  assert.deepEqual(T.parseFlair("🔥"), { emoji: "🔥", fx: "" });
+  assert.deepEqual(T.parseFlair(null), { emoji: "", fx: "" });
+  assert.deepEqual(T.parseFlair("🔥~bogus"), { emoji: "🔥", fx: "" }, "onbekend effect (nieuwere server) → gewoon de flair");
+  assert.deepEqual(T.parseFlair("🔥~constructor"), { emoji: "🔥", fx: "" }, "geen prototype-sleutels als effect");
+  assert.deepEqual(T.parseFlair("~sparkle"), { emoji: "", fx: "" }, "een effect zonder flair bestaat niet");
+  assert.equal(T.joinFlair("🔥", "sparkle"), "🔥~sparkle");
+  assert.equal(T.joinFlair("🔥", ""), "🔥");
+  assert.equal(T.joinFlair("🔥", "nope"), "🔥");
+  assert.equal(T.joinFlair("", "sparkle"), "", "geen flair → ook geen effect opslaan");
+  // ZWJ-/VS16-flairs bevatten geen '~' en overleven het splitsen intact
+  assert.equal(T.parseFlair(T.joinFlair("🐦\u200d🔥", "sparkle")).emoji, "🐦\u200d🔥");
+});
+
+test("flairBadgeHtml/flairStaticHtml — effect-klassen op de badge, het teken blijft schoon", () => {
+  const withFx = T.flairBadgeHtml("🔥~sparkle", 2);
+  assert.match(withFx, /class="lb-flair-badge fl-fx fx-sparkle"/);
+  assert.match(withFx, /data-flair="🔥"/, "data-flair (hover-voorproefje) draagt alleen het teken");
+  assert.ok(!withFx.includes("~"), "het opslag-formaat lekt nooit de DOM in");
+  const plain = T.flairBadgeHtml("🔥", 2);
+  assert.ok(!plain.includes("fl-fx"), "zonder effect geen effect-klassen");
+  assert.equal(T.flairBadgeHtml("", 1), "");
+  assert.equal(T.flairBadgeHtml("~sparkle", 1), "");
+  assert.equal(T.flairStaticHtml("🔥~sparkle"), '<span class="fl-fx fx-sparkle">🔥</span>');
+  assert.equal(T.flairStaticHtml("🔥"), "🔥");
+  assert.equal(T.flairStaticHtml(null), "");
+});
+
+test("FLAIR_FX — elke registry-rij heeft reward, volgorde, naam in alle talen en een geldige prestatie-koppeling", () => {
+  for (const [id, f] of Object.entries(T.FLAIR_FX)) {
+    const r = T.REWARDS[f.reward];
+    assert.ok(r && r.cat === "flairfx" && r.fx === id, `${id}: REWARDS mist de reward-regel`);
+    assert.ok(T.REWARD_ORDER.includes(f.reward), `${id}: ${f.reward} staat niet in REWARD_ORDER (pop-up zou nooit komen)`);
+    for (const code of Object.keys(T.I18N)) assert.ok(T.I18N[code][`fxn_${id}`], `${id}: fxn_${id} mist in "${code}"`);
+  }
+  for (const tr of T.ACHV_TROPHIES.filter((x) => x.flairFx)) assert.ok(T.FLAIR_FX[tr.flairFx], `${tr.key}: onbekend flairFx "${tr.flairFx}"`);
+});
+
+test("flairFxEarned — alleen ingelogd, en sparkle volgt Vlekkeloos", () => {
+  const was = T.auth.user;
+  try {
+    T.auth.user = null;
+    assert.deepEqual(T.flairFxEarned({ flawless: true }), [], "anoniem verdient geen effect");
+    T.auth.user = { uid: "u" };
+    assert.deepEqual(T.flairFxEarned({ flawless: true }), ["sparkle"]);
+    assert.deepEqual(T.flairFxEarned({ flawless: false }), []);
+    assert.deepEqual(T.flairFxEarned(null), []);
+  } finally { T.auth.user = was; }
 });

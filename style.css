@@ -2733,7 +2733,7 @@ html[data-theme="light"], html[data-theme="parchment"] {
   background: radial-gradient(circle, #a970ff44 0%, #a970ff22 42%, transparent 70%);
   opacity: 0;
 }
-.rw-flair .rw-glow { background: radial-gradient(circle, #f4c43044 0%, #f4c43022 42%, transparent 70%); }
+.rw-flair .rw-glow, .rw-flairfx .rw-glow { background: radial-gradient(circle, #f4c43044 0%, #f4c43022 42%, transparent 70%); }
 .rw-theme .rw-glow { background: radial-gradient(circle, #58d6a644 0%, #58d6a622 42%, transparent 70%); }
 .rw-hero { font-size: 3.6rem; line-height: 1; display: inline-block; filter: drop-shadow(0 8px 14px #0007); }
 .rw-hero .emoji-anim { width: 1.25em; height: 1.25em; }
@@ -2992,6 +2992,40 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .lb-flair-clear { font-size: 0.85rem; color: var(--muted); }
 /* Flair naast de naam op de borden: lekker zichtbaar — daar doe je het voor. */
 .lb-flair-badge { font-size: 1.25em; line-height: 1; }
+
+/* ── Flair-effecten ("flair+") ───────────────────────────────────────────────
+   Een effect-laag op de flair. Alleen ::before/::after (geen extra DOM), alleen transform/opacity,
+   maten in em — het schaalt dus mee op bord (20 px), podium, race, kluis en pop-up. Eén .fx-<id>-blok
+   per effect (zie FLAIR_FX in game.js); de tokens geven het lichte thema een diepere amber, anders
+   verdwijnt het geel op crème. --fx-star is de gedeelde vierpuntige-ster-vorm. */
+:root {
+  --fx-core: #fff6c8; --fx-edge: #f5c518; --fx-glow: rgba(255, 214, 90, 0.55);
+  --fx-star: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+html[data-theme="light"], html[data-theme="parchment"] { --fx-core: #ffc933; --fx-edge: #b25a00; --fx-glow: rgba(214, 130, 0, 0.5); }
+.rw-card, .podpop.night .podpop-card { --fx-core: #fff6c8; --fx-edge: #f5c518; --fx-glow: rgba(255, 214, 90, 0.55); }   /* donkere kaarten in elk thema */
+.fl-fx { position: relative; display: inline-block; line-height: 1; }
+.fl-fx::before, .fl-fx::after { content: ""; position: absolute; pointer-events: none; }
+/* sparkle: twee sterretjes die om beurten oplichten */
+.fx-sparkle::before, .fx-sparkle::after {
+  background: radial-gradient(circle, var(--fx-core) 0 22%, var(--fx-edge) 85%);
+  clip-path: var(--fx-star); animation: fx-twinkle 2.6s ease-in-out infinite;
+}
+.fx-sparkle::before { width: 0.56em; height: 0.56em; right: -0.24em; top: -0.24em; }
+.fx-sparkle::after { width: 0.4em; height: 0.4em; left: -0.2em; bottom: -0.08em; animation-delay: 1.3s; }
+@keyframes fx-twinkle {
+  0%, 100% { transform: scale(0) rotate(0); opacity: 0; }
+  45%, 55% { transform: scale(1) rotate(45deg); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-sparkle::before, .fx-sparkle::after { animation: none; transform: scale(0.85) rotate(45deg); }
+}
+/* De naamcel knipt af (ellipsis): geef het effect verticale ruimte zonder de rij hoger te maken. */
+.lb-name:has(.fl-fx) { padding-block: 0.4em; margin-block: -0.4em; padding-inline-end: 0.3em; }
+/* kluis: keuzerij met je eigen flair + effect */
+.rw-fxlbl { display: inline-flex; align-items: center; gap: 0.7rem; }
+.rw-fxprev { font-size: 1.25rem; line-height: 1; padding: 0.15em 0.3em; }
+.rw-fxhint { margin: 0.4rem 0 0; font-size: 0.8rem; color: var(--muted); }
 .lb-name-status { margin: 0.6rem 0 0; font-size: 0.8rem; }
 .lb-name-status.ok { color: var(--green-text); }
 .lb-name-status.err { color: var(--danger); }

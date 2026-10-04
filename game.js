@@ -336,6 +336,7 @@ const I18N = {
     rewards_locked_hint: "Meer te verdienen — bekijk 🏅 Prestaties",
     reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis", reward_equip: "Draag nu", reward_activate: "Zet aan",
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
+    rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -381,6 +382,8 @@ const I18N = {
     achv_flair_earned: (e) => `${e}-flair vrijgespeeld`,
     achv_fx_earned: (e) => `${e}-viering vrijgespeeld — hij staat aan bij elke winst`,
     achv_flair_choose: (e) => `kies ${e}`,
+    achv_flairfx_earned: (n) => `${n}-effect vrijgespeeld`, achv_flairfx_choose: "zet aan",
+    achv_flairfx_note_flat: (n) => `hiermee verdien je het ${n}-effect voor je flair`,
     achv_back: "‹ Prestaties",
     history_back: "‹ Geschiedenis",
     achv_events: {
@@ -635,6 +638,7 @@ const I18N = {
     rewards_locked_hint: "More to earn — see 🏅 Achievements",
     reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault", reward_equip: "Wear it now", reward_activate: "Turn it on",
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
+    rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -678,6 +682,8 @@ const I18N = {
     achv_flair_earned: (e) => `${e} flair unlocked`,
     achv_fx_earned: (e) => `${e} celebration unlocked — it plays on every win`,
     achv_flair_choose: (e) => `choose ${e}`,
+    achv_flairfx_earned: (n) => `${n} effect unlocked`, achv_flairfx_choose: "turn on",
+    achv_flairfx_note_flat: (n) => `earns you the ${n} effect for your flair`,
     achv_back: "‹ Achievements",
     history_back: "‹ History",
     achv_events: {
@@ -927,6 +933,7 @@ const I18N = {
     rewards_locked_hint: "Mehr zu verdienen — siehe 🏅 Erfolge",
     reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe", reward_equip: "Jetzt tragen", reward_activate: "Einschalten",
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
+    rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -970,6 +977,8 @@ const I18N = {
     achv_flair_earned: (e) => `${e}-Flair freigeschaltet`,
     achv_fx_earned: (e) => `${e}-Feier freigeschaltet — sie spielt bei jedem Sieg`,
     achv_flair_choose: (e) => `${e} wählen`,
+    achv_flairfx_earned: (n) => `${n}-Effekt freigeschaltet`, achv_flairfx_choose: "einschalten",
+    achv_flairfx_note_flat: (n) => `damit verdienst du den ${n}-Effekt für dein Flair`,
     achv_back: "‹ Erfolge",
     history_back: "‹ Verlauf",
     achv_events: {
@@ -1223,6 +1232,7 @@ const I18N = {
     rewards_locked_hint: "Más por conseguir — mira 🏅 Logros",
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja", reward_equip: "Usar ahora", reward_activate: "Activar",
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
+    rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1266,6 +1276,8 @@ const I18N = {
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
     achv_fx_earned: (e) => `celebración ${e} desbloqueada — suena en cada victoria`,
     achv_flair_choose: (e) => `elegir ${e}`,
+    achv_flairfx_earned: (n) => `efecto ${n} desbloqueado`, achv_flairfx_choose: "activar",
+    achv_flairfx_note_flat: (n) => `con esto consigues el efecto ${n} para tu distintivo`,
     achv_back: "‹ Logros",
     history_back: "‹ Historial",
     achv_events: {
@@ -1519,6 +1531,7 @@ const I18N = {
     rewards_locked_hint: "Mais a conquistar — veja 🏅 Conquistas",
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre", reward_equip: "Usar agora", reward_activate: "Ativar",
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
+    rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1562,6 +1575,8 @@ const I18N = {
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
     achv_fx_earned: (e) => `comemoração ${e} desbloqueada — ela toca em cada vitória`,
     achv_flair_choose: (e) => `escolher ${e}`,
+    achv_flairfx_earned: (n) => `efeito ${n} desbloqueado`, achv_flairfx_choose: "ativar",
+    achv_flairfx_note_flat: (n) => `isso dá o efeito ${n} para o seu distintivo`,
     achv_back: "‹ Conquistas",
     history_back: "‹ Histórico",
     achv_events: {
@@ -3026,7 +3041,7 @@ function showConfetti() {
   // Zilver-capstone (alle 5 grind-ladders ≥ zilver): je gedragen flair regent als
   // confetti — self-facing beloning, alleen-ingelogd. Geen flair → gewone confetti.
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const flairFx = !reduced && auth.user && myFlair && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? myFlair : null;
+  const flairFx = !reduced && auth.user && parseFlair(myFlair).emoji && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? parseFlair(myFlair).emoji : null;
   const container = document.createElement("div");
   container.className = "confetti-container" + (flairFx ? " confetti-flair" : "");
   for (let i = 0; i < 80; i++) {
@@ -5052,16 +5067,48 @@ const FLAIR_ANIM = {
   "🦕": "flair-sauropod",
   "🥇": "flair-goldmedal", "🥈": "flair-silvermedal", "🥉": "flair-bronzemedal",
   "⭐": "flair-star",   // capstone-brons
+  "✨": "sparkles",     // geen flair, maar het icoon van het flair-effect-reward (pop-up zonder gedragen flair)
 };
+
+// ── Flair-effecten ("flair+") ─────────────────────────────────────────────────
+// Een flair kan een effect-laag dragen (nu: sprankel; later meer). Opslag = één string
+// in profiles.flair: "🔥~sparkle". Alle lees-RPC's (borden, podium, race, kans) geven die
+// ongewijzigd door; set_my_flair (db/77) valideert basis én effect (gate op de prestatie).
+// Eén effect tegelijk, altijd óp een gedragen flair (zonder flair valt het weg).
+//
+// Een nieuw effect toevoegen = vier dingen, de rest loopt vanzelf mee (kluis-keuzerij,
+// unlock-pop-up, borden, podium, race, prestatie-kaart):
+//   1. een rij in FLAIR_FX  (emoji · reward-key · wanneer verdiend)
+//   2. een .fx-<id>-blok in style.css (alleen ::before/::after, geen extra DOM)
+//   3. i18n: fxn_<id> (naam, mét emoji) + zet de reward-key in REWARD_ORDER
+//   4. één WHEN-regel in de gate van set_my_flair (db/77)
+// Koppel 'm aan een prestatie door `flairFx: "<id>"` op de trofee te zetten (tooltip + kaart).
+const FLAIR_FX_SEP = "~";
+const FLAIR_FX = {
+  sparkle: { emoji: "✨", reward: "fx_sparkle", earned: (a) => !!a.flawless },   // Vlekkeloos: 5 perfecte 100's op rij
+};
+const isFlairFx = (id) => Object.prototype.hasOwnProperty.call(FLAIR_FX, id);
+function parseFlair(raw) {
+  const str = String(raw || ""), i = str.indexOf(FLAIR_FX_SEP);
+  const emoji = i < 0 ? str : str.slice(0, i), fx = i < 0 ? "" : str.slice(i + FLAIR_FX_SEP.length);
+  return { emoji, fx: emoji && isFlairFx(fx) ? fx : "" };   // onbekend effect (nieuwere server) → gewoon de flair
+}
+function joinFlair(emoji, fx) { return emoji ? emoji + (fx && isFlairFx(fx) ? FLAIR_FX_SEP + fx : "") : ""; }
+const flairFxClass = (fx) => (fx ? ` fl-fx fx-${fx}` : "");
+function flairFxWrap(fx, html) { return fx ? `<span class="${flairFxClass(fx).trim()}">${html}</span>` : html; }
+function flairStaticHtml(raw) { const p = parseFlair(raw); return p.emoji ? flairFxWrap(p.fx, escHtml(p.emoji)) : ""; }
+function flairFxEarned(a) { return a && auth.user ? Object.keys(FLAIR_FX).filter((id) => FLAIR_FX[id].earned(a)) : []; }
 
 // De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
 // motion). Is er een Noto-webp → die; zo niet (🎩/🦫) → een CSS-"cheer" op het
 // gewone teken zodat óók zij bewegen. Andere rijen tonen het statische teken.
+// Heeft de flair een effect, dan krijgt de badge zelf de effect-klassen (.fl-fx .fx-<id>).
 function flairBadgeHtml(flair, rank) {
-  if (!flair) return "";
+  const { emoji, fx } = parseFlair(flair);
+  if (!emoji) return "";
   const animate = rank === 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const inner = animate ? flairPreviewHtml(flair) : escHtml(flair);
-  return ` <span class="lb-flair-badge" data-flair="${escHtml(flair)}">${inner}</span>`;
+  const inner = animate ? flairPreviewHtml(emoji) : escHtml(emoji);
+  return ` <span class="lb-flair-badge${flairFxClass(fx)}" data-flair="${escHtml(emoji)}">${inner}</span>`;
 }
 
 // De geanimeerde vorm van een flair: de Noto-webp, of de CSS-cheer voor de
@@ -5343,8 +5390,8 @@ function nameEditorHtml() {
   const nm = myUsername
     ? `<span class="lb-namecur">${escHtml(myUsername)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_name_unset")}</span>`;
-  const flairCur = myFlair
-    ? `<span class="lb-namecur">${escHtml(myFlair)}</span>`
+  const flairCur = parseFlair(myFlair).emoji
+    ? `<span class="lb-namecur">${flairStaticHtml(myFlair)}</span>`
     : `<span class="lb-namecur lb-noname">${t("lb_flair_none")}</span>`;
   // Één regel: naam+potloodje (= klik-trigger voor inline bewerken) links, flair-
   // chip (= sprong naar de 🪎-kluis) rechts. De edit-rij en foutregel staan klaar
@@ -5424,14 +5471,21 @@ async function ensureMyIdentity() {
 // melden we het. Kwam je via de flair-chip vanaf het bord (rewardsReturnTo), dan
 // volgt na een korte beat de auto-terug; we wachten dán wél op de RPC zodat
 // renderLeaderboard's get_my_flair de nieuwe waarheid ziet (geen terugflits).
-async function setMyFlair(flair) {
+async function setMyFlair(flair) {   // een nieuwe flair behoudt je effect; wissen (lege flair) neemt het mee
+  return saveMyFlair(joinFlair(flair, parseFlair(myFlair).fx), true);
+}
+// Effect kiezen/wissen op de flair die je al draagt. Geen auto-terug: je probeert er vaak meer dan één.
+async function setMyFlairFx(fx) {
+  return saveMyFlair(joinFlair(parseFlair(myFlair).emoji, fx), false);
+}
+async function saveMyFlair(next, autoBack) {
   const prev = myFlair;
-  const same = (prev || "") === (flair || "");
-  if (!same) { myFlair = flair || null; renderRewards(); }   // ring meteen, geen wachten
+  const same = (prev || "") === (next || "");
+  if (!same) { myFlair = next || null; renderRewards(); }   // ring meteen, geen wachten
   const rpcP = same
     ? Promise.resolve("ok")
-    : rpc("set_my_flair", { p_flair: flair }).catch(() => "err");
-  if (rewardsReturnTo) {
+    : rpc("set_my_flair", { p_flair: next }).catch(() => "err");
+  if (autoBack && rewardsReturnTo) {
     const target = rewardsReturnTo;
     const [status] = await Promise.all([rpcP, new Promise((r) => setTimeout(r, 450))]);
     if (status !== "ok") {   // opslaan mislukt → rollback, blijf in de kluis
@@ -5814,7 +5868,10 @@ function wkWinTrophies(dailyWins) {
 
 function podiumHtml(rows, isLive) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const flairDance = (f) => (f ? (reduced ? escHtml(f) : flairPreviewHtml(f)) : "");
+  const flairDance = (f) => {
+    const p = parseFlair(f);
+    return p.emoji ? flairFxWrap(p.fx, reduced ? escHtml(p.emoji) : flairPreviewHtml(p.emoji)) : "";
+  };
   if (!rows.length) {
     return `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
       `<h4>${escHtml(t("lb_wk_empty_h"))}</h4><p>${escHtml(t("lb_wk_empty_p"))}</p></div>`;
@@ -5845,7 +5902,7 @@ function podiumHtml(rows, isLive) {
   const restHtml = rest.length ? `<div class="lb-wk-rest">` + rest.map((r) =>
     `<div class="lb-wk-restrow${r.is_me ? " lb-me" : ""}">` +
     `<span class="lb-wk-rk">${r.rank}</span>` +
-    `<span class="lb-wk-rf">${r.flair ? escHtml(r.flair) : ""}</span>` +
+    `<span class="lb-wk-rf">${flairStaticHtml(r.flair)}</span>` +
     `<span class="lb-wk-rn">${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</span>` +
     `<span class="lb-wk-rc">${restStat(r)}</span></div>`
   ).join("") + `</div>` : "";
@@ -6905,7 +6962,7 @@ function oddsBuild(fc, dailyRows, weekRows, ctx) {
   const pl = forecastPlaces(inp, ODDS_RUNS, seed), lim = oddsLimits(inp);
   // prob = kans op de weekzege (1e plek); probs = [1e, 2e, 3e] voor de plek-schakelaar;
   // sures = per plek of die uitkomst volgens de regels vaststaat (exact 100% of 0% — geen schatting meer)
-  return all.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: p.flair || "", title: p.title || "", me: !!p.is_me,
+  return all.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: parseFlair(p.flair).emoji, title: p.title || "", me: !!p.is_me,
     prob: pl[0][i], probs: [pl[0][i], pl[1][i], pl[2][i]], sures: [0, 1, 2].map((k) => lim.sure[k][i] || !lim.can[k][i]) }));
 }
 
@@ -7270,7 +7327,7 @@ const ACHV_TROPHIES = [
   { key: "nailbiter", i18n: "achv_t_nailbiter",art: "tightrope",repeatable: true, tiers: [1, 6, 18, 45, 90, 180] }, // win na ≥2 gokken die ≤2 jaar ("veryclose") ernaast zaten
   { key: "perfect_week", i18n: "achv_t_week",   art: "weekcheck", repeatable: true, daily: true, tiers: [1, 3, 8, 16, 30, 52] }, // win alle 7 dailies van een ma–zo week — daily-trofee, NIET retroactief (telt vanaf PERFECT_WEEK_SINCE, zie perfectWeeks); client-side afgeleid uit de daghistorie, geen server-teller
   { key: "spicy",     i18n: "achv_t_spicy",    art: "pepper",   repeatable: true, daily: true }, // win een 🌶️🌶️🌶️-daily (hardste band)
-  { key: "flawless",  i18n: "achv_t_flawless", art: "shine" },   // 5 perfecte 100's op rij
+  { key: "flawless",  i18n: "achv_t_flawless", art: "shine", flairFx: "sparkle" },   // 5 perfecte 100's op rij → ✨ sprankel-effect (FLAIR_FX)
   { key: "saver",     i18n: "achv_t_saver",    art: "buoy", daily: true },
   { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" }, repeatable: true, tiers: [1, 5, 15, 35, 70, 130] },
   // Obsidiaan: de enige verborgen trofee. Hij bestaat niet op het bord tot je
@@ -8015,9 +8072,11 @@ const REWARDS = {
   fx_platina:   { emoji: "🖼️", cat: "effect", sect: "endscreen" },  // capstone-platina
   theme:        { emoji: "🎨", cat: "theme",  sect: "theme" },      // capstone-diamant
 };
+// Flair-effecten komen uit FLAIR_FX (geen tweede lijst): de reward-key + het effect-id.
+for (const [id, f] of Object.entries(FLAIR_FX)) REWARDS[f.reward] = { emoji: f.emoji, cat: "flairfx", sect: "flairfx", fx: id };
 // Volgorde van zeldzaamheid (oplopend) → de wachtrij eindigt op de zeldzaamste.
 const REWARD_ORDER = ["fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
-  "fl_dino", "fl_hourglass", "fx_beer", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme"];
+  "fl_dino", "fl_hourglass", "fx_beer", "fx_sparkle", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme"];
 // Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
 // dragen zelf hun emoji; de flair-naam is gewoon "Flair"/"Distintivo"/…).
 const REWARD_NAME_KEY = {
@@ -8026,7 +8085,7 @@ const REWARD_NAME_KEY = {
 };
 function rewardName(key) {
   const r = REWARDS[key];
-  return r.cat === "flair" ? t("rewards_sect_flair") : t(REWARD_NAME_KEY[key]);
+  return r.cat === "flair" ? t("rewards_sect_flair") : r.cat === "flairfx" ? t("fxn_" + r.fx) : t(REWARD_NAME_KEY[key]);
 }
 
 // Welke beloningen heb je nú verdiend? Puur uit achvCache — dezelfde checks als de
@@ -8044,6 +8103,7 @@ function earnedRewardKeys() {
   if (goldYearsFxUnlocked(a)) got.add("fx_goldyears");
   if (platinaFrameUnlocked(a)) got.add("fx_platina");
   if (ct >= 5) got.add("theme");
+  for (const id of flairFxEarned(a)) got.add(FLAIR_FX[id].reward);
   return REWARD_ORDER.filter((k) => got.has(k));
 }
 
@@ -8114,6 +8174,9 @@ async function maybeShowRewards() {
   const seen = new Set(myRewardsSeen);
   const pending = earned.filter((k) => !seen.has(k));               // al op zeldzaamheid gesorteerd
   if (!pending.length) return false;
+  if (pending.some((k) => REWARDS[k]?.cat === "flairfx")) await ensureMyIdentity();   // de pop-up toont je gedragen flair
+  if (document.getElementById("modal-reward")) return true;                              // intussen al eentje open
+  if (document.querySelector(".modal:not([hidden])")) { rewardRetry = true; return false; }   // intussen ander scherm
   rewardQueue = pending;
   showNextReward();
   return true;
@@ -8128,6 +8191,8 @@ function showNextReward() {
 // win-fx-radiogroep, setPlatinaFrame = losse toggle). Zo doet "Zet aan" precies
 // hetzelfde als de kluis, zonder omweg.
 function activateReward(key) {
+  const fxr = REWARDS[key];
+  if (fxr && fxr.cat === "flairfx") { setMyFlairFx(fxr.fx); return; }   // effect op de flair die je draagt
   if (key === "fx_confetti") setWinFx("flair");
   else if (key === "fx_beer") setWinFx("beer");
   else if (key === "fx_goldyears") setWinFx("gold");
@@ -8141,8 +8206,12 @@ function showReward(key) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // flair → direct dragen · effect → direct aanzetten · thema → naar de kluis (kiezer).
   const isFlair = r.cat === "flair";
-  const isEffect = r.cat === "effect";
-  const sub = t(isFlair ? "reward_sub_flair" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
+  const fxCat = r.cat === "flairfx";   // flair-effect: "Zet aan" kan alleen op een flair die je draagt, anders naar de kluis
+  const worn = parseFlair(myFlair).emoji;
+  const isEffect = r.cat === "effect" || (fxCat && !!worn);
+  const heroInner = flairPreviewHtml(fxCat ? (worn || r.emoji) : r.emoji);
+  const hero = fxCat ? flairFxWrap(r.fx, heroInner) : heroInner;
+  const sub = t(isFlair ? "reward_sub_flair" : fxCat ? "reward_sub_flairfx" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
   const el = document.createElement("div");
   el.id = "modal-reward";
   el.className = "modal rw-pop rw-" + r.cat + (reduced ? "" : " rw-pop-anim");
@@ -8155,7 +8224,7 @@ function showReward(key) {
       `<button type="button" class="rw-x" data-close aria-label="${escHtml(t("aria_close"))}">✕</button>` +
       `<div class="rw-inner">` +
         `<span class="rw-eyebrow">${escHtml(t("reward_pop_eyebrow"))}</span>` +
-        `<div class="rw-heroWrap"><span class="rw-glow"></span><span class="rw-hero">${flairPreviewHtml(r.emoji)}</span></div>` +
+        `<div class="rw-heroWrap"><span class="rw-glow"></span><span class="rw-hero">${hero}</span></div>` +
         `<div class="rw-name" id="rw-pop-name">${escHtml(rewardName(key))}</div>` +
         `<p class="rw-sub">${escHtml(sub)}</p>` +
         `<div class="rw-btns">` +
@@ -8258,7 +8327,7 @@ function achvTrophyItem(tr, count, tier) {
     weight: tier > 0 ? TROPHY_TIER_WEIGHT[tier - 1] : (tr.weight || ACHV_TROPHY_WEIGHT),
     art: tr.art, tier: tier || 0,
     head: t("achv_unlocked"), title: `${t(tr.i18n)}${tierTxt}${suffix}`, sub: t(`${tr.i18n}_sub`),
-    next: "", flair: tr.flair ? tr.flair.emoji : null,
+    next: "", flair: tr.flair ? tr.flair.emoji : null, flairFx: tr.flairFx || null,
   };
 }
 function achvStampItem(a, y) {
@@ -8299,6 +8368,10 @@ function achvCardEl(it) {
     // nóg een losse voor zetten.
     foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t("achv_flair_earned")(it.flair)))}</span>
       <button type="button" class="achv-card-btn">${escHtml(t("achv_flair_choose")(it.flair))}</button>`;
+  } else if (it.flairFx) {
+    // Flair-effect: kortste route naar de kluis-keuzerij (zelfde knop als bij een flair).
+    foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t("achv_flairfx_earned")(t("fxn_" + it.flairFx))))}</span>
+      <button type="button" class="achv-card-btn">${escHtml(t("achv_flairfx_choose"))}</button>`;
   } else if (it.fx) {
     // Geen knop: de viering staat meteen aan en de schakelaar zit in de reeks-rij
     // die je via "bekijk ›" toch al bereikt.
@@ -8321,6 +8394,7 @@ function achvCardEl(it) {
     btn.onclick = (e) => {
       e.stopPropagation();   // de kaart zelf opent het paneel; deze knop de kluis
       closeAllModals();
+      if (it.flairFx) rewardScrollSect = "flairfx";   // spring naar de effect-keuzerij
       openModal("modal-rewards");   // flair-kiezer woont sinds v239 in 🪎 Beloningen
     };
   }
@@ -8557,6 +8631,7 @@ function achvTrophyHtml(a, tr) {
   // het 2-koloms grid blijft strak (zie repeatable-achievements-design).
   const nextTip = tr.tiers && tier < 6 ? t("achv_next")(fmtN(tr.tiers[tier] - count), trophyTierName(tier + 1)) : "";
   const titleAttr = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"`
+    : tr.flairFx ? ` title="${escHtml(t("achv_flairfx_note_flat")(t("fxn_" + tr.flairFx)))}"`
     : (nextTip ? ` title="${escHtml(nextTip)}"` : "");
   // Een titel (JM/GM) is niet-aflegbaar: je hébt 'm of niet (zoals GM bij een
   // schaakmeester). Geen draag-schakelaar meer — gewoon een tegel (v239).
@@ -8636,8 +8711,9 @@ function platinaToggleHtml() {
 // Flair-rooster: verdiende prestatie-flairs vooraan (gouden randje), dan de
 // gesnoeide gratis-set. Altijd open (de kluis draait om kiezen — geen inklap).
 function rewardsFlairHtml() {
+  const worn = parseFlair(myFlair).emoji;
   const opt = (val, label, extra) =>
-    `<button type="button" class="lb-flair-opt${extra || ""}${(myFlair || "") === val ? " sel" : ""}" data-flair="${escHtml(val)}" aria-label="${label}" title="${label}">${val || "✖"}</button>`;
+    `<button type="button" class="lb-flair-opt${extra || ""}${worn === val ? " sel" : ""}" data-flair="${escHtml(val)}" aria-label="${label}" title="${label}">${val || "✖"}</button>`;
   const earned = achvEarnedFlairs();
   return `<div class="lb-flair-opts">${
     opt("", t("lb_flair_none"), " lb-flair-clear") +
@@ -8661,6 +8737,26 @@ async function renderRewards() {
   renderRewardsBody(body, a);
 }
 
+// Flair-effect: radiogroep onder het flair-rooster, alleen als je er een verdiend hebt. Elke rij toont
+// je eigen flair met dat effect, zodat je ziet wat de rest op het bord ziet. Zonder gedragen flair
+// is er niets om te laten sprankelen → rijen uit, met een korte hint.
+function flairFxSectionHtml(a) {
+  const earned = flairFxEarned(a);
+  if (!earned.length) return "";
+  const { emoji, fx } = parseFlair(myFlair);
+  const row = (id) => {
+    const prev = emoji ? `<span class="rw-fxprev">${flairFxWrap(id, escHtml(emoji))}</span>` : "";
+    const name = id ? t("fxn_" + id) : t("flairfx_none");
+    return `<button type="button" class="cap-action" role="radio" aria-checked="${fx === id}" data-flairfx="${id}"${emoji ? "" : " disabled"}>` +
+      `<span class="rw-fxlbl">${prev}<span>${escHtml(name)}</span></span></button>`;
+  };
+  return `<section class="rw-sect" data-rw-sect="flairfx">
+      <h3 class="stats-heading">${escHtml(t("rewards_sect_flairfx"))}</h3>
+      <div role="radiogroup" aria-label="${escHtml(t("rewards_sect_flairfx"))}">${["", ...earned].map(row).join("")}</div>
+      ${emoji ? "" : `<p class="rw-fxhint">${escHtml(t("flairfx_need_flair"))}</p>`}
+    </section>`;
+}
+
 function renderRewardsBody(body, a) {
   const unlocked = winFxUnlockedMap(a);
   const anyWinFx = unlocked.flair || unlocked.beer || unlocked.gold;
@@ -8671,6 +8767,7 @@ function renderRewardsBody(body, a) {
       <h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>
       ${rewardsFlairHtml()}
     </section>`;
+  html += flairFxSectionHtml(a);
   if (anyWinFx || platina) {
     html += `<section class="rw-sect" data-rw-sect="endscreen">
         <h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>
@@ -8704,6 +8801,10 @@ function wireRewards(body) {
   body.querySelectorAll(".lb-flair-opt").forEach((b) => {
     b.onclick = () => setMyFlair(b.dataset.flair || "");
     wireFlairPreview(b, b.dataset.flair);
+  });
+  // Flair-effect: één keuze uit de radiogroep ("" = geen).
+  body.querySelectorAll("[data-flairfx]").forEach((b) => {
+    b.onclick = () => setMyFlairFx(b.dataset.flairfx || "");
   });
   // Win-effect: één keuze uit de radiogroep.
   body.querySelectorAll("[data-winfx]").forEach((b) => {
