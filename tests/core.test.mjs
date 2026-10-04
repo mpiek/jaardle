@@ -232,7 +232,7 @@ test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij 
   assert.equal(T.holidayFxFor(d(2026, 11, 7)), "diwali");    // ±1 dag rond de voorspelling (8 nov)
   assert.equal(T.holidayFxFor(d(2026, 11, 9)), "diwali");
   assert.equal(T.holidayFxFor(d(2026, 11, 10)), null);
-  assert.equal(T.holidayFxFor(d(2027, 10, 29)), "diwali");
+  assert.equal(T.holidayFxFor(d(2027, 10, 28)), "diwali");     // Diwali 2027 (29 okt) valt grotendeels onder Halloween: zie ronde 4
   assert.equal(T.holidayFxFor(d(2026, 2, 16)), "carnival");  // Lunar NY (17-2) blijft exact: 16-2 is nog carnaval
   assert.equal(T.holidayFxFor(d(2026, 9, 20)), null);
   assert.equal(T.holidayFxFor(d(2033, 2, 10)), null);          // buiten de maankalender-tabel: stil null
@@ -240,14 +240,14 @@ test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij 
 
 test("holidayFxFor — ronde 4: Halloween 29–31 okt, Eid al-Adha, 1 april, Moederdag, verjaardag, Mid-Autumn, schrikkeldag", () => {
   const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
-  // Halloween: aanloop 29–30 okt, de 31e blijft altijd Halloween; Diwali gaat voor op de schouderdagen
+  // Halloween: 29–31 okt, wint van Diwali
   assert.equal(T.holidayFxFor(d(2026, 10, 28)), null);
   assert.equal(T.holidayFxFor(d(2026, 10, 29)), "halloween");
   assert.equal(T.holidayFxFor(d(2026, 10, 30)), "halloween");
   assert.equal(T.holidayFxFor(d(2026, 10, 31)), "halloween");
-  assert.equal(T.holidayFxFor(d(2027, 10, 28)), "diwali");     // Diwali 29 okt 2027 ±1
-  assert.equal(T.holidayFxFor(d(2027, 10, 29)), "diwali");
-  assert.equal(T.holidayFxFor(d(2027, 10, 30)), "diwali");
+  assert.equal(T.holidayFxFor(d(2027, 10, 28)), "diwali");     // Diwali 29 okt 2027 ±1: alleen de 28e blijft over
+  assert.equal(T.holidayFxFor(d(2027, 10, 29)), "halloween");  // Halloween wint van Diwali
+  assert.equal(T.holidayFxFor(d(2027, 10, 30)), "halloween");
   assert.equal(T.holidayFxFor(d(2027, 10, 31)), "halloween");
   // Eid al-Adha hergebruikt het eid-effect, venster ±1 dag (27 mei 2026)
   assert.equal(T.holidayFxFor(d(2026, 5, 26)), "eid");
