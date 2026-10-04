@@ -52,6 +52,7 @@ src += `
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   ACHV_SERIES, ACHV_TIER_KEYS, CAPSTONE_MAX, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
+  resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   setState: (s) => { state = s; },
   setLang:  (l) => { lang = l; },
 };`;
@@ -934,4 +935,64 @@ test("flairFxEarned — alleen ingelogd, en sparkle volgt Vlekkeloos", () => {
     assert.deepEqual(T.flairFxEarned({ flawless: false }), []);
     assert.deepEqual(T.flairFxEarned(null), []);
   } finally { T.auth.user = was; }
+});
+
+// ── Sierrand-keuze (Certificaat · Holo-foil · Art deco) en de kluis in tabs ──
+const mkAch = (n) => ({ games: n[0], dailies: n[1], streak: n[2], perfect: n[3], pure: n[4], rating: 0, years: [] });
+const A_NONE = mkAch([0, 0, 0, 0, 0]);
+const A_SILVER = mkAch([100, 30, 30, 10, 25]);        // capstone-zilver → flair-confetti
+const A_PLATINA = mkAch([750, 120, 90, 50, 100]);     // capstone-platina → sierrand
+const A_DIAMOND = mkAch([2000, 200, 180, 100, 250]);  // capstone-diamant → thema + bier
+
+test("resultFrameStyle — keuze per apparaat, met migratie van de oude aan/uit-schakelaar", () => {
+  const ls = globalThis.localStorage;
+  const clear = () => { ls.removeItem("jaardle:frame"); ls.removeItem("jaardle:platinaframe"); };
+  clear();
+  assert.equal(T.resultFrameStyle(), "a", "geen keuze → standaard Certificaat");
+  ls.setItem("jaardle:platinaframe", "0");
+  assert.equal(T.resultFrameStyle(), "", "oude schakelaar uit → blijft uit");
+  ls.setItem("jaardle:platinaframe", "1");
+  assert.equal(T.resultFrameStyle(), "a", "oude schakelaar aan → Certificaat");
+  for (const s of T.FRAME_STYLES) { T.setResultFrame(s); assert.equal(T.resultFrameStyle(), s); }
+  T.setResultFrame("off");
+  assert.equal(T.resultFrameStyle(), "", "expliciet uit wint van de oude schakelaar");
+  T.setResultFrame("bogus");
+  assert.equal(T.resultFrameStyle(), "", "onbekende stijl telt als uit");
+  ls.setItem("jaardle:frame", "x");
+  ls.setItem("jaardle:platinaframe", "1");
+  assert.equal(T.resultFrameStyle(), "a", "kapotte waarde → terug naar de standaard");
+  clear();
+});
+
+test("frameOverlayHtml — de rand draagt je flair (met effect), zonder flair het woord PLATINA", () => {
+  const a = T.frameOverlayHtml("a", "🔥~sparkle");
+  assert.match(a, /class="pf-ov pf-tab"/);
+  assert.match(a, /fl-fx fx-sparkle/, "het flair-effect loopt mee");
+  assert.ok(a.includes("🔥") && !a.includes("~") && !a.includes("pf-gt"), "geen opslag-formaat, geen PLATINA naast een flair");
+  assert.match(T.frameOverlayHtml("a", ""), /pf-gt/, "zonder flair: het woord PLATINA");
+  assert.match(T.frameOverlayHtml("d", "💯"), /class="pf-ov pf-title"/);
+  assert.match(T.frameOverlayHtml("b", "💯"), /class="pf-ov pf-chip"/);
+  assert.equal(T.frameOverlayHtml("b", ""), "", "Holo-foil heeft zonder flair geen parelplaatje");
+  assert.equal(T.frameOverlayHtml("off", "🔥"), "");
+});
+
+test("rewardsTabsAvailable — een tab bestaat pas als je er iets in hebt verdiend", () => {
+  const was = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    assert.deepEqual(T.rewardsTabsAvailable(A_NONE), ["flair"], "nog niets: één scherm");
+    assert.deepEqual(T.rewardsTabsAvailable(A_SILVER), ["flair", "vier"]);
+    assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair", "vier", "ui"]);
+    assert.deepEqual(T.rewardsTabsAvailable(A_DIAMOND), ["flair", "vier", "ui"]);
+    T.auth.user = null;
+    assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair"], "anoniem verdient niets");
+  } finally { T.auth.user = was; }
+});
+
+test("RW_SECT_TAB — elke sectie waar een pop-up naartoe springt landt op een bestaande tab", () => {
+  for (const key of Object.keys(T.REWARDS)) {
+    const sect = T.REWARDS[key].sect;
+    assert.ok(T.RW_SECT_TAB[sect], `reward ${key}: sectie "${sect}" mist in RW_SECT_TAB`);
+  }
+  assert.ok(["flair", "vier", "ui"].every((x) => Object.values(T.RW_SECT_TAB).includes(x)), "elke tab is een sprong-doel");
 });

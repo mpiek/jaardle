@@ -1162,61 +1162,87 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   text-align: center;
 }
 
-/* ── Platina-sierrand (capstone-platina) ─────────────────────────────────────
-   Blijvend filigrein-kader om de result-kaart: een metallic platina-gradientrand
-   (padding-box houdt de kaart-bg thema-neutraal) + een ingezette haarlijn als
-   'certificaat'-dubbelkader. De rand is statisch en leest ook met reduced-motion;
-   alleen de glans-veeg (.platina-sheen) beweegt en gaat dan uit. Metallic werkt op
-   beide thema's doordat elk thema andere gradient-stops 'vangt'; op licht is de
-   set donkerder (zie de data-theme-override) zodat 'ie niet wegvalt op de crème. */
-#result.platina-frame {
-  position: relative;
-  border: 2px solid transparent;
-  background:
-    linear-gradient(var(--card), var(--card)) padding-box,
-    linear-gradient(135deg, #dfe4ea 0%, #9aa7b4 22%, #f4f7fa 50%, #9aa7b4 78%, #dfe4ea 100%) border-box;
-  box-shadow: 0 0 0 1px rgba(143, 212, 205, 0.22), 0 6px 22px rgba(0, 0, 0, 0.22);
-  overflow: hidden;
+/* ── Sierrand (capstone-platina) ─────────────────────────────────────────────
+   Een platina-rand om de result-kaart, te kiezen in de 🪎-kluis (Uiterlijk-tab): Certificaat (.pf-a),
+   Holo-foil (.pf-b) of Art deco (.pf-d). De stijl zit als klasse op #result én op het miniatuurtje in de
+   kluis (.pf-card); het titelplaatje/parelplaatje/de titelregel (.pf-ov) draagt je eigen flair en komt uit
+   game.js (frameOverlayHtml). Alleen CSS + transform/opacity, bij minder-beweging stilstaand. Het lichte
+   thema krijgt een donkerder metaal, anders verdwijnt het zilver op crème. */
+@property --pf-a { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+:root {
+  --pf-hi: #f4f7fa; --pf-mid: #b8c4d0; --pf-lo: #7f8e9d; --pf-glow: rgba(170, 214, 230, 0.32);
+  --pf-ice: #a9d6e6; --pf-lav: #c9b8f2; --pf-line: rgba(198, 208, 218, 0.55); --pf-tx1: #f4f7fa; --pf-tx2: #a9b5c2;
+  --pf-metal: linear-gradient(135deg, var(--pf-mid) 0%, var(--pf-lo) 22%, var(--pf-hi) 50%, var(--pf-lo) 78%, var(--pf-mid) 100%);
 }
-#result.platina-frame::before {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border: 1px solid rgba(198, 208, 218, 0.5);
-  border-radius: 8px;
-  pointer-events: none;
+html[data-theme="light"], html[data-theme="parchment"] {
+  --pf-hi: #e3e9ef; --pf-mid: #8d9aa8; --pf-lo: #556372; --pf-glow: rgba(70, 105, 125, 0.28);
+  --pf-ice: #6fa9c0; --pf-lav: #8f7fd0; --pf-line: rgba(85, 99, 114, 0.7); --pf-tx1: #6d7b8a; --pf-tx2: #36424e;
 }
-#result.platina-frame.platina-sheen::after {
-  content: "";
-  position: absolute;
-  top: -10%;
-  bottom: -10%;
-  left: -60%;
-  width: 45%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transform: skewX(-18deg);
-  animation: platina-sheen 1.15s ease-out 0.3s 1;
-  pointer-events: none;
-}
-@keyframes platina-sheen { to { left: 130%; } }
+/* miniatuur in de kluis: skeleton van het eindscherm, geschaald (zie .rw-frameprev) */
+.pf-card { position: relative; box-sizing: border-box; width: 320px; min-height: 176px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+.pf-card .pf-sk { display: block; margin: 0 auto 8px; border-radius: 6px; background: var(--card-soft); }
+.pf-sk-title { width: 46%; height: 14px; }
+.pf-sk-pill { width: 52px; height: 18px; border-radius: 999px !important; background: var(--green) !important; }
+.pf-sk-l1 { width: 70%; height: 8px; }
+.pf-sk-l2 { width: 48%; height: 8px; }
+.pf-sk-btns { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
+.pf-sk-btns i { width: 62px; height: 22px; border-radius: 8px; background: var(--card-soft); border: 1px solid var(--border); }
+.pf-sk-btns i.pri { background: var(--accent); border-color: transparent; }
+.pf-ov { pointer-events: none; }
+.pf-gt { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; background: linear-gradient(180deg, var(--pf-tx1), var(--pf-tx2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.pf-dia { width: 6px; height: 6px; background: var(--pf-mid); transform: rotate(45deg); flex: none; }
+.pf-em { font-size: 1.1rem; line-height: 1; display: inline-block; }
 
-html[data-theme="light"] #result.platina-frame,
-html[data-theme="parchment"] #result.platina-frame {
+#result.pf-a, #result.pf-b, #result.pf-d { position: relative; }   /* anker voor het titelplaatje en de pseudo-elementen */
+#result.pf-a { margin-top: 1.2rem; }   /* ruimte voor het titelplaatje dat boven de rand uitsteekt */
+#result.pf-b { margin-top: 1rem; }
+/* A · Certificaat: gegraveerde band, boogjes in de hoeken, titelplaatje in de rand */
+#result.pf-a, .pf-card.pf-a { border: 9px solid transparent; border-radius: 16px; padding: 1.55rem 1rem 1rem;
+  background: linear-gradient(var(--card), var(--card)) padding-box, repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.17) 0 1px, transparent 1px 4px) border-box, var(--pf-metal) border-box;
+  background-origin: border-box; box-shadow: 0 0 0 1px var(--pf-line), 0 10px 28px rgba(0, 0, 0, 0.32), 0 0 22px var(--pf-glow); }
+#result.pf-a::before, .pf-card.pf-a::before { content: ""; position: absolute; inset: 0; border: 1px solid var(--pf-lo); border-radius: 8px; pointer-events: none;
   background:
-    linear-gradient(var(--card), var(--card)) padding-box,
-    linear-gradient(135deg, #b7c0cb 0%, #7d8b99 24%, #d7dee6 50%, #7d8b99 76%, #b7c0cb 100%) border-box;
-  box-shadow: 0 0 0 1px rgba(120, 150, 160, 0.28), 0 6px 18px rgba(60, 60, 60, 0.14);
-}
-html[data-theme="light"] #result.platina-frame::before,
-html[data-theme="parchment"] #result.platina-frame::before {
-  border-color: rgba(125, 139, 153, 0.5);
-}
-html[data-theme="light"] #result.platina-frame.platina-sheen::after,
-html[data-theme="parchment"] #result.platina-frame.platina-sheen::after {
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-}
+    radial-gradient(circle at 0 0, transparent 5px, var(--pf-mid) 5px 6.5px, transparent 6.5px 9px, var(--pf-mid) 9px 10.5px, transparent 10.5px) left top / 22px 22px no-repeat,
+    radial-gradient(circle at 100% 0, transparent 5px, var(--pf-mid) 5px 6.5px, transparent 6.5px 9px, var(--pf-mid) 9px 10.5px, transparent 10.5px) right top / 22px 22px no-repeat,
+    radial-gradient(circle at 0 100%, transparent 5px, var(--pf-mid) 5px 6.5px, transparent 6.5px 9px, var(--pf-mid) 9px 10.5px, transparent 10.5px) left bottom / 22px 22px no-repeat,
+    radial-gradient(circle at 100% 100%, transparent 5px, var(--pf-mid) 5px 6.5px, transparent 6.5px 9px, var(--pf-mid) 9px 10.5px, transparent 10.5px) right bottom / 22px 22px no-repeat; }
+#result.pf-a::after, .pf-card.pf-a::after { content: ""; position: absolute; inset: -9px; border-radius: 16px; pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.34) 50%, transparent 58%) no-repeat; background-size: 260% 100%; background-position: 130% 0; animation: pf-sweep 7s ease-in-out infinite; }
+@keyframes pf-sweep { 0%, 62% { background-position: 130% 0; } 100% { background-position: -30% 0; } }
+.pf-tab { position: absolute; left: 50%; top: -1.45rem; transform: translateX(-50%); z-index: 2; display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--pf-lo); border-radius: 999px; padding: 0.22rem 1rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); white-space: nowrap; }
+
+/* B · Holo-foil: draaiende ijs/lavendel-rand, gloed en twee glinsters, een parelplaatje met je flair */
+#result.pf-b, .pf-card.pf-b { border: 3px solid transparent; border-radius: 14px;
+  background: radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--pf-ice) 16%, transparent), transparent 62%) padding-box, linear-gradient(var(--card), var(--card)) padding-box,
+    conic-gradient(from var(--pf-a), var(--pf-hi), var(--pf-ice), var(--pf-lav), var(--pf-hi), var(--pf-mid), var(--pf-ice), var(--pf-hi)) border-box;
+  background-origin: border-box; animation: pf-spin 10s linear infinite; box-shadow: 0 0 24px var(--pf-glow), 0 8px 24px rgba(0, 0, 0, 0.28); }
+@keyframes pf-spin { to { --pf-a: 360deg; } }
+#result.pf-b::before, #result.pf-b::after, .pf-card.pf-b::before, .pf-card.pf-b::after { content: ""; position: absolute; pointer-events: none;
+  clip-path: var(--fx-star); background: radial-gradient(circle, var(--fx-core) 0 24%, var(--fx-edge) 85%); animation: fx-twinkle 3.4s ease-in-out infinite; }
+#result.pf-b::before, .pf-card.pf-b::before { width: 18px; height: 18px; right: -10px; top: -10px; }
+#result.pf-b::after, .pf-card.pf-b::after { width: 13px; height: 13px; left: -8px; bottom: -8px; animation-delay: 1.7s; }
+.pf-chip { position: absolute; left: 50%; top: -15px; transform: translateX(-50%); z-index: 2; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1.5px solid var(--pf-mid); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 10px var(--pf-glow); }
+
+/* D · Art deco: afgeschuinde hoeken, trapjes-hoeklijnen, zonnestraal en titelregel met je flair */
+#result.pf-d, .pf-card.pf-d { border: 0; border-radius: 0; padding: 2.5rem 1.2rem 1.1rem; background: var(--pf-metal); isolation: isolate; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.3));
+  clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 16px 100%, 0 calc(100% - 16px), 0 16px); }
+#result.pf-d::before, .pf-card.pf-d::before { content: ""; position: absolute; inset: 3px; z-index: -1;
+  background: repeating-conic-gradient(from -90deg at 50% 0, color-mix(in srgb, var(--pf-hi) 5%, transparent) 0 4deg, transparent 4deg 8deg) top / 100% 38% no-repeat, var(--card);
+  clip-path: polygon(13px 0, calc(100% - 13px) 0, 100% 13px, 100% calc(100% - 13px), calc(100% - 13px) 100%, 13px 100%, 0 calc(100% - 13px), 0 13px); }
+#result.pf-d::after, .pf-card.pf-d::after { content: ""; position: absolute; inset: 9px; pointer-events: none; --pf-ln: linear-gradient(var(--pf-lo), var(--pf-lo));
+  background:
+    var(--pf-ln) left top / 20px 1px no-repeat, var(--pf-ln) left top / 1px 20px no-repeat, var(--pf-ln) left 5px top 5px / 10px 1px no-repeat, var(--pf-ln) left 5px top 5px / 1px 10px no-repeat,
+    var(--pf-ln) right top / 20px 1px no-repeat, var(--pf-ln) right top / 1px 20px no-repeat, var(--pf-ln) right 5px top 5px / 10px 1px no-repeat, var(--pf-ln) right 5px top 5px / 1px 10px no-repeat,
+    var(--pf-ln) left bottom / 20px 1px no-repeat, var(--pf-ln) left bottom / 1px 20px no-repeat, var(--pf-ln) left 5px bottom 5px / 10px 1px no-repeat, var(--pf-ln) left 5px bottom 5px / 1px 10px no-repeat,
+    var(--pf-ln) right bottom / 20px 1px no-repeat, var(--pf-ln) right bottom / 1px 20px no-repeat, var(--pf-ln) right 5px bottom 5px / 10px 1px no-repeat, var(--pf-ln) right 5px bottom 5px / 1px 10px no-repeat; }
+.pf-title { position: absolute; left: 22px; right: 22px; top: 16px; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.pf-title i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--pf-lo)); }
+.pf-title i:last-child { background: linear-gradient(270deg, transparent, var(--pf-lo)); }
+.pf-mid { display: flex; align-items: center; gap: 0.5rem; }
 @media (prefers-reduced-motion: reduce) {
-  #result.platina-frame.platina-sheen::after { display: none; }
+  #result.pf-a::after, .pf-card.pf-a::after { display: none; }
+  #result.pf-b, .pf-card.pf-b { animation: none; }
+  #result.pf-b::before, #result.pf-b::after, .pf-card.pf-b::before, .pf-card.pf-b::after { animation: none; transform: scale(0.85) rotate(45deg); opacity: 1; }
 }
 
 #result-text {
@@ -3184,6 +3210,39 @@ html[data-theme="light"] {
 .rw-sect + .rw-sect { margin-top: 1.35rem; }
 #rewards-body .stats-heading { margin: 0 0 0.5rem; }
 .rw-sect [role="radiogroup"] { display: flex; flex-direction: column; gap: 0.1rem; }
+/* ── kluis in tabs: tabbalk = die van het eindscherm (.rc-tabs); voorbeelden per beloning ── */
+.rw-tabs { margin: 0 0 0.85rem; }
+.rw-track .rw-slide { padding-bottom: 0.1rem; }
+.rw-board { background: var(--card-soft); border-radius: 10px; padding: 0.4rem 0.45rem 0.5rem; margin-bottom: 1.1rem; }
+.rw-board .lb-row { background: transparent; }
+.rw-boardnote { margin: 0.2rem 0 0 0.25rem; font-size: 0.72rem; color: var(--muted); }
+.rw-sect .rw-grid2[role="radiogroup"] { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.rw-tile { appearance: none; font: inherit; color: inherit; background: var(--card-soft); border: 1.5px solid transparent; border-radius: 12px; padding: 0.45rem; cursor: pointer; display: flex; flex-direction: column; gap: 0.4rem; position: relative; text-align: left; -webkit-tap-highlight-color: transparent; }
+.rw-tile[aria-checked="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card-soft)); }
+.rw-tile[aria-checked="true"]::after { content: "✓"; position: absolute; top: 0.55rem; right: 0.6rem; width: 1.25rem; height: 1.25rem; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 0.75rem; font-weight: 800; display: grid; place-items: center; z-index: 2; }
+.rw-tile:focus-visible, .rw-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rw-tile-nm { font-size: 0.8rem; font-weight: 700; padding: 0 0.1rem; }
+.rw-fxp { position: relative; height: 96px; border-radius: 9px; overflow: hidden; background: var(--card); border: 1px solid var(--border); }
+.rw-fxp i, .rw-fxp b { position: absolute; top: -14px; animation: rw-fall linear infinite; }
+.rw-fxp i { width: 6px; height: 10px; border-radius: 1px; }
+.rw-fxp b { font-size: 14px; font-weight: 400; }
+.rw-fxp .rw-gy { font-size: 13px; font-weight: 800; color: var(--gold-text); text-shadow: 0 0 8px color-mix(in srgb, var(--gold-text) 45%, transparent); font-variant-numeric: tabular-nums; animation-name: rw-fall-slow; }
+@keyframes rw-fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(125px) rotate(420deg); opacity: 0; } }
+@keyframes rw-fall-slow { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(125px); opacity: 0; } }
+.rw-glass { position: absolute; left: 50%; top: 50%; font-size: 40px; line-height: 1; transform: translate(-50%, -50%); animation: rw-clink 2.6s ease-in-out infinite; }
+@keyframes rw-clink { 0%, 60%, 100% { transform: translate(-50%, -50%) rotate(0); } 68% { transform: translate(-50%, -54%) rotate(-9deg) scale(1.1); } 76% { transform: translate(-50%, -50%) rotate(5deg); } }
+.rw-bub { position: absolute; bottom: -6px; width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, var(--fg) 45%, transparent); animation: rw-bubup 2.4s ease-in infinite; }
+@keyframes rw-bubup { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.9; } 100% { transform: translateY(-96px); opacity: 0; } }
+.rw-frameprev { height: 142px; padding-top: 22px; margin-bottom: 0.55rem; background: var(--card-soft); border-radius: 12px; overflow: hidden; display: flex; justify-content: center; }
+.rw-frameprev .pf-card { flex: none; transform: scale(0.62); transform-origin: top center; margin: 0; }
+.rw-sect .rw-chips[role="radiogroup"] { display: flex; flex-direction: row; gap: 2px; background: var(--card-soft); border-radius: 999px; padding: 3px; }
+.rw-chip { appearance: none; flex: 1; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 0.72rem; font-weight: 700; padding: 0.4rem 0.2rem; border-radius: 999px; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.rw-chip[aria-checked="true"] { background: var(--accent); color: var(--on-accent); }
+@media (prefers-reduced-motion: reduce) {
+  .rw-fxp i, .rw-fxp b, .rw-glass, .rw-bub { animation: none !important; }
+  .rw-fxp i, .rw-fxp b { top: 30px; }
+  .rw-bub { display: none; }
+}
 .rw-locked {
   margin-top: 1.35rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
   font-size: 0.82rem; color: var(--muted); text-align: center;

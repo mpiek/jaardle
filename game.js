@@ -337,6 +337,7 @@ const I18N = {
     reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis", reward_equip: "Draag nu", reward_activate: "Zet aan",
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_ui: "🎨 Uiterlijk", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -639,6 +640,7 @@ const I18N = {
     reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault", reward_equip: "Wear it now", reward_activate: "Turn it on",
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_ui: "🎨 Look", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -934,6 +936,7 @@ const I18N = {
     reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe", reward_equip: "Jetzt tragen", reward_activate: "Einschalten",
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_ui: "🎨 Look", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -1233,6 +1236,7 @@ const I18N = {
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja", reward_equip: "Usar ahora", reward_activate: "Activar",
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello",
+    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_ui: "🎨 Aspecto", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1532,6 +1536,7 @@ const I18N = {
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre", reward_equip: "Usar agora", reward_activate: "Ativar",
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho",
+    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_ui: "🎨 Visual", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -3782,15 +3787,10 @@ function finishGame(won, fresh = false) {
   renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
   updateLiveScore(false);   // spel klaar → live-teller verbergen (eindscherm toont de score)
   els.result.hidden = false;
-  // Platina-sierrand (capstone-platina): blijvend filigrein-kader om de result-
-  // kaart, self-facing. Toont bij winst én verlies (decoratie, geen viering). De
-  // .platina-frame-class regelt de rand in CSS; de losse .platina-sheen-class laat
-  // de glans-veeg opnieuw spelen bij élke onthulling (reflow-hertriggering, en de
-  // media-query zet 'm uit bij reduced-motion).
-  const platinaOn = platinaFrameActive();
-  els.result.classList.toggle("platina-frame", platinaOn);
-  els.result.classList.remove("platina-sheen");
-  if (platinaOn) { void els.result.offsetWidth; els.result.classList.add("platina-sheen"); }
+  // Sierrand (capstone-platina): blijvende decoratie om de result-kaart, self-facing, bij winst én verlies.
+  // De gekozen stijl (Certificaat/Holo-foil/Art deco) draagt je flair; die haalt applyResultFrame zo nodig nog op.
+  applyResultFrame();
+  if (platinaFrameActive() && !myIdentityLoaded) ensureMyIdentity().then(refreshResultFrame).catch(() => {});
   els.revealRow.hidden = true;
   els.revealRow.innerHTML = "";
   const ev = state.event;
@@ -4845,7 +4845,7 @@ async function setMyFlairFx(fx) {
 async function saveMyFlair(next, autoBack) {
   const prev = myFlair;
   const same = (prev || "") === (next || "");
-  if (!same) { myFlair = next || null; renderRewards(); }   // ring meteen, geen wachten
+  if (!same) { myFlair = next || null; renderRewards(); refreshResultFrame(); }   // ring meteen, geen wachten
   const rpcP = same
     ? Promise.resolve("ok")
     : rpc("set_my_flair", { p_flair: next }).catch(() => "err");
@@ -4853,7 +4853,7 @@ async function saveMyFlair(next, autoBack) {
     const target = rewardsReturnTo;
     const [status] = await Promise.all([rpcP, new Promise((r) => setTimeout(r, 450))]);
     if (status !== "ok") {   // opslaan mislukt → rollback, blijf in de kluis
-      myFlair = prev;
+      myFlair = prev; refreshResultFrame();
       if (!document.getElementById("modal-rewards").hidden) renderRewards();
       alert(t("lb_flair_err"));
       return;
@@ -4862,7 +4862,7 @@ async function saveMyFlair(next, autoBack) {
     return;
   }
   const status = await rpcP;
-  if (status !== "ok") { myFlair = prev; renderRewards(); alert(t("lb_flair_err")); }
+  if (status !== "ok") { myFlair = prev; renderRewards(); refreshResultFrame(); alert(t("lb_flair_err")); }
 }
 
 // Vraag een nieuwe weergavenaam en sla 'm op via set_my_username. De server
@@ -6863,22 +6863,53 @@ function goldYearsFxActive() {
   return goldYearsFxUnlocked(achvCache) && goldYearsFxEnabled();
 }
 
-// Platina-sierrand: verdiend op capstone-platina (alle 5 grind-ladders ≥
-// platina). Blijvende result-kaart-decoratie — GEEN win-effect, dus niet
-// wederzijds uitsluitend met de confetti/bier/goud-effecten; een eigen aan/uit
-// per apparaat, schakelaar onder de platina-pip.
+// Sierrand: verdiend op capstone-platina (alle 5 grind-ladders ≥ platina). Blijvende result-kaart-decoratie —
+// GEEN win-effect, dus niet wederzijds uitsluitend met confetti/bier/goud. Eén keuze per apparaat (localStorage,
+// zoals de win-effecten): Certificaat (a) · Holo-foil (b) · Art deco (d) of uit. De rand toont je eigen flair
+// (met je flair-effect); zonder flair het woord PLATINA. Kiezer = de Uiterlijk-tab van de 🪎-kluis.
+const FRAME_STYLES = ["a", "b", "d"];
+const FRAME_KEY = "jaardle:frame";
 function platinaFrameUnlocked(a) {
   return !!(auth.user && a && capstoneTier(a) >= 4);
 }
-function platinaFrameEnabled() {
-  return localStorage.getItem("jaardle:platinaframe") !== "0";   // default aan
+function resultFrameStyle() {   // "a" | "b" | "d" | "" (uit)
+  let v = null, old = null;
+  try { v = localStorage.getItem(FRAME_KEY); old = localStorage.getItem("jaardle:platinaframe"); } catch (e) {}
+  if (v === "off") return "";
+  if (FRAME_STYLES.includes(v)) return v;
+  return old === "0" ? "" : "a";   // eerste keer: de oude aan/uit-schakelaar bepaalt, standaard Certificaat
 }
-function setPlatinaFrame(on) {
-  try { localStorage.setItem("jaardle:platinaframe", on ? "1" : "0"); } catch (e) {}
+function setResultFrame(style) {
+  try { localStorage.setItem(FRAME_KEY, FRAME_STYLES.includes(style) ? style : "off"); } catch (e) {}
+  refreshResultFrame();
 }
-function platinaFrameActive() {
-  return platinaFrameUnlocked(achvCache) && platinaFrameEnabled();
+function platinaFrameActive() {   // de actieve stijl of "" (niet verdiend / uit)
+  return platinaFrameUnlocked(achvCache) ? resultFrameStyle() : "";
 }
+// De rand draagt je flair (zonder flair: het woord PLATINA). Eén bron voor het eindscherm én het miniatuurtje in de kluis.
+function frameLabelHtml(raw) {
+  const { emoji, fx } = parseFlair(raw);
+  const mid = emoji ? `<span class="pf-em">${flairFxWrap(fx, escHtml(emoji))}</span>` : `<span class="pf-gt">${escHtml(t("achv_tiers").platinum)}</span>`;
+  return `<span class="pf-dia"></span>${mid}<span class="pf-dia"></span>`;
+}
+function frameOverlayHtml(style, raw) {
+  const { emoji, fx } = parseFlair(raw);
+  if (style === "a") return `<div class="pf-ov pf-tab" aria-hidden="true">${frameLabelHtml(raw)}</div>`;
+  if (style === "b") return emoji ? `<div class="pf-ov pf-chip" aria-hidden="true"><span class="pf-em">${flairFxWrap(fx, escHtml(emoji))}</span></div>` : "";
+  if (style === "d") return `<div class="pf-ov pf-title" aria-hidden="true"><i></i><div class="pf-mid">${frameLabelHtml(raw)}</div><i></i></div>`;
+  return "";
+}
+function applyResultFrame() {
+  const el = els.result;
+  if (!el) return;
+  const style = platinaFrameActive();
+  FRAME_STYLES.forEach((x) => el.classList.remove("pf-" + x));
+  el.querySelector(":scope > .pf-ov")?.remove();
+  if (!style) return;
+  el.classList.add("pf-" + style);
+  el.insertAdjacentHTML("afterbegin", frameOverlayHtml(style, myFlair));
+}
+function refreshResultFrame() { if (els.result && !els.result.hidden) applyResultFrame(); }
 
 // De brons-beloning (⭐) draag je sinds v239 gewoon via het flair-rooster in de
 // 🪎-kluis (⭐ zit tussen de verdiende flairs) — geen aparte snelkoppeling meer.
@@ -7426,7 +7457,7 @@ const REWARDS = {
   fx_confetti:  { emoji: "🎊", cat: "effect", sect: "endscreen" },  // capstone-zilver
   fx_beer:      { emoji: "🍻", cat: "effect", sect: "endscreen" },  // 2000 potjes
   fx_goldyears: { emoji: "🗓️", cat: "effect", sect: "endscreen" },  // capstone-goud
-  fx_platina:   { emoji: "🖼️", cat: "effect", sect: "endscreen" },  // capstone-platina
+  fx_platina:   { emoji: "🖼️", cat: "effect", sect: "frame" },  // capstone-platina (sierrand-keuze, Uiterlijk-tab)
   theme:        { emoji: "🎨", cat: "theme",  sect: "theme" },      // capstone-diamant
 };
 // Flair-effecten komen uit FLAIR_FX (geen tweede lijst): de reward-key + het effect-id.
@@ -7545,7 +7576,7 @@ function showNextReward() {
 }
 
 // Effect-beloning direct aanzetten — hergebruikt de kluis-schakelaars (setWinFx =
-// win-fx-radiogroep, setPlatinaFrame = losse toggle). Zo doet "Zet aan" precies
+// win-fx-tegels, setResultFrame = sierrand-keuze). Zo doet "Zet aan" precies
 // hetzelfde als de kluis, zonder omweg.
 function activateReward(key) {
   const fxr = REWARDS[key];
@@ -7553,7 +7584,7 @@ function activateReward(key) {
   if (key === "fx_confetti") setWinFx("flair");
   else if (key === "fx_beer") setWinFx("beer");
   else if (key === "fx_goldyears") setWinFx("gold");
-  else if (key === "fx_platina") setPlatinaFrame(true);
+  else if (key === "fx_platina") setResultFrame("a");   // standaardrand; kiezen kan in de Uiterlijk-tab
 }
 
 function showReward(key) {
@@ -7601,7 +7632,7 @@ function showReward(key) {
     setMyFlair(r.emoji);
     closeAllModals();                // → rewardClosed markeert deze gezien + keten door
   });
-  // Effect → zet 'm meteen aan (win-fx-radiogroep / platina-toggle) en sluit.
+  // Effect → zet 'm meteen aan (win-fx-tegels / sierrand) en sluit.
   el.querySelector("[data-rw-activate]")?.addEventListener("click", () => {
     activateReward(key);
     closeAllModals();
@@ -8052,19 +8083,6 @@ function setWinFx(choice) {
   else if (choice === "gold") setGoldYearsFx(true);
   else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); }
 }
-function winFxRadioHtml(unlocked) {
-  const cur = currentWinFxChoice();
-  const opts = [["none", t("rewards_wineffect_none")]];
-  if (unlocked.flair) opts.push(["flair", t("achv_cap_confetti")]);
-  if (unlocked.beer) opts.push(["beer", t("achv_fx_beer")]);
-  if (unlocked.gold) opts.push(["gold", t("achv_cap_goldyears")]);
-  const rows = opts.map(([k, lbl]) =>
-    `<button type="button" class="cap-action" role="radio" aria-checked="${cur === k}" data-winfx="${k}">${escHtml(lbl)}</button>`).join("");
-  return `<div role="radiogroup" aria-label="${escHtml(t("rewards_sect_endscreen"))}">${rows}</div>`;
-}
-function platinaToggleHtml() {
-  return `<div class="cap-detail"><button type="button" class="cap-action" role="switch" aria-checked="${platinaFrameEnabled()}" data-action="rw-platina">${escHtml(t("achv_cap_platinaframe"))}</button></div>`;
-}
 // Flair-rooster: verdiende prestatie-flairs vooraan (gouden randje), dan de
 // gesnoeide gratis-set. Altijd open (de kluis draait om kiezen — geen inklap).
 function rewardsFlairHtml() {
@@ -8114,36 +8132,97 @@ function flairFxSectionHtml(a) {
     </section>`;
 }
 
+// ── 🪎 Kluis in tabs ──────────────────────────────────────────────────────────
+// Flair (altijd) · Viering (zodra je een win-effect hebt) · Uiterlijk (zodra je een sierrand of thema hebt). Eén
+// gevulde tab = één scherm zonder tabbalk, precies zoals vóór de tabs: een tab verschijnt pas als je er iets in
+// hebt verdiend (geen sloten uittekenen; de gedimde 🔒-regel onderaan blijft de enige wegwijzer). Zelfde
+// .rc-tabs/.rc-track/.rc-slide als de eindscherm-carrousel; swipen en tikken blijven in sync. Elke beloning
+// heeft een voorbeeld: je flair op een bordrij, de vieringen als lusje, de sierrand als miniatuur.
+const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", frame: "ui", theme: "ui" };   // vault-sprong → tab
+let rewardsTab = "flair";   // actieve tab; reset bij openen (openModal), blijft staan bij herrenderen
+function rewardsTabsAvailable(a) {
+  const u = winFxUnlockedMap(a), tabs = ["flair"];
+  if (u.flair || u.beer || u.gold) tabs.push("vier");
+  if (platinaFrameUnlocked(a) || capstoneTier(a) >= 5) tabs.push("ui");
+  return tabs;
+}
+// Zo zien anderen je op het bord: de échte naamcel (naam · flair met effect · titel).
+function rewardsBoardPreviewHtml() {
+  const row = { display_name: myUsername || t("lb_you"), flair: myFlair, title: myTitle, is_me: !!myUsername };
+  return `<div class="rw-board"><div class="lb-row lb-me"><span class="lb-rank"></span><span class="lb-name">${lbNameCell(row, 0)}</span><span class="lb-val"></span></div>` +
+    `<p class="rw-boardnote">${escHtml(t("rewards_flair_preview"))}</p></div>`;
+}
+// Viering-voorbeeld: een kort lusje per effect (CSS, geen canvas; het echte effect speelt schermvullend op het eindscherm).
+function rwRnd(i, lo, hi) { const x = Math.sin(i * 12.9898 + 4.1) * 43758.5453; return lo + (x - Math.floor(x)) * (hi - lo); }
+function winFxPreviewHtml(k) {
+  let h = "";
+  if (k === "none" || k === "flair") {
+    const cols = ["#f4c430", "#4caf50", "#6ea8ff", "#e53935", "#ab47bc", "#ff9800"], worn = parseFlair(myFlair).emoji || "🎉";
+    for (let i = 0; i < 12; i++) {
+      const st = `left:${rwRnd(i, 4, 94).toFixed(0)}%;animation-delay:-${rwRnd(i + 9, 0, 2.4).toFixed(2)}s;animation-duration:${rwRnd(i + 3, 1.9, 2.8).toFixed(2)}s`;
+      h += k === "none" ? `<i style="${st};background:${cols[i % cols.length]}"></i>` : `<b style="${st}">${escHtml(worn)}</b>`;
+    }
+  } else if (k === "beer") {
+    h = `<span class="rw-glass">🍻</span>` + [0, 1, 2, 3, 4, 5].map((j) => `<span class="rw-bub" style="left:${28 + j * 9}%;animation-delay:-${(j * 0.45).toFixed(2)}s"></span>`).join("");
+  } else {
+    h = [["1815", 4], ["1066", 36], ["1969", 68]].map(([y, left], q) =>
+      `<b class="rw-gy" style="left:${left}%;animation-delay:-${(q * 1.3).toFixed(2)}s;animation-duration:${(3.6 + q * 0.5).toFixed(1)}s">${y}</b>`).join("");
+  }
+  return `<div class="rw-fxp" aria-hidden="true">${h}</div>`;
+}
+function rewardsVierHtml(unlocked) {
+  const cur = currentWinFxChoice();
+  const opts = [["none", t("rewards_wineffect_none")]];
+  if (unlocked.flair) opts.push(["flair", t("achv_cap_confetti")]);
+  if (unlocked.beer) opts.push(["beer", t("achv_fx_beer")]);
+  if (unlocked.gold) opts.push(["gold", t("achv_cap_goldyears")]);
+  const tiles = opts.map(([k, lbl]) =>
+    `<button type="button" class="rw-tile" role="radio" aria-checked="${cur === k}" data-winfx="${k}">${winFxPreviewHtml(k)}<span class="rw-tile-nm">${escHtml(lbl)}</span></button>`).join("");
+  return `<section class="rw-sect" data-rw-sect="endscreen"><h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>` +
+    `<div class="rw-grid2" role="radiogroup" aria-label="${escHtml(t("rewards_sect_endscreen"))}">${tiles}</div></section>`;
+}
+// Sierrand: miniatuur van het eindscherm (skeleton, dus geen tekst om te vertalen) met de gekozen rand + vier chips.
+function frameMiniHtml(style) {
+  const on = FRAME_STYLES.includes(style);
+  return `<div class="pf-card${on ? " pf-" + style : ""}">${on ? frameOverlayHtml(style, myFlair) : ""}` +
+    `<span class="pf-sk pf-sk-title"></span><span class="pf-sk pf-sk-pill"></span><span class="pf-sk pf-sk-l1"></span><span class="pf-sk pf-sk-l2"></span>` +
+    `<span class="pf-sk-btns"><i class="pri"></i><i></i><i></i></span></div>`;
+}
+function rewardsFrameHtml() {
+  const cur = resultFrameStyle() || "off";
+  const chips = [["off", t("frame_none")], ["a", t("frame_a")], ["b", t("frame_b")], ["d", t("frame_d")]].map(([k, lbl]) =>
+    `<button type="button" class="rw-chip" role="radio" aria-checked="${cur === k}" data-frame="${k}">${escHtml(lbl)}</button>`).join("");
+  return `<section class="rw-sect" data-rw-sect="frame"><h3 class="stats-heading">${escHtml(t("rewards_sect_frame"))}</h3>` +
+    `<div class="rw-frameprev">${frameMiniHtml(cur)}</div>` +
+    `<div class="rw-chips" role="radiogroup" aria-label="${escHtml(t("rewards_sect_frame"))}">${chips}</div></section>`;
+}
+
 function renderRewardsBody(body, a) {
   const unlocked = winFxUnlockedMap(a);
-  const anyWinFx = unlocked.flair || unlocked.beer || unlocked.gold;
-  const platina = platinaFrameUnlocked(a);
   const themed = capstoneTier(a) >= 5;
-
-  let html = `<section class="rw-sect" data-rw-sect="flair">
-      <h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>
-      ${rewardsFlairHtml()}
-    </section>`;
-  html += flairFxSectionHtml(a);
-  if (anyWinFx || platina) {
-    html += `<section class="rw-sect" data-rw-sect="endscreen">
-        <h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>
-        ${anyWinFx ? winFxRadioHtml(unlocked) : ""}
-        ${platina ? platinaToggleHtml() : ""}
-      </section>`;
-  }
-  if (themed) {
-    html += `<section class="rw-sect" data-rw-sect="theme">
-        <h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>
-        ${themePickerHtml()}
-      </section>`;
-  }
+  const tabs = rewardsTabsAvailable(a);
+  const jump = rewardScrollSect && RW_SECT_TAB[rewardScrollSect];
+  if (jump && tabs.includes(jump)) rewardsTab = jump;   // vault-sprong uit een pop-up landt op de juiste tab
+  if (!tabs.includes(rewardsTab)) rewardsTab = "flair";
+  const slide = {
+    flair: () => rewardsBoardPreviewHtml() +
+      `<section class="rw-sect" data-rw-sect="flair"><h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>${rewardsFlairHtml()}</section>` + flairFxSectionHtml(a),
+    vier: () => rewardsVierHtml(unlocked),
+    ui: () => (platinaFrameUnlocked(a) ? rewardsFrameHtml() : "") +
+      (themed ? `<section class="rw-sect" data-rw-sect="theme"><h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>${themePickerHtml()}</section>` : ""),
+  };
   // Alles verdiend = geen wegwijzer. Anders één gedimde 🔒-regel naar Prestaties.
-  if (!(themed && unlocked.beer)) {
-    html += `<p class="rw-locked">🔒 ${escHtml(t("rewards_locked_hint"))}</p>`;
+  const lock = !(themed && unlocked.beer) ? `<p class="rw-locked">🔒 ${escHtml(t("rewards_locked_hint"))}</p>` : "";
+  if (tabs.length === 1) {
+    body.innerHTML = slide.flair() + lock;   // niets extra's verdiend: één scherm, geen tabbalk
+  } else {
+    const bar = tabs.map((id, i) => (i ? `<span class="rc-sep"></span>` : "") +
+      `<button type="button" class="rc-tab" role="tab" data-rw-tab="${id}" aria-selected="${id === rewardsTab}">${escHtml(t("rewards_tab_" + id))}</button>`).join("");
+    body.innerHTML = `<div class="rc-tabs rw-tabs${tabs.length === 3 ? " n3" : ""}" role="tablist">${bar}</div>` +
+      `<div class="rc-track rw-track">${tabs.map((id) => `<div class="rc-slide rw-slide" role="tabpanel" data-rw-panel="${id}">${slide[id]()}</div>`).join("")}</div>${lock}`;
   }
-  body.innerHTML = html;
   wireRewards(body);
+  if (tabs.length > 1) mountRewardsTabs(body, tabs);
   // Na een vault-sprong vanuit een beloning-pop-up: scroll naar díe sectie.
   if (rewardScrollSect) {
     const sect = body.querySelector(`[data-rw-sect="${rewardScrollSect}"]`);
@@ -8151,6 +8230,25 @@ function renderRewardsBody(body, a) {
     if (sect) requestAnimationFrame(() => sect.scrollIntoView({
       behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }));
   }
+}
+// Tabs ↔ track: tikken scrolt naar de slide, swipen werkt de tab bij. Na een herrender staat de track direct weer op de actieve tab.
+function mountRewardsTabs(body, tabs) {
+  const track = body.querySelector(".rw-track"), btns = [...body.querySelectorAll(".rw-tabs .rc-tab")];
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const go = (id, smooth) => track.scrollTo({ left: tabs.indexOf(id) * track.clientWidth, behavior: smooth && !reduced ? "smooth" : "auto" });
+  let raf = 0;
+  track.addEventListener("scroll", () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      const id = tabs[Math.max(0, Math.min(tabs.length - 1, Math.round(track.scrollLeft / (track.clientWidth || 1))))];
+      if (id === rewardsTab) return;
+      rewardsTab = id;
+      btns.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.rwTab === id)));
+    });
+  }, { passive: true });
+  btns.forEach((b) => b.addEventListener("click", () => go(b.dataset.rwTab, true)));
+  go(rewardsTab, false);
+  requestAnimationFrame(() => go(rewardsTab, false));
 }
 
 function wireRewards(body) {
@@ -8167,9 +8265,10 @@ function wireRewards(body) {
   body.querySelectorAll("[data-winfx]").forEach((b) => {
     b.onclick = () => { setWinFx(b.dataset.winfx); renderRewards(); };
   });
-  // Platina-sierrand aan/uit (geen win-effect, dus geen wederzijdse uitsluiting).
-  const pf = body.querySelector('[data-action="rw-platina"]');
-  if (pf) pf.onclick = () => { setPlatinaFrame(pf.getAttribute("aria-checked") !== "true"); pf.setAttribute("aria-checked", String(platinaFrameEnabled())); };
+  // Sierrand: één keuze (uit · Certificaat · Holo-foil · Art deco), geen wederzijdse uitsluiting met de win-effecten.
+  body.querySelectorAll("[data-frame]").forEach((b) => {
+    b.onclick = () => { setResultFrame(b.dataset.frame); renderRewards(); };
+  });
   // Thema-swatches (diamant): pas direct toe.
   body.querySelectorAll("[data-theme-pick]").forEach((b) => {
     b.onclick = () => applyTheme(b.dataset.themePick);
@@ -9737,6 +9836,7 @@ function openModal(id, opts) {
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
   if (id === "modal-rewards") {
     rewardsReturnTo = (opts && opts.returnTo) || null;   // set door de flair-chip; anders geen terug
+    if (!rewardScrollSect) rewardsTab = "flair";   // een verse opening begint op Flair; een vault-sprong kiest zelf
     const backBtn = document.getElementById("rewards-back");
     if (backBtn) {
       backBtn.hidden = !rewardsReturnTo;
