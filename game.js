@@ -3041,12 +3041,15 @@ function renderGuesses() {
   }
 }
 
-function showConfetti() {
+function showConfetti(opts) {
   const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"];
   // Zilver-capstone (alle 5 grind-ladders ≥ zilver): je gedragen flair regent als
   // confetti — self-facing beloning, alleen-ingelogd. Geen flair → gewone confetti.
+  // De kluis-preview (opts.emoji) forceert de soort: een teken = flair-confetti, null = gewone confetti.
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const flairFx = !reduced && auth.user && parseFlair(myFlair).emoji && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? parseFlair(myFlair).emoji : null;
+  const flairFx = reduced ? null : opts
+    ? (opts.emoji || null)
+    : (auth.user && parseFlair(myFlair).emoji && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? parseFlair(myFlair).emoji : null);
   const container = document.createElement("div");
   container.className = "confetti-container" + (flairFx ? " confetti-flair" : "");
   for (let i = 0; i < 80; i++) {
@@ -3774,6 +3777,28 @@ function showBeer(firstTry) {
   runFx(firstTry
     ? [fireworksLayer(), pourLayer(FILL), clinkLayer(0.45, FILL + 0.015, FILL)]
     : [clinkLayer(0, 0.40)]);
+}
+
+// Kluis-preview: tik op een viering en je ziet 'm meteen schermvullend spelen (de lagen hangen op z-index 999,
+// boven de kluis). Zelfde lagen als op het eindscherm, met een vast voorbeeldjaar; het kan los van een echt
+// potje. Alleen de preview ruimt zichzelf op als je de kluis sluit — een écht effect blijft ongemoeid.
+let winFxPreviewLive = false;
+function playWinFxPreview(kind) {
+  stopFx();
+  document.querySelectorAll(".confetti-container").forEach((c) => c.remove());
+  if (kind === "none") showConfetti({ emoji: null });
+  else if (kind === "flair") showConfetti({ emoji: parseFlair(myFlair).emoji || "🎉" });
+  else if (kind === "beer") runFx([clinkLayer(0, 0.40)]);
+  else if (kind === "gold") runFx([goldYearsLayer(1815, false)]);
+  else return;
+  winFxPreviewLive = true;
+  setTimeout(() => { winFxPreviewLive = false; }, 5200);
+}
+function stopWinFxPreview() {
+  if (!winFxPreviewLive) return;
+  winFxPreviewLive = false;
+  stopFx();
+  document.querySelectorAll(".confetti-container").forEach((c) => c.remove());
 }
 
 function finishGame(won, fresh = false) {
@@ -8263,7 +8288,7 @@ function wireRewards(body) {
   });
   // Win-effect: één keuze uit de radiogroep.
   body.querySelectorAll("[data-winfx]").forEach((b) => {
-    b.onclick = () => { setWinFx(b.dataset.winfx); renderRewards(); };
+    b.onclick = () => { setWinFx(b.dataset.winfx); renderRewards(); playWinFxPreview(b.dataset.winfx); };
   });
   // Sierrand: één keuze (uit · Certificaat · Holo-foil · Art deco), geen wederzijdse uitsluiting met de win-effecten.
   body.querySelectorAll("[data-frame]").forEach((b) => {
@@ -9870,6 +9895,7 @@ function closeModal(id) {
 }
 
 function closeAllModals() {
+  stopWinFxPreview();   // een lopende kluis-preview stopt mee (een écht effect niet)
   document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
   hwStop();   // uitleg-demo stopt met afspelen als de ❓-modal dichtgaat
   rewardsReturnTo = null;   // alles dicht = geen openstaande terugkeer naar het bord
