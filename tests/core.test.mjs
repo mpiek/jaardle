@@ -46,7 +46,7 @@ src += `
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
-  easterSunday, holidayFxFor, historicFxFor, HolidayFx,
+  easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
@@ -56,6 +56,8 @@ src += `
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
+// De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
+(0, eval)(readFileSync(join(dir, "..", "holiday-fx.js"), "utf8"));
 const T = globalThis.__T;
 
 test("classify — afstand → bucket", () => {
@@ -246,13 +248,85 @@ test("historicFxFor — puzzeldag + gepind jaar; ander jaar of andere dag = null
   assert.equal(T.historicFxFor("2026-10-12", 1492), "columbus");
   assert.equal(T.historicFxFor("2026-12-17", 1903), "flight");
   assert.equal(T.historicFxFor(undefined, 1582), null);
+  // ronde 3 (db/78)
+  assert.equal(T.historicFxFor("2027-01-07", 1610), "galileo");
+  assert.equal(T.historicFxFor("2027-06-19", 1215), "magna");
+  assert.equal(T.historicFxFor("2027-06-15", 1215), null);     // de pin staat op 19 juni (de DB-tekst noemt die dag)
+  assert.equal(T.historicFxFor("2027-09-04", 476), "rome476");
+  assert.equal(T.historicFxFor("2026-11-04", 1922), "tut");
+  assert.equal(T.historicFxFor("2026-12-10", 1901), "nobel");
+  assert.equal(T.historicFxFor("2027-01-07", 1611), null);     // jaar-check vangt een niet-gepinde dag af
 });
 
-test("HolidayFx — elke viering uit de tabellen heeft een laag", () => {
-  for (const id of ["newyear", "kings", "lunar", "eid", "valentine", "patrick", "carnival", "easter", "pride", "halloween", "muertos", "diwali", "xmas", "rome", "moon", "gregorian", "ides", "everest", "columbus", "flight"]) {
-    assert.ok(T.HolidayFx.has(id), id);
-  }
-  assert.equal(T.HolidayFx.has("stamp"), false);
+test("HolidayFx — HOLIDAY_FX_IDS is precies wat holiday-fx.js bouwt, en elke hoogtijdag wijst naar een laag", () => {
+  const HF = globalThis.HolidayFx;
+  assert.deepEqual([...HF.ids].sort(), [...T.HOLIDAY_FX_IDS].sort());
+  assert.equal(new Set(T.HOLIDAY_FX_IDS).size, T.HOLIDAY_FX_IDS.length);
+  for (const id of T.HOLIDAY_FX_IDS) assert.ok(HF.has(id), id);
+  for (const [k, v] of Object.entries(T.HISTORIC_FX)) assert.ok(T.HOLIDAY_FX_IDS.includes(v.id), k);
+  assert.equal(HF.has("stamp"), false);
+});
+
+test("loadHolidayFx — laadt holiday-fx.js één keer lui, hergebruikt de belofte, en probeert opnieuw na een fout", async () => {
+  const src = readFileSync(join(dir, "..", "holiday-fx.js"), "utf8"), saved = globalThis.HolidayFx, saveCreate = document.createElement, saveHead = document.head;
+  const loaded = []; let mode = "ok";
+  document.createElement = () => ({});
+  document.head = { appendChild(sc) { loaded.push(sc.src); queueMicrotask(() => { if (mode === "ok") { (0, eval)(src); sc.onload(); } else sc.onerror(); }); } };
+  try {
+    delete globalThis.HolidayFx;
+    mode = "fail";
+    await assert.rejects(T.loadHolidayFx());                       // bestand niet te laden (offline)
+    mode = "ok";
+    const [a, b] = await Promise.all([T.loadHolidayFx(), T.loadHolidayFx()]);
+    assert.equal(a, b);
+    assert.ok(a.has("galileo"));
+    assert.equal(loaded.length, 2, "één mislukte + één geslaagde poging");
+    assert.ok(loaded.every((u) => u.startsWith("/holiday-fx.js")));
+    await T.loadHolidayFx();
+    assert.equal(loaded.length, 2, "al geladen: geen nieuw script");
+  } finally { globalThis.HolidayFx = saved; document.createElement = saveCreate; document.head = saveHead; }
+});
+
+// Strikte nep-canvas: onbekende ctx-methodes, NaN/Infinity-argumenten, negatieve stralen,
+// globalAlpha buiten 0..1 en drawImage zonder sprite zijn fouten. Geen DOM nodig.
+function strictCtx() {
+  const METHODS = new Set("save restore scale rotate translate transform setTransform createLinearGradient createRadialGradient clearRect fillRect strokeRect beginPath fill stroke clip fillText strokeText measureText drawImage setLineDash closePath moveTo lineTo bezierCurveTo quadraticCurveTo arc arcTo ellipse rect roundRect".split(" "));
+  const PROPS = new Set(["fillStyle", "strokeStyle", "globalAlpha", "lineWidth", "lineCap", "lineJoin", "font", "textAlign", "textBaseline", "globalCompositeOperation", "shadowColor", "shadowBlur", "shadowOffsetX", "shadowOffsetY"]);
+  const state = {};
+  return new Proxy({}, {
+    get(_, k) {
+      if (k in state) return state[k];
+      if (PROPS.has(k)) return k === "globalAlpha" ? 1 : "";
+      if (!METHODS.has(k)) throw new Error("onbekende ctx-methode/eigenschap: " + String(k));
+      return (...a) => {
+        for (const v of a) if (typeof v === "number" && !Number.isFinite(v)) throw new Error(`${String(k)}(${a.join(",")})`);
+        if (k === "createLinearGradient" || k === "createRadialGradient") return { addColorStop() {} };
+        if (k === "drawImage" && !a[0]?.__sprite) throw new Error("drawImage zonder sprite");
+        if ((k === "arc" && a[2] < 0) || (k === "ellipse" && (a[2] < 0 || a[3] < 0))) throw new Error("negatieve straal " + a.join(","));
+      };
+    },
+    set(_, k, v) {
+      if (k === "globalAlpha" && !(v >= 0 && v <= 1.0000001)) throw new Error("globalAlpha " + v);
+      if ((k === "fillStyle" || k === "strokeStyle") && typeof v === "string" && /NaN|undefined/.test(v)) throw new Error(k + " " + v);
+      state[k] = v; return true;
+    },
+  });
+}
+
+test("HolidayFx — elke laag tekent zonder fouten (strikte nep-canvas, donker en licht, drie formaten)", () => {
+  const HF = globalThis.HolidayFx, saveCreate = document.createElement, saveTheme = document.documentElement.dataset;
+  document.createElement = () => ({ width: 0, height: 0, __sprite: true, getContext: () => strictCtx() });
+  globalThis.innerWidth = 390; globalThis.innerHeight = 844;
+  try {
+    for (const theme of ["dark", "light"]) {
+      document.documentElement.dataset = theme === "light" ? { theme: "light" } : {};
+      for (const [W, H] of [[390, 844], [320, 568], [1200, 800]]) for (const id of T.HOLIDAY_FX_IDS) {
+        const layers = HF.build(id, W, H), ctx = strictCtx(), end = Math.max(...layers.map((l) => l.end));
+        assert.ok(end > 1 && end < 6, `${id}: einde ${end}`);
+        for (let t = 0; t <= end + 0.2; t += 1 / 30) for (const l of layers) { l.draw(ctx, t, W, H); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; }
+      }
+    }
+  } finally { document.createElement = saveCreate; document.documentElement.dataset = saveTheme; }
 });
 
 // ── Strenge guard: bereiken, omslagpunt en de veiligheidsgarantie ────────────
