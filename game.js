@@ -337,7 +337,7 @@ const I18N = {
     reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis", reward_equip: "Draag nu", reward_activate: "Zet aan",
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel",
-    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_ui: "🎨 Uiterlijk", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_frame: "🖼️ Sierrand", rewards_tab_theme: "🎨 Thema", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -640,7 +640,7 @@ const I18N = {
     reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault", reward_equip: "Wear it now", reward_activate: "Turn it on",
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle",
-    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_ui: "🎨 Look", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_frame: "🖼️ Frame", rewards_tab_theme: "🎨 Theme", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -936,7 +936,7 @@ const I18N = {
     reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe", reward_equip: "Jetzt tragen", reward_activate: "Einschalten",
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln",
-    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_ui: "🎨 Look", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_frame: "🖼️ Zierrand", rewards_tab_theme: "🎨 Design", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -1236,7 +1236,7 @@ const I18N = {
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja", reward_equip: "Usar ahora", reward_activate: "Activar",
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello",
-    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_ui: "🎨 Aspecto", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
+    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_frame: "🖼️ Marco", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1536,7 +1536,7 @@ const I18N = {
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre", reward_equip: "Usar agora", reward_activate: "Ativar",
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho",
-    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_ui: "🎨 Visual", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
+    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_frame: "🖼️ Moldura", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -8133,17 +8133,18 @@ function flairFxSectionHtml(a) {
 }
 
 // ── 🪎 Kluis in tabs ──────────────────────────────────────────────────────────
-// Flair (altijd) · Viering (zodra je een win-effect hebt) · Uiterlijk (zodra je een sierrand of thema hebt). Eén
+// Flair (altijd) · Viering (zodra je een win-effect hebt) · Sierrand (capstone-platina) · Thema (capstone-diamant). Eén
 // gevulde tab = één scherm zonder tabbalk, precies zoals vóór de tabs: een tab verschijnt pas als je er iets in
 // hebt verdiend (geen sloten uittekenen; de gedimde 🔒-regel onderaan blijft de enige wegwijzer). Zelfde
 // .rc-tabs/.rc-track/.rc-slide als de eindscherm-carrousel; swipen en tikken blijven in sync. Elke beloning
 // heeft een voorbeeld: je flair op een bordrij, de vieringen als lusje, de sierrand als miniatuur.
-const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", frame: "ui", theme: "ui" };   // vault-sprong → tab
+const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", frame: "frame", theme: "theme" };   // vault-sprong → tab
 let rewardsTab = "flair";   // actieve tab; reset bij openen (openModal), blijft staan bij herrenderen
 function rewardsTabsAvailable(a) {
   const u = winFxUnlockedMap(a), tabs = ["flair"];
   if (u.flair || u.beer || u.gold) tabs.push("vier");
-  if (platinaFrameUnlocked(a) || capstoneTier(a) >= 5) tabs.push("ui");
+  if (platinaFrameUnlocked(a)) tabs.push("frame");
+  if (auth.user && capstoneTier(a) >= 5) tabs.push("theme");
   return tabs;
 }
 // Zo zien anderen je op het bord: de échte naamcel (naam · flair met effect · titel).
@@ -8208,8 +8209,8 @@ function renderRewardsBody(body, a) {
     flair: () => rewardsBoardPreviewHtml() +
       `<section class="rw-sect" data-rw-sect="flair"><h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>${rewardsFlairHtml()}</section>` + flairFxSectionHtml(a),
     vier: () => rewardsVierHtml(unlocked),
-    ui: () => (platinaFrameUnlocked(a) ? rewardsFrameHtml() : "") +
-      (themed ? `<section class="rw-sect" data-rw-sect="theme"><h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>${themePickerHtml()}</section>` : ""),
+    frame: () => rewardsFrameHtml(),
+    theme: () => `<section class="rw-sect" data-rw-sect="theme"><h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>${themePickerHtml()}</section>`,
   };
   // Alles verdiend = geen wegwijzer. Anders één gedimde 🔒-regel naar Prestaties.
   const lock = !(themed && unlocked.beer) ? `<p class="rw-locked">🔒 ${escHtml(t("rewards_locked_hint"))}</p>` : "";
@@ -8218,7 +8219,7 @@ function renderRewardsBody(body, a) {
   } else {
     const bar = tabs.map((id, i) => (i ? `<span class="rc-sep"></span>` : "") +
       `<button type="button" class="rc-tab" role="tab" data-rw-tab="${id}" aria-selected="${id === rewardsTab}">${escHtml(t("rewards_tab_" + id))}</button>`).join("");
-    body.innerHTML = `<div class="rc-tabs rw-tabs${tabs.length === 3 ? " n3" : ""}" role="tablist">${bar}</div>` +
+    body.innerHTML = `<div class="rc-tabs rw-tabs${tabs.length >= 3 ? " n" + tabs.length : ""}" role="tablist">${bar}</div>` +
       `<div class="rc-track rw-track">${tabs.map((id) => `<div class="rc-slide rw-slide" role="tabpanel" data-rw-panel="${id}">${slide[id]()}</div>`).join("")}</div>${lock}`;
   }
   wireRewards(body);

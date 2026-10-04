@@ -982,8 +982,8 @@ test("rewardsTabsAvailable — een tab bestaat pas als je er iets in hebt verdie
     T.auth.user = { uid: "u" };
     assert.deepEqual(T.rewardsTabsAvailable(A_NONE), ["flair"], "nog niets: één scherm");
     assert.deepEqual(T.rewardsTabsAvailable(A_SILVER), ["flair", "vier"]);
-    assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair", "vier", "ui"]);
-    assert.deepEqual(T.rewardsTabsAvailable(A_DIAMOND), ["flair", "vier", "ui"]);
+    assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair", "vier", "frame"], "platina: sierrand, nog geen thema");
+    assert.deepEqual(T.rewardsTabsAvailable(A_DIAMOND), ["flair", "vier", "frame", "theme"], "diamant: ook de thema-tab");
     T.auth.user = null;
     assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair"], "anoniem verdient niets");
   } finally { T.auth.user = was; }
@@ -994,5 +994,5 @@ test("RW_SECT_TAB — elke sectie waar een pop-up naartoe springt landt op een b
     const sect = T.REWARDS[key].sect;
     assert.ok(T.RW_SECT_TAB[sect], `reward ${key}: sectie "${sect}" mist in RW_SECT_TAB`);
   }
-  assert.ok(["flair", "vier", "ui"].every((x) => Object.values(T.RW_SECT_TAB).includes(x)), "elke tab is een sprong-doel");
+  assert.ok(["flair", "vier", "frame", "theme"].every((x) => Object.values(T.RW_SECT_TAB).includes(x)), "elke tab is een sprong-doel");
 });

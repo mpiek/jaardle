@@ -3211,7 +3211,10 @@ html[data-theme="light"] {
 #rewards-body .stats-heading { margin: 0 0 0.5rem; }
 .rw-sect [role="radiogroup"] { display: flex; flex-direction: column; gap: 0.1rem; }
 /* ── kluis in tabs: tabbalk = die van het eindscherm (.rc-tabs); voorbeelden per beloning ── */
-.rw-tabs { margin: 0 0 0.85rem; }
+.rw-tabs { margin: 0 0 0.85rem; overflow-x: auto; scrollbar-width: none; }
+.rw-tabs::-webkit-scrollbar { display: none; }
+.rc-tabs.n4 { gap: 0.35rem; }
+.rc-tabs.n4 .rc-tab { font-size: 0.68rem; letter-spacing: 0.01em; white-space: nowrap; }
 .rw-track .rw-slide { padding-bottom: 0.1rem; }
 .rw-board { background: var(--card-soft); border-radius: 10px; padding: 0.4rem 0.45rem 0.5rem; margin-bottom: 1.1rem; }
 .rw-board .lb-row { background: transparent; }
