@@ -3356,27 +3356,64 @@ const HOLIDAY_FX_IDS = [
 // Eén datum, meerdere vieringen: elke winst kiest er willekeurig één (1 april: twee grappen).
 const FX_ALIASES = { april: ["aprilup", "aprilfish"] };
 const fxResolve = (id) => { const v = FX_ALIASES[id]; return v ? v[(Math.random() * v.length) | 0] : id; };
+// Gebeurtenis-vieringen (4/10/2026): een eigen animatie voor een bepaald FEIT in plaats van een datum.
+// De daily-feiten komen elk 3 tot 10 keer terug in het schema (3.532 dagen = 1.059 feiten), dus de
+// koppeling loopt via de bevroren feit-hash van het antwoord (state.hashes[0]) en werkt ook in vrij
+// spel, de geschiedenis en de inhaal-daily. Geen DB-wijziging, geen pins. De elf nieuwe lagen staan
+// in /event-fx.js (EVENT_FX_IDS, lui geladen); een hash mag ook naar een bestaande HolidayFx-laag
+// wijzen (zusterfeiten: Stonewall → pride, 1582 → gregorian, ...). Voorrang in winCelebrationFx:
+// hoogtijdag (gepind feit) → feit-effect → feestdag.
+const EVENT_FX_IDS = ["theses", "wall", "vesuvius", "edison", "curiosity", "railway", "penicillin", "einstein", "lumiere", "tapestry", "eiffel"];
+const EVENT_FX = {
+  "07520fb099": "theses",     // 1517 Luthers 95 stellingen
+  "a02a8f1fed": "wall",       // 1987 "tear down this wall"
+  "7dceb65bb4": "wall",       // 1990 Duitse hereniging
+  "cc40576fe7": "vesuvius",   // 79 uitbarsting Vesuvius
+  "7a344b7d9a": "edison",     // 1879 gloeilamp
+  "e4518513c3": "curiosity",  // 2012 Curiosity landt op Mars
+  "7e322c37f4": "railway",    // 1825 Stockton & Darlington
+  "e314cb5843": "railway",    // 1869 gouden spijker
+  "33c982fd36": "penicillin", // 1928 Fleming
+  "1e340235f8": "einstein",   // 1905 speciale relativiteitstheorie
+  "b5d6a71813": "lumiere",    // 1895 eerste filmvoorstelling
+  "2f8e228dad": "tapestry",   // 1066 Stamford Bridge
+  "aedfabe5eb": "eiffel",     // 1889 Eiffeltoren
+  // zusterfeiten van bestaande hoogtijdag-lagen
+  "c1dac0d3d7": "gregorian",  // 1582 Gregorius XIII kondigt de kalender aan
+  "c2d41a24c1": "galileo",    // 1609 eerste telescoop
+  "e491348313": "galileo",    // 1610 Sidereus Nuncius
+  "39e56e28f3": "columbus",   // 1493 terugkeer naar Palos
+  "4ca0845a4a": "rome476",    // 476 Odoaker koning van Italië
+  "673113bc9c": "pride",      // 1969 Stonewall
+};
+const eventFxFor = (hash) => (hash && Object.prototype.hasOwnProperty.call(EVENT_FX, hash) ? EVENT_FX[hash] : null);
+const fxKnown = (id) => HOLIDAY_FX_IDS.includes(id) || EVENT_FX_IDS.includes(id);
 // Zelfde ?v= als game.js zelf: een nieuwe game.js-versie ververst ook dit bestand.
 const GAME_V = (() => { try { return new URL(document.currentScript.src).searchParams.get("v") || ""; } catch (e) { return ""; } })();
-let holidayFxLoad = null;
-function loadHolidayFx() {
-  if (window.HolidayFx) return Promise.resolve(window.HolidayFx);
-  if (holidayFxLoad) return holidayFxLoad;
-  holidayFxLoad = new Promise((resolve, reject) => {
-    const sc = document.createElement("script");
-    sc.src = "/holiday-fx.js" + (GAME_V ? "?v=" + encodeURIComponent(GAME_V) : "");
-    sc.onload = () => (window.HolidayFx ? resolve(window.HolidayFx) : reject(new Error("HolidayFx ontbreekt")));
-    sc.onerror = () => { holidayFxLoad = null; reject(new Error("holiday-fx.js laden mislukt")); };
-    document.head.appendChild(sc);
-  });
-  return holidayFxLoad;
+// Lui laden van een viering-bestand: één keer, belofte gecachet, opnieuw proberen na een fout.
+function fxLoader(file, global) {
+  let pending = null;
+  return () => {
+    if (window[global]) return Promise.resolve(window[global]);
+    if (pending) return pending;
+    pending = new Promise((resolve, reject) => {
+      const sc = document.createElement("script");
+      sc.src = file + (GAME_V ? "?v=" + encodeURIComponent(GAME_V) : "");
+      sc.onload = () => (window[global] ? resolve(window[global]) : reject(new Error(global + " ontbreekt")));
+      sc.onerror = () => { pending = null; reject(new Error(file + " laden mislukt")); };
+      document.head.appendChild(sc);
+    });
+    return pending;
+  };
 }
+const loadHolidayFx = fxLoader("/holiday-fx.js", "HolidayFx");
+const loadEventFx = fxLoader("/event-fx.js", "EventFx");
 // Vooruitladen in een rustig moment, maar alleen op een dag waarop er iets te vieren
 // valt (feestdag, hoogtijdag of ?fx=-voorvertoning): dan staat de laag klaar op het
 // moment van de winst. Een inhaalpot van een oude hoogtijdag laadt op aanvraag.
 function warmHolidayFx() {
   if (!previewFx && !holidayFxFor(new Date()) && !HISTORIC_FX[todayKey().slice(5)]) return;
-  const go = () => loadHolidayFx().catch(() => {});
+  const go = () => (EVENT_FX_IDS.includes(previewFx) ? loadEventFx() : loadHolidayFx()).catch(() => {});
   if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 2000);
 }
 
@@ -3387,11 +3424,13 @@ function warmHolidayFx() {
 // deze vieringen; vuurwerk, bier en gouden jaartallen houden de gewone timing.
 let holidayFxUntil = 0;
 async function showHolidayFx(id) {
-  if (!HOLIDAY_FX_IDS.includes(id)) return;
+  if (!fxKnown(id)) return;
   // Voorlopig al een einde afspreken: de recap wacht ook als het bestand nog geladen moet worden.
+  // (Het gebeurtenis-bestand wordt bewust pas bij de winst geladen, niet bij het begin van de pot:
+  // een netwerkverzoek vooraf zou verraden dat het antwoord een bekende gebeurtenis is.)
   holidayFxUntil = performance.now() + 4500;
   try {
-    const fx = await loadHolidayFx();
+    const fx = await (EVENT_FX_IDS.includes(id) ? loadEventFx() : loadHolidayFx());
     if (!fx.has(id)) throw new Error("onbekende viering " + id);
     const layers = fx.build(id, innerWidth, innerHeight, { years: new Date().getFullYear() - 2026 });   // years: voor de verjaardag
     holidayFxUntil = performance.now() + layers.reduce((m, l) => Math.max(m, l.end), 0) * 1000 + 250;
@@ -3484,6 +3523,8 @@ function winCelebrationFx() {
     const h = historicFxFor(state.puzzleDate || todayKey(), state.event?.year);
     if (h) return h;
   }
+  const ev = eventFxFor(state.hashes?.[0]);   // het feit zelf heeft een animatie (elke modus)
+  if (ev) return ev;
   return fxResolve(holidayFxFor(new Date()));
 }
 
@@ -3877,7 +3918,7 @@ function finishGame(won, fresh = false) {
     // pas als er geen kluis-effect (goud/bier/flair-confetti) en geen first-try is.
     // ?fx=<id> in de URL is de voorvertoning en gaat overal vóór.
     const flairOn = !!(auth.user && myFlair && capstoneTier(achvCache) >= 2 && flairConfettiEnabled());
-    const celebration = previewFx && HOLIDAY_FX_IDS.includes(fxResolve(previewFx)) ? fxResolve(previewFx)
+    const celebration = previewFx && fxKnown(fxResolve(previewFx)) ? fxResolve(previewFx)
       : (goldYearsFxActive() || beerFxActive() || flairOn || firstTry) ? null : winCelebrationFx();
     if (celebration) showHolidayFx(celebration);
     else if (goldYearsFxActive()) showGoldYears(firstTry);

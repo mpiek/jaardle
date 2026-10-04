@@ -48,6 +48,7 @@ src += `
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
+  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
@@ -62,6 +63,7 @@ src += `
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
 (0, eval)(readFileSync(join(dir, "..", "holiday-fx.js"), "utf8"));
+(0, eval)(readFileSync(join(dir, "..", "event-fx.js"), "utf8"));
 const T = globalThis.__T;
 
 test("classify — afstand → bucket", () => {
@@ -370,6 +372,55 @@ function strictCtx() {
   });
 }
 
+test("EventFx — EVENT_FX_IDS is precies wat event-fx.js bouwt en elke feit-hash wijst naar een bestaande laag", () => {
+  const EF = globalThis.EventFx, HF = globalThis.HolidayFx;
+  assert.deepEqual([...EF.ids].sort(), [...T.EVENT_FX_IDS].sort());
+  assert.equal(new Set(T.EVENT_FX_IDS).size, T.EVENT_FX_IDS.length);
+  for (const id of T.EVENT_FX_IDS) assert.ok(!T.HOLIDAY_FX_IDS.includes(id), `${id} staat in beide lijsten`);
+  for (const [hash, id] of Object.entries(T.EVENT_FX)) {
+    assert.match(hash, /^[0-9a-f]{10}$/, hash);
+    assert.ok(T.fxKnown(id), `${hash} → ${id}`);
+    assert.ok(T.EVENT_FX_IDS.includes(id) ? EF.has(id) : HF.has(id), `${hash} → ${id} heeft geen laag`);
+  }
+  for (const id of T.EVENT_FX_IDS) assert.ok(Object.values(T.EVENT_FX).includes(id), `${id} wordt door geen enkel feit gebruikt`);
+  assert.equal(T.eventFxFor("7dceb65bb4"), "wall");
+  assert.equal(T.eventFxFor("zzzzzzzzzz"), null);
+  assert.equal(T.eventFxFor(undefined), null);
+  assert.equal(T.eventFxFor("toString"), null);                    // geen prototype-lek
+});
+
+test("winCelebrationFx — hoogtijdag gaat vóór het feit-effect, dat gaat vóór de feestdag; werkt ook in vrij spel", () => {
+  // vrij spel: het feit zelf bepaalt de viering, ongeacht de datum
+  T.setState({ mode: "free", hashes: ["7dceb65bb4"], event: { year: 1990 } });
+  assert.equal(T.winCelebrationFx(), "wall");
+  T.setState({ mode: "free", hashes: ["673113bc9c"], event: { year: 1969 } });
+  assert.equal(T.winCelebrationFx(), "pride");                     // zusterfeit van een bestaande laag
+  // daily op een gepinde hoogtijdag met het juiste jaar: de hoogtijdag wint
+  T.setState({ mode: "daily", puzzleDate: "2027-10-15", hashes: ["7dceb65bb4"], event: { year: 1582 } });
+  assert.equal(T.winCelebrationFx(), "gregorian");
+  // dezelfde dag, ander jaar (niet-gepind feit): dan het feit-effect
+  T.setState({ mode: "daily", puzzleDate: "2027-10-15", hashes: ["7dceb65bb4"], event: { year: 1990 } });
+  assert.equal(T.winCelebrationFx(), "wall");
+});
+
+test("loadEventFx — laadt event-fx.js één keer lui en probeert opnieuw na een fout", async () => {
+  const src = readFileSync(join(dir, "..", "event-fx.js"), "utf8"), saved = globalThis.EventFx, saveCreate = document.createElement, saveHead = document.head;
+  const loaded = []; let mode = "ok";
+  document.createElement = () => ({});
+  document.head = { appendChild(sc) { loaded.push(sc.src); queueMicrotask(() => { if (mode === "ok") { (0, eval)(src); sc.onload(); } else sc.onerror(); }); } };
+  try {
+    delete globalThis.EventFx;
+    mode = "fail";
+    await assert.rejects(T.loadEventFx());
+    mode = "ok";
+    const [a, b] = await Promise.all([T.loadEventFx(), T.loadEventFx()]);
+    assert.equal(a, b);
+    assert.ok(a.has("wall"));
+    assert.equal(loaded.length, 2);
+    assert.ok(loaded.every((u) => u.startsWith("/event-fx.js")));
+  } finally { globalThis.EventFx = saved; document.createElement = saveCreate; document.head = saveHead; }
+});
+
 test("HolidayFx aprilup — het echte jaartal-pilletje draait op zijn kop, hangt even en komt rechtop terug", () => {
   const saveQ = document.querySelector, saveCreate = document.createElement, saveDs = document.documentElement.dataset, el = { style: {} };
   document.documentElement.dataset = {};
@@ -391,15 +442,15 @@ test("HolidayFx aprilup — het echte jaartal-pilletje draait op zijn kop, hangt
   } finally { document.querySelector = saveQ; document.createElement = saveCreate; document.documentElement.dataset = saveDs; }
 });
 
-test("HolidayFx — elke laag tekent zonder fouten (strikte nep-canvas, donker en licht, drie formaten)", () => {
+test("HolidayFx + EventFx — elke laag tekent zonder fouten (strikte nep-canvas, donker en licht, drie formaten)", () => {
   const HF = globalThis.HolidayFx, saveCreate = document.createElement, saveTheme = document.documentElement.dataset;
   document.createElement = () => ({ width: 0, height: 0, __sprite: true, getContext: () => strictCtx() });
   globalThis.innerWidth = 390; globalThis.innerHeight = 844;
   try {
     for (const theme of ["dark", "light"]) {
       document.documentElement.dataset = theme === "light" ? { theme: "light" } : {};
-      for (const [W, H] of [[390, 844], [320, 568], [1200, 800]]) for (const id of T.HOLIDAY_FX_IDS) {
-        const layers = HF.build(id, W, H), ctx = strictCtx(), end = Math.max(...layers.map((l) => l.end));
+      for (const [W, H] of [[390, 844], [320, 568], [1200, 800]]) for (const id of [...T.HOLIDAY_FX_IDS, ...T.EVENT_FX_IDS]) {
+        const layers = (T.EVENT_FX_IDS.includes(id) ? globalThis.EventFx : HF).build(id, W, H), ctx = strictCtx(), end = Math.max(...layers.map((l) => l.end));
         assert.ok(end > 1 && end < 6, `${id}: einde ${end}`);
         for (let t = 0; t <= end + 0.2; t += 1 / 30) for (const l of layers) { l.draw(ctx, t, W, H); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; }
       }
