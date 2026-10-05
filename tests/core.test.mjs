@@ -44,7 +44,7 @@ src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aan
 src += `
 ;globalThis.__T = {
   classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
-  BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram,
+  BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
@@ -161,6 +161,32 @@ test("buildHistogram — zoomt op het bezette bereik, fijn per 5 of grof per 10"
   h = T.buildHistogram(dist, 3, false);
   assert.equal(h.mine, 0);
   assert.equal(h.loScore, 50);
+});
+
+test("histBinOfFroms — teamgenoot op de staaf van zijn score", () => {
+  // kolommen: verloren, 70, 75, 80, 85, 90, 95, 100 (fijn) — de ondergrenzen komen uit data-from
+  const froms = [null, 70, 75, 80, 85, 90, 95, 100];
+  assert.equal(T.histBinOfFroms(froms, 77, true), 2);     // 75–79
+  assert.equal(T.histBinOfFroms(froms, 75, true), 2);     // ondergrens hoort bij de eigen staaf
+  assert.equal(T.histBinOfFroms(froms, 99, true), 6);     // 95–99
+  assert.equal(T.histBinOfFroms(froms, 100, true), 7);    // perfect apart
+  assert.equal(T.histBinOfFroms(froms, 4, false), 0);     // verliezer, ook met troostscore
+  assert.equal(T.histBinOfFroms(froms, 40, true), 1);     // onder het venster → eerste scorestaaf
+  // spiegelt de eigen-staaf-zoektocht van buildHistogram, ook in het grove venster (per 10)
+  const dist = new Array(22).fill(0); dist[0] = 2; dist[1 + 10] = 12; dist[1 + 15] = 20; dist[1 + 20] = 4;
+  const wide = new Array(22).fill(1);
+  for (const d of [dist, wide]) {
+    const f = T.buildHistogram(d, 77, true).bars.map((b) => b.from);
+    for (const sc of [50, 54, 55, 77, 91, 99, 100]) assert.equal(T.histBinOfFroms(f, sc, true), T.buildHistogram(d, sc, true).mine);
+  }
+});
+
+test("faceHue — vaste kleur per naam, uit het palet zonder groen/blauw", () => {
+  assert.equal(T.faceHue("Anna"), T.faceHue("Anna"));
+  assert.ok(T.FACE_HUES.includes(T.faceHue("Matthijs")));
+  assert.ok(T.FACE_HUES.includes(T.faceHue("")));          // lege naam crasht niet
+  assert.ok(T.FACE_HUES.every((h) => h < 100 || h > 160)); // 100–160 = groen = jouw staaf
+  assert.ok(new Set(["Anna", "Bram", "Cees", "Daan", "Eva", "Fleur", "Gijs", "Hans"].map(T.faceHue)).size >= 4);   // niet iedereen dezelfde kleur
 });
 
 test("parseShareToken — N×10 hex of null", () => {

@@ -2055,6 +2055,7 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
   cursor: pointer;
   font: inherit;
   color: inherit;
+  position: relative;
 }
 .hist-col:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* Getikte staaf licht op; je eigen staaf blijft groen. */
@@ -2103,6 +2104,57 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
   font-variant-numeric: tabular-nums;
 }
 .hist-axis .hist-me-label { color: var(--fg); font-weight: 700; }
+/* Poolgenoten op de staven (fillHistFaces). .hist-roomy reserveert boven de hoogste staaf ruimte voor een gezichtje (de
+   staven zijn dan op 80% getekend, het vak 24 px hoger), zodat er niets verspringt als het teambord later binnenkomt.
+   Gezichtjes zijn zo breed als de kolom + 4 px (max 24) en dus nooit overlappend; --n = aantal kolommen (inline).
+   Het schijfje mengt de naamkleur in --card-soft en volgt daarmee elk thema. */
+.hist-roomy { height: 144px; container-type: inline-size; }
+.hist-tower {
+  --fs: 20px;
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  pointer-events: none;   /* de tik gaat naar de staaf eronder */
+  animation: hist-face-in 0.25s ease-out;
+}
+@supports (width: 1cqw) {
+  .hist-tower { --fs: min(24px, calc((100cqw - (var(--n) - 1) * 6px) / var(--n) + 4px)); }
+}
+.hist-face {
+  display: grid;
+  place-items: center;
+  width: var(--fs);
+  height: var(--fs);
+  border-radius: 50%;
+  font-style: normal;
+  font-size: calc(var(--fs) * 0.54);
+  line-height: 1;
+  overflow: hidden;
+  color: var(--fg);
+  background: color-mix(in srgb, hsl(var(--h) 65% 52%) 38%, var(--card-soft));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+.hist-face-l { font-size: calc(var(--fs) * 0.5); font-weight: 700; }
+.hist-cnt {
+  position: absolute;
+  right: -6px;
+  top: -5px;
+  min-width: 12px;
+  height: 12px;
+  padding: 0 2px;
+  border-radius: 6px;
+  background: var(--fg);
+  color: var(--card);
+  font-size: 0.5rem;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes hist-face-in { from { opacity: 0; transform: translateX(-50%) scale(0.6); } }
+@media (prefers-reduced-motion: reduce) { .hist-tower { animation: none; } }
 /* Detailregel onder de as: bereik + aantal spelers van de getikte (standaard: jouw) staaf. */
 .hist-detail {
   margin: 6px 0 0;
@@ -2979,6 +3031,9 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .lb-blk.far       { background: var(--brown); }
 .lb-blk.distant   { background: var(--gray); }
 .lb-blk.farthest  { background: #000; box-shadow: inset 0 0 0 1px #555; }
+.lb-row { transition: box-shadow 0.3s ease; }
+/* Tik op een histogram-staaf in de recap: de teamgenoten daarin lichten even op (highlightTeamRows). */
+.lb-row.hl { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 45%, transparent); }
 .lb-row.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
 .lb-row.lb-me .lb-val { color: var(--accent); }
 /* Podium: goud/zilver/koper voor de top-3 (na .lb-me, zodat de tint wint —

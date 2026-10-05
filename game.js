@@ -5332,8 +5332,8 @@ function lbGuessBlocks(d) {
 // Inhaalpotten (r.late, db/53) staan altijd onderaan (server sorteert al zo),
 // zonder rangnummer en gedimd — zelfde `.lb-prov`-behandeling als de
 // onder-de-drempel-rijen op het all-time statistiekbord.
-function dailyRowHtml(r) {
-  return `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}">` +
+function dailyRowHtml(r, i) {
+  return `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}"${i == null ? "" : ` data-i="${i}"`}>` +
     `<span class="lb-rank">${r.late ? "·" : lbMedal(r.rank)}</span>` +
     `<span class="lb-name">${lbNameCell(r, r.late ? null : r.rank)}${r.late ? ` <span class="lb-tag">${escHtml(t("makeup_tag"))}</span>` : ""}</span>` +
     `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`;
@@ -6471,6 +6471,78 @@ function scoreRankPct(rank) {
   return Math.min(100, Math.max(1, Math.round(((lower + Math.max(0, same - 1)) / others) * 100)));
 }
 
+// Poolgenoten op de staven (ontwerp B, gekozen 5/10/2026): op de staaf van hun score van vandaag staat één klein rond
+// gezichtje — de flair, zonder flair de beginletter, op een kleur die bij de naam hoort — met een tellertje als er meer
+// teamgenoten in die staaf zitten. Jij staat er niet bij (dat is de pin) en namen ook niet: die staan in het teambord
+// eronder; tik op een staaf en de rijen van de teamgenoten daarin lichten daar even subtiel op (highlightTeamRows).
+// De scores komen uit het daily-bord dat loadRecapTeam toch al ophaalt (geen extra RPC) en wisselen dus vanzelf mee als
+// je van team wisselt. Omdat dat bord later binnenkomt dan het histogram, reserveert recapDistHtml(…, room) vooraf de
+// ruimte boven de hoogste staaf (staven op FACE_HEADROOM, vak 24 px hoger): zo verspringt er niets als de gezichtjes komen.
+const FACE_HEADROOM = 0.8;
+const FACE_HUES = [8, 28, 42, 168, 190, 262, 292, 330];   // warm + paars + turkoois; geen groen/blauw: dat zijn jouw staaf en de rest
+function faceHue(name) {
+  let h = 0;
+  const s = String(name || "");
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+  return FACE_HUES[h % FACE_HUES.length];
+}
+// Een winnaar staat in de laatste staaf waarvan de ondergrens (`froms`, null = verloren-staaf) ≤ zijn score — spiegel
+// van de eigen-staaf-zoektocht in buildHistogram; een verliezer in de verloren-staaf. Onder het venster vallen kan alleen
+// door een race tussen verdeling en bord: dan de eerste scorestaaf.
+function histBinOfFroms(froms, score, won) {
+  if (!won) return 0;
+  let at = 1;
+  froms.forEach((f, k) => { if (f != null && f <= score) at = k; });
+  return at;
+}
+function histFaceHtml(r) {
+  const emoji = parseFlair(r.flair).emoji;
+  const letter = [...String(r.display_name || "")][0];
+  const glyph = emoji || (letter ? letter.toUpperCase() : "?");
+  return `<i class="hist-face${emoji ? "" : " hist-face-l"}" style="--h:${faceHue(r.display_name)}">${escHtml(glyph)}</i>`;
+}
+let histTeamBins = [];   // per histogram-kolom: indexen in de dagbord-rijen van de teamgenoten die daarin staan
+let teamHlTimer = null;
+function clearTeamHighlight() {
+  clearTimeout(teamHlTimer);
+  document.querySelectorAll("#recap-team .lb-row.hl").forEach((n) => n.classList.remove("hl"));
+}
+function highlightTeamRows(k) {
+  clearTeamHighlight();
+  const idxs = histTeamBins[k];
+  if (!idxs) return;
+  idxs.forEach((i) => document.querySelector(`#recap-team .lb-row[data-i="${i}"]`)?.classList.add("hl"));
+  teamHlTimer = setTimeout(clearTeamHighlight, 2600);
+}
+// Zet (of ververst, bij een teamwissel) de gezichtjes op de staven. Zonder gereserveerde ruimte (.hist-roomy) of
+// zonder andere spelers vandaag blijft het histogram precies zoals het was.
+function fillHistFaces(rows) {
+  const root = document.getElementById("recap-body");
+  const hist = root && root.querySelector(".hist");
+  if (!hist) return;
+  hist.querySelectorAll(".hist-tower").forEach((n) => n.remove());
+  histTeamBins = [];
+  clearTeamHighlight();
+  if (!hist.classList.contains("hist-roomy")) return;
+  const cols = [...hist.querySelectorAll(".hist-col")];
+  const froms = cols.map((c) => (c.dataset.from === "" ? null : Number(c.dataset.from)));
+  const groups = cols.map(() => []);
+  (Array.isArray(rows) ? rows : []).forEach((r, i) => {
+    if (r.is_me || r.late) return;   // jij = de pin; inhaalpotten tellen nergens competitief mee
+    groups[histBinOfFroms(froms, Number(r.score) || 0, !!r.won)].push(i);
+  });
+  groups.forEach((idxs, k) => {
+    if (!idxs.length) return;
+    histTeamBins[k] = idxs;
+    const tower = document.createElement("span");
+    tower.className = "hist-tower";
+    tower.setAttribute("aria-hidden", "true");
+    tower.style.bottom = `calc(${cols[k].querySelector(".hist-bar")?.style.height || "0%"} + 3px)`;
+    tower.innerHTML = histFaceHtml(rows[idxs[0]]) + (idxs.length > 1 ? `<b class="hist-cnt">+${idxs.length - 1}</b>` : "");
+    cols[k].appendChild(tower);
+  });
+}
+
 // Recap-blok (issue #25, ontwerp E2): bovenaan twee tegels — links jouw score,
 // tier (medaille + naam) en "beter dan X%" (percentiel op score), rechts het
 // gemiddelde van iedereen en het aantal spelers — elk met als vierde regel de
@@ -6480,7 +6552,7 @@ function scoreRankPct(rank) {
 // erboven. Alles op dezelfde maatstaf (score), zodat grafiek en percentiel niet
 // botsen zoals bij de oude pogingen-grafiek. Bij verlies: 💀 zonder score en
 // zonder percentiel, de pin op de verloren-staaf.
-function recapDistHtml(buckets, stats, scoreRank) {
+function recapDistHtml(buckets, stats, scoreRank, room) {
   const head = `<h3 class="stats-heading">${t("recap_vs_title")}</h3>`;
   if (!Array.isArray(buckets) || buckets.every((b) => b === 0)) {
     return `<section class="recap-section">${head}<p class="stats-empty">${t("recap_dist_empty")}</p></section>`;
@@ -6514,12 +6586,13 @@ function recapDistHtml(buckets, stats, scoreRank) {
   const n = bars.length;
   const cols = `grid-template-columns:repeat(${n},minmax(0,1fr))`;
   const max = Math.max(1, ...bars.map((b) => b.count));
+  const scale = room ? FACE_HEADROOM : 1;   // ruimte boven de hoogste staaf voor een teamgezichtje (fillHistFaces)
   // Bereik-label per staaf voor de detailregel: "verloren", "70–79", "100".
   const rangeOf = (b) => b.from == null ? t("recap_lost_word") : b.from === 100 ? "100" : `${b.from}–${b.from + step - 1}`;
   // Elke kolom is een knop (hele hoogte = raakvlak); tikken vult de detailregel.
   const barsHtml = bars.map((b, i) =>
-    `<button type="button" class="hist-col${i === mine ? " hist-col-me" : ""}" data-range="${rangeOf(b)}" data-count="${b.count}" aria-label="${rangeOf(b)}: ${t("recap_bin_players")(b.count)}">` +
-    `<span class="hist-bar${i === mine ? " hist-me" : ""}" style="height:${b.count ? Math.max(4, Math.round((b.count / max) * 100)) : 0}%"></span></button>`).join("");
+    `<button type="button" class="hist-col${i === mine ? " hist-col-me" : ""}" data-from="${b.from ?? ""}" data-range="${rangeOf(b)}" data-count="${b.count}" aria-label="${rangeOf(b)}: ${t("recap_bin_players")(b.count)}">` +
+    `<span class="hist-bar${i === mine ? " hist-me" : ""}" style="height:${b.count ? Math.max(4, Math.round((b.count / max) * 100 * scale)) : 0}%"></span></button>`).join("");
   // As-labels: verl., dan de staaf-ondergrenzen — bij 5-puntsstaven alleen de tientallen.
   const labels = bars.map((b, i) => {
     const txt = b.from == null ? t("recap_lost_short") : (step === 5 && b.from % 10 !== 0 && b.from !== 100) ? "" : String(b.from);
@@ -6542,17 +6615,21 @@ function recapDistHtml(buckets, stats, scoreRank) {
   const pin = `<div class="hist-pinrow">${avgLabel}<span class="${pinCls}"${pinStyle}>${t("recap_you")} · ${score} ${tier.emoji}</span></div>`;
   // Detailregel: standaard jouw eigen staaf.
   const detail = `<p class="hist-detail" aria-live="polite">${rangeOf(bars[mine])} · ${t("recap_bin_players")(bars[mine].count)}</p>`;
-  return `<section class="recap-section">${head}${tiles}${pin}<div class="hist" style="${cols}">${barsHtml}${avgLine}${meLine}</div><div class="hist-axis" style="${cols}">${labels}</div>${detail}</section>`;
+  return `<section class="recap-section">${head}${tiles}${pin}<div class="hist${room ? " hist-roomy" : ""}" style="${cols};--n:${n}">${barsHtml}${avgLine}${meLine}</div><div class="hist-axis" style="${cols}">${labels}</div>${detail}</section>`;
 }
 
 async function renderRecap() {
   const body = document.getElementById("recap-body");
   if (!body) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  // Of er teamgezichtjes kunnen komen moet vóór het eerste tekenen vaststaan (het histogram reserveert er ruimte voor);
+  // my_pools loopt daarom parallel met de rest mee als hij nog niet binnen was (koude start).
   const [dist, stats, streak, scoreRank] = await Promise.all([
     fetchGlobalScoreDist(), fetchFactStatsSafe(), streakLineInfo(state.won), fetchScoreRankSafe(),
+    auth.user && !myPoolsOk ? fetchMyPools() : null,
   ]);
   if (document.getElementById("modal-recap").hidden) return;
+  const teamRoom = !!auth.user && myPools.some((p) => (p.members || 0) >= 2);
   const streakHtml = streak.line ? `<p class="recap-streak">${withAnimEmoji(streak.line, streak.n ? streakFlameHtml(streak.n) : undefined)}</p>` : "";
   // Delen hoort bij dít scherm (het Wordle-moment): direct onder de verdeling,
   // zodat je niet eerst de recap hoeft te sluiten om bij de deel-knop te komen.
@@ -6566,7 +6643,7 @@ async function renderRecap() {
   const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button>${rateHtml}</div>`;
   if (auth.user) {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
-    body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank) + shareHtml +
+    body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank, teamRoom) + shareHtml +
       `<section class="recap-section">` +
       `<h3 class="stats-heading" id="recap-team-head">${t("recap_team_title")}</h3>` +
       `<div id="recap-team"></div></section>`;
@@ -6588,10 +6665,11 @@ async function renderRecap() {
   armEmojiFallbacks(body);
   // Tik op een staaf → detailregel toont bereik + aantal spelers van die staaf.
   const detailEl = body.querySelector(".hist-detail");
-  body.querySelectorAll(".hist-col").forEach((col) => {
+  body.querySelectorAll(".hist-col").forEach((col, k) => {
     col.onclick = () => {
       body.querySelectorAll(".hist-col.active").forEach((c) => c.classList.remove("active"));
       col.classList.add("active");
+      highlightTeamRows(k);
       if (detailEl) detailEl.textContent = `${col.dataset.range} · ${t("recap_bin_players")(Number(col.dataset.count) || 0)}`;
     };
   });
@@ -7366,6 +7444,7 @@ async function loadRecapTeam() {
   if (!board) return;
   const dailyRows = Array.isArray(rows) ? rows : [];
   const weekRows = Array.isArray(wkRows) ? wkRows : [];
+  fillHistFaces(dailyRows);   // teamgenoten op de histogram-staven; bij een teamwissel komt hier dus vanzelf het nieuwe team
   // Met weekrijen: tabs-als-kop + carrousel (de kale h3 gaat weg). Zonder: de daily-tabel
   // onder de gewone kop, precies zoals vóór de carrousel.
   const head = document.getElementById("recap-team-head");
