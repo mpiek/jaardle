@@ -1310,10 +1310,11 @@ html[data-theme="light"], html[data-theme="parchment"] {
   vertical-align: -0.28em;
 }
 
-/* De vlam groeit mee met je streak (streakFlameHtml): per trede van de streak-reeks een eigen tint, grootte en ring,
-   in de tredekleuren van het prestatiebord. De webp is rood/oranje; de tint zit in een filter erop (brons koperbruin,
-   zilver metaalgrijs, goud geel, platina turkoois, diamant blauw, obsidiaan violet). Ring = box-shadow inset, dus de
-   vlam zelf blijft scherp. De cirkel groeit rond het midden van de gewone vlam (vertical-align rekent de extra hoogte weg). */
+/* De vlam groeit mee met je streak (streakFlameHtml): per trede van de streak-reeks een eigen tint en grootte, in de
+   tredekleuren van het prestatiebord. De webp is rood/oranje; de tint zit in een filter erop (brons koperbruin, zilver
+   metaalgrijs, goud geel, platina turkoois, diamant blauw, obsidiaan violet). Geen ring of vlak om de vlam (5/10/2026, bewust:
+   "zonder border mooier"); de gloed komt uit het filter. De tekst in dezelfde regel krijgt de kleur van de trede (hieronder),
+   zodat vlam en tekst één geheel zijn. De vlam groeit rond het midden van de gewone vlam (vertical-align rekent de extra hoogte weg). */
 .flm {
   --sc: 1; --tc: transparent;
   position: relative; display: inline-grid; place-items: center; flex: none;
@@ -1325,7 +1326,6 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .flm > .flm-g { font-size: 1.05em; line-height: 1; text-align: center; }
 .flm.s0 { --sc: 0.8333; }   /* alleen de boei-variant: een gewone vlam (1,25em) zonder ring */
 .flm.s0 > img, .flm.s0 > .flm-g { width: 100%; height: 100%; }
-.flm:not(.s0) { box-shadow: inset 0 0 0 max(2px, 0.1em) var(--tc); background: color-mix(in srgb, var(--tc) 16%, transparent); }
 .flm.s1 { --sc: 1.04; --tc: var(--achv-bronze); }
 .flm.s2 { --sc: 1.12; --tc: var(--achv-silver); }
 .flm.s3 { --sc: 1.2;  --tc: var(--achv-gold); }
@@ -1338,6 +1338,13 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .flm.s4 > :first-child { filter: hue-rotate(140deg) saturate(0.75) brightness(1.4) drop-shadow(0 0 6px var(--tc)) drop-shadow(0 0 1px var(--tc)); }
 .flm.s5 > :first-child { filter: hue-rotate(190deg) saturate(1.5) brightness(1.15) drop-shadow(0 0 7px var(--tc)); }
 .flm.s6 > :first-child { filter: hue-rotate(236deg) saturate(1.7) brightness(0.95) drop-shadow(0 0 8px var(--tc)); }
+/* De streak-regel is oranje bij een gewone vlam (onder trede 1) en neemt daarna de kleur van de trede over. */
+.streak-line:has(.flm.s1) { color: var(--achv-bronze); }
+.streak-line:has(.flm.s2) { color: var(--achv-silver); }
+.streak-line:has(.flm.s3) { color: var(--achv-gold); }
+.streak-line:has(.flm.s4) { color: var(--achv-plat); }
+.streak-line:has(.flm.s5) { color: var(--achv-diamond); }
+.streak-line:has(.flm.s6) { color: var(--achv-obsidian); }
 /* Reddingsboei: bij een geslaagde redding met de inhaal-daily valt er één keer een boei om de vlam, plons (rimpel) en
    de vlam flakkert op. Alleen CSS op de bestaande streak_saved-regel; bij minder beweging blijft de vlam gewoon. */
 .flm-saved { margin-inline: 0.3em; }   /* ruimte voor de boei, anders raakt hij de eerste letter */
