@@ -5419,12 +5419,10 @@ async function loadPodium() {
   setBoardLoading(content);
   const req = ++lbWkReq;
   let rows = [];
-  const awardsP = fetchWeekAwards(myPool.id, lbWeekStart);   // parallel met het podium; mislukt → geen blok
   try { rows = await rpc("get_pool_week_podium", { p_pool_id: myPool.id, p_week_start: lbWeekStart }); } catch (e) {}
-  const awards = await awardsP;
   if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
   rows = Array.isArray(rows) ? rows : [];
-  setBoard(content, podiumHtml(rows, isLive, awards));
+  setBoard(content, podiumHtml(rows, isLive));   // bewust zonder weekprijzen: die staan in de recap-pop-up (▶ onder het leaderboard)
   // De verse (ongeziene) uitslag bekeken = "gezien" → stip dooft, server onthoudt het.
   if (!isLive && weekPodiumResult && weekPodiumResult.weekStart === lbWeekStart) podiumMarkSeen(lbWeekStart);
   // Live tussenstand → tik de countdown naar de sluiting (maandag 12:00); een
