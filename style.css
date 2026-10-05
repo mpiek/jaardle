@@ -1339,12 +1339,12 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .flm.s5 > :first-child { filter: hue-rotate(190deg) saturate(1.5) brightness(1.15) drop-shadow(0 0 7px var(--tc)); }
 .flm.s6 > :first-child { filter: hue-rotate(236deg) saturate(1.7) brightness(0.95) drop-shadow(0 0 8px var(--tc)); }
 /* De streak-regel is oranje bij een gewone vlam (onder trede 1) en neemt daarna de kleur van de trede over. */
-.streak-line:has(.flm.s1) { color: var(--achv-bronze); }
-.streak-line:has(.flm.s2) { color: var(--achv-silver); }
-.streak-line:has(.flm.s3) { color: var(--achv-gold); }
-.streak-line:has(.flm.s4) { color: var(--achv-plat); }
-.streak-line:has(.flm.s5) { color: var(--achv-diamond); }
-.streak-line:has(.flm.s6) { color: var(--achv-obsidian); }
+.streak-line:has(.flm.s1), .recap-streak:has(.flm.s1) { color: var(--achv-bronze); }
+.streak-line:has(.flm.s2), .recap-streak:has(.flm.s2) { color: var(--achv-silver); }
+.streak-line:has(.flm.s3), .recap-streak:has(.flm.s3) { color: var(--achv-gold); }
+.streak-line:has(.flm.s4), .recap-streak:has(.flm.s4) { color: var(--achv-plat); }
+.streak-line:has(.flm.s5), .recap-streak:has(.flm.s5) { color: var(--achv-diamond); }
+.streak-line:has(.flm.s6), .recap-streak:has(.flm.s6) { color: var(--achv-obsidian); }
 /* Reddingsboei: bij een geslaagde redding met de inhaal-daily valt er één keer een boei om de vlam, plons (rimpel) en
    de vlam flakkert op. Alleen CSS op de bestaande streak_saved-regel; bij minder beweging blijft de vlam gewoon. */
 .flm-saved { margin-inline: 0.3em; }   /* ruimte voor de boei, anders raakt hij de eerste letter */

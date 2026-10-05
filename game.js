@@ -220,7 +220,7 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord",
-    lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week", lb_wk_recap: "Recap bekijken",
+    lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week", lb_wk_recap: "Recap van vorige week",
     lb_wk_live: "loopt nog", lb_wk_done: "afgerond",
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
     lb_wk_punten: "punten",
@@ -548,7 +548,7 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
     lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board",
-    lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week", lb_wk_recap: "Watch the recap",
+    lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week", lb_wk_recap: "Last week's recap",
     lb_wk_live: "live", lb_wk_done: "final",
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
     lb_wk_punten: "points",
@@ -869,7 +869,7 @@ const I18N = {
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
     lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen",
-    lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche", lb_wk_recap: "Rückblick ansehen",
+    lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche", lb_wk_recap: "Rückblick auf die letzte Woche",
     lb_wk_live: "läuft noch", lb_wk_done: "beendet",
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
     lb_wk_punten: "Punkte",
@@ -1194,7 +1194,7 @@ const I18N = {
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
     lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla",
-    lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente", lb_wk_recap: "Ver el resumen",
+    lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente", lb_wk_recap: "Resumen de la semana pasada",
     lb_wk_live: "en curso", lb_wk_done: "cerrada",
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
     lb_wk_punten: "puntos",
@@ -1519,7 +1519,7 @@ const I18N = {
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
     lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela",
-    lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana", lb_wk_recap: "Ver o resumo",
+    lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana", lb_wk_recap: "Resumo da semana passada",
     lb_wk_live: "em andamento", lb_wk_done: "encerrada",
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
     lb_wk_punten: "pontos",
@@ -5424,10 +5424,7 @@ async function loadPodium() {
   const awards = await awardsP;
   if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
   rows = Array.isArray(rows) ? rows : [];
-  // Afgeronde week met een uitslag: "▶ Recap bekijken" speelt dezelfde stappen-pop-up als op maandag nog eens af.
-  const recapBtn = !isLive && rows.length ? `<div class="lb-wk-recap"><button type="button" id="lb-wk-recap" class="lb-pillbtn">▶ ${escHtml(t("lb_wk_recap"))}</button></div>` : "";
-  setBoard(content, podiumHtml(rows, isLive, awards) + recapBtn);
-  document.getElementById("lb-wk-recap")?.addEventListener("click", () => replayWeekRecap(lbWeekStart, rows, awards));
+  setBoard(content, podiumHtml(rows, isLive, awards));
   // De verse (ongeziene) uitslag bekeken = "gezien" → stip dooft, server onthoudt het.
   if (!isLive && weekPodiumResult && weekPodiumResult.weekStart === lbWeekStart) podiumMarkSeen(lbWeekStart);
   // Live tussenstand → tik de countdown naar de sluiting (maandag 12:00); een
@@ -5443,13 +5440,17 @@ async function loadPodium() {
 }
 
 // Terugkijken: dezelfde stappen-pop-up voor een afgeronde week, bovenop het 🏆-scherm. Telt niet als "gezien" en sluit alleen zichzelf.
-async function replayWeekRecap(weekStart, rows, awards) {
-  if (!myPool || !rows?.length) return;
-  const btn = document.getElementById("lb-wk-recap");
+async function replayWeekRecap(weekStart) {
+  if (!myPool) return;
+  const btn = document.getElementById("lb-recap-last");
   if (btn) btn.disabled = true;
-  const vs = await fetchWeekVsWorld(myPool.id, weekStart);   // team tegen de wereld; mislukt of te weinig potjes → die stap valt weg
+  const [rows, awards, vs] = await Promise.all([
+    withTimeout(rpc("get_pool_week_podium", { p_pool_id: myPool.id, p_week_start: weekStart }), OPTIONAL_RPC_MS).catch(() => []),
+    fetchWeekAwards(myPool.id, weekStart),
+    fetchWeekVsWorld(myPool.id, weekStart),   // team tegen de wereld; mislukt of te weinig potjes → die stap valt weg
+  ]);
   if (btn) btn.disabled = false;
-  showPodiumPopup({ weekStart, poolId: myPool.id, poolName: myPool.name, rows, awards, vs, replay: true });
+  showPodiumPopup({ weekStart, poolId: myPool.id, poolName: myPool.name, rows: Array.isArray(rows) ? rows : [], awards, vs, replay: true });
 }
 
 // Live countdown naar de week-sluiting (maandag 12:00) onder het podium (lb-wk-countdown, alleen
@@ -6023,7 +6024,13 @@ async function renderLeaderboard() {
       </div>
       <div id="lb-stat-content"></div>
     </section>`;
+  // Onder het leaderboard: de recap van de laatst afgeronde week, dezelfde pop-up als op maandag.
+  const lastDoneWk = shiftDateKey(currentWeekStart(), -7);
+  if (lastDoneWk >= PODIUM_EPOCH && weekIsFinal(lastDoneWk)) {
+    html += `<div class="lb-wk-recap"><button type="button" id="lb-recap-last" class="lb-pillbtn">▶ ${escHtml(t("lb_wk_recap"))}</button></div>`;
+  }
   body.innerHTML = html;
+  document.getElementById("lb-recap-last")?.addEventListener("click", () => replayWeekRecap(lastDoneWk));
   wireNameEditor();
   wirePoolChips(body, renderLeaderboard);
   const addBtn = document.getElementById("lb-add-btn");
