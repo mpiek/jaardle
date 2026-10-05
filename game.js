@@ -228,6 +228,15 @@ const I18N = {
     lb_pop_continue: "Verder", lb_pop_live: "Bekijk deze week",
     lb_wk_live_note: "Tussenstand — sluit over",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
+    aw_title: "Weekprijzen", aw_title_live: "Weekprijzen tot nu toe",
+    aw_stijger: "Stijger", aw_stijger_d: (d) => `${d.pct}% boven het eigen gemiddelde (${d.baseline} → ${d.week_score})`,
+    aw_streak: (n) => `${n} dagen op rij`, aw_streak_d: "inhaalpotjes tellen mee",
+    aw_record: "Persoonlijk record", aw_record_d: (d) => `beste week tot nu toe: ${d.week_score} (daarvoor ${d.previous_best})`,
+    aw_terug: "Welkom terug", aw_terug_d: (d) => `weer meegedaan na ${d.gap_days} dagen`,
+    aw_reuzendoder: "Reuzendoder", aw_reuzendoder_d: (d, day, victim) => `versloeg ${victim} (${day}): ${d.score} tegen ${d.victim_score}`,
+    aw_me_week: (m) => `Jij: ${m.played} ${m.played === 1 ? "dag" : "dagen"} gespeeld, ${m.week_score} punten.`,
+    aw_me_best: (left, best) => `Nog ${left} voor je beste week (${best}).`, aw_me_beat: (best) => `Je zit al boven je beste week (${best}).`,
+    aw_me_streak: (n, next, left) => `🔥 ${n} dagen op rij, nog ${left} tot ${next}.`,
     lb_wk_empty_h: "Geen podium deze week",
     lb_wk_empty_p: "Er is deze week nog niet gespeeld in je pool.",
     lb_wk_soon_h: "Het weekpodium begint binnenkort",
@@ -536,6 +545,15 @@ const I18N = {
     lb_pop_continue: "Continue", lb_pop_live: "See this week",
     lb_wk_live_note: "Live standings — locks in",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
+    aw_title: "Weekly awards", aw_title_live: "Weekly awards so far",
+    aw_stijger: "Climber", aw_stijger_d: (d) => `${d.pct}% above their own average (${d.baseline} → ${d.week_score})`,
+    aw_streak: (n) => `${n} days in a row`, aw_streak_d: "makeups count",
+    aw_record: "Personal best", aw_record_d: (d) => `best week so far: ${d.week_score} (before: ${d.previous_best})`,
+    aw_terug: "Welcome back", aw_terug_d: (d) => `back after ${d.gap_days} days`,
+    aw_reuzendoder: "Giant-killer", aw_reuzendoder_d: (d, day, victim) => `beat ${victim} (${day}): ${d.score} to ${d.victim_score}`,
+    aw_me_week: (m) => `You: ${m.played} ${m.played === 1 ? "day" : "days"} played, ${m.week_score} points.`,
+    aw_me_best: (left, best) => `${left} to go for your best week (${best}).`, aw_me_beat: (best) => `You're already above your best week (${best}).`,
+    aw_me_streak: (n, next, left) => `🔥 ${n} days in a row, ${left} to go to ${next}.`,
     lb_wk_empty_h: "No podium this week",
     lb_wk_empty_p: "No one has played in your pool this week yet.",
     lb_wk_soon_h: "The week podium starts soon",
@@ -837,6 +855,15 @@ const I18N = {
     lb_pop_continue: "Weiter", lb_pop_live: "Diese Woche ansehen",
     lb_wk_live_note: "Zwischenstand — schließt in",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
+    aw_title: "Wochenpreise", aw_title_live: "Wochenpreise bisher",
+    aw_stijger: "Aufsteiger", aw_stijger_d: (d) => `${d.pct} % über dem eigenen Schnitt (${d.baseline} → ${d.week_score})`,
+    aw_streak: (n) => `${n} Tage in Folge`, aw_streak_d: "Nachholspiele zählen mit",
+    aw_record: "Persönlicher Rekord", aw_record_d: (d) => `beste Woche bisher: ${d.week_score} (vorher ${d.previous_best})`,
+    aw_terug: "Willkommen zurück", aw_terug_d: (d) => `nach ${d.gap_days} Tagen wieder dabei`,
+    aw_reuzendoder: "Riesentöter", aw_reuzendoder_d: (d, day, victim) => `schlug ${victim} (${day}): ${d.score} zu ${d.victim_score}`,
+    aw_me_week: (m) => `Du: ${m.played} ${m.played === 1 ? "Tag" : "Tage"} gespielt, ${m.week_score} Punkte.`,
+    aw_me_best: (left, best) => `Noch ${left} bis zu deiner besten Woche (${best}).`, aw_me_beat: (best) => `Du bist schon über deiner besten Woche (${best}).`,
+    aw_me_streak: (n, next, left) => `🔥 ${n} Tage in Folge, noch ${left} bis ${next}.`,
     lb_wk_empty_h: "Diese Woche kein Podest",
     lb_wk_empty_p: "In deinem Pool wurde diese Woche noch nicht gespielt.",
     lb_wk_soon_h: "Das Wochenpodest startet bald",
@@ -1142,6 +1169,15 @@ const I18N = {
     lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
     lb_wk_live_note: "Clasificación en curso — se cierra en",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
+    aw_title: "Premios de la semana", aw_title_live: "Premios de la semana hasta ahora",
+    aw_stijger: "Escalador", aw_stijger_d: (d) => `${d.pct} % por encima de su propia media (${d.baseline} → ${d.week_score})`,
+    aw_streak: (n) => `${n} días seguidos`, aw_streak_d: "las partidas de recuperación cuentan",
+    aw_record: "Récord personal", aw_record_d: (d) => `mejor semana hasta ahora: ${d.week_score} (antes ${d.previous_best})`,
+    aw_terug: "De vuelta", aw_terug_d: (d) => `vuelve tras ${d.gap_days} días`,
+    aw_reuzendoder: "Matagigantes", aw_reuzendoder_d: (d, day, victim) => `ganó a ${victim} (${day}): ${d.score} contra ${d.victim_score}`,
+    aw_me_week: (m) => `Tú: ${m.played} ${m.played === 1 ? "día" : "días"} jugados, ${m.week_score} puntos.`,
+    aw_me_best: (left, best) => `Te faltan ${left} para tu mejor semana (${best}).`, aw_me_beat: (best) => `Ya estás por encima de tu mejor semana (${best}).`,
+    aw_me_streak: (n, next, left) => `🔥 ${n} días seguidos, faltan ${left} para ${next}.`,
     lb_wk_empty_h: "Sin podio esta semana",
     lb_wk_empty_p: "Todavía nadie ha jugado en tu grupo esta semana.",
     lb_wk_soon_h: "El podio semanal empieza pronto",
@@ -1447,6 +1483,15 @@ const I18N = {
     lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
     lb_wk_live_note: "Parcial — fecha em",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
+    aw_title: "Prêmios da semana", aw_title_live: "Prêmios da semana até agora",
+    aw_stijger: "Em ascensão", aw_stijger_d: (d) => `${d.pct}% acima da própria média (${d.baseline} → ${d.week_score})`,
+    aw_streak: (n) => `${n} dias seguidos`, aw_streak_d: "partidas de recuperação contam",
+    aw_record: "Recorde pessoal", aw_record_d: (d) => `melhor semana até agora: ${d.week_score} (antes ${d.previous_best})`,
+    aw_terug: "De volta", aw_terug_d: (d) => `voltou depois de ${d.gap_days} dias`,
+    aw_reuzendoder: "Mata-gigantes", aw_reuzendoder_d: (d, day, victim) => `venceu ${victim} (${day}): ${d.score} a ${d.victim_score}`,
+    aw_me_week: (m) => `Você: ${m.played} ${m.played === 1 ? "dia" : "dias"} jogados, ${m.week_score} pontos.`,
+    aw_me_best: (left, best) => `Faltam ${left} para a sua melhor semana (${best}).`, aw_me_beat: (best) => `Você já está acima da sua melhor semana (${best}).`,
+    aw_me_streak: (n, next, left) => `🔥 ${n} dias seguidos, faltam ${left} para ${next}.`,
     lb_wk_empty_h: "Sem pódio nesta semana",
     lb_wk_empty_p: "Ainda ninguém jogou no seu grupo esta semana.",
     lb_wk_soon_h: "O pódio semanal começa em breve",
@@ -5316,10 +5361,12 @@ async function loadPodium() {
   setBoardLoading(content);
   const req = ++lbWkReq;
   let rows = [];
+  const awardsP = fetchWeekAwards(myPool.id, lbWeekStart);   // parallel met het podium; mislukt → geen blok
   try { rows = await rpc("get_pool_week_podium", { p_pool_id: myPool.id, p_week_start: lbWeekStart }); } catch (e) {}
+  const awards = await awardsP;
   if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
   rows = Array.isArray(rows) ? rows : [];
-  setBoard(content, podiumHtml(rows, isLive));
+  setBoard(content, podiumHtml(rows, isLive, awards));
   // De verse (ongeziene) uitslag bekeken = "gezien" → stip dooft, server onthoudt het.
   if (!isLive && weekPodiumResult && weekPodiumResult.weekStart === lbWeekStart) podiumMarkSeen(lbWeekStart);
   // Live tussenstand → tik de countdown naar de sluiting (maandag 12:00); een
@@ -5468,7 +5515,64 @@ function wkWinTrophies(dailyWins) {
   return n > 0 ? "🏆".repeat(n) : "";
 }
 
-function podiumHtml(rows, isLive) {
+// ── Weekprijzen (db/80) ───────────────────────────────────────────────────────
+// Prijzen met een ander criterium dan hoog scoren, zodat ook wie nooit op het podium komt in beeld komt: stijger (t.o.v.
+// je eigen gemiddelde), dagen op rij (3/7/14/30/60/100, inhaalpotjes tellen mee), persoonlijk record, welkom terug en
+// reuzendoder. De server (get_pool_week_awards) rekent ze uit en legt ze bij de weeksluiting vast (ma 12:00); hier alleen
+// weergave: onder het podium in de maandagpop-up en het Weekpodium-tab, en als tussenstand in de Week-tab van het eindscherm.
+// Bewust géén pilletjes bij namen op het bord. Mislukt de RPC (of staat db/80 er nog niet), dan verschijnt het blok gewoon niet.
+const WEEK_AWARDS = [
+  { kind: "stijger", icon: "📈" }, { kind: "streak", icon: "🔥" }, { kind: "record", icon: "🏅" },
+  { kind: "terug", icon: "👋" }, { kind: "reuzendoder", icon: "🗡️" },
+];
+async function fetchWeekAwards(poolId, weekStart) {
+  try { const r = await rpc("get_pool_week_awards", { p_pool_id: poolId, p_week_start: weekStart }); return Array.isArray(r) ? r : []; }
+  catch (e) { return []; }
+}
+function weekdayName(dateKey) {
+  try { return new Intl.DateTimeFormat(LANGS[lang].intl, { weekday: "long", timeZone: "UTC" }).format(new Date(`${dateKey}T00:00:00Z`)); }
+  catch (e) { return String(dateKey || ""); }
+}
+function awardTexts(a) {
+  const d = a.detail || {};
+  switch (a.kind) {
+    case "stijger": return { title: t("aw_stijger"), detail: t("aw_stijger_d")(d) };
+    case "streak": return { title: t("aw_streak")(d.days), detail: t("aw_streak_d") };
+    case "record": return { title: t("aw_record"), detail: t("aw_record_d")(d) };
+    case "terug": return { title: t("aw_terug"), detail: t("aw_terug_d")(d) };
+    case "reuzendoder": return { title: t("aw_reuzendoder"), detail: t("aw_reuzendoder_d")(d, weekdayName(d.day), d.victim || "?") };
+    default: return null;
+  }
+}
+// De prijzen als lijst, in vaste volgorde. `live` = tussenstand van een lopende week. Geen prijzen → niets (geen leeg blok).
+// Een stijger zonder echte stijging bestaat niet (halverwege de week kan niemand nog boven het gemiddelde zitten).
+function awardsHtml(awards, live) {
+  const list = Array.isArray(awards) ? awards : [], items = [];
+  for (const def of WEEK_AWARDS) for (const a of list.filter((x) => x.kind === def.kind)) {
+    if (def.kind === "stijger" && !(Number(a.detail?.pct) > 0)) continue;
+    if (def.kind === "streak" && !(Number(a.detail?.days) > 0)) continue;
+    const tx = awardTexts(a);
+    if (!tx) continue;
+    items.push(`<li class="lb-aw${a.is_me ? " lb-me" : ""}"><i aria-hidden="true">${def.icon}</i>` +
+      `<div><b>${escHtml(tx.title)}</b><span>${escHtml(tx.detail)}</span></div><em>${lbNameCell(a, null)}</em></li>`);
+  }
+  if (!items.length) return "";
+  return `<div class="lb-wk-awards"><div class="lb-aw-t">${escHtml(t(live ? "aw_title_live" : "aw_title"))}</div><ul class="lb-aw-list">${items.join("")}</ul></div>`;
+}
+// De persoonlijke regel in de Week-tab: wat jij nog nodig hebt (alleen als je deze week al gespeeld hebt).
+function awardMeHtml(awards) {
+  const me = (Array.isArray(awards) ? awards : []).find((a) => a.kind === "me")?.detail;
+  const played = Number(me?.played) || 0;
+  if (!me || !played) return "";
+  const score = Number(me.week_score) || 0, best = Number(me.best_week_before) || 0;
+  const streak = Number(me.streak) || 0, next = Number(me.next_milestone) || 0;
+  const lines = [t("aw_me_week")({ played, week_score: score })];
+  if (best > 0) lines[0] += " " + (score > best ? t("aw_me_beat")(best) : t("aw_me_best")(best - score, best));
+  if (streak >= 1 && next > streak) lines.push(t("aw_me_streak")(streak, next, next - streak));
+  return `<div class="lb-aw-me">${lines.map((l) => `<p>${escHtml(l)}</p>`).join("")}</div>`;
+}
+
+function podiumHtml(rows, isLive, awards) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const flairDance = (f) => {
     const p = parseFlair(f);
@@ -5511,7 +5615,7 @@ function podiumHtml(rows, isLive) {
   const liveLine = isLive
     ? `<p>${escHtml(t("lb_wk_live_note"))} <span class="lb-wk-countdown"></span></p>` : "";
   const note = `<div class="lb-wk-note">${liveLine}<p>${escHtml(t("lb_wk_formula"))}</p></div>`;
-  return `<div class="lb-pod-stage">${podium}</div>${note}${restHtml}`;
+  return `<div class="lb-pod-stage">${podium}</div>${note}${awardsHtml(awards, isLive)}${restHtml}`;
 }
 
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
@@ -6207,7 +6311,7 @@ function raceLaneHtml(r, k, pos) {
     `<span class="race-track"><i class="race-streak"></i><span class="race-runner">${runner}</span></span>` +
     `<span class="lb-val">${winsHtml}<span class="lb-score" data-v="${r.week_score}">${r.week_score}</span></span></div>`;
 }
-function recapRaceHtml(rows) {
+function recapRaceHtml(rows, awards) {
   const idxs = raceWindow(rows);
   const lead = Math.max(...rows.map((r) => r.week_score));
   const min = Math.min(...idxs.map((i) => rows[i].week_score));
@@ -6216,7 +6320,7 @@ function recapRaceHtml(rows) {
   const secs = secsToWeekEnd(currentWeekStart());
   const d = Math.floor(secs / 86400), h = Math.max(1, Math.floor(secs / 3600));
   return `<div class="lb-table race-table">${html}</div>` +
-    `<div class="lb-wk-note"><p>${escHtml(t("recap_week_note")(d, h))}</p></div>`;
+    `<div class="lb-wk-note"><p>${escHtml(t("recap_week_note")(d, h))}</p></div>` + awardsHtml(awards, true) + awardMeHtml(awards);
 }
 
 // Tabs-als-kop "📅 Vandaag │ ⚔️ Week │ 🔮 Kans" + een horizontaal scroll-snap-spoor met twee
@@ -6238,7 +6342,7 @@ function recapArrowKey(dir, repeat) {
 }
 // `slides` ({ day, week } html) vervangt de twee echte slides — alleen gebruikt door het voorproefje voor
 // spelers zonder team (teamTeaserHtml); tabs, spoor en mount zijn dan exact die van een echt team.
-function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides) {
+function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides, awards) {
   const tab = (i, key) => `<button type="button" role="tab" class="rc-tab" data-i="${i}" aria-selected="${i === 0}">${escHtml(t(key))}</button>`;
   const sep = `<span class="rc-sep" aria-hidden="true"></span>`;
   const n = oddsItems ? 3 : 2;
@@ -6248,7 +6352,7 @@ function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides) {
     `</div>` +
     `<div class="rc-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${escHtml(t("recap_team_title"))}">` +
       `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/${n} · ${escHtml(t("recap_team_title"))}">${slides ? slides.day : dailyTableHtml(dailyRows)}</div>` +
-      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/${n} · ${escHtml(t("recap_week_title"))}">${slides ? slides.week : recapRaceHtml(weekRows)}</div>` +
+      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/${n} · ${escHtml(t("recap_week_title"))}">${slides ? slides.week : recapRaceHtml(weekRows, awards)}</div>` +
       (oddsItems ? `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="3/3 · ${escHtml(t("odds_head"))}">${oddsSlideHtml(oddsItems)}</div>` : "") +
     `</div></div>`;
 }
@@ -6903,12 +7007,13 @@ async function loadRecapTeam() {
   // De winkans-donut (🔮 Kans) heeft ook de forecast-parameters nodig (db/75) — alleen opvragen bij
   // een pool die groot genoeg is; een mislukte/ontbrekende RPC betekent gewoon: geen derde tab.
   const wantOdds = (myPool.members || 0) >= ODDS_MIN_PLAYERS && currentWeekStart() >= PODIUM_EPOCH;
-  const [rows, wkRows, fc] = await Promise.all([
+  const [rows, wkRows, fc, weekAwards] = await Promise.all([
     rpc("get_pool_daily_leaderboard", { p_pool_id: poolId, p_date: todayKey() }).catch(() => []),
     currentWeekStart() >= PODIUM_EPOCH
       ? rpc("get_pool_week_podium", { p_pool_id: poolId, p_week_start: currentWeekStart() }).catch(() => [])
       : Promise.resolve([]),
     wantOdds ? rpc("get_pool_week_forecast", { p_pool_id: poolId }).catch(() => null) : Promise.resolve(null),
+    currentWeekStart() >= PODIUM_EPOCH ? fetchWeekAwards(poolId, currentWeekStart()) : Promise.resolve([]),
   ]);
   if (document.getElementById("modal-recap").hidden || myPool?.id !== poolId) return;
   const board = document.getElementById("recap-team-board");
@@ -6926,7 +7031,7 @@ async function loadRecapTeam() {
       poolId, weekStart: currentWeekStart(), todayKey: todayKey(), secsSinceMidnight: 86400 - secsToNextDaily(),
     });
   } catch (e) { console.error(e); oddsItems = null; }   // een rekenfout mag de recap nooit breken: dan gewoon geen derde tab
-  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsItems));
+  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards));
   mountRecapCarousel(board.querySelector(".rc"), oddsItems);
 }
 
@@ -7553,10 +7658,12 @@ async function refreshWeekPodiumResult() {
   // auth-handler consumeert de intenties direct na deze aanroep.
   const deeplinked = !!(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap);
   let rows = [];
+  const awardsP = fetchWeekAwards(myPool.id, lastDone);   // de weekprijzen van dezelfde week; mislukt → pop-up zonder blok
   try { rows = await rpc("get_pending_podium", { p_pool_id: myPool.id }) || []; }
   catch (e) { podiumPendingReq = null; }   // netwerk-hik → volgende auth-event mag het opnieuw proberen
+  const awards = await awardsP;
   if (!Array.isArray(rows) || !rows.length) { weekPodiumResult = null; renderPodiumDot(); return; }
-  weekPodiumResult = { weekStart: rows[0].week_start || lastDone, poolId: myPool.id, poolName: myPool.name, rows };
+  weekPodiumResult = { weekStart: rows[0].week_start || lastDone, poolId: myPool.id, poolName: myPool.name, rows, awards };
   renderPodiumDot();
   if (!deeplinked && rows.some((r) => r.is_me)) showPodiumPopup();
 }
@@ -7591,7 +7698,7 @@ function showPodiumPopup() {
         `<h2 id="podpop-title" class="podpop-title">${escHtml(fmtWeekRange(res.weekStart))}</h2>` +
         `<div class="podpop-sub">${escHtml(res.poolName)} <span class="lb-wk-pill done">${escHtml(t("lb_wk_done"))}</span></div>` +
       `</div>` +
-      podiumHtml(res.rows, false) +
+      podiumHtml(res.rows, false, res.awards) +
       `<div class="podpop-foot">` +
         `<button type="button" class="podpop-go" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
         `<button type="button" class="podpop-live">${escHtml(t("lb_pop_live"))} ›</button>` +
@@ -7609,7 +7716,7 @@ function showPodiumPopup() {
   lockBodyScroll();
   requestAnimationFrame(() => el.classList.add("in"));
   if (reduced) {   // alles meteen, geen confetti
-    el.querySelectorAll(".lb-pod-spot, .lb-wk-restrow, .lb-wk-note, .podpop-foot").forEach((n) => n.classList.add("in"));
+    el.querySelectorAll(".lb-pod-spot, .lb-wk-restrow, .lb-wk-note, .lb-wk-awards, .podpop-foot").forEach((n) => n.classList.add("in"));
     el.querySelector(".lb-pod-stage")?.classList.add("lit");
     return;
   }
@@ -7627,6 +7734,7 @@ function showPodiumPopup() {
   }));
   at(lastAt + 500, () => {
     el.querySelector(".lb-wk-note")?.classList.add("in");
+    el.querySelector(".lb-wk-awards")?.classList.add("in");
     el.querySelectorAll(".lb-wk-restrow").forEach((r, i) => at(60 * i, () => r.classList.add("in")));
     at(250, () => el.querySelector(".podpop-foot")?.classList.add("in"));
   });

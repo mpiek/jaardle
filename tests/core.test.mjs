@@ -64,7 +64,8 @@ src += `
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
-  ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
+  awardsHtml, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1391,6 +1392,91 @@ test("flair-fx.css — elk effect heeft z'n regels, zijn stilstaande pose en de 
   const all = new Set([...defined(base), ...defined(lazy)]);
   for (const tok of used(lazy)) assert.ok(all.has(tok), `flair-fx.css gebruikt --fx-${tok} zonder definitie`);
   assert.ok(/@keyframes fx-twinkle\s*\{/.test(base) && !/@keyframes fx-twinkle\s*\{/.test(lazy), "fx-twinkle staat bij de Holo-foil-sierrand in style.css");
+});
+
+// ── Weekprijzen (db/80): alleen weergave, de server rekent ──
+const AW = (kind, extra = {}) => ({ kind, display_name: extra.name || "Noor", flair: extra.flair ?? "🦉", title: extra.title ?? "", is_me: !!extra.me, detail: extra.detail || {} });
+test("awardsHtml — vaste volgorde, eigen regel gemarkeerd, geen leeg blok, tussenstand-kop", () => {
+  T.setLang("nl");
+  assert.equal(T.awardsHtml([], false), "");
+  assert.equal(T.awardsHtml(undefined, false), "", "geen antwoord (RPC mislukt) → geen blok");
+  const html = T.awardsHtml([
+    AW("reuzendoder", { name: "Bram", detail: { day: "2026-09-30", score: 94, victim_score: 71, victim: "Sem" } }),
+    AW("stijger", { name: "Fenna", detail: { pct: 24, baseline: 412, week_score: 511 } }),
+    AW("streak", { name: "Lotte", me: true, detail: { days: 14 } }),
+    AW("record", { name: "Daan", detail: { week_score: 438, previous_best: 402 } }),
+    AW("terug", { name: "Milan", detail: { gap_days: 12 } }),
+  ], false);
+  const order = ["Stijger", "14 dagen op rij", "Persoonlijk record", "Welkom terug", "Reuzendoder"].map((x) => html.indexOf(x));
+  assert.ok(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), "volgorde: " + order);
+  assert.match(html, /Weekprijzen<\/div>/);
+  assert.match(html, /24% boven het eigen gemiddelde \(412 → 511\)/);
+  assert.match(html, /versloeg Sem \(woensdag\): 94 tegen 71/);
+  assert.match(html, /inhaalpotjes tellen mee/);
+  assert.equal((html.match(/class="lb-aw lb-me"/g) || []).length, 1, "alleen jouw eigen regel is gemarkeerd");
+  assert.match(T.awardsHtml([AW("terug", { detail: { gap_days: 9 } })], true), /Weekprijzen tot nu toe/);
+});
+
+test("awardsHtml — een stijger zonder stijging en een reeks zonder dagen bestaan niet; namen worden ontsnapt", () => {
+  T.setLang("nl");
+  assert.equal(T.awardsHtml([AW("stijger", { detail: { pct: 0, baseline: 400, week_score: 400 } })], true), "");
+  assert.equal(T.awardsHtml([AW("stijger", { detail: { pct: -5, baseline: 400, week_score: 380 } })], true), "");
+  assert.equal(T.awardsHtml([AW("streak", { detail: { days: 0 } })], false), "");
+  assert.equal(T.awardsHtml([AW("onbekend")], false), "", "een nieuwere server met een onbekende soort: gewoon overslaan");
+  const html = T.awardsHtml([AW("reuzendoder", { name: "<img src=x onerror=alert(1)>", detail: { day: "2026-09-30", score: 90, victim_score: 70, victim: "<b>Sem</b>" } })], false);
+  assert.ok(!html.includes("<img") && !html.includes("<b>Sem"), "geen ongeëscapete HTML uit namen");
+  assert.match(html, /&lt;img/);
+});
+
+test("awardTexts / weekdayName — vijf talen, weekdag klopt in elke tijdzone", () => {
+  const was = process.env.TZ;
+  try {
+    for (const tz of ["Europe/Amsterdam", "America/New_York", "Pacific/Auckland"]) {
+      process.env.TZ = tz;
+      T.setLang("nl"); assert.equal(T.weekdayName("2026-09-30"), "woensdag", tz);
+      T.setLang("en"); assert.equal(T.weekdayName("2026-09-30"), "Wednesday", tz);
+    }
+    for (const lang of ["nl", "en", "de", "es", "pt"]) {
+      T.setLang(lang);
+      for (const [kind, detail] of [["stijger", { pct: 20, baseline: 300, week_score: 360 }], ["streak", { days: 7 }], ["record", { week_score: 400, previous_best: 380 }],
+        ["terug", { gap_days: 8 }], ["reuzendoder", { day: "2026-09-30", score: 80, victim_score: 60, victim: "X" }]]) {
+        const x = T.awardTexts(AW(kind, { detail }));
+        assert.ok(x && x.title && x.detail, `${lang}/${kind}`);
+        assert.ok(!/undefined|NaN|\[object/.test(x.title + x.detail), `${lang}/${kind}: ${x.title} / ${x.detail}`);
+      }
+    }
+  } finally { process.env.TZ = was; T.setLang("nl"); }
+});
+
+test("awardMeHtml — persoonlijke regel: wat je nog nodig hebt, alleen als je deze week speelde", () => {
+  T.setLang("nl");
+  const me = (d) => [AW("me", { me: true, detail: d })];
+  assert.equal(T.awardMeHtml([]), "");
+  assert.equal(T.awardMeHtml(me({ played: 0, week_score: 0, best_week_before: 400 })), "", "nog niet gespeeld → niets");
+  const a = T.awardMeHtml(me({ played: 3, week_score: 281, best_week_before: 438, streak: 12, next_milestone: 14 }));
+  assert.match(a, /Jij: 3 dagen gespeeld, 281 punten\. Nog 157 voor je beste week \(438\)\./);
+  assert.match(a, /🔥 12 dagen op rij, nog 2 tot 14\./);
+  const b = T.awardMeHtml(me({ played: 1, week_score: 90, best_week_before: 0, streak: 1, next_milestone: 3 }));
+  assert.match(b, /Jij: 1 dag gespeeld, 90 punten\./); assert.ok(!b.includes("beste week"), "geen beste week om mee te vergelijken");
+  assert.match(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 0, next_milestone: 3 })), /Je zit al boven je beste week \(438\)/);
+  assert.ok(!/🔥/.test(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 20, next_milestone: 14 }))), "geen volgende mijlpaal → geen regel");
+});
+
+test("podiumHtml / recapRaceHtml — de prijzen staan tussen podium+formule en de rest van de stand", () => {
+  T.setLang("nl");
+  const rows = [1, 2, 3, 4, 5].map((i) => ({ rank: i, display_name: "Sp" + i, flair: "", title: "", week_score: 600 - i * 50, daily_wins: 0, played: 7, is_me: i === 4, prev_rank: i }));
+  const awards = [AW("terug", { name: "Sp5", detail: { gap_days: 12 } })];
+  const html = T.podiumHtml(rows, false, awards);
+  const iNote = html.indexOf("lb-wk-note"), iAw = html.indexOf("lb-wk-awards"), iRest = html.indexOf("lb-wk-rest");
+  assert.ok(iNote > 0 && iAw > iNote && iRest > iAw, `volgorde ${iNote} < ${iAw} < ${iRest}`);
+  assert.ok(!T.podiumHtml(rows, false, []).includes("lb-wk-awards"), "zonder prijzen is de pop-up precies als nu");
+  assert.ok(!T.podiumHtml(rows, false).includes("lb-wk-awards"));
+  const race = T.recapRaceHtml(rows.map((r) => ({ ...r, runner: "" })), [...awards, AW("me", { me: true, detail: { played: 2, week_score: 150, best_week_before: 300, streak: 2, next_milestone: 3 } })]);
+  assert.match(race, /Weekprijzen tot nu toe/); assert.match(race, /lb-aw-me/);
+});
+
+test("fetchWeekAwards — een mislukte of ontbrekende RPC geeft een lege lijst (pop-up valt terug op het oude)", async () => {
+  assert.deepEqual(await T.fetchWeekAwards("00000000-0000-0000-0000-000000000000", "2026-09-28"), []);
 });
 
 // ── Sierrand-keuze (Certificaat · Holo-foil · Art deco) en de kluis in tabs ──

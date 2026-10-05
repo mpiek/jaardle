@@ -2521,6 +2521,20 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 .lb-wk-rf { font-size: 1.05rem; line-height: 1; text-align: center; }
 .lb-wk-rn { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-wk-rc { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+/* Weekprijzen (db/80): prijzen met een ander criterium dan hoog scoren, onder het podium en de race. Geen pilletjes bij namen. */
+.lb-wk-awards { margin: 0.2rem 0 0.7rem; }
+.lb-aw-t { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0 0.35rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.lb-aw-t::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.lb-aw-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.lb-aw { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; border-radius: 8px; background: var(--card-soft); font-size: 0.84rem; }
+.lb-aw > i { font-style: normal; font-size: 1.1rem; line-height: 1; text-align: center; }
+.lb-aw b { display: block; font-weight: 700; }
+.lb-aw span { display: block; color: var(--muted); font-size: 0.74rem; line-height: 1.25; }
+.lb-aw em { font-style: normal; font-weight: 700; max-width: 10rem; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-aw.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
+.lb-aw-me { margin-top: 0.4rem; padding: 0.45rem 0.6rem; border-radius: 8px; background: color-mix(in srgb, var(--accent) 16%, var(--card-soft)); font-size: 0.8rem; }
+.lb-aw-me p { margin: 0; }
+.lb-aw-me p + p { margin-top: 0.2rem; }
 
 /* ▲/▼-weekstand-delta t.o.v. gisteravond (recap-race + live podium-tab);
    zelfde kleurtaal als .rating-delta — richting zit in het symbool, kleur is extra */
@@ -2706,8 +2720,8 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .podpop-anim .lb-pod-spot.in .lb-pod-block { transform: none; }
 .podpop-anim .lb-pod-spot.in .lb-pod-block > *, .podpop-anim .lb-pod-spot.in .lb-pod-name, .podpop-anim .lb-pod-spot.in .lb-pod-flair { opacity: 1; transform: none; }
 .podpop-anim .lb-pod-spot.in .lb-pod-u { opacity: 0.75; }   /* ná de > *-regel: label houdt z'n gedempte tint */
-.podpop-anim .lb-wk-restrow, .podpop-anim .lb-wk-note, .podpop-anim .podpop-foot { opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease, transform 0.3s ease; }
-.podpop-anim .lb-wk-restrow.in, .podpop-anim .lb-wk-note.in, .podpop-anim .podpop-foot.in { opacity: 1; transform: none; }
+.podpop-anim .lb-wk-restrow, .podpop-anim .lb-wk-note, .podpop-anim .lb-wk-awards, .podpop-anim .podpop-foot { opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease, transform 0.3s ease; }
+.podpop-anim .lb-wk-restrow.in, .podpop-anim .lb-wk-note.in, .podpop-anim .lb-wk-awards.in, .podpop-anim .podpop-foot.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .podpop-card, .podpop .modal-backdrop { transition: none; }
 }
@@ -2753,6 +2767,11 @@ html[data-theme="light"], html[data-theme="parchment"] {
 }
 .podpop.night.podpop-anim .lb-pod-stage:not(.lit)::before { opacity: 0; }
 .podpop.night .lb-wk-note { color: #a995c0; }
+.podpop.night .lb-aw-t { color: #a995c0; }
+.podpop.night .lb-aw-t::after { background: #ffffff1f; }
+.podpop.night .lb-aw { background: #ffffff12; }
+.podpop.night .lb-aw span { color: #b6a4cf; }
+.podpop.night .lb-aw.lb-me { background: linear-gradient(90deg, #f4c4302b, #f4c4300d); box-shadow: inset 2px 0 0 #f4c430; }
 .podpop.night .lb-wk-rc { color: #b6a4cf; }
 .podpop.night .lb-wk-restrow.lb-me { background: linear-gradient(90deg, #f4c4302b, #f4c4300d); box-shadow: inset 2px 0 0 #f4c430; }
 .podpop.night .podpop-go { color: #1a0f10; background: linear-gradient(180deg, #f7d474, #c9a227); box-shadow: 0 10px 22px -10px #f4c430aa; }
