@@ -64,7 +64,7 @@ src += `
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
-  getFxRun: () => fxRun, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1349,6 +1349,48 @@ test("renderHistoryList — een perfecte week krijgt een gouden band, andere dag
   const mixed = days("2026-09-21", 7); mixed[2].won = false;
   T.renderHistoryList(body, mixed);
   assert.ok(!body.innerHTML.includes('class="pw"'));
+});
+
+// ── De effect-CSS laadt lui ──
+test("ensureFlairFxCss — flair-fx.css wordt pas opgehaald bij het eerste flair-effect, één keer, en opnieuw geprobeerd na een fout", () => {
+  const saveCreate = document.createElement, saveHead = document.head, appended = [];
+  document.createElement = () => ({ remove() { this.removed = true; } });
+  document.head = { appendChild(el) { appended.push(el); } };
+  try {
+    assert.equal(T.flairFxClass("", false), "", "zonder effect niets ophalen");
+    assert.equal(appended.length, 0);
+    assert.match(T.flairFxClass("ember", true), /fl-fx fx-ember fl-still/);
+    assert.equal(appended.length, 1);
+    assert.equal(appended[0].rel, "stylesheet");
+    assert.match(appended[0].href, /^\/flair-fx\.css(\?v=.*)?$/);
+    T.flairFxClass("glow", false); T.flairFxClass("lotus", true);
+    assert.equal(appended.length, 1, "één keer, niet per flair");
+    appended[0].onerror();   // netwerkfout → link weg, volgende render probeert opnieuw
+    assert.ok(appended[0].removed);
+    T.flairFxClass("glow", false);
+    assert.equal(appended.length, 2);
+    T.flairFxClass("glow", false);
+    assert.equal(appended.length, 2);
+  } finally {
+    if (appended.length) appended[appended.length - 1].onerror?.();   // laat de status schoon achter voor de volgende test
+    document.createElement = saveCreate; document.head = saveHead;
+  }
+});
+
+test("flair-fx.css — elk effect heeft z'n regels, zijn stilstaande pose en de minder-beweging-variant; tokens zijn gedefinieerd", () => {
+  const lazy = readFileSync(join(dir, "..", "flair-fx.css"), "utf8"), base = readFileSync(join(dir, "..", "style.css"), "utf8");
+  for (const id of Object.keys(T.FLAIR_FX)) {
+    assert.ok(new RegExp(`\\.fx-${id}\\b`).test(lazy), `${id}: geen .fx-${id}-regels in flair-fx.css`);
+    assert.ok(new RegExp(`\\.fl-still\\.fx-${id}\\b`).test(lazy), `${id}: geen stilstaande pose (.fl-still)`);
+    assert.ok(new RegExp(`\\.fl-fx\\.fx-${id}\\b`).test(lazy), `${id}: geen minder-beweging-pose (.fl-fx binnen prefers-reduced-motion)`);
+    assert.ok(!new RegExp(`\\.fx-${id}\\b`).test(base), `${id}: de effect-regels horen niet in de eerste paint (style.css)`);
+  }
+  const used = (css) => new Set([...css.matchAll(/var\(--fx-([a-z0-9-]+)/g)].map((m) => m[1]));
+  const defined = (css) => new Set([...css.matchAll(/--fx-([a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+  for (const tok of used(base)) assert.ok(defined(base).has(tok), `style.css gebruikt --fx-${tok} maar definieert hem niet (de lazy CSS is er niet altijd)`);
+  const all = new Set([...defined(base), ...defined(lazy)]);
+  for (const tok of used(lazy)) assert.ok(all.has(tok), `flair-fx.css gebruikt --fx-${tok} zonder definitie`);
+  assert.ok(/@keyframes fx-twinkle\s*\{/.test(base) && !/@keyframes fx-twinkle\s*\{/.test(lazy), "fx-twinkle staat bij de Holo-foil-sierrand in style.css");
 });
 
 // ── Sierrand-keuze (Certificaat · Holo-foil · Art deco) en de kluis in tabs ──

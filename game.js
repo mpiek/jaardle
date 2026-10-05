@@ -4674,7 +4674,21 @@ function joinFlair(emoji, fx) { return emoji ? emoji + (fx && isFlairFx(fx) ? FL
 // Beweging volgt de emoji's: een effect beweegt waar de flair beweegt (rang 1, aanwijzen/tikken, het podium) en op de
 // plekken waar je je beloning bekijkt (kluis, unlock-pop-up, sierrand). Overal elders (`still`) staat het in een vaste
 // pose — dezelfde als bij "minder beweging" (style.css, .fl-still).
-const flairFxClass = (fx, still) => (fx ? ` fl-fx fx-${fx}${still ? " fl-still" : ""}` : "");
+// De effect-CSS (flair-fx.css, ~3 KB gzip) hoort bij zeldzaam beeld: de meeste spelers zien nooit een flair-effect. Hij wordt dus
+// pas opgehaald zodra er één gerenderd wordt (de layout-basis staat in style.css, dus niets verspringt als hij binnenkomt).
+let flairFxCssLink = null;
+function ensureFlairFxCss() {
+  if (flairFxCssLink) return;
+  try {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "/flair-fx.css" + (GAME_V ? "?v=" + encodeURIComponent(GAME_V) : "");
+    link.onerror = () => { link.remove(); if (flairFxCssLink === link) flairFxCssLink = null; };   // bij de volgende render opnieuw proberen
+    flairFxCssLink = link;
+    document.head.appendChild(link);
+  } catch (e) { flairFxCssLink = null; }
+}
+const flairFxClass = (fx, still) => { if (!fx) return ""; ensureFlairFxCss(); return ` fl-fx fx-${fx}${still ? " fl-still" : ""}`; };
 function flairFxWrap(fx, html, still) { return fx ? `<span class="${flairFxClass(fx, still).trim()}">${html}</span>` : html; }
 function flairStaticHtml(raw) { const p = parseFlair(raw); return p.emoji ? flairFxWrap(p.fx, escHtml(p.emoji), true) : ""; }
 function flairFxEarned(a) { return a && auth.user ? Object.keys(FLAIR_FX).filter((id) => FLAIR_FX[id].earned(a)) : []; }
