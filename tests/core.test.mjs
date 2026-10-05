@@ -61,6 +61,7 @@ src += `
   fmtDailyDate, fmtHistoryDate,
   achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml,
   streakFlameTier, streakFlameHtml, withAnimEmoji,
+  perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1122,6 +1123,49 @@ test("streakFlameHtml / withAnimEmoji — tier-klasse, boei bij een redding, res
     assert.equal(T.streakFlameHtml(3), "🔥");
     assert.match(T.streakFlameHtml(94), /<span class="flm s4"><span class="flm-g">🔥<\/span><\/span>/);
   } finally { globalThis.matchMedia = was; }
+});
+
+// ── Perfecte week: trofee en gouden weekband delen dezelfde regel ──
+test("perfectWeekKeys — ma–zo weken met 7 winsten, niet retroactief, verliezen en gaten tellen niet", () => {
+  const days = (from, n, won = true) => Array.from({ length: n }, (_, k) => {
+    const d = new Date(`${from}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + k);
+    return { date: d.toISOString().slice(0, 10), won, score: 90 };
+  });
+  assert.equal(T.weekMondayKey("2026-10-05"), "2026-10-05", "maandag is zijn eigen weekstart");
+  assert.equal(T.weekMondayKey("2026-10-11"), "2026-10-05", "zondag hoort bij de week ervoor");
+  assert.equal(T.weekMondayKey("2026-10-12"), "2026-10-12");
+  assert.equal(T.weekMondayKey("kapot"), null);
+  assert.deepEqual([...T.perfectWeekKeys(days("2026-09-21", 7))], ["2026-09-21"]);
+  assert.deepEqual([...T.perfectWeekKeys(days("2026-09-14", 14))].sort(), ["2026-09-14", "2026-09-21"], "twee weken op rij");
+  assert.equal(T.perfectWeekKeys(days("2026-09-21", 6)).size, 0, "6 van 7 telt niet");
+  assert.equal(T.perfectWeekKeys(days("2026-09-22", 7)).size, 0, "7 dagen die over twee weken lopen is geen week");
+  const lost = days("2026-09-21", 7); lost[3].won = false;
+  assert.equal(T.perfectWeekKeys(lost).size, 0, "één verloren dag breekt de week");
+  assert.equal(T.perfectWeekKeys(days("2026-08-03", 7)).size, 0, "vóór PERFECT_WEEK_SINCE (10 aug) telt niet retroactief");
+  assert.equal(T.perfectWeekKeys(days("2026-08-10", 7)).size, 1, "de eerste telbare maandag wel");
+  assert.equal(T.perfectWeeks(days("2026-09-14", 14)), 2, "de trofee telt precies de weken van de band");
+});
+
+test("renderHistoryList — een perfecte week krijgt een gouden band, andere dagen niet", () => {
+  T.setLang("nl");
+  const days = (from, n, won = true) => Array.from({ length: n }, (_, k) => {
+    const d = new Date(`${from}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + k);
+    return { date: d.toISOString().slice(0, 10), won, score: 80 };
+  });
+  const body = { innerHTML: "", querySelectorAll: () => [] };
+  // ma 21 t/m zo 27 sep perfect + ma 28 sep en di 29 sep los
+  T.renderHistoryList(body, [...days("2026-09-21", 7), ...days("2026-09-28", 2)]);
+  const html = body.innerHTML;
+  assert.equal((html.match(/class="pw"/g) || []).length, 1, "precies één band");
+  const band = html.slice(html.indexOf('class="pw"'));
+  assert.equal((band.slice(0, band.indexOf("</div>")).match(/history-row/g) || []).length, 7, "de band omvat zeven rijen");
+  assert.ok(html.indexOf("2026-09-29") < html.indexOf('class="pw"'), "nieuwste bovenaan, de losse dagen vóór de band");
+  assert.ok(!html.slice(0, html.indexOf('class="pw"')).includes("pw-tag"));
+  assert.match(html, /7\/7 ✓/);
+  // verliezen en niet-aaneengesloten weken: geen band
+  const mixed = days("2026-09-21", 7); mixed[2].won = false;
+  T.renderHistoryList(body, mixed);
+  assert.ok(!body.innerHTML.includes('class="pw"'));
 });
 
 // ── Sierrand-keuze (Certificaat · Holo-foil · Art deco) en de kluis in tabs ──

@@ -2951,6 +2951,21 @@ html[data-theme="light"], html[data-theme="parchment"] {
 /* 📅 Geschiedenis: lijstrijen zijn .lb-row's die tegelijk knoppen zijn (drill-down). */
 .history-row { border: 0; width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .history-row:hover, .history-row:focus-visible { background: color-mix(in srgb, var(--accent) 12%, var(--card-soft)); }
+/* Perfecte week (7 van 7 gewonnen): een gouden band langs de zeven rijen, met een kleine 7/7-pil erboven. De ruimte
+   voor de pil zit in de bovenmarge van de groep; de rijen zelf krijgen een lichte gouden tint. */
+.pw { position: relative; display: flex; flex-direction: column; gap: 2px; padding-left: 11px; margin-block: 24px 6px; }
+.pw::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 2px;
+  background: linear-gradient(var(--achv-gold), color-mix(in srgb, var(--achv-gold) 50%, #fff));
+}
+.pw .lb-row { background: color-mix(in srgb, var(--achv-gold) 11%, var(--card-soft)); }
+.pw .history-row:hover, .pw .history-row:focus-visible { background: color-mix(in srgb, var(--achv-gold) 22%, var(--card-soft)); }
+.pw-tag {
+  position: absolute; right: 0; top: -20px; z-index: 2; display: flex; gap: 4px; align-items: center;
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px;
+  background: var(--achv-gold); color: #2a2000;
+}
+.lb-table > .pw:first-child { margin-top: 22px; }
 .history-daylabel { margin: 0; color: var(--muted); font-size: 0.85rem; }
 .history-fact { margin: 0; }
 .history-score { margin: 0; font-weight: 600; }

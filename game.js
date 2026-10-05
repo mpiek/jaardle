@@ -204,6 +204,7 @@ const I18N = {
     won_intro: "Goed geraden! Het was", lost_intro: "Helaas — het juiste jaar was", source: "Bron:",
     stats_empty: "Nog geen dagelijkse puzzels afgerond.",
     history_empty: "Je hebt nog geen dailies gespeeld.",
+    history_perfect_week: "Perfecte week: alle 7 dailies gewonnen",
     stats_daily: "Dagelijks", stats_free: "Vrij spelen",
     stats_free_empty: "Nog geen vrije potjes gespeeld.", stats_tab_aria: "Kies statistiek",
     stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak", stat_perfect_streak: "100-punters op rij",
@@ -503,6 +504,7 @@ const I18N = {
     won_intro: "Well guessed! It was", lost_intro: "Too bad — the year was", source: "Source:",
     stats_empty: "No daily puzzles finished yet.",
     history_empty: "You haven't played any dailies yet.",
+    history_perfect_week: "Perfect week: all 7 dailies won",
     stats_daily: "Daily", stats_free: "Free play",
     stats_free_empty: "No free-play rounds yet.", stats_tab_aria: "Choose stat",
     stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak", stat_perfect_streak: "Perfect scores in a row",
@@ -805,6 +807,7 @@ const I18N = {
     won_intro: "Gut geraten! Es war", lost_intro: "Schade — das richtige Jahr war", source: "Quelle:",
     stats_empty: "Noch keine täglichen Rätsel abgeschlossen.",
     history_empty: "Du hast noch keine täglichen Rätsel gespielt.",
+    history_perfect_week: "Perfekte Woche: alle 7 Dailies gewonnen",
     stats_daily: "Täglich", stats_free: "Freies Spiel",
     stats_free_empty: "Noch keine Runden im freien Spiel.", stats_tab_aria: "Statistik wählen",
     stat_played: "Gespielt", stat_winrate: "Gewinnrate", stat_curstreak: "Aktuelle Serie", stat_perfect_streak: "100er in Folge",
@@ -1101,6 +1104,7 @@ const I18N = {
     won_intro: "¡Bien adivinado! Era", lost_intro: "Vaya — el año correcto era", source: "Fuente:",
     stats_empty: "Aún no has completado ningún puzle diario.",
     history_empty: "Aún no has jugado ningún diario.",
+    history_perfect_week: "Semana perfecta: las 7 diarias ganadas",
     stats_daily: "Diario", stats_free: "Partida libre",
     stats_free_empty: "Aún no has jugado ninguna partida libre.", stats_tab_aria: "Elegir estadística",
     stat_played: "Jugadas", stat_winrate: "Aciertos", stat_curstreak: "Racha actual", stat_perfect_streak: "Perfectas seguidas",
@@ -1402,6 +1406,7 @@ const I18N = {
     won_intro: "Boa! O ano era", lost_intro: "Que pena — o ano certo era", source: "Fonte:",
     stats_empty: "Você ainda não concluiu nenhum quebra-cabeça diário.",
     history_empty: "Você ainda não jogou nenhum diário.",
+    history_perfect_week: "Semana perfeita: as 7 diárias vencidas",
     stats_daily: "Diário", stats_free: "Jogo livre",
     stats_free_empty: "Ainda não jogou nenhuma partida livre.", stats_tab_aria: "Escolher estatística",
     stat_played: "Jogadas", stat_winrate: "Acertos", stat_curstreak: "Sequência atual", stat_perfect_streak: "Perfeitas seguidas",
@@ -7251,29 +7256,30 @@ async function fetchAchievements() {
 // cross-device gelijk — geen per-apparaat-baseline nodig. Lexicografische
 // "YYYY-MM-DD"-vergelijking = chronologisch.
 const PERFECT_WEEK_SINCE = "2026-08-10";   // eerste telbare ma–zo week
-// Aantal ma–zo weken (vanaf PERFECT_WEEK_SINCE) waarin álle 7 dailies gewonnen
-// zijn. Weekgrens = maandag, gelijk aan het weekpodium ("vanaf maandag"). UTC-
-// datums (de daily-sleutel is een kalenderdatum), zodat de telling niet met de
-// tijdzone meeschuift.
-function perfectWeeks(hist) {
+// De ma–zo weken (vanaf PERFECT_WEEK_SINCE) waarin álle 7 dailies gewonnen zijn, als set van maandag-sleutels
+// ("YYYY-MM-DD"). Weekgrens = maandag, gelijk aan het weekpodium ("vanaf maandag"). UTC-datums (de daily-sleutel
+// is een kalenderdatum), zodat de telling niet met de tijdzone meeschuift. Gedeeld door de trofee (perfectWeeks)
+// en de gouden weekband in de Geschiedenis, zodat die twee nooit uit elkaar lopen.
+function weekMondayKey(date) {
+  const d = new Date(`${date}T00:00:00Z`);
+  if (isNaN(d)) return null;
+  const monday = new Date(d);
+  monday.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));   // 0 = maandag … 6 = zondag
+  return monday.toISOString().slice(0, 10);
+}
+function perfectWeekKeys(hist) {
   const byWeek = new Map();
   for (const e of hist) {
     if (!e.won) continue;
-    const d = new Date(`${e.date}T00:00:00Z`);
-    if (isNaN(d)) continue;
-    const dow = (d.getUTCDay() + 6) % 7;            // 0 = maandag … 6 = zondag
-    const monday = new Date(d);
-    monday.setUTCDate(d.getUTCDate() - dow);
-    const key = monday.toISOString().slice(0, 10);
-    if (key < PERFECT_WEEK_SINCE) continue;         // niet retroactief
+    const key = weekMondayKey(e.date);
+    if (!key || key < PERFECT_WEEK_SINCE) continue;   // niet retroactief
     let set = byWeek.get(key);
     if (!set) { set = new Set(); byWeek.set(key, set); }
     set.add(e.date);
   }
-  let n = 0;
-  for (const set of byWeek.values()) if (set.size >= 7) n += 1;
-  return n;
+  return new Set([...byWeek].filter(([, days]) => days.size >= 7).map(([key]) => key));
 }
+const perfectWeeks = (hist) => perfectWeekKeys(hist).size;
 
 // Welke prestatie-flairs zijn verdiend? (client-weergave; de server hergate in
 // set_my_flair, dus dit hoeft alleen de kiezer te voeden.)
@@ -8930,12 +8936,26 @@ function renderHistoryList(body, rows) {
     return;
   }
   const sorted = [...rows].sort((a, b) => b.date.localeCompare(a.date));
-  body.innerHTML = `<div class="lb-table">` + sorted.map((r) =>
+  const rowHtml = (r) =>
     `<button type="button" class="lb-row history-row" data-date="${r.date}">` +
       `<span class="lb-rank">#${dayNumForKey(r.date)}</span>` +
       `<span class="lb-name">${escHtml(fmtHistoryDate(r.date))}</span>` +
       `<span class="lb-val"><span class="lb-score">${r.won ? r.score : "💀"}</span></span>` +
-    `</button>`).join("") + `</div>`;
+    `</button>`;
+  // Elke perfecte week (7 van 7 gewonnen, zie perfectWeekKeys) krijgt een gouden band: zo zie je ze groeien.
+  const perfect = perfectWeekKeys(rows);
+  const parts = [];
+  for (let i = 0; i < sorted.length;) {
+    const mon = weekMondayKey(sorted[i].date);
+    let j = i;
+    while (j < sorted.length && weekMondayKey(sorted[j].date) === mon) j += 1;
+    const week = sorted.slice(i, j).map(rowHtml).join("");
+    parts.push(perfect.has(mon)
+      ? `<div class="pw" role="group" aria-label="${escHtml(t("history_perfect_week"))}"><span class="pw-tag" title="${escHtml(t("history_perfect_week"))}">7/7 ✓</span>${week}</div>`
+      : week);
+    i = j;
+  }
+  body.innerHTML = `<div class="lb-table">${parts.join("")}</div>`;
   body.querySelectorAll(".history-row").forEach((btn) => {
     btn.onclick = () => openHistoryDetail(body, btn.dataset.date, sorted.find((r) => r.date === btn.dataset.date));
   });
