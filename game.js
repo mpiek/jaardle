@@ -5447,6 +5447,13 @@ function startPodiumCountdown() {
 
 // Stopt de doorlopende podium-confetti en ruimt het canvas op. Voorkomt een eeuwige
 // rAF-lus / lek zodra je de podium-tab of het bord verlaat.
+// Laat de confetti zacht uitfaden (0,7 s) en stopt dan de lus. De maandag-pop-up doet dit zodra je van stap 1 afgaat.
+function fadePodiumConfetti() {
+  const cvs = document.querySelectorAll(".lb-pod-conf");
+  if (!cvs.length) return;
+  cvs.forEach((c) => { c.style.transition = "opacity 0.7s ease"; c.style.opacity = "0"; });
+  podiumPopTimers.push(setTimeout(stopPodiumConfetti, 750));
+}
 function stopPodiumConfetti() {
   if (podiumConfRAF) { cancelAnimationFrame(podiumConfRAF); podiumConfRAF = null; }
   document.querySelectorAll(".lb-pod-conf").forEach((c) => c.remove());
@@ -7950,7 +7957,7 @@ function showPodiumPopup() {
     el.querySelectorAll(".podpop-arrow").forEach((a) => { a.disabled = n + +a.dataset.dir < 0 || n + +a.dataset.dir >= steps.length; });
     el.querySelector(".podpop-live").hidden = n < steps.length - 1;
     el.querySelector(".podpop-scroll").scrollTop = 0;
-    if (n > 0) revealStep(n);
+    if (n > 0) { fadePodiumConfetti(); revealStep(n); }   // confetti hoort bij de uitslag (stap 1); daarna faden we hem uit
   };
   el.querySelector(".podpop-go").addEventListener("click", () => { if (step < steps.length - 1) goStep(step + 1); else closeAllModals(); });
   el.querySelectorAll(".podpop-dot").forEach((d) => d.addEventListener("click", () => goStep(+d.dataset.to)));
@@ -8004,7 +8011,7 @@ function showPodiumPopup() {
     sp.classList.add("in");
     if (i === last) {
       el.querySelector(".lb-pod-stage")?.classList.add("lit");   // gouden gloed achter het podium faden in met de 🥇
-      showPodiumConfetti(el.querySelector(".podpop-card"), { burst: true, night: true });
+      if (step === 0) showPodiumConfetti(el.querySelector(".podpop-card"), { burst: true, night: true });   // al doorgeklikt? dan geen confetti meer
     }
   }));
   at(lastAt + 500, () => {
