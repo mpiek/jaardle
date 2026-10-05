@@ -2116,8 +2116,7 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
   left: 50%;
   transform: translateX(-50%);
   display: grid;
-  pointer-events: none;   /* de tik gaat naar de staaf eronder */
-  animation: hist-face-in 0.25s ease-out;
+  animation: hist-face-in 0.25s ease-out;   /* geen pointer-events: none — het gezichtje zit in de staaf-knop en steekt er een paar px uit, een tik erop moet bubbelen naar dezelfde klik */
 }
 @supports (width: 1cqw) {
   .hist-tower { --fs: min(24px, calc((100cqw - (var(--n) - 1) * 6px) / var(--n) + 4px)); }
