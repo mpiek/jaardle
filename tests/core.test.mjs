@@ -1409,12 +1409,27 @@ test("awardsHtml — vaste volgorde, eigen regel gemarkeerd, geen leeg blok, tus
   ], false);
   const order = ["Stijger", "14 dagen op rij", "Persoonlijk record", "Welkom terug", "Reuzendoder"].map((x) => html.indexOf(x));
   assert.ok(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), "volgorde: " + order);
-  assert.match(html, /Weekprijzen<\/div>/);
+  assert.match(html, /<span>Weekprijzen<\/span>/);
   assert.match(html, /24% boven het eigen gemiddelde \(412 → 511\)/);
   assert.match(html, /versloeg Sem \(woensdag\): 94 tegen 71/);
   assert.match(html, /inhaalpotjes tellen mee/);
   assert.equal((html.match(/class="lb-aw lb-me"/g) || []).length, 1, "alleen jouw eigen regel is gemarkeerd");
   assert.match(T.awardsHtml([AW("terug", { detail: { gap_days: 9 } })], true), /Weekprijzen tot nu toe/);
+});
+
+test("awardsHtml live (Week-tab) — compact: één regel per prijs zonder uitleg, afsluitregel deelt de kop", () => {
+  T.setLang("nl");
+  const aw = [AW("stijger", { name: "Fenna", detail: { pct: 18, baseline: 300, week_score: 354 } }), AW("streak", { name: "Sem", detail: { days: 7 } }),
+    AW("record", { name: "Daan", detail: { week_score: 438, previous_best: 402 } }), AW("reuzendoder", { name: "Bram", detail: { day: "2026-09-30", score: 94, victim_score: 71, victim: "Sem" } })];
+  const live = T.awardsHtml(aw, true, "🏁 sluit ma 12:00 · nog 6 d");
+  assert.match(live, /<div class="lb-aw-t"><span>Weekprijzen tot nu toe<\/span><small>🏁 sluit ma 12:00 · nog 6 d<\/small><\/div>/);
+  assert.ok(!live.includes("inhaalpotjes tellen mee") && !live.includes("boven het eigen gemiddelde") && !live.includes("versloeg"), "geen uitlegregels in de tussenstand");
+  assert.match(live, /<b>Stijger<\/b><span>\+18%<\/span>/); assert.match(live, /<b>Persoonlijk record<\/b><span>438<\/span>/); assert.match(live, /<b>Reuzendoder<\/b><span>94–71<\/span>/);
+  assert.match(live, /<b>7 dagen op rij<\/b><\/div>/, "de reeks heeft het getal al in de titel");
+  assert.equal((live.match(/lb-aw-c/g) || []).length, 4);
+  const closed = T.awardsHtml(aw, false);
+  assert.ok(closed.includes("inhaalpotjes tellen mee") && closed.includes("versloeg Sem (woensdag)"), "een afgeronde week houdt de uitleg");
+  assert.ok(!closed.includes("lb-aw-c") && !closed.includes("<small>"));
 });
 
 test("awardsHtml — een stijger zonder stijging en een reeks zonder dagen bestaan niet; namen worden ontsnapt", () => {
@@ -1462,6 +1477,33 @@ test("awardMeHtml — persoonlijke regel: wat je nog nodig hebt, alleen als je d
   assert.ok(!/🔥/.test(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 20, next_milestone: 14 }))), "geen volgende mijlpaal → geen regel");
 });
 
+test("awardsHtml — meerdere winnaars van één prijs staan samen op één regel, hoogste eerst; één winnaar houdt de gewone regel", () => {
+  T.setLang("nl");
+  const aw = [AW("streak", { name: "Cavia Tom", detail: { days: 7 } }), AW("streak", { name: "Mike", detail: { days: 30 } }), AW("streak", { name: "Jij", me: true, detail: { days: 14 } }),
+    AW("record", { name: "Geert", detail: { week_score: 745, previous_best: 714 } }), AW("record", { name: "Joris", detail: { week_score: 634, previous_best: 606 } }),
+    AW("terug", { name: "Glenn", detail: { gap_days: 14 } })];
+  const html = T.awardsHtml(aw, false);
+  assert.equal((html.match(/<li /g) || []).length, 3, "streak, record en terug: drie regels voor zes uitreikingen");
+  assert.equal((html.match(/lb-aw-g/g) || []).length, 2);
+  const iM = html.indexOf("Mike"), iJ = html.indexOf("Jij"), iC = html.indexOf("Cavia Tom");
+  assert.ok(iM > 0 && iM < iJ && iJ < iC, "gesorteerd op dagen: 30, 14, 7");
+  assert.match(html, /<b>Dagen op rij<\/b>/); assert.match(html, /<b>Persoonlijk record<\/b>/);
+  assert.match(html, /lb-aw-p me">Jij/, "jouw naam in de groep is gemarkeerd");
+  assert.match(html, /<li class="lb-aw lb-aw-g lb-me">/, "de groep waar jij in zit is gemarkeerd");
+  assert.match(html, /<b>Welkom terug<\/b><span>weer meegedaan na 14 dagen<\/span>/, "een enkele winnaar houdt titel + uitleg");
+  assert.match(T.awardsHtml(aw, true), /lb-aw lb-aw-g lb-aw-c/);
+});
+
+test("awardMeHtml compact — één regel: wat je nog nodig hebt, zonder herhaling van dagen en punten", () => {
+  T.setLang("nl");
+  const me = (d) => [AW("me", { me: true, detail: d })];
+  const a = T.awardMeHtml(me({ played: 3, week_score: 281, best_week_before: 438, streak: 12, next_milestone: 14 }), true);
+  assert.match(a, /<p>Nog 157 voor je beste week \(438\) · 🔥 nog 2 tot 14<\/p>/); assert.equal((a.match(/<p>/g) || []).length, 1);
+  assert.match(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 0, next_milestone: 3 }), true), /<p>Boven je beste week \(438\)<\/p>/);
+  assert.equal(T.awardMeHtml(me({ played: 2, week_score: 90, best_week_before: 0, streak: 0, next_milestone: 3 }), true), "", "niets te melden → geen blok");
+  assert.equal(T.awardMeHtml(me({ played: 0, week_score: 0, best_week_before: 400, streak: 5, next_milestone: 7 }), true), "");
+});
+
 test("podiumHtml / recapRaceHtml — de prijzen staan tussen podium+formule en de rest van de stand", () => {
   T.setLang("nl");
   const rows = [1, 2, 3, 4, 5].map((i) => ({ rank: i, display_name: "Sp" + i, flair: "", title: "", week_score: 600 - i * 50, daily_wins: 0, played: 7, is_me: i === 4, prev_rank: i }));
@@ -1472,7 +1514,9 @@ test("podiumHtml / recapRaceHtml — de prijzen staan tussen podium+formule en d
   assert.ok(!T.podiumHtml(rows, false, []).includes("lb-wk-awards"), "zonder prijzen is de pop-up precies als nu");
   assert.ok(!T.podiumHtml(rows, false).includes("lb-wk-awards"));
   const race = T.recapRaceHtml(rows.map((r) => ({ ...r, runner: "" })), [...awards, AW("me", { me: true, detail: { played: 2, week_score: 150, best_week_before: 300, streak: 2, next_milestone: 3 } })]);
-  assert.match(race, /Weekprijzen tot nu toe/); assert.match(race, /lb-aw-me/);
+  assert.match(race, /Weekprijzen tot nu toe/); assert.match(race, /lb-aw-me lb-aw-me-c/);
+  assert.equal((race.match(/class="lb-wk-note"/g) || []).length, 0, "met prijzen deelt de afsluitregel de kop (geen aparte regel)");
+  assert.match(T.recapRaceHtml(rows.map((r) => ({ ...r, runner: "" })), []), /class="lb-wk-note"/, "zonder prijzen blijft de afsluitregel zoals hij was");
 });
 
 test("fetchWeekAwards — een mislukte of ontbrekende RPC geeft een lege lijst (pop-up valt terug op het oude)", async () => {

@@ -231,12 +231,14 @@ const I18N = {
     aw_title: "Weekprijzen", aw_title_live: "Weekprijzen tot nu toe",
     aw_stijger: "Stijger", aw_stijger_d: (d) => `${d.pct}% boven het eigen gemiddelde (${d.baseline} → ${d.week_score})`,
     aw_streak: (n) => `${n} dagen op rij`, aw_streak_d: "inhaalpotjes tellen mee",
+    aw_streak_g: "Dagen op rij",
     aw_record: "Persoonlijk record", aw_record_d: (d) => `beste week tot nu toe: ${d.week_score} (daarvoor ${d.previous_best})`,
     aw_terug: "Welkom terug", aw_terug_d: (d) => `weer meegedaan na ${d.gap_days} dagen`,
     aw_reuzendoder: "Reuzendoder", aw_reuzendoder_d: (d, day, victim) => `versloeg ${victim} (${day}): ${d.score} tegen ${d.victim_score}`,
     aw_me_week: (m) => `Jij: ${m.played} ${m.played === 1 ? "dag" : "dagen"} gespeeld, ${m.week_score} punten.`,
     aw_me_best: (left, best) => `Nog ${left} voor je beste week (${best}).`, aw_me_beat: (best) => `Je zit al boven je beste week (${best}).`,
     aw_me_streak: (n, next, left) => `🔥 ${n} dagen op rij, nog ${left} tot ${next}.`,
+    aw_me_c_best: (left, best) => `Nog ${left} voor je beste week (${best})`, aw_me_c_beat: (best) => `Boven je beste week (${best})`, aw_me_c_streak: (left, next) => `🔥 nog ${left} tot ${next}`,
     lb_wk_empty_h: "Geen podium deze week",
     lb_wk_empty_p: "Er is deze week nog niet gespeeld in je pool.",
     lb_wk_soon_h: "Het weekpodium begint binnenkort",
@@ -548,12 +550,14 @@ const I18N = {
     aw_title: "Weekly awards", aw_title_live: "Weekly awards so far",
     aw_stijger: "Climber", aw_stijger_d: (d) => `${d.pct}% above their own average (${d.baseline} → ${d.week_score})`,
     aw_streak: (n) => `${n} days in a row`, aw_streak_d: "makeups count",
+    aw_streak_g: "Days in a row",
     aw_record: "Personal best", aw_record_d: (d) => `best week so far: ${d.week_score} (before: ${d.previous_best})`,
     aw_terug: "Welcome back", aw_terug_d: (d) => `back after ${d.gap_days} days`,
     aw_reuzendoder: "Giant-killer", aw_reuzendoder_d: (d, day, victim) => `beat ${victim} (${day}): ${d.score} to ${d.victim_score}`,
     aw_me_week: (m) => `You: ${m.played} ${m.played === 1 ? "day" : "days"} played, ${m.week_score} points.`,
     aw_me_best: (left, best) => `${left} to go for your best week (${best}).`, aw_me_beat: (best) => `You're already above your best week (${best}).`,
     aw_me_streak: (n, next, left) => `🔥 ${n} days in a row, ${left} to go to ${next}.`,
+    aw_me_c_best: (left, best) => `${left} to go for your best week (${best})`, aw_me_c_beat: (best) => `Above your best week (${best})`, aw_me_c_streak: (left, next) => `🔥 ${left} to ${next}`,
     lb_wk_empty_h: "No podium this week",
     lb_wk_empty_p: "No one has played in your pool this week yet.",
     lb_wk_soon_h: "The week podium starts soon",
@@ -858,12 +862,14 @@ const I18N = {
     aw_title: "Wochenpreise", aw_title_live: "Wochenpreise bisher",
     aw_stijger: "Aufsteiger", aw_stijger_d: (d) => `${d.pct} % über dem eigenen Schnitt (${d.baseline} → ${d.week_score})`,
     aw_streak: (n) => `${n} Tage in Folge`, aw_streak_d: "Nachholspiele zählen mit",
+    aw_streak_g: "Tage in Folge",
     aw_record: "Persönlicher Rekord", aw_record_d: (d) => `beste Woche bisher: ${d.week_score} (vorher ${d.previous_best})`,
     aw_terug: "Willkommen zurück", aw_terug_d: (d) => `nach ${d.gap_days} Tagen wieder dabei`,
     aw_reuzendoder: "Riesentöter", aw_reuzendoder_d: (d, day, victim) => `schlug ${victim} (${day}): ${d.score} zu ${d.victim_score}`,
     aw_me_week: (m) => `Du: ${m.played} ${m.played === 1 ? "Tag" : "Tage"} gespielt, ${m.week_score} Punkte.`,
     aw_me_best: (left, best) => `Noch ${left} bis zu deiner besten Woche (${best}).`, aw_me_beat: (best) => `Du bist schon über deiner besten Woche (${best}).`,
     aw_me_streak: (n, next, left) => `🔥 ${n} Tage in Folge, noch ${left} bis ${next}.`,
+    aw_me_c_best: (left, best) => `Noch ${left} bis zu deiner besten Woche (${best})`, aw_me_c_beat: (best) => `Über deiner besten Woche (${best})`, aw_me_c_streak: (left, next) => `🔥 noch ${left} bis ${next}`,
     lb_wk_empty_h: "Diese Woche kein Podest",
     lb_wk_empty_p: "In deinem Pool wurde diese Woche noch nicht gespielt.",
     lb_wk_soon_h: "Das Wochenpodest startet bald",
@@ -1172,12 +1178,14 @@ const I18N = {
     aw_title: "Premios de la semana", aw_title_live: "Premios de la semana hasta ahora",
     aw_stijger: "Escalador", aw_stijger_d: (d) => `${d.pct} % por encima de su propia media (${d.baseline} → ${d.week_score})`,
     aw_streak: (n) => `${n} días seguidos`, aw_streak_d: "las partidas de recuperación cuentan",
+    aw_streak_g: "Días seguidos",
     aw_record: "Récord personal", aw_record_d: (d) => `mejor semana hasta ahora: ${d.week_score} (antes ${d.previous_best})`,
     aw_terug: "De vuelta", aw_terug_d: (d) => `vuelve tras ${d.gap_days} días`,
     aw_reuzendoder: "Matagigantes", aw_reuzendoder_d: (d, day, victim) => `ganó a ${victim} (${day}): ${d.score} contra ${d.victim_score}`,
     aw_me_week: (m) => `Tú: ${m.played} ${m.played === 1 ? "día" : "días"} jugados, ${m.week_score} puntos.`,
     aw_me_best: (left, best) => `Te faltan ${left} para tu mejor semana (${best}).`, aw_me_beat: (best) => `Ya estás por encima de tu mejor semana (${best}).`,
     aw_me_streak: (n, next, left) => `🔥 ${n} días seguidos, faltan ${left} para ${next}.`,
+    aw_me_c_best: (left, best) => `Te faltan ${left} para tu mejor semana (${best})`, aw_me_c_beat: (best) => `Por encima de tu mejor semana (${best})`, aw_me_c_streak: (left, next) => `🔥 faltan ${left} para ${next}`,
     lb_wk_empty_h: "Sin podio esta semana",
     lb_wk_empty_p: "Todavía nadie ha jugado en tu grupo esta semana.",
     lb_wk_soon_h: "El podio semanal empieza pronto",
@@ -1486,12 +1494,14 @@ const I18N = {
     aw_title: "Prêmios da semana", aw_title_live: "Prêmios da semana até agora",
     aw_stijger: "Em ascensão", aw_stijger_d: (d) => `${d.pct}% acima da própria média (${d.baseline} → ${d.week_score})`,
     aw_streak: (n) => `${n} dias seguidos`, aw_streak_d: "partidas de recuperação contam",
+    aw_streak_g: "Dias seguidos",
     aw_record: "Recorde pessoal", aw_record_d: (d) => `melhor semana até agora: ${d.week_score} (antes ${d.previous_best})`,
     aw_terug: "De volta", aw_terug_d: (d) => `voltou depois de ${d.gap_days} dias`,
     aw_reuzendoder: "Mata-gigantes", aw_reuzendoder_d: (d, day, victim) => `venceu ${victim} (${day}): ${d.score} a ${d.victim_score}`,
     aw_me_week: (m) => `Você: ${m.played} ${m.played === 1 ? "dia" : "dias"} jogados, ${m.week_score} pontos.`,
     aw_me_best: (left, best) => `Faltam ${left} para a sua melhor semana (${best}).`, aw_me_beat: (best) => `Você já está acima da sua melhor semana (${best}).`,
     aw_me_streak: (n, next, left) => `🔥 ${n} dias seguidos, faltam ${left} para ${next}.`,
+    aw_me_c_best: (left, best) => `Faltam ${left} para a sua melhor semana (${best})`, aw_me_c_beat: (best) => `Acima da sua melhor semana (${best})`, aw_me_c_streak: (left, next) => `🔥 faltam ${left} para ${next}`,
     lb_wk_empty_h: "Sem pódio nesta semana",
     lb_wk_empty_p: "Ainda ninguém jogou no seu grupo esta semana.",
     lb_wk_soon_h: "O pódio semanal começa em breve",
@@ -5544,28 +5554,66 @@ function awardTexts(a) {
     default: return null;
   }
 }
-// De prijzen als lijst, in vaste volgorde. `live` = tussenstand van een lopende week. Geen prijzen → niets (geen leeg blok).
+// De prijzen als lijst, in vaste volgorde. `live` = tussenstand van een lopende week: compact, één regel per prijs met alleen
+// het getal erbij (geen uitleg), en `note` (de afsluitregel "sluit ma 12:00 · nog 6 d") deelt de kopregel. Een afgeronde week
+// (pop-up, terugbladeren) houdt de uitleg per prijs. Geen prijzen → niets (geen leeg blok).
 // Een stijger zonder echte stijging bestaat niet (halverwege de week kan niemand nog boven het gemiddelde zitten).
-function awardsHtml(awards, live) {
+function awardShort(a) {
+  const d = a.detail || {};
+  if (a.kind === "stijger") return `+${d.pct}%`;
+  if (a.kind === "record") return String(d.week_score);
+  if (a.kind === "reuzendoder") return `${d.score}–${d.victim_score}`;
+  return "";
+}
+// Meerdere winnaars van dezelfde prijs (vier keer "dagen op rij" in één week) staan samen op één regel: "Dagen op rij  Mike 30 · Joris 14 · …".
+const AWARD_VAL = {
+  stijger: (d) => `+${d.pct}%`, streak: (d) => String(d.days), record: (d) => String(d.week_score),
+  terug: () => "", reuzendoder: () => "",
+};
+const AWARD_SORT = { stijger: (d) => Number(d.pct), streak: (d) => Number(d.days), record: (d) => Number(d.week_score), terug: (d) => Number(d.gap_days) };
+function awardsHtml(awards, live, note) {
   const list = Array.isArray(awards) ? awards : [], items = [];
-  for (const def of WEEK_AWARDS) for (const a of list.filter((x) => x.kind === def.kind)) {
-    if (def.kind === "stijger" && !(Number(a.detail?.pct) > 0)) continue;
-    if (def.kind === "streak" && !(Number(a.detail?.days) > 0)) continue;
-    const tx = awardTexts(a);
-    if (!tx) continue;
-    items.push(`<li class="lb-aw${a.is_me ? " lb-me" : ""}"><i aria-hidden="true">${def.icon}</i>` +
-      `<div><b>${escHtml(tx.title)}</b><span>${escHtml(tx.detail)}</span></div><em>${lbNameCell(a, null)}</em></li>`);
+  for (const def of WEEK_AWARDS) {
+    const group = list.filter((x) => x.kind === def.kind).filter((a) => {
+      if (def.kind === "stijger" && !(Number(a.detail?.pct) > 0)) return false;
+      if (def.kind === "streak" && !(Number(a.detail?.days) > 0)) return false;
+      return !!awardTexts(a);
+    });
+    if (!group.length) continue;
+    if (group.length > 1) {
+      const key = AWARD_SORT[def.kind] || (() => 0), val = AWARD_VAL[def.kind];
+      const who = group.slice().sort((x, y) => key(y.detail || {}) - key(x.detail || {})).map((a) => {
+        const v = val(a.detail || {});
+        return `<span class="lb-aw-p${a.is_me ? " me" : ""}">${escHtml(a.display_name)}${flairBadgeHtml(a.flair, null)}${v ? ` <u>${escHtml(v)}</u>` : ""}</span>`;
+      }).join("");
+      const title = def.kind === "streak" ? t("aw_streak_g") : awardTexts(group[0]).title;
+      items.push(`<li class="lb-aw lb-aw-g${live ? " lb-aw-c" : ""}${group.some((a) => a.is_me) ? " lb-me" : ""}"><i aria-hidden="true">${def.icon}</i>` +
+        `<div><b>${escHtml(title)}</b><span class="lb-aw-who">${who}</span></div></li>`);
+      continue;
+    }
+    const a = group[0], tx = awardTexts(a);
+    const mid = live
+      ? `<div><b>${escHtml(tx.title)}</b>${awardShort(a) ? `<span>${escHtml(awardShort(a))}</span>` : ""}</div>`
+      : `<div><b>${escHtml(tx.title)}</b><span>${escHtml(tx.detail)}</span></div>`;
+    items.push(`<li class="lb-aw${live ? " lb-aw-c" : ""}${a.is_me ? " lb-me" : ""}"><i aria-hidden="true">${def.icon}</i>${mid}<em>${lbNameCell(a, null)}</em></li>`);
   }
   if (!items.length) return "";
-  return `<div class="lb-wk-awards"><div class="lb-aw-t">${escHtml(t(live ? "aw_title_live" : "aw_title"))}</div><ul class="lb-aw-list">${items.join("")}</ul></div>`;
+  return `<div class="lb-wk-awards"><div class="lb-aw-t"><span>${escHtml(t(live ? "aw_title_live" : "aw_title"))}</span>${note ? `<small>${escHtml(note)}</small>` : ""}</div>` +
+    `<ul class="lb-aw-list">${items.join("")}</ul></div>`;
 }
-// De persoonlijke regel in de Week-tab: wat jij nog nodig hebt (alleen als je deze week al gespeeld hebt).
-function awardMeHtml(awards) {
+// De persoonlijke regel in de Week-tab: wat jij nog nodig hebt (alleen als je deze week al gespeeld hebt). `compact` = één regel.
+function awardMeHtml(awards, compact) {
   const me = (Array.isArray(awards) ? awards : []).find((a) => a.kind === "me")?.detail;
   const played = Number(me?.played) || 0;
   if (!me || !played) return "";
   const score = Number(me.week_score) || 0, best = Number(me.best_week_before) || 0;
   const streak = Number(me.streak) || 0, next = Number(me.next_milestone) || 0;
+  if (compact) {   // "Nog 157 voor je beste week (438) · 🔥 nog 2 tot 14": het aantal dagen en de punten staan al in de race hierboven
+    const parts = [];
+    if (best > 0) parts.push(score > best ? t("aw_me_c_beat")(best) : t("aw_me_c_best")(best - score, best));
+    if (streak >= 1 && next > streak) parts.push(t("aw_me_c_streak")(next - streak, next));
+    return parts.length ? `<div class="lb-aw-me lb-aw-me-c"><p>${escHtml(parts.join(" · "))}</p></div>` : "";
+  }
   const lines = [t("aw_me_week")({ played, week_score: score })];
   if (best > 0) lines[0] += " " + (score > best ? t("aw_me_beat")(best) : t("aw_me_best")(best - score, best));
   if (streak >= 1 && next > streak) lines.push(t("aw_me_streak")(streak, next, next - streak));
@@ -6319,8 +6367,9 @@ function recapRaceHtml(rows, awards) {
   // Statisch bij het openen (geen tikkende timer): "nog 3 d", op de laatste dag in uren.
   const secs = secsToWeekEnd(currentWeekStart());
   const d = Math.floor(secs / 86400), h = Math.max(1, Math.floor(secs / 3600));
+  const note = t("recap_week_note")(d, h), aw = awardsHtml(awards, true, note);
   return `<div class="lb-table race-table">${html}</div>` +
-    `<div class="lb-wk-note"><p>${escHtml(t("recap_week_note")(d, h))}</p></div>` + awardsHtml(awards, true) + awardMeHtml(awards);
+    (aw || `<div class="lb-wk-note"><p>${escHtml(note)}</p></div>`) + awardMeHtml(awards, true);
 }
 
 // Tabs-als-kop "📅 Vandaag │ ⚔️ Week │ 🔮 Kans" + een horizontaal scroll-snap-spoor met twee

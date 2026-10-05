@@ -2529,12 +2529,34 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 .lb-aw { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; border-radius: 8px; background: var(--card-soft); font-size: 0.84rem; }
 .lb-aw > i { font-style: normal; font-size: 1.1rem; line-height: 1; text-align: center; }
 .lb-aw b { display: block; font-weight: 700; }
-.lb-aw span { display: block; color: var(--muted); font-size: 0.74rem; line-height: 1.25; }
+.lb-aw > div > span { display: block; color: var(--muted); font-size: 0.74rem; line-height: 1.25; }
 .lb-aw em { font-style: normal; font-weight: 700; max-width: 10rem; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lb-aw.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
 .lb-aw-me { margin-top: 0.4rem; padding: 0.45rem 0.6rem; border-radius: 8px; background: color-mix(in srgb, var(--accent) 16%, var(--card-soft)); font-size: 0.8rem; }
 .lb-aw-me p { margin: 0; }
 .lb-aw-me p + p { margin-top: 0.2rem; }
+/* Tussenstand (Week-tab, live week): één regel per prijs, kop en afsluitregel samen, één persoonlijke regel. */
+.lb-aw-t { justify-content: space-between; flex-wrap: wrap; }
+.lb-aw-t > span { white-space: nowrap; }
+.lb-aw-t small { margin-left: auto; font-size: 0.7rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.lb-aw-t:has(small)::after { display: none; }
+.lb-aw-c { padding: 0.3rem 0.5rem; }
+.lb-aw-c > div { display: flex; align-items: baseline; gap: 0.4rem; min-width: 0; }
+.lb-aw-c > div > span { font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+.lb-aw-c > div > .lb-aw-who { white-space: normal; }
+.lb-aw-me-c { margin-top: 0.3rem; padding: 0.35rem 0.6rem; }
+/* Meerdere winnaars van één prijs: samen op één regel */
+.lb-aw-g { grid-template-columns: 1.6rem minmax(0, 1fr); }
+.lb-aw > div > .lb-aw-who { display: flex; flex-wrap: wrap; column-gap: 0.35rem; color: var(--fg); font-size: 0.8rem; font-weight: 600; line-height: 1.5; }
+.lb-aw-g.lb-aw-c > div { display: block; }
+.lb-aw-who .lb-aw-p { white-space: nowrap; }
+.lb-aw-who .lb-aw-p:not(:last-child)::after { content: "·"; margin-left: 0.35rem; color: var(--muted); font-weight: 400; }
+.lb-aw-who .lb-aw-p.me { color: var(--accent); }
+.lb-aw-who u { text-decoration: none; color: var(--muted); font-weight: 600; font-size: 0.78rem; }
+.lb-aw-who .lb-flair-badge { font-size: 1.05em; margin-left: 0.15rem; }
+.podpop.night .lb-aw-who { color: #f1e8ff; }
+.podpop.night .lb-aw-who .lb-aw-p.me { color: #f4c430; }
+.podpop.night .lb-aw-who u { color: #b6a4cf; }
 
 /* ▲/▼-weekstand-delta t.o.v. gisteravond (recap-race + live podium-tab);
    zelfde kleurtaal als .rating-delta — richting zit in het symbool, kleur is extra */
@@ -2770,7 +2792,7 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .podpop.night .lb-aw-t { color: #a995c0; }
 .podpop.night .lb-aw-t::after { background: #ffffff1f; }
 .podpop.night .lb-aw { background: #ffffff12; }
-.podpop.night .lb-aw span { color: #b6a4cf; }
+.podpop.night .lb-aw > div > span { color: #b6a4cf; }
 .podpop.night .lb-aw.lb-me { background: linear-gradient(90deg, #f4c4302b, #f4c4300d); box-shadow: inset 2px 0 0 #f4c430; }
 .podpop.night .lb-wk-rc { color: #b6a4cf; }
 .podpop.night .lb-wk-restrow.lb-me { background: linear-gradient(90deg, #f4c4302b, #f4c4300d); box-shadow: inset 2px 0 0 #f4c430; }
