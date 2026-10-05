@@ -62,12 +62,16 @@ src += `
   achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml,
   streakFlameTier, streakFlameHtml, withAnimEmoji,
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
+  calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
+  currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
+  getFxRun: () => fxRun, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
 (0, eval)(readFileSync(join(dir, "..", "holiday-fx.js"), "utf8"));
 (0, eval)(readFileSync(join(dir, "..", "event-fx.js"), "utf8"));
+(0, eval)(readFileSync(join(dir, "..", "reward-fx.js"), "utf8"));
 const T = globalThis.__T;
 
 test("classify — afstand → bucket", () => {
@@ -460,6 +464,185 @@ test("HolidayFx + EventFx — elke laag tekent zonder fouten (strikte nep-canvas
       }
     }
   } finally { document.createElement = saveCreate; document.documentElement.dataset = saveTheme; }
+});
+
+// ── Scheurkalender en Wimpels (RewardFx) ──
+test("calendarLabels / weekLetters — de puzzeldatum in de taal van het spel, in elke tijdzone dezelfde dag", () => {
+  const was = process.env.TZ;
+  try {
+    for (const tz of ["Europe/Amsterdam", "America/New_York", "America/Sao_Paulo", "Pacific/Auckland", "UTC"]) {
+      process.env.TZ = tz;
+      T.setLang("nl");
+      assert.deepEqual(T.calendarLabels("2026-10-05", 1), [
+        { d: 5, mon: "OKT", y: 2026, wd: "maandag" }, { d: 6, mon: "OKT", y: 2026, wd: "dinsdag" }], tz);
+    }
+    T.setLang("en");
+    assert.equal(T.calendarLabels("2026-10-05", 0)[0].wd, "Monday");
+    // maand- en jaarwissel: het blad "eronder" is de dag erna
+    T.setLang("nl");
+    const w = T.calendarLabels("2026-12-31", 1);
+    assert.deepEqual([w[0].d, w[0].mon, w[0].y, w[1].d, w[1].mon, w[1].y], [31, "DEC", 2026, 1, "JAN", 2027]);
+    assert.equal(T.calendarLabels("2026-10-05", 7).length, 8, "een Voltreffer: zeven bladen + het blad eronder");
+    assert.deepEqual(T.weekLetters(), ["M", "D", "W", "D", "V", "Z", "Z"]);
+    T.setLang("en");
+    assert.deepEqual(T.weekLetters(), ["M", "T", "W", "T", "F", "S", "S"]);
+    T.setLang("de");
+    assert.equal(T.weekLetters().length, 7);
+  } finally { process.env.TZ = was; T.setLang("nl"); }
+});
+
+test("perfectWeekJustCompleted — alleen een verse daily-winst die de ma–zo week op 7 van 7 zet", () => {
+  const ls = globalThis.localStorage, wasUser = T.auth.user;
+  const key = "jaardle:history";
+  const day = (date, won = true) => ({ date, won, score: 90 });
+  const week = ["2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27"];
+  try {
+    T.auth.user = null; T.setHistoryCache(null);
+    ls.setItem(key, JSON.stringify(week.slice(0, 6).map((d) => day(d))));
+    T.setState({ mode: "daily", won: true, puzzleDate: "2026-09-27" });
+    assert.equal(T.perfectWeekJustCompleted(), true, "de zevende winst van de week");
+    T.setState({ mode: "daily", won: false, puzzleDate: "2026-09-27" });
+    assert.equal(T.perfectWeekJustCompleted(), false, "een verlies maakt niets compleet");
+    T.setState({ mode: "free", won: true, puzzleDate: "2026-09-27" });
+    assert.equal(T.perfectWeekJustCompleted(), false, "vrij spel kent geen weken");
+    // één verloren dag eerder in de week
+    ls.setItem(key, JSON.stringify(week.slice(0, 6).map((d, i) => day(d, i !== 2))));
+    T.setState({ mode: "daily", won: true, puzzleDate: "2026-09-27" });
+    assert.equal(T.perfectWeekJustCompleted(), false);
+    // een inhaalpot van een eerdere dag kan de week óók afmaken
+    ls.setItem(key, JSON.stringify(week.filter((d) => d !== "2026-09-23").map((d) => day(d))));
+    T.setState({ mode: "daily", won: true, puzzleDate: "2026-09-23" });
+    assert.equal(T.perfectWeekJustCompleted(), true, "de inhaaldag maakt de week af");
+    // vóór de eerste telbare week (10 aug): geen wimpels, net als de trofee
+    const old = ["2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-08", "2026-08-09"];
+    ls.setItem(key, JSON.stringify(old.slice(0, 6).map((d) => day(d))));
+    T.setState({ mode: "daily", won: true, puzzleDate: "2026-08-09" });
+    assert.equal(T.perfectWeekJustCompleted(), false);
+    // ingelogd: de DB-historie telt mee (wins van een ander apparaat), de cache moet er wel zijn
+    ls.setItem(key, JSON.stringify([day("2026-09-26")]));
+    T.auth.user = { uid: "u" };
+    T.setState({ mode: "daily", won: true, puzzleDate: "2026-09-27" });
+    T.setHistoryCache(null);
+    assert.equal(T.perfectWeekJustCompleted(), false, "cache er nog niet → liever geen show dan een verkeerde");
+    T.setHistoryCache(week.slice(0, 5).map((d) => day(d)));
+    assert.equal(T.perfectWeekJustCompleted(), true);
+  } finally { T.auth.user = wasUser; T.setHistoryCache(null); ls.removeItem(key); }
+});
+
+test("Scheurkalender — verdiend op 120 dailies, opt-in, en de vier win-effecten sluiten elkaar uit", () => {
+  const ls = globalThis.localStorage, wasUser = T.auth.user;
+  const A = (dailies) => ({ games: 0, dailies, streak: 0, perfect: 0, pure: 0, rating: 0, years: [] });
+  const keys = ["jaardle:calfx", "jaardle:flairconfetti", "jaardle:beerfx", "jaardle:goldyears"];
+  const clear = () => keys.forEach((k) => ls.removeItem(k));
+  try {
+    clear(); T.auth.user = { uid: "u" };
+    const dl = T.ACHV_SERIES.find((x) => x.key === "dailies");
+    assert.equal(dl.steps[T.CAL_FX.at], 120, "platina op de dailies-ladder");
+    assert.equal(dl.fx, T.CAL_FX);
+    assert.equal(T.calendarFxUnlocked(A(119)), false);
+    assert.equal(T.calendarFxUnlocked(A(120)), true);
+    T.auth.user = null;
+    assert.equal(T.calendarFxUnlocked(A(500)), false, "alleen ingelogd");
+    T.auth.user = { uid: "u" };
+    // opt-in: verdiend betekent nog niet aan
+    T.setAchv(A(120));
+    assert.equal(T.calendarFxActive(), false, "staat niet vanzelf aan");
+    assert.equal(T.winFxUnlockedMap(A(120)).cal, true);
+    assert.ok(T.rewardsTabsAvailable(A(120)).includes("vier"), "de Viering-tab bestaat nu");
+    assert.ok(T.earnedRewardKeys().includes("fx_calendar"), "unlock-pop-up");
+    assert.ok(T.REWARD_ORDER.includes("fx_calendar") && T.REWARDS.fx_calendar.cat === "effect");
+    T.setWinFx("cal");
+    assert.equal(T.calendarFxActive(), true);
+    assert.equal(T.currentWinFxChoice(), "cal");
+    assert.deepEqual(["jaardle:flairconfetti", "jaardle:beerfx", "jaardle:goldyears"].map((k) => ls.getItem(k)), ["0", "0", "0"], "de andere drie staan expliciet uit");
+    // elk ander effect zet de kalender uit
+    for (const [fn, name] of [[T.setBeerFx, "bier"], [T.setGoldYearsFx, "goud"], [T.setFlairConfetti, "flair-confetti"]]) {
+      T.setCalendarFx(true); fn(true);
+      assert.equal(ls.getItem("jaardle:calfx"), "0", `${name} zet de kalender uit`);
+      assert.equal(T.calendarFxActive(), false);
+    }
+    T.setWinFx("cal"); T.setWinFx("none");
+    assert.equal(T.calendarFxActive(), false, "'standaard' zet alles uit");
+    assert.equal(T.currentWinFxChoice(), "none");
+    // de tegel in de kluis: aanwezig zodra verdiend, mét een voorbeeld
+    assert.match(T.rewardsVierHtml(T.winFxUnlockedMap(A(120))), /data-winfx="cal"[^>]*>.*rw-calp/s);
+    assert.ok(!T.rewardsVierHtml(T.winFxUnlockedMap(A(50))).includes('data-winfx="cal"'));
+    T.setLang("nl");
+    assert.equal(T.t("achv_fx_calendar"), "📆 Scheurkalender");
+  } finally { clear(); T.auth.user = wasUser; T.setAchv(null); }
+});
+
+test("runFx + addFxLayers — een extra laag hangt aan de lopende lus, begint op nul en verlengt de run", () => {
+  const saveBody = document.body, saveCreate = document.createElement, saveRM = globalThis.matchMedia;
+  const mkEl = () => ({ style: {}, className: "", appendChild() {}, setAttribute() {}, remove() {}, isConnected: true, getContext: () => strictCtx(), width: 0, height: 0 });
+  document.body = { appendChild() {} };
+  document.createElement = mkEl;
+  globalThis.innerWidth = 390; globalThis.innerHeight = 844; globalThis.devicePixelRatio = 2;
+  try {
+    T.stopFx();
+    assert.equal(T.addFxLayers([{ end: 1, draw() {} }]), false, "er loopt niets: de aanroeper start zelf");
+    T.runFx([{ end: 2, draw() {} }]);
+    const run = T.getFxRun();
+    assert.ok(run && run.end === 2);
+    run.t0 -= 1000;   // doe alsof de run al 1 s loopt
+    const seen = [];
+    assert.equal(T.addFxLayers([{ end: 3, draw: (_c, t) => seen.push(t) }]), true);
+    assert.ok(run.end > 3.9 && run.end < 4.2, "de run loopt tot 1 s + 3 s: " + run.end);
+    run.layers[run.layers.length - 1].draw(strictCtx(), 1.5, 390, 844);
+    assert.ok(seen[0] > 0.45 && seen[0] < 0.6, "de laag ziet zijn eigen klok vanaf nul: " + seen[0]);
+    assert.equal(T.addFxLayers([]), false);
+    T.stopFx();
+    assert.equal(T.getFxRun(), null);
+    assert.equal(T.addFxLayers([{ end: 1, draw() {} }]), false, "na stopFx weer niets om aan te hangen");
+    // minder beweging: geen run, dus ook niets om aan te hangen
+    globalThis.matchMedia = () => ({ matches: true, addEventListener() {} });
+    T.runFx([{ end: 2, draw() {} }]);
+    assert.equal(T.getFxRun(), null);
+    assert.equal(T.addFxLayers([{ end: 1, draw() {} }]), false);
+  } finally { T.stopFx(); document.body = saveBody; document.createElement = saveCreate; globalThis.matchMedia = saveRM; }
+});
+
+test("RewardFx — kalender, wimpels en canvas-confetti tekenen zonder fouten (strikte nep-canvas, donker en licht, drie formaten)", () => {
+  const RF = globalThis.RewardFx, saveTheme = document.documentElement.dataset;
+  assert.deepEqual([...RF.ids].sort(), ["bunting", "calendar", "confetti"]);
+  T.setLang("nl");
+  try {
+    for (const theme of ["dark", "light"]) {
+      document.documentElement.dataset = theme === "light" ? { theme: "light" } : {};
+      for (const [W, H] of [[390, 844], [320, 568], [1200, 800]]) {
+        const builds = [
+          RF.build("calendar", W, H, { labels: T.calendarLabels("2026-10-05", 1), first: false }),
+          RF.build("calendar", W, H, { labels: T.calendarLabels("2026-10-05", 7), first: true }),
+          RF.build("bunting", W, H, { letters: T.weekLetters() }),
+          RF.build("confetti", W, H, { emoji: null }),
+          RF.build("confetti", W, H, { emoji: "🦉" }),
+        ];
+        for (const layers of builds) {
+          const ctx = strictCtx(), end = Math.max(...layers.map((l) => l.end));
+          assert.ok(end > 3 && end < 6, `einde ${end}`);
+          for (let t = 0; t <= end + 0.2; t += 1 / 30) for (const l of layers) { l.draw(ctx, t, W, H); ctx.globalAlpha = 1; }
+        }
+      }
+    }
+  } finally { document.documentElement.dataset = saveTheme; }
+});
+
+test("loadRewardFx — laadt reward-fx.js één keer lui en probeert opnieuw na een fout", async () => {
+  const src = readFileSync(join(dir, "..", "reward-fx.js"), "utf8"), saved = globalThis.RewardFx, saveCreate = document.createElement, saveHead = document.head;
+  const loaded = []; let mode = "ok";
+  document.createElement = () => ({});
+  document.head = { appendChild(sc) { loaded.push(sc.src); queueMicrotask(() => { if (mode === "ok") { (0, eval)(src); sc.onload(); } else sc.onerror(); }); } };
+  try {
+    delete globalThis.RewardFx;
+    mode = "fail";
+    await assert.rejects(T.loadRewardFx());
+    mode = "ok";
+    const [a, b] = await Promise.all([T.loadRewardFx(), T.loadRewardFx()]);
+    assert.equal(a, b);
+    assert.ok(a.has("calendar") && a.has("bunting"));
+    assert.equal(loaded.length, 2);
+    assert.ok(loaded.every((u) => u.startsWith("/reward-fx.js")));
+  } finally { globalThis.RewardFx = saved; document.createElement = saveCreate; document.head = saveHead; }
 });
 
 // ── Strenge guard: bereiken, omslagpunt en de veiligheidsgarantie ────────────

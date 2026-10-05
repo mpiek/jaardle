@@ -383,6 +383,9 @@ const I18N = {
     achv_card_unsaved: "🔒 niet opgeslagen",
     achv_flair_earned: (e) => `${e}-flair vrijgespeeld`,
     achv_fx_earned: (e) => `${e}-viering vrijgespeeld — hij staat aan bij elke winst`,
+    achv_fx_calendar: "📆 Scheurkalender",
+    achv_fx_note_cal: (e, tier) => `bij ${tier} kun je daily-winsten vieren met een ${e} scheurkalender`,
+    achv_fx_optin_earned: (e) => `${e}-viering vrijgespeeld — zet 'm aan in de kluis`,
     achv_flair_choose: (e) => `kies ${e}`,
     achv_flairfx_earned: (n) => `${n}-effect vrijgespeeld`, achv_flairfx_choose: "zet aan",
     achv_flairfx_note_flat: (n) => `hiermee verdien je het ${n}-effect voor je flair`,
@@ -686,6 +689,9 @@ const I18N = {
     achv_card_unsaved: "🔒 not saved",
     achv_flair_earned: (e) => `${e} flair unlocked`,
     achv_fx_earned: (e) => `${e} celebration unlocked — it plays on every win`,
+    achv_fx_calendar: "📆 Tear-off calendar",
+    achv_fx_note_cal: (e, tier) => `at ${tier} you can celebrate daily wins with a ${e} tear-off calendar`,
+    achv_fx_optin_earned: (e) => `${e} celebration unlocked — turn it on in the vault`,
     achv_flair_choose: (e) => `choose ${e}`,
     achv_flairfx_earned: (n) => `${n} effect unlocked`, achv_flairfx_choose: "turn on",
     achv_flairfx_note_flat: (n) => `earns you the ${n} effect for your flair`,
@@ -984,6 +990,9 @@ const I18N = {
     achv_card_unsaved: "🔒 nicht gespeichert",
     achv_flair_earned: (e) => `${e}-Flair freigeschaltet`,
     achv_fx_earned: (e) => `${e}-Feier freigeschaltet — sie spielt bei jedem Sieg`,
+    achv_fx_calendar: "📆 Abreißkalender",
+    achv_fx_note_cal: (e, tier) => `ab ${tier} kannst du Daily-Siege mit einem ${e} Abreißkalender feiern`,
+    achv_fx_optin_earned: (e) => `${e}-Feier freigeschaltet — schalte sie in der Truhe ein`,
     achv_flair_choose: (e) => `${e} wählen`,
     achv_flairfx_earned: (n) => `${n}-Effekt freigeschaltet`, achv_flairfx_choose: "einschalten",
     achv_flairfx_note_flat: (n) => `damit verdienst du den ${n}-Effekt für dein Flair`,
@@ -1286,6 +1295,9 @@ const I18N = {
     achv_card_unsaved: "🔒 sin guardar",
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
     achv_fx_earned: (e) => `celebración ${e} desbloqueada — suena en cada victoria`,
+    achv_fx_calendar: "📆 Calendario de taco",
+    achv_fx_note_cal: (e, tier) => `al llegar a ${tier} puedes celebrar las victorias diarias con un ${e} calendario de taco`,
+    achv_fx_optin_earned: (e) => `celebración ${e} desbloqueada — actívala en la caja`,
     achv_flair_choose: (e) => `elegir ${e}`,
     achv_flairfx_earned: (n) => `efecto ${n} desbloqueado`, achv_flairfx_choose: "activar",
     achv_flairfx_note_flat: (n) => `con esto consigues el efecto ${n} para tu distintivo`,
@@ -1588,6 +1600,9 @@ const I18N = {
     achv_card_unsaved: "🔒 não salvo",
     achv_flair_earned: (e) => `distintivo ${e} desbloqueado`,
     achv_fx_earned: (e) => `comemoração ${e} desbloqueada — ela toca em cada vitória`,
+    achv_fx_calendar: "📆 Calendário de folhas",
+    achv_fx_note_cal: (e, tier) => `ao chegar a ${tier} você pode comemorar vitórias diárias com um ${e} calendário de folhas`,
+    achv_fx_optin_earned: (e) => `comemoração ${e} desbloqueada — ative-a no cofre`,
     achv_flair_choose: (e) => `escolher ${e}`,
     achv_flairfx_earned: (n) => `efeito ${n} desbloqueado`, achv_flairfx_choose: "ativar",
     achv_flairfx_note_flat: (n) => `isso dá o efeito ${n} para o seu distintivo`,
@@ -3051,15 +3066,16 @@ function renderGuesses() {
   }
 }
 
+// De flair die als confetti regent (zilver-capstone, aan), of null voor de gewone confetti.
+const flairConfettiEmoji = () => (auth.user && parseFlair(myFlair).emoji && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? parseFlair(myFlair).emoji : null);
+
 function showConfetti(opts) {
   const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"];
   // Zilver-capstone (alle 5 grind-ladders ≥ zilver): je gedragen flair regent als
   // confetti — self-facing beloning, alleen-ingelogd. Geen flair → gewone confetti.
   // De kluis-preview (opts.emoji) forceert de soort: een teken = flair-confetti, null = gewone confetti.
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const flairFx = reduced ? null : opts
-    ? (opts.emoji || null)
-    : (auth.user && parseFlair(myFlair).emoji && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? parseFlair(myFlair).emoji : null);
+  const flairFx = reduced ? null : opts ? (opts.emoji || null) : flairConfettiEmoji();
   const container = document.createElement("div");
   container.className = "confetti-container" + (flairFx ? " confetti-flair" : "");
   for (let i = 0; i < 80; i++) {
@@ -3092,10 +3108,12 @@ function showConfetti(opts) {
 // regressie voor wie minder beweging heeft ingesteld.
 let fxRAF = null;    // rAF-handle van het viering-canvas (stop = geen leak)
 let fxBox = null;    // container van de lópende run
+let fxRun = null;    // de lópende run { layers, t0, end, arm } — addFxLayers hangt er later lagen aan
 
 function stopFx() {
   if (fxRAF) { cancelAnimationFrame(fxRAF); fxRAF = null; }
   if (fxBox) { fxBox.remove(); fxBox = null; }
+  if (fxRun) { clearTimeout(fxRun.timer); fxRun = null; }
 }
 
 // Draait één of meer lagen op hetzelfde canvas. Een laag is
@@ -3122,24 +3140,43 @@ function runFx(layers) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
   fit();
-  const end = layers.reduce((m, l) => Math.max(m, l.end), 0);
   const t0 = performance.now();
+  const run = { layers: layers.slice(), t0, end: layers.reduce((m, l) => Math.max(m, l.end), 0), timer: 0 };
+  // Vangnet: op een achtergrond-tab pauzeert rAF, dan ruimt de lus zichzelf niet
+  // op. Alleen de eigen run opruimen — een nieuwere mag deze timer niet raken.
+  // (Opnieuw gezet door addFxLayers, want een extra laag kan de run verlengen.)
+  run.arm = () => {
+    clearTimeout(run.timer);
+    run.timer = setTimeout(() => { if (fxBox === box) stopFx(); }, Math.max(0, (run.end + 1.5) * 1000 - (performance.now() - run.t0)));
+  };
+  fxRun = run;
   const step = (now) => {
     if (!cv.isConnected) { stopFx(); return; }
     if (W !== innerWidth || H !== innerHeight) fit();
     const t = (now - t0) / 1000;
     ctx.clearRect(0, 0, W, H);
-    for (const l of layers) {
+    for (const l of run.layers) {
       l.draw(ctx, t, W, H);
       ctx.globalAlpha = 1;                // een laag mag de volgende niet vervuilen
     }
-    if (t < end) fxRAF = requestAnimationFrame(step);
+    if (t < run.end) fxRAF = requestAnimationFrame(step);
     else stopFx();
   };
   fxRAF = requestAnimationFrame(step);
-  // Vangnet: op een achtergrond-tab pauzeert rAF, dan ruimt de lus zichzelf niet
-  // op. Alleen de eigen run opruimen — een nieuwere mag deze timer niet raken.
-  setTimeout(() => { if (fxBox === box) stopFx(); }, (end + 1.5) * 1000);
+  run.arm();
+}
+
+// Hangt extra lagen aan de lópende run (de wimpels bovenop een gekozen viering) zonder die opnieuw te starten. De laag
+// begint op nul vanaf nú en verlengt de run zo nodig. false = er loopt niets (meer): de aanroeper start dan zelf een run.
+function addFxLayers(more) {
+  if (!fxBox || !fxRun || !more.length) return false;
+  const run = fxRun, tAdd = (performance.now() - run.t0) / 1000;
+  for (const l of more) {
+    run.layers.push({ end: tAdd + l.end, draw: (ctx, t, W, H) => l.draw(ctx, t - tAdd, W, H) });
+    run.end = Math.max(run.end, tAdd + l.end);
+  }
+  run.arm();
+  return true;
 }
 
 const easeOut = (u) => 1 - Math.pow(1 - u, 1.7);   // ≈ CSS ease-out
@@ -3418,6 +3455,7 @@ function fxLoader(file, global) {
 }
 const loadHolidayFx = fxLoader("/holiday-fx.js", "HolidayFx");
 const loadEventFx = fxLoader("/event-fx.js", "EventFx");
+const loadRewardFx = fxLoader("/reward-fx.js", "RewardFx");   // Scheurkalender + Wimpels (beloningen), zie showCalendar/showBunting
 // Vooruitladen in een rustig moment, maar alleen op een dag waarop er iets te vieren
 // valt (feestdag, hoogtijdag of ?fx=-voorvertoning): dan staat de laag klaar op het
 // moment van de winst. Een inhaalpot van een oude hoogtijdag laadt op aanvraag.
@@ -3830,6 +3868,82 @@ function showBeer(firstTry) {
     : [clinkLayer(0, 0.40)]);
 }
 
+// ── Scheurkalender en Wimpels (beloningen) ────────────────────────────────────
+// De lagen staan in /reward-fx.js (RewardFx) en laden pas als er iets te vieren valt: een gekozen kalender, of een
+// winst die een perfecte week afmaakt. Alles op dezelfde runFx-lus: canvas náást CSS-confetti kost 10-15 fps, dus op een
+// wimpel-dag draait ook de confetti op het canvas (ofwel de gekozen viering krijgt de wimpels erbij via addFxLayers).
+
+// De bladen van de kalender: de PUZZELdatum (de Amsterdamse kalenderdag, niet de klok van het toestel) en de dagen erna,
+// in de taal van het spel. timeZone "UTC" op een UTC-datum, zodat het in New York ook dezelfde dag is.
+function calendarLabels(dateKey, extraDays) {
+  const [y, m, d] = String(dateKey).split("-").map(Number), loc = LANGS[lang].intl;
+  const mon = new Intl.DateTimeFormat(loc, { month: "short", timeZone: "UTC" });
+  const wd = new Intl.DateTimeFormat(loc, { weekday: "long", timeZone: "UTC" });
+  return Array.from({ length: extraDays + 1 }, (_, k) => {
+    const dt = new Date(Date.UTC(y, m - 1, d + k));
+    return { d: dt.getUTCDate(), mon: mon.format(dt).replace(/\./g, "").toUpperCase(), y: dt.getUTCFullYear(), wd: wd.format(dt) };
+  });
+}
+// De zeven weekdagletters maandag t/m zondag in de taal van het spel (5 okt 2026 is een maandag).
+function weekLetters() {
+  const f = new Intl.DateTimeFormat(LANGS[lang].intl, { weekday: "narrow", timeZone: "UTC" });
+  return Array.from({ length: 7 }, (_, k) => f.format(new Date(Date.UTC(2026, 9, 5 + k))).toUpperCase());
+}
+
+// Maakt déze verse daily-winst een perfecte week (ma–zo, 7 van 7) compleet? Synchroon, op de lokale daghistorie plus de al
+// opgehaalde DB-historie (myHistoryCache; die staat er zodra de streak-balk geladen heeft). De trofee (perfectWeeks) is
+// leidend, dit is alleen het "moment"; is de cache er nog niet dan geen wimpels — liever geen show dan een verkeerde.
+function perfectWeekJustCompleted() {
+  if (!state || state.mode !== "daily" || !state.won) return false;   // vrij spel kent geen weken
+  const date = state.puzzleDate || todayKey(), byDate = new Map();
+  for (const e of auth.user ? myHistoryCache || [] : []) byDate.set(e.date, e);
+  for (const e of loadHistory()) if (!byDate.has(e.date)) byDate.set(e.date, e);
+  byDate.set(date, { date, won: true });
+  return perfectWeekKeys([...byDate.values()]).has(weekMondayKey(date));
+}
+
+// Scheurkalender als gekozen viering (alleen daily). Bij een Voltreffer waait de hele week mee. Met `bunting` krijgt hij
+// de wimpels op dezelfde lus. Lukt het laden niet (offline), dan gewoon de standaardconfetti.
+async function showCalendar(firstTry, bunting) {
+  const date = (state && state.puzzleDate) || todayKey(), W = innerWidth, H = innerHeight;
+  try {
+    const fx = await loadRewardFx();
+    runFx([...fx.build("calendar", W, H, { labels: calendarLabels(date, firstTry ? 7 : 1), first: !!firstTry }),
+           ...(bunting ? fx.build("bunting", W, H, { letters: weekLetters() }) : [])]);
+  } catch (e) { showConfetti(); }
+}
+// Wimpels bovenop een viering die al loopt (goud, bier, vuurwerk): hangt aan dezelfde lus. Loopt er niets meer, dan alleen de wimpels.
+async function addBunting() {
+  try {
+    const fx = await loadRewardFx();
+    const layers = fx.build("bunting", innerWidth, innerHeight, { letters: weekLetters() });
+    if (!addFxLayers(layers)) runFx(layers);
+  } catch (e) {}
+}
+// Wimpels op een gewone winst: de confetti draait dan op het canvas (met je flair als je die als confetti hebt gekozen).
+async function showBuntingConfetti() {
+  const W = innerWidth, H = innerHeight;
+  try {
+    const fx = await loadRewardFx();
+    runFx([...fx.build("confetti", W, H, { emoji: flairConfettiEmoji() }), ...fx.build("bunting", W, H, { letters: weekLetters() })]);
+  } catch (e) { showConfetti(); }
+}
+// Het bestand vooraf ophalen in een rustig moment, maar alleen voor wie het kan gaan gebruiken: een gekozen kalender, of
+// een winst vandaag die een perfecte week zou afmaken. Verder wordt het nooit geladen.
+function warmRewardFx() {
+  const go = () => loadRewardFx().catch(() => {});
+  let need = calendarFxActive();
+  if (!need && auth.user) {
+    const today = todayKey(), byDate = new Map();
+    for (const e of myHistoryCache || []) byDate.set(e.date, e);
+    for (const e of loadHistory()) if (!byDate.has(e.date)) byDate.set(e.date, e);
+    byDate.set(today, { date: today, won: true });
+    need = perfectWeekKeys([...byDate.values()]).has(weekMondayKey(today));
+  }
+  if (!need) return;
+  if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 2000);
+}
+
 // Kluis-preview: tik op een viering en je ziet 'm meteen schermvullend spelen (de lagen hangen op z-index 999,
 // boven de kluis). Zelfde lagen als op het eindscherm, met een vast voorbeeldjaar; het kan los van een echt
 // potje. Alleen de preview ruimt zichzelf op als je de kluis sluit — een écht effect blijft ongemoeid.
@@ -3841,7 +3955,12 @@ function playWinFxPreview(kind) {
   else if (kind === "flair") showConfetti({ emoji: parseFlair(myFlair).emoji || "🎉" });
   else if (kind === "beer") runFx([clinkLayer(0, 0.40)]);
   else if (kind === "gold") runFx([goldYearsLayer(1815, false)]);
-  else return;
+  else if (kind === "cal") {
+    // de echte kalender met de datum van vandaag; het bestand laadt lui, dus alleen starten als de preview nog "live" is
+    loadRewardFx().then((fx) => {
+      if (winFxPreviewLive) runFx(fx.build("calendar", innerWidth, innerHeight, { labels: calendarLabels(todayKey(), 1), first: false }));
+    }).catch(() => {});
+  } else return;
   winFxPreviewLive = true;
   setTimeout(() => { winFxPreviewLive = false; }, 5200);
 }
@@ -3928,12 +4047,19 @@ function finishGame(won, fresh = false) {
     // pas als er geen kluis-effect (goud/bier/flair-confetti) en geen first-try is.
     // ?fx=<id> in de URL is de voorvertoning en gaat overal vóór.
     const flairOn = !!(auth.user && myFlair && capstoneTier(achvCache) >= 2 && flairConfettiEnabled());
+    // Gekozen Scheurkalender: alleen bij een daily (een kalender heeft een datum nodig); in vrij spel blijft het standaard.
+    const calOn = calendarFxActive() && state.mode === "daily";
+    // Wimpels: de winst die een perfecte week compleet maakt. Een feestdag-, gebeurtenis- of hoogtijdag-show gaat voor
+    // (dan blijven de wimpels weg), ook als je zelf een viering gekozen hebt.
+    const bunting = !previewFx && perfectWeekJustCompleted() && !winCelebrationFx();
     const celebration = previewFx && fxKnown(fxResolve(previewFx)) ? fxResolve(previewFx)
-      : (goldYearsFxActive() || beerFxActive() || flairOn || firstTry) ? null : winCelebrationFx();
+      : (calOn || goldYearsFxActive() || beerFxActive() || flairOn || firstTry) ? null : winCelebrationFx();
     if (celebration) showHolidayFx(celebration);
-    else if (goldYearsFxActive()) showGoldYears(firstTry);
-    else if (beerFxActive()) showBeer(firstTry);
-    else if (firstTry) showFireworks();
+    else if (calOn) showCalendar(firstTry, bunting);
+    else if (goldYearsFxActive()) { showGoldYears(firstTry); if (bunting) addBunting(); }
+    else if (beerFxActive()) { showBeer(firstTry); if (bunting) addBunting(); }
+    else if (firstTry) { showFireworks(); if (bunting) addBunting(); }
+    else if (bunting) showBuntingConfetti();
     else showConfetti();
   }
   if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
@@ -6830,8 +6956,11 @@ const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond", "obsi
 // géén server-gate nodig — het is puur cosmetisch en alleen zichtbaar voor
 // jezelf. Zie showBeer().
 const BEER_FX = { key: "games", at: 4, emoji: "🍻" };   // at = 0-based trede-index → 2000 (diamant)
+// Scheurkalender: een gekozen viering voor daily-winsten, verdiend op de dailies-ladder (120 = platina). optIn: anders
+// dan het bier staat hij niet vanzelf aan — een nieuwe viering mag niemands bestaande keuze overnemen.
+const CAL_FX = { key: "dailies", at: 3, emoji: "📆", optIn: true, note: "achv_fx_note_cal" };
 const ACHV_SERIES = [
-  { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365] },   // ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
+  { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365], fx: CAL_FX },   // ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
   { key: "streak",  art: "flame",      steps: [7, 30, 60, 90, 180, 365],  flairs: [{ emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // ⏳ = 90 (db/41) · 🔥 Gloed = 180 (db/79)
   { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 2000, 5000], fx: BEER_FX },
   { key: "perfect", art: "100",        steps: [1, 10, 25, 50, 100, 250],  flairs: [{ emoji: "💯", at: 3 }] },   // 💯 = 50 (db/41)
@@ -6980,6 +7109,7 @@ function setFlairConfetti(on) {
     if (on) {                                   // wederzijds uitsluitend
       localStorage.setItem("jaardle:beerfx", "0");
       localStorage.setItem("jaardle:goldyears", "0");
+      localStorage.setItem("jaardle:calfx", "0");
     }
   } catch (e) {}
 }
@@ -7005,6 +7135,7 @@ function setBeerFx(on) {
     if (on) {                                   // wederzijds uitsluitend
       localStorage.setItem("jaardle:flairconfetti", "0");
       localStorage.setItem("jaardle:goldyears", "0");
+      localStorage.setItem("jaardle:calfx", "0");
     }
   } catch (e) {}
 }
@@ -7037,11 +7168,34 @@ function setGoldYearsFx(on) {
     if (on) {                                   // wederzijds uitsluitend
       localStorage.setItem("jaardle:beerfx", "0");
       localStorage.setItem("jaardle:flairconfetti", "0");
+      localStorage.setItem("jaardle:calfx", "0");
     }
   } catch (e) {}
 }
 function goldYearsFxActive() {
   return goldYearsFxUnlocked(achvCache) && goldYearsFxEnabled();
+}
+
+// Scheurkalender (CAL_FX): vierde exclusieve win-effect, alleen voor daily-winsten (een kalender heeft een datum nodig;
+// in vrij spel blijft de standaard). Opt-in per apparaat (jaardle:calfx), alleen-ingelogd.
+function calendarFxUnlocked(a) {
+  if (!auth.user || !a) return false;
+  const s = ACHV_SERIES.find((x) => x.key === CAL_FX.key);
+  return !!s && CAL_FX.at < s.steps.length && achvTier(achvValue(a, s), s.steps) > CAL_FX.at;
+}
+function calendarFxEnabled() { return localStorage.getItem("jaardle:calfx") === "1"; }
+function setCalendarFx(on) {
+  try {
+    localStorage.setItem("jaardle:calfx", on ? "1" : "0");
+    if (on) {                                   // wederzijds uitsluitend
+      localStorage.setItem("jaardle:flairconfetti", "0");
+      localStorage.setItem("jaardle:beerfx", "0");
+      localStorage.setItem("jaardle:goldyears", "0");
+    }
+  } catch (e) {}
+}
+function calendarFxActive() {
+  return calendarFxUnlocked(achvCache) && calendarFxEnabled();
 }
 
 // Sierrand: verdiend op capstone-platina (alle 5 grind-ladders ≥ platina). Blijvende result-kaart-decoratie —
@@ -7248,6 +7402,7 @@ async function fetchAchievements() {
   // klopt ook voor ingelogde spelers zonder eigen server-teller of db-migratie.
   a.perfect_week = Math.max(a.perfect_week || 0, perfectWeeks(hist));
   achvCache = a;
+  warmRewardFx();   // alleen als de kalender gekozen is of een winst vandaag een perfecte week afmaakt
   return a;
 }
 
@@ -7639,6 +7794,7 @@ const REWARDS = {
   fx_confetti:  { emoji: "🎊", cat: "effect", sect: "endscreen" },  // capstone-zilver
   fx_beer:      { emoji: "🍻", cat: "effect", sect: "endscreen" },  // 2000 potjes
   fx_goldyears: { emoji: "🗓️", cat: "effect", sect: "endscreen" },  // capstone-goud
+  fx_calendar:  { emoji: "📆", cat: "effect", sect: "endscreen" },  // 120 dailies (dailies-platina), opt-in
   fx_platina:   { emoji: "🖼️", cat: "effect", sect: "frame" },  // capstone-platina (sierrand-keuze, Uiterlijk-tab)
   theme:        { emoji: "🎨", cat: "theme",  sect: "theme" },      // capstone-diamant
 };
@@ -7648,11 +7804,11 @@ for (const [id, f] of Object.entries(FLAIR_FX)) REWARDS[f.reward] = { emoji: f.e
 // Voor de flair-effecten: ruwweg de zeldzaamheid van hun drempel (Nippertje/Zweetdruppel op goud … Lotus op diamant).
 const REWARD_ORDER = ["fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_ember",
-  "fl_dino", "fl_hourglass", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme"];
+  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme"];
 // Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
 // dragen zelf hun emoji; de flair-naam is gewoon "Flair"/"Distintivo"/…).
 const REWARD_NAME_KEY = {
-  fx_confetti: "achv_cap_confetti", fx_goldyears: "achv_cap_goldyears",
+  fx_confetti: "achv_cap_confetti", fx_goldyears: "achv_cap_goldyears", fx_calendar: "achv_fx_calendar",
   fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme",
 };
 function rewardName(key) {
@@ -7673,6 +7829,7 @@ function earnedRewardKeys() {
   if (ct >= 2) got.add("fx_confetti");
   if (beerFxUnlocked(a)) got.add("fx_beer");
   if (goldYearsFxUnlocked(a)) got.add("fx_goldyears");
+  if (calendarFxUnlocked(a)) got.add("fx_calendar");
   if (platinaFrameUnlocked(a)) got.add("fx_platina");
   if (ct >= 5) got.add("theme");
   for (const id of flairFxEarned(a)) got.add(FLAIR_FX[id].reward);
@@ -7768,6 +7925,7 @@ function activateReward(key) {
   if (key === "fx_confetti") setWinFx("flair");
   else if (key === "fx_beer") setWinFx("beer");
   else if (key === "fx_goldyears") setWinFx("gold");
+  else if (key === "fx_calendar") setWinFx("cal");
   else if (key === "fx_platina") setResultFrame("a");   // standaardrand; kiezen kan in de Uiterlijk-tab
 }
 
@@ -7885,6 +8043,7 @@ function achvSeriesItem(a, s, tier, prev) {
     // Idem voor een fx-beloning (het biertje): zonder deze melding speel je hem
     // wel vrij maar hoor je het nergens — en dan is het geen beloning.
     fx: s.fx && tier > s.fx.at && prev <= s.fx.at ? s.fx.emoji : null,
+    fxOptIn: !!(s.fx && s.fx.optIn),   // staat niet vanzelf aan: de kaart wijst naar de kluis
     // Een flair-effect (Gloed, Rimpel, Lotus) idem: alleen op de trede die het vrijspeelt.
     flairFx: (s.flairFxs || []).filter((f) => tier > f.at && prev <= f.at).pop()?.id || null,
   };
@@ -7948,6 +8107,10 @@ function achvCardEl(it) {
     // Flair-effect: kortste route naar de kluis-keuzerij (zelfde knop als bij een flair).
     foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t("achv_flairfx_earned")(t("fxn_" + it.flairFx))))}</span>
       <button type="button" class="achv-card-btn">${escHtml(t("achv_flairfx_choose"))}</button>`;
+  } else if (it.fx && it.fxOptIn) {
+    // Opt-in viering (Scheurkalender): staat nog uit, dus de kortste route naar de Viering-tab van de kluis.
+    foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t("achv_fx_optin_earned")(it.fx)))}</span>
+      <button type="button" class="achv-card-btn">${escHtml(t("achv_flairfx_choose"))}</button>`;
   } else if (it.fx) {
     // Geen knop: de viering staat meteen aan en de schakelaar zit in de reeks-rij
     // die je via "bekijk ›" toch al bereikt.
@@ -7971,6 +8134,7 @@ function achvCardEl(it) {
       e.stopPropagation();   // de kaart zelf opent het paneel; deze knop de kluis
       closeAllModals();
       if (it.flairFx) rewardScrollSect = "flairfx";   // spring naar de effect-keuzerij
+      else if (it.fxOptIn) rewardScrollSect = "endscreen";   // …of naar de Viering-tab
       openModal("modal-rewards");   // flair-kiezer woont sinds v239 in 🪎 Beloningen
     };
   }
@@ -8145,7 +8309,7 @@ function achvDetailHtml(a, s) {
   // De 🍻-pin + "verdien bij X"-note blijven als voortgang/eer staan; de aan/uit-
   // schakelaar is naar de 🪎-kluis verhuisd (v239, win-effect-radiogroep).
   const fxNote = (fx
-    ? `<p class="achv-flairnote">${escHtml(t("achv_fx_note")(fx.emoji, achvTierName(fx.at)))}</p>`
+    ? `<p class="achv-flairnote">${escHtml(t(fx.note || "achv_fx_note")(fx.emoji, achvTierName(fx.at)))}</p>`
     : "") + flairFxs.map((f) =>
       `<p class="achv-flairnote">${escHtml(t("achv_flairfx_note")(t("fxn_" + f.id), achvTierName(f.at)))}</p>`).join("");
   return `<div class="achv-detail" hidden>
@@ -8261,23 +8425,26 @@ function winFxUnlockedMap(a) {
     flair: !!(auth.user && a && capstoneTier(a) >= 2),
     beer: beerFxUnlocked(a),
     gold: goldYearsFxUnlocked(a),
+    cal: calendarFxUnlocked(a),
   };
 }
 // Welk effect speelt nu? Spiegelt de precedentie in finishGame (goud > bier >
 // flair-confetti > gewone confetti), maar op de opgeslagen aan/uit-vlaggen.
 function currentWinFxChoice() {
+  if (calendarFxActive()) return "cal";
   if (goldYearsFxActive()) return "gold";
   if (beerFxActive()) return "beer";
   if (winFxUnlockedMap(achvCache).flair && flairConfettiEnabled()) return "flair";
   return "none";
 }
-// Kies precies één win-effect. De set*-functies zetten de andere twee al op "0";
-// "none" (gewone confetti) zet alle drie expliciet uit.
+// Kies precies één win-effect. De set*-functies zetten de andere al op "0";
+// "none" (gewone confetti) zet ze allemaal expliciet uit.
 function setWinFx(choice) {
   if (choice === "flair") setFlairConfetti(true);
   else if (choice === "beer") setBeerFx(true);
   else if (choice === "gold") setGoldYearsFx(true);
-  else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); }
+  else if (choice === "cal") setCalendarFx(true);
+  else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); setCalendarFx(false); }
 }
 // Flair-rooster: verdiende prestatie-flairs vooraan (gouden randje), dan de
 // gesnoeide gratis-set. Altijd open (de kluis draait om kiezen — geen inklap).
@@ -8338,7 +8505,7 @@ const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", frame
 let rewardsTab = "flair";   // actieve tab; reset bij openen (openModal), blijft staan bij herrenderen
 function rewardsTabsAvailable(a) {
   const u = winFxUnlockedMap(a), tabs = ["flair"];
-  if (u.flair || u.beer || u.gold) tabs.push("vier");
+  if (u.flair || u.beer || u.gold || u.cal) tabs.push("vier");
   if (platinaFrameUnlocked(a)) tabs.push("frame");
   if (auth.user && capstoneTier(a) >= 5) tabs.push("theme");
   return tabs;
@@ -8359,6 +8526,10 @@ function winFxPreviewHtml(k) {
       const st = `left:${rwRnd(i, 4, 94).toFixed(0)}%;animation-delay:-${rwRnd(i + 9, 0, 2.4).toFixed(2)}s;animation-duration:${rwRnd(i + 3, 1.9, 2.8).toFixed(2)}s`;
       h += k === "none" ? `<i style="${st};background:${cols[i % cols.length]}"></i>` : `<b style="${st}">${escHtml(worn)}</b>`;
     }
+  } else if (k === "cal") {
+    // twee bladen: het voorste kruld op en waait weg, het blad van morgen ligt eronder (CSS, geen canvas)
+    const day = +todayKey().slice(8);
+    h = `<span class="rw-calp"><span class="rw-calpg"><em>${day + 1}</em></span><span class="rw-calpg front"><em>${day}</em></span></span>`;
   } else if (k === "beer") {
     h = `<span class="rw-glass">🍻</span>` + [0, 1, 2, 3, 4, 5].map((j) => `<span class="rw-bub" style="left:${28 + j * 9}%;animation-delay:-${(j * 0.45).toFixed(2)}s"></span>`).join("");
   } else {
@@ -8373,6 +8544,7 @@ function rewardsVierHtml(unlocked) {
   if (unlocked.flair) opts.push(["flair", t("achv_cap_confetti")]);
   if (unlocked.beer) opts.push(["beer", t("achv_fx_beer")]);
   if (unlocked.gold) opts.push(["gold", t("achv_cap_goldyears")]);
+  if (unlocked.cal) opts.push(["cal", t("achv_fx_calendar")]);
   const tiles = opts.map(([k, lbl]) =>
     `<button type="button" class="rw-tile" role="radio" aria-checked="${cur === k}" data-winfx="${k}">${winFxPreviewHtml(k)}<span class="rw-tile-nm">${escHtml(lbl)}</span></button>`).join("");
   return `<section class="rw-sect" data-rw-sect="endscreen"><h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>` +

@@ -167,7 +167,7 @@ html[data-theme="gold"] {
   src: url("/fonts/jaardle-emoji.woff2") format("woff2") tech(color-COLRv1);
   font-display: swap;
   /* EMOJI-RANGE:START */
-  unicode-range: U+200D, U+23E9, U+23F1, U+23F3, U+2600-2601, U+2604, U+2615, U+2694, U+26A1, U+270C, U+270F, U+2728, U+2795, U+2B1B-2B1C, U+FE0F, U+1F308, U+1F30A, U+1F30D, U+1F310, U+1F31F, U+1F336, U+1F340, U+1F355, U+1F37B, U+1F389-1F38A, U+1F3A8-1F3A9, U+1F3AF, U+1F3B2, U+1F3C1, U+1F3C3, U+1F3C5-1F3C6, U+1F3DB, U+1F3DF, U+1F409, U+1F410, U+1F419, U+1F422, U+1F437, U+1F43C, U+1F44B, U+1F451, U+1F465, U+1F480, U+1F485, U+1F48E, U+1F494, U+1F4A1, U+1F4A7, U+1F4AF, U+1F4C5, U+1F4C8-1F4CA, U+1F4CF, U+1F4E2, U+1F511-1F512, U+1F522, U+1F525, U+1F52E, U+1F570, U+1F5A4, U+1F5BC, U+1F5D3, U+1F5FF, U+1F605, U+1F642, U+1F680, U+1F6E1, U+1F7E5, U+1F7E7-1F7EB, U+1F947-1F949, U+1F978, U+1F981, U+1F984, U+1F989-1F98A, U+1F995, U+1F9AB, U+1F9E0, U+1F9ED, U+1FA79, U+1FA8E, U+1FAB7, U+1FAEA;
+  unicode-range: U+200D, U+23E9, U+23F1, U+23F3, U+2600-2601, U+2604, U+2615, U+2694, U+26A1, U+270C, U+270F, U+2728, U+2795, U+2B1B-2B1C, U+FE0F, U+1F308, U+1F30A, U+1F30D, U+1F310, U+1F31F, U+1F336, U+1F340, U+1F355, U+1F37B, U+1F389-1F38A, U+1F3A8-1F3A9, U+1F3AF, U+1F3B2, U+1F3C1, U+1F3C3, U+1F3C5-1F3C6, U+1F3DB, U+1F3DF, U+1F409, U+1F410, U+1F419, U+1F422, U+1F437, U+1F43C, U+1F44B, U+1F451, U+1F465, U+1F480, U+1F485, U+1F48E, U+1F494, U+1F4A1, U+1F4A7, U+1F4AF, U+1F4C5-1F4C6, U+1F4C8-1F4CA, U+1F4CF, U+1F4E2, U+1F511-1F512, U+1F522, U+1F525, U+1F52E, U+1F570, U+1F5A4, U+1F5BC, U+1F5D3, U+1F5FF, U+1F605, U+1F642, U+1F680, U+1F6E1, U+1F7E5, U+1F7E7-1F7EB, U+1F947-1F949, U+1F978, U+1F981, U+1F984, U+1F989-1F98A, U+1F995, U+1F9AB, U+1F9E0, U+1F9ED, U+1FA79, U+1FA8E, U+1FAB7, U+1FAEA;
   /* EMOJI-RANGE:END */
 }
 
@@ -3499,13 +3499,21 @@ html[data-theme="light"] {
 @keyframes rw-clink { 0%, 60%, 100% { transform: translate(-50%, -50%) rotate(0); } 68% { transform: translate(-50%, -54%) rotate(-9deg) scale(1.1); } 76% { transform: translate(-50%, -50%) rotate(5deg); } }
 .rw-bub { position: absolute; bottom: -6px; width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, var(--fg) 45%, transparent); animation: rw-bubup 2.4s ease-in infinite; }
 @keyframes rw-bubup { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.9; } 100% { transform: translateY(-96px); opacity: 0; } }
+/* Scheurkalender-tegel: het voorste blad kruld op en waait weg, het blad van morgen ligt eronder. Geen <i>/<b> hier:
+   die hebben hierboven de vallende-confetti-regels. */
+.rw-calp { position: absolute; left: 50%; top: 50%; width: 46px; height: 52px; margin: -26px 0 0 -23px; }
+.rw-calpg { position: absolute; inset: 0; border-radius: 5px; background: #fffdf6; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35); overflow: hidden; display: grid; place-items: center; padding-top: 11px; }
+.rw-calpg::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 11px; background: #c8453b; }
+.rw-calpg em { font-style: normal; font-size: 24px; font-weight: 800; color: #2a2420; line-height: 1; font-variant-numeric: tabular-nums; }
+.rw-calpg.front { transform-origin: 0 0; animation: rw-tear 3.2s ease-in infinite; }
+@keyframes rw-tear { 0%, 38% { transform: none; opacity: 1; } 52% { transform: rotate(-9deg); opacity: 1; } 100% { transform: translate(150px, 18px) rotate(-70deg) scaleX(0.3); opacity: 0; } }
 .rw-frameprev { height: 142px; padding-top: 22px; margin-bottom: 0.55rem; background: var(--card-soft); border-radius: 12px; overflow: hidden; display: flex; justify-content: center; }
 .rw-frameprev .pf-card { flex: none; transform: scale(0.62); transform-origin: top center; margin: 0; }
 .rw-sect .rw-chips[role="radiogroup"] { display: flex; flex-direction: row; gap: 2px; background: var(--card-soft); border-radius: 999px; padding: 3px; }
 .rw-chip { appearance: none; flex: 1; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 0.72rem; font-weight: 700; padding: 0.4rem 0.2rem; border-radius: 999px; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
 .rw-chip[aria-checked="true"] { background: var(--accent); color: var(--on-accent); }
 @media (prefers-reduced-motion: reduce) {
-  .rw-fxp i, .rw-fxp b, .rw-glass, .rw-bub { animation: none !important; }
+  .rw-fxp i, .rw-fxp b, .rw-glass, .rw-bub, .rw-calpg.front { animation: none !important; }
   .rw-fxp i, .rw-fxp b { top: 30px; }
   .rw-bub { display: none; }
 }
