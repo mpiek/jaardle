@@ -58,6 +58,7 @@ src += `
   recapAccountHtml, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
   setState: (s) => { state = s; },
+  refreshWeekPodiumResult, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
   fmtDailyDate, fmtHistoryDate,
   achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml,
   streakFlameTier, streakFlameHtml, withAnimEmoji,
@@ -1658,6 +1659,48 @@ test("podiumParts (solo) — jij met gestippelde plekken en het teamvoorproefje-
 
 test("fetchWorldWeek — een mislukte RPC geeft null (dan komt de pop-up niet)", async () => {
   assert.equal(await T.fetchWorldWeek("2026-09-28"), null);
+});
+
+// ── Regressie (5/10/2026): "vs is not defined" in refreshWeekPodiumResult en "vsP is not defined" in de 🏟️-tab ───────────
+test("refreshWeekPodiumResult — het pad bij het openen van het spel haalt uitslag, prijzen en team-tegen-de-wereld op", async () => {
+  const RealDate = Date, FIXED = RealDate.parse("2026-10-06T09:00:00Z");   // dinsdag na de sluiting van week 28 sep – 4 okt
+  class FakeDate extends RealDate { constructor(...a) { a.length ? super(...a) : super(FIXED); } static now() { return FIXED; } }
+  const calls = [];
+  const rows = [{ week_start: "2026-09-28", rank: 1, display_name: "Jij", flair: "", title: null, daily_wins: 2, week_score: 400, played: 6, is_me: true },
+                { week_start: "2026-09-28", rank: 2, display_name: "Ander", flair: "", title: null, daily_wins: 1, week_score: 300, played: 5, is_me: false }];
+  const awards = [AW("terug", { name: "Ander", detail: { gap_days: 9 } })];
+  const oldSb = globalThis.window.sb, oldUser = T.auth.user;
+  globalThis.Date = FakeDate;
+  globalThis.window.sb = { rpc: async (fn, args) => { calls.push(fn); return fn === "get_pending_podium" ? rows : fn === "get_pool_week_awards" ? awards : fn === "get_pool_week_vs_world" ? { cur: VS_CUR, prev: VS_PREV } : null; } };
+  try {
+    T.auth.user = { uid: "u1", email: "x@example.invalid" };
+    T.setMyPool({ id: "p1", name: "Team", is_owner: false, invite_code: "x" });
+    T.resetPodiumReq();
+    await T.refreshWeekPodiumResult();
+    const res = T.getWeekPodiumResult();
+    assert.ok(res, "uitslag staat klaar (anders komt het pop-up nooit)");
+    assert.equal(res.weekStart, "2026-09-28"); assert.equal(res.rows.length, 2); assert.equal(res.awards.length, 1);
+    assert.equal(res.vs.cur.team.score, 82.8, "team-tegen-de-wereld is opgehaald en meegegeven");
+    assert.ok(calls.includes("get_pool_week_awards") && calls.includes("get_pool_week_vs_world") && calls.includes("get_pending_podium"));
+    // vs mislukt (db/81 ontbreekt): de uitslag komt er gewoon, zonder die stap
+    globalThis.window.sb = { rpc: async (fn) => { if (fn === "get_pool_week_vs_world") throw new Error("function does not exist"); return fn === "get_pending_podium" ? rows : []; } };
+    T.resetPodiumReq();
+    await T.refreshWeekPodiumResult();
+    assert.ok(T.getWeekPodiumResult() && T.getWeekPodiumResult().vs == null, "geen vs, wel uitslag");
+  } finally {
+    globalThis.Date = RealDate; globalThis.window.sb = oldSb; T.auth.user = oldUser; T.setMyPool(null);
+  }
+});
+
+test("game.js — elke `await xxxP` hoort bij een `const xxxP` in dezelfde functie (vangt een misplaatste vervanging)", () => {
+  const chunks = readFileSync(join(dir, "..", "game.js"), "utf8").split(/\n(?=(?:async )?function )/);
+  const bad = [];
+  for (const c of chunks) {
+    for (const m of c.matchAll(/await ([a-z][A-Za-z]*P)\b/g)) {
+      if (!new RegExp(`(?:const|let|var) ${m[1]}\\b`).test(c)) bad.push(`${m[1]} in ${c.slice(0, 60).replace(/\n/g, " ")}`);
+    }
+  }
+  assert.deepEqual(bad, []);
 });
 
 test("podiumParts — de pop-up toont stappen: uitslag (podium + rest) en weekprijzen; podiumHtml plakt ze aan elkaar", () => {

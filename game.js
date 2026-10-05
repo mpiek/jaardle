@@ -5418,7 +5418,7 @@ async function loadPodium() {
   let rows = [];
   const awardsP = fetchWeekAwards(myPool.id, lbWeekStart);   // parallel met het podium; mislukt → geen blok
   try { rows = await rpc("get_pool_week_podium", { p_pool_id: myPool.id, p_week_start: lbWeekStart }); } catch (e) {}
-  const awards = await awardsP, vs = await vsP;
+  const awards = await awardsP;
   if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
   rows = Array.isArray(rows) ? rows : [];
   setBoard(content, podiumHtml(rows, isLive, awards));
@@ -7982,7 +7982,7 @@ async function refreshWeekPodiumResult() {
   const vsP = fetchWeekVsWorld(myPool.id, lastDone);      // team tegen de wereld (stap 3); mislukt → pop-up zonder die stap
   try { rows = await rpc("get_pending_podium", { p_pool_id: myPool.id }) || []; }
   catch (e) { podiumPendingReq = null; }   // netwerk-hik → volgende auth-event mag het opnieuw proberen
-  const awards = await awardsP;
+  const awards = await awardsP, vs = await vsP;
   if (!Array.isArray(rows) || !rows.length) { weekPodiumResult = null; renderPodiumDot(); return; }
   weekPodiumResult = { weekStart: rows[0].week_start || lastDone, poolId: myPool.id, poolName: myPool.name, rows, awards, vs };
   renderPodiumDot();
