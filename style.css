@@ -1316,15 +1316,15 @@ html[data-theme="light"], html[data-theme="parchment"] {
    "zonder border mooier"); de gloed komt uit het filter. De tekst in dezelfde regel krijgt de kleur van de trede (hieronder),
    zodat vlam en tekst één geheel zijn. De vlam groeit rond het midden van de gewone vlam (vertical-align rekent de extra hoogte weg). */
 .flm {
-  --sc: 1; --tc: transparent;
+  --sc: 1; --tc: transparent; --f: 0.76;   /* --f = aandeel van het blok dat het plaatje beslaat; de basislijn van het blok is de onderkant van het plaatje */
   position: relative; display: inline-grid; place-items: center; flex: none;
   width: calc(1.5em * var(--sc)); height: calc(1.5em * var(--sc));
-  vertical-align: calc(0.345em - 0.75em * var(--sc));
+  vertical-align: calc(0.345em - 0.75em * var(--sc) * var(--f));   /* midden van de vlam op 0,345em boven de basislijn, net als de gewone vlam */
   border-radius: 50%;
 }
 .flm > img, .flm > .flm-g { width: 76%; height: 76%; display: block; transition: filter 0.3s; }
 .flm > .flm-g { font-size: 1.05em; line-height: 1; text-align: center; }
-.flm.s0 { --sc: 0.8333; }   /* alleen de boei-variant: een gewone vlam (1,25em) zonder ring */
+.flm.s0 { --sc: 0.8333; --f: 1; }   /* alleen de boei-variant: een gewone vlam (1,25em) zonder ring */
 .flm.s0 > img, .flm.s0 > .flm-g { width: 100%; height: 100%; }
 .flm.s1 { --sc: 1.04; --tc: var(--achv-bronze); }
 .flm.s2 { --sc: 1.12; --tc: var(--achv-silver); }
@@ -3915,3 +3915,5 @@ html[data-theme="light"] .achv-card::after {
 .login-why[hidden] { display: none; }
 .lb-pod-ghost .lb-pod-name { white-space: normal; overflow: visible; text-overflow: clip; text-align: center; line-height: 1.15; max-width: 100%; }
 .podpop-card:focus { outline: none; }
+.lb-wk-recap { display: flex; justify-content: center; margin: 0.9rem 0 0.3rem; }
+.lb-wk-recap .lb-pillbtn:disabled { opacity: 0.55; cursor: progress; }

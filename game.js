@@ -220,7 +220,7 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord",
-    lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week",
+    lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week", lb_wk_recap: "Recap bekijken",
     lb_wk_live: "loopt nog", lb_wk_done: "afgerond",
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
     lb_wk_punten: "punten",
@@ -548,7 +548,7 @@ const I18N = {
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
     lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board",
-    lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week",
+    lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week", lb_wk_recap: "Watch the recap",
     lb_wk_live: "live", lb_wk_done: "final",
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
     lb_wk_punten: "points",
@@ -869,7 +869,7 @@ const I18N = {
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
     lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen",
-    lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche",
+    lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche", lb_wk_recap: "Rückblick ansehen",
     lb_wk_live: "läuft noch", lb_wk_done: "beendet",
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
     lb_wk_punten: "Punkte",
@@ -1194,7 +1194,7 @@ const I18N = {
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
     lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla",
-    lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente",
+    lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente", lb_wk_recap: "Ver el resumen",
     lb_wk_live: "en curso", lb_wk_done: "cerrada",
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
     lb_wk_punten: "puntos",
@@ -1519,7 +1519,7 @@ const I18N = {
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
     lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela",
-    lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana",
+    lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana", lb_wk_recap: "Ver o resumo",
     lb_wk_live: "em andamento", lb_wk_done: "encerrada",
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
     lb_wk_punten: "pontos",
@@ -5424,7 +5424,10 @@ async function loadPodium() {
   const awards = await awardsP;
   if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
   rows = Array.isArray(rows) ? rows : [];
-  setBoard(content, podiumHtml(rows, isLive, awards));
+  // Afgeronde week met een uitslag: "▶ Recap bekijken" speelt dezelfde stappen-pop-up als op maandag nog eens af.
+  const recapBtn = !isLive && rows.length ? `<div class="lb-wk-recap"><button type="button" id="lb-wk-recap" class="lb-pillbtn">▶ ${escHtml(t("lb_wk_recap"))}</button></div>` : "";
+  setBoard(content, podiumHtml(rows, isLive, awards) + recapBtn);
+  document.getElementById("lb-wk-recap")?.addEventListener("click", () => replayWeekRecap(lbWeekStart, rows, awards));
   // De verse (ongeziene) uitslag bekeken = "gezien" → stip dooft, server onthoudt het.
   if (!isLive && weekPodiumResult && weekPodiumResult.weekStart === lbWeekStart) podiumMarkSeen(lbWeekStart);
   // Live tussenstand → tik de countdown naar de sluiting (maandag 12:00); een
@@ -5437,6 +5440,16 @@ async function loadPodium() {
   } else {
     stopPodiumConfetti();
   }
+}
+
+// Terugkijken: dezelfde stappen-pop-up voor een afgeronde week, bovenop het 🏆-scherm. Telt niet als "gezien" en sluit alleen zichzelf.
+async function replayWeekRecap(weekStart, rows, awards) {
+  if (!myPool || !rows?.length) return;
+  const btn = document.getElementById("lb-wk-recap");
+  if (btn) btn.disabled = true;
+  const vs = await fetchWeekVsWorld(myPool.id, weekStart);   // team tegen de wereld; mislukt of te weinig potjes → die stap valt weg
+  if (btn) btn.disabled = false;
+  showPodiumPopup({ weekStart, poolId: myPool.id, poolName: myPool.name, rows, awards, vs, replay: true });
 }
 
 // Live countdown naar de week-sluiting (maandag 12:00) onder het podium (lb-wk-countdown, alleen
@@ -8024,7 +8037,7 @@ function popupSteps(res) {
 function showPodiumPopup(resArg) {
   const res = resArg || weekPodiumResult;
   if (!res || document.getElementById("modal-podium-pop")) return;
-  if (document.querySelector(".modal:not([hidden])")) return;   // ander scherm open → stip blijft
+  if (!res.replay && document.querySelector(".modal:not([hidden])")) return;   // ander scherm open → stip blijft (een bewust gevraagde recap mag er bovenop)
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // Stap 1 = de uitslag (podium + rest van de stand), stap 2 = de weekprijzen, stap 3 = team tegen de wereld; stappen zonder inhoud vallen weg.
   const steps = popupSteps(res);
@@ -8034,6 +8047,8 @@ function showPodiumPopup(resArg) {
   el.hidden = true;
   el.dataset.week = res.weekStart;
   if (res.solo) el.dataset.solo = "1";
+  if (res.replay) el.dataset.replay = "1";
+  const closePop = () => (res.replay ? closeModal("modal-podium-pop") : closeAllModals());   // terugkijken sluit alleen de recap, niet het 🏆-scherm eronder
   el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "podpop-title");
   el.innerHTML =
     `<div class="modal-backdrop" data-close></div>` +
@@ -8050,12 +8065,12 @@ function showPodiumPopup(resArg) {
         (steps.length > 1 ? `<div class="podpop-dots"><button type="button" class="podpop-arrow" data-dir="-1" aria-label="${escHtml(t("lb_pop_prev"))}" disabled>‹</button>${steps.map((_, i) => `<button type="button" class="podpop-dot" data-to="${i}" aria-label="${i + 1}/${steps.length}"${i ? "" : ` aria-current="step"`}></button>`).join("")}<button type="button" class="podpop-arrow" data-dir="1" aria-label="${escHtml(t("lb_pop_next"))}">›</button></div>` : "") +
         `<div class="podpop-btns"><button type="button" class="podpop-go">${escHtml(t("lb_pop_continue"))}</button>` +
           (res.solo ? `<button type="button" class="podpop-team" hidden>${escHtml(t("recap_team_make"))}</button>` : "") + `</div>` +
-        (res.solo ? "" : `<button type="button" class="podpop-live"${steps.length > 1 ? " hidden" : ""}>${escHtml(t("lb_pop_live"))} ›</button>`) +
+        (res.solo || res.replay ? "" : `<button type="button" class="podpop-live"${steps.length > 1 ? " hidden" : ""}>${escHtml(t("lb_pop_live"))} ›</button>`) +
       `</div>` +
       `</div>` +
     `</div>`;
   document.body.appendChild(el);
-  el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeAllModals()));
+  el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", closePop));
   const at = (ms, fn) => podiumPopTimers.push(setTimeout(fn, ms));
   let step = 0;
   const revealStep = (n) => {   // de prijzen komen één voor één binnen, als de sokkels
@@ -8069,6 +8084,7 @@ function showPodiumPopup(resArg) {
     const last = step === steps.length - 1, go = el.querySelector(".podpop-go"), team = el.querySelector(".podpop-team");
     const live = el.querySelector(".podpop-live");
     if (live) live.hidden = !last;
+    if (res.replay) go.textContent = t(last ? "aria_close" : "lb_pop_continue");
     if (team) { team.hidden = !last; go.textContent = t(last ? "solo_done" : "lb_pop_continue"); go.classList.toggle("alt", last); }
   };
   const goStep = (n) => {
@@ -8086,7 +8102,7 @@ function showPodiumPopup(resArg) {
     el.querySelector(".podpop-scroll").scrollTop = 0;
     if (n > 0) { fadePodiumConfetti(); revealStep(n); }   // confetti hoort bij de uitslag (stap 1); daarna faden we hem uit
   };
-  el.querySelector(".podpop-go").addEventListener("click", () => { if (step < steps.length - 1) goStep(step + 1); else closeAllModals(); });
+  el.querySelector(".podpop-go").addEventListener("click", () => { if (step < steps.length - 1) goStep(step + 1); else closePop(); });
   el.querySelector(".podpop-team")?.addEventListener("click", soloMakeTeam);
   syncFoot();
   el.querySelectorAll(".podpop-dot").forEach((d) => d.addEventListener("click", () => goStep(+d.dataset.to)));
@@ -8162,8 +8178,9 @@ function podiumPopClosed() {
   cancelAnimationFrame(podiumPopRaf);
   stopPodiumConfetti();
   const ws = el.dataset.week;
-  const solo = el.dataset.solo === "1";
+  const solo = el.dataset.solo === "1", replay = el.dataset.replay === "1";
   el.remove();
+  if (replay) return;   // terugkijken raakt je "gezien"-datum niet
   if (solo) soloMarkSeen(ws); else podiumMarkSeen(ws);
 }
 
@@ -11551,6 +11568,8 @@ async function init() {
     const rw = document.getElementById("modal-rewards");
     if (rewardsReturnTo && rw && !rw.hidden) { rewardsReturn(); return; }
     if (!document.getElementById("modal-login").hidden) dropTeamIntent();
+    const rp = document.getElementById("modal-podium-pop");
+    if (rp && !rp.hidden && rp.dataset.replay === "1") { closeModal("modal-podium-pop"); return; }
     closeAllModals();
   });
   const loginForm = document.getElementById("login-form");
