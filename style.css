@@ -2728,6 +2728,19 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .podpop-eyebrow { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
 .podpop-title { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; text-wrap: balance; }
 .podpop-sub { color: var(--muted); font-size: 0.85rem; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 0.45rem; }
+.podpop-step[hidden], .podpop-live[hidden] { display: none; }
+.podpop-anim .podpop-step.from-r { animation: podStepIn 0.28s ease-out both; --pod-from: 26px; }
+.podpop-anim .podpop-step.from-l { animation: podStepIn 0.28s ease-out both; --pod-from: -26px; }
+@keyframes podStepIn { from { opacity: 0; transform: translateX(var(--pod-from)); } to { opacity: 1; transform: none; } }
+.podpop-dots { display: flex; gap: 0.5rem; align-items: center; justify-content: center; }
+.podpop-arrow { background: none; border: 0; color: var(--muted); font: inherit; font-size: 1.7rem; font-weight: 700; line-height: 1; width: 2.6rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; padding: 0 0 0.15rem; }
+.podpop-arrow:hover:not(:disabled), .podpop-arrow:focus-visible { color: var(--accent); outline: none; }
+.podpop-arrow:focus-visible { box-shadow: 0 0 0 2px var(--fg); }
+.podpop-arrow:disabled { opacity: 0.18; cursor: default; }
+.podpop-dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--border); cursor: pointer; position: relative; transition: background 0.2s, transform 0.2s; }
+.podpop-dot::after { content: ""; position: absolute; inset: -9px; }   /* ruim aanraakvlak om het stipje */
+.podpop-dot[aria-current] { background: var(--accent); transform: scale(1.25); }
+.podpop-dot:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
 .podpop-foot { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding-top: 0.9rem; }
 .podpop-go { width: 100%; background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 0.8rem 1rem; font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
 .podpop-go:hover { filter: brightness(1.07); }
@@ -2742,8 +2755,8 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .podpop-anim .lb-pod-spot.in .lb-pod-block { transform: none; }
 .podpop-anim .lb-pod-spot.in .lb-pod-block > *, .podpop-anim .lb-pod-spot.in .lb-pod-name, .podpop-anim .lb-pod-spot.in .lb-pod-flair { opacity: 1; transform: none; }
 .podpop-anim .lb-pod-spot.in .lb-pod-u { opacity: 0.75; }   /* ná de > *-regel: label houdt z'n gedempte tint */
-.podpop-anim .lb-wk-restrow, .podpop-anim .lb-wk-note, .podpop-anim .lb-wk-awards, .podpop-anim .podpop-foot { opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease, transform 0.3s ease; }
-.podpop-anim .lb-wk-restrow.in, .podpop-anim .lb-wk-note.in, .podpop-anim .lb-wk-awards.in, .podpop-anim .podpop-foot.in { opacity: 1; transform: none; }
+.podpop-anim .lb-wk-restrow, .podpop-anim .lb-wk-note, .podpop-anim .lb-wk-awards, .podpop-anim .lb-aw, .podpop-anim .podpop-foot { opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease, transform 0.3s ease; }
+.podpop-anim .lb-wk-restrow.in, .podpop-anim .lb-wk-note.in, .podpop-anim .lb-wk-awards.in, .podpop-anim .lb-aw.in, .podpop-anim .podpop-foot.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .podpop-card, .podpop .modal-backdrop { transition: none; }
 }

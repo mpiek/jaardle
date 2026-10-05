@@ -225,7 +225,7 @@ const I18N = {
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
     lb_wk_punten: "punten",
     lb_recap_head: "Vorige week",
-    lb_pop_continue: "Verder", lb_pop_live: "Bekijk deze week",
+    lb_pop_continue: "Verder", lb_pop_live: "Bekijk deze week", lb_pop_prev: "Vorige stap", lb_pop_next: "Volgende stap",
     lb_wk_live_note: "Tussenstand — sluit over",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
     aw_title: "Weekprijzen", aw_title_live: "Weekprijzen tot nu toe",
@@ -544,7 +544,7 @@ const I18N = {
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
     lb_wk_punten: "points",
     lb_recap_head: "Last week",
-    lb_pop_continue: "Continue", lb_pop_live: "See this week",
+    lb_pop_continue: "Continue", lb_pop_live: "See this week", lb_pop_prev: "Previous step", lb_pop_next: "Next step",
     lb_wk_live_note: "Live standings — locks in",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
     aw_title: "Weekly awards", aw_title_live: "Weekly awards so far",
@@ -856,7 +856,7 @@ const I18N = {
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
     lb_wk_punten: "Punkte",
     lb_recap_head: "Letzte Woche",
-    lb_pop_continue: "Weiter", lb_pop_live: "Diese Woche ansehen",
+    lb_pop_continue: "Weiter", lb_pop_live: "Diese Woche ansehen", lb_pop_prev: "Vorheriger Schritt", lb_pop_next: "Nächster Schritt",
     lb_wk_live_note: "Zwischenstand — schließt in",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
     aw_title: "Wochenpreise", aw_title_live: "Wochenpreise bisher",
@@ -1172,7 +1172,7 @@ const I18N = {
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
     lb_wk_punten: "puntos",
     lb_recap_head: "La semana pasada",
-    lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
+    lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana", lb_pop_prev: "Paso anterior", lb_pop_next: "Paso siguiente",
     lb_wk_live_note: "Clasificación en curso — se cierra en",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
     aw_title: "Premios de la semana", aw_title_live: "Premios de la semana hasta ahora",
@@ -1488,7 +1488,7 @@ const I18N = {
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
     lb_wk_punten: "pontos",
     lb_recap_head: "Semana passada",
-    lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana",
+    lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana", lb_pop_prev: "Passo anterior", lb_pop_next: "Próximo passo",
     lb_wk_live_note: "Parcial — fecha em",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
     aw_title: "Prêmios da semana", aw_title_live: "Prêmios da semana até agora",
@@ -5620,15 +5620,20 @@ function awardMeHtml(awards, compact) {
   return `<div class="lb-aw-me">${lines.map((l) => `<p>${escHtml(l)}</p>`).join("")}</div>`;
 }
 
-function podiumHtml(rows, isLive, awards) {
+// Het weekpodium in losse stukken: de maandag-pop-up toont ze als stappen (uitslag, dan weekprijzen), de 🏟️-tab plakt ze aan elkaar.
+function podiumHtml(rows, isLive, awards, noFormula) {
+  const p = podiumParts(rows, isLive, awards, noFormula);
+  return p.all != null ? p.all : p.stage + p.note + p.awards + p.rest;
+}
+function podiumParts(rows, isLive, awards, noFormula) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const flairDance = (f) => {
     const p = parseFlair(f);
     return p.emoji ? flairFxWrap(p.fx, reduced ? escHtml(p.emoji) : flairPreviewHtml(p.emoji)) : "";
   };
   if (!rows.length) {
-    return `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
-      `<h4>${escHtml(t("lb_wk_empty_h"))}</h4><p>${escHtml(t("lb_wk_empty_p"))}</p></div>`;
+    return { all: `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
+      `<h4>${escHtml(t("lb_wk_empty_h"))}</h4><p>${escHtml(t("lb_wk_empty_p"))}</p></div>` };
   }
   const top = rows.slice(0, 3);
   const cls = ["gold", "silver", "bronze"];
@@ -5662,8 +5667,9 @@ function podiumHtml(rows, isLive, awards) {
   ).join("") + `</div>` : "";
   const liveLine = isLive
     ? `<p>${escHtml(t("lb_wk_live_note"))} <span class="lb-wk-countdown"></span></p>` : "";
-  const note = `<div class="lb-wk-note">${liveLine}<p>${escHtml(t("lb_wk_formula"))}</p></div>`;
-  return `<div class="lb-pod-stage">${podium}</div>${note}${awardsHtml(awards, isLive)}${restHtml}`;
+  // In de maandag-pop-up (afgeronde week) blijft de scoreformule weg: dat scheelt een regel boven de weekprijzen.
+  const note = isLive || !noFormula ? `<div class="lb-wk-note">${liveLine}<p>${escHtml(t("lb_wk_formula"))}</p></div>` : "";
+  return { stage: `<div class="lb-pod-stage">${podium}</div>`, note, awards: awardsHtml(awards, isLive), rest: restHtml };
 }
 
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
@@ -7726,11 +7732,15 @@ async function refreshWeekPodiumResult() {
 // Sluiten via ✕/Verder/Escape/achtergrond loopt via closeAllModals
 // → podiumPopClosed markeert gezien. Bewust "altijd direct", ook midden in een gok
 // (expliciete keuze 2026-09-06); alleen een al open scherm (deeplink/login) wint.
+let podiumPopKey = null;   // ←/→-handler van de maandag-pop-up (alleen zolang hij open is)
 function showPodiumPopup() {
   const res = weekPodiumResult;
   if (!res || document.getElementById("modal-podium-pop")) return;
   if (document.querySelector(".modal:not([hidden])")) return;   // ander scherm open → stip blijft
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Stap 1 = de uitslag (podium + rest van de stand), stap 2 = de weekprijzen; zonder prijzen blijft het één scherm. Ruimte voor een stap 3.
+  const parts = podiumParts(res.rows, false, res.awards, true);
+  const steps = parts.all != null ? [parts.all] : [parts.stage + parts.note + parts.rest, parts.awards].filter(Boolean);
   const el = document.createElement("div");
   el.id = "modal-podium-pop";
   el.className = "modal podpop night night-b" + (reduced ? "" : " podpop-anim");   // nachtpaars-schil (kroning-look); night-b = donkerpaarse sokkels met metalen rand — zonder night-b zijn het de metalen sokkels (variant A)
@@ -7747,15 +7757,61 @@ function showPodiumPopup() {
         `<h2 id="podpop-title" class="podpop-title">${escHtml(fmtWeekRange(res.weekStart))}</h2>` +
         `<div class="podpop-sub">${escHtml(res.poolName)} <span class="lb-wk-pill done">${escHtml(t("lb_wk_done"))}</span></div>` +
       `</div>` +
-      podiumHtml(res.rows, false, res.awards) +
+      steps.map((h, i) => `<div class="podpop-step" data-step="${i}"${i ? " hidden" : ""}>${h}</div>`).join("") +
       `<div class="podpop-foot">` +
-        `<button type="button" class="podpop-go" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
-        `<button type="button" class="podpop-live">${escHtml(t("lb_pop_live"))} ›</button>` +
+        (steps.length > 1 ? `<div class="podpop-dots"><button type="button" class="podpop-arrow" data-dir="-1" aria-label="${escHtml(t("lb_pop_prev"))}" disabled>‹</button>${steps.map((_, i) => `<button type="button" class="podpop-dot" data-to="${i}" aria-label="${i + 1}/${steps.length}"${i ? "" : ` aria-current="step"`}></button>`).join("")}<button type="button" class="podpop-arrow" data-dir="1" aria-label="${escHtml(t("lb_pop_next"))}">›</button></div>` : "") +
+        `<button type="button" class="podpop-go">${escHtml(t("lb_pop_continue"))}</button>` +
+        `<button type="button" class="podpop-live"${steps.length > 1 ? " hidden" : ""}>${escHtml(t("lb_pop_live"))} ›</button>` +
       `</div>` +
       `</div>` +
     `</div>`;
   document.body.appendChild(el);
   el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeAllModals()));
+  const at = (ms, fn) => podiumPopTimers.push(setTimeout(fn, ms));
+  let step = 0;
+  const revealStep = (n) => {   // de prijzen komen één voor één binnen, als de sokkels
+    const items = [...el.querySelectorAll(`.podpop-step[data-step="${n}"] .lb-aw`)];
+    el.querySelector(`.podpop-step[data-step="${n}"] .lb-wk-awards`)?.classList.add("in");
+    items.forEach((li, i) => reduced ? li.classList.add("in") : at(120 + 110 * i, () => li.classList.add("in")));
+  };
+  const goStep = (n) => {
+    if (n < 0 || n >= steps.length || n === step) return;
+    const dir = n > step ? "from-r" : "from-l";
+    step = n;
+    el.querySelectorAll(".podpop-step").forEach((x) => {
+      x.hidden = +x.dataset.step !== n;
+      x.classList.remove("from-r", "from-l");
+      if (+x.dataset.step === n) { void x.offsetWidth; x.classList.add(dir); }   // zachte schuif in de swipe-richting (alleen met .podpop-anim)
+    });
+    el.querySelectorAll(".podpop-dot").forEach((d) => { if (+d.dataset.to === n) d.setAttribute("aria-current", "step"); else d.removeAttribute("aria-current"); });
+    el.querySelectorAll(".podpop-arrow").forEach((a) => { a.disabled = n + +a.dataset.dir < 0 || n + +a.dataset.dir >= steps.length; });
+    el.querySelector(".podpop-live").hidden = n < steps.length - 1;
+    el.querySelector(".podpop-scroll").scrollTop = 0;
+    if (n > 0) revealStep(n);
+  };
+  el.querySelector(".podpop-go").addEventListener("click", () => { if (step < steps.length - 1) goStep(step + 1); else closeAllModals(); });
+  el.querySelectorAll(".podpop-dot").forEach((d) => d.addEventListener("click", () => goStep(+d.dataset.to)));
+  el.querySelectorAll(".podpop-arrow").forEach((a) => a.addEventListener("click", () => goStep(step + +a.dataset.dir)));
+  if (steps.length > 1) {
+    podiumPopKey = (e) => {   // ←/→ door de stappen, zolang de pop-up open is (de spel-toetsen zijn dan toch uitgeschakeld)
+      if ((e.key !== "ArrowLeft" && e.key !== "ArrowRight") || e.ctrlKey || e.metaKey || e.altKey) return;
+      const to = step + (e.key === "ArrowRight" ? 1 : -1);
+      if (to < 0 || to >= steps.length) return;
+      e.preventDefault(); goStep(to);
+    };
+    document.addEventListener("keydown", podiumPopKey);   // swipen: links = verder, rechts = terug; alleen duidelijk horizontale vegen, zodat scrollen in de pop-up blijft werken
+    let tx = 0, ty = 0, armed = false;
+    const sc = el.querySelector(".podpop-scroll");
+    sc.addEventListener("touchstart", (e) => { armed = e.touches.length === 1; if (armed) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    sc.addEventListener("touchend", (e) => {
+      const c = e.changedTouches[0];
+      if (!armed || !c) return;
+      armed = false;
+      const dx = c.clientX - tx, dy = c.clientY - ty;
+      if (Math.abs(dx) >= 50 && Math.abs(dx) > 1.6 * Math.abs(dy)) goStep(step + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+    sc.addEventListener("touchcancel", () => { armed = false; }, { passive: true });
+  }
   el.querySelector(".podpop-live").addEventListener("click", () => {
     pendingLbTab = "podium"; pendingLbWeek = currentWeekStart();   // van uitslag naar de nieuwe race
     closeAllModals();
@@ -7765,11 +7821,10 @@ function showPodiumPopup() {
   lockBodyScroll();
   requestAnimationFrame(() => el.classList.add("in"));
   if (reduced) {   // alles meteen, geen confetti
-    el.querySelectorAll(".lb-pod-spot, .lb-wk-restrow, .lb-wk-note, .lb-wk-awards, .podpop-foot").forEach((n) => n.classList.add("in"));
+    el.querySelectorAll(".lb-pod-spot, .lb-wk-restrow, .lb-wk-note, .lb-wk-awards, .lb-aw, .podpop-foot").forEach((n) => n.classList.add("in"));
     el.querySelector(".lb-pod-stage")?.classList.add("lit");
     return;
   }
-  const at = (ms, fn) => podiumPopTimers.push(setTimeout(fn, ms));
   // Sokkels van laag naar hoog (adaptief: 1, 2 of 3 treden; gedeelde plekken samen).
   const spots = [...el.querySelectorAll(".lb-pod-spot")].sort((a, b) => +b.dataset.rank - +a.dataset.rank);
   const last = spots.length - 1;
@@ -7783,7 +7838,6 @@ function showPodiumPopup() {
   }));
   at(lastAt + 500, () => {
     el.querySelector(".lb-wk-note")?.classList.add("in");
-    el.querySelector(".lb-wk-awards")?.classList.add("in");
     el.querySelectorAll(".lb-wk-restrow").forEach((r, i) => at(60 * i, () => r.classList.add("in")));
     at(250, () => el.querySelector(".podpop-foot")?.classList.add("in"));
   });
@@ -7793,6 +7847,7 @@ function showPodiumPopup() {
 function podiumPopClosed() {
   const el = document.getElementById("modal-podium-pop");
   if (!el || !el.hidden) return;
+  if (podiumPopKey) { document.removeEventListener("keydown", podiumPopKey); podiumPopKey = null; }
   podiumPopTimers.forEach(clearTimeout); podiumPopTimers = [];
   stopPodiumConfetti();
   const ws = el.dataset.week;

@@ -65,7 +65,7 @@ src += `
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
-  awardsHtml, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  awardsHtml, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1517,6 +1517,21 @@ test("podiumHtml / recapRaceHtml — de prijzen staan tussen podium+formule en d
   assert.match(race, /Weekprijzen tot nu toe/); assert.match(race, /lb-aw-me lb-aw-me-c/);
   assert.equal((race.match(/class="lb-wk-note"/g) || []).length, 0, "met prijzen deelt de afsluitregel de kop (geen aparte regel)");
   assert.match(T.recapRaceHtml(rows.map((r) => ({ ...r, runner: "" })), []), /class="lb-wk-note"/, "zonder prijzen blijft de afsluitregel zoals hij was");
+});
+
+test("podiumParts — de pop-up toont stappen: uitslag (podium + rest) en weekprijzen; podiumHtml plakt ze aan elkaar", () => {
+  T.setLang("nl");
+  const rows = [1, 2, 3, 4, 5].map((i) => ({ rank: i, display_name: "Sp" + i, flair: "", title: "", week_score: 600 - i * 50, daily_wins: 0, played: 7, is_me: false, prev_rank: i }));
+  const awards = [AW("terug", { name: "Sp5", detail: { gap_days: 12 } })];
+  const p = T.podiumParts(rows, false, awards, true);
+  assert.equal(p.all, undefined);
+  assert.match(p.stage, /lb-pod-stage/); assert.match(p.rest, /lb-wk-rest/); assert.match(p.awards, /lb-wk-awards/);
+  assert.equal(p.note, "", "afgeronde week in de pop-up: de scoreformule valt weg");
+  assert.match(T.podiumParts(rows, false, awards, false).note, /lb-wk-note/, "de 🏟️-tab houdt de formule");
+  assert.match(T.podiumParts(rows, true, awards, true).note, /lb-wk-note/, "lopende week houdt altijd de afsluitregel");
+  assert.equal(T.podiumHtml(rows, false, awards), p.stage + T.podiumParts(rows, false, awards).note + p.awards + p.rest);
+  assert.equal(T.podiumParts(rows, false, [], true).awards, "", "zonder prijzen is er geen tweede stap");
+  assert.match(T.podiumParts([], false, awards).all, /lb-wk-msg/, "lege week = één bericht");
 });
 
 test("fetchWeekAwards — een mislukte of ontbrekende RPC geeft een lege lijst (pop-up valt terug op het oude)", async () => {
