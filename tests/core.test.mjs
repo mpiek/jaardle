@@ -60,6 +60,7 @@ src += `
   setState: (s) => { state = s; },
   fmtDailyDate, fmtHistoryDate,
   achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml,
+  streakFlameTier, streakFlameHtml, withAnimEmoji,
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1091,6 +1092,36 @@ test("prestatiebord: pins en tooltips noemen de effecten alleen voor ingelogde s
     assert.ok(!T.achvDetailHtml(A({ pure: 30 }), pure).includes("🪷"), "anoniem: geen belofte van een effect dat je niet kunt dragen");
     assert.ok(!T.achvTrophyHtml(A({ first_try: 5 }), T.ACHV_TROPHIES.find((x) => x.key === "first_try")).includes("Vizier"));
   } finally { T.auth.user = was; }
+});
+
+// ── De vlam groeit mee met de streak ──
+test("streakFlameTier — de zes treden van de streak-reeks (7 · 30 · 60 · 90 · 180 · 365), daaronder geen tier", () => {
+  const steps = T.ACHV_SERIES.find((x) => x.key === "streak").steps;
+  assert.deepEqual(steps, [7, 30, 60, 90, 180, 365]);
+  assert.equal(T.streakFlameTier(0), 0);
+  assert.equal(T.streakFlameTier(6), 0);
+  steps.forEach((n, i) => { assert.equal(T.streakFlameTier(n), i + 1, `${n} dagen = trede ${i + 1}`); assert.equal(T.streakFlameTier(n - 1), i, `${n - 1} dagen = nog trede ${i}`); });
+  assert.equal(T.streakFlameTier(9999), 6, "boven de laatste trede blijft obsidiaan");
+  assert.equal(T.streakFlameTier(-3), 0);
+});
+
+test("streakFlameHtml / withAnimEmoji — tier-klasse, boei bij een redding, rest van de string animeert gewoon", () => {
+  const was = globalThis.matchMedia;
+  try {
+    assert.ok(!T.streakFlameHtml(3).includes("flm"), "onder de eerste trede: de gewone geanimeerde vlam");
+    assert.match(T.streakFlameHtml(94), /^<span class="flm s4"><img class="emoji-anim"/, "94 dagen = platina");
+    assert.match(T.streakFlameHtml(400), /class="flm s6"/);
+    assert.match(T.streakFlameHtml(3, true), /class="flm s0 flm-saved"/, "een redding zonder tier krijgt toch de boei");
+    assert.match(T.streakFlameHtml(94, true), /class="flm s4 flm-saved"/);
+    // alleen de 🔥 wordt vervangen; 🏆 e.d. animeren zoals altijd
+    const line = T.withAnimEmoji("🔥 94 dagen 🏆", T.streakFlameHtml(94));
+    assert.match(line, /flm s4/); assert.match(line, /trophy\.webp/); assert.ok(!line.includes("🔥 94"), "het losse teken is vervangen (alleen de alt-tekst houdt hem)");
+    assert.match(T.withAnimEmoji("🔥 x"), /fire\.webp/, "zonder eigen vlam: de gewone");
+    // minder beweging: geen webp, maar het teken in dezelfde ring (de tint zit op .flm-g)
+    globalThis.matchMedia = () => ({ matches: true, addEventListener() {} });
+    assert.equal(T.streakFlameHtml(3), "🔥");
+    assert.match(T.streakFlameHtml(94), /<span class="flm s4"><span class="flm-g">🔥<\/span><\/span>/);
+  } finally { globalThis.matchMedia = was; }
 });
 
 // ── Sierrand-keuze (Certificaat · Holo-foil · Art deco) en de kluis in tabs ──

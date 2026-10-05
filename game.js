@@ -4323,19 +4323,20 @@ async function updateRepairAfterPlay() {
     } else if (prev && extras.bridges.some((b) => b.from === prev.gap_from)) {
       // Zojuist voltooid: de brug staat er — vier de teruggekeerde streak.
       const s = computeStats(await dailyHistoryForDisplay(), extras);
-      appendRepairLine(t("repair_done")(Math.max(s.currentStreak, prev.streak_before)));
+      const back = Math.max(s.currentStreak, prev.streak_before);
+      appendRepairLine(t("repair_done")(back), back);
     }
   }
   refreshStreakBanners();
 }
 
 // Zelfde plek en stijl als de streak-regel op het daily-eindscherm.
-function appendRepairLine(line) {
+function appendRepairLine(line, flame) {
   if (!line || !state || !state.done) return;
   els.resultText.querySelectorAll(".streak-line").forEach((e) => e.remove());
   const el = document.createElement("div");
   el.className = "streak-line";
-  el.innerHTML = withAnimEmoji(line);
+  el.innerHTML = withAnimEmoji(line, flame ? streakFlameHtml(flame) : undefined);
   armEmojiFallbacks(el);
   els.resultText.append(el);
 }
@@ -5955,10 +5956,10 @@ async function renderRecap() {
   if (!body) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
   const [dist, stats, streak, scoreRank] = await Promise.all([
-    fetchGlobalScoreDist(), fetchFactStatsSafe(), streakLineText(state.won), fetchScoreRankSafe(),
+    fetchGlobalScoreDist(), fetchFactStatsSafe(), streakLineInfo(state.won), fetchScoreRankSafe(),
   ]);
   if (document.getElementById("modal-recap").hidden) return;
-  const streakHtml = streak ? `<p class="recap-streak">${withAnimEmoji(streak)}</p>` : "";
+  const streakHtml = streak.line ? `<p class="recap-streak">${withAnimEmoji(streak.line, streak.n ? streakFlameHtml(streak.n) : undefined)}</p>` : "";
   // Delen hoort bij dít scherm (het Wordle-moment): direct onder de verdeling,
   // zodat je niet eerst de recap hoeft te sluiten om bij de deel-knop te komen.
   // Ernaast (alleen bij winst, en tot je 'm één keer hebt aangeklikt) de Listdle-
@@ -8736,11 +8737,12 @@ async function dailyHistoryForDisplay() {
 // moment noemt zelf hoeveel levens er nog zijn. De winregel zwijgt erover: een
 // levens-suffix die daarna 30 dagen lang op élke gewonnen dag terugkomt is
 // genag over iets waar je niets meer aan kunt doen.
-async function streakLineText(won) {
+// Geeft de regel én de streak waarvoor de vlam groeit (n; 0 = de regel heeft geen vlam).
+async function streakLineInfo(won) {
   const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
-  if (won) return s.currentStreak >= 1 ? t("streak_won")(s.currentStreak) : "";
-  if (s.currentStreak >= 1) return t("streak_shield")(s.currentStreak, s.livesLeft);
-  return s.yesterdayStreak > 0 ? t("streak_lost")(s.yesterdayStreak) : "";
+  if (won) return s.currentStreak >= 1 ? { line: t("streak_won")(s.currentStreak), n: s.currentStreak } : { line: "", n: 0 };
+  if (s.currentStreak >= 1) return { line: t("streak_shield")(s.currentStreak, s.livesLeft), n: 0 };
+  return { line: s.yesterdayStreak > 0 ? t("streak_lost")(s.yesterdayStreak) : "", n: 0 };
 }
 
 // Zet de streak-regel op het eindscherm (onder de score). Async: de historie kan
@@ -8751,7 +8753,7 @@ async function appendStreakLine(won) {
   // reload zou local-only "streak 1" flitsen die daarna naar de echte waarde springt.
   // De sb-auth-changed-handler tekent ons dan alsnog (ook voor anon).
   if (!auth.resolved) return;
-  let line;
+  let line, flame = 0, saved = false;
   if (isMakeup(state)) {
     // Inhaalpot: bij winst de (nu weer aaneengesloten) streak vieren als "gered"
     // — maar alléén als het gat écht dicht is. Halverwege een keten van 2-3 dagen
@@ -8761,17 +8763,18 @@ async function appendStreakLine(won) {
     // Bij verlies: ving een leven het op (streak staat nog) → schild i.p.v. 💔;
     // pas als er echt niets meer staat, eerlijk melden dat het niet lukte.
     const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
-    if (won) line = (await catchupPending()).closed ? t("streak_saved")(s.currentStreak) : "";
+    if (won && (await catchupPending()).closed) { line = t("streak_saved")(s.currentStreak); flame = s.currentStreak; saved = true; }
+    else if (won) line = "";
     else if (s.currentStreak >= 1) line = t("streak_shield")(s.currentStreak, s.livesLeft);
     else line = t("streak_makeup_lost");
   } else {
-    line = await streakLineText(won);
+    ({ line, n: flame } = await streakLineInfo(won));
   }
   if (!line || !state || !state.done || state.mode !== "daily") return;
   els.resultText.querySelectorAll(".streak-line").forEach((e) => e.remove());
   const el = document.createElement("div");
   el.className = "streak-line";
-  el.innerHTML = withAnimEmoji(line);   // eigen i18n-string + getal — veilig als HTML
+  el.innerHTML = withAnimEmoji(line, flame || saved ? streakFlameHtml(flame, saved) : undefined);   // eigen i18n-string + getal — veilig als HTML
   armEmojiFallbacks(el);
   els.resultText.append(el);
 }
@@ -10421,11 +10424,25 @@ function animEmojiHtml(ch) {
   return `<img class="emoji-anim" src="/emoji/${name}.webp" alt="${ch}">`;
 }
 
-// Vervang bekende emoji-tekens in een (eigen i18n-)string door hun animatie.
-function withAnimEmoji(str) {
+// Vervang bekende emoji-tekens in een (eigen i18n-)string door hun animatie. `flame` (optioneel) vervangt de 🔥:
+// de streak-regels geven daar de vlam mee die met de streak is meegegroeid (streakFlameHtml).
+function withAnimEmoji(str, flame) {
   let out = str;
-  for (const ch of Object.keys(ANIM_EMOJI)) out = out.replaceAll(ch, animEmojiHtml(ch));
+  for (const ch of Object.keys(ANIM_EMOJI)) out = out.replaceAll(ch, ch === "🔥" && flame ? flame : animEmojiHtml(ch));
   return out;
+}
+
+// ── De vlam groeit mee met je streak ─────────────────────────────────────────
+// Op de streak-regels (eindscherm, recap, reparatie) krijgt de 🔥 de kleur, grootte en ring van de trede waar je
+// huidige streak op staat: dezelfde zes treden als de streak-reeks op het prestatiebord (7 · 30 · 60 · 90 · 180 · 365),
+// in dezelfde tredekleuren. Onder de eerste trede blijft hij gewoon. Puur cosmetisch, voor jezelf, geen server.
+// `saved` = de redding met de inhaal-daily: er valt even een reddingsboei om de vlam (CSS, één keer).
+const streakFlameTier = (n) => (n > 0 ? achvTier(n, capstoneSeries("streak").steps) : 0);   // 0 … 6
+function streakFlameHtml(n, saved) {
+  const tier = streakFlameTier(n);
+  if (!tier && !saved) return animEmojiHtml("🔥");
+  const img = animEmojiHtml("🔥");
+  return `<span class="flm s${tier}${saved ? " flm-saved" : ""}">${img.startsWith("<img") ? img : `<span class="flm-g">${img}</span>`}</span>`;
 }
 
 // Webp laadt niet (offline, oude Safari)? Zet het alt-teken terug in de tekst.
