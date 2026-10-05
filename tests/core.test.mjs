@@ -65,7 +65,7 @@ src += `
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
-  awardsHtml, spotlightAwards, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1606,6 +1606,58 @@ test("vsWorldHtml — kop, verschil, 7 tikbare dagen, groen/roze oordeel en eerl
 
 test("fetchWeekVsWorld — een mislukte of ontbrekende RPC geeft null (pop-up valt terug op twee stappen)", async () => {
   assert.equal(await T.fetchWeekVsWorld("00000000-0000-0000-0000-000000000000", "2026-09-28"), null);
+});
+
+// ── Pop-up zonder team (solo) ─────────────────────────────────────────────────────────────────────────────────
+const SOLO_HIST = [
+  { date: "2026-09-28", won: true, score: 90, guesses: 1 }, { date: "2026-09-29", won: true, score: 62, guesses: 4 },
+  { date: "2026-09-30", won: false, score: 20, guesses: 6 }, { date: "2026-10-02", won: true, score: 85, guesses: 2 },
+  { date: "2026-09-21", won: true, score: 70, guesses: 3 }, { date: "2026-09-20", won: true, score: 99, guesses: 1 },
+];
+const WORLD_RES = { cur: { world: VS_CUR.world, daily: VS_DAYS.map((d) => ({ d: d.d, w: d.w })) }, prev: { world: VS_PREV.world } };
+
+test("soloWeekStats — eigen week uit de lokale historie, alleen de dagen van die week", () => {
+  const m = T.soloWeekStats(SOLO_HIST, "2026-09-28");
+  assert.equal(m.n, 4); assert.equal(m.days, 4); assert.equal(m.sum, 90 + 62 + 20 + 85); assert.equal(m.score, 64.3);
+  assert.equal(m.win, 75); assert.equal(m.att, 2.33); assert.equal(m.first_try, 25); assert.equal(m.p90, 25);
+  assert.equal(m.byDate.get("2026-09-30"), 20);
+  assert.equal(T.soloWeekStats(SOLO_HIST, "2026-10-05"), null, "geen potjes = null");
+  assert.equal(T.soloWeekStats([], "2026-09-28"), null); assert.equal(T.soloWeekStats(null, "2026-09-28"), null);
+  assert.equal(T.soloWeekStats([{ date: "2026-09-28", won: false, score: 10, guesses: 6 }], "2026-09-28").att, null, "zonder winst geen pogingen");
+});
+
+test("buildSoloVs — zelfde vorm als de teamaggregatie; niet-gespeelde dagen zijn leeg; vorige week alleen als beide kanten bestaan", () => {
+  const vs = T.buildSoloVs(SOLO_HIST, "2026-09-28", WORLD_RES);
+  assert.equal(vs.cur.team.score, 64.3); assert.ok(!("byDate" in vs.cur.team) && !("sum" in vs.cur.team));
+  assert.equal(vs.cur.world.score, 70.4); assert.equal(vs.cur.daily.length, 7);
+  assert.equal(vs.cur.daily[0].t, 90); assert.equal(vs.cur.daily[3].t, null, "1 okt niet gespeeld"); assert.equal(vs.cur.daily[3].tn, 0); assert.equal(vs.cur.daily[2].tn, 1);
+  assert.equal(vs.prev.team.score, 70); assert.equal(vs.prev.world.score, 58.9);
+  assert.equal(T.buildSoloVs(SOLO_HIST, "2026-09-28", { cur: WORLD_RES.cur }).prev, null, "geen wereld van vorige week = geen vergelijking");
+  assert.equal(T.buildSoloVs([], "2026-09-28", WORLD_RES), null); assert.equal(T.buildSoloVs(SOLO_HIST, "2026-09-28", null), null);
+});
+
+test("vsWorldHtml (solo) — 'jij' i.p.v. teamnaam, dagen gespeeld, geen hint-/afstand-/inhaalrij (lokaal onbekend)", () => {
+  T.setLang("nl");
+  const html = T.vsWorldHtml(T.buildSoloVs(SOLO_HIST, "2026-09-28", WORLD_RES), "Jij", true);
+  assert.match(html, /<span>Jij<\/span>/); assert.match(html, /Dagen gespeeld/); assert.match(html, /<span class="lg t"><\/span>jij/);
+  assert.match(html, /vw-mk down"><span aria-hidden="true">▼<\/span> <b[^>]*>−6,1/, "64,3 tegen 70,4 = eronder, en dat staat er gewoon");
+  assert.ok(!/Potjes met hint|Ingehaalde|mis met/.test(html), "alleen rijen waar de lokale historie het weet");
+  assert.match(html, /jij — · wereld|jij 20,0 · wereld|jij 90,0 · wereld/, "dagregel noemt jij");
+  assert.equal((html.match(/class="vw-r"/g) || []).length, 4, "3 gekozen + dagen gespeeld");
+});
+
+test("podiumParts (solo) — jij met gestippelde plekken en het teamvoorproefje-onderschrift; zonder ghosts blijft het één blok", () => {
+  T.setLang("nl");
+  const rows = [{ rank: 1, is_me: true, display_name: "Jij", flair: "", title: "", week_score: 257, daily_wins: 0, played: 4 }];
+  const p = T.podiumParts(rows, false, [], true, true);
+  assert.equal((p.stage.match(/lb-pod-ghost/g) || []).length, 2); assert.match(p.stage, /Je eerste teamgenoot/); assert.match(p.stage, /data-rank="2"/); assert.match(p.stage, /data-rank="3"/);
+  assert.match(p.note, /Zo ziet je team eruit/); assert.equal(p.rest, ""); assert.equal(p.awards, "");
+  assert.ok(p.stage.indexOf("lb-pod-silver") < p.stage.indexOf("lb-pod-gold") && p.stage.indexOf("lb-pod-gold") < p.stage.indexOf("lb-pod-bronze"), "volgorde 2e · 1e · 3e");
+  assert.ok(!T.podiumParts(rows, false, [], true).stage.includes("lb-pod-ghost"));
+});
+
+test("fetchWorldWeek — een mislukte RPC geeft null (dan komt de pop-up niet)", async () => {
+  assert.equal(await T.fetchWorldWeek("2026-09-28"), null);
 });
 
 test("podiumParts — de pop-up toont stappen: uitslag (podium + rest) en weekprijzen; podiumHtml plakt ze aan elkaar", () => {

@@ -232,6 +232,9 @@ const I18N = {
     vw_of7: "van de 7", vw_late: "Ingehaalde potjes", vw_hard: (d, v) => `${d}: pittigste dag van de wereld (${v})`,
     vw_day: (d, tv, wv) => `${d} · team ${tv ?? "—"} · wereld ${wv ?? "—"}`, vw_leg_team: "team", vw_leg_world: "wereld",
     vw_chart: "Gemiddelde score per dag, team tegen wereld",
+    solo_week: "Jouw week", solo_done: "Klaar", vw_leg_you: "jij", vw_days_you: "Dagen gespeeld",
+    vw_day_you: (d, tv, wv) => `${d} · jij ${tv ?? "—"} · wereld ${wv ?? "—"}`,
+    login_why: "Een team heeft een account nodig, zo bewaren we je scores en vrienden.",
     lb_wk_live_note: "Tussenstand — sluit over",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
     aw_title: "Weekprijzen", aw_title_live: "Weekprijzen tot nu toe",
@@ -557,6 +560,9 @@ const I18N = {
     vw_of7: "of 7", vw_late: "Catch-up games", vw_hard: (d, v) => `${d}: toughest day for the world (${v})`,
     vw_day: (d, tv, wv) => `${d} · team ${tv ?? "—"} · world ${wv ?? "—"}`, vw_leg_team: "team", vw_leg_world: "world",
     vw_chart: "Average score per day, team against world",
+    solo_week: "Your week", solo_done: "Done", vw_leg_you: "you", vw_days_you: "Days played",
+    vw_day_you: (d, tv, wv) => `${d} · you ${tv ?? "—"} · world ${wv ?? "—"}`,
+    login_why: "A team needs an account, so we can keep your scores and friends.",
     lb_wk_live_note: "Live standings — locks in",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
     aw_title: "Weekly awards", aw_title_live: "Weekly awards so far",
@@ -875,6 +881,9 @@ const I18N = {
     vw_of7: "von 7", vw_late: "Nachgeholte Spiele", vw_hard: (d, v) => `${d}: schwerster Tag der Welt (${v})`,
     vw_day: (d, tv, wv) => `${d} · Team ${tv ?? "—"} · Welt ${wv ?? "—"}`, vw_leg_team: "Team", vw_leg_world: "Welt",
     vw_chart: "Durchschnittsscore pro Tag, Team gegen Welt",
+    solo_week: "Deine Woche", solo_done: "Fertig", vw_leg_you: "du", vw_days_you: "Gespielte Tage",
+    vw_day_you: (d, tv, wv) => `${d} · du ${tv ?? "—"} · Welt ${wv ?? "—"}`,
+    login_why: "Ein Team braucht ein Konto, damit wir deine Ergebnisse und Freunde speichern können.",
     lb_wk_live_note: "Zwischenstand — schließt in",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
     aw_title: "Wochenpreise", aw_title_live: "Wochenpreise bisher",
@@ -1197,6 +1206,9 @@ const I18N = {
     vw_of7: "de 7", vw_late: "Partidas recuperadas", vw_hard: (d, v) => `${d}: el día más duro del mundo (${v})`,
     vw_day: (d, tv, wv) => `${d} · equipo ${tv ?? "—"} · mundo ${wv ?? "—"}`, vw_leg_team: "equipo", vw_leg_world: "mundo",
     vw_chart: "Puntuación media por día, equipo contra mundo",
+    solo_week: "Tu semana", solo_done: "Listo", vw_leg_you: "tú", vw_days_you: "Días jugados",
+    vw_day_you: (d, tv, wv) => `${d} · tú ${tv ?? "—"} · mundo ${wv ?? "—"}`,
+    login_why: "Un equipo necesita una cuenta para guardar tus puntuaciones y amigos.",
     lb_wk_live_note: "Clasificación en curso — se cierra en",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
     aw_title: "Premios de la semana", aw_title_live: "Premios de la semana hasta ahora",
@@ -1519,6 +1531,9 @@ const I18N = {
     vw_of7: "de 7", vw_late: "Jogos recuperados", vw_hard: (d, v) => `${d}: o dia mais difícil do mundo (${v})`,
     vw_day: (d, tv, wv) => `${d} · equipe ${tv ?? "—"} · mundo ${wv ?? "—"}`, vw_leg_team: "equipe", vw_leg_world: "mundo",
     vw_chart: "Pontuação média por dia, equipe contra mundo",
+    solo_week: "Sua semana", solo_done: "Pronto", vw_leg_you: "você", vw_days_you: "Dias jogados",
+    vw_day_you: (d, tv, wv) => `${d} · você ${tv ?? "—"} · mundo ${wv ?? "—"}`,
+    login_why: "Uma equipe precisa de uma conta para guardar suas pontuações e amigos.",
     lb_wk_live_note: "Parcial — fecha em",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
     aw_title: "Prêmios da semana", aw_title_live: "Prêmios da semana até agora",
@@ -5638,7 +5653,7 @@ function pickVsRows(cur, prev) {
   return VW_ROWS.filter((r) => chosen.some((x) => x.r === r))
     .concat(VW_FIXED.filter((r) => cur?.team?.[r.k] != null && cur?.world?.[r.k] != null));
 }
-function vsWorldHtml(vs, poolName) {
+function vsWorldHtml(vs, poolName, solo) {
   const cur = vs?.cur;
   if (!cur || cur.team?.score == null || cur.world?.score == null) return "";
   const num = (v, dec, o = {}) => `<b class="vw-n${o.cls ? " " + o.cls : ""}" data-v="${Number(v)}" data-d="${dec}"${o.suf ? ` data-s="${escHtml(o.suf)}"` : ""}${o.sg ? ` data-sg="1"` : ""}>` +
@@ -5649,7 +5664,7 @@ function vsWorldHtml(vs, poolName) {
   const hard = daily.reduce((m, d, i) => (d.w != null && (m < 0 || Number(d.w) < Number(daily[m].w)) ? i : m), -1);
   const cols = daily.map((d, i) => {
     const day = weekdayShort(d.d), tv = d.t == null ? null : Number(d.t), wv = d.w == null ? null : Number(d.w);
-    const msg = t("vw_day")(day, tv == null ? null : vwNum(tv, 1), wv == null ? null : vwNum(wv, 1));
+    const msg = t(solo ? "vw_day_you" : "vw_day")(day, tv == null ? null : vwNum(tv, 1), wv == null ? null : vwNum(wv, 1));
     return `<button type="button" class="vw-col${i === hard ? " hard" : ""}" data-msg="${escHtml(msg)}" aria-label="${escHtml(msg)}">` +
       `<span class="vw-bars"><i class="b t${tv == null ? " none" : ""}" style="--h:${tv == null ? 0 : tv}%"></i><i class="b w" style="--h:${wv == null ? 0 : wv}%"></i></span>` +
       `<span class="vw-d">${escHtml(day)}</span></button>`;
@@ -5658,7 +5673,7 @@ function vsWorldHtml(vs, poolName) {
   const rows = pickVsRows(cur, vs.prev).map((r) => {
     const a = cur.team[r.k], b = cur.world[r.k], m = vwMarker(r.better, a, b, r.dec);
     const suf = r.suf === "yr" ? t("vw_yr") : r.suf, cls = m.cls === "up" ? "good" : m.cls === "down" ? "bad" : "even";
-    return `<div class="vw-r"><span class="vw-l">${escHtml(t(r.label))}${r.sub ? `<small>${escHtml(t(r.sub))}</small>` : ""}</span>` +
+    return `<div class="vw-r"><span class="vw-l">${escHtml(t(solo && r.k === "days" ? "vw_days_you" : r.label))}${r.sub ? `<small>${escHtml(t(r.sub))}</small>` : ""}</span>` +
       num(a, r.dec, { cls: "vt " + cls, suf }) + num(b, r.dec, { cls: "vwd", suf }) + `<i class="vw-mk ${m.cls}" aria-hidden="true">${m.sym}</i></div>`;
   }).join("");
   return `<div class="vw">` +
@@ -5668,7 +5683,7 @@ function vsWorldHtml(vs, poolName) {
     `<div class="vw-note">${escHtml(t("vw_avg"))} · <em class="vw-mk ${mk.cls}"><span aria-hidden="true">${mk.sym}</span> ${num(diff, 1, { sg: true })}</em>` +
     (prevDiff != null ? ` <span class="vw-prev">${escHtml(t("vw_prev")(vwNum(prevDiff, 1, true)))}</span>` : "") + `</div>` +
     (daily.length ? `<div class="vw-chart" role="group" aria-label="${escHtml(t("vw_chart"))}"><div class="vw-plot"><span class="vw-ax a100">100</span><span class="vw-ax a50">50</span>${cols}</div></div>` +
-      `<div class="vw-cap" aria-live="polite"><span class="lg t"></span>${escHtml(t("vw_leg_team"))}<span class="lg w"></span>${escHtml(t("vw_leg_world"))}` +
+      `<div class="vw-cap" aria-live="polite"><span class="lg t"></span>${escHtml(t(solo ? "vw_leg_you" : "vw_leg_team"))}<span class="lg w"></span>${escHtml(t("vw_leg_world"))}` +
       `<span class="vw-sel" data-def="${escHtml(hardMsg)}">${escHtml(hardMsg)}</span></div>` : "") +
     rows + `</div>`;
 }
@@ -5690,6 +5705,78 @@ function vwReveal(vw, reduced) {
     if (k < 1) podiumPopRaf = requestAnimationFrame(tick);
   };
   podiumPopRaf = requestAnimationFrame(tick);
+}
+// ── Maandag-pop-up voor spelers ZONDER pool (ingelogd of anoniem) ───────────────────────────────────────────────
+// Zelfde stappen-pop-up als bij een team, maar met de eigen week: stap 1 = jij bovenaan met gestippelde plekken ernaast, stap 2 =
+// jij tegen de wereld (eigen cijfers uit de lokale historie van dit apparaat, wereldgemiddelden van get_world_week, db/82), met
+// "🏆 Maak je team" in de voet. Komt na maandag 12:00 bij minstens SOLO_MIN potjes op dit apparaat in de gesloten week; één keer per week.
+const SOLO_SEEN_KEY = "jaardle:soloweek", SOLO_MIN = 3;
+function soloSeenWeek() { try { return localStorage.getItem(SOLO_SEEN_KEY) || ""; } catch (e) { return ""; } }
+function soloMarkSeen(ws) { try { if (ws > soloSeenWeek()) localStorage.setItem(SOLO_SEEN_KEY, ws); } catch (e) {} }
+async function fetchWorldWeek(weekStart) {
+  try {
+    const r = await rpc("get_world_week", { p_week_start: weekStart });
+    return r && r.cur && r.cur.world ? r : null;
+  } catch (e) { return null; }
+}
+// Eigen week uit de lokale historie ({date, won, score, guesses, …}); zelfde velden als de teamaggregatie, voor zover lokaal bekend.
+function soloWeekStats(history, weekStart) {
+  const end = shiftDateKey(weekStart, 6);
+  const mine = (Array.isArray(history) ? history : []).filter((e) => e && e.date >= weekStart && e.date <= end);
+  if (!mine.length) return null;
+  const n = mine.length, wins = mine.filter((e) => e.won);
+  const sum = (a) => a.reduce((x, y) => x + y, 0), r1 = (x) => Math.round(x * 10) / 10;
+  const scores = mine.map((e) => Number(e.score) || 0);
+  return {
+    n, days: n, sum: sum(scores), score: r1(sum(scores) / n),
+    win: r1(100 * wins.length / n),
+    att: wins.length ? Math.round(sum(wins.map((e) => Number(e.guesses) || 0)) / wins.length * 100) / 100 : null,
+    first_try: r1(100 * wins.filter((e) => Number(e.guesses) === 1).length / n),
+    p90: r1(100 * scores.filter((x) => x >= 90).length / n),
+    byDate: new Map(mine.map((e, i) => [e.date, scores[i]])),
+  };
+}
+// Zelfde vorm als get_pool_week_vs_world, met "team" = jij. null als er niets te vergelijken valt.
+function buildSoloVs(history, weekStart, world) {
+  const me = soloWeekStats(history, weekStart);
+  if (!me || !world?.cur?.world) return null;
+  const strip = (m) => { if (!m) return null; const { byDate, sum, ...rest } = m; return rest; };
+  const prev = strip(soloWeekStats(history, shiftDateKey(weekStart, -7)));
+  return {
+    cur: { week: weekStart, team: strip(me), world: world.cur.world,
+      daily: (world.cur.daily || []).map((d) => ({ d: d.d, t: me.byDate.has(d.d) ? me.byDate.get(d.d) : null, w: d.w, tn: me.byDate.has(d.d) ? 1 : 0 })) },
+    prev: prev && world.prev?.world ? { team: prev, world: world.prev.world } : null,
+  };
+}
+// "jij"/"you" met hoofdletter, voor op het podium en onder het grote getal.
+function soloYou() { const y = t("lb_you"); return y.charAt(0).toLocaleUpperCase(LANGS[lang].intl) + y.slice(1); }
+let soloPendingReq = null;
+async function maybeShowSoloWeek(lastDone) {
+  if (soloPendingReq === lastDone || soloSeenWeek() >= lastDone) return;
+  soloPendingReq = lastDone;
+  const history = loadHistory();
+  const me = soloWeekStats(history, lastDone);
+  if (!me || me.n < SOLO_MIN) return;
+  const vs = buildSoloVs(history, lastDone, await fetchWorldWeek(lastDone));
+  if (!vs) return;
+  const you = soloYou();
+  const row = { rank: 1, is_me: true, display_name: you, flair: myFlair, title: myTitle, week_score: me.sum, daily_wins: 0, played: me.n };
+  showPodiumPopup({ solo: true, weekStart: lastDone, poolName: t("solo_week"), rows: [row], awards: [], vs });
+}
+// "🏆 Maak je team" in de voet van de solo-pop-up: ingelogd → het 🏆-scherm (maken of joinen); anoniem → eerst inloggen, en na de
+// terugkeer (ook na de Google/Discord-redirect) automatisch naar het 🏆-scherm. Zelfde parkeer-patroon als jaardle:pendingRecap.
+const PENDING_TEAM_KEY = "jaardle:pendingTeam", PENDING_TEAM_MS = 10 * 60 * 1000;
+let pendingTeamAfterLogin = false;
+function teamAfterLoginPark(on) {
+  pendingTeamAfterLogin = !!on;
+  if (on) setTimeout(() => { pendingTeamAfterLogin = false; }, PENDING_TEAM_MS);   // niet eeuwig open laten staan
+  try { if (on) localStorage.setItem(PENDING_TEAM_KEY, String(Date.now())); else localStorage.removeItem(PENDING_TEAM_KEY); } catch (e) {}
+}
+function soloMakeTeam() {
+  closeAllModals();   // pop-up dicht = gezien
+  if (auth.user) { openModal("modal-leaderboard"); return; }
+  teamAfterLoginPark(true);
+  openModal("modal-login");
 }
 function awardTexts(a) {
   const d = a.detail || {};
@@ -5792,7 +5879,7 @@ function podiumHtml(rows, isLive, awards, noFormula) {
   const p = podiumParts(rows, isLive, awards, noFormula);
   return p.all != null ? p.all : p.stage + p.note + p.awards + p.rest;
 }
-function podiumParts(rows, isLive, awards, noFormula) {
+function podiumParts(rows, isLive, awards, noFormula, ghosts) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const flairDance = (f) => {
     const p = parseFlair(f);
@@ -5821,6 +5908,11 @@ function podiumParts(rows, isLive, awards, noFormula) {
       `<div class="lb-pod-count"><span class="lb-pod-n">${r.week_score}</span>` +
       `<span class="lb-pod-u">${escHtml(t("lb_wk_punten"))}</span></div>${winsHtml}</div></div>`;
   }).join("");
+  // Eén speler (pop-up zonder team): gestippelde plekken ernaast, net als het teamvoorproefje op het eindscherm. Niets verzonnen.
+  const ghostSpot = (rank, dim) => `<div class="lb-pod-spot lb-pod-${rank === 2 ? "silver" : "bronze"} lb-pod-ghost${dim ? " dim" : ""}" data-rank="${rank}" aria-hidden="true">` +
+    `<div class="lb-pod-name">${dim ? "" : escHtml(t("recap_team_ghost"))}</div><div class="lb-pod-flair"><span class="lb-pod-q">?</span></div>` +
+    `<div class="lb-pod-block"><div class="lb-pod-medal">${rank === 2 ? "🥈" : "🥉"}</div><div class="lb-pod-count"><span class="lb-pod-n">–</span></div></div></div>`;
+  const stageHtml = ghosts && top.length === 1 ? ghostSpot(2, false) + podium + ghostSpot(3, true) : podium;
   const rest = rows.slice(top.length);
   // Compact: "0 dagzeges" drukte de naam weg ("Ma…" op 390px); trofeetjes alleen bij ≥1, zoals op de sokkels.
   const restStat = (r) => `${r.week_score} ${escHtml(t("lb_wk_punten"))} · ${escHtml(t("lb_games_short")(r.played))}` +
@@ -5835,8 +5927,9 @@ function podiumParts(rows, isLive, awards, noFormula) {
   const liveLine = isLive
     ? `<p>${escHtml(t("lb_wk_live_note"))} <span class="lb-wk-countdown"></span></p>` : "";
   // In de maandag-pop-up (afgeronde week) blijft de scoreformule weg: dat scheelt een regel boven de weekprijzen.
-  const note = isLive || !noFormula ? `<div class="lb-wk-note">${liveLine}<p>${escHtml(t("lb_wk_formula"))}</p></div>` : "";
-  return { stage: `<div class="lb-pod-stage">${podium}</div>`, note, awards: awardsHtml(spotlightAwards(awards, rows), isLive), rest: restHtml };
+  const note = ghosts ? `<div class="lb-wk-note"><p>${escHtml(t("recap_team_cap"))}</p></div>`
+    : isLive || !noFormula ? `<div class="lb-wk-note">${liveLine}<p>${escHtml(t("lb_wk_formula"))}</p></div>` : "";
+  return { stage: `<div class="lb-pod-stage">${stageHtml}</div>`, note, awards: awardsHtml(spotlightAwards(awards, rows), isLive), rest: restHtml };
 }
 
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
@@ -7871,7 +7964,12 @@ function renderPodiumDot() {
 // (inhaal-venster tot 12:00, db/54) of zonder pool: niets → nul kosten (geen fetch).
 async function refreshWeekPodiumResult() {
   const lastDone = shiftDateKey(currentWeekStart(), -7);
-  if (!auth.user || !myPool || lastDone < PODIUM_EPOCH || !weekIsFinal(lastDone)) { weekPodiumResult = null; renderPodiumDot(); return; }
+  if (!auth.user || !myPool || lastDone < PODIUM_EPOCH || !weekIsFinal(lastDone)) {
+    weekPodiumResult = null; renderPodiumDot();
+    // Geen pool (ingelogd of anoniem): de eigen-week-pop-up, tenzij een deeplink een eigen scherm opent.
+    if (!myPool && lastDone >= PODIUM_EPOCH && weekIsFinal(lastDone) && !(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap)) maybeShowSoloWeek(lastDone);
+    return;
+  }
   const key = `${auth.user.uid}:${lastDone}`;
   if (podiumPendingReq === key) return;   // deze sessie al opgehaald (of onderweg)
   podiumPendingReq = key;
@@ -7901,19 +7999,22 @@ async function refreshWeekPodiumResult() {
 // → podiumPopClosed markeert gezien. Bewust "altijd direct", ook midden in een gok
 // (expliciete keuze 2026-09-06); alleen een al open scherm (deeplink/login) wint.
 let podiumPopKey = null;   // ←/→-handler van de maandag-pop-up (alleen zolang hij open is)
-function showPodiumPopup() {
-  const res = weekPodiumResult;
+function showPodiumPopup(resArg) {
+  const res = resArg || weekPodiumResult;
   if (!res || document.getElementById("modal-podium-pop")) return;
   if (document.querySelector(".modal:not([hidden])")) return;   // ander scherm open → stip blijft
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // Stap 1 = de uitslag (podium + rest van de stand), stap 2 = de weekprijzen, stap 3 = team tegen de wereld; stappen zonder inhoud vallen weg.
-  const parts = podiumParts(res.rows, false, res.awards, true);
-  const steps = parts.all != null ? [parts.all] : [parts.stage + parts.note + parts.rest, parts.awards, vsWorldHtml(res.vs, res.poolName)].filter(Boolean);
+  const parts = podiumParts(res.rows, false, res.awards, true, !!res.solo);
+  const steps = parts.all != null ? [parts.all]
+    : res.solo ? [parts.stage + parts.note, vsWorldHtml(res.vs, soloYou(), true)].filter(Boolean)   // zonder team: geen stand en geen prijzen
+    : [parts.stage + parts.note + parts.rest, parts.awards, vsWorldHtml(res.vs, res.poolName)].filter(Boolean);
   const el = document.createElement("div");
   el.id = "modal-podium-pop";
   el.className = "modal podpop night night-b" + (reduced ? "" : " podpop-anim");   // nachtpaars-schil (kroning-look); night-b = donkerpaarse sokkels met metalen rand — zonder night-b zijn het de metalen sokkels (variant A)
   el.hidden = true;
   el.dataset.week = res.weekStart;
+  if (res.solo) el.dataset.solo = "1";
   el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "podpop-title");
   el.innerHTML =
     `<div class="modal-backdrop" data-close></div>` +
@@ -7928,8 +8029,9 @@ function showPodiumPopup() {
       steps.map((h, i) => `<div class="podpop-step" data-step="${i}"${i ? " hidden" : ""}>${h}</div>`).join("") +
       `<div class="podpop-foot">` +
         (steps.length > 1 ? `<div class="podpop-dots"><button type="button" class="podpop-arrow" data-dir="-1" aria-label="${escHtml(t("lb_pop_prev"))}" disabled>‹</button>${steps.map((_, i) => `<button type="button" class="podpop-dot" data-to="${i}" aria-label="${i + 1}/${steps.length}"${i ? "" : ` aria-current="step"`}></button>`).join("")}<button type="button" class="podpop-arrow" data-dir="1" aria-label="${escHtml(t("lb_pop_next"))}">›</button></div>` : "") +
-        `<button type="button" class="podpop-go">${escHtml(t("lb_pop_continue"))}</button>` +
-        `<button type="button" class="podpop-live"${steps.length > 1 ? " hidden" : ""}>${escHtml(t("lb_pop_live"))} ›</button>` +
+        `<div class="podpop-btns"><button type="button" class="podpop-go">${escHtml(t("lb_pop_continue"))}</button>` +
+          (res.solo ? `<button type="button" class="podpop-team" hidden>${escHtml(t("recap_team_make"))}</button>` : "") + `</div>` +
+        (res.solo ? "" : `<button type="button" class="podpop-live"${steps.length > 1 ? " hidden" : ""}>${escHtml(t("lb_pop_live"))} ›</button>`) +
       `</div>` +
       `</div>` +
     `</div>`;
@@ -7944,6 +8046,12 @@ function showPodiumPopup() {
     if (vw) vwReveal(vw, reduced);
     items.forEach((li, i) => reduced ? li.classList.add("in") : at(120 + 110 * i, () => li.classList.add("in")));
   };
+  const syncFoot = () => {   // laatste stap: "Bekijk deze week" (team) of "Klaar" + "🏆 Maak je team" (zonder team)
+    const last = step === steps.length - 1, go = el.querySelector(".podpop-go"), team = el.querySelector(".podpop-team");
+    const live = el.querySelector(".podpop-live");
+    if (live) live.hidden = !last;
+    if (team) { team.hidden = !last; go.textContent = t(last ? "solo_done" : "lb_pop_continue"); go.classList.toggle("alt", last); }
+  };
   const goStep = (n) => {
     if (n < 0 || n >= steps.length || n === step) return;
     const dir = n > step ? "from-r" : "from-l";
@@ -7955,11 +8063,13 @@ function showPodiumPopup() {
     });
     el.querySelectorAll(".podpop-dot").forEach((d) => { if (+d.dataset.to === n) d.setAttribute("aria-current", "step"); else d.removeAttribute("aria-current"); });
     el.querySelectorAll(".podpop-arrow").forEach((a) => { a.disabled = n + +a.dataset.dir < 0 || n + +a.dataset.dir >= steps.length; });
-    el.querySelector(".podpop-live").hidden = n < steps.length - 1;
+    syncFoot();
     el.querySelector(".podpop-scroll").scrollTop = 0;
     if (n > 0) { fadePodiumConfetti(); revealStep(n); }   // confetti hoort bij de uitslag (stap 1); daarna faden we hem uit
   };
   el.querySelector(".podpop-go").addEventListener("click", () => { if (step < steps.length - 1) goStep(step + 1); else closeAllModals(); });
+  el.querySelector(".podpop-team")?.addEventListener("click", soloMakeTeam);
+  syncFoot();
   el.querySelectorAll(".podpop-dot").forEach((d) => d.addEventListener("click", () => goStep(+d.dataset.to)));
   el.querySelectorAll(".podpop-arrow").forEach((a) => a.addEventListener("click", () => goStep(step + +a.dataset.dir)));
   el.addEventListener("click", (e) => {   // een dag aantikken toont team en wereld van die dag; nog eens tikken zet de standaardregel terug
@@ -7990,7 +8100,7 @@ function showPodiumPopup() {
     }, { passive: true });
     sc.addEventListener("touchcancel", () => { armed = false; }, { passive: true });
   }
-  el.querySelector(".podpop-live").addEventListener("click", () => {
+  el.querySelector(".podpop-live")?.addEventListener("click", () => {
     pendingLbTab = "podium"; pendingLbWeek = currentWeekStart();   // van uitslag naar de nieuwe race
     closeAllModals();
     openModal("modal-leaderboard");
@@ -8030,8 +8140,9 @@ function podiumPopClosed() {
   cancelAnimationFrame(podiumPopRaf);
   stopPodiumConfetti();
   const ws = el.dataset.week;
+  const solo = el.dataset.solo === "1";
   el.remove();
-  podiumMarkSeen(ws);
+  if (solo) soloMarkSeen(ws); else podiumMarkSeen(ws);
 }
 
 // ── kroning: de mijlpaal-pop-up voor JM (piek ≥ 1925) en GM (≥ 2000) ─────────
@@ -10645,6 +10756,8 @@ function openModal(id, opts) {
   if (id === "modal-login") {
     const err = document.getElementById("login-error");
     if (err) err.hidden = true;
+    const why = document.getElementById("login-why");
+    if (why) why.hidden = !pendingTeamAfterLogin;
     document.querySelector('#login-form input[name="email"]')?.focus();
     setModalUrl("auth=login");
   }
@@ -11448,6 +11561,7 @@ async function init() {
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
+    if (pendingTeamAfterLogin && auth.user) { teamAfterLoginPark(false); closeAllModals(); openModal("modal-leaderboard"); }   // net ingelogd vanuit "🏆 Maak je team" in de solo-pop-up
     await maybeShowCoronation();  // gemiste titel-mijlpaal? kroon (self-gated, één lichte RPC). Beloningen niet hier: die hebben achvCache nodig (komt na een pot), geen recompute bij het openen.
     refreshWeekPodiumResult(); // verse-weekuitslag: pop-up + stip (fire-and-forget; nul kosten vóór de 1e afgeronde week / ma-ochtend)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
@@ -11566,6 +11680,10 @@ async function init() {
   }
   if (lbParams.has("recap")) { pendingOpenRecap = true; lbParams.delete("recap"); }
   // Terug van Google-login vanuit het eindscherm-kaartje (doGoogleSignIn): verse intentie, één keer te gebruiken.
+  try {   // Terug van de OAuth-redirect na "🏆 Maak je team" (solo-pop-up): één keer te gebruiken, 10 minuten geldig.
+    const parkedTeam = Number(localStorage.getItem(PENDING_TEAM_KEY));
+    if (parkedTeam && Date.now() - parkedTeam < PENDING_TEAM_MS) pendingTeamAfterLogin = true; else localStorage.removeItem(PENDING_TEAM_KEY);
+  } catch (e) {}
   try {
     const parked = Number(localStorage.getItem(PENDING_RECAP_KEY));
     localStorage.removeItem(PENDING_RECAP_KEY);

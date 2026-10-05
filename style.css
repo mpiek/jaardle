@@ -3887,3 +3887,23 @@ html[data-theme="light"] .achv-card::after {
 .vw-r .vw-mk { font-size: 0.72rem; }
 .vw .lb-aw-t { flex-wrap: wrap; row-gap: 1px; margin: 0 0 4px; }
 .vw .lb-aw-t small { order: 3; flex-basis: 100%; text-align: left; margin-left: 0; }
+
+/* ── Maandag-pop-up zonder team: spookplekken, twee knoppen in de voet, "waarom een account" in het inlogscherm ───────── */
+.podpop-btns { display: flex; gap: 0.6rem; width: 100%; }
+.podpop-btns .podpop-go { flex: 1; min-width: 0; }
+.podpop-btns:has(.podpop-team:not([hidden])) .podpop-go { flex: 1 1 0; padding-inline: 0.4rem; }
+.podpop-team { flex: 1.6; min-width: 0; white-space: nowrap; background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 0.8rem 0.6rem; font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
+.podpop-team:hover { filter: brightness(1.07); }
+.podpop-team:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.podpop-team[hidden] { display: none; }
+.podpop .podpop-go.alt { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1.5px #ffffff45; }
+.podpop.night .podpop-team { color: #1a0f10; background: linear-gradient(180deg, #f7d474, #c9a227); box-shadow: 0 10px 22px -10px #f4c430aa; }
+.podpop.night .podpop-go.alt { color: var(--fg); background: transparent; box-shadow: inset 0 0 0 1.5px #ffffff45; }
+.lb-pod-ghost .lb-pod-name { font-style: italic; font-weight: 600; font-size: 0.76rem; color: var(--muted); }
+.lb-pod-q { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; border: 1.5px dashed var(--muted); border-radius: 50%; font-size: 1.1rem; color: var(--muted); }
+.podpop.night-b .lb-pod-ghost .lb-pod-block { background: transparent; border: 1.5px dashed #ffffff40; border-bottom: 0; box-shadow: none; }
+.podpop.night-b .lb-pod-ghost .lb-pod-n { color: var(--muted); }
+.lb-pod-ghost.dim { opacity: 0.5; }
+.login-why { margin: 0 0 0.8rem; font-size: 0.88rem; color: var(--muted); }
+.login-why[hidden] { display: none; }
+.lb-pod-ghost .lb-pod-name { white-space: normal; overflow: visible; text-overflow: clip; text-align: center; line-height: 1.15; max-width: 100%; }
