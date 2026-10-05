@@ -59,6 +59,7 @@ src += `
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
   setState: (s) => { state = s; },
   fmtDailyDate, fmtHistoryDate,
+  achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml,
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -958,16 +959,34 @@ test("parseFlair/joinFlair — '🔥~sparkle' rondt netjes af en weigert onbeken
 
 test("flairBadgeHtml/flairStaticHtml — effect-klassen op de badge, het teken blijft schoon", () => {
   const withFx = T.flairBadgeHtml("🔥~sparkle", 2);
-  assert.match(withFx, /class="lb-flair-badge fl-fx fx-sparkle"/);
+  assert.match(withFx, /class="lb-flair-badge fl-fx fx-sparkle fl-still"/, "rang 2+: het effect staat stil, zoals de emoji");
   assert.match(withFx, /data-flair="🔥"/, "data-flair (hover-voorproefje) draagt alleen het teken");
   assert.ok(!withFx.includes("~"), "het opslag-formaat lekt nooit de DOM in");
   const plain = T.flairBadgeHtml("🔥", 2);
   assert.ok(!plain.includes("fl-fx"), "zonder effect geen effect-klassen");
   assert.equal(T.flairBadgeHtml("", 1), "");
   assert.equal(T.flairBadgeHtml("~sparkle", 1), "");
-  assert.equal(T.flairStaticHtml("🔥~sparkle"), '<span class="fl-fx fx-sparkle">🔥</span>');
+  assert.equal(T.flairStaticHtml("🔥~sparkle"), '<span class="fl-fx fx-sparkle fl-still">🔥</span>', "een statische emoji → een stilstaand effect");
   assert.equal(T.flairStaticHtml("🔥"), "🔥");
   assert.equal(T.flairStaticHtml(null), "");
+});
+
+test("beweging van een flair-effect volgt de emoji's: rang 1 en het kluis-voorbeeld bewegen, de rest staat stil", () => {
+  const was = globalThis.matchMedia;
+  try {
+    const first = T.flairBadgeHtml("🔥~glow", 1);
+    assert.ok(!first.includes("fl-still") && !first.includes("data-fxstill"), "rang 1 beweegt (de emoji ook)");
+    assert.match(first, /emoji-anim/, "rang 1: de geanimeerde emoji");
+    const other = T.flairBadgeHtml("🔥~glow", 3);
+    assert.match(other, /fl-still/); assert.match(other, /data-fxstill/, "de hover-code weet dat hij de pose mag losmaken");
+    assert.ok(!other.includes("emoji-anim"));
+    assert.ok(!T.flairBadgeHtml("🔥~glow", 0, true).includes("fl-still"), "live (kluis-voorbeeld): altijd in beweging");
+    assert.ok(!T.flairBadgeHtml("🔥~glow", null, true).includes("fl-still"));
+    // minder beweging: ook rang 1 en het kluis-voorbeeld staan stil (de CSS-media-query doet hetzelfde voor de rest)
+    globalThis.matchMedia = () => ({ matches: true, addEventListener() {} });
+    assert.match(T.flairBadgeHtml("🔥~glow", 1), /fl-still/);
+    assert.match(T.flairBadgeHtml("🔥~glow", 0, true), /fl-still/);
+  } finally { globalThis.matchMedia = was; }
 });
 
 test("FLAIR_FX — elke registry-rij heeft reward, volgorde, naam in alle talen en een geldige prestatie-koppeling", () => {
@@ -975,12 +994,33 @@ test("FLAIR_FX — elke registry-rij heeft reward, volgorde, naam in alle talen 
     const r = T.REWARDS[f.reward];
     assert.ok(r && r.cat === "flairfx" && r.fx === id, `${id}: REWARDS mist de reward-regel`);
     assert.ok(T.REWARD_ORDER.includes(f.reward), `${id}: ${f.reward} staat niet in REWARD_ORDER (pop-up zou nooit komen)`);
-    for (const code of Object.keys(T.I18N)) assert.ok(T.I18N[code][`fxn_${id}`], `${id}: fxn_${id} mist in "${code}"`);
+    for (const code of Object.keys(T.I18N)) {
+      assert.ok(T.I18N[code][`fxn_${id}`], `${id}: fxn_${id} mist in "${code}"`);
+      assert.ok(T.I18N[code][`fxn_${id}`].startsWith(f.emoji), `${id}: de naam in "${code}" begint niet met het icoon ${f.emoji}`);
+    }
   }
   for (const tr of T.ACHV_TROPHIES.filter((x) => x.flairFx)) assert.ok(T.FLAIR_FX[tr.flairFx], `${tr.key}: onbekend flairFx "${tr.flairFx}"`);
 });
 
-test("flairFxEarned — alleen ingelogd, en sparkle volgt Vlekkeloos", () => {
+test("FLAIR_FX — het getal van de gate is precies de trede/teller van de prestatie waaraan het hangt (kaart belooft niets wat de server weigert)", () => {
+  const links = {};
+  for (const s of T.ACHV_SERIES) for (const f of s.flairFxs || []) {
+    assert.ok(!links[f.id], `${f.id}: aan twee prestaties gekoppeld`);
+    links[f.id] = { key: s.key, min: s.steps[f.at] };
+  }
+  for (const tr of T.ACHV_TROPHIES.filter((x) => x.flairFx)) {
+    assert.ok(!links[tr.flairFx], `${tr.flairFx}: aan twee prestaties gekoppeld`);
+    links[tr.flairFx] = { key: tr.key, min: tr.tiers ? tr.tiers[tr.flairFxAt] : T.FLAIR_FX[tr.flairFx].min };
+    if (tr.tiers) assert.ok(Number.isInteger(tr.flairFxAt), `${tr.key}: getierd, dus een flairFxAt`);
+  }
+  for (const [id, f] of Object.entries(T.FLAIR_FX)) {
+    assert.ok(links[id], `${id}: hangt aan geen enkele prestatie (zou onvindbaar zijn)`);
+    assert.equal(links[id].key, f.key, `${id}: andere teller dan de prestatie`);
+    assert.equal(links[id].min, f.min, `${id}: drempel wijkt af van de prestatie`);
+  }
+});
+
+test("flairFxEarned — alleen ingelogd, en elk effect volgt zijn teller op de drempel", () => {
   const was = T.auth.user;
   try {
     T.auth.user = null;
@@ -989,6 +1029,67 @@ test("flairFxEarned — alleen ingelogd, en sparkle volgt Vlekkeloos", () => {
     assert.deepEqual(T.flairFxEarned({ flawless: true }), ["sparkle"]);
     assert.deepEqual(T.flairFxEarned({ flawless: false }), []);
     assert.deepEqual(T.flairFxEarned(null), []);
+    for (const [id, f] of Object.entries(T.FLAIR_FX)) {
+      if (f.key === "flawless") continue;
+      const got = (n) => T.flairFxEarned({ [f.key]: n }).includes(id);
+      assert.ok(got(f.min), `${id}: op ${f.min} verdiend`);
+      assert.ok(got(f.min + 40), `${id}: erboven ook`);
+      assert.ok(!got(f.min - 1), `${id}: één eronder nog niet`);
+      assert.ok(!got(0));
+    }
+    // Puurspeler: 100 geeft de rimpel, 250 daarnaast de lotus
+    assert.deepEqual(T.flairFxEarned({ pure: 100 }), ["ripple"]);
+    assert.deepEqual(T.flairFxEarned({ pure: 250 }).sort(), ["lotus", "ripple"]);
+  } finally { T.auth.user = was; }
+});
+
+test("unlock-kaart: een effect komt alleen op de stap die het vrijspeelt (reeks, getierd, teller, eenmalig)", () => {
+  T.setLang("nl");
+  const ser = (k) => T.ACHV_SERIES.find((x) => x.key === k);
+  const tro = (k) => T.ACHV_TROPHIES.find((x) => x.key === k);
+  const A = (o) => ({ games: 0, dailies: 0, streak: 0, perfect: 0, pure: 0, rating: 0, years: [], ...o });
+  // reeks: streak trede 4 (90) → ⏳, trede 5 (180) → Gloed; pure trede 4 → Rimpel, trede 5 → Lotus
+  assert.equal(T.achvSeriesItem(A({ streak: 90 }), ser("streak"), 4, 3).flairFx, null);
+  assert.equal(T.achvSeriesItem(A({ streak: 90 }), ser("streak"), 4, 3).flair, "⏳");
+  assert.equal(T.achvSeriesItem(A({ streak: 180 }), ser("streak"), 5, 4).flairFx, "glow");
+  assert.equal(T.achvSeriesItem(A({ streak: 365 }), ser("streak"), 6, 5).flairFx, null, "al eerder gehaald → niet nog eens melden");
+  assert.equal(T.achvSeriesItem(A({ pure: 100 }), ser("pure"), 4, 3).flairFx, "ripple");
+  assert.equal(T.achvSeriesItem(A({ pure: 250 }), ser("pure"), 5, 4).flairFx, "lotus");
+  assert.equal(T.achvSeriesItem(A({ pure: 250 }), ser("pure"), 5, 3).flairFx, "lotus", "twee treden in één pot: de hoogste wint");
+  // getierde trofee: Voltreffer 80 = trede 4
+  const ft = tro("first_try");
+  assert.equal(T.achvTrophyItem(ft, 30, 3, A(), 2).flairFx, null);
+  assert.equal(T.achvTrophyItem(ft, 80, 4, A(), 3).flairFx, "vizier");
+  assert.equal(T.achvTrophyItem(ft, 200, 5, A(), 4).flairFx, null);
+  assert.equal(T.achvTrophyItem(ft, 80, 4, A(), 1).flairFx, "vizier", "trede 2 → 4 in één pot");
+  // teller-trofee (geen treden): Vuurproef → Vonken bij 25; snapshot 0 → 1 (eerste) → 2 (mijlpaal)
+  const sp = tro("spicy");
+  assert.equal(T.achvSnapshot(A({ spicy: 0 })).spicy, 0);
+  assert.equal(T.achvSnapshot(A({ spicy: 24 })).spicy, 1);
+  assert.equal(T.achvSnapshot(A({ spicy: 25 })).spicy, 2);
+  assert.equal(T.achvTrophyItem(sp, 1, 0, A({ spicy: 1 }), 0).flairFx, null, "de eerste Vuurproef is nog geen effect");
+  assert.equal(T.achvTrophyItem(sp, 25, 0, A({ spicy: 25 }), 1).flairFx, "ember");
+  assert.equal(T.achvTrophyItem(sp, 26, 0, A({ spicy: 26 }), 2).flairFx, null);
+  // eenmalige trofee (Vlekkeloos) → het effect komt meteen mee
+  assert.equal(T.achvTrophyItem(tro("flawless"), 0, 0, A({ flawless: true }), 0).flairFx, "sparkle");
+});
+
+test("prestatiebord: pins en tooltips noemen de effecten alleen voor ingelogde spelers", () => {
+  const was = T.auth.user;
+  T.setLang("nl");
+  const A = (o) => ({ games: 0, dailies: 0, streak: 0, perfect: 0, pure: 0, rating: 0, years: [], ...o });
+  try {
+    const pure = T.ACHV_SERIES.find((x) => x.key === "pure");
+    T.auth.user = { uid: "u" };
+    const html = T.achvDetailHtml(A({ pure: 30 }), pure);
+    assert.ok(html.includes("🌊") && html.includes("🪷"), "pins voor Rimpel en Lotus");
+    assert.match(html, /Platina|platina/i);
+    const tip = T.achvTrophyHtml(A({ first_try: 5 }), T.ACHV_TROPHIES.find((x) => x.key === "first_try"));
+    assert.match(tip, /title="[^"]*Vizier[^"]*"/, "tooltip noemt het effect");
+    assert.match(tip, /nog 5|5/, "…en blijft de voortgang naar de volgende trede tonen");
+    T.auth.user = null;
+    assert.ok(!T.achvDetailHtml(A({ pure: 30 }), pure).includes("🪷"), "anoniem: geen belofte van een effect dat je niet kunt dragen");
+    assert.ok(!T.achvTrophyHtml(A({ first_try: 5 }), T.ACHV_TROPHIES.find((x) => x.key === "first_try")).includes("Vizier"));
   } finally { T.auth.user = was; }
 });
 
