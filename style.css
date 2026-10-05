@@ -3899,7 +3899,7 @@ html[data-theme="light"] .achv-card::after {
 .podpop-btns { display: flex; gap: 0.6rem; width: 100%; }
 .podpop-btns .podpop-go { flex: 1; min-width: 0; }
 .podpop-btns:has(.podpop-team:not([hidden])) .podpop-go { flex: 1 1 0; padding-inline: 0.4rem; }
-.podpop-team { flex: 1.6; min-width: 0; white-space: nowrap; background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 0.8rem 0.6rem; font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
+.podpop-team { flex: 1.6; min-width: 0; white-space: nowrap; font-size: 0.94rem; padding-inline: 0.3rem; background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 0.8rem 0.6rem; font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
 .podpop-team:hover { filter: brightness(1.07); }
 .podpop-team:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .podpop-team[hidden] { display: none; }
@@ -3914,3 +3914,4 @@ html[data-theme="light"] .achv-card::after {
 .login-why { margin: 0 0 0.8rem; font-size: 0.88rem; color: var(--muted); }
 .login-why[hidden] { display: none; }
 .lb-pod-ghost .lb-pod-name { white-space: normal; overflow: visible; text-overflow: clip; text-align: center; line-height: 1.15; max-width: 100%; }
+.podpop-card:focus { outline: none; }

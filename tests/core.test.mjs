@@ -58,7 +58,7 @@ src += `
   recapAccountHtml, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
   setState: (s) => { state = s; },
-  refreshWeekPodiumResult, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
+  refreshWeekPodiumResult, soloPathOk, fetchMyPools, popupSteps, withTimeout, teamAfterLoginPark, getPendingTeam: () => pendingTeamAfterLogin, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
   fmtDailyDate, fmtHistoryDate,
   achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml,
   streakFlameTier, streakFlameHtml, withAnimEmoji,
@@ -1655,6 +1655,44 @@ test("podiumParts (solo) — jij met gestippelde plekken en het teamvoorproefje-
   assert.match(p.note, /Zo ziet je team eruit/); assert.equal(p.rest, ""); assert.equal(p.awards, "");
   assert.ok(p.stage.indexOf("lb-pod-silver") < p.stage.indexOf("lb-pod-gold") && p.stage.indexOf("lb-pod-gold") < p.stage.indexOf("lb-pod-bronze"), "volgorde 2e · 1e · 3e");
   assert.ok(!T.podiumParts(rows, false, [], true).stage.includes("lb-pod-ghost"));
+});
+
+test("soloPathOk — een poollid met een mislukte my_pools krijgt NIET de pop-up 'Maak je team'", async () => {
+  const oldSb = globalThis.window.sb, oldUser = T.auth.user;
+  try {
+    T.auth.user = null; assert.equal(T.soloPathOk(), true, "anoniem: zeker geen pool");
+    T.auth.user = { uid: "u1", email: "x@example.invalid" };
+    globalThis.window.sb = { rpc: async () => { throw new Error("offline"); } };
+    await T.fetchMyPools(); assert.equal(T.soloPathOk(), false, "ingelogd + my_pools faalt = onbekend, dus niet solo");
+    globalThis.window.sb = { rpc: async () => [] };
+    await T.fetchMyPools(); assert.equal(T.soloPathOk(), true, "ingelogd + my_pools = [] = zeker geen pool");
+    globalThis.window.sb = { rpc: async () => { throw new Error("401"); } };
+    await T.fetchMyPools(); assert.equal(T.soloPathOk(), false, "een latere fout zet het weer op onbekend");
+  } finally { globalThis.window.sb = oldSb; T.auth.user = oldUser; T.setMyPool(null); }
+});
+
+test("withTimeout — geeft de waarde, of faalt na de tijd (een hangende optionele RPC houdt het pop-up niet tegen)", async () => {
+  assert.equal(await T.withTimeout(Promise.resolve(7), 50), 7);
+  await assert.rejects(T.withTimeout(new Promise(() => {}), 10), /timeout/);
+  await assert.rejects(T.withTimeout(Promise.reject(new Error("boem")), 50), /boem/);
+});
+
+test("popupSteps — pool van 1 krijgt spookplekken en geen 'team tegen de wereld'; grotere pool alle stappen; zonder team twee", () => {
+  T.setLang("nl");
+  const me = { rank: 1, is_me: true, display_name: "Jij", flair: "", title: null, week_score: 400, daily_wins: 0, played: 6 };
+  const other = (i) => ({ rank: i, is_me: false, display_name: "Sp" + i, flair: "", title: null, week_score: 400 - i * 50, daily_wins: 0, played: 5 });
+  const awards = [AW("terug", { name: "Sp2", detail: { gap_days: 9 } })];
+  const one = T.popupSteps({ rows: [me], awards, vs: { cur: VS_CUR, prev: VS_PREV }, poolName: "Team" });
+  assert.ok(one[0].includes("lb-pod-ghost"), "pool van 1: spookplekken"); assert.ok(!one.some((h) => h.includes('class="vw"')), "geen team tegen de wereld");
+  const many = T.popupSteps({ rows: [me, other(2), other(3)], awards, vs: { cur: VS_CUR, prev: VS_PREV }, poolName: "Team" });
+  assert.equal(many.length, 3); assert.ok(!many[0].includes("lb-pod-ghost")); assert.ok(many[2].includes('class="vw"'));
+  const solo = T.popupSteps({ solo: true, rows: [me], awards: [], vs: T.buildSoloVs(SOLO_HIST, "2026-09-28", WORLD_RES), poolName: "Jouw week" });
+  assert.equal(solo.length, 2); assert.ok(solo[0].includes("lb-pod-ghost")); assert.ok(solo[1].includes("Dagen gespeeld"));
+});
+
+test("teamAfterLoginPark — de bedoeling 'Maak je team' wordt gewist en verloopt", () => {
+  T.teamAfterLoginPark(true); assert.equal(T.getPendingTeam(), true);
+  T.teamAfterLoginPark(false); assert.equal(T.getPendingTeam(), false);
 });
 
 test("fetchWorldWeek — een mislukte RPC geeft null (dan komt de pop-up niet)", async () => {

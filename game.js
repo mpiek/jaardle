@@ -4650,11 +4650,14 @@ function setActivePool(id) {
 }
 
 // Haal álle pools van de ingelogde speler op en herbepaal de actieve.
+let myPoolsOk = false;   // my_pools is gelukt; bij een fout (offline, verlopen token) weten we niet of je in een pool zit
 async function fetchMyPools() {
-  try { const rows = await rpc("my_pools", {}); myPools = Array.isArray(rows) ? rows : []; }
-  catch (e) { myPools = []; }
+  try { const rows = await rpc("my_pools", {}); myPools = Array.isArray(rows) ? rows : []; myPoolsOk = true; }
+  catch (e) { myPools = []; myPoolsOk = false; }
   myPool = pickActivePool();
 }
+// Mag de pop-up voor spelers zonder pool? Anoniem altijd; ingelogd alleen als we zéker weten dat je geen pool hebt.
+function soloPathOk() { return !auth.user || myPoolsOk; }
 
 // Haal de pools van de ingelogde speler op; de 🏆-knop is zichtbaar zodra ingelogd.
 async function refreshPoolState() {
@@ -5587,8 +5590,14 @@ const WEEK_AWARDS = [
   { kind: "stijger", icon: "📈" }, { kind: "streak", icon: "🔥" }, { kind: "record", icon: "🏅" },
   { kind: "terug", icon: "👋" }, { kind: "reuzendoder", icon: "🗡️" },
 ];
+// Een optionele aanroep die blijft hangen mag het pop-up niet tegenhouden: na `ms` telt hij als mislukt.
+function withTimeout(promise, ms) {
+  let id;
+  return Promise.race([promise, new Promise((_, reject) => { id = setTimeout(() => reject(new Error("timeout")), ms); })]).finally(() => clearTimeout(id));
+}
+const OPTIONAL_RPC_MS = 6000;
 async function fetchWeekAwards(poolId, weekStart) {
-  try { const r = await rpc("get_pool_week_awards", { p_pool_id: poolId, p_week_start: weekStart }); return Array.isArray(r) ? r : []; }
+  try { const r = await withTimeout(rpc("get_pool_week_awards", { p_pool_id: poolId, p_week_start: weekStart }), OPTIONAL_RPC_MS); return Array.isArray(r) ? r : []; }
   catch (e) { return []; }
 }
 function weekdayName(dateKey) {
@@ -5613,7 +5622,7 @@ const VW_FIXED = [   // altijd erbij, onderaan
 ];
 async function fetchWeekVsWorld(poolId, weekStart) {
   try {
-    const r = await rpc("get_pool_week_vs_world", { p_pool_id: poolId, p_week_start: weekStart });
+    const r = await withTimeout(rpc("get_pool_week_vs_world", { p_pool_id: poolId, p_week_start: weekStart }), OPTIONAL_RPC_MS);
     return r && r.cur && r.cur.team && r.cur.world ? r : null;
   } catch (e) { return null; }
 }
@@ -5715,7 +5724,7 @@ function soloSeenWeek() { try { return localStorage.getItem(SOLO_SEEN_KEY) || ""
 function soloMarkSeen(ws) { try { if (ws > soloSeenWeek()) localStorage.setItem(SOLO_SEEN_KEY, ws); } catch (e) {} }
 async function fetchWorldWeek(weekStart) {
   try {
-    const r = await rpc("get_world_week", { p_week_start: weekStart });
+    const r = await withTimeout(rpc("get_world_week", { p_week_start: weekStart }), OPTIONAL_RPC_MS);
     return r && r.cur && r.cur.world ? r : null;
   } catch (e) { return null; }
 }
@@ -5759,6 +5768,7 @@ async function maybeShowSoloWeek(lastDone) {
   if (!me || me.n < SOLO_MIN) return;
   const vs = buildSoloVs(history, lastDone, await fetchWorldWeek(lastDone));
   if (!vs) return;
+  if (auth.user && (!myIdentityLoaded || !myTitleLoaded)) { try { await Promise.all([ensureMyIdentity(), ensureMyTitle()]); } catch (e) {} }   // flair + titel op het podium
   const you = soloYou();
   const row = { rank: 1, is_me: true, display_name: you, flair: myFlair, title: myTitle, week_score: me.sum, daily_wins: 0, played: me.n };
   showPodiumPopup({ solo: true, weekStart: lastDone, poolName: t("solo_week"), rows: [row], awards: [], vs });
@@ -5766,12 +5776,15 @@ async function maybeShowSoloWeek(lastDone) {
 // "🏆 Maak je team" in de voet van de solo-pop-up: ingelogd → het 🏆-scherm (maken of joinen); anoniem → eerst inloggen, en na de
 // terugkeer (ook na de Google/Discord-redirect) automatisch naar het 🏆-scherm. Zelfde parkeer-patroon als jaardle:pendingRecap.
 const PENDING_TEAM_KEY = "jaardle:pendingTeam", PENDING_TEAM_MS = 10 * 60 * 1000;
-let pendingTeamAfterLogin = false;
+let pendingTeamAfterLogin = false, pendingTeamAt = 0;
+const teamIntentFresh = () => pendingTeamAfterLogin && Date.now() - pendingTeamAt < PENDING_TEAM_MS;   // ook na slapen/tijdsprong
 function teamAfterLoginPark(on) {
-  pendingTeamAfterLogin = !!on;
-  if (on) setTimeout(() => { pendingTeamAfterLogin = false; }, PENDING_TEAM_MS);   // niet eeuwig open laten staan
+  pendingTeamAfterLogin = !!on; pendingTeamAt = on ? Date.now() : 0;
+  if (on) { const id = setTimeout(() => { pendingTeamAfterLogin = false; }, PENDING_TEAM_MS); id?.unref?.(); }   // niet eeuwig open laten staan
   try { if (on) localStorage.setItem(PENDING_TEAM_KEY, String(Date.now())); else localStorage.removeItem(PENDING_TEAM_KEY); } catch (e) {}
 }
+// Sluit je het inlogscherm zelf (✕, achtergrond of Escape), dan vergeet het spel de bedoeling om een team te maken.
+function dropTeamIntent() { if (pendingTeamAfterLogin) teamAfterLoginPark(false); }
 function soloMakeTeam() {
   closeAllModals();   // pop-up dicht = gezien
   if (auth.user) { openModal("modal-leaderboard"); return; }
@@ -7967,7 +7980,7 @@ async function refreshWeekPodiumResult() {
   if (!auth.user || !myPool || lastDone < PODIUM_EPOCH || !weekIsFinal(lastDone)) {
     weekPodiumResult = null; renderPodiumDot();
     // Geen pool (ingelogd of anoniem): de eigen-week-pop-up, tenzij een deeplink een eigen scherm opent.
-    if (!myPool && lastDone >= PODIUM_EPOCH && weekIsFinal(lastDone) && !(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap)) maybeShowSoloWeek(lastDone);
+    if (!myPool && soloPathOk() && lastDone >= PODIUM_EPOCH && weekIsFinal(lastDone) && !(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap)) maybeShowSoloWeek(lastDone);
     return;
   }
   const key = `${auth.user.uid}:${lastDone}`;
@@ -7999,16 +8012,22 @@ async function refreshWeekPodiumResult() {
 // → podiumPopClosed markeert gezien. Bewust "altijd direct", ook midden in een gok
 // (expliciete keuze 2026-09-06); alleen een al open scherm (deeplink/login) wint.
 let podiumPopKey = null;   // ←/→-handler van de maandag-pop-up (alleen zolang hij open is)
+// De stappen van de maandag-pop-up als HTML. Zonder team: jij + spookplekken en jij tegen de wereld. Een pool van één speler krijgt
+// ook de spookplekken en geen 'team tegen de wereld' (dat zou gewoon jouw eigen cijfers onder de naam team zijn).
+function popupSteps(res) {
+  const solo = !!res.solo, alone = res.rows.length === 1;
+  const parts = podiumParts(res.rows, false, res.awards, true, solo || alone);
+  if (parts.all != null) return [parts.all];
+  if (solo) return [parts.stage + parts.note, vsWorldHtml(res.vs, soloYou(), true)].filter(Boolean);
+  return [parts.stage + parts.note + parts.rest, parts.awards, alone ? "" : vsWorldHtml(res.vs, res.poolName)].filter(Boolean);
+}
 function showPodiumPopup(resArg) {
   const res = resArg || weekPodiumResult;
   if (!res || document.getElementById("modal-podium-pop")) return;
   if (document.querySelector(".modal:not([hidden])")) return;   // ander scherm open → stip blijft
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // Stap 1 = de uitslag (podium + rest van de stand), stap 2 = de weekprijzen, stap 3 = team tegen de wereld; stappen zonder inhoud vallen weg.
-  const parts = podiumParts(res.rows, false, res.awards, true, !!res.solo);
-  const steps = parts.all != null ? [parts.all]
-    : res.solo ? [parts.stage + parts.note, vsWorldHtml(res.vs, soloYou(), true)].filter(Boolean)   // zonder team: geen stand en geen prijzen
-    : [parts.stage + parts.note + parts.rest, parts.awards, vsWorldHtml(res.vs, res.poolName)].filter(Boolean);
+  const steps = popupSteps(res);
   const el = document.createElement("div");
   el.id = "modal-podium-pop";
   el.className = "modal podpop night night-b" + (reduced ? "" : " podpop-anim");   // nachtpaars-schil (kroning-look); night-b = donkerpaarse sokkels met metalen rand — zonder night-b zijn het de metalen sokkels (variant A)
@@ -8107,6 +8126,9 @@ function showPodiumPopup(resArg) {
   });
   el.hidden = false;
   lockBodyScroll();
+  const card = el.querySelector(".podpop-card");
+  card.setAttribute("tabindex", "-1");
+  try { card.focus({ preventScroll: true }); } catch (e) {}   // schermlezers en toetsenbord beginnen in het dialoog; geen knop, dus Enter doet niets
   requestAnimationFrame(() => el.classList.add("in"));
   if (reduced) {   // alles meteen, geen confetti
     el.querySelectorAll(".lb-pod-spot, .lb-wk-restrow, .lb-wk-note, .lb-wk-awards, .lb-aw, .podpop-foot").forEach((n) => n.classList.add("in"));
@@ -10757,7 +10779,7 @@ function openModal(id, opts) {
     const err = document.getElementById("login-error");
     if (err) err.hidden = true;
     const why = document.getElementById("login-why");
-    if (why) why.hidden = !pendingTeamAfterLogin;
+    if (why) why.hidden = !teamIntentFresh();
     document.querySelector('#login-form input[name="email"]')?.focus();
     setModalUrl("auth=login");
   }
@@ -11517,7 +11539,7 @@ async function init() {
   // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc
   // je terug naar het bord i.p.v. het hele scherm te sluiten. Daarom apart bedraad.
   document.querySelectorAll(".modal:not(#modal-rewards) [data-close]").forEach((el) => {
-    el.addEventListener("click", () => closeAllModals());
+    el.addEventListener("click", () => { if (el.closest("#modal-login")) dropTeamIntent(); closeAllModals(); });   // login zelf sluiten = niet meer naar "Maak je team"
   });
   document.querySelectorAll("#modal-rewards [data-close]").forEach((el) => {
     el.addEventListener("click", () => { if (rewardsReturnTo) rewardsReturn(); else closeAllModals(); });
@@ -11528,6 +11550,7 @@ async function init() {
     if (e.key !== "Escape") return;
     const rw = document.getElementById("modal-rewards");
     if (rewardsReturnTo && rw && !rw.hidden) { rewardsReturn(); return; }
+    if (!document.getElementById("modal-login").hidden) dropTeamIntent();
     closeAllModals();
   });
   const loginForm = document.getElementById("login-form");
@@ -11561,7 +11584,7 @@ async function init() {
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
-    if (pendingTeamAfterLogin && auth.user) { teamAfterLoginPark(false); closeAllModals(); openModal("modal-leaderboard"); }   // net ingelogd vanuit "🏆 Maak je team" in de solo-pop-up
+    if (pendingTeamAfterLogin && auth.user) { const fresh = teamIntentFresh(); teamAfterLoginPark(false); if (fresh) { closeAllModals(); openModal("modal-leaderboard"); } }   // net ingelogd vanuit "🏆 Maak je team" in de solo-pop-up
     await maybeShowCoronation();  // gemiste titel-mijlpaal? kroon (self-gated, één lichte RPC). Beloningen niet hier: die hebben achvCache nodig (komt na een pot), geen recompute bij het openen.
     refreshWeekPodiumResult(); // verse-weekuitslag: pop-up + stip (fire-and-forget; nul kosten vóór de 1e afgeronde week / ma-ochtend)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
@@ -11682,7 +11705,8 @@ async function init() {
   // Terug van Google-login vanuit het eindscherm-kaartje (doGoogleSignIn): verse intentie, één keer te gebruiken.
   try {   // Terug van de OAuth-redirect na "🏆 Maak je team" (solo-pop-up): één keer te gebruiken, 10 minuten geldig.
     const parkedTeam = Number(localStorage.getItem(PENDING_TEAM_KEY));
-    if (parkedTeam && Date.now() - parkedTeam < PENDING_TEAM_MS) pendingTeamAfterLogin = true; else localStorage.removeItem(PENDING_TEAM_KEY);
+    if (parkedTeam && Date.now() - parkedTeam < PENDING_TEAM_MS) { pendingTeamAfterLogin = true; pendingTeamAt = parkedTeam; const id = setTimeout(() => { pendingTeamAfterLogin = false; }, PENDING_TEAM_MS - (Date.now() - parkedTeam)); id?.unref?.(); }
+    else localStorage.removeItem(PENDING_TEAM_KEY);
   } catch (e) {}
   try {
     const parked = Number(localStorage.getItem(PENDING_RECAP_KEY));
