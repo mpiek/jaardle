@@ -65,7 +65,7 @@ src += `
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
-  awardsHtml, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  awardsHtml, spotlightAwards, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1517,6 +1517,27 @@ test("podiumHtml / recapRaceHtml — de prijzen staan tussen podium+formule en d
   assert.match(race, /Weekprijzen tot nu toe/); assert.match(race, /lb-aw-me lb-aw-me-c/);
   assert.equal((race.match(/class="lb-wk-note"/g) || []).length, 0, "met prijzen deelt de afsluitregel de kop (geen aparte regel)");
   assert.match(T.recapRaceHtml(rows.map((r) => ({ ...r, runner: "" })), []), /class="lb-wk-note"/, "zonder prijzen blijft de afsluitregel zoals hij was");
+});
+
+test("spotlightAwards — dagen op rij: max. 3 namen, laagst geplaatsten eerst, jezelf blijft altijd staan", () => {
+  T.setLang("nl");
+  const rows = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ rank: i, display_name: "Sp" + i, week_score: 800 - i * 50 }));
+  const st = (n, days, me) => AW("streak", { name: "Sp" + n, detail: { days }, me: !!me });
+  const names = (a) => a.filter((x) => x.kind === "streak").map((x) => x.display_name).sort();
+  // vijf winnaars: de vier laagst geplaatsten (Sp8, Sp7, Sp6, Sp4) → plafond 3 → Sp2 en Sp4 vallen af, Sp8/Sp7/Sp6 blijven
+  const five = [st(2, 60), st(4, 14), st(6, 7), st(7, 7), st(8, 3)];
+  assert.deepEqual(names(T.spotlightAwards(five, rows)), ["Sp6", "Sp7", "Sp8"]);
+  // jij (Sp2, hoog geplaatst) blijft staan en telt mee in het plafond
+  const withMe = [st(2, 60, true), st(4, 14), st(6, 7), st(7, 7), st(8, 3)];
+  assert.deepEqual(names(T.spotlightAwards(withMe, rows)), ["Sp2", "Sp7", "Sp8"]);
+  // drie of minder: niets weg; andere prijzen blijven ongemoeid; zonder stand geen filter
+  assert.equal(T.spotlightAwards([st(1, 30), st(5, 7), st(8, 3)], rows).length, 3);
+  const mixed = [...five, AW("terug", { name: "Sp1", detail: { gap_days: 9 } })];
+  assert.equal(T.spotlightAwards(mixed, rows).filter((x) => x.kind === "terug").length, 1);
+  assert.equal(T.spotlightAwards(five, []).length, 5); assert.equal(T.spotlightAwards(five).length, 5);
+  // gelijke stand op rang: hogere streak wint; onbekende naam (niet in de stand) valt als eerste af
+  const ghost = [st(6, 7), st(7, 7), st(8, 3), AW("streak", { name: "Onbekend", detail: { days: 30 } })];
+  assert.deepEqual(names(T.spotlightAwards(ghost, rows)), ["Sp6", "Sp7", "Sp8"]);
 });
 
 test("podiumParts — de pop-up toont stappen: uitslag (podium + rest) en weekprijzen; podiumHtml plakt ze aan elkaar", () => {

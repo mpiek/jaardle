@@ -5571,6 +5571,25 @@ const AWARD_VAL = {
   terug: () => "", reuzendoder: () => "",
 };
 const AWARD_SORT = { stijger: (d) => Number(d.pct), streak: (d) => Number(d.days), record: (d) => Number(d.week_score), terug: (d) => Number(d.gap_days) };
+// Bij "dagen op rij" vallen er mensen buiten beeld: hooguit 3 namen, en wie laag in de stand eindigde komt het eerst aan bod
+// (de hoge plekken hebben podium en stand al). Jezelf zie je altijd. Alles blijft in de database staan; dit bepaalt alleen wat het scherm noemt.
+// Een volgende soort met zo'n plafond (bv. record) is één regel erbij.
+const AWARD_CAP = { streak: 3 };
+function spotlightAwards(awards, rows) {
+  const list = Array.isArray(awards) ? awards : [];
+  if (!Array.isArray(rows) || !rows.length) return list;
+  const rankOf = new Map(rows.map((r) => [r.display_name, Number(r.rank) || 0]));
+  const drop = new Set();
+  for (const kind of Object.keys(AWARD_CAP)) {
+    const group = list.filter((a) => a.kind === kind);
+    const room = AWARD_CAP[kind] - group.filter((a) => a.is_me).length;   // jij telt mee en blijft staan
+    if (group.length <= AWARD_CAP[kind]) continue;
+    group.filter((a) => !a.is_me)
+      .sort((x, y) => (rankOf.get(y.display_name) || 0) - (rankOf.get(x.display_name) || 0) || (Number(y.detail?.days) || 0) - (Number(x.detail?.days) || 0))
+      .slice(Math.max(0, room)).forEach((a) => drop.add(a));
+  }
+  return drop.size ? list.filter((a) => !drop.has(a)) : list;
+}
 function awardsHtml(awards, live, note) {
   const list = Array.isArray(awards) ? awards : [], items = [];
   for (const def of WEEK_AWARDS) {
@@ -5669,7 +5688,7 @@ function podiumParts(rows, isLive, awards, noFormula) {
     ? `<p>${escHtml(t("lb_wk_live_note"))} <span class="lb-wk-countdown"></span></p>` : "";
   // In de maandag-pop-up (afgeronde week) blijft de scoreformule weg: dat scheelt een regel boven de weekprijzen.
   const note = isLive || !noFormula ? `<div class="lb-wk-note">${liveLine}<p>${escHtml(t("lb_wk_formula"))}</p></div>` : "";
-  return { stage: `<div class="lb-pod-stage">${podium}</div>`, note, awards: awardsHtml(awards, isLive), rest: restHtml };
+  return { stage: `<div class="lb-pod-stage">${podium}</div>`, note, awards: awardsHtml(spotlightAwards(awards, rows), isLive), rest: restHtml };
 }
 
 // Hoofdpaneel: je pool + borden, of de lege staat (maken/joinen).
@@ -6373,7 +6392,7 @@ function recapRaceHtml(rows, awards) {
   // Statisch bij het openen (geen tikkende timer): "nog 3 d", op de laatste dag in uren.
   const secs = secsToWeekEnd(currentWeekStart());
   const d = Math.floor(secs / 86400), h = Math.max(1, Math.floor(secs / 3600));
-  const note = t("recap_week_note")(d, h), aw = awardsHtml(awards, true, note);
+  const note = t("recap_week_note")(d, h), aw = awardsHtml(spotlightAwards(awards, rows), true, note);
   return `<div class="lb-table race-table">${html}</div>` +
     (aw || `<div class="lb-wk-note"><p>${escHtml(note)}</p></div>`) + awardMeHtml(awards, true);
 }
