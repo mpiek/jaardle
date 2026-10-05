@@ -65,7 +65,7 @@ src += `
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
-  awardsHtml, spotlightAwards, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  awardsHtml, spotlightAwards, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1538,6 +1538,74 @@ test("spotlightAwards — dagen op rij: max. 3 namen, laagst geplaatsten eerst, 
   // gelijke stand op rang: hogere streak wint; onbekende naam (niet in de stand) valt als eerste af
   const ghost = [st(6, 7), st(7, 7), st(8, 3), AW("streak", { name: "Onbekend", detail: { days: 30 } })];
   assert.deepEqual(names(T.spotlightAwards(ghost, rows)), ["Sp6", "Sp7", "Sp8"]);
+});
+
+// ── Team tegen de wereld (stap 3) ─────────────────────────────────────────────────────────────────────────────
+const VS_DAYS = [["2026-09-28", 100, 88.4], ["2026-09-29", 60.4, 51.6], ["2026-09-30", 75.3, 49.7], ["2026-10-01", 89.1, 81.6], ["2026-10-02", 65.7, 52.9], ["2026-10-03", 92.7, 78.6], ["2026-10-04", 97.6, 86.5]]
+  .map(([d, t, w]) => ({ d, t, w, tn: 8 }));
+const VS_CUR = {
+  week: "2026-09-28",
+  team:  { n: 53, players: 8, score: 82.8, win: 94.3, att: 2.4, first_try: 32.1, p90: 62.3, hint: 43.4, late: 15.1, fd: 2, days: 6.63, all7: 88 },
+  world: { n: 303, players: 203, score: 70.4, win: 86.8, att: 3.16, first_try: 23.8, p90: 41.3, hint: 29.7, late: 3, fd: 10, days: 1.48, all7: 5 },
+  daily: VS_DAYS,
+};
+const VS_PREV = { week: "2026-09-21", team: { n: 46, score: 75.4, win: 100, att: 3.2, first_try: 8.7, p90: 40, hint: 76.1, late: 17.4, fd: 20 },
+                  world: { n: 170, score: 58.9, win: 74.7, att: 4.31, first_try: 2.4, p90: 20, hint: 40, late: 5.3, fd: 72 } };
+
+test("vwNum / vwMarker — tekens, decimalen en het oordeel per rij", () => {
+  T.setLang("nl");
+  assert.equal(T.vwNum(82.8, 1), "82,8"); assert.equal(T.vwNum(12.4, 1, true), "+12,4"); assert.equal(T.vwNum(-2.9, 1, true), "−2,9");
+  assert.equal(T.vwNum(0, 1, true, -2.9), "−0,0", "bij het optellen houdt een negatief verschil z'n teken");
+  assert.equal(T.vwMarker(1, 82.8, 70.4, 1).cls, "up"); assert.equal(T.vwMarker(1, 68, 71.6, 1).cls, "down");
+  assert.equal(T.vwMarker(-1, 2.4, 3.2, 1).cls, "up", "lager is beter: lagere teamwaarde = ▲");
+  assert.equal(T.vwMarker(-1, 43.4, 29.7, 0).cls, "down", "meer hints = ▼");
+  assert.equal(T.vwMarker(1, 94.04, 93.96, 0).cls, "eq", "gelijk op de getoonde decimalen");
+  assert.deepEqual(T.vwMarker(0, 15, 3, 0), { cls: "neu", sym: "↺" }, "ingehaald krijgt geen oordeel");
+});
+
+test("pickVsRows — 3 gekozen rijen + 2 vaste; een rij waar het team onder zit komt altijd mee", () => {
+  const rows = T.pickVsRows(VS_CUR, VS_PREV).map((r) => r.k);
+  assert.equal(rows.length, 5); assert.deepEqual(rows.slice(-2), ["days", "late"]);
+  assert.ok(rows.includes("hint"), "hints: het team zit eronder, dus die rij staat erbij");
+  assert.ok(rows.includes("p90"), "grootste voorsprong staat erbij");
+  assert.equal(new Set(rows).size, rows.length, "geen dubbele rijen");
+  // zonder vorige week en zonder 'eronder': toch 3 gekozen + 2 vaste
+  const allUp = { ...VS_CUR, team: { ...VS_CUR.team, hint: 20 } };
+  assert.equal(T.pickVsRows(allUp, null).length, 5);
+  // ontbrekende waarden (bv. wereld-dagen onbekend) laten de rij weg
+  const noDays = { ...VS_CUR, world: { ...VS_CUR.world, days: null } };
+  assert.ok(!T.pickVsRows(noDays, null).some((r) => r.k === "days"));
+  // weinig data: geen crash
+  assert.deepEqual(T.pickVsRows({ team: {}, world: {} }, null), []);
+});
+
+test("vsWorldHtml — kop, verschil, 7 tikbare dagen, groen/roze oordeel en eerlijk bij een slechte week", () => {
+  T.setLang("nl");
+  const html = T.vsWorldHtml({ cur: VS_CUR, prev: VS_PREV }, "Team Jaardle");
+  assert.match(html, /Tegen de wereld/); assert.match(html, /203 spelers, ook eenmalige/);
+  assert.match(html, /data-v="82\.8"[^>]*>82,8</); assert.match(html, /data-v="70\.4"[^>]*>70,4</); assert.match(html, /Team Jaardle/);
+  assert.match(html, /vw-mk up"><span aria-hidden="true">▲<\/span> <b[^>]*data-sg="1"[^>]*>\+12,4/); assert.match(html, /vorige week \+16,5/);
+  assert.equal((html.match(/class="vw-col/g) || []).length, 7);
+  assert.match(html, /vw-col hard/); assert.match(html, /data-def="wo: pittigste dag van de wereld \(49,7\)"/);
+  assert.equal((html.match(/class="vw-r"/g) || []).length, 5);
+  assert.match(html, /vw-mk down" aria-hidden="true">▼/, "hints: roze ▼"); assert.match(html, /vw-mk neu" aria-hidden="true">↺/);
+  assert.match(html, /vt good/); assert.match(html, /vt bad/);
+  // dag zonder teamgemiddelde (< 2 potjes): geen teamstaaf en een eerlijke regel
+  const gap = { ...VS_CUR, daily: VS_DAYS.map((d, i) => (i === 3 ? { ...d, t: null, tn: 1 } : d)) };
+  const h2 = T.vsWorldHtml({ cur: gap }, "Team");
+  assert.match(h2, /b t none/); assert.match(h2, /do · team — · wereld 81,6/);
+  // wereld-spelersaantal onbekend → aantal potjes
+  assert.match(T.vsWorldHtml({ cur: { ...VS_CUR, world: { ...VS_CUR.world, players: null } } }, "T"), /🌍 303 potjes/);
+  // een week waarin het team eronder zit staat er gewoon
+  const bad = { ...VS_CUR, team: { ...VS_CUR.team, score: 68.7 }, world: { ...VS_CUR.world, score: 71.6 } };
+  const h3 = T.vsWorldHtml({ cur: bad }, "Team");
+  assert.match(h3, /vw-mk down"><span aria-hidden="true">▼<\/span> <b[^>]*>−2,9/);
+  // niets te tonen
+  assert.equal(T.vsWorldHtml(null, "T"), ""); assert.equal(T.vsWorldHtml({ cur: { team: {}, world: {} } }, "T"), "");
+});
+
+test("fetchWeekVsWorld — een mislukte of ontbrekende RPC geeft null (pop-up valt terug op twee stappen)", async () => {
+  assert.equal(await T.fetchWeekVsWorld("00000000-0000-0000-0000-000000000000", "2026-09-28"), null);
 });
 
 test("podiumParts — de pop-up toont stappen: uitslag (podium + rest) en weekprijzen; podiumHtml plakt ze aan elkaar", () => {

@@ -3846,3 +3846,44 @@ html[data-theme="light"] .achv-card::after {
 
 /* Verdiende prestatie-flairs vooraan in de flair-kiezer: gouden randje. */
 .lb-flair-opt.lb-flair-achv { border-color: var(--achv-gold); }
+
+/* ── Team tegen de wereld: stap 3 van de maandag-pop-up (db/81) ──────────────────────────────────────────────────── */
+.vw-hero { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; gap: 6px; margin-top: 2px; }
+.vw-h b { display: block; font-size: 2rem; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
+.vw-h.t b { color: var(--accent); }
+.vw-h.w b { color: #d3c6e8; }
+.vw-h span { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vw-vs { color: var(--muted); font-size: 0.8rem; }
+.vw-note { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 6px 0 0; }
+.vw-note em { font-style: normal; font-weight: 800; }
+.vw-prev { margin-left: 0.5rem; opacity: 0.75; }
+.vw-mk { font-style: normal; text-align: center; }
+.vw-mk.up { color: #6fdc8c; } .vw-mk.down { color: #ee94a6; } .vw-mk.eq, .vw-mk.neu { color: var(--muted); }
+.vw-note .vw-n { display: inline; font-size: inherit; color: inherit; font-weight: 800; }
+.vw-plot { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; padding-left: 24px; margin-top: 4px; }
+.vw-plot::before { content: ""; position: absolute; left: 24px; right: 0; top: 4px; height: 23px; border-block: 1px dashed #ffffff22; pointer-events: none; }
+.vw-ax { position: absolute; left: 0; width: 20px; text-align: right; font-size: 0.6rem; color: var(--muted); line-height: 1; }
+.vw-ax.a100 { top: 1px; } .vw-ax.a50 { top: 24px; }
+.vw-col { background: none; border: 0; color: inherit; font: inherit; padding: 4px 0 2px; cursor: pointer; border-radius: 8px; display: grid; justify-items: center; gap: 1px; }
+.vw-bars { height: 46px; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 2px; }
+.vw-bars .b { display: block; width: 36%; max-width: 14px; height: var(--h); border-radius: 2.5px 2.5px 0 0; }
+.vw-bars .b.t { background: var(--accent); } .vw-bars .b.w { background: #8f7bb0; } .vw-bars .b.none { visibility: hidden; }
+.vw-d { font-size: 0.65rem; color: var(--muted); }
+.vw-col.hard .vw-d { color: var(--accent); font-weight: 800; }
+.vw-col.sel { background: #ffffff14; } .vw-col.sel .vw-d { color: var(--fg); font-weight: 800; }
+.vw-col:focus-visible { outline: 2px solid var(--fg); outline-offset: -2px; }
+.vw-cap { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--muted); margin: 1px 0 4px; flex-wrap: wrap; min-height: 1.1rem; }
+.vw-cap .lg { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+.vw-cap .lg.t { background: var(--accent); } .vw-cap .lg.w { background: #8f7bb0; margin-left: 4px; }
+.vw-sel { margin-left: auto; text-align: right; }
+.podpop-anim .vw:not(.go) .vw-bars .b { height: 0; }
+.podpop-anim .vw .vw-bars .b { transition: height 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.1); }
+.vw-r { display: grid; grid-template-columns: 1fr 4rem 4rem 1.2rem; align-items: center; column-gap: 4px; background: #ffffff12; border-radius: 10px; padding: 0.22rem 0.6rem; margin-top: 2px; }
+.vw-l { font-size: 0.84rem; line-height: 1.15; min-width: 0; }
+.vw-l small { display: block; font-size: 0.64rem; color: var(--muted); }
+.vw-r .vw-n { font-size: 0.92rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vw-r .vw-n.vwd { color: #d3c6e8; font-weight: 600; font-size: 0.86rem; }
+.vw-r .vw-n.good { color: #6fdc8c; } .vw-r .vw-n.bad { color: #ee94a6; } .vw-r .vw-n.even { color: var(--fg); }
+.vw-r .vw-mk { font-size: 0.72rem; }
+.vw .lb-aw-t { flex-wrap: wrap; row-gap: 1px; margin: 0 0 4px; }
+.vw .lb-aw-t small { order: 3; flex-basis: 100%; text-align: left; margin-left: 0; }

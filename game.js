@@ -226,6 +226,12 @@ const I18N = {
     lb_wk_punten: "punten",
     lb_recap_head: "Vorige week",
     lb_pop_continue: "Verder", lb_pop_live: "Bekijk deze week", lb_pop_prev: "Vorige stap", lb_pop_next: "Volgende stap",
+    vw_title: "Tegen de wereld", vw_world: (p, n) => (p ? `🌍 ${p} spelers, ook eenmalige` : `🌍 ${n} potjes`), vw_world_lbl: "alle spelers", vw_vs: "tegen",
+    vw_avg: "gemiddelde score", vw_prev: (d) => `vorige week ${d}`, vw_win: "Gewonnen", vw_att: "Pogingen per winst", vw_lower: "lager is beter",
+    vw_first: "In één keer goed", vw_p90: "Score 90+", vw_fd: "1e gok mis met", vw_median: "mediaan", vw_yr: " jr", vw_hint: "Potjes met hint", vw_days: "Dagen per speler",
+    vw_of7: "van de 7", vw_late: "Ingehaalde potjes", vw_hard: (d, v) => `${d}: pittigste dag van de wereld (${v})`,
+    vw_day: (d, tv, wv) => `${d} · team ${tv ?? "—"} · wereld ${wv ?? "—"}`, vw_leg_team: "team", vw_leg_world: "wereld",
+    vw_chart: "Gemiddelde score per dag, team tegen wereld",
     lb_wk_live_note: "Tussenstand — sluit over",
     lb_wk_formula: "Score = som van je dagscores + 25 bonuspunten per dagzege.",
     aw_title: "Weekprijzen", aw_title_live: "Weekprijzen tot nu toe",
@@ -545,6 +551,12 @@ const I18N = {
     lb_wk_punten: "points",
     lb_recap_head: "Last week",
     lb_pop_continue: "Continue", lb_pop_live: "See this week", lb_pop_prev: "Previous step", lb_pop_next: "Next step",
+    vw_title: "Against the world", vw_world: (p, n) => (p ? `🌍 ${p} players, one-timers included` : `🌍 ${n} games`), vw_world_lbl: "all players", vw_vs: "vs",
+    vw_avg: "average score", vw_prev: (d) => `last week ${d}`, vw_win: "Won", vw_att: "Guesses per win", vw_lower: "lower is better",
+    vw_first: "Right first try", vw_p90: "Score 90+", vw_fd: "1st guess off by", vw_median: "median", vw_yr: " yrs", vw_hint: "Games with a hint", vw_days: "Days per player",
+    vw_of7: "of 7", vw_late: "Catch-up games", vw_hard: (d, v) => `${d}: toughest day for the world (${v})`,
+    vw_day: (d, tv, wv) => `${d} · team ${tv ?? "—"} · world ${wv ?? "—"}`, vw_leg_team: "team", vw_leg_world: "world",
+    vw_chart: "Average score per day, team against world",
     lb_wk_live_note: "Live standings — locks in",
     lb_wk_formula: "Score = sum of your daily scores + 25 bonus points per daily win.",
     aw_title: "Weekly awards", aw_title_live: "Weekly awards so far",
@@ -857,6 +869,12 @@ const I18N = {
     lb_wk_punten: "Punkte",
     lb_recap_head: "Letzte Woche",
     lb_pop_continue: "Weiter", lb_pop_live: "Diese Woche ansehen", lb_pop_prev: "Vorheriger Schritt", lb_pop_next: "Nächster Schritt",
+    vw_title: "Gegen die Welt", vw_world: (p, n) => (p ? `🌍 ${p} Spieler, auch Einmalspieler` : `🌍 ${n} Spiele`), vw_world_lbl: "alle Spieler", vw_vs: "gegen",
+    vw_avg: "Durchschnittsscore", vw_prev: (d) => `letzte Woche ${d}`, vw_win: "Gewonnen", vw_att: "Versuche pro Sieg", vw_lower: "weniger ist besser",
+    vw_first: "Gleich beim ersten Versuch", vw_p90: "Score 90+", vw_fd: "1. Tipp daneben um", vw_median: "Median", vw_yr: " J.", vw_hint: "Spiele mit Hinweis", vw_days: "Tage pro Spieler",
+    vw_of7: "von 7", vw_late: "Nachgeholte Spiele", vw_hard: (d, v) => `${d}: schwerster Tag der Welt (${v})`,
+    vw_day: (d, tv, wv) => `${d} · Team ${tv ?? "—"} · Welt ${wv ?? "—"}`, vw_leg_team: "Team", vw_leg_world: "Welt",
+    vw_chart: "Durchschnittsscore pro Tag, Team gegen Welt",
     lb_wk_live_note: "Zwischenstand — schließt in",
     lb_wk_formula: "Punktzahl = Summe deiner Tagesscores + 25 Bonuspunkte pro Tagessieg.",
     aw_title: "Wochenpreise", aw_title_live: "Wochenpreise bisher",
@@ -1173,6 +1191,12 @@ const I18N = {
     lb_wk_punten: "puntos",
     lb_recap_head: "La semana pasada",
     lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana", lb_pop_prev: "Paso anterior", lb_pop_next: "Paso siguiente",
+    vw_title: "Contra el mundo", vw_world: (p, n) => (p ? `🌍 ${p} jugadores, incluidos los ocasionales` : `🌍 ${n} partidas`), vw_world_lbl: "todos los jugadores", vw_vs: "contra",
+    vw_avg: "puntuación media", vw_prev: (d) => `la semana pasada ${d}`, vw_win: "Ganadas", vw_att: "Intentos por victoria", vw_lower: "menos es mejor",
+    vw_first: "A la primera", vw_p90: "Puntuación 90+", vw_fd: "1.er intento falló por", vw_median: "mediana", vw_yr: " a.", vw_hint: "Partidas con pista", vw_days: "Días por jugador",
+    vw_of7: "de 7", vw_late: "Partidas recuperadas", vw_hard: (d, v) => `${d}: el día más duro del mundo (${v})`,
+    vw_day: (d, tv, wv) => `${d} · equipo ${tv ?? "—"} · mundo ${wv ?? "—"}`, vw_leg_team: "equipo", vw_leg_world: "mundo",
+    vw_chart: "Puntuación media por día, equipo contra mundo",
     lb_wk_live_note: "Clasificación en curso — se cierra en",
     lb_wk_formula: "Puntuación = suma de tus puntuaciones diarias + 25 puntos extra por victoria diaria.",
     aw_title: "Premios de la semana", aw_title_live: "Premios de la semana hasta ahora",
@@ -1489,6 +1513,12 @@ const I18N = {
     lb_wk_punten: "pontos",
     lb_recap_head: "Semana passada",
     lb_pop_continue: "Continuar", lb_pop_live: "Ver esta semana", lb_pop_prev: "Passo anterior", lb_pop_next: "Próximo passo",
+    vw_title: "Contra o mundo", vw_world: (p, n) => (p ? `🌍 ${p} jogadores, incluindo os ocasionais` : `🌍 ${n} jogos`), vw_world_lbl: "todos os jogadores", vw_vs: "contra",
+    vw_avg: "pontuação média", vw_prev: (d) => `semana passada ${d}`, vw_win: "Vencidos", vw_att: "Tentativas por vitória", vw_lower: "menos é melhor",
+    vw_first: "De primeira", vw_p90: "Pontuação 90+", vw_fd: "1.º palpite errou por", vw_median: "mediana", vw_yr: " a.", vw_hint: "Jogos com dica", vw_days: "Dias por jogador",
+    vw_of7: "de 7", vw_late: "Jogos recuperados", vw_hard: (d, v) => `${d}: o dia mais difícil do mundo (${v})`,
+    vw_day: (d, tv, wv) => `${d} · equipe ${tv ?? "—"} · mundo ${wv ?? "—"}`, vw_leg_team: "equipe", vw_leg_world: "mundo",
+    vw_chart: "Pontuação média por dia, equipe contra mundo",
     lb_wk_live_note: "Parcial — fecha em",
     lb_wk_formula: "Pontuação = soma das suas pontuações diárias + 25 pontos extras por vitória diária.",
     aw_title: "Prêmios da semana", aw_title_live: "Prêmios da semana até agora",
@@ -5373,7 +5403,7 @@ async function loadPodium() {
   let rows = [];
   const awardsP = fetchWeekAwards(myPool.id, lbWeekStart);   // parallel met het podium; mislukt → geen blok
   try { rows = await rpc("get_pool_week_podium", { p_pool_id: myPool.id, p_week_start: lbWeekStart }); } catch (e) {}
-  const awards = await awardsP;
+  const awards = await awardsP, vs = await vsP;
   if (req !== lbWkReq || document.getElementById("modal-leaderboard").hidden) return;
   rows = Array.isArray(rows) ? rows : [];
   setBoard(content, podiumHtml(rows, isLive, awards));
@@ -5542,6 +5572,117 @@ async function fetchWeekAwards(poolId, weekStart) {
 function weekdayName(dateKey) {
   try { return new Intl.DateTimeFormat(LANGS[lang].intl, { weekday: "long", timeZone: "UTC" }).format(new Date(`${dateKey}T00:00:00Z`)); }
   catch (e) { return String(dateKey || ""); }
+}
+// ── Team tegen de wereld: stap 3 van de maandag-pop-up ──────────────────────────────────────────────────────────
+// Teamgemiddelden van een gesloten week naast die van álle spelers (get_pool_week_vs_world, db/81). Alleen aggregaten, nooit
+// iets per speler. Groen ▲ als het team beter is, roze ▼ als het slechter is (ook als dat niet leuk is); "ingehaald" krijgt geen
+// oordeel. Mislukt de RPC (of staat db/81 er nog niet), dan verschijnt de stap gewoon niet.
+const VW_ROWS = [   // better: 1 = hoger is beter, -1 = lager is beter; scale = typische spreiding, om rijen onderling te vergelijken
+  { k: "win", label: "vw_win", dec: 0, suf: "%", better: 1, scale: 15 },
+  { k: "att", label: "vw_att", sub: "vw_lower", dec: 1, suf: "", better: -1, scale: 1 },
+  { k: "first_try", label: "vw_first", dec: 0, suf: "%", better: 1, scale: 15 },
+  { k: "p90", label: "vw_p90", dec: 0, suf: "%", better: 1, scale: 15 },
+  { k: "fd", label: "vw_fd", sub: "vw_median", dec: 0, suf: "yr", better: -1, scale: 10 },
+  { k: "hint", label: "vw_hint", dec: 0, suf: "%", better: -1, scale: 20 },
+];
+const VW_FIXED = [   // altijd erbij, onderaan
+  { k: "days", label: "vw_days", sub: "vw_of7", dec: 1, suf: "", better: 1, scale: 2 },
+  { k: "late", label: "vw_late", dec: 0, suf: "%", better: 0, scale: 10 },
+];
+async function fetchWeekVsWorld(poolId, weekStart) {
+  try {
+    const r = await rpc("get_pool_week_vs_world", { p_pool_id: poolId, p_week_start: weekStart });
+    return r && r.cur && r.cur.team && r.cur.world ? r : null;
+  } catch (e) { return null; }
+}
+function weekdayShort(dateKey) {
+  try { return new Intl.DateTimeFormat(LANGS[lang].intl, { weekday: "short", timeZone: "UTC" }).format(new Date(`${dateKey}T00:00:00Z`)).replace(/\.$/, ""); }
+  catch (e) { return String(dateKey || ""); }
+}
+// Opgemaakt getal in de taal van de speler; signed zet er +/− voor (het teken van signOf, standaard van v zelf).
+function vwNum(v, dec, signed, signOf) {
+  const n = Number(v), sg = signOf == null ? n : Number(signOf);
+  const body = Math.abs(n).toLocaleString(LANGS[lang].intl, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  return (signed ? (sg < 0 ? "−" : "+") : "") + body;
+}
+// ▲ groen = team beter, ▼ roze = slechter, ＝ gelijk (op de getoonde decimalen), ↺ = geen oordeel (better 0).
+function vwMarker(better, a, b, dec) {
+  if (!better) return { cls: "neu", sym: "↺" };
+  const x = +Number(a).toFixed(dec), y = +Number(b).toFixed(dec);
+  if (x === y) return { cls: "eq", sym: "＝" };
+  return (x - y) * better > 0 ? { cls: "up", sym: "▲" } : { cls: "down", sym: "▼" };
+}
+// Voorsprong van het team op de wereld in "spreidingen" (positief = beter), zodat percentages, pogingen en jaren vergelijkbaar zijn.
+function vsAdv(r, c) {
+  const a = c?.team?.[r.k], b = c?.world?.[r.k];
+  return a == null || b == null || !r.better ? null : r.better * (Number(a) - Number(b)) / r.scale;
+}
+// Kiest elke week 3 rijen uit VW_ROWS: de grootste voorsprong, de grootste verandering t.o.v. vorige week en een rij waar het team
+// onder de wereld zit (als die er is); daarna aanvullen tot 3. Vaste volgorde. De twee vaste rijen (dagen, ingehaald) komen eronder.
+function pickVsRows(cur, prev) {
+  const cand = VW_ROWS.map((r) => ({ r, adv: vsAdv(r, cur), prev: vsAdv(r, prev) })).filter((x) => x.adv != null);
+  const chosen = [];
+  const free = () => cand.filter((x) => !chosen.includes(x));
+  const take = (x) => { if (x && chosen.length < 3) chosen.push(x); };
+  take(free().sort((a, b) => b.adv - a.adv)[0]);
+  take(free().filter((x) => x.prev != null).sort((a, b) => Math.abs(b.adv - b.prev) - Math.abs(a.adv - a.prev))[0]);
+  take(free().filter((x) => x.adv < 0).sort((a, b) => a.adv - b.adv)[0]);
+  free().sort((a, b) => b.adv - a.adv).forEach(take);
+  return VW_ROWS.filter((r) => chosen.some((x) => x.r === r))
+    .concat(VW_FIXED.filter((r) => cur?.team?.[r.k] != null && cur?.world?.[r.k] != null));
+}
+function vsWorldHtml(vs, poolName) {
+  const cur = vs?.cur;
+  if (!cur || cur.team?.score == null || cur.world?.score == null) return "";
+  const num = (v, dec, o = {}) => `<b class="vw-n${o.cls ? " " + o.cls : ""}" data-v="${Number(v)}" data-d="${dec}"${o.suf ? ` data-s="${escHtml(o.suf)}"` : ""}${o.sg ? ` data-sg="1"` : ""}>` +
+    `${escHtml(vwNum(v, dec, o.sg))}${escHtml(o.suf || "")}</b>`;
+  const tS = Number(cur.team.score), wS = Number(cur.world.score), diff = tS - wS, mk = vwMarker(1, tS, wS, 1);
+  const pr = vs.prev, prevDiff = pr?.team?.score != null && pr?.world?.score != null ? Number(pr.team.score) - Number(pr.world.score) : null;
+  const daily = Array.isArray(cur.daily) ? cur.daily : [];
+  const hard = daily.reduce((m, d, i) => (d.w != null && (m < 0 || Number(d.w) < Number(daily[m].w)) ? i : m), -1);
+  const cols = daily.map((d, i) => {
+    const day = weekdayShort(d.d), tv = d.t == null ? null : Number(d.t), wv = d.w == null ? null : Number(d.w);
+    const msg = t("vw_day")(day, tv == null ? null : vwNum(tv, 1), wv == null ? null : vwNum(wv, 1));
+    return `<button type="button" class="vw-col${i === hard ? " hard" : ""}" data-msg="${escHtml(msg)}" aria-label="${escHtml(msg)}">` +
+      `<span class="vw-bars"><i class="b t${tv == null ? " none" : ""}" style="--h:${tv == null ? 0 : tv}%"></i><i class="b w" style="--h:${wv == null ? 0 : wv}%"></i></span>` +
+      `<span class="vw-d">${escHtml(day)}</span></button>`;
+  }).join("");
+  const hardMsg = hard >= 0 ? t("vw_hard")(weekdayShort(daily[hard].d), vwNum(daily[hard].w, 1)) : "";
+  const rows = pickVsRows(cur, vs.prev).map((r) => {
+    const a = cur.team[r.k], b = cur.world[r.k], m = vwMarker(r.better, a, b, r.dec);
+    const suf = r.suf === "yr" ? t("vw_yr") : r.suf, cls = m.cls === "up" ? "good" : m.cls === "down" ? "bad" : "even";
+    return `<div class="vw-r"><span class="vw-l">${escHtml(t(r.label))}${r.sub ? `<small>${escHtml(t(r.sub))}</small>` : ""}</span>` +
+      num(a, r.dec, { cls: "vt " + cls, suf }) + num(b, r.dec, { cls: "vwd", suf }) + `<i class="vw-mk ${m.cls}" aria-hidden="true">${m.sym}</i></div>`;
+  }).join("");
+  return `<div class="vw">` +
+    `<div class="lb-aw-t"><span>${escHtml(t("vw_title"))}</span><small>${escHtml(t("vw_world")(cur.world.players, cur.world.n))}</small></div>` +
+    `<div class="vw-hero"><div class="vw-h t">${num(tS, 1)}<span>${escHtml(poolName || "")}</span></div><div class="vw-vs">${escHtml(t("vw_vs"))}</div>` +
+    `<div class="vw-h w">${num(wS, 1)}<span>🌍 ${escHtml(t("vw_world_lbl"))}</span></div></div>` +
+    `<div class="vw-note">${escHtml(t("vw_avg"))} · <em class="vw-mk ${mk.cls}"><span aria-hidden="true">${mk.sym}</span> ${num(diff, 1, { sg: true })}</em>` +
+    (prevDiff != null ? ` <span class="vw-prev">${escHtml(t("vw_prev")(vwNum(prevDiff, 1, true)))}</span>` : "") + `</div>` +
+    (daily.length ? `<div class="vw-chart" role="group" aria-label="${escHtml(t("vw_chart"))}"><div class="vw-plot"><span class="vw-ax a100">100</span><span class="vw-ax a50">50</span>${cols}</div></div>` +
+      `<div class="vw-cap" aria-live="polite"><span class="lg t"></span>${escHtml(t("vw_leg_team"))}<span class="lg w"></span>${escHtml(t("vw_leg_world"))}` +
+      `<span class="vw-sel" data-def="${escHtml(hardMsg)}">${escHtml(hardMsg)}</span></div>` : "") +
+    rows + `</div>`;
+}
+let podiumPopRaf = 0;
+// De getallen tellen op van 0 en de staafjes groeien zodra de stap in beeld komt (bij prefers-reduced-motion staat alles er meteen).
+function vwReveal(vw, reduced) {
+  vw.classList.remove("go"); void vw.offsetWidth; vw.classList.add("go");
+  if (reduced) return;
+  const els = [...vw.querySelectorAll(".vw-n")], t0 = performance.now(), dur = 950;
+  const paint = (k) => els.forEach((e) => {
+    const target = +e.dataset.v;
+    e.textContent = vwNum(Math.abs(target) * k, +e.dataset.d, !!e.dataset.sg, target) + (e.dataset.s || "");
+  });
+  cancelAnimationFrame(podiumPopRaf);
+  paint(0);
+  const tick = (now) => {
+    const k = Math.min(1, (now - t0) / dur);
+    paint(1 - Math.pow(1 - k, 3));
+    if (k < 1) podiumPopRaf = requestAnimationFrame(tick);
+  };
+  podiumPopRaf = requestAnimationFrame(tick);
 }
 function awardTexts(a) {
   const d = a.detail || {};
@@ -7733,11 +7874,12 @@ async function refreshWeekPodiumResult() {
   const deeplinked = !!(pendingJoinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap);
   let rows = [];
   const awardsP = fetchWeekAwards(myPool.id, lastDone);   // de weekprijzen van dezelfde week; mislukt → pop-up zonder blok
+  const vsP = fetchWeekVsWorld(myPool.id, lastDone);      // team tegen de wereld (stap 3); mislukt → pop-up zonder die stap
   try { rows = await rpc("get_pending_podium", { p_pool_id: myPool.id }) || []; }
   catch (e) { podiumPendingReq = null; }   // netwerk-hik → volgende auth-event mag het opnieuw proberen
   const awards = await awardsP;
   if (!Array.isArray(rows) || !rows.length) { weekPodiumResult = null; renderPodiumDot(); return; }
-  weekPodiumResult = { weekStart: rows[0].week_start || lastDone, poolId: myPool.id, poolName: myPool.name, rows, awards };
+  weekPodiumResult = { weekStart: rows[0].week_start || lastDone, poolId: myPool.id, poolName: myPool.name, rows, awards, vs };
   renderPodiumDot();
   if (!deeplinked && rows.some((r) => r.is_me)) showPodiumPopup();
 }
@@ -7757,9 +7899,9 @@ function showPodiumPopup() {
   if (!res || document.getElementById("modal-podium-pop")) return;
   if (document.querySelector(".modal:not([hidden])")) return;   // ander scherm open → stip blijft
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // Stap 1 = de uitslag (podium + rest van de stand), stap 2 = de weekprijzen; zonder prijzen blijft het één scherm. Ruimte voor een stap 3.
+  // Stap 1 = de uitslag (podium + rest van de stand), stap 2 = de weekprijzen, stap 3 = team tegen de wereld; stappen zonder inhoud vallen weg.
   const parts = podiumParts(res.rows, false, res.awards, true);
-  const steps = parts.all != null ? [parts.all] : [parts.stage + parts.note + parts.rest, parts.awards].filter(Boolean);
+  const steps = parts.all != null ? [parts.all] : [parts.stage + parts.note + parts.rest, parts.awards, vsWorldHtml(res.vs, res.poolName)].filter(Boolean);
   const el = document.createElement("div");
   el.id = "modal-podium-pop";
   el.className = "modal podpop night night-b" + (reduced ? "" : " podpop-anim");   // nachtpaars-schil (kroning-look); night-b = donkerpaarse sokkels met metalen rand — zonder night-b zijn het de metalen sokkels (variant A)
@@ -7791,6 +7933,8 @@ function showPodiumPopup() {
   const revealStep = (n) => {   // de prijzen komen één voor één binnen, als de sokkels
     const items = [...el.querySelectorAll(`.podpop-step[data-step="${n}"] .lb-aw`)];
     el.querySelector(`.podpop-step[data-step="${n}"] .lb-wk-awards`)?.classList.add("in");
+    const vw = el.querySelector(`.podpop-step[data-step="${n}"] .vw`);
+    if (vw) vwReveal(vw, reduced);
     items.forEach((li, i) => reduced ? li.classList.add("in") : at(120 + 110 * i, () => li.classList.add("in")));
   };
   const goStep = (n) => {
@@ -7811,6 +7955,14 @@ function showPodiumPopup() {
   el.querySelector(".podpop-go").addEventListener("click", () => { if (step < steps.length - 1) goStep(step + 1); else closeAllModals(); });
   el.querySelectorAll(".podpop-dot").forEach((d) => d.addEventListener("click", () => goStep(+d.dataset.to)));
   el.querySelectorAll(".podpop-arrow").forEach((a) => a.addEventListener("click", () => goStep(step + +a.dataset.dir)));
+  el.addEventListener("click", (e) => {   // een dag aantikken toont team en wereld van die dag; nog eens tikken zet de standaardregel terug
+    const col = e.target.closest?.(".vw-col"), sel = el.querySelector(".vw-sel");
+    if (!col || !sel) return;
+    const was = col.classList.contains("sel");
+    el.querySelectorAll(".vw-col.sel").forEach((c) => c.classList.remove("sel"));
+    if (was) sel.textContent = sel.dataset.def || "";
+    else { col.classList.add("sel"); sel.textContent = col.dataset.msg || ""; }
+  });
   if (steps.length > 1) {
     podiumPopKey = (e) => {   // ←/→ door de stappen, zolang de pop-up open is (de spel-toetsen zijn dan toch uitgeschakeld)
       if ((e.key !== "ArrowLeft" && e.key !== "ArrowRight") || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -7868,6 +8020,7 @@ function podiumPopClosed() {
   if (!el || !el.hidden) return;
   if (podiumPopKey) { document.removeEventListener("keydown", podiumPopKey); podiumPopKey = null; }
   podiumPopTimers.forEach(clearTimeout); podiumPopTimers = [];
+  cancelAnimationFrame(podiumPopRaf);
   stopPodiumConfetti();
   const ws = el.dataset.week;
   el.remove();
