@@ -58,6 +58,7 @@ src += `
   recapAccountHtml, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
   setState: (s) => { state = s; },
+  fmtDailyDate, fmtHistoryDate,
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1128,4 +1129,20 @@ test("recapAccountHtml — Google-knop als hoofdactie, 'of met e-mail' als link 
     assert.ok(!h.includes("undefined"), `${l}: geen ontbrekende sleutel`);
   }
   T.setLang("nl");
+});
+
+test("fmtDailyDate / fmtHistoryDate — een datumsleutel blijft dezelfde kalenderdag in elke tijdzone (New York zag 4 okt voor 5 okt)", () => {
+  const saved = process.env.TZ;
+  try {
+    T.setLang("en");
+    for (const tz of ["Europe/Amsterdam", "America/New_York", "America/Sao_Paulo", "Pacific/Auckland", "UTC"]) {
+      process.env.TZ = tz;
+      assert.equal(T.fmtDailyDate("2026-10-05"), "5 Oct", tz);
+      assert.equal(T.fmtHistoryDate("2026-10-05"), "5 Oct 2026", tz);
+      assert.equal(T.fmtDailyDate("2026-01-01"), "1 Jan", tz);   // jaargrens
+    }
+  } finally {
+    if (saved === undefined) delete process.env.TZ; else process.env.TZ = saved;
+    T.setLang("nl");
+  }
 });

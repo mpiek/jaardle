@@ -4951,8 +4951,8 @@ async function saveUsername(name) {
 // "YYYY-MM-DD" → korte gelokaliseerde datum (bv. "12 jun" / "12 Jun") voor de daily-kop.
 function fmtDailyDate(key) {
   const [y, m, d] = key.split("-").map(Number);
-  return new Intl.DateTimeFormat(LANGS[lang].intl, { day: "numeric", month: "short" })
-    .format(new Date(Date.UTC(y, m - 1, d)));
+  return new Intl.DateTimeFormat(LANGS[lang].intl, { day: "numeric", month: "short", timeZone: "UTC" })
+    .format(new Date(Date.UTC(y, m - 1, d)));   // timeZone UTC: de sleutel is een kalenderdatum, geen moment (anders staat New York een dag eerder)
 }
 
 // "YYYY-MM-DD" ± n dagen → nieuwe sleutel (UTC, dus geen DST-verschuiving).
@@ -8846,8 +8846,8 @@ async function reconcileDailyProgressRun() {
 // die (anders dan de daily-kop) over meerdere jaren kan lopen.
 function fmtHistoryDate(key) {
   const [y, m, d] = key.split("-").map(Number);
-  return new Intl.DateTimeFormat(LANGS[lang].intl, { day: "numeric", month: "short", year: "numeric" })
-    .format(new Date(Date.UTC(y, m - 1, d)));
+  return new Intl.DateTimeFormat(LANGS[lang].intl, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+    .format(new Date(Date.UTC(y, m - 1, d)));   // zie fmtDailyDate: timeZone UTC
 }
 
 // 📅 Geschiedenis-modal: lijst van gespeelde dailies (nieuwste eerst) → klik op een
