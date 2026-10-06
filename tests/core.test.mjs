@@ -53,7 +53,7 @@ src += `
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   ACHV_SERIES, ACHV_TIER_KEYS, CAPSTONE_MAX, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
-  parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
+  parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   recapAccountHtml, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
@@ -1200,6 +1200,47 @@ test("beweging van een flair-effect volgt de emoji's: rang 1 en het kluis-voorbe
     assert.match(T.flairBadgeHtml("🔥~glow", 1), /fl-still/);
     assert.match(T.flairBadgeHtml("🔥~glow", 0, true), /fl-still/);
   } finally { globalThis.matchMedia = was; }
+});
+
+test("onFlairAnimReady — het hover-voorproefje wisselt pas als de animatie helemaal binnen is (geen leeg vakje / alt-tekst-sprong)", async () => {
+  const was = globalThis.Image, made = [];
+  globalThis.Image = class {
+    constructor() { this.complete = false; this.naturalWidth = 0; this.waiting = []; made.push(this); }
+    decode() { return new Promise((ok, no) => this.waiting.push({ ok, no })); }   // elke aanroep krijgt z'n eigen belofte, net als in de browser
+    load() { this.complete = true; this.naturalWidth = 96; this.waiting.forEach((w) => w.ok()); }
+    fail() { this.waiting.forEach((w) => w.no(new Error("EncodingError"))); }
+  };
+  const tick = () => new Promise((r) => setTimeout(r, 0));
+  try {
+    const got = [];
+    T.onFlairAnimReady("🦁", () => got.push("a"));
+    assert.deepEqual(got, [], "nog niet binnen: het statische teken blijft staan");
+    assert.equal(made.length, 1);
+    assert.match(made[0].src, /^\/emoji\/flair-lion\.webp$/);
+    T.onFlairAnimReady("🦁", () => got.push("a2"));   // tweede hover terwijl hij nog laadt: geen tweede download
+    assert.equal(made.length, 1);
+    made[0].load(); await tick();
+    assert.deepEqual(got, ["a", "a2"], "binnen: beide wachtende hovers wisselen");
+    T.onFlairAnimReady("🦁", () => got.push("b"));
+    assert.deepEqual(got.slice(2), ["b"], "volgende keer synchroon: het bestand zit in het geheugen");
+    assert.equal(made.length, 1);
+    // geen webp (🎩/🦫/🐷 = CSS-cheer): niets te wachten, niets te laden
+    T.onFlairAnimReady("🦫", () => got.push("c"));
+    assert.deepEqual(got.slice(3), ["c"]);
+    assert.equal(made.length, 1);
+    // laden mislukt: nooit wisselen, en de volgende hover probeert opnieuw
+    T.onFlairAnimReady("🐙", () => got.push("d"));
+    made[1].fail(); await tick();
+    assert.deepEqual(got.slice(4), [], "mislukt: het statische teken blijft");
+    T.onFlairAnimReady("🐙", () => got.push("e"));
+    assert.equal(made.length, 3, "nieuwe poging met een verse <img>");
+    made[2].load(); await tick();
+    assert.deepEqual(got.slice(4), ["e"]);
+    // wel geladen maar decode() weigert (sommige browsers): toch wisselen
+    T.onFlairAnimReady("🐼", () => got.push("f"));
+    made[3].complete = true; made[3].naturalWidth = 96; made[3].fail(); await tick();
+    assert.deepEqual(got.slice(5), ["f"]);
+  } finally { globalThis.Image = was; }
 });
 
 test("FLAIR_FX — elke registry-rij heeft reward, volgorde, naam in alle talen en een geldige prestatie-koppeling", () => {

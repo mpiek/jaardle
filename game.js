@@ -4821,17 +4821,41 @@ function flairPreviewHtml(flair) {
     : `<span class="flair-fake-anim">${escHtml(flair)}</span>`;
 }
 
+// Roept `cb` aan zodra de animatie van een flair helemaal binnen én gedecodeerd is (meteen als dat al zo is, of als de flair
+// geen webp heeft: 🎩/🦫/🐷 zijn een CSS-cheer). De hover-voorproefjes wisselen pas dán van het statische teken naar de animatie.
+// Wisselen ze direct, dan ziet alleen de éérste hover van een flair er stuk uit (daarna zit het bestand in het geheugen): Firefox
+// tekent de alt-tekst van het nog ladende plaatje, dus het emoji-teken zelf, verschoven en afgeknipt in het 1,25em-vakje (een
+// sprongetje rechtsonder), Chrome laat het vakje leeg, en een half binnengekomen webp speelt z'n eerste frames stotterend. De <img>
+// per bestand blijft in de Map staan, zodat het resultaat vastgehouden wordt en elke volgende hover synchroon loopt. Mislukt het
+// laden (offline), dan blijft het statische teken gewoon staan.
+const flairAnimLoaded = new Map();
+function onFlairAnimReady(flair, cb) {
+  const file = FLAIR_ANIM[flair];
+  if (!file) { cb(); return; }
+  let img = flairAnimLoaded.get(file);
+  if (img && img.complete && img.naturalWidth) { cb(); return; }
+  if (!img) { img = new Image(); img.src = `/emoji/${file}.webp`; flairAnimLoaded.set(file, img); }
+  img.decode().then(cb, () => {
+    if (img.complete && img.naturalWidth) { cb(); return; }                  // wel geladen, maar decode() weigert (sommige browsers): gewoon wisselen
+    if (flairAnimLoaded.get(file) === img) flairAnimLoaded.delete(file);   // echt mislukt: de volgende hover probeert opnieuw
+  });
+}
+
 // Hover over een flair-badge op een bord (of de teamstand in de recap) →
 // animatie-voorproefje. Gedelegeerd op document: de borden re-renderen vaak.
 // Rang 1 heeft al een permanente animatie in de badge en blijft af.
+// `dataset.preview` = "de muis staat erop"; de animatie wisselt erin zodra hij binnen is (onFlairAnimReady).
 document.addEventListener("mouseover", (e) => {
   if (!(e.target instanceof Element)) return;
   const b = e.target.closest(".lb-flair-badge[data-flair]");
-  if (!b || b.contains(e.relatedTarget) || b.querySelector(".emoji-anim, .flair-fake-anim")) return;
+  if (!b || b.contains(e.relatedTarget) || b.dataset.preview || b.querySelector(".emoji-anim, .flair-fake-anim")) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   b.dataset.preview = "1";
-  b.innerHTML = flairPreviewHtml(b.dataset.flair);
-  b.classList.remove("fl-still");   // beweegt de flair, dan beweegt het effect mee
+  onFlairAnimReady(b.dataset.flair, () => {
+    if (!b.dataset.preview || b.querySelector(".emoji-anim, .flair-fake-anim")) return;   // muis alweer weg, of al gewisseld
+    b.innerHTML = flairPreviewHtml(b.dataset.flair);
+    b.classList.remove("fl-still");   // beweegt de flair, dan beweegt het effect mee
+  });
 });
 document.addEventListener("mouseout", (e) => {
   if (!(e.target instanceof Element)) return;
@@ -5085,8 +5109,9 @@ async function renderStatBoard() {
 // Desktop-suiker; op touch bestaat hover niet.
 function wireFlairPreview(el, flair) {
   if (!flair || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  el.onmouseenter = () => { el.innerHTML = flairPreviewHtml(flair); };
-  el.onmouseleave = () => { el.textContent = flair; };
+  let over = false;   // de animatie wisselt pas als hij binnen is (onFlairAnimReady); is de muis dan al weg, dan blijft het teken staan
+  el.onmouseenter = () => { over = true; onFlairAnimReady(flair, () => { if (over) el.innerHTML = flairPreviewHtml(flair); }); };
+  el.onmouseleave = () => { over = false; el.textContent = flair; };
 }
 
 function nameEditorHtml() {
@@ -11568,12 +11593,22 @@ async function init() {
   // Hover laat de 🎲 dóórrollen: wissel de eenmalige die-once.webp voor de
   // loopende flair-die.webp en terug. Zo blijft de rustende knop stil (geen
   // eeuwige beweging) maar nodigt de rol-animatie uit zodra je 'm aanwijst.
+  // De wissel komt pas als flair-die.webp (FLAIR_ANIM["🎲"]) helemaal binnen is (onFlairAnimReady), anders speelt de
+  // eerste hover de beginframes stotterend terwijl de rest nog binnendruppelt.
+  let nextOver = false, dieRolling = false;
+  const dieImg = () => els.nextBtn.querySelector('img.emoji-anim[alt="🎲"]');
   els.nextBtn.addEventListener("mouseenter", () => {
-    const img = els.nextBtn.querySelector('img.emoji-anim[alt="🎲"]');
-    if (img) img.src = "/emoji/flair-die.webp";
+    nextOver = true;
+    if (!dieImg()) return;   // minder beweging: gewoon het teken, niets te laden
+    onFlairAnimReady("🎲", () => {
+      const img = nextOver && dieImg();
+      if (img) { img.src = `/emoji/${FLAIR_ANIM["🎲"]}.webp`; dieRolling = true; }
+    });
   });
   els.nextBtn.addEventListener("mouseleave", () => {
-    const img = els.nextBtn.querySelector('img.emoji-anim[alt="🎲"]');
+    nextOver = false;
+    const img = dieRolling && dieImg();   // alleen terugzetten als hij echt rolt (langs de knop vegen zet niets in beweging)
+    dieRolling = false;
     if (img) img.src = "/emoji/die-once.webp";
   });
   if (els.recapBtn) els.recapBtn.addEventListener("click", () => openDailyRecap());
