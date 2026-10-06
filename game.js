@@ -4357,6 +4357,32 @@ function sendFeedback(ctx, vote, reason) {
   }).catch(() => {});
 }
 
+// Hartjes die uit het 👍 opstijgen: een kleine beloning voor wie stemt. Eén keer (~1,5 s), 9 elementen, puur CSS
+// (transform/opacity) in een eigen vaste laag, want .fun-prompt knipt zijn inhoud af (overflow hidden voor het dichtklappen).
+// De stem is eenmalig per apparaat en de hartjes zie je pas ná je keuze, dus ze kleuren de eerste stem niet.
+function funHearts(anchor) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = anchor.getBoundingClientRect();
+  const layer = document.createElement("div");
+  layer.className = "fun-hearts";
+  layer.setAttribute("aria-hidden", "true");
+  layer.style.left = `${Math.round(r.left + r.width / 2)}px`;
+  layer.style.top = `${Math.round(r.top + r.height / 2)}px`;
+  const kinds = ["❤️", "💛", "🧡", "💖"];
+  for (let i = 0; i < 9; i++) {
+    const h = document.createElement("span");
+    h.textContent = kinds[i % kinds.length];
+    h.style.setProperty("--dx", `${Math.round((Math.random() - 0.5) * 96)}px`);
+    h.style.setProperty("--dy", `${-Math.round(90 + Math.random() * 90)}px`);
+    h.style.setProperty("--d", `${(1.1 + Math.random() * 0.5).toFixed(2)}s`);
+    h.style.animationDelay = `${(i * 0.07).toFixed(2)}s`;
+    h.style.fontSize = `${(0.95 + Math.random() * 0.7).toFixed(2)}rem`;
+    layer.append(h);
+  }
+  document.body.append(layer);
+  setTimeout(() => layer.remove(), 2400);
+}
+
 function renderFunPrompt() {
   const st = funLoad();
   const hash = state.hashes?.[0];
@@ -4395,7 +4421,7 @@ function renderFunPrompt() {
   const vote = (v) => {
     funSave({ ...funLoad(), done: true });
     sendFeedback(ctx, v, null);
-    if (v > 0) return thanks();
+    if (v > 0) { funHearts(up); return thanks(); }
     // 👎: de stem is al opgeslagen; een reden is een bonus, geen verplichting.
     box.replaceChildren(label(t("fun_why"), "fun-why"));
     FUN_REASONS.forEach((r) => {
