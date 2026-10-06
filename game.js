@@ -6612,7 +6612,10 @@ function recapDistHtml(buckets, stats, scoreRank, room) {
   const avgX = avg != null ? xOf(avg).toFixed(1) : null;
   const avgLine = avgX != null ? `<span class="hist-avg-line" style="left:${avgX}%"></span>` : "";
   const avgLabel = avgX != null ? `<span class="hist-avg-label" style="left:${avgX}%">${t("recap_avg_short")}</span>` : "";
-  const pin = `<div class="hist-pinrow">${avgLabel}<span class="${pinCls}"${pinStyle}>${t("recap_you")} · ${score} ${tier.emoji}</span></div>`;
+  // Pin: jouw flair + score (de medaille staat al in de tegel erboven); zonder flair (of anoniem) de tekst "jij".
+  const myEmoji = auth.user ? parseFlair(myFlair).emoji : "";
+  const pinLabel = myEmoji ? `${escHtml(myEmoji)} ${score}` : `${t("recap_you")} · ${score}`;
+  const pin = `<div class="hist-pinrow">${avgLabel}<span class="${pinCls}"${pinStyle}>${pinLabel}</span></div>`;
   // Detailregel: standaard jouw eigen staaf.
   const detail = `<p class="hist-detail" aria-live="polite">${rangeOf(bars[mine])} · ${t("recap_bin_players")(bars[mine].count)}</p>`;
   return `<section class="recap-section">${head}${tiles}${pin}<div class="hist${room ? " hist-roomy" : ""}" style="${cols};--n:${n}">${barsHtml}${avgLine}${meLine}</div><div class="hist-axis" style="${cols}">${labels}</div>${detail}</section>`;
@@ -6627,6 +6630,7 @@ async function renderRecap() {
   const [dist, stats, streak, scoreRank] = await Promise.all([
     fetchGlobalScoreDist(), fetchFactStatsSafe(), streakLineInfo(state.won), fetchScoreRankSafe(),
     auth.user && !myPoolsOk ? fetchMyPools() : null,
+    auth.user ? ensureMyIdentity() : null,   // je flair staat in de pin; liever vóór het eerste tekenen dan erna
   ]);
   if (document.getElementById("modal-recap").hidden) return;
   const teamRoom = !!auth.user && myPools.some((p) => (p.members || 0) >= 2);
