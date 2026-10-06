@@ -1421,6 +1421,21 @@ html[data-theme="light"], html[data-theme="parchment"] {
   gap: 0.45rem;
 }
 #recap-btn[hidden] { display: none; }   /* hidden wint van inline-flex */
+
+/* Duimpje na een potje ("Leuk potje?"): direct onder de knoppen, boven bron en aftelklok; dooft zichzelf en klapt dan zacht
+   dicht (game.js renderFunPrompt). De tikvlakken zijn 44px, het zichtbare deel is klein; de marge erboven houdt ze uit de
+   buurt van "Nog een potje?". */
+.fun-prompt { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.1rem 0.3rem; margin: 0.6rem 0 -0.4rem; max-height: 12rem; overflow: hidden; font-size: 0.85rem; color: var(--muted); transition: opacity 0.4s, max-height 0.5s, margin 0.5s; }
+.fun-prompt.fun-gone { opacity: 0; max-height: 0; margin-top: 0; margin-bottom: 0; }
+.fun-btn, .fun-chip { background: transparent; color: var(--fg); border: 0; border-radius: 999px; }
+.fun-btn { min-width: 2.75rem; min-height: 2.75rem; padding: 0; font-size: 1.1rem; line-height: 1; opacity: 0.8; }
+.fun-chip { min-height: 2.75rem; padding: 0.2rem 0.75rem; font-size: 0.8rem; font-weight: 500; box-shadow: inset 0 0 0 1px var(--border); }
+.fun-btn:hover, .fun-chip:hover { filter: none; background: var(--card-soft); opacity: 1; }
+.fun-btn:focus-visible, .fun-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.fun-thanks { color: var(--green-text); font-weight: 600; }
+/* 👎: het label op een eigen regel, daaronder de redenen (wikkelen vanzelf) */
+.fun-why { flex: 0 0 100%; text-align: center; margin-bottom: 0.2rem; }
+@media (prefers-reduced-motion: reduce) { .fun-prompt { transition: none; } }
 .btn-icon {
   width: 1em;
   height: 1em;

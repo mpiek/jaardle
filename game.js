@@ -217,6 +217,8 @@ const I18N = {
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
+    fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
+    fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord",
@@ -545,6 +547,8 @@ const I18N = {
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
+    fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
+    fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
     lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board",
@@ -866,6 +870,8 @@ const I18N = {
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
+    fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
+    fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
     lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen",
@@ -1191,6 +1197,8 @@ const I18N = {
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
+    fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
+    fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
     lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla",
@@ -1516,6 +1524,8 @@ const I18N = {
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
+    fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
+    fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
     lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela",
@@ -2149,6 +2159,40 @@ function clientId() {
   } catch (e) {
     return null;   // privémodus of geblokkeerde opslag → geen id, potje telt gewoon mee
   }
+}
+
+// Teller (GoatCounter-event, cookieloos): dezelfde mechaniek als hwCount, voor meetpunten buiten de uitleg.
+function gcCount(path, title) {
+  try { window.goatcounter?.count?.({ path, title, event: true }); } catch (e) {}
+}
+
+// Grove herkomst van dit apparaat, één keer bewaard bij het allereerste bezoek: 'direct' | 'listdle' | 'playlin' |
+// 'google' | 'other'. Alleen bedoeld om duimpjes (round_feedback.src) per bron te kunnen vergelijken: geen URL, geen pad.
+// Een apparaat dat er al was toen dit erbij kwam (er staat al iets van jaardle: in localStorage) krijgt "unknown" en gaat
+// als null mee, want zijn echte herkomst is niet meer te weten. Moet in init() vóór al het andere schrijven draaien.
+function acquisitionSource() {
+  try {
+    const KEY = "jaardle:src";
+    let src = localStorage.getItem(KEY);
+    if (!src) {
+      let existing = false;
+      for (let i = 0; i < localStorage.length; i++) {
+        if ((localStorage.key(i) || "").startsWith("jaardle:")) { existing = true; break; }
+      }
+      if (existing) src = "unknown";
+      else {
+        const utm = (new URLSearchParams(location.search).get("utm_source") || "").toLowerCase();
+        let host = "";
+        try { host = document.referrer ? new URL(document.referrer).hostname.toLowerCase() : ""; } catch (e) {}
+        if (/(^|\.)jaardle\.(com|nl)$/.test(host)) host = "";   // doorklikken tussen onze eigen talen is geen herkomst
+        const raw = `${utm} ${host}`;
+        src = /listdle/.test(raw) ? "listdle" : /playlin/.test(raw) ? "playlin" : /(^|[\s.])google\./.test(raw) ? "google"
+          : (utm || host) ? "other" : "direct";
+      }
+      localStorage.setItem(KEY, src);
+    }
+    return src === "unknown" ? null : src;
+  } catch (e) { return null; }
 }
 
 // Uniek id per vrij-spel-pot; gaat mee in save() zodat een herlaad-restore
@@ -4165,6 +4209,8 @@ function finishGame(won, fresh = false) {
   if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
   if (fresh && state.mode === "daily") recordDailyResult(won);
   appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
+  els.result.querySelectorAll(".fun-prompt").forEach((e) => e.remove());   // nooit een stem van een vorig potje laten staan
+  if (fresh) renderFunPrompt();   // duimpje: alleen direct na een echt afgerond potje, niet bij herstel na herladen
   refreshCatchupBar();     // de oranje balk wijst nu de volgende gemiste dag aan
   // Bij een verse pot: eerst de play wegschrijven, DAARNA de globale stats ophalen,
   // zodat je eigen zojuist gespeelde pot meetelt (en bij een fact zonder eerdere
@@ -4287,6 +4333,95 @@ function startDailyCountdown() {
   };
   tick();
   dailyCountdownTimer = setInterval(tick, 1000);
+}
+
+// ── Duimpje na een potje ("Leuk potje?") ─────────────────────────────────────
+// Eén stille regel direct onder de knoppen, boven de bronregel en de aftelklok: 👍/👎, bij 👎 daarna een tik op een reden.
+// Gaat naar round_feedback (db/83), gekoppeld aan het potje (feit, uitslag, pogingen, score) en aan de herkomst van het
+// apparaat, zodat we zien of het spel boeit en bij wie niet. Dooft zichzelf: na één stem nooit meer, en na drie échte
+// vertoningen ook niet. Een vertoning telt pas als hij in beeld was (geen pop-up erboven, minstens half zichtbaar); het
+// event fun-shown-<herkomst> is de noemer voor een responspercentage. Geen pop-up.
+const FUN_KEY = "jaardle:fun";
+const FUN_REASONS = ["too_hard", "too_easy", "boring", "unclear"];
+function funLoad() {
+  try { return { done: false, seen: 0, ...JSON.parse(localStorage.getItem(FUN_KEY) || "{}") }; }
+  catch (e) { return { done: false, seen: 0 }; }
+}
+function funSave(st) { try { localStorage.setItem(FUN_KEY, JSON.stringify(st)); } catch (e) {} }
+
+function sendFeedback(ctx, vote, reason) {
+  return rpc("record_feedback", {
+    p_fact_hash: ctx.hash, p_mode: ctx.mode, p_puzzle_date: ctx.puzzleDate, p_vote: vote, p_reason: reason || null,
+    p_won: ctx.won, p_attempts: ctx.attempts, p_score: ctx.score, p_src: acquisitionSource(), p_lang: lang,
+    p_client_id: clientId(),
+  }).catch(() => {});
+}
+
+function renderFunPrompt() {
+  const st = funLoad();
+  const hash = state.hashes?.[0];
+  if (st.done || st.seen >= 3 || !hash) return;
+  // Alles wat bij dít potje hoort nu vastleggen: een snelle tik op "nog een potje" mag de stem niet aan een ander feit hangen.
+  const ctx = {
+    hash, mode: state.mode, puzzleDate: state.mode === "daily" ? (state.puzzleDate || todayKey()) : null,
+    won: !!state.won, attempts: Math.min(6, Math.max(1, state.guesses.length)), score: computeScore(),
+  };
+  const box = document.createElement("div");
+  box.className = "fun-prompt";
+  box.setAttribute("role", "group");
+  box.setAttribute("aria-label", t("fun_q"));
+  box.setAttribute("aria-live", "polite");
+  const label = (text, extra) => {
+    const el = document.createElement("span");
+    el.className = "fun-q" + (extra ? " " + extra : "");
+    el.textContent = text;
+    return el;
+  };
+  const button = (cls, text, aria) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = cls;
+    b.textContent = text;
+    if (aria) b.setAttribute("aria-label", aria);
+    return b;
+  };
+  const thanks = () => {
+    const el = document.createElement("span");
+    el.className = "fun-thanks";
+    el.textContent = t("fun_thanks");
+    box.replaceChildren(el);
+    setTimeout(() => { box.classList.add("fun-gone"); setTimeout(() => box.remove(), 600); }, 1800);
+  };
+  const vote = (v) => {
+    funSave({ ...funLoad(), done: true });
+    sendFeedback(ctx, v, null);
+    if (v > 0) return thanks();
+    // 👎: de stem is al opgeslagen; een reden is een bonus, geen verplichting.
+    box.replaceChildren(label(t("fun_why"), "fun-why"));
+    FUN_REASONS.forEach((r) => {
+      const chip = button("fun-chip", t("fun_r")[r]);
+      chip.addEventListener("click", () => { sendFeedback(ctx, -1, r); thanks(); });
+      box.append(chip);
+    });
+    box.querySelector(".fun-chip")?.focus({ preventScroll: true });   // de 👎 die focus had is weg; toetsenbordfocus niet kwijtraken
+  };
+  const up = button("fun-btn", "👍", t("fun_up"));
+  const down = button("fun-btn", "👎", t("fun_down"));
+  up.addEventListener("click", () => vote(1));
+  down.addEventListener("click", () => vote(-1));
+  box.append(label(t("fun_q")), up, down);
+  els.source.before(box);   // onder de knoppen, boven bron + aftelklok (die landt via source.after(), dus altijd eronder)
+  // Pas als een vertoning tellen als hij echt in beeld is geweest: geen pop-up erboven, minstens half zichtbaar, tabblad actief.
+  const watch = setInterval(() => {
+    if (!box.isConnected || funLoad().done) return clearInterval(watch);
+    if (document.visibilityState !== "visible" || document.querySelector(".modal:not([hidden])")) return;
+    const r = box.getBoundingClientRect();
+    if (Math.min(r.bottom, innerHeight) - Math.max(r.top, 0) < r.height * 0.5) return;
+    clearInterval(watch);
+    funSave({ ...funLoad(), seen: funLoad().seen + 1 });
+    gcCount("fun-shown-" + (acquisitionSource() || "unknown"), "Fun prompt shown");
+  }, 500);
+  setTimeout(() => clearInterval(watch), 90000);
 }
 
 // --- Inhaal-daily: één oranje balk (3-daags venster) -------------------------
@@ -11150,6 +11285,7 @@ function submitGuess() {
   const diff = state.event.year - year;
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });
+  if (state.guesses.length === 1) gcCount(state.mode === "daily" ? "guess-1-daily" : "guess-1-free", "First guess");   // meetpunt: wie begint echt aan een potje?
   // Snapshot het anker op het gok-moment. Elke gok overschrijft, dus na afloop houdt
   // dit de laatste (bij winst: winnende) gok vast — "welk feit stond open toen ik gokte".
   state.anchorHash = state.hashes?.[anchorFactSlot] || state.hashes?.[0] || null;
@@ -11508,6 +11644,7 @@ function switchMode(mode) {
 }
 
 async function init() {
+  acquisitionSource();   // herkomst vastleggen vóór iets anders in localStorage schrijft
   // Levend kalender-icoontje op de daily-tab: dagnummer van de puzzeldag.
   const tabCal = document.getElementById("tab-cal");
   if (tabCal) {
@@ -11583,8 +11720,9 @@ async function init() {
       if (els.hintBtnDigit && !els.hintBtnDigit.hidden) { requestLastDigit(); e.preventDefault(); }
     }
   });
-  els.shareBtn.addEventListener("click", () => doShare(els.shareBtn));
+  els.shareBtn.addEventListener("click", () => { gcCount("end-share", "End: share"); doShare(els.shareBtn); });
   els.nextBtn.addEventListener("click", () => {
+    gcCount("end-next", "End: next round");
     // Vanuit de daily wisselt het tabblad mee en loopt een onafgemaakt vrij spel
     // gewoon door; in vrij spel forceert de knop altijd een vers rondje.
     if (state?.mode === "daily") switchMode("free");
@@ -11611,7 +11749,7 @@ async function init() {
     dieRolling = false;
     if (img) img.src = "/emoji/die-once.webp";
   });
-  if (els.recapBtn) els.recapBtn.addEventListener("click", () => openDailyRecap());
+  if (els.recapBtn) els.recapBtn.addEventListener("click", () => { gcCount("end-recap", "End: recap"); openDailyRecap(); });
   if (els.hintBtnLater) els.hintBtnLater.addEventListener("click", requestLaterClue);
   els.hintBtnDir.addEventListener("click", requestDirectionHint);
   if (els.hintBtnCentury) els.hintBtnCentury.addEventListener("click", requestCenturyHint);
