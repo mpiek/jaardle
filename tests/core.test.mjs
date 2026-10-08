@@ -311,11 +311,14 @@ test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij 
 
 test("holidayFxFor — ronde 4: Halloween 29–31 okt, Eid al-Adha, 1 april, Moederdag, verjaardag, Mid-Autumn, schrikkeldag", () => {
   const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
-  // Halloween: 29–31 okt, wint van Diwali
-  assert.equal(T.holidayFxFor(d(2026, 10, 28)), null);
-  assert.equal(T.holidayFxFor(d(2026, 10, 29)), "halloween");
-  assert.equal(T.holidayFxFor(d(2026, 10, 30)), "halloween");
-  assert.equal(T.holidayFxFor(d(2026, 10, 31)), "halloween");
+  // Halloween: 25–31 okt (gelijk aan de skin; 8/10/2026), de kern 29–31 wint van Diwali, 25–28 geeft Diwali voorrang
+  assert.equal(T.holidayFxFor(d(2026, 10, 24)), null);
+  for (const dd of [25, 26, 27, 28, 29, 30, 31]) assert.equal(T.holidayFxFor(d(2026, 10, dd)), "halloween", `okt ${dd}`);
+  assert.equal(T.holidayFxFor(d(2030, 10, 25)), "diwali");     // Diwali 2030 (26 okt) ±1: 25–27 blijft Diwali
+  assert.equal(T.holidayFxFor(d(2030, 10, 27)), "diwali");
+  assert.equal(T.holidayFxFor(d(2030, 10, 28)), "halloween");
+  assert.equal(T.holidayFxFor(d(2027, 10, 27)), "halloween");  // vóór het Diwali-venster van 2027 (28–30 okt)
+  assert.equal(T.holidayFxFor(d(2026, 11, 1)), "muertos");     // de skin loopt t/m 1 nov, het confetti wordt dan Día de Muertos
   assert.equal(T.holidayFxFor(d(2027, 10, 28)), "diwali");     // Diwali 29 okt 2027 ±1: alleen de 28e blijft over
   assert.equal(T.holidayFxFor(d(2027, 10, 29)), "halloween");  // Halloween wint van Diwali
   assert.equal(T.holidayFxFor(d(2027, 10, 30)), "halloween");

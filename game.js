@@ -3737,9 +3737,10 @@ function holidayFxFor(date) {
   if (key === "06-06" && y >= 2027) return "birthday"; // Jaardle-verjaardag (eerste potjes 6/6/2026)
   if (key === "06-28") return "pride";                 // Stonewall, 1969
   if (MID_AUTUMN[y] === key) return "midautumn";
-  if (m === 10 && d >= 29) return "halloween";         // 29–31 okt; wint van Diwali (Halloween is het grootste thema voor de speler-basis)
+  if (m === 10 && d >= 29) return "halloween";         // 29–31 okt: de kern; wint van Diwali (Halloween is het grootste thema voor de speler-basis). 1–2 nov blijft Día de Muertos
   if (key === "11-01" || key === "11-02") return "muertos";
   if (near(DIWALI)) return "diwali";
+  if (m === 10 && d >= 25) return "halloween";         // 25–28 okt: de week van de skin en de spook-daily's; Diwali (2027: 28 okt, 2030: 25–27 okt) gaat hier voor
   if (key === "12-24" || key === "12-25" || key === "12-26") return "xmas";
   return null;
 }
