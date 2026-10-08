@@ -24,7 +24,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-f7JR0ZsOd9h8/+b27nVEnlZPa0nRTbmyMu1fj2EemHM=' 'sha256-iH48cR95IiS+0VtjMitsIhAVUIvQm6XKoQ3zwqEm1x4=' 'sha256-VdV5wbVB8IVtw5vYA3CoMUtOrZvs9YxfRuPVMe8v2D4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-f7JR0ZsOd9h8/+b27nVEnlZPa0nRTbmyMu1fj2EemHM=' 'sha256-T8Yfv+9+esAfwaYR2pwOH7WsVgdJGu1qO4nAZCnTUTw=' 'sha256-VdV5wbVB8IVtw5vYA3CoMUtOrZvs9YxfRuPVMe8v2D4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
 <title>Jaardle — Wordle de la historia: adivina el año</title>
 <meta name="description" content="Jaardle es un juego diario y gratuito de adivinar años — el Añodle de la historia, al estilo de Wordle: adivina en seis intentos el año de un acontecimiento histórico. Puzle diario o partida libre infinita.">
 <link rel="canonical" href="https://jaardle.com/es">
@@ -96,27 +96,33 @@
     } catch (e) { /* geen CSS.supports → geen preload, font-display: swap vangt het op */ }
   })();
 </script>
-<!-- Seizoens-skin (Halloween): data-season vóór de stylesheet zetten, net als het thema, zodat er niets flitst.
-     Actief van 21 okt t/m 1 nov op de apparaatdatum (elk jaar; vanaf de eerste spook-daily), tenzij de speler 'm uitzette (jaardle:season=off);
-     ?skin=halloween toont 'm altijd (voorvertoning). Alleen dan haalt dit ook de versiering (/season-halloween.css),
-     de pompoen-favicon en een andere kleur voor de browserbalk op. Houd de datumregel, de CSS-versie en de balkkleuren
-     gelijk aan seasonOn(), SEASON_CSS en SEASON_BAR in game.js (een test bewaakt dat). -->
+<!-- Seizoens-skins (Halloween 21 okt t/m 1 nov, Sinterklaas 5 dec): data-season vóór de stylesheet zetten, net als het thema,
+     zodat er niets flitst. Actief op de apparaatdatum (elk jaar), tenzij de speler 'm uitzette (jaardle:season:<id>=off;
+     "jaardle:season"=off is de oude Halloween-sleutel); ?skin=<id> toont 'm altijd (voorvertoning). Alleen dan haalt dit
+     ook de versiering (/season-<id>.css) en een andere kleur voor de browserbalk op, bij Halloween ook de pompoen-favicon.
+     Houd de datumregels, de CSS-versies en de balkkleuren gelijk aan SEASONS in game.js (een test bewaakt dat). -->
 <script>
   (function () {
     try {
       var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
-      var on = (m === 10 && day >= 21) || (m === 11 && day === 1);
-      var preview = /[?&]skin=halloween(&|$)/.test(location.search);
-      if (!preview && !(on && localStorage.getItem("jaardle:season") !== "off")) return;
-      var root = document.documentElement;
-      root.dataset.season = "halloween";
+      var S = {
+        halloween: { on: (m === 10 && day >= 21) || (m === 11 && day === 1), css: "/season-halloween.css?v=1", bar: ["#120a1e", "#f3edf8"], icon: "/favicon-halloween" },
+        sinterklaas: { on: m === 12 && day === 5, css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"] }
+      };
+      var q = /[?&]skin=([a-z]+)(&|$)/.exec(location.search), id = q && S.hasOwnProperty(q[1]) ? q[1] : "";
+      if (!id) {
+        for (var k in S) if (S[k].on) id = k;
+        if (!id || localStorage.getItem("jaardle:season:" + id) === "off" || (id === "halloween" && localStorage.getItem("jaardle:season") === "off")) return;
+      }
+      var s = S[id], root = document.documentElement;
+      root.dataset.season = id;
       var css = document.createElement("link");
-      css.rel = "stylesheet"; css.href = "/season-halloween.css?v=1";
+      css.rel = "stylesheet"; css.href = s.css;
       document.head.appendChild(css);
       var meta = document.querySelector('meta[name="theme-color"]'), th = root.dataset.theme;
-      if (meta && (!th || th === "light")) meta.content = th ? "#f3edf8" : "#120a1e";
-      document.querySelectorAll('link[rel="icon"]').forEach(function (l) {
-        l.href = l.getAttribute("href").replace("/favicon", "/favicon-halloween");
+      if (meta && (!th || th === "light")) meta.content = s.bar[th ? 1 : 0];
+      if (s.icon) document.querySelectorAll('link[rel="icon"]').forEach(function (l) {
+        l.href = l.getAttribute("href").replace("/favicon", s.icon);
       });
     } catch (e) { /* geen localStorage of DOM-fout → gewoon geen skin */ }
   })();
@@ -125,7 +131,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=199">
+<link rel="stylesheet" href="/style.css?v=200">
 </head>
 <body>
   <main>
@@ -144,7 +150,7 @@
           <button class="menu-item" role="menuitem" data-action="rewards" data-i18n="menu_rewards" hidden>🪎 Recompensas</button>
           <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Clasificación</button>
           <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">☀️ Tema claro</button>
-          <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season" hidden>🎃 Aspecto de Halloween</button>
+          <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>🎃 Aspecto de Halloween</button>
         </div>
       </div>
       <div id="lang-wrap">
@@ -461,7 +467,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=330"></script>
+  <script src="/game.js?v=331"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

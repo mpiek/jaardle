@@ -156,7 +156,8 @@ const I18N = {
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     menu_login_short: "Inloggen",
     menu_theme: "☀️ Licht thema",
-    menu_season: "\u{1F383} Halloween-look",   // Halloween-skin: aan/uit-regel in het ⋮-menu, alleen tijdens het event (de pompoen staat als \u-escape: geen glyph erbij in het emoji-font)
+    menu_season_halloween: "\u{1F383} Halloween-look",   // aan/uit-regel voor de seizoens-skin in het ⋮-menu, alleen tijdens het event (emoji als \u-escape: geen glyph erbij in het emoji-font)
+    menu_season_sinterklaas: "\u{1F381} Sinterklaas-look",
     menu_history: "📅 Geschiedenis",
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
     aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten", aria_discord: "Doe mee op Discord",
@@ -485,7 +486,8 @@ const I18N = {
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     menu_login_short: "Sign in",
     menu_theme: "☀️ Light theme",
-    menu_season: "\u{1F383} Halloween look",
+    menu_season_halloween: "\u{1F383} Halloween look",
+    menu_season_sinterklaas: "\u{1F381} Sinterklaas look",
     menu_history: "📅 History",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
     aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close", aria_discord: "Join us on Discord",
@@ -817,7 +819,8 @@ const I18N = {
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
     menu_login_short: "Anmelden",
     menu_theme: "☀️ Helles Design",
-    menu_season: "\u{1F383} Halloween-Look",
+    menu_season_halloween: "\u{1F383} Halloween-Look",
+    menu_season_sinterklaas: "\u{1F381} Sinterklaas-Look",
     menu_history: "📅 Verlauf",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
     aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen", aria_discord: "Tritt uns auf Discord bei",
@@ -1143,7 +1146,8 @@ const I18N = {
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
-    menu_season: "\u{1F383} Aspecto de Halloween",
+    menu_season_halloween: "\u{1F383} Aspecto de Halloween",
+    menu_season_sinterklaas: "\u{1F381} Aspecto de Sinterklaas",
     menu_history: "📅 Historial",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar", aria_discord: "Únete a nuestro Discord",
@@ -1474,7 +1478,8 @@ const I18N = {
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
-    menu_season: "\u{1F383} Visual de Halloween",
+    menu_season_halloween: "\u{1F383} Visual de Halloween",
+    menu_season_sinterklaas: "\u{1F381} Visual de Sinterklaas",
     menu_history: "📅 Histórico",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar", aria_discord: "Entre no nosso Discord",
@@ -10638,51 +10643,83 @@ function applyTheme(theme) {
   syncThemePicker();
 }
 
-// --- Seizoens-skin (Halloween) ---------------------------------------------
-// Het head-script in de template zet data-season="halloween" van 21 okt t/m 1 nov op de apparaatdatum (of met
-// ?skin=halloween) en haalt dan de versiering (SEASON_CSS), de pompoen-favicon en een andere balkkleur op. Hier
-// dezelfde datumregel (een test houdt de twee gelijk), de aan/uit-regel in het ⋮-menu en de balkkleur bij een
-// themawissel. Uitzetten = localStorage jaardle:season=off; het palet staat in style.css, de versiering in SEASON_CSS.
+// --- Seizoens-skins (Halloween 21 okt t/m 1 nov, Sinterklaas 5 dec) -----------------------------------------
+// Het head-script in de template zet data-season="<id>" op de apparaatdatum (of met ?skin=<id>) en haalt dan de
+// versiering (SEASONS[id].css) en een andere balkkleur op, bij Halloween ook de pompoen-favicon. Hier dezelfde
+// datumregels (een test houdt de twee gelijk), de aan/uit-regel in het ⋮-menu en de balkkleur bij een themawissel.
+// Uitzetten = localStorage jaardle:season:<id>=off (per skin: wie Halloween uitzette, krijgt Sinterklaas gewoon);
+// de oude sleutel jaardle:season=off telt nog als "Halloween uit". Het palet staat in style.css, de versiering in css.
 const SEASON_KEY = "jaardle:season";
-const SEASON_CSS = "/season-halloween.css?v=1";                 // zelfde versie als in het head-script
-const SEASON_BAR = { dark: "#120a1e", light: "#f3edf8" };       // sync met --bg van het palet in style.css + head-script
-function seasonOn(date) {
+const SEASONS = {
+  halloween: {
+    css: "/season-halloween.css?v=1",                          // zelfde versie als in het head-script
+    bar: { dark: "#120a1e", light: "#f3edf8" },                 // sync met --bg van het palet in style.css + head-script
+    icon: "/favicon-halloween",                                 // pompoen-favicon (Sinterklaas houdt het gewone icoon)
+    label: "menu_season_halloween",
+    on: (m, d) => (m === 10 && d >= 21) || (m === 11 && d === 1),
+  },
+  sinterklaas: {
+    css: "/season-sinterklaas.css?v=1",
+    bar: { dark: "#0b1230", light: "#eaf0fa" },
+    icon: null,
+    label: "menu_season_sinterklaas",
+    on: (m, d) => m === 12 && d === 5,
+  },
+};
+const seasonKey = (id) => SEASON_KEY + ":" + id;
+// De skin die op deze datum hoort (of null).
+function seasonFor(date) {
   const m = date.getMonth() + 1, d = date.getDate();
-  return (m === 10 && d >= 21) || (m === 11 && d === 1);
+  for (const id of Object.keys(SEASONS)) if (SEASONS[id].on(m, d)) return id;
+  return null;
 }
-const seasonActive = () => document.documentElement.dataset.season === "halloween";
+const seasonActive = () => document.documentElement.dataset.season || null;   // id van de skin die aanstaat, of null
+// Op welke skin werkt de aan/uit-regel? De actieve (ook bij ?skin=), anders die van vandaag.
+const seasonCurrent = () => seasonActive() || seasonFor(new Date());
 // De regel staat er tijdens het event (ook als de skin uit staat, anders kom je er niet meer terug) en bij ?skin=.
-const seasonMenuShown = () => seasonOn(new Date()) || seasonActive();
+const seasonMenuShown = () => seasonCurrent() !== null;
 // Kleur van de browserbalk: het skin-palet voor donker/licht, anders het gewone (de verdiende thema's houden hun eigen kleur).
 function themeBarColor(theme) {
   const th = THEME_COLORS[theme] ? theme : "dark";
-  return (seasonActive() && SEASON_BAR[th]) || THEME_COLORS[th];
+  const s = SEASONS[seasonActive()];
+  return (s && s.bar[th]) || THEME_COLORS[th];
 }
-function ensureSeasonCss() {
-  if (document.querySelector('link[href^="/season-halloween.css"]')) return;
+function ensureSeasonCss(id) {
+  const css = SEASONS[id].css;
+  if (document.querySelector(`link[href^="${css.split("?")[0]}"]`)) return;
   try {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = SEASON_CSS;
+    link.href = css;
     link.onerror = () => link.remove();   // bij de volgende aan-zetting opnieuw proberen
     document.head.appendChild(link);
   } catch (e) {}
 }
 function setSeason(on) {
-  const root = document.documentElement;
-  if (on) { root.dataset.season = "halloween"; ensureSeasonCss(); } else delete root.dataset.season;
-  try { if (on) localStorage.removeItem(SEASON_KEY); else localStorage.setItem(SEASON_KEY, "off"); } catch (e) {}
+  const root = document.documentElement, id = seasonCurrent();
+  if (!id) return;
+  if (on) { root.dataset.season = id; ensureSeasonCss(id); } else delete root.dataset.season;
+  try {
+    if (on) { localStorage.removeItem(seasonKey(id)); if (id === "halloween") localStorage.removeItem(SEASON_KEY); }
+    else localStorage.setItem(seasonKey(id), "off");
+  } catch (e) {}
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = themeBarColor(currentThemeName());
-  document.querySelectorAll('link[rel="icon"]').forEach((l) => {
+  const icon = SEASONS[id].icon;
+  if (icon) document.querySelectorAll('link[rel="icon"]').forEach((l) => {
     const h = l.getAttribute("href") || "";
-    l.href = on ? h.replace(/\/favicon(?!-halloween)/, "/favicon-halloween") : h.replace("/favicon-halloween", "/favicon");
+    if (on) { if (!h.includes(icon)) l.href = h.replace("/favicon", icon); } else l.href = h.replace(icon, "/favicon");
   });
   syncSeasonCheck();
 }
 function syncSeasonCheck() {
-  const btn = document.querySelector('[data-action="season"]');
-  if (btn) { btn.hidden = !seasonMenuShown(); btn.setAttribute("aria-checked", String(seasonActive())); }
+  const btn = document.querySelector('[data-action="season"]'), id = seasonCurrent();
+  if (!btn) return;
+  btn.hidden = !id;
+  if (!id) return;
+  btn.dataset.i18n = SEASONS[id].label;          // een taalwissel vertaalt via data-i18n, dus ook het label volgt de skin
+  btn.textContent = t(SEASONS[id].label);
+  btn.setAttribute("aria-checked", String(seasonActive() === id));
 }
 
 function syncThemeCheck() {
@@ -11981,9 +12018,9 @@ async function init() {
       return;
     }
     if (action === "season") {
-      const on = !seasonActive();
+      const id = seasonCurrent(), on = !seasonActive();
       setSeason(on);
-      gcCount(on ? "season-on" : "season-off", "Halloween look " + (on ? "on" : "off"));
+      gcCount("season-" + id + (on ? "-on" : "-off"), id + " look " + (on ? "on" : "off"));
       return;
     }
     toggleMenu(false);
@@ -12023,7 +12060,7 @@ async function init() {
   });
   renderMenu();
   syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → vinkje bijzetten
-  syncSeasonCheck();   // idem voor de Halloween-skin: regel alleen tijdens het event, vinkje = aan
+  syncSeasonCheck();   // idem voor de seizoens-skin: regel alleen tijdens het event, vinkje = aan, label van de juiste skin
 
   // Modals: backdrop / ✕ knop / Escape. De kluis (modal-rewards) is bijzonder: kwam
   // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc

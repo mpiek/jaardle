@@ -192,6 +192,52 @@ html[data-season="halloween"][data-theme="light"], html[data-season="halloween"]
 html[data-season="halloween"][data-theme="gold"] { --sk-glow: rgba(200, 160, 40, 0.18); }
 html[data-season="halloween"] body { background: transparent; }
 
+/* ── Seizoens-skin: Sinterklaas (palet) ───────────────────────────────────────
+   Het head-script in de template zet data-season="sinterklaas" op 5 december op de apparaatdatum (of met
+   ?skin=sinterklaas; uit te zetten via het ⋮-menu). Hier alleen het palet en de achtergrond, zodat er bij het laden
+   niets flitst; de versiering (maansikkel, sterren, ruiter, grachtenpanden) staat in /season-sinterklaas.css en wordt
+   alleen dan opgehaald. Donker en licht krijgen een eigen palet; de verdiende thema's (nachtpaars, goud, perkament)
+   houden hun eigen kleuren. Gokbadges, hint-kleuren en toetsfuncties blijven zoals ze zijn.
+   --bg hier in sync houden met SEASONS.sinterklaas.bar in game.js en het head-script (kleur van de browserbalk). */
+html[data-season="sinterklaas"]:not([data-theme]) {
+  --bg: #0b1230;
+  --fg: #f3ecdc;
+  --muted: #aab4d9;
+  --card: #131c44;
+  --card-soft: #1b2756;
+  --border: #2d3c7a;
+  --accent: #ff5d4f;
+  --on-accent: #1d0603;
+  --flame: #ffc15a;
+  --kbd-tint: rgba(255, 236, 200, 0.05);
+  --penalty-tint: rgba(255, 236, 200, 0.07);
+  --shadow-pop: 0 8px 22px rgba(2, 4, 20, 0.6);
+  --shadow-modal: 0 22px 54px rgba(2, 4, 20, 0.72);
+  --shadow-tip: 0 2px 8px rgba(2, 4, 20, 0.55);
+}
+html[data-season="sinterklaas"][data-theme="light"] {
+  --bg: #eaf0fa;
+  --fg: #14214d;
+  --muted: #4b5a86;
+  --card: #fbfdff;
+  --card-soft: #dde6f6;
+  --border: #c3d0ea;
+  --accent: #c4261c;
+  --on-accent: #fff;
+  --flame: #b5530c;
+  --kbd-tint: rgba(20, 33, 77, 0.05);
+  --penalty-tint: rgba(20, 33, 77, 0.07);
+}
+html[data-season="sinterklaas"] {
+  --sk-glow: rgba(66, 98, 220, 0.30);
+  background-image: radial-gradient(120% 420px at 100% 0, var(--sk-glow), transparent 72%);
+  background-repeat: no-repeat;
+}
+html[data-season="sinterklaas"][data-theme="light"], html[data-season="sinterklaas"][data-theme="parchment"] { --sk-glow: rgba(120, 160, 240, 0.36); }
+html[data-season="sinterklaas"][data-theme="midnight"] { --sk-glow: rgba(130, 84, 210, 0.28); }
+html[data-season="sinterklaas"][data-theme="gold"] { --sk-glow: rgba(200, 160, 40, 0.16); }
+html[data-season="sinterklaas"] body { background: transparent; }
+
 * { box-sizing: border-box; }
 
 [hidden] { display: none !important; }
