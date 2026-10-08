@@ -3740,7 +3740,7 @@ function holidayFxFor(date) {
   if (m === 10 && d >= 29) return "halloween";         // 29–31 okt: de kern; wint van Diwali (Halloween is het grootste thema voor de speler-basis). 1–2 nov blijft Día de Muertos
   if (key === "11-01" || key === "11-02") return "muertos";
   if (near(DIWALI)) return "diwali";
-  if (m === 10 && d >= 25) return "halloween";         // 25–28 okt: de week van de skin en de spook-daily's; Diwali (2027: 28 okt, 2030: 25–27 okt) gaat hier voor
+  if (m === 10 && d >= 21) return "halloween";         // 21–28 okt: vanaf de eerste spook-daily, gelijk aan de skin; Diwali (2027: 28 okt, 2030: 25–27 okt) gaat hier voor
   if (key === "12-24" || key === "12-25" || key === "12-26") return "xmas";
   return null;
 }
@@ -10639,7 +10639,7 @@ function applyTheme(theme) {
 }
 
 // --- Seizoens-skin (Halloween) ---------------------------------------------
-// Het head-script in de template zet data-season="halloween" van 25 okt t/m 1 nov op de apparaatdatum (of met
+// Het head-script in de template zet data-season="halloween" van 21 okt t/m 1 nov op de apparaatdatum (of met
 // ?skin=halloween) en haalt dan de versiering (SEASON_CSS), de pompoen-favicon en een andere balkkleur op. Hier
 // dezelfde datumregel (een test houdt de twee gelijk), de aan/uit-regel in het ⋮-menu en de balkkleur bij een
 // themawissel. Uitzetten = localStorage jaardle:season=off; het palet staat in style.css, de versiering in SEASON_CSS.
@@ -10648,7 +10648,7 @@ const SEASON_CSS = "/season-halloween.css?v=1";                 // zelfde versie
 const SEASON_BAR = { dark: "#120a1e", light: "#f3edf8" };       // sync met --bg van het palet in style.css + head-script
 function seasonOn(date) {
   const m = date.getMonth() + 1, d = date.getDate();
-  return (m === 10 && d >= 25) || (m === 11 && d === 1);
+  return (m === 10 && d >= 21) || (m === 11 && d === 1);
 }
 const seasonActive = () => document.documentElement.dataset.season === "halloween";
 // De regel staat er tijdens het event (ook als de skin uit staat, anders kom je er niet meer terug) en bij ?skin=.

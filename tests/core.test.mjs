@@ -311,9 +311,9 @@ test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij 
 
 test("holidayFxFor — ronde 4: Halloween 29–31 okt, Eid al-Adha, 1 april, Moederdag, verjaardag, Mid-Autumn, schrikkeldag", () => {
   const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
-  // Halloween: 25–31 okt (gelijk aan de skin; 8/10/2026), de kern 29–31 wint van Diwali, 25–28 geeft Diwali voorrang
-  assert.equal(T.holidayFxFor(d(2026, 10, 24)), null);
-  for (const dd of [25, 26, 27, 28, 29, 30, 31]) assert.equal(T.holidayFxFor(d(2026, 10, dd)), "halloween", `okt ${dd}`);
+  // Halloween: 21–31 okt (gelijk aan de skin en de spook-daily's; 8/10/2026), de kern 29–31 wint van Diwali, 21–28 geeft Diwali voorrang
+  assert.equal(T.holidayFxFor(d(2026, 10, 20)), null);
+  for (const dd of [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]) assert.equal(T.holidayFxFor(d(2026, 10, dd)), "halloween", `okt ${dd}`);
   assert.equal(T.holidayFxFor(d(2030, 10, 25)), "diwali");     // Diwali 2030 (26 okt) ±1: 25–27 blijft Diwali
   assert.equal(T.holidayFxFor(d(2030, 10, 27)), "diwali");
   assert.equal(T.holidayFxFor(d(2030, 10, 28)), "halloween");
@@ -2129,9 +2129,9 @@ function runSeasonHead({ date, search = "", store = {}, theme } = {}) {
   return { season: root.dataset.season, links, bar: meta.content, icons: icons.map((i) => i._h) };
 }
 
-test("seasonOn — 25 okt t/m 1 nov, elk jaar; daarbuiten niet", () => {
+test("seasonOn — 21 okt t/m 1 nov, elk jaar; daarbuiten niet", () => {
   const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
-  for (const [y, m, dd, want] of [[2026, 10, 18, false], [2026, 10, 19, false], [2026, 10, 24, false], [2026, 10, 25, true], [2026, 10, 31, true], [2026, 11, 1, true], [2026, 11, 2, false],
+  for (const [y, m, dd, want] of [[2026, 10, 18, false], [2026, 10, 19, false], [2026, 10, 20, false], [2026, 10, 21, true], [2026, 10, 25, true], [2026, 10, 31, true], [2026, 11, 1, true], [2026, 11, 2, false],
     [2026, 10, 1, false], [2026, 12, 24, false], [2027, 10, 25, true], [2027, 11, 1, true], [2026, 1, 1, false]]) {
     assert.equal(T.seasonOn(d(y, m, dd)), want, `${y}-${m}-${dd}`);
   }

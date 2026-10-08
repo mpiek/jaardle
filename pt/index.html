@@ -24,7 +24,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-f7JR0ZsOd9h8/+b27nVEnlZPa0nRTbmyMu1fj2EemHM=' 'sha256-dDK1kTFHLWDxOd7/V2NXWqBtIbGSBFbM/RusdDdArrU=' 'sha256-VdV5wbVB8IVtw5vYA3CoMUtOrZvs9YxfRuPVMe8v2D4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-f7JR0ZsOd9h8/+b27nVEnlZPa0nRTbmyMu1fj2EemHM=' 'sha256-iH48cR95IiS+0VtjMitsIhAVUIvQm6XKoQ3zwqEm1x4=' 'sha256-VdV5wbVB8IVtw5vYA3CoMUtOrZvs9YxfRuPVMe8v2D4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
 <title>Jaardle — Wordle da história: adivinhe o ano</title>
 <meta name="description" content="Jaardle é um jogo diário e gratuito de adivinhar anos — o Anodle da história, no estilo de Wordle: adivinhe em seis tentativas o ano de um acontecimento histórico. Quebra-cabeça diário ou jogo livre infinito.">
 <link rel="canonical" href="https://jaardle.com/pt">
@@ -97,7 +97,7 @@
   })();
 </script>
 <!-- Seizoens-skin (Halloween): data-season vóór de stylesheet zetten, net als het thema, zodat er niets flitst.
-     Actief van 25 okt t/m 1 nov op de apparaatdatum (elk jaar; de week van de spook-daily's), tenzij de speler 'm uitzette (jaardle:season=off);
+     Actief van 21 okt t/m 1 nov op de apparaatdatum (elk jaar; vanaf de eerste spook-daily), tenzij de speler 'm uitzette (jaardle:season=off);
      ?skin=halloween toont 'm altijd (voorvertoning). Alleen dan haalt dit ook de versiering (/season-halloween.css),
      de pompoen-favicon en een andere kleur voor de browserbalk op. Houd de datumregel, de CSS-versie en de balkkleuren
      gelijk aan seasonOn(), SEASON_CSS en SEASON_BAR in game.js (een test bewaakt dat). -->
@@ -105,7 +105,7 @@
   (function () {
     try {
       var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
-      var on = (m === 10 && day >= 25) || (m === 11 && day === 1);
+      var on = (m === 10 && day >= 21) || (m === 11 && day === 1);
       var preview = /[?&]skin=halloween(&|$)/.test(location.search);
       if (!preview && !(on && localStorage.getItem("jaardle:season") !== "off")) return;
       var root = document.documentElement;

@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════════
    Seizoens-skin · Halloween "Spookhuis": de versiering (maan, sterren, webben, spin, vleermuizen, kerkhof).
    Het palet (achtergrond, kaarten, accent) staat in style.css, zodat er bij het laden niets flitst; dit bestand
-   wordt alleen opgehaald als html[data-season="halloween"] aanstaat (head-script in de template: 25 okt t/m 1 nov
+   wordt alleen opgehaald als html[data-season="halloween"] aanstaat (head-script in de template: 21 okt t/m 1 nov
    op de apparaatdatum, of ?skin=halloween). Alles hier is pointer-events: none, ligt achter of náást de inhoud
    en beweegt alleen met transform/opacity; bij "minder beweging" staat alles stil. De SVG's zijn data-URI's
    (img-src staat data: toe). Bij elke wijziging ?v= bumpen in het head-script (template) én SEASON_CSS (game.js).
