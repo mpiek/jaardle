@@ -362,6 +362,7 @@ const I18N = {
     reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis", reward_equip: "Draag nu", reward_activate: "Zet aan",
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel", fxn_ember: "🌶️ Vonken", fxn_glow: "🔥 Gloed", fxn_vizier: "🎯 Vizier", fxn_sweat: "💧 Zweetdruppel", fxn_ripple: "🌊 Rimpel", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Nippertje", fxn_pendulum: "🕰️ Slinger",
+    fxn_eclipse: "\u{1F311} Eclips", fxn_shard: "🗡️ Scherven", fxn_aura: "🔮 Aura", obx_replay: "Bekijk de onthulling opnieuw",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_frame: "🖼️ Sierrand", rewards_tab_theme: "🎨 Thema", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
@@ -694,6 +695,7 @@ const I18N = {
     reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault", reward_equip: "Wear it now", reward_activate: "Turn it on",
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle", fxn_ember: "🌶️ Embers", fxn_glow: "🔥 Glow", fxn_vizier: "🎯 Crosshair", fxn_sweat: "💧 Sweat drop", fxn_ripple: "🌊 Ripple", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Close call", fxn_pendulum: "🕰️ Pendulum",
+    fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Shards", fxn_aura: "🔮 Aura", obx_replay: "Watch the reveal again",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_frame: "🖼️ Frame", rewards_tab_theme: "🎨 Theme", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
@@ -1019,6 +1021,7 @@ const I18N = {
     reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe", reward_equip: "Jetzt tragen", reward_activate: "Einschalten",
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln", fxn_ember: "🌶️ Glut", fxn_glow: "🔥 Glühen", fxn_vizier: "🎯 Fadenkreuz", fxn_sweat: "💧 Schweißtropfen", fxn_ripple: "🌊 Wellen", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Knapp geschafft", fxn_pendulum: "🕰️ Pendel",
+    fxn_eclipse: "\u{1F311} Finsternis", fxn_shard: "🗡️ Scherben", fxn_aura: "🔮 Aura", obx_replay: "Enthüllung noch einmal ansehen",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_frame: "🖼️ Zierrand", rewards_tab_theme: "🎨 Design", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
@@ -1348,6 +1351,7 @@ const I18N = {
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja", reward_equip: "Usar ahora", reward_activate: "Activar",
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Resplandor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de sudor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Loto", fxn_timer: "⏱️ Por los pelos", fxn_pendulum: "🕰️ Péndulo",
+    fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Esquirlas", fxn_aura: "🔮 Aura", obx_replay: "Ver la revelación otra vez",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_frame: "🖼️ Marco", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
@@ -1677,6 +1681,7 @@ const I18N = {
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre", reward_equip: "Usar agora", reward_activate: "Ativar",
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Fulgor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de suor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Lótus", fxn_timer: "⏱️ Por um triz", fxn_pendulum: "🕰️ Pêndulo",
+    fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Estilhaços", fxn_aura: "🔮 Aura", obx_replay: "Ver a revelação de novo",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_frame: "🖼️ Moldura", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
@@ -3630,6 +3635,7 @@ function fxLoader(file, global) {
 const loadHolidayFx = fxLoader("/holiday-fx.js", "HolidayFx");
 const loadEventFx = fxLoader("/event-fx.js", "EventFx");
 const loadRewardFx = fxLoader("/reward-fx.js", "RewardFx");   // Scheurkalender + Wimpels (beloningen), zie showCalendar/showBunting
+const loadObsidianFx = fxLoader("/obsidian-fx.js", "ObsidianFx");   // de onthulling bij obsidiaan (capstone-trede 6), zie showObsidianReveal
 // Vooruitladen in een rustig moment, maar alleen op een dag waarop er iets te vieren
 // valt (feestdag, hoogtijdag of ?fx=-voorvertoning): dan staat de laag klaar op het
 // moment van de winst. Een inhaalpot van een oude hoogtijdag laadt op aanvraag.
@@ -3739,6 +3745,7 @@ function historicFxFor(puzzleDate, year) {
 }
 // ?fx=<id> in de URL = voorvertoning: die viering bij élke winst (test op je telefoon).
 const previewFx = (() => { try { return new URLSearchParams(location.search).get("fx"); } catch (e) { return null; } })();
+const previewObxRank = (() => { try { const v = new URLSearchParams(location.search).get("obxrank"); return v === null ? 1 : Number(v); } catch (e) { return 1; } })();   // ?fx=obsidian&obxrank=0: welk volgnummer de voorvertoning toont
 // De viering voor déze winst op het standaardpad, of null (→ gewone confetti).
 function winCelebrationFx() {
   if (state.mode === "daily") {
@@ -4934,6 +4941,7 @@ const FLAIR_ANIM = {
   "🦕": "flair-sauropod",
   "🥇": "flair-goldmedal", "🥈": "flair-silvermedal", "🥉": "flair-bronzemedal",
   "⭐": "flair-star",   // capstone-brons
+  "🖤": "flair-blackheart",   // capstone-obsidiaan
   "✨": "sparkles",     // geen flair, maar het icoon van het flair-effect-reward (pop-up zonder gedragen flair)
 };
 
@@ -4963,8 +4971,14 @@ const FLAIR_FX = {
   lotus:    { emoji: "🪷",  reward: "fx_lotus",    key: "pure",      min: 250 },   // Puurspeler, trede 5
   timer:    { emoji: "⏱️", reward: "fx_timer",    key: "last_gasp", min: 25 },    // Ontsnapping, trede 3
   pendulum: { emoji: "🕰️", reward: "fx_pendulum", key: "zigzag",    min: 45 },    // Zigzag, trede 4
+  // Obsidiaan (capstone-trede 6, alle vijf de reeksen op de top): geen losse teller maar de capstone zelf → key "capstone".
+  // de nieuwe-maan-emoji staat bewust als \u{…}: de emoji-font (fonts/jaardle-emoji.woff2) wordt gebouwd uit alle emoji die in game.js staan,
+  // en elke extra glyph kost ook de spelers die dit nooit halen bytes. Het icoon valt terug op de systeem-emoji.
+  eclipse:  { emoji: "\u{1F311}", reward: "fx_eclipse", key: "capstone", min: 6 },   // Eclips: ring met een lichtpunt eromheen
+  shard:    { emoji: "🗡️", reward: "fx_shard",    key: "capstone",  min: 6 },    // Scherven: zwart glas dat glinstert
+  aura:     { emoji: "🔮",  reward: "fx_aura",     key: "capstone",  min: 6 },    // Aura: violette gloed
 };
-for (const f of Object.values(FLAIR_FX)) f.earned = (a) => Number(a[f.key] || 0) >= f.min;
+for (const f of Object.values(FLAIR_FX)) f.earned = f.key === "capstone" ? (a) => capstoneTier(a) >= f.min : (a) => Number(a[f.key] || 0) >= f.min;
 const isFlairFx = (id) => Object.prototype.hasOwnProperty.call(FLAIR_FX, id);
 function parseFlair(raw) {
   const str = String(raw || ""), i = str.indexOf(FLAIR_FX_SEP);
@@ -7726,14 +7740,14 @@ const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond", "obsi
 // op potjes-diamant). Staat als pin op de rail, precies als een flair, en heeft
 // géén server-gate nodig — het is puur cosmetisch en alleen zichtbaar voor
 // jezelf. Zie showBeer().
-const BEER_FX = { key: "games", at: 4, emoji: "🍻" };   // at = 0-based trede-index → 2000 (diamant)
+const BEER_FX = { key: "games", at: 4, emoji: "🍻" };   // at = 0-based trede-index → 1500 (diamant)
 // Scheurkalender: een gekozen viering voor daily-winsten, verdiend op de dailies-ladder (120 = platina). optIn: anders
 // dan het bier staat hij niet vanzelf aan — een nieuwe viering mag niemands bestaande keuze overnemen.
 const CAL_FX = { key: "dailies", at: 3, emoji: "📆", optIn: true, note: "achv_fx_note_cal" };
 const ACHV_SERIES = [
   { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365], fx: CAL_FX },   // ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
   { key: "streak",  art: "flame",      steps: [7, 30, 60, 90, 180, 365],  flairs: [{ emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // ⏳ = 90 (db/41) · 🔥 Gloed = 180 (db/79)
-  { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 2000, 5000], fx: BEER_FX },
+  { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 1500, 3000], fx: BEER_FX },   // top-2 verlaagd 8/10/2026 (Matthijs: 2000/5000 → 1500/3000)
   { key: "perfect", art: "100",        steps: [1, 10, 25, 50, 100, 250],  flairs: [{ emoji: "💯", at: 3 }] },   // 💯 = 50 (db/41)
   { key: "pure",    art: "zen",        steps: [5, 25, 50, 100, 250, 500], flairFxs: [{ id: "ripple", at: 3 }, { id: "lotus", at: 4 }] },   // 🌊 Rimpel = 100 · 🪷 Lotus = 250 (db/79)
   { key: "rating",  art: "bolt",       steps: [1600, 1700, 1775, 1825, 1850], floor: 1500, authOnly: true,
@@ -7839,7 +7853,8 @@ function achvValue(a, s) {
 // platina/diamant + de ladder-rebalance zijn gedefereerd. Zie het ontwerp in
 // de memory (capstone-track-design).
 const CAPSTONE_KEYS = ["games", "dailies", "streak", "perfect", "pure"];
-const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "⭐" }];   // brons; zilver = confetti, goud+ later
+const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "⭐" }, { tier: 6, emoji: "🖤" }];   // brons ⭐ en obsidiaan 🖤 (server-gate: set_my_flair, db/84); zilver = confetti, goud+ = viering/rand/thema
+const CAP_REWARD_ICONS = ["⭐", "🎊", "🗓️", "🖼️", "🎨", "🖤"];   // per trede: flair · flair-confetti · jaartallen · sierrand · thema · obsidiaan (flair + effecten + de onthulling)
 const capstoneSeries = (k) => ACHV_SERIES.find((x) => x.key === k);
 
 const CAPSTONE_MAX = 6;                 // = steps.length van de 5 capstone-ladders (obsidiaan)
@@ -7885,9 +7900,9 @@ function setFlairConfetti(on) {
   } catch (e) {}
 }
 
-// Bier-viering: verdiend op potjes-diamant (2000). Zelfde soort self-facing
+// Bier-viering: verdiend op potjes-diamant (1500). Zelfde soort self-facing
 // beloning als de flair-confetti — alleen-ingelogd (een lokale teller is voor
-// 2000 potjes niet te vertrouwen, en get_my_achievements heeft het cijfer al) en
+// 1500 potjes niet te vertrouwen, en get_my_achievements heeft het cijfer al) en
 // per apparaat uit te zetten. Schakelaar zit in de uitklap van de potjes-rij.
 function beerFxUnlocked(a) {
   if (!auth.user || !a) return false;
@@ -8658,11 +8673,13 @@ const REWARDS = {
   fl_moai:      { emoji: "🗿", cat: "flair",  sect: "flair" },
   fl_dino:      { emoji: "🦕", cat: "flair",  sect: "flair" },
   fx_confetti:  { emoji: "🎊", cat: "effect", sect: "endscreen" },  // capstone-zilver
-  fx_beer:      { emoji: "🍻", cat: "effect", sect: "endscreen" },  // 2000 potjes
+  fx_beer:      { emoji: "🍻", cat: "effect", sect: "endscreen" },  // 1500 potjes (potjes-diamant)
   fx_goldyears: { emoji: "🗓️", cat: "effect", sect: "endscreen" },  // capstone-goud
   fx_calendar:  { emoji: "📆", cat: "effect", sect: "endscreen" },  // 120 dailies (dailies-platina), opt-in
   fx_platina:   { emoji: "🖼️", cat: "effect", sect: "frame" },  // capstone-platina (sierrand-keuze, Uiterlijk-tab)
   theme:        { emoji: "🎨", cat: "theme",  sect: "theme" },      // capstone-diamant
+  fl_obsidian:  { emoji: "🖤", cat: "flair",  sect: "flair" },      // capstone-obsidiaan: de flair
+  cap_obsidian: { emoji: "🖤", cat: "obsidian", sect: "flair" },    // capstone-obsidiaan: de onthulling (vervangt de losse kaartjes van de groep)
 };
 // Flair-effecten komen uit FLAIR_FX (geen tweede lijst): de reward-key + het effect-id.
 for (const [id, f] of Object.entries(FLAIR_FX)) REWARDS[f.reward] = { emoji: f.emoji, cat: "flairfx", sect: "flairfx", fx: id };
@@ -8670,7 +8687,8 @@ for (const [id, f] of Object.entries(FLAIR_FX)) REWARDS[f.reward] = { emoji: f.e
 // Voor de flair-effecten: ruwweg de zeldzaamheid van hun drempel (Nippertje/Zweetdruppel op goud … Lotus op diamant).
 const REWARD_ORDER = ["fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_ember",
-  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme"];
+  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme",
+  "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "cap_obsidian"];
 // Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
 // dragen zelf hun emoji; de flair-naam is gewoon "Flair"/"Distintivo"/…).
 const REWARD_NAME_KEY = {
@@ -8679,6 +8697,7 @@ const REWARD_NAME_KEY = {
 };
 function rewardName(key) {
   const r = REWARDS[key];
+  if (r.cat === "obsidian") return achvTierName(CAPSTONE_MAX - 1);
   return r.cat === "flair" ? t("rewards_sect_flair") : r.cat === "flairfx" ? t("fxn_" + r.fx) : t(REWARD_NAME_KEY[key]);
 }
 
@@ -8698,6 +8717,7 @@ function earnedRewardKeys() {
   if (calendarFxUnlocked(a)) got.add("fx_calendar");
   if (platinaFrameUnlocked(a)) got.add("fx_platina");
   if (ct >= 5) got.add("theme");
+  if (ct >= CAPSTONE_MAX) got.add("cap_obsidian");
   for (const id of flairFxEarned(a)) got.add(FLAIR_FX[id].reward);
   return REWARD_ORDER.filter((k) => got.has(k));
 }
@@ -8767,8 +8787,9 @@ async function maybeShowRewards() {
     return false;
   }
   const seen = new Set(myRewardsSeen);
-  const pending = earned.filter((k) => !seen.has(k));               // al op zeldzaamheid gesorteerd
+  const pending = rewardQueueFor(earned.filter((k) => !seen.has(k)));   // al op zeldzaamheid gesorteerd; obsidiaan = één onthulling i.p.v. losse kaartjes
   if (!pending.length) return false;
+  if (pending.includes("cap_obsidian")) loadObsidianFx().catch(() => {});   // alvast ophalen: de speler wacht straks niet op het bestand
   if (pending.some((k) => REWARDS[k]?.cat === "flairfx")) await ensureMyIdentity();   // de pop-up toont je gedragen flair
   if (document.getElementById("modal-reward")) return true;                              // intussen al eentje open
   if (document.querySelector(".modal:not([hidden])")) { rewardRetry = true; return false; }   // intussen ander scherm
@@ -8779,7 +8800,66 @@ async function maybeShowRewards() {
 
 function showNextReward() {
   const key = rewardQueue.shift();
-  if (key) showReward(key);
+  if (key === "cap_obsidian") showObsidianReveal("first");
+  else if (key) showReward(key);
+}
+
+// ── Obsidiaan: de onthulling bij capstone-trede 6 ─────────────────────────────
+// De show zelf (canvas, geluid, teksten in 5 talen, lettertype) woont in /obsidian-fx.js en wordt pas opgehaald op het moment dat
+// iemand obsidiaan haalt, de voorvertoning (?fx=obsidian) gebruikt of in de kluis opnieuw kijkt: wie dit nooit haalt laadt er niets van.
+// Hier alleen de aansluiting: wanneer, met welke gegevens en wat erna gebeurt. De hele groep (de show, 🖤 en de effecten) wordt in één
+// keer gevierd; de losse unlock-kaartjes van die items vervallen (rewardQueueFor) en gaan samen op "gezien" als de show sluit.
+const OBSIDIAN_FX_DEFAULT = "eclipse";   // wat "Draag nu" zet
+const obsidianGroupKeys = () => ["cap_obsidian", "fl_obsidian", ...Object.values(FLAIR_FX).filter((f) => f.key === "capstone").map((f) => f.reward)];
+const rewardQueueFor = (pending) => pending.includes("cap_obsidian") ? pending.filter((k) => k === "cap_obsidian" || !obsidianGroupKeys().includes(k)) : pending;
+let obxHandle = null, obxAction = null, obxMode = "";
+// mode: "first" (net verdiend) · "replay" (opnieuw kijken, kluis) · "preview" (?fx=obsidian: nepgegevens, geen server)
+async function showObsidianReveal(mode) {
+  if (document.getElementById("modal-obsidian")) return false;
+  const preview = mode === "preview";
+  const claim = preview
+    ? Promise.resolve({ rank: previewObxRank, first_play: new Date(Date.now() - 459 * 864e5).toISOString(), claimed_at: new Date().toISOString() })
+    : rpc("claim_obsidian", {}).catch(() => null);   // volgnummer + sinds wanneer; legt ook vast dat je 'm hebt (de server-gate van 🖤 en de effecten)
+  let fx;
+  try { [fx] = await Promise.all([loadObsidianFx(), ensureMyIdentity()]); } catch (e) { return false; }   // lukt het laden niet: niets "gezien" markeren, volgende pot opnieuw
+  if (document.querySelector(".modal:not([hidden])")) { if (mode === "first") rewardRetry = true; return false; }   // ander scherm open → zodra dat dicht is
+  const el = document.createElement("div");
+  el.id = "modal-obsidian"; el.className = "modal"; el.hidden = true;
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true");
+  document.body.appendChild(el);
+  obxMode = mode; obxAction = null;
+  el.hidden = false; lockBodyScroll();
+  let handle = null;
+  try {
+    handle = await fx.play({
+      host: el, lang, locale: LANGS[lang].intl, tierNames: ACHV_TIER_KEYS.map((_, i) => achvTierName(i)), capTitle: t("achv_cap_title"),
+      rewardIcons: CAP_REWARD_ICONS.slice(0, 5), ladders: CAPSTONE_KEYS.map((k) => ({ key: k, steps: capstoneSeries(k).steps })),
+      name: myUsername || t("lb_you"), claim, wearable: !preview, requireClaim: !preview,
+      sound: localStorage.getItem("jaardle:obxsound") === "1",
+      onSound: (on) => { try { localStorage.setItem("jaardle:obxsound", on ? "1" : "0"); } catch (e) {} },
+      reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
+      fontUrl: "/fonts/syncopate-obx.woff2" + (GAME_V ? "?v=" + encodeURIComponent(GAME_V) : ""),
+      onAction: (a) => { obxAction = a; closeAllModals(); },
+    });
+  } catch (e) { handle = null; }
+  if (!handle || !el.isConnected || el.hidden) { if (handle) handle.destroy(); if (el.isConnected && !el.hidden) { el.hidden = true; obsidianClosed(); } return !!handle; }
+  obxHandle = handle;
+  return true;
+}
+// Sluit-hook (zelfde patroon als rewardClosed): dicht = gevierd → de hele groep op "gezien" (server + lokale cache) en de keten gaat door.
+function obsidianClosed() {
+  const el = document.getElementById("modal-obsidian");
+  if (!el || !el.hidden) return;
+  const action = obxAction, mode = obxMode; obxAction = null; obxMode = "";
+  if (obxHandle) { obxHandle.destroy(); obxHandle = null; }
+  el.remove();
+  if (action === "wear") saveMyFlair(joinFlair("🖤", OBSIDIAN_FX_DEFAULT), false);   // flair én effect in één keer; de server valideert beide
+  if (mode !== "first") return;                                                     // opnieuw kijken/voorvertoning laat de wachtrij met rust
+  const keys = obsidianGroupKeys();
+  if (Array.isArray(myRewardsSeen)) for (const k of keys) if (!myRewardsSeen.includes(k)) myRewardsSeen.push(k);
+  rpc("mark_rewards_seen", { p_keys: keys }).catch(() => {});
+  if (rewardQueue.length) { showNextReward(); return; }
+  maybeShowCoronation(true);
 }
 
 // Effect-beloning direct aanzetten — hergebruikt de kluis-schakelaars (setWinFx =
@@ -9285,7 +9365,7 @@ async function ensureMyTitle() {
 // nog op slot zit staat als één gedimde 🔒-verwijzing terug naar Prestaties.
 
 // Welke schermvullende win-effecten zijn ontgrendeld? (flair-confetti = capstone-
-// zilver, bier = 2000 potjes, gouden jaartallen = capstone-goud.)
+// zilver, bier = 1500 potjes, gouden jaartallen = capstone-goud.)
 function winFxUnlockedMap(a) {
   return {
     flair: !!(auth.user && a && capstoneTier(a) >= 2),
@@ -9358,6 +9438,7 @@ function flairFxSectionHtml(a) {
       <h3 class="stats-heading">${escHtml(t("rewards_sect_flairfx"))}</h3>
       <div role="radiogroup" aria-label="${escHtml(t("rewards_sect_flairfx"))}">${["", ...earned].map(row).join("")}</div>
       ${emoji ? "" : `<p class="rw-fxhint">${escHtml(t("flairfx_need_flair"))}</p>`}
+      ${capstoneTier(a) >= CAPSTONE_MAX ? `<button type="button" class="rw-replay" data-obx-replay>▶ ${escHtml(t("obx_replay"))}</button>` : ""}
     </section>`;
 }
 
@@ -9496,6 +9577,8 @@ function wireRewards(body) {
   body.querySelectorAll("[data-flairfx]").forEach((b) => {
     b.onclick = () => setMyFlairFx(b.dataset.flairfx || "");
   });
+  // Obsidiaan: de onthulling nog eens bekijken.
+  body.querySelector("[data-obx-replay]")?.addEventListener("click", () => { closeAllModals(); showObsidianReveal("replay"); });
   // Win-effect: één keuze uit de radiogroep.
   body.querySelectorAll("[data-winfx]").forEach((b) => {
     b.onclick = () => { setWinFx(b.dataset.winfx); renderRewards(); playWinFxPreview(b.dataset.winfx); };
@@ -9534,7 +9617,7 @@ function achvAnonNoteHtml() {
 function capstoneBarHtml(a) {
   if (!auth.user) return "";
   const ct = capstoneTier(a);
-  const REWARD = ["⭐", "🎊", "🗓️", "🖼️", "🎨"];   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer; obsidiaan = nog geen
+  const REWARD = CAP_REWARD_ICONS;   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer, obsidiaan=🖤 (flair + effecten + onthulling)
   // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
   // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
   // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
@@ -11119,6 +11202,7 @@ function closeModal(id) {
   if (id === "modal-achv") achvPanelClosed();
   if (id === "modal-podium-pop") podiumPopClosed();
   if (id === "modal-reward") rewardClosed();
+  if (id === "modal-obsidian") obsidianClosed();
   if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden)) unlockBodyScroll();
   setModalUrl(null);
   retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken
@@ -11134,6 +11218,7 @@ function closeAllModals() {
   podiumPopClosed();   // weekpodium-pop-up dicht = uitslag gezien (server-side)
   coronationClosed();  // kroning dicht = titel-mijlpaal gezien (server-side, db/59)
   rewardClosed();      // beloning-pop-up dicht = gevierd (server-side, db/61) + keten door
+  obsidianClosed();    // onthulling dicht = gevierd (server-side) + keten door
   setModalUrl(null);
   retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken (bv. de recap)
 }
@@ -12088,6 +12173,7 @@ async function init() {
     document.querySelector('#newpw-form input[name="password"]')?.focus();
   }
   warmHolidayFx();   // alleen op een themadag: de viering-code vooraf ophalen
+  if (previewFx === "obsidian") setTimeout(() => showObsidianReveal("preview"), 1200);   // ?fx=obsidian: de onthulling met nepgegevens bekijken (&obxrank=0 voor de maker-regel)
 }
 
 function getSharedLocation() {

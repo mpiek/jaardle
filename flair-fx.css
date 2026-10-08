@@ -162,3 +162,91 @@ html[data-theme="light"], html[data-theme="parchment"] {
   .fl-fx.fx-timer::before { --fx-a: 300deg; opacity: 1; } .fl-fx.fx-timer::after { opacity: 0; }
   .fl-fx.fx-pendulum { transform: none; }
 }
+
+/* ── Obsidiaan-effecten (capstone-trede 6) ─────────────────────────────────────────────────────────────────────
+   Drie effecten die bij obsidiaan horen: Eclips (een ring met een lichtpunt dat eromheen loopt), Scherven (twee zwarte
+   glasscherven die glinsteren) en Aura (een violette gloed rond de flair). Zelfde regels als hierboven: alleen ::before/::after,
+   maten in em, binnen de veilige zone van het sprankel-effect. Kleur: zwart vulkaanglas met een violette glans; in het lichte
+   thema diepere violet zodat het op crème blijft staan. */
+:root {
+  --fx-obs-hi: #efe8ff; --fx-obs-mid: #a58ff0; --fx-obs-deep: #5a45b0; --fx-obs-dark: #1a0e33; --fx-obs-black: #07040f;
+  --fx-obs-halo: rgba(150, 118, 255, 0.75);
+  --fx-ring: #a58ff0; --fx-dot-core: #fff; --fx-dot-mid: #cdbdff; --fx-dot-edge: #8f6cff;
+  --fx-aura-in: #e6dcff; --fx-aura-mid: #8f6cff; --fx-aura-out: rgba(88, 40, 200, 0.85);
+}
+html[data-theme="light"], html[data-theme="parchment"] {
+  --fx-obs-hi: #ffffff; --fx-obs-mid: #7a5cd6; --fx-obs-deep: #432c8f; --fx-obs-dark: #160b2c; --fx-obs-black: #07040f;
+  --fx-obs-halo: rgba(90, 60, 190, 0.7);
+  --fx-ring: #5d3fb8; --fx-dot-core: #fff; --fx-dot-mid: #6a40d8; --fx-dot-edge: #1a0e33;
+  --fx-aura-in: #b9a2ff; --fx-aura-mid: #6a40d8; --fx-aura-out: rgba(50, 20, 140, 0.9);
+}
+.rw-card, .podpop.night .podpop-card {   /* donkere kaarten in elk thema */
+  --fx-obs-hi: #efe8ff; --fx-obs-mid: #a58ff0; --fx-obs-deep: #5a45b0; --fx-obs-dark: #1a0e33; --fx-obs-black: #07040f;
+  --fx-obs-halo: rgba(150, 118, 255, 0.75);
+  --fx-ring: #a58ff0; --fx-dot-core: #fff; --fx-dot-mid: #cdbdff; --fx-dot-edge: #8f6cff;
+  --fx-aura-in: #e6dcff; --fx-aura-mid: #8f6cff; --fx-aura-out: rgba(88, 40, 200, 0.85);
+}
+
+/* eclipse = Eclips (obsidiaan): een gekantelde ring rond de flair (erachter) en een lichtpunt dat eromheen loopt: langs de voorkant
+   onderlangs (groter), langs de achterkant bovenlangs (kleiner, erachter) */
+.fx-eclipse { isolation: isolate; }
+.fx-eclipse::before {
+  box-sizing: border-box; left: 50%; top: 50%; width: 1.5em; height: 0.56em; margin: -0.28em 0 0 -0.75em;
+  border: 0.055em solid var(--fx-ring); border-radius: 50%; transform: rotate(-14deg); z-index: -1;
+  box-shadow: 0 0 0.1em var(--fx-obs-halo), inset 0 0 0.08em var(--fx-obs-halo);
+}
+.fx-eclipse::after {
+  left: 50%; top: 50%; width: 0.17em; height: 0.17em; margin: -0.085em 0 0 -0.085em; border-radius: 50%;
+  background: radial-gradient(circle, var(--fx-dot-core) 0 24%, var(--fx-dot-mid) 40%, var(--fx-dot-edge) 66%, transparent 72%);
+  animation: fx-eclipse 3.8s linear infinite;
+}
+@keyframes fx-eclipse {
+  0% { transform: translate(0.699em, -0.174em) scale(1.00); z-index: -1; }
+  8.33% { transform: translate(0.635em, -0.030em) scale(1.14); z-index: 1; }
+  16.67% { transform: translate(0.402em, 0.123em) scale(1.24); z-index: 1; }
+  25% { transform: translate(0.060em, 0.243em) scale(1.28); z-index: 1; }
+  33.33% { transform: translate(-0.297em, 0.297em) scale(1.24); z-index: 1; }
+  41.67% { transform: translate(-0.575em, 0.272em) scale(1.14); z-index: 1; }
+  50% { transform: translate(-0.699em, 0.174em) scale(1.00); z-index: -1; }
+  58.33% { transform: translate(-0.635em, 0.030em) scale(0.86); z-index: -1; }
+  66.67% { transform: translate(-0.402em, -0.123em) scale(0.76); z-index: -1; }
+  75% { transform: translate(-0.060em, -0.243em) scale(0.72); z-index: -1; }
+  83.33% { transform: translate(0.297em, -0.297em) scale(0.76); z-index: -1; }
+  91.67% { transform: translate(0.575em, -0.272em) scale(0.86); z-index: -1; }
+  100% { transform: translate(0.699em, -0.174em) scale(1.00); z-index: -1; }
+}
+
+/* shard = Scherven (obsidiaan): twee zwarte glasscherven (vier facetten, van licht naar zwart) waar om beurten een glans overheen veegt */
+.fx-shard::before, .fx-shard::after {
+  background:
+    linear-gradient(112deg, transparent 38%, rgba(255, 255, 255, 0.95) 50%, transparent 62%) 140% 0 / 300% 100% no-repeat,
+    linear-gradient(128deg, var(--fx-obs-hi) 0 12%, var(--fx-obs-mid) 12% 26%, var(--fx-obs-deep) 26% 40%, var(--fx-obs-dark) 40% 62%, var(--fx-obs-black) 62%);
+  animation: fx-shard 3.6s ease-in-out infinite;
+}
+.fx-shard::before { width: 0.46em; height: 0.52em; right: -0.27em; top: -0.21em; clip-path: polygon(44% 0, 100% 26%, 92% 66%, 58% 100%, 6% 74%); }
+.fx-shard::after { width: 0.34em; height: 0.38em; left: -0.21em; bottom: -0.05em; clip-path: polygon(26% 0, 100% 18%, 80% 100%, 8% 82%, 0 36%); animation-delay: -1.8s; }
+@keyframes fx-shard {
+  0%, 100% { transform: translateY(0) rotate(-4deg); background-position: 140% 0, 0 0; }
+  40% { background-position: 140% 0, 0 0; }
+  62% { transform: translateY(-0.04em) rotate(7deg); background-position: -40% 0, 0 0; }
+  80% { background-position: -40% 0, 0 0; }
+}
+
+/* aura = Aura (obsidiaan): een violette gloed om de vorm van de flair (drop-shadow, dus ook om de geanimeerde webp van #1); ademt langzaam */
+.fx-aura { animation: fx-aura 3.8s ease-in-out infinite; }
+@keyframes fx-aura {
+  0%, 100% { filter: drop-shadow(0 0 0.03em var(--fx-aura-in)) drop-shadow(0 0 0.11em var(--fx-aura-mid)) drop-shadow(0 0 0.22em var(--fx-aura-out)); }
+  50% { filter: drop-shadow(0 0 0.05em var(--fx-aura-in)) drop-shadow(0 0 0.16em var(--fx-aura-mid)) drop-shadow(0 0 0.3em var(--fx-aura-out)); }
+}
+
+/* stilstaande pose (flairs die niet bewegen, en "minder beweging"): expliciete waarden, geen bevroren animatie */
+.fl-still.fx-eclipse::after { transform: translate(-0.402em, 0.123em) scale(1.24); z-index: 1; }
+.fl-still.fx-shard::before { transform: rotate(5deg); background-position: 34% 0, 0 0; }
+.fl-still.fx-shard::after { transform: rotate(-4deg); background-position: 140% 0, 0 0; }
+.fl-still.fx-aura { filter: drop-shadow(0 0 0.04em var(--fx-aura-in)) drop-shadow(0 0 0.13em var(--fx-aura-mid)) drop-shadow(0 0 0.25em var(--fx-aura-out)); }
+@media (prefers-reduced-motion: reduce) {
+  .fl-fx.fx-eclipse::after { transform: translate(-0.402em, 0.123em) scale(1.24); z-index: 1; }
+  .fl-fx.fx-shard::before { transform: rotate(5deg); background-position: 34% 0, 0 0; }
+  .fl-fx.fx-shard::after { transform: rotate(-4deg); background-position: 140% 0, 0 0; }
+  .fl-fx.fx-aura { filter: drop-shadow(0 0 0.04em var(--fx-aura-in)) drop-shadow(0 0 0.13em var(--fx-aura-mid)) drop-shadow(0 0 0.25em var(--fx-aura-out)); }
+}

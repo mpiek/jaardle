@@ -5,7 +5,7 @@
 // Draaien:  cd yeardle-nl && node --test tests/
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -67,6 +67,7 @@ src += `
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1117,7 +1118,7 @@ test("grind-ladders — 6 treden (obsidiaan = de oude diamant), brons/zilver bev
   const S = (k) => T.ACHV_SERIES.find((x) => x.key === k);
   // brons/zilver zijn bewust nooit gewijzigd (retro tier-bump); de top is de oude diamant-waarde
   const want = {
-    games:   [10, 100, 250, 750, 2000, 5000],
+    games:   [10, 100, 250, 750, 1500, 3000],   // top-2 verlaagd 8/10/2026
     dailies: [7, 30, 60, 120, 200, 365],
     streak:  [7, 30, 60, 90, 180, 365],
     perfect: [1, 10, 25, 50, 100, 250],
@@ -1130,11 +1131,11 @@ test("grind-ladders — 6 treden (obsidiaan = de oude diamant), brons/zilver bev
   // rating/jaren houden 5 treden (talent-/albumplafond)
   assert.equal(S("rating").steps.length, 5);
   assert.equal(S("years").steps.length, 5);
-  // De server-gate (db/41: ⏳ ≥90, 💯 ≥50) en het bier (2000) hangen aan een GETAL: de pin staat op de
+  // De server-gate (db/41: ⏳ ≥90, 💯 ≥50) en het bier (1500) hangen aan een GETAL: de pin staat op de
   // trede waar dat getal valt. Verschuift een trede, dan klopt dit niet meer met set_my_flair.
   assert.equal(S("streak").steps[S("streak").flairs[0].at], 90);
   assert.equal(S("perfect").steps[S("perfect").flairs[0].at], 50);
-  assert.equal(S("games").steps[T.BEER_FX.at], 2000);
+  assert.equal(S("games").steps[T.BEER_FX.at], 1500);
 });
 
 test("capstoneTier — laagste trede over de 5 ladders, max 6", () => {
@@ -1144,8 +1145,9 @@ test("capstoneTier — laagste trede over de 5 ladders, max 6", () => {
   assert.equal(T.capstoneTier(a(33, 26, 5, 3, 5)), 0);          // streak 5 < 7 houdt brons tegen
   assert.equal(T.capstoneTier(a(1133, 119, 89, 80, 218)), 3);   // goud (dailies/streak: 60 / 60)
   assert.equal(T.capstoneTier(a(4261, 121, 98, 297, 807)), 4);  // platina: dailies 120 + streak 90 halen platina, de rest ver erboven
-  assert.equal(T.capstoneTier(a(5000, 365, 365, 250, 500)), 6); // alles op de top = obsidiaan
-  assert.equal(T.capstoneTier(a(5000, 364, 365, 250, 500)), 5); // één dag te weinig = diamant
+  assert.equal(T.capstoneTier(a(3000, 365, 365, 250, 500)), 6); // alles op de top = obsidiaan
+  assert.equal(T.capstoneTier(a(3000, 364, 365, 250, 500)), 5); // één dag te weinig = diamant
+  assert.equal(T.capstoneTier(a(2999, 365, 365, 250, 500)), 5); // één potje te weinig = diamant
 });
 
 test("achvTickPos — tick-posities per aantal treden (5 = 10/30/50/70/90, 6 = gelijke vakken)", () => {
@@ -1295,6 +1297,7 @@ test("FLAIR_FX — het getal van de gate is precies de trede/teller van de prest
     if (tr.tiers) assert.ok(Number.isInteger(tr.flairFxAt), `${tr.key}: getierd, dus een flairFxAt`);
   }
   for (const [id, f] of Object.entries(T.FLAIR_FX)) {
+    if (f.key === "capstone") { assert.equal(f.min, T.CAPSTONE_MAX, `${id}: een capstone-effect hoort bij de hoogste trede`); continue; }   // obsidiaan: geen losse prestatie maar de capstone zelf
     assert.ok(links[id], `${id}: hangt aan geen enkele prestatie (zou onvindbaar zijn)`);
     assert.equal(links[id].key, f.key, `${id}: andere teller dan de prestatie`);
     assert.equal(links[id].min, f.min, `${id}: drempel wijkt af van de prestatie`);
@@ -1311,7 +1314,7 @@ test("flairFxEarned — alleen ingelogd, en elk effect volgt zijn teller op de d
     assert.deepEqual(T.flairFxEarned({ flawless: false }), []);
     assert.deepEqual(T.flairFxEarned(null), []);
     for (const [id, f] of Object.entries(T.FLAIR_FX)) {
-      if (f.key === "flawless") continue;
+      if (f.key === "flawless" || f.key === "capstone") continue;   // sprankel = boolean; obsidiaan-effecten volgen capstoneTier (eigen test)
       const got = (n) => T.flairFxEarned({ [f.key]: n }).includes(id);
       assert.ok(got(f.min), `${id}: op ${f.min} verdiend`);
       assert.ok(got(f.min + 40), `${id}: erboven ook`);
@@ -1859,7 +1862,7 @@ const mkAch = (n) => ({ games: n[0], dailies: n[1], streak: n[2], perfect: n[3],
 const A_NONE = mkAch([0, 0, 0, 0, 0]);
 const A_SILVER = mkAch([100, 30, 30, 10, 25]);        // capstone-zilver → flair-confetti
 const A_PLATINA = mkAch([750, 120, 90, 50, 100]);     // capstone-platina → sierrand
-const A_DIAMOND = mkAch([2000, 200, 180, 100, 250]);  // capstone-diamant → thema + bier
+const A_DIAMOND = mkAch([1500, 200, 180, 100, 250]);  // capstone-diamant → thema + bier
 
 test("resultFrameStyle — keuze per apparaat, met migratie van de oude aan/uit-schakelaar", () => {
   const ls = globalThis.localStorage;
@@ -2007,4 +2010,92 @@ test("fmtDailyDate / fmtHistoryDate — een datumsleutel blijft dezelfde kalende
     if (saved === undefined) delete process.env.TZ; else process.env.TZ = saved;
     T.setLang("nl");
   }
+});
+
+// ── Obsidiaan (capstone-trede 6): flair 🖤, drie effecten en de onthulling ─────────────────────────────────────
+test("obsidiaan — 🖤, de drie effecten en de onthulling komen samen op trede 6, niet eerder", () => {
+  const wasUser = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    const TOP = mkAch([3000, 365, 365, 250, 500]), ALMOST = mkAch([3000, 364, 365, 250, 500]), FEW = mkAch([2999, 365, 365, 250, 500]);
+    const group = T.obsidianGroupKeys();
+    T.setAchv(TOP);
+    const got = T.earnedRewardKeys();
+    for (const k of group) assert.ok(got.includes(k), `${k} verdiend op trede 6`);
+    assert.deepEqual(T.flairFxEarned(TOP).filter((id) => T.FLAIR_FX[id].key === "capstone").sort(), ["aura", "eclipse", "shard"]);
+    for (const a of [ALMOST, FEW]) {
+      T.setAchv(a);
+      const lower = T.earnedRewardKeys();
+      for (const k of group) assert.ok(!lower.includes(k), `${k}: één dag/potje te weinig is nog niet genoeg`);
+      assert.ok(!T.flairFxEarned(a).some((id) => T.FLAIR_FX[id].key === "capstone"));
+    }
+    T.auth.user = null; T.setAchv(TOP);
+    assert.deepEqual(T.earnedRewardKeys(), [], "anoniem verdient niets");
+  } finally { T.auth.user = wasUser; T.setAchv(null); }
+});
+
+test("obsidiaan — de groep is één moment: rewardQueueFor laat alleen de onthulling staan, andere beloningen blijven", () => {
+  const group = T.obsidianGroupKeys();
+  assert.ok(group.includes("cap_obsidian") && group.includes("fl_obsidian") && group.includes("fx_eclipse"));
+  assert.deepEqual(T.rewardQueueFor(["fx_glow", ...group]), ["fx_glow", "cap_obsidian"]);
+  assert.deepEqual(T.rewardQueueFor(["fx_glow", "fx_eclipse"]), ["fx_glow", "fx_eclipse"], "zonder de onthulling (al gezien) is een nieuw effect gewoon een kaartje");
+  assert.deepEqual(T.rewardQueueFor([]), []);
+  assert.equal(T.REWARD_ORDER[T.REWARD_ORDER.length - 1], "cap_obsidian", "de zeldzaamste komt als laatste");
+  for (const k of group) assert.ok(T.REWARD_ORDER.includes(k) && T.REWARDS[k], `${k} staat in REWARDS en REWARD_ORDER`);
+  assert.equal(T.REWARDS.cap_obsidian.cat, "obsidian");
+  assert.ok(T.FLAIR_FX[T.OBSIDIAN_FX_DEFAULT] && T.FLAIR_FX[T.OBSIDIAN_FX_DEFAULT].key === "capstone", "\"Draag nu\" zet een bestaand obsidiaan-effect");
+});
+
+test("obsidiaan — 🖤 hangt aan trede 6, de animatie bestaat en de balk toont het 6e icoon", () => {
+  const cf = T.CAPSTONE_FLAIRS.find((x) => x.emoji === "🖤");
+  assert.equal(cf.tier, T.CAPSTONE_MAX);
+  assert.equal(T.CAP_REWARD_ICONS.length, T.CAPSTONE_MAX);
+  assert.equal(T.CAP_REWARD_ICONS[T.CAPSTONE_MAX - 1], "🖤");
+  assert.ok(existsSync(join(dir, "..", "emoji", T.FLAIR_ANIM["🖤"] + ".webp")), "de webp bestaat");
+  assert.equal(T.REWARDS.fl_obsidian.emoji, "🖤");
+  assert.ok(!/🖤/.test(readFileSync(join(dir, "..", "game.js"), "utf8").match(/const FLAIR_OPTIONS = \[[^\]]*\]/)[0]), "🖤 staat niet in de gratis flairs");
+  // de emoji-font wordt gebouwd uit alle emoji in game.js: het 🌑-icoon staat daarom als \u{1F311} (geen extra glyph voor iedereen)
+  assert.ok(!readFileSync(join(dir, "..", "game.js"), "utf8").includes("🌑"), "🌑 staat als escape in game.js");
+  assert.equal(T.FLAIR_FX.eclipse.emoji, String.fromCodePoint(0x1F311));
+});
+
+test("ObsidianFx — elke taal van het spel heeft alle teksten van de onthulling, in dezelfde vorm", () => {
+  (0, eval)(readFileSync(join(dir, "..", "obsidian-fx.js"), "utf8"));
+  const TX = globalThis.ObsidianFx.TX, base = TX.nl;
+  assert.ok(base, "de brontaal is er");
+  for (const code of Object.keys(T.LANGS)) {
+    const x = TX[code];
+    assert.ok(x, `${code}: ontbreekt in obsidian-fx.js`);
+    for (const [k, v] of Object.entries(base)) {
+      assert.equal(typeof x[k], typeof v, `${code}.${k}: ontbreekt of heeft een andere vorm`);
+      if (Array.isArray(v)) assert.equal(x[k].length, v.length, `${code}.${k}: ander aantal`);
+      if (v && typeof v === "object" && !Array.isArray(v)) assert.deepEqual(Object.keys(x[k]).sort(), Object.keys(v).sort(), `${code}.${k}: andere sleutels`);
+    }
+    assert.match(x.age(459, "12 MRT 2026"), /459/, `${code}: leeftijdsregel noemt het aantal dagen`);
+    assert.match(x.nr(7), /7/); assert.match(x.shareText("Sanne"), /Sanne/);
+  }
+});
+
+test("ObsidianFx — de hele tijdlijn tekent zonder fouten (strikte nep-canvas, drie formaten, ook liggend)", () => {
+  (0, eval)(readFileSync(join(dir, "..", "obsidian-fx.js"), "utf8"));
+  const OF = globalThis.ObsidianFx, saveCreate = document.createElement;
+  // GRAIN/REFL/snapshot maken losse canvassen: geef ze dezelfde strikte context (met een sprite-markering voor drawImage)
+  const obsCtx = () => {   // de strikte context + wat de onthulling extra gebruikt (korrel, patroon, schaal van de transform)
+    const extra = { createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4) }), putImageData() {}, createPattern: () => ({}), getTransform: () => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }), measureText: (str) => ({ width: String(str).length * 8 }) };
+    const base = strictCtx();
+    return new Proxy(base, { get: (t, k) => (k in extra ? extra[k] : t[k]), set: (t, k, v) => { t[k] = v; return true; } });
+  };
+  document.createElement = (tag) => tag === "canvas" ? { width: 0, height: 0, __sprite: true, getContext: () => obsCtx() } : { ...noopEl };
+  const ladders = ["games", "dailies", "streak", "perfect", "pure"].map((key) => ({ key, steps: T.ACHV_SERIES.find((x) => x.key === key).steps }));
+  try {
+    for (const [W, H] of [[390, 844], [320, 568], [1280, 720]]) {
+      const tx = {};  // wordt door _renderAt gevuld
+      const o = { w: W, h: H, dpr: 1, need: Math.hypot(W, H) / 2, reduced: false, name: "Sanne", word: "OBSIDIAAN", rankLine: "De eerste Obsidiaan ooit", rankGold: true, ageLine: "STEEN VAN 459 DAGEN",
+        sound: false, haptic: false, spin: 0, spinV: 0, touched: false, snap: null, view: { k: 1, ox: 0, oy: 0, W, H }, ladders: ladders.map((l) => ({ ico: "🎲", unit: "X", steps: l.steps })),
+        tx: { capTitle: "Prestige-track", tiers: ["a", "b", "c", "d", "e", "f"], rewardIcons: ["⭐", "🎊", "🗓️", "🖼️", "🎨"], beats: ["1", "2", "3"], sub: "S", l1: "L1", l2: "L2" } };
+      const cv = { width: 0, height: 0, getContext: () => obsCtx() };
+      for (let t = 0; t <= 23; t += 0.25) OF._renderAt(cv, t, o);
+      for (const t of [13.9, 13.97, 13.99, 14.0, 14.03, 14.2, 14.6, 15.1, 22.5]) OF._renderAt(cv, t, o);   // de breuk en de scherven
+    }
+  } finally { document.createElement = saveCreate; }
 });
