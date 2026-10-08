@@ -43,7 +43,7 @@ let src = readFileSync(join(dir, "..", "game.js"), "utf8");
 src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aanroep + alles erna
 src += `
 ;globalThis.__T = {
-  classify, scoreTier, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
+  classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
@@ -94,6 +94,33 @@ test("scoreTier — score → tier-key", () => {
   assert.equal(T.scoreTier(40).key, "solid");
   assert.equal(T.scoreTier(1).key, "justmade");
   assert.equal(T.scoreTier(0).key, "lost");
+});
+
+test("scoreTier — een verlies krijgt de toon van je dichtste gok (alleen weergave)", () => {
+  assert.equal(T.scoreTier(10, false, 1).key, "near2");
+  assert.equal(T.scoreTier(10, false, 2).key, "near2");
+  assert.equal(T.scoreTier(6, false, 3).key, "near10");
+  assert.equal(T.scoreTier(6, false, 10).key, "near10");
+  assert.equal(T.scoreTier(4, false, 11).key, "lost");
+  assert.equal(T.scoreTier(0, false, 640).key, "lost");
+  assert.equal(T.scoreTier(0, false).key, "lost");         // zonder afstand: zoals voorheen
+  assert.equal(T.scoreTier(76, true, 1).key, "good");      // een winst negeert de afstand
+  assert.ok(T.scoreTier(10, false, 1).near && !T.scoreTier(0, false, 640).near);
+});
+
+test("closestMiss — dichtste gok in jaren", () => {
+  assert.equal(T.closestMiss([]), null);
+  assert.equal(T.closestMiss([{ diff: -45 }, { diff: 3 }, { diff: -1 }]), 1);
+});
+
+test("shareText — een bijna-verlies noemt de afstand, een verre misser blijft 💀", () => {
+  const base = { mode: "free", won: false, directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false };
+  T.setState({ ...base, guesses: [{ cls: "far", diff: 60 }, { cls: "veryclose", diff: -1 }] });
+  assert.ok(T.shareText().includes(`😭 ${T.t("near_share")(1, true)}`));
+  T.setState({ ...base, guesses: [{ cls: "far", diff: 60 }, { cls: "close", diff: 6 }] });
+  assert.ok(T.shareText().includes(`😬 ${T.t("near_share")(6, false)}`));
+  T.setState({ ...base, guesses: [{ cls: "far", diff: 60 }, { cls: "warm", diff: 15 }] });
+  assert.ok(T.shareText().includes(T.t("lost_share")));
 });
 
 test("computeScore — penalties per gok + hints, niet onder 0", () => {

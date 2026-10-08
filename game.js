@@ -331,7 +331,9 @@ const I18N = {
     repair_progress_line: (done, need) => `🩹 Streak-reparatie: ${done}/${need} potjes gewonnen`,
     repair_done: (n) => `🔥 Je streak van ${n} ${n === 1 ? "dag" : "dagen"} is terug!`,
     cal_bridged: "overbrugd",
-    tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter" },
+    tiers: { perfect: "Perfect", impressive: "Indrukwekkend", good: "Goed", solid: "Solide", justmade: "Net gehaald", lost: "Volgende keer beter", near2: "Zo dichtbij!", near10: "Bijna!" },
+    near_off: (c) => `${c} jaar ernaast`,
+    near_share: (n, bang) => `${n} jaar ernaast${bang ? "!" : ""}`,
     dir_word: "richtingen",
     avg_word: "gem.",
     copy_prompt: "Kopieer dit:",
@@ -661,7 +663,9 @@ const I18N = {
     repair_progress_line: (done, need) => `🩹 Streak repair: ${done}/${need} games won`,
     repair_done: (n) => `🔥 Your ${n}-day streak is back!`,
     cal_bridged: "bridged",
-    tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time" },
+    tiers: { perfect: "Perfect", impressive: "Impressive", good: "Good", solid: "Solid", justmade: "Just made it", lost: "Better luck next time", near2: "So close!", near10: "Almost!" },
+    near_off: (c, n) => `${c} ${n === 1 ? "year" : "years"} off`,
+    near_share: (n, bang) => `${n} ${n === 1 ? "year" : "years"} off${bang ? "!" : ""}`,
     dir_word: "directions",
     avg_word: "avg.",
     copy_prompt: "Copy this:",
@@ -984,7 +988,9 @@ const I18N = {
     repair_progress_line: (done, need) => `🩹 Serien-Reparatur: ${done}/${need} Partien gewonnen`,
     repair_done: (n) => `🔥 Deine Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} ist zurück!`,
     cal_bridged: "überbrückt",
-    tiers: { perfect: "Perfekt", impressive: "Beeindruckend", good: "Gut", solid: "Solide", justmade: "Gerade so", lost: "Nächstes Mal besser" },
+    tiers: { perfect: "Perfekt", impressive: "Beeindruckend", good: "Gut", solid: "Solide", justmade: "Gerade so", lost: "Nächstes Mal besser", near2: "So knapp!", near10: "Fast!" },
+    near_off: (c, n) => `${c} ${n === 1 ? "Jahr" : "Jahre"} daneben`,
+    near_share: (n, bang) => `${n} ${n === 1 ? "Jahr" : "Jahre"} daneben${bang ? "!" : ""}`,
     dir_word: "Richtungen",
     avg_word: "Ø",
     copy_prompt: "Kopiere das:",
@@ -1311,7 +1317,9 @@ const I18N = {
     repair_progress_line: (done, need) => `🩹 Reparación de racha: ${done}/${need} partidas ganadas`,
     repair_done: (n) => `🔥 ¡Tu racha de ${n} ${n === 1 ? "día" : "días"} ha vuelto!`,
     cal_bridged: "recuperado",
-    tiers: { perfect: "Perfecto", impressive: "Impresionante", good: "Bien", solid: "Sólido", justmade: "Por los pelos", lost: "La próxima irá mejor" },
+    tiers: { perfect: "Perfecto", impressive: "Impresionante", good: "Bien", solid: "Sólido", justmade: "Por los pelos", lost: "La próxima irá mejor", near2: "¡Qué cerca!", near10: "¡Casi!" },
+    near_off: (c, n) => `${c} ${n === 1 ? "año" : "años"} de diferencia`,
+    near_share: (n, bang) => `${bang ? "¡" : ""}${n} ${n === 1 ? "año" : "años"} de diferencia${bang ? "!" : ""}`,
     dir_word: "direcciones",
     avg_word: "med.",
     copy_prompt: "Copia esto:",
@@ -1638,7 +1646,9 @@ const I18N = {
     repair_progress_line: (done, need) => `🩹 Reparo da sequência: ${done}/${need} partidas vencidas`,
     repair_done: (n) => `🔥 Sua sequência de ${n} ${n === 1 ? "dia" : "dias"} está de volta!`,
     cal_bridged: "recuperado",
-    tiers: { perfect: "Perfeito", impressive: "Impressionante", good: "Bem", solid: "Sólido", justmade: "Por pouco", lost: "A próxima vai melhor" },
+    tiers: { perfect: "Perfeito", impressive: "Impressionante", good: "Bem", solid: "Sólido", justmade: "Por pouco", lost: "A próxima vai melhor", near2: "Foi por pouco!", near10: "Quase!" },
+    near_off: (c, n) => `${c} ${n === 1 ? "ano" : "anos"} de diferença`,
+    near_share: (n, bang) => `${n} ${n === 1 ? "ano" : "anos"} de diferença${bang ? "!" : ""}`,
     dir_word: "direções",
     avg_word: "méd.",
     copy_prompt: "Copie isto:",
@@ -2286,6 +2296,12 @@ function classify(diff) {
   if (abs <= 200) return "far";
   if (abs <= 599) return "distant";
   return "farthest";
+}
+
+// Afstand als gekleurde chip, in de kleur van de gok-badge van die afstand: "📏 1e gok [45] jr mis" in de recap,
+// en de "[1] jaar ernaast"-regel van een bijna-verlies.
+function distChip(n) {
+  return `<span class="dist-chip ${classify(n)}">${n}</span>`;
 }
 
 // Bovengrens van het bereik dat elke gok-badge toont (zie RANGE_LABELS): hoe ver
@@ -3113,10 +3129,24 @@ const SCORE_TIERS = [
 
 const LOST_TIER = SCORE_TIERS.find((t) => t.key === "lost");
 
-// Bij verlies altijd de verlies-tier (💀), ongeacht de 0–10-score — anders zou
-// een verlies van 1+ de "Net gehaald"-tier pakken.
-function scoreTier(score, won = true) {
-  if (!won) return LOST_TIER;
+// Verlies met een dichtste gok binnen 10 jaar: de toon volgt hoe dichtbij je zat, in plaats van altijd 💀.
+// Alleen weergave — de troostscore (LOSS_SCORES) en de rating blijven zoals ze waren. De grenzen zijn die
+// van de badges: veryclose (≤2 jaar) en close (≤10 jaar).
+const NEAR_TIERS = {
+  veryclose: { key: "near2",  label: "Zo dichtbij!", emoji: "😭", near: true },
+  close:     { key: "near10", label: "Bijna!",       emoji: "😬", near: true },
+};
+
+// Afstand (jaren) van je dichtste gok; null zonder gokken.
+function closestMiss(guesses = state?.guesses) {
+  const d = (guesses || []).map((g) => Math.abs(g.diff));
+  return d.length ? Math.min(...d) : null;
+}
+
+// Bij verlies de verlies-tier (💀), ongeacht de 0–10-score — anders zou een verlies van 1+ de
+// "Net gehaald"-tier pakken — behalve als `miss` (je dichtste gok, in jaren) een bijna-verlies is.
+function scoreTier(score, won = true, miss = null) {
+  if (!won) return (miss != null && NEAR_TIERS[classify(miss)]) || LOST_TIER;
   return SCORE_TIERS.find((t) => score >= t.min);
 }
 
@@ -4143,12 +4173,19 @@ function finishGame(won, fresh = false) {
   els.resultText.append(yearBadge);
   {
     const score = computeScore();
-    const tier = scoreTier(score, won);
+    const miss = won ? null : closestMiss();
+    const tier = scoreTier(score, won, miss);
     const scoreLine = document.createElement("div");
-    scoreLine.className = "score-line";
-    // Alleen 🏆 (perfect) staat in ANIM_EMOJI en gaat bewegen; de andere
-    // tier-emoji's komen als gewoon teken uit animEmojiHtml terug.
-    scoreLine.innerHTML = `${animEmojiHtml(tier.emoji)} ${tierLabel(tier)} · ${score}/100`;
+    scoreLine.className = "score-line" + (tier.near ? " nm" : "");
+    if (tier.near) {
+      // Bijna-verlies: de toon groot, daaronder hoeveel jaar je ernaast zat (chip in de kleur van die afstand).
+      scoreLine.innerHTML = `<span class="nm-main">${tier.emoji} ${tierLabel(tier)}</span>` +
+        `<span class="nm-sub">${t("near_off")(distChip(miss), miss)} · ${score}/100</span>`;
+    } else {
+      // Alleen 🏆 (perfect) staat in ANIM_EMOJI en gaat bewegen; de andere
+      // tier-emoji's komen als gewoon teken uit animEmojiHtml terug.
+      scoreLine.innerHTML = `${animEmojiHtml(tier.emoji)} ${tierLabel(tier)} · ${score}/100`;
+    }
     armEmojiFallbacks(scoreLine);
     els.resultText.append(scoreLine);
   }
@@ -6746,10 +6783,10 @@ function recapDistHtml(buckets, stats, scoreRank, room) {
   const games = Number(stats?.games) || 0;
   const enough = games >= FASTER_MIN_SAMPLE;
   const score = computeScore();
-  const tier = scoreTier(score, state.won);
+  const tier = scoreTier(score, state.won, state.won ? null : closestMiss());
   const pct = scoreRankPct(scoreRank);
   const avg = stats && stats.avg_score != null && enough ? Math.round(Number(stats.avg_score)) : null;
-  const chip = (n) => `<span class="dist-chip ${classify(n)}">${n}</span>`;
+  const chip = distChip;
   const first = state.guesses[0];
   const myFD = first ? Math.abs(first.diff) : null;
   const avgFD = stats && enough && stats.avg_first_dist != null ? Math.round(Number(stats.avg_first_dist)) : null;
@@ -9978,7 +10015,7 @@ async function openHistoryDetail(body, date, row) {
   if (!p) { renderHistoryList(body, await getMyHistory()); return; }
   const event = toEvent(p);
   const factText = event.facts[0]?.[lang] || event.facts[0]?.[DEFAULT_LANG] || "";
-  const tier = scoreTier(row.score, row.won);
+  const tier = scoreTier(row.score, row.won, !row.won && board ? closestMiss(board.guesses) : null);
   body.innerHTML = `
     <button type="button" class="history-back lb-pillbtn">${escHtml(t("history_back"))}</button>
     <p class="history-daylabel">${escHtml(t("day"))} #${dayNumForKey(date)} · ${escHtml(fmtHistoryDate(date))}</p>
@@ -11492,7 +11529,11 @@ function shareText() {
     intro = `Jaardle ${tag}: ${tier.emoji} ${tierLabel(tier)} (${s}/100)`;
   } else {
     const s = computeScore();
-    intro = `Jaardle ${tag}: ${t("lost_share")} (${s}/100)`;
+    const miss = closestMiss();
+    const tier = scoreTier(s, false, miss);
+    intro = tier.near
+      ? `Jaardle ${tag}: ${tier.emoji} ${t("near_share")(miss, tier.key === "near2")} (${s}/100)`
+      : `Jaardle ${tag}: ${t("lost_share")} (${s}/100)`;
   }
   const statsParts = [`🎯 ${guessScore}`, `📊 ${grid}`];
   if (state.laterCluesShown > 0) statsParts.push(`⏩ ${state.laterCluesShown}`);
