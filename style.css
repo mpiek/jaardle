@@ -148,7 +148,7 @@ html[data-theme="gold"] {
 }
 
 /* ── Seizoens-skin: Halloween (palet) ─────────────────────────────────────────
-   Het head-script in de template zet data-season="halloween" van 19 okt t/m 1 nov op de apparaatdatum (of met
+   Het head-script in de template zet data-season="halloween" van 25 okt t/m 1 nov op de apparaatdatum (of met
    ?skin=halloween; uit te zetten via het ⋮-menu). Hier alleen het palet en de achtergrond, zodat er bij het laden
    niets flitst; de versiering (maan, webben, spin, vleermuizen, kerkhof) staat in /season-halloween.css en wordt
    alleen dan opgehaald. Donker en licht krijgen een eigen palet; de verdiende thema's (nachtpaars, goud, perkament)
@@ -1182,6 +1182,9 @@ kbd {
   font-size: 1.15rem;
   letter-spacing: 0.05em;
 }
+/* .key:hover (hierboven) zet de achtergrond op --card-soft en won daardoor van .key-wide: bij hover werd de Gok-knop
+   donkergrijs met donkere tekst. Hij houdt zijn accentkleur en wordt alleen iets lichter. */
+.key-wide:hover { background: var(--accent); filter: brightness(1.1); }
 
 button {
   background: var(--accent);

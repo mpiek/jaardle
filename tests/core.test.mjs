@@ -2126,9 +2126,9 @@ function runSeasonHead({ date, search = "", store = {}, theme } = {}) {
   return { season: root.dataset.season, links, bar: meta.content, icons: icons.map((i) => i._h) };
 }
 
-test("seasonOn — 19 okt t/m 1 nov, elk jaar; daarbuiten niet", () => {
+test("seasonOn — 25 okt t/m 1 nov, elk jaar; daarbuiten niet", () => {
   const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
-  for (const [y, m, dd, want] of [[2026, 10, 18, false], [2026, 10, 19, true], [2026, 10, 31, true], [2026, 11, 1, true], [2026, 11, 2, false],
+  for (const [y, m, dd, want] of [[2026, 10, 18, false], [2026, 10, 19, false], [2026, 10, 24, false], [2026, 10, 25, true], [2026, 10, 31, true], [2026, 11, 1, true], [2026, 11, 2, false],
     [2026, 10, 1, false], [2026, 12, 24, false], [2027, 10, 25, true], [2027, 11, 1, true], [2026, 1, 1, false]]) {
     assert.equal(T.seasonOn(d(y, m, dd)), want, `${y}-${m}-${dd}`);
   }
@@ -2146,7 +2146,7 @@ test("head-script van de skin ≡ seasonOn(): zelfde dagen, ?skin=-voorvertoning
   assert.equal(runSeasonHead({ date: buiten, search: "?skin=halloween" }).season, "halloween", "?skin=halloween toont 'm altijd");
   assert.equal(runSeasonHead({ date: buiten, search: "?x=1&skin=halloween" }).season, "halloween");
   assert.equal(runSeasonHead({ date: buiten, search: "?skin=halloweenx" }).season, undefined, "alleen precies halloween");
-  const binnen = d(2026, 10, 25);
+  const binnen = d(2026, 10, 27);
   assert.equal(runSeasonHead({ date: binnen, store: { [T.SEASON_KEY]: "off" } }).season, undefined, "uitgezet via het menu");
   assert.equal(runSeasonHead({ date: binnen, store: { [T.SEASON_KEY]: "off" }, search: "?skin=halloween" }).season, "halloween", "voorvertoning wint van uitgezet");
   const on = runSeasonHead({ date: binnen });
@@ -2169,7 +2169,7 @@ test("browserbalk-kleur: skin-palet voor donker/licht, verdiende thema's houden 
     for (const th of ["midnight", "gold", "parchment"]) assert.equal(T.themeBarColor(th), T.THEME_COLORS[th], th);
     assert.equal(T.themeBarColor("onbekend"), T.SEASON_BAR.dark, "onbekend thema valt terug op donker");
     // het head-script zet dezelfde kleuren
-    const head = (theme) => runSeasonHead({ date: new Date(2026, 9, 25, 12), theme }).bar;
+    const head = (theme) => runSeasonHead({ date: new Date(2026, 9, 27, 12), theme }).bar;
     assert.equal(head(undefined), T.SEASON_BAR.dark);
     assert.equal(head("light"), T.SEASON_BAR.light);
     assert.equal(head("midnight"), "#1a1a1a", "verdiende thema's: balk niet aangeraakt door het skin-script");
@@ -2200,4 +2200,10 @@ test("menu-regel voor de skin: in de template, vertaald in alle talen, verborgen
   for (const code of Object.keys(T.I18N)) assert.ok(T.I18N[code].menu_season, `${code}: menu_season ontbreekt`);
   for (const code of Object.keys(T.I18N)) assert.match(T.I18N[code].menu_season, /^\u{1F383} /u, `${code}: pompoen vooraan`);
   assert.ok(existsSync(join(dir, "..", "favicon-halloween.svg")) && existsSync(join(dir, "..", "favicon-halloween-96.png")) && existsSync(join(dir, "..", "favicon-halloween-192.png")), "favicon-bestanden");
+});
+
+test("Gok-knop: bij hover blijft hij de accentkleur (.key:hover mag .key-wide niet overschrijven)", () => {
+  const css = readFileSync(join(dir, "..", "style.css"), "utf8");
+  assert.match(css, /\.key-wide:hover\s*\{[^}]*background:\s*var\(--accent\)/, ".key-wide:hover houdt de accentkleur");
+  assert.ok(css.indexOf(".key-wide:hover") > css.indexOf(".key:hover"), ".key-wide:hover moet ná .key:hover staan (gelijke specificiteit)");
 });

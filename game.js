@@ -10638,7 +10638,7 @@ function applyTheme(theme) {
 }
 
 // --- Seizoens-skin (Halloween) ---------------------------------------------
-// Het head-script in de template zet data-season="halloween" van 19 okt t/m 1 nov op de apparaatdatum (of met
+// Het head-script in de template zet data-season="halloween" van 25 okt t/m 1 nov op de apparaatdatum (of met
 // ?skin=halloween) en haalt dan de versiering (SEASON_CSS), de pompoen-favicon en een andere balkkleur op. Hier
 // dezelfde datumregel (een test houdt de twee gelijk), de aan/uit-regel in het ⋮-menu en de balkkleur bij een
 // themawissel. Uitzetten = localStorage jaardle:season=off; het palet staat in style.css, de versiering in SEASON_CSS.
@@ -10647,7 +10647,7 @@ const SEASON_CSS = "/season-halloween.css?v=1";                 // zelfde versie
 const SEASON_BAR = { dark: "#120a1e", light: "#f3edf8" };       // sync met --bg van het palet in style.css + head-script
 function seasonOn(date) {
   const m = date.getMonth() + 1, d = date.getDate();
-  return (m === 10 && d >= 19) || (m === 11 && d === 1);
+  return (m === 10 && d >= 25) || (m === 11 && d === 1);
 }
 const seasonActive = () => document.documentElement.dataset.season === "halloween";
 // De regel staat er tijdens het event (ook als de skin uit staat, anders kom je er niet meer terug) en bij ?skin=.
