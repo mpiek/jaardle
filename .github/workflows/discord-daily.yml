@@ -1,0 +1,44 @@
+# Dagelijks bericht met de vraag van de dag in het Jaardle-Discordkanaal (algemeen).
+# Tekst en regels: tools/discord-daily.mjs. De webhook staat als repo-secret DISCORD_DAILY_WEBHOOK.
+#
+# GitHub-cron is UTC; 06:00 Amsterdam is 04:00 UTC (zomertijd) of 05:00 UTC (wintertijd). Daarom lopen er twee
+# schema's, en het script post alleen in de run waarin het in Amsterdam 06:xx is (--only-at-hour 6); de andere run
+# slaat zichzelf over. Zo is er nooit een dubbele post en klopt het ook na het verzetten van de klok.
+# Minuut 17 i.p.v. :00, want GitHub is druk op hele uren. Een mislukte run (rood) mailt je; er is dan niets gepost.
+name: Discord daily
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+    inputs:
+      post:
+        description: "Echt posten (uit = alleen controleren, er wordt niets gepost)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discord-daily
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DISCORD_DAILY_WEBHOOK: ${{ secrets.DISCORD_DAILY_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Posten (schema)
+        if: github.event_name == 'schedule'
+        run: node tools/discord-daily.mjs --send --only-at-hour 6
+      - name: Posten (handmatig gestart)
+        if: github.event_name == 'workflow_dispatch' && inputs.post
+        run: node tools/discord-daily.mjs --send
+      - name: Controleren zonder te posten
+        if: github.event_name == 'workflow_dispatch' && !inputs.post
+        run: node tools/discord-daily.mjs --check-webhook
