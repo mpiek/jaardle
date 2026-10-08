@@ -156,6 +156,7 @@ const I18N = {
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
     menu_login_short: "Inloggen",
     menu_theme: "☀️ Licht thema",
+    menu_season: "\u{1F383} Halloween-look",   // Halloween-skin: aan/uit-regel in het ⋮-menu, alleen tijdens het event (de pompoen staat als \u-escape: geen glyph erbij in het emoji-font)
     menu_history: "📅 Geschiedenis",
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
     aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten", aria_discord: "Doe mee op Discord",
@@ -484,6 +485,7 @@ const I18N = {
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
     menu_login_short: "Sign in",
     menu_theme: "☀️ Light theme",
+    menu_season: "\u{1F383} Halloween look",
     menu_history: "📅 History",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
     aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close", aria_discord: "Join us on Discord",
@@ -815,6 +817,7 @@ const I18N = {
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
     menu_login_short: "Anmelden",
     menu_theme: "☀️ Helles Design",
+    menu_season: "\u{1F383} Halloween-Look",
     menu_history: "📅 Verlauf",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
     aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen", aria_discord: "Tritt uns auf Discord bei",
@@ -1140,6 +1143,7 @@ const I18N = {
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
+    menu_season: "\u{1F383} Aspecto de Halloween",
     menu_history: "📅 Historial",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar", aria_discord: "Únete a nuestro Discord",
@@ -1470,6 +1474,7 @@ const I18N = {
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
+    menu_season: "\u{1F383} Visual de Halloween",
     menu_history: "📅 Histórico",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar", aria_discord: "Entre no nosso Discord",
@@ -10627,9 +10632,56 @@ function applyTheme(theme) {
   else delete document.documentElement.dataset.theme;
   try { localStorage.setItem("jaardle:theme", theme); } catch (e) {}
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = THEME_COLORS[theme] || THEME_COLORS.dark;
+  if (meta) meta.content = themeBarColor(theme);
   syncThemeCheck();
   syncThemePicker();
+}
+
+// --- Seizoens-skin (Halloween) ---------------------------------------------
+// Het head-script in de template zet data-season="halloween" van 19 okt t/m 1 nov op de apparaatdatum (of met
+// ?skin=halloween) en haalt dan de versiering (SEASON_CSS), de pompoen-favicon en een andere balkkleur op. Hier
+// dezelfde datumregel (een test houdt de twee gelijk), de aan/uit-regel in het ⋮-menu en de balkkleur bij een
+// themawissel. Uitzetten = localStorage jaardle:season=off; het palet staat in style.css, de versiering in SEASON_CSS.
+const SEASON_KEY = "jaardle:season";
+const SEASON_CSS = "/season-halloween.css?v=1";                 // zelfde versie als in het head-script
+const SEASON_BAR = { dark: "#120a1e", light: "#f3edf8" };       // sync met --bg van het palet in style.css + head-script
+function seasonOn(date) {
+  const m = date.getMonth() + 1, d = date.getDate();
+  return (m === 10 && d >= 19) || (m === 11 && d === 1);
+}
+const seasonActive = () => document.documentElement.dataset.season === "halloween";
+// De regel staat er tijdens het event (ook als de skin uit staat, anders kom je er niet meer terug) en bij ?skin=.
+const seasonMenuShown = () => seasonOn(new Date()) || seasonActive();
+// Kleur van de browserbalk: het skin-palet voor donker/licht, anders het gewone (de verdiende thema's houden hun eigen kleur).
+function themeBarColor(theme) {
+  const th = THEME_COLORS[theme] ? theme : "dark";
+  return (seasonActive() && SEASON_BAR[th]) || THEME_COLORS[th];
+}
+function ensureSeasonCss() {
+  if (document.querySelector('link[href^="/season-halloween.css"]')) return;
+  try {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = SEASON_CSS;
+    link.onerror = () => link.remove();   // bij de volgende aan-zetting opnieuw proberen
+    document.head.appendChild(link);
+  } catch (e) {}
+}
+function setSeason(on) {
+  const root = document.documentElement;
+  if (on) { root.dataset.season = "halloween"; ensureSeasonCss(); } else delete root.dataset.season;
+  try { if (on) localStorage.removeItem(SEASON_KEY); else localStorage.setItem(SEASON_KEY, "off"); } catch (e) {}
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = themeBarColor(currentThemeName());
+  document.querySelectorAll('link[rel="icon"]').forEach((l) => {
+    const h = l.getAttribute("href") || "";
+    l.href = on ? h.replace(/\/favicon(?!-halloween)/, "/favicon-halloween") : h.replace("/favicon-halloween", "/favicon");
+  });
+  syncSeasonCheck();
+}
+function syncSeasonCheck() {
+  const btn = document.querySelector('[data-action="season"]');
+  if (btn) { btn.hidden = !seasonMenuShown(); btn.setAttribute("aria-checked", String(seasonActive())); }
 }
 
 function syncThemeCheck() {
@@ -11927,6 +11979,12 @@ async function init() {
       applyTheme(currentTheme() === "light" ? "dark" : "light");
       return;
     }
+    if (action === "season") {
+      const on = !seasonActive();
+      setSeason(on);
+      gcCount(on ? "season-on" : "season-off", "Halloween look " + (on ? "on" : "off"));
+      return;
+    }
     toggleMenu(false);
     // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
     if (action === "stats") openModal("modal-stats");
@@ -11964,6 +12022,7 @@ async function init() {
   });
   renderMenu();
   syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → vinkje bijzetten
+  syncSeasonCheck();   // idem voor de Halloween-skin: regel alleen tijdens het event, vinkje = aan
 
   // Modals: backdrop / ✕ knop / Escape. De kluis (modal-rewards) is bijzonder: kwam
   // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc

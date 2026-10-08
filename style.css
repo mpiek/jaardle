@@ -147,6 +147,51 @@ html[data-theme="gold"] {
   --shadow-tip: 0 2px 8px rgba(0, 0, 0, 0.55);
 }
 
+/* ── Seizoens-skin: Halloween (palet) ─────────────────────────────────────────
+   Het head-script in de template zet data-season="halloween" van 19 okt t/m 1 nov op de apparaatdatum (of met
+   ?skin=halloween; uit te zetten via het ⋮-menu). Hier alleen het palet en de achtergrond, zodat er bij het laden
+   niets flitst; de versiering (maan, webben, spin, vleermuizen, kerkhof) staat in /season-halloween.css en wordt
+   alleen dan opgehaald. Donker en licht krijgen een eigen palet; de verdiende thema's (nachtpaars, goud, perkament)
+   houden hun eigen kleuren. Gokbadges, hint-kleuren en toetsfuncties blijven zoals ze zijn.
+   --bg hier in sync houden met SEASON_BAR in game.js en het head-script (kleur van de browserbalk). */
+html[data-season="halloween"]:not([data-theme]) {
+  --bg: #120a1e;
+  --fg: #f2e9d8;
+  --muted: #b9aacf;
+  --card: #1c1130;
+  --card-soft: #271a3d;
+  --border: #3a2860;
+  --accent: #ff8a1f;
+  --on-accent: #1f1000;
+  --flame: #ffb066;
+  --kbd-tint: rgba(255, 225, 190, 0.05);
+  --penalty-tint: rgba(255, 225, 190, 0.07);
+  --shadow-pop: 0 8px 22px rgba(4, 0, 12, 0.6);
+  --shadow-modal: 0 22px 54px rgba(4, 0, 12, 0.72);
+  --shadow-tip: 0 2px 8px rgba(4, 0, 12, 0.55);
+}
+html[data-season="halloween"][data-theme="light"] {
+  --bg: #f3edf8;
+  --fg: #231a2f;
+  --muted: #5d4e70;
+  --card: #fffdfb;
+  --card-soft: #ebe2f3;
+  --border: #d9cce8;
+  --accent: #b84a00;
+  --on-accent: #fff;
+  --flame: #b35309;
+  --kbd-tint: rgba(35, 26, 47, 0.05);
+  --penalty-tint: rgba(35, 26, 47, 0.07);
+}
+html[data-season="halloween"] {
+  --sk-glow: rgba(120, 62, 190, 0.34);
+  background-image: radial-gradient(120% 420px at 100% 0, var(--sk-glow), transparent 72%);
+  background-repeat: no-repeat;
+}
+html[data-season="halloween"][data-theme="light"], html[data-season="halloween"][data-theme="parchment"] { --sk-glow: rgba(190, 150, 235, 0.38); }
+html[data-season="halloween"][data-theme="gold"] { --sk-glow: rgba(200, 160, 40, 0.18); }
+html[data-season="halloween"] body { background: transparent; }
+
 * { box-sizing: border-box; }
 
 [hidden] { display: none !important; }

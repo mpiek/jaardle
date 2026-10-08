@@ -4,6 +4,7 @@
 // eval. Functies/consts worden via een aangehangen __T-handle blootgesteld.
 // Draaien:  cd yeardle-nl && node --test tests/
 import { test } from "node:test";
+import vm from "node:vm";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -68,6 +69,7 @@ src += `
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
+  seasonOn, SEASON_KEY, SEASON_CSS, SEASON_BAR, THEME_COLORS, themeBarColor, setSeason, seasonActive, seasonMenuShown,
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -2098,4 +2100,104 @@ test("ObsidianFx — de hele tijdlijn tekent zonder fouten (strikte nep-canvas, 
       for (const t of [13.9, 13.97, 13.99, 14.0, 14.03, 14.2, 14.6, 15.1, 22.5]) OF._renderAt(cv, t, o);   // de breuk en de scherven
     }
   } finally { document.createElement = saveCreate; }
+});
+
+// ── Seizoens-skin (Halloween) ──────────────────────────────────────────────────
+// De datumregel staat twee keer: seasonOn() in game.js en inline in het head-script van de template (dat moet vóór de
+// stylesheet draaien). De test draait het echte head-script in een vm en vergelijkt het met seasonOn().
+const seasonHeadScript = () => {
+  const tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+  const code = [...tpl.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((b) => b.includes("jaardle:season"));
+  assert.ok(code, "head-script van de seizoens-skin staat niet in de template");
+  return code;
+};
+function runSeasonHead({ date, search = "", store = {}, theme } = {}) {
+  const links = [], meta = { content: "#1a1a1a" };
+  const icon = (h) => ({ _h: h, getAttribute() { return this._h; }, set href(v) { this._h = v; }, get href() { return this._h; } });
+  const icons = [icon("/favicon.svg?v=2"), icon("/favicon-96.png?v=2"), icon("/favicon-192.png?v=2")];
+  const root = { dataset: theme ? { theme } : {} };
+  vm.runInNewContext(seasonHeadScript(), {
+    Date: class extends Date { constructor(...a) { if (a.length) super(...a); else super(date); } },
+    location: { search },
+    localStorage: { getItem: (k) => (k in store ? store[k] : null) },
+    document: { documentElement: root, head: { appendChild: (el) => links.push(el) }, createElement: () => ({}),
+      querySelector: () => meta, querySelectorAll: () => icons },
+  });
+  return { season: root.dataset.season, links, bar: meta.content, icons: icons.map((i) => i._h) };
+}
+
+test("seasonOn — 19 okt t/m 1 nov, elk jaar; daarbuiten niet", () => {
+  const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
+  for (const [y, m, dd, want] of [[2026, 10, 18, false], [2026, 10, 19, true], [2026, 10, 31, true], [2026, 11, 1, true], [2026, 11, 2, false],
+    [2026, 10, 1, false], [2026, 12, 24, false], [2027, 10, 25, true], [2027, 11, 1, true], [2026, 1, 1, false]]) {
+    assert.equal(T.seasonOn(d(y, m, dd)), want, `${y}-${m}-${dd}`);
+  }
+});
+
+test("head-script van de skin ≡ seasonOn(): zelfde dagen, ?skin=-voorvertoning, uitzetten, versie van de CSS", () => {
+  const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
+  for (let day = 1; day <= 31; day++) for (const m of [10, 11]) {
+    if (m === 11 && day > 30) continue;
+    const date = d(2026, m, day), r = runSeasonHead({ date });
+    assert.equal(r.season === "halloween", T.seasonOn(date), `${m}/${day}: head-script en seasonOn() verschillen`);
+  }
+  const buiten = d(2026, 6, 15);
+  assert.equal(runSeasonHead({ date: buiten }).season, undefined, "gewone dag: geen skin");
+  assert.equal(runSeasonHead({ date: buiten, search: "?skin=halloween" }).season, "halloween", "?skin=halloween toont 'm altijd");
+  assert.equal(runSeasonHead({ date: buiten, search: "?x=1&skin=halloween" }).season, "halloween");
+  assert.equal(runSeasonHead({ date: buiten, search: "?skin=halloweenx" }).season, undefined, "alleen precies halloween");
+  const binnen = d(2026, 10, 25);
+  assert.equal(runSeasonHead({ date: binnen, store: { [T.SEASON_KEY]: "off" } }).season, undefined, "uitgezet via het menu");
+  assert.equal(runSeasonHead({ date: binnen, store: { [T.SEASON_KEY]: "off" }, search: "?skin=halloween" }).season, "halloween", "voorvertoning wint van uitgezet");
+  const on = runSeasonHead({ date: binnen });
+  assert.equal(on.links.length, 1);
+  assert.equal(on.links[0].rel, "stylesheet");
+  assert.equal(on.links[0].href, T.SEASON_CSS, "het head-script en SEASON_CSS in game.js moeten dezelfde versie laden");
+  assert.deepEqual(on.icons, ["/favicon-halloween.svg?v=2", "/favicon-halloween-96.png?v=2", "/favicon-halloween-192.png?v=2"], "pompoen-favicons");
+  assert.equal(runSeasonHead({ date: buiten }).links.length, 0, "buiten het event wordt de versiering niet opgehaald");
+});
+
+test("browserbalk-kleur: skin-palet voor donker/licht, verdiende thema's houden hun eigen kleur", () => {
+  const save = document.documentElement;
+  try {
+    document.documentElement = { dataset: {} };
+    assert.equal(T.themeBarColor("dark"), T.THEME_COLORS.dark);
+    assert.equal(T.themeBarColor("light"), T.THEME_COLORS.light);
+    document.documentElement = { dataset: { season: "halloween" } };
+    assert.equal(T.themeBarColor("dark"), T.SEASON_BAR.dark);
+    assert.equal(T.themeBarColor("light"), T.SEASON_BAR.light);
+    for (const th of ["midnight", "gold", "parchment"]) assert.equal(T.themeBarColor(th), T.THEME_COLORS[th], th);
+    assert.equal(T.themeBarColor("onbekend"), T.SEASON_BAR.dark, "onbekend thema valt terug op donker");
+    // het head-script zet dezelfde kleuren
+    const head = (theme) => runSeasonHead({ date: new Date(2026, 9, 25, 12), theme }).bar;
+    assert.equal(head(undefined), T.SEASON_BAR.dark);
+    assert.equal(head("light"), T.SEASON_BAR.light);
+    assert.equal(head("midnight"), "#1a1a1a", "verdiende thema's: balk niet aangeraakt door het skin-script");
+  } finally { document.documentElement = save; }
+});
+
+test("style.css + season-halloween.css: palet in de kritieke CSS (≡ balkkleur), versiering lui en nooit klikbaar", () => {
+  const css = readFileSync(join(dir, "..", "style.css"), "utf8"), deco = readFileSync(join(dir, "..", "season-halloween.css"), "utf8");
+  const block = (sel) => { const i = css.indexOf(sel + " {"); assert.ok(i > 0, `${sel} ontbreekt in style.css`); return css.slice(i, css.indexOf("}", i)); };
+  const bg = (b) => b.match(/--bg:\s*(#[0-9a-f]{6})/i)[1].toLowerCase();
+  assert.equal(bg(block('html[data-season="halloween"]:not([data-theme])')), T.SEASON_BAR.dark, "--bg donker ≠ SEASON_BAR.dark");
+  assert.equal(bg(block('html[data-season="halloween"][data-theme="light"]')), T.SEASON_BAR.light, "--bg licht ≠ SEASON_BAR.light");
+  assert.ok(!/@keyframes ska-/.test(css) && !/mask/.test(css.slice(css.indexOf("Seizoens-skin: Halloween (palet)"), css.indexOf("* { box-sizing"))), "de versiering hoort niet in de kritieke CSS");
+  // elke animatie heeft een @keyframes; elke versiering-regel met content: "" is pointer-events: none
+  const names = new Set([...deco.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]));
+  for (const m of deco.matchAll(/animation:\s*([^;]+);/g)) for (const part of m[1].split(",")) {
+    const n = part.trim().split(/\s+/)[0];
+    if (n !== "none") assert.ok(names.has(n), `animatie ${n} heeft geen @keyframes`);
+  }
+  for (const rule of deco.matchAll(/([^{}]+)\{([^{}]*content:\s*""[^{}]*)\}/g)) assert.match(rule[2], /pointer-events:\s*none/, `versiering ${rule[1].trim().slice(0, 60)} kan klikken blokkeren`);
+  assert.match(deco, /@media \(prefers-reduced-motion: reduce\)/, "minder beweging ontbreekt");
+  assert.ok(deco.length < 40000, "versiering is onverwacht groot geworden");
+});
+
+test("menu-regel voor de skin: in de template, vertaald in alle talen, verborgen buiten het event", () => {
+  const tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+  assert.match(tpl, /data-action="season"[^>]*data-i18n="menu_season"[^>]*hidden/);
+  for (const code of Object.keys(T.I18N)) assert.ok(T.I18N[code].menu_season, `${code}: menu_season ontbreekt`);
+  for (const code of Object.keys(T.I18N)) assert.match(T.I18N[code].menu_season, /^\u{1F383} /u, `${code}: pompoen vooraan`);
+  assert.ok(existsSync(join(dir, "..", "favicon-halloween.svg")) && existsSync(join(dir, "..", "favicon-halloween-96.png")) && existsSync(join(dir, "..", "favicon-halloween-192.png")), "favicon-bestanden");
 });
