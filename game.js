@@ -3646,6 +3646,7 @@ const loadHolidayFx = fxLoader("/holiday-fx.js", "HolidayFx");
 const loadEventFx = fxLoader("/event-fx.js", "EventFx");
 const loadRewardFx = fxLoader("/reward-fx.js", "RewardFx");   // Scheurkalender + Wimpels (beloningen), zie showCalendar/showBunting
 const loadObsidianFx = fxLoader("/obsidian-fx.js", "ObsidianFx");   // de onthulling bij obsidiaan (capstone-trede 6), zie showObsidianReveal
+const loadSeasonCat = fxLoader("/season-cat.js", "SeasonCat");   // het Halloween-katje naast je score (markup + CSS + gedrag), zie syncSeasonCat
 // Vooruitladen in een rustig moment, maar alleen op een dag waarop er iets te vieren
 // valt (feestdag, hoogtijdag of ?fx=-voorvertoning): dan staat de laag klaar op het
 // moment van de winst. Een inhaalpot van een oude hoogtijdag laadt op aanvraag.
@@ -10711,6 +10712,14 @@ function setSeason(on) {
     if (on) { if (!h.includes(icon)) l.href = h.replace("/favicon", icon); } else l.href = h.replace(icon, "/favicon");
   });
   syncSeasonCheck();
+  syncSeasonCat();
+}
+// Het katje hoort bij de Halloween-skin: er zolang die aanstaat (ook bij ?skin=halloween), weg zodra je 'm uitzet. Het bestand
+// (/season-cat.js, ~6 KB gzip) wordt pas in een rustig moment opgehaald, en alleen als de skin aanstaat: op alle andere dagen nooit.
+function syncSeasonCat() {
+  if (seasonActive() !== "halloween") { if (window.SeasonCat) window.SeasonCat.unmount(); return; }
+  const go = () => loadSeasonCat().then((c) => { if (seasonActive() === "halloween") c.mount(); }).catch(() => {});
+  if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
 }
 function syncSeasonCheck() {
   const btn = document.querySelector('[data-action="season"]'), id = seasonCurrent();
@@ -12061,6 +12070,7 @@ async function init() {
   renderMenu();
   syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → vinkje bijzetten
   syncSeasonCheck();   // idem voor de seizoens-skin: regel alleen tijdens het event, vinkje = aan, label van de juiste skin
+  syncSeasonCat();   // en het Halloween-katje, als de skin aanstaat
 
   // Modals: backdrop / ✕ knop / Escape. De kluis (modal-rewards) is bijzonder: kwam
   // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc

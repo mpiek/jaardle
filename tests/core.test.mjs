@@ -2290,6 +2290,170 @@ test("setSeason/syncSeasonCheck: aan/uit per skin, juiste sleutel, label en vink
   }
 });
 
+// --- Halloween-katje (season-cat.js): lui bestand met markup + CSS + gedrag, alleen bij de skin ---
+const loadSeasonCat = () => {
+  // klein nep-DOM met een nep-klok, genoeg voor mount/unmount, de levenscyclus en tikken
+  const clock = { now: 0, q: [], seq: 0 };
+  const setT = (fn, ms) => { const id = ++clock.seq; clock.q.push({ id, at: clock.now + ms, fn }); return id; };
+  const clearT = (id) => { clock.q = clock.q.filter((x) => x.id !== id); };
+  const advance = (ms) => {
+    const end = clock.now + ms;
+    for (;;) {
+      clock.q.sort((a, b) => a.at - b.at || a.id - b.id);
+      const nxt = clock.q[0];
+      if (!nxt || nxt.at > end) break;
+      clock.q.shift(); clock.now = nxt.at; nxt.fn();
+    }
+    clock.now = end;
+  };
+  const mkEl = (tag) => {
+    const cls = new Set(), kids = [], on = {};
+    const e = { tag, kids, on, parent: null, attrs: {}, offsetWidth: 1, offsetParent: {}, textContent: "", innerHTML: "", style: {},
+      get isConnected() { return !!this.parent; },
+      classList: { add: (c) => cls.add(c), remove: (c) => cls.delete(c), contains: (c) => cls.has(c), list: () => [...cls] },
+      set className(v) { cls.clear(); v.split(/\s+/).filter(Boolean).forEach((c) => cls.add(c)); }, get className() { return [...cls].join(" "); },
+      setAttribute(k, v) { this.attrs[k] = v; }, addEventListener(t, f) { on[t] = f; },
+      appendChild(c) { c.parent = this; kids.push(c); }, insertBefore(c, ref) { c.parent = this; kids.unshift(c); },
+      remove() { if (this.parent) { this.parent.kids.splice(this.parent.kids.indexOf(this), 1); this.parent = null; } } };
+    return e;
+  };
+  const make = ({ reduced = false, store = {}, hidden = false, rand = 0.5 } = {}) => {
+    const bar = mkEl("div"), head = mkEl("head");
+    const doc = { hidden, getElementById: (id) => (id === "play-bar" ? bar : null), createElement: mkEl, head };
+    const ls = { _: { ...store }, getItem(k) { return k in this._ ? this._[k] : null; }, setItem(k, v) { this._[k] = String(v); } };
+    const win = { matchMedia: () => ({ matches: reduced }) };
+    const M = Object.create(Math); M.random = () => rand;
+    const ctx = vm.createContext({ window: win, document: doc, localStorage: ls, setTimeout: setT, clearTimeout: clearT, Math: M, Number, String, Array, Set });
+    vm.runInContext(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), ctx);
+    return { api: win.SeasonCat, bar, head, doc, ls, cat: () => bar.kids[0], clock };
+  };
+  return { make, advance, clock };
+};
+
+test("season-cat.js: mount zet één aria-hidden katje vooraan in #play-bar, unmount ruimt alles op, dubbel mounten kan niet", () => {
+  const { make } = loadSeasonCat(), w = make();
+  assert.ok(w.api && typeof w.api.mount === "function" && typeof w.api.unmount === "function", "SeasonCat.mount/unmount");
+  w.api.mount(); w.api.mount();
+  assert.equal(w.bar.kids.length, 1, "één katje, ook na twee keer mount");
+  const cat = w.cat();
+  assert.equal(cat.tag, "div"); assert.equal(cat.attrs["aria-hidden"], "true", "decoratief: niet voorlezen"); assert.ok(cat.classList.contains("sk-cat"));
+  assert.equal(w.head.kids.length, 1, "de CSS komt als één <style> mee");
+  for (const g of ["cat-sit", "cat-nap", "cat-stretch"]) assert.ok(cat.innerHTML.includes(`class="${g}"`), `pose ${g}`);
+  assert.ok(!/(<button|tabindex)/.test(cat.innerHTML), "niet focusbaar");
+  w.api.unmount();
+  assert.equal(w.bar.kids.length, 0); assert.equal(w.head.kids.length, 0); assert.equal(w.clock.q.length, 0, "geen lopende timers meer");
+  w.api.mount(); assert.equal(w.bar.kids.length, 1, "opnieuw aan kan");
+});
+
+test("season-cat.js: de eerste drie bezoeken hupt hij binnen, daarna niet meer; zonder localStorage nooit", () => {
+  const { make, advance } = loadSeasonCat();
+  const store = {};
+  for (let i = 0; i < 4; i++) {
+    const w = make({ store }); w.api.mount();
+    assert.equal(w.cat().classList.contains("intro"), i < 3, `bezoek ${i + 1}`);
+    Object.assign(store, w.ls._);
+    advance(1400);
+    assert.equal(w.cat().classList.contains("intro"), false, "de intro-klasse gaat na 1,3 s weer weg");
+    w.api.unmount();
+  }
+  const broken = make(); broken.ls.getItem = () => { throw new Error("blocked"); };
+  const ctx = make(); ctx.api.mount();   // gewone localStorage werkt hierboven; hier alleen: geen crash zonder
+  assert.ok(ctx.cat());
+});
+
+test("season-cat.js: levenscyclus — wakker, miauw, gaap, slaperig, slaapt, rekt zich, weer wakker; tempo klopt met het ontwerp", () => {
+  // Math.random = 0,5 → 20 s tot de miauw, 40 s wakker, 120 s slapen
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9" }, rand: 0.5 });
+  w.api.mount(); const c = w.cat(), has = (k) => c.classList.contains(k);
+  assert.ok(!has("asleep") && !has("meow") && !has("intro"), "begint wakker, zittend, zonder intro");
+  advance(19900); assert.ok(!has("meow"), "nog geen miauw voor 20 s");
+  advance(200); assert.ok(has("meow"), "miauw op 20 s");
+  advance(1500); assert.ok(!has("meow"), "miauw duurt 1,5 s");
+  advance(18200); assert.ok(!has("yawn"), "t=39,9 s: nog geen gaap");   // 20,1 + 1,5 + 18,2 = 39,8 s
+  advance(300); assert.ok(has("yawn"), "gaap op 40 s");
+  advance(1600); assert.ok(has("drowsy") && !has("yawn"), "na de gaap: slaperig");
+  advance(2000); assert.ok(has("asleep"), "ongeveer 3,65 s na het begin van de gaap slaapt hij");
+  advance(700); assert.ok(!has("drowsy") && has("asleep"), "slaperig valt weg als hij slaapt");
+  advance(119000); assert.ok(has("asleep"), "hij slaapt 120 s");
+  advance(1500); assert.ok(!has("asleep") && has("wake"), "daarna wordt hij wakker en rekt zich");
+  advance(1800); assert.ok(!has("wake") && !has("asleep"), "en zit weer (1,7 s later)");
+  advance(60000); assert.ok(has("asleep"), "de cyclus herhaalt zich");
+  // de uitersten van de tempo-grenzen
+  for (const [rand, awakeMs, sleepMs] of [[0, 30000, 90000], [1, 50000, 150000]]) {
+    const L = loadSeasonCat(), x = L.make({ store: { "jaardle:season:halloween:cat": "9" }, rand }); x.api.mount(); const k = x.cat();
+    L.advance(awakeMs + 4000); assert.ok(k.classList.contains("asleep"), `rand=${rand}: slaapt ná ${awakeMs / 1000} s wakker`);
+    L.advance(sleepMs - 3000); assert.ok(k.classList.contains("asleep"), `rand=${rand}: nog steeds slapen`);
+    L.advance(4500); assert.ok(!k.classList.contains("asleep"), `rand=${rand}: ná ${sleepMs / 1000} s slapen weer wakker`);
+  }
+});
+
+test("season-cat.js: tikken — wakker = aaien (hartjes) en daarna weer rustig; slapend = eerst wakker (rekken), dan aaien", () => {
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9" } });
+  w.api.mount(); const c = w.cat(), has = (k) => c.classList.contains(k);
+  c.on.click(); assert.ok(has("pet")); advance(1650); assert.ok(!has("pet"), "aaien duurt 1,6 s");
+  advance(1700); assert.ok(!has("asleep"));
+  // slapend: tik
+  advance(60000); assert.ok(has("asleep"), "hij slaapt inmiddels");
+  c.on.click(); assert.ok(!has("asleep") && has("wake") && !has("pet"), "eerst wakker en rekken");
+  advance(1750); assert.ok(has("pet") && !has("wake"), "daarna aaien");
+  advance(1700); assert.ok(!has("pet") && !has("asleep"), "en weer rustig zitten");
+  // na een tik begint de wakker-teller opnieuw: niet meteen weer slapen
+  advance(20000); assert.ok(!has("asleep"), "na een tik slaapt hij niet meteen weer");
+});
+
+test("season-cat.js: verborgen tab of ingeklapt speelveld = hij wacht; minder beweging = slaapt stil, geen timers, geen tikken", () => {
+  const { make, advance } = loadSeasonCat();
+  const w = make({ store: { "jaardle:season:halloween:cat": "9" } }); w.api.mount(); const c = w.cat();
+  w.doc.hidden = true; advance(200000);
+  assert.ok(!c.classList.contains("asleep") && !c.classList.contains("yawn"), "een verborgen tab laat hem niet slapen");
+  w.doc.hidden = false; advance(5000);
+  assert.ok(c.classList.contains("yawn") || c.classList.contains("drowsy") || c.classList.contains("asleep"), "weer zichtbaar: de stap volgt");
+  const L2 = loadSeasonCat(), r = L2.make({ reduced: true, store: {} }); r.api.mount();
+  assert.equal(r.clock.q.length, 0, "minder beweging: geen timers"); assert.equal(r.cat().on.click, undefined, "geen tik-gedrag");
+  assert.ok(!r.cat().classList.contains("intro"), "geen hupje");
+});
+
+test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een @keyframes, minder beweging dempt alles, geen fixed/klik-blokkade", () => {
+  const { make } = loadSeasonCat(), w = make(), css = w.api.css, js = readFileSync(join(dir, "..", "season-cat.js"), "utf8");
+  const sel = 'html[data-season="halloween"]';
+  assert.ok(css.includes(`${sel} #play-bar { position: relative; }`), "de kat is absoluut t.o.v. #play-bar");
+  assert.ok(!/<style|<\/style/.test(js.replace(/\/\/.*$/gm, "")), "geen <style> in de bron: de CSS is een string");
+  // elke klasse waar de SVG's of het script mee werken staat in de CSS
+  w.api.mount();
+  const used = new Set([...w.cat().innerHTML.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/)));
+  for (const c of ["meow", "yawn", "drowsy", "asleep", "wake", "pet", "intro"]) used.add(c);
+  for (const c of used) if (!["cat-sit", "cat-nap", "cat-stretch"].includes(c)) assert.ok(css.includes("." + c), `.${c} ontbreekt in de CSS`);
+  for (const c of ["cat-sit", "cat-nap", "cat-stretch"]) assert.ok(css.includes("." + c), c);
+  // animaties
+  const names = new Set([...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]));
+  // let op: een komma kan ook binnen steps(1, end) staan, dus niet blind op "," splitsen
+  for (const m of css.matchAll(/animation:\s*([^;]+);/g)) for (const part of m[1].replace(/\([^)]*\)/g, "").split(",")) { const n = part.trim().split(/\s+/)[0]; if (n !== "none") assert.ok(names.has(n), `animatie ${n} heeft geen @keyframes`); }
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.cat-nap \{ opacity: 1; \}[\s\S]*\.cat-sit \{ opacity: 0; \}/, "minder beweging: slapend en stil");
+  assert.ok(!/position:\s*fixed/.test(css), "geen fixed");
+  assert.ok(!/\bz-index:\s*(?!4\b)\d+/.test(css), "de kat blijft laag (z-index 4)");
+  assert.ok(!/(#keypad|#year-input|\.key\s*\{|main\s*\{)/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "raakt de speelkolom niet aan");
+  assert.ok(js.length < 32000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);
+  // alleen opgemaakt onder de skin: elke selector (buiten @keyframes) begint met html[data-season="halloween"]
+  const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "");
+  for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/@media[^{]*\{/g, "").split(",")) {
+    if (one.trim()) assert.ok(one.trim().startsWith('html[data-season="halloween"]'), `regel buiten de skin: ${one.trim().slice(0, 80)}`);
+  }
+});
+
+test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bestand wordt lui geladen met de game.js-versie, alleen bij de skin", () => {
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(g, /const loadSeasonCat = fxLoader\("\/season-cat\.js", "SeasonCat"\)/);
+  assert.ok((g.match(/syncSeasonCat\(\)/g) || []).length >= 2, "bij laden én in setSeason");
+  const fn = g.slice(g.indexOf("function syncSeasonCat()"), g.indexOf("function syncSeasonCheck()"));
+  assert.match(fn, /seasonActive\(\) !== "halloween"/, "alleen bij Halloween");
+  assert.match(fn, /unmount\(\)/, "uitzetten haalt de kat weg");
+  assert.match(fn, /requestIdleCallback/, "pas in een rustig moment");
+  assert.match(fn, /if \(seasonActive\(\) === "halloween"\) c\.mount\(\)/, "niet mounten als de skin intussen uit is gezet");
+  const set = g.slice(g.indexOf("function setSeason("), g.indexOf("function syncSeasonCat()"));
+  assert.match(set, /syncSeasonCat\(\)/, "setSeason ververst de kat");
+  assert.ok(existsSync(join(dir, "..", "season-cat.js")));
+});
+
 test("Gok-knop: bij hover blijft hij de accentkleur (.key:hover mag .key-wide niet overschrijven)", () => {
   const css = readFileSync(join(dir, "..", "style.css"), "utf8");
   assert.match(css, /\.key-wide:hover\s*\{[^}]*background:\s*var\(--accent\)/, ".key-wide:hover houdt de accentkleur");
