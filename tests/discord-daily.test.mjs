@@ -1,12 +1,12 @@
 // Bewaakt het dagelijkse Discord-bericht (tools/discord-daily.mjs + .github/workflows/discord-daily.yml):
-// geen antwoord in de tekst, een link naar het spel, en precies één post per dag rond 06:00 Amsterdam —
-// ook rond het verzetten van de klok. Draaien:  node --test tests/
+// geen antwoord in de tekst, een link naar het spel, en een post per dag in het ochtendvenster, ook als geplande runs vallen of te laat komen
+// en rond het verzetten van de klok. Draaien:  node --test tests/
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { amsterdamParts, dayNumber, buildPayload, escapeMd } from "../tools/discord-daily.mjs";
+import { amsterdamParts, inWindow, dayNumber, buildPayload, escapeMd } from "../tools/discord-daily.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const puzzle = (year, en) => ({ year, facts: [{ en }] });
@@ -24,18 +24,34 @@ test("Amsterdamse datum en uur, zomer- en wintertijd", () => {
   assert.deepEqual(amsterdamParts(new Date("2026-10-09T05:17:00Z")), { date: "2026-10-09", hour: 7 });
 });
 
-test("de twee cron-schema's raken elke dag van het jaar precies één keer 06:xx Amsterdam", () => {
+test("elke dag van het jaar vallen er minstens twee geplande runs in het venster 06:00-12:00 Amsterdam, en de eerste is vroeg", () => {
   const yml = readFileSync(join(root, ".github/workflows/discord-daily.yml"), "utf8");
   const crons = [...yml.matchAll(/- cron: "(\d+) (\d+) \* \* \*"/g)].map((m) => ({ min: +m[1], hour: +m[2] }));
-  assert.equal(crons.length, 2, "twee schema's verwacht (zomer- en wintertijd)");
+  assert.ok(crons.length >= 3, "meerdere kansen per dag (GitHub laat geplande runs weleens vallen)");
   assert.ok(crons.every((c) => c.min !== 0), "niet op het hele uur starten");
+  const window = yml.match(/--send --window (\d+-\d+)/)?.[1];
+  assert.equal(window, "6-12");
   for (let day = Date.UTC(2026, 0, 1); day < Date.UTC(2028, 0, 1); day += 86400000) {
-    const hits = crons.filter((c) => amsterdamParts(new Date(day + c.hour * 3600000 + c.min * 60000)).hour === 6);
-    assert.equal(hits.length, 1, `${new Date(day).toISOString().slice(0, 10)}: ${hits.length} runs vallen om 06:xx`);
+    const inside = crons
+      .map((c) => day + c.hour * 3600000 + c.min * 60000)
+      .filter((t) => inWindow(amsterdamParts(new Date(t)).hour, window))
+      .sort((a, b) => a - b);
+    const label = new Date(day).toISOString().slice(0, 10);
+    assert.ok(inside.length >= 2, `${label}: maar ${inside.length} run(s) in het venster`);
+    assert.ok(amsterdamParts(new Date(inside[0])).hour <= 6, `${label}: de eerste run in het venster komt pas na 07:00`);
   }
-  assert.match(yml, /discord-daily\.mjs --send --only-at-hour 6/);
   assert.match(yml, /secrets\.DISCORD_DAILY_WEBHOOK/);
+  assert.match(yml, /actions\/cache\/restore@v4[\s\S]*lookup-only: true/, "per dag onthouden dat er gepost is");
+  assert.match(yml, /actions\/cache\/save@v4/);
   assert.doesNotMatch(yml, /echo[^\n]*DISCORD_DAILY_WEBHOOK/, "de secret mag nooit geprint worden");
+});
+
+test("inWindow: begin telt mee, einde niet; slechte invoer geeft een fout", () => {
+  assert.equal(inWindow(5, "6-12"), false);
+  assert.equal(inWindow(6, "6-12"), true);
+  assert.equal(inWindow(11, "6-12"), true);
+  assert.equal(inWindow(12, "6-12"), false);
+  assert.throws(() => inWindow(7, "zes tot twaalf"));
 });
 
 test("bericht: vraag, link naar het spel, geen antwoord, geen mentions", () => {

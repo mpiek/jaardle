@@ -18,7 +18,7 @@ Lokaal draaien: `python3 -m http.server 8000` in de repo-root.
 
 ## Dagelijks Discord-bericht
 
-Elke ochtend rond 06:00 (Amsterdam) plaatst een GitHub Action (`.github/workflows/discord-daily.yml`) de vraag van de dag in het Jaardle-Discordkanaal, met een link naar het spel. Het bericht komt uit `tools/discord-daily.mjs` (het jaar van de dag staat er nooit in); de webhook staat als repo-secret `DISCORD_DAILY_WEBHOOK`. Lokaal testen zonder te posten: `node tools/discord-daily.mjs` (preview) of `--check-webhook`; in Actions kun je de workflow handmatig starten (standaard alleen controleren).
+Elke ochtend rond 06:00 (Amsterdam, in elk geval vóór 12:00) plaatst een GitHub Action (`.github/workflows/discord-daily.yml`) de vraag van de dag in het Jaardle-Discordkanaal, met een link naar het spel. Het bericht komt uit `tools/discord-daily.mjs` (het jaar van de dag staat er nooit in); de webhook staat als repo-secret `DISCORD_DAILY_WEBHOOK`. Lokaal testen zonder te posten: `node tools/discord-daily.mjs` (preview) of `--check-webhook`; in Actions kun je de workflow handmatig starten (check / post / mark; standaard alleen controleren). GitHub laat geplande runs weleens vallen: daarom zijn er vier kansen per dag en onthoudt de Actions-cache dat er gepost is.
 
 ## Licentie
 
