@@ -10944,6 +10944,7 @@ function setSeason(on) {
   syncSeasonCheck();
   syncSeasonCat();
   syncEventUi();   // de event-balk volgt de skin (zonder Halloween-look ook geen balk)
+  if (state && state.done) renderEventStrip(false);   // en de strook op het eindscherm wisselt het kattenkopje voor het icoon (of omgekeerd)
 }
 // Het katje hoort bij de Halloween-skin: er zolang die aanstaat (ook bij ?skin=halloween), weg zodra je 'm uitzet. Het bestand
 // (/season-cat.js, ~6 KB gzip) wordt pas in een rustig moment opgehaald, en alleen als de skin aanstaat: op alle andere dagen nooit.
@@ -10968,7 +10969,8 @@ function syncSeasonCheck() {
 const EVENT_MASCOTS = { cat: () => loadSeasonCat() };   // mascotte-id → het bestand dat 'm levert (SeasonCat.head)
 function eventView(ev) {
   const st = eventState(ev), today = eventToday(), idx = daysBetween(ev.start, today), flair = parseFlair(myFlair), fx = eventFxActive();
-  const head = ev.mascot === "cat" && window.SeasonCat && window.SeasonCat.head ? window.SeasonCat.head : "";
+  // De mascotte alleen mét de skin: het kopje zit zonder de CSS van /season-cat.js (die komt pas bij aanstaande skin) vol overlappende standen.
+  const head = ev.mascot === "cat" && seasonActive() === ev.skin && window.SeasonCat && window.SeasonCat.head ? window.SeasonCat.head : "";
   return {
     id: ev.id, icon: ev.icon, mascot: head, lang, locale: LANGS[lang].intl, start: ev.start, end: ev.end, catchupEnd: eventCatchupEnd(ev),
     total: st.total, thresholds: ev.thresholds, gift: ev.gift, rewards: ev.rewards,

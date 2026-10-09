@@ -2651,7 +2651,8 @@ test("event-pop-ups — meerdere beloningen van één event tegelijk worden éé
 
 test("eventView — de gegevens voor de UI: fase, dagen over, vandaag gespeeld, wat je draagt", () => {
   evClean();
-  const wasUser = T.auth.user, sp = T.eventById("spook");
+  const wasUser = T.auth.user, sp = T.eventById("spook"), de0 = document.documentElement;
+  document.documentElement = { dataset: {} };   // seasonActive() leest de skin
   try {
     T.setLang("nl"); T.setEventToday("2026-10-23"); T.auth.user = { uid: "u" };
     T.setPlayer("Jip", "🎃~web", null); T.setLocalHistory(evHist(["2026-10-21", "2026-10-23"]));
@@ -2661,7 +2662,15 @@ test("eventView — de gegevens voor de UI: fase, dagen over, vandaag gespeeld, 
     T.setEventToday("2026-10-22"); assert.equal(T.eventView(sp).todayPlayed, false);
     T.setEventToday("2026-11-03"); const late = T.eventView(sp); assert.equal(late.phase, "catch"); assert.equal(late.todayPlayed, false);
     T.auth.user = null; assert.equal(T.eventView(sp).anon, true);
-  } finally { T.auth.user = wasUser; evClean(); }
+    // de mascotte (kattenkopje) alleen mét de skin: zonder zijn CSS zou het kopje vol overlappende standen zitten
+    const de = document.documentElement, was = window.SeasonCat;
+    try {
+      window.SeasonCat = { head: "<svg class=\"cat-head\"></svg>" };
+      document.documentElement = { dataset: {} }; assert.equal(T.eventView(sp).mascot, "", "skin uit: het icoon");
+      document.documentElement = { dataset: { season: "halloween" } }; assert.equal(T.eventView(sp).mascot, window.SeasonCat.head, "skin aan: het kopje");
+      window.SeasonCat = undefined; assert.equal(T.eventView(sp).mascot, "", "kat nog niet geladen: het icoon");
+    } finally { document.documentElement = de; if (was) window.SeasonCat = was; else delete window.SeasonCat; }
+  } finally { T.auth.user = wasUser; document.documentElement = de0; evClean(); }
 });
 
 test("nieuwe-stip — er staat een stempel op de kaart die je nog niet zag; weg zodra je kijkt; niet na het event", () => {
