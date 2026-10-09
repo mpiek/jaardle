@@ -250,3 +250,30 @@ html[data-theme="light"], html[data-theme="parchment"] {
   .fl-fx.fx-shard::after { transform: rotate(-4deg); background-position: 140% 0, 0 0; }
   .fl-fx.fx-aura { filter: drop-shadow(0 0 0.04em var(--fx-aura-in)) drop-shadow(0 0 0.13em var(--fx-aura-mid)) drop-shadow(0 0 0.25em var(--fx-aura-out)); }
 }
+
+/* ── Spooktober-event: web = Spinnenweb (event-beloning op 6 stempels; blijft daarna van je) ─────────────────────────────────────
+   Een web in de hoek rechtsboven dat zacht wiegt, met een spinnetje dat aan een draad uit het web schommelt. Vormen zijn maskers
+   (alleen alpha) met een kleur uit een token: bleek lavendel op donker, diep paars op licht (op crème verdwijnt bleek). */
+:root { --fx-web: #ece3ff; --fx-spider: #f3ecff; }
+html[data-theme="light"], html[data-theme="parchment"] { --fx-web: #4a2f7a; --fx-spider: #2d1b45; }
+.rw-card, .podpop.night .podpop-card { --fx-web: #ece3ff; --fx-spider: #f3ecff; }   /* donkere kaarten in elk thema */
+.fx-web::before {
+  right: -0.17em; top: -0.27em; width: 0.76em; height: 0.76em; background: var(--fx-web); opacity: 0.95; transform-origin: 100% 0;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 %3E%3Cpath d=%22M100 0L2.0 0.0M100 0L9.5 37.5M100 0L30.7 69.3M100 0L62.5 90.5M100 0L100.0 98.0M70.7 0.0Q75.9 4.8 73.0 11.2M73.0 11.2Q79.6 13.7 79.3 20.7M79.3 20.7Q86.3 20.4 88.8 27.0M88.8 27.0Q95.2 24.1 100.0 29.3M41.5 0.0Q51.8 9.6 45.9 22.4M45.9 22.4Q59.1 27.3 58.6 41.4M58.6 41.4Q72.7 40.9 77.6 54.1M77.6 54.1Q90.4 48.2 100.0 58.5M12.2 0.0Q27.7 14.4 18.9 33.6M18.9 33.6Q38.7 41.0 37.9 62.1M37.9 62.1Q59.0 61.3 66.4 81.1M66.4 81.1Q85.6 72.3 100.0 87.8%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%224.4%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 %3E%3Cpath d=%22M100 0L2.0 0.0M100 0L9.5 37.5M100 0L30.7 69.3M100 0L62.5 90.5M100 0L100.0 98.0M70.7 0.0Q75.9 4.8 73.0 11.2M73.0 11.2Q79.6 13.7 79.3 20.7M79.3 20.7Q86.3 20.4 88.8 27.0M88.8 27.0Q95.2 24.1 100.0 29.3M41.5 0.0Q51.8 9.6 45.9 22.4M45.9 22.4Q59.1 27.3 58.6 41.4M58.6 41.4Q72.7 40.9 77.6 54.1M77.6 54.1Q90.4 48.2 100.0 58.5M12.2 0.0Q27.7 14.4 18.9 33.6M18.9 33.6Q38.7 41.0 37.9 62.1M37.9 62.1Q59.0 61.3 66.4 81.1M66.4 81.1Q85.6 72.3 100.0 87.8%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%224.4%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: fx-web-sway 5.2s ease-in-out infinite;
+}
+.fx-web::after {
+  right: -0.14em; top: -0.2em; width: 0.32em; height: 0.84em; background: var(--fx-spider); transform-origin: 50% 0;
+  -webkit-mask: linear-gradient(#000, #000) 50% 0 / 0.035em 0.52em no-repeat, url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 46%22 %3E%3Cpath fill-rule=%22evenodd%22 d=%22M12 25a8 9 0 1 0 16 0a8 9 0 1 0 -16 0ZM15 14a5 5 0 1 0 10 0a5 5 0 1 0 -10 0ZM17.2 13a1.15 1.15 0 1 0 2.3 0a1.15 1.15 0 1 0 -2.3 0Z M20.5 13a1.15 1.15 0 1 0 2.3 0a1.15 1.15 0 1 0 -2.3 0Z%22/%3E%3Cpath d=%22M14 20Q5 11 2 19M13 23Q3 21 1 29M13 26Q4 30 3 38M15 29Q9 35 8 43M26 20Q35 11 38 19M27 23Q37 21 39 29M27 26Q36 30 37 38M25 29Q31 35 32 43%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") 50% 100% / 0.29em 0.32em no-repeat;
+  mask: linear-gradient(#000, #000) 50% 0 / 0.035em 0.52em no-repeat, url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 46%22 %3E%3Cpath fill-rule=%22evenodd%22 d=%22M12 25a8 9 0 1 0 16 0a8 9 0 1 0 -16 0ZM15 14a5 5 0 1 0 10 0a5 5 0 1 0 -10 0ZM17.2 13a1.15 1.15 0 1 0 2.3 0a1.15 1.15 0 1 0 -2.3 0Z M20.5 13a1.15 1.15 0 1 0 2.3 0a1.15 1.15 0 1 0 -2.3 0Z%22/%3E%3Cpath d=%22M14 20Q5 11 2 19M13 23Q3 21 1 29M13 26Q4 30 3 38M15 29Q9 35 8 43M26 20Q35 11 38 19M27 23Q37 21 39 29M27 26Q36 30 37 38M25 29Q31 35 32 43%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") 50% 100% / 0.29em 0.32em no-repeat;
+  animation: fx-web-swing 3.4s ease-in-out infinite;
+}
+@keyframes fx-web-sway { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(3deg); } }
+@keyframes fx-web-swing { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+/* stilstaande pose (flairs die niet bewegen, en "minder beweging"): expliciete waarden, geen bevroren animatie */
+.fl-still.fx-web::before { transform: none; }
+.fl-still.fx-web::after { transform: rotate(-6deg); }
+@media (prefers-reduced-motion: reduce) {
+  .fl-fx.fx-web::before { transform: none; }
+  .fl-fx.fx-web::after { transform: rotate(-6deg); }
+}

@@ -365,6 +365,7 @@ const I18N = {
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel", fxn_ember: "🌶️ Vonken", fxn_glow: "🔥 Gloed", fxn_vizier: "🎯 Vizier", fxn_sweat: "💧 Zweetdruppel", fxn_ripple: "🌊 Rimpel", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Nippertje", fxn_pendulum: "🕰️ Slinger",
     fxn_eclipse: "\u{1F311} Eclips", fxn_shard: "🗡️ Scherven", fxn_aura: "🔮 Aura", obx_replay: "Bekijk de onthulling opnieuw",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
+    fxn_web: "\u{1F578}\uFE0F Spinnenweb", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_frame: "🖼️ Sierrand", rewards_tab_theme: "🎨 Thema", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
@@ -700,6 +701,7 @@ const I18N = {
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle", fxn_ember: "🌶️ Embers", fxn_glow: "🔥 Glow", fxn_vizier: "🎯 Crosshair", fxn_sweat: "💧 Sweat drop", fxn_ripple: "🌊 Ripple", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Close call", fxn_pendulum: "🕰️ Pendulum",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Shards", fxn_aura: "🔮 Aura", obx_replay: "Watch the reveal again",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
+    fxn_web: "\u{1F578}\uFE0F Cobweb", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_frame: "🖼️ Frame", rewards_tab_theme: "🎨 Theme", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
@@ -1028,6 +1030,7 @@ const I18N = {
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln", fxn_ember: "🌶️ Glut", fxn_glow: "🔥 Glühen", fxn_vizier: "🎯 Fadenkreuz", fxn_sweat: "💧 Schweißtropfen", fxn_ripple: "🌊 Wellen", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Knapp geschafft", fxn_pendulum: "🕰️ Pendel",
     fxn_eclipse: "\u{1F311} Finsternis", fxn_shard: "🗡️ Scherben", fxn_aura: "🔮 Aura", obx_replay: "Enthüllung noch einmal ansehen",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
+    fxn_web: "\u{1F578}\uFE0F Spinnennetz", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_frame: "🖼️ Zierrand", rewards_tab_theme: "🎨 Design", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
@@ -1360,6 +1363,7 @@ const I18N = {
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Resplandor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de sudor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Loto", fxn_timer: "⏱️ Por los pelos", fxn_pendulum: "🕰️ Péndulo",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Esquirlas", fxn_aura: "🔮 Aura", obx_replay: "Ver la revelación otra vez",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
+    fxn_web: "\u{1F578}\uFE0F Telaraña", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_frame: "🖼️ Marco", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
@@ -1692,6 +1696,7 @@ const I18N = {
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Fulgor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de suor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Lótus", fxn_timer: "⏱️ Por um triz", fxn_pendulum: "🕰️ Pêndulo",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Estilhaços", fxn_aura: "🔮 Aura", obx_replay: "Ver a revelação de novo",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
+    fxn_web: "\u{1F578}\uFE0F Teia de aranha", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_frame: "🖼️ Moldura", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
@@ -1848,6 +1853,9 @@ function applyLang() {
   if (hm && !hm.hidden) renderHistory();
   const am = document.getElementById("modal-achv");
   if (am && !am.hidden) renderAchievements();
+  syncEventUi();   // balk en menu-regel in de nieuwe taal
+  const em = document.getElementById("modal-events");
+  if (em && !em.hidden) renderEventsModal();
 }
 
 // Zichtbare taalkeuze in de header (redactle-stijl dropdown), gevuld uit LANGS —
@@ -3647,6 +3655,7 @@ const loadEventFx = fxLoader("/event-fx.js", "EventFx");
 const loadRewardFx = fxLoader("/reward-fx.js", "RewardFx");   // Scheurkalender + Wimpels (beloningen), zie showCalendar/showBunting
 const loadObsidianFx = fxLoader("/obsidian-fx.js", "ObsidianFx");   // de onthulling bij obsidiaan (capstone-trede 6), zie showObsidianReveal
 const loadSeasonCat = fxLoader("/season-cat.js", "SeasonCat");   // het Halloween-katje naast je score (markup + CSS + gedrag), zie syncSeasonCat
+const loadSeasonEvent = fxLoader("/season-event.js", "SeasonEvent");   // de UI van een event (balk, strook, kaart, scherm, teksten, kleuren), zie EVENTS
 // Vooruitladen in een rustig moment, maar alleen op een dag waarop er iets te vieren
 // valt (feestdag, hoogtijdag of ?fx=-voorvertoning): dan staat de laag klaar op het
 // moment van de winst. Een inhaalpot van een oude hoogtijdag laadt op aanvraag.
@@ -3662,7 +3671,7 @@ function warmHolidayFx() {
 // verankerd aan het jaartal op de kaart — grotendeels verbergen. Bewust ALLEEN voor
 // deze vieringen; vuurwerk, bier en gouden jaartallen houden de gewone timing.
 let holidayFxUntil = 0;
-async function showHolidayFx(id) {
+async function showHolidayFx(id, extra) {
   if (!fxKnown(id)) return;
   // Voorlopig al een einde afspreken: de recap wacht ook als het bestand nog geladen moet worden.
   // (Het gebeurtenis-bestand wordt bewust pas bij de winst geladen, niet bij het begin van de pot:
@@ -3671,7 +3680,7 @@ async function showHolidayFx(id) {
   try {
     const fx = await (EVENT_FX_IDS.includes(id) ? loadEventFx() : loadHolidayFx());
     if (!fx.has(id)) throw new Error("onbekende viering " + id);
-    const layers = fx.build(id, innerWidth, innerHeight, { years: new Date().getFullYear() - 2026 });   // years: voor de verjaardag
+    const layers = fx.build(id, innerWidth, innerHeight, { years: new Date().getFullYear() - 2026, ...extra });   // years: voor de verjaardag; extra: bv. de vleermuizen van een event-viering
     holidayFxUntil = performance.now() + layers.reduce((m, l) => Math.max(m, l.end), 0) * 1000 + 250;
     runFx(layers);
   } catch (e) {
@@ -4153,6 +4162,12 @@ function playWinFxPreview(kind) {
     loadRewardFx().then((fx) => {
       if (winFxPreviewLive) runFx(fx.build("calendar", innerWidth, innerHeight, { labels: calendarLabels(todayKey(), 1), first: false }));
     }).catch(() => {});
+  } else if (typeof kind === "string" && kind.startsWith("ev:")) {
+    const ev = eventById(kind.slice(3)), r = ev && eventFxReward(ev);
+    if (!r) return;
+    loadHolidayFx().then((fx) => {
+      if (winFxPreviewLive) runFx(fx.build(r.layer, innerWidth, innerHeight, { years: 0, bats: !!r.bats }));
+    }).catch(() => {});
   } else return;
   winFxPreviewLive = true;
   setTimeout(() => { winFxPreviewLive = false; }, 5200);
@@ -4252,9 +4267,12 @@ function finishGame(won, fresh = false) {
     // Wimpels: de winst die een perfecte week compleet maakt. Een feestdag-, gebeurtenis- of hoogtijdag-show gaat voor
     // (dan blijven de wimpels weg), ook als je zelf een viering gekozen hebt.
     const bunting = !previewFx && perfectWeekJustCompleted() && !winCelebrationFx();
+    // Gekozen event-viering (bv. Spookfeest): opt-in, in elke modus; de gewone feestdag-laag wijkt ervoor.
+    const evOn = eventFxActive();
     const celebration = previewFx && fxKnown(fxResolve(previewFx)) ? fxResolve(previewFx)
-      : (calOn || goldYearsFxActive() || beerFxActive() || flairOn || firstTry) ? null : winCelebrationFx();
+      : (calOn || goldYearsFxActive() || beerFxActive() || flairOn || firstTry || evOn) ? null : winCelebrationFx();
     if (celebration) showHolidayFx(celebration);
+    else if (evOn) { const r = eventFxReward(evOn); showHolidayFx(r.layer, { bats: !!r.bats }); if (bunting) addBunting(); }
     else if (calOn) showCalendar(firstTry, bunting);
     else if (goldYearsFxActive()) { showGoldYears(firstTry); if (bunting) addBunting(); }
     else if (beerFxActive()) { showBeer(firstTry); if (bunting) addBunting(); }
@@ -4265,6 +4283,8 @@ function finishGame(won, fresh = false) {
   if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
   if (fresh && state.mode === "daily") recordDailyResult(won);
   appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
+  renderEventStrip(fresh);   // de event-stand onder de wereldstatistiek (alleen tijdens een event; na recordDailyResult, dus de pot telt mee)
+  syncEventUi();             // en de balk boven de kaart weg (de strook neemt het over)
   els.result.querySelectorAll(".fun-prompt").forEach((e) => e.remove());   // nooit een stem van een vorig potje laten staan
   if (fresh) renderFunPrompt();   // duimpje: alleen direct na een echt afgerond potje, niet bij herstel na herladen
   refreshCatchupBar();     // de oranje balk wijst nu de volgende gemiste dag aan
@@ -4753,6 +4773,7 @@ async function refreshRepairBanner() {
 // banner (die zichzelf verbergt als het gat nog inhaalbaar is). Reparatie eerst:
 // de balk kijkt naar een lopende reparatie om de neutrale toon te onderdrukken.
 async function refreshStreakBanners() {
+  syncEventUi();   // de event-balk volgt hetzelfde ritme (nieuw spel, inloggen, na een pot)
   try { await refreshRepairBanner(); } catch (e) {}
   try { await refreshCatchupBar(); } catch (e) {}
 }
@@ -4954,6 +4975,7 @@ const FLAIR_ANIM = {
   "🥇": "flair-goldmedal", "🥈": "flair-silvermedal", "🥉": "flair-bronzemedal",
   "⭐": "flair-star",   // capstone-brons
   "🖤": "flair-blackheart",   // capstone-obsidiaan
+  "🎃": "flair-pumpkin",      // Spooktober (event-flair, blijft daarna van je)
   "✨": "sparkles",     // geen flair, maar het icoon van het flair-effect-reward (pop-up zonder gedragen flair)
 };
 
@@ -4991,6 +5013,69 @@ const FLAIR_FX = {
   aura:     { emoji: "🔮",  reward: "fx_aura",     key: "capstone",  min: 6 },    // Aura: violette gloed
 };
 for (const f of Object.values(FLAIR_FX)) f.earned = f.key === "capstone" ? (a) => capstoneTier(a) >= f.min : (a) => Number(a[f.key] || 0) >= f.min;
+
+// ── Events: een tijdelijk event met een stempelkaart en drie beloningen (Spooktober 2026; later kerst, Pasen, …) ─────────────
+// Alles wat per event verschilt staat in EVENTS (datums, drempels, beloningen); de teller, de balk, de strook, de kaart, het
+// Events-scherm, de pop-ups en de poort zijn gedeeld. De UI (kaart, balk, strook, scherm, teksten in vijf talen, kleuren) woont in
+// /season-event.js en wordt pas opgehaald zodra er een event in beeld is, dus op gewone dagen kost dit niets.
+// Een stempel = een dag uit het venster waarop je de daily speelde (winst of verlies; inhalen telt mee t/m CATCHUP_WINDOW dagen na het
+// einde). Het cadeau: zodra je je eerste dag speelt staan er `gift` stempels extra op. De beloningen vallen op `thresholds`.
+// Wat de beloningen zijn: "flair" (een emoji om te dragen), "fx" (een flair-effect: FLAIR_FX-recept hierboven) en "feest" (een opt-in
+// viering op het eindscherm: een HolidayFx-laag, eventueel met extra's). De poort aan de serverkant is db/87 (events + event_rewards).
+// Nieuw event = (1) een rij hier, (2) teksten + kleuren + plaatje in /season-event.js (EVENT_UI), (3) bij een "fx": een .fx-<id>-blok in
+// flair-fx.css + fxn_<id> in I18N, (4) rijen in db/ (events + event_rewards + rewards), (5) de skin uit SEASONS (optioneel).
+const EVENTS = [
+  {
+    id: "spook", skin: "halloween", icon: "🎃", mascot: "cat",   // skin: de balk volgt die skin; icon = de eenheid ("3 van 12"); mascot: het kattenkopje van /season-cat.js in de balk/strook/het menu
+    start: "2026-10-21", end: "2026-11-01",              // puzzeldatums, inclusief: woe 21 okt t/m zo 1 nov = 12 dagen
+    thresholds: [3, 6, 10], gift: 1,                     // met het cadeau-🎃 is dat 2 · 5 · 9 gespeelde dagen
+    rewards: [
+      { kind: "flair", key: "ev_spook_flair", emoji: "🎃", icon: "🎃" },
+      { kind: "fx", key: "ev_spook_fx", fx: "web", emoji: "\u{1F578}️", icon: "\u{1F578}️" },   // Spinnenweb
+      { kind: "feest", key: "ev_spook_feest", emoji: "🎃", icon: "\u{1F47B}", layer: "halloween", bats: true },   // Spookfeest: de Halloween-laag + vleermuizen
+    ],
+  },
+];
+for (const ev of EVENTS) ev.rewards.forEach((r, i) => { r.event = ev.id; r.at = ev.thresholds[i]; });
+const eventById = (id) => EVENTS.find((e) => e.id === id) || null;
+const eventOfReward = (key) => EVENTS.find((e) => e.rewards.some((r) => r.key === key)) || null;
+const EVENT_REWARD_KEYS = EVENTS.flatMap((ev) => ev.rewards.map((r) => r.key));
+const eventDay = (ev, i) => shiftDay(ev.start, i);
+const eventTotal = (ev) => daysBetween(ev.start, ev.end) + 1;
+const eventCatchupEnd = (ev) => shiftDay(ev.end, CATCHUP_WINDOW);   // t/m deze dag telt een ingehaalde dag nog mee
+// Waar staat dit event op deze puzzeldatum? "soon" (nog niet begonnen) · "run" · "catch" (voorbij, inhalen telt nog) · "past".
+function eventPhase(ev, day) {
+  if (day < ev.start) return "soon";
+  if (day <= ev.end) return "run";
+  return day <= eventCatchupEnd(ev) ? "catch" : "past";
+}
+let eventTodayFn = () => todayKey();   // één plek voor "vandaag" (de tests zetten hem vast)
+const eventToday = () => eventTodayFn();
+// De stand van een event uit een daghistorie ([{date}]): per dag gespeeld of niet, het aantal stempels (met cadeau) en welke beloningen binnen zijn.
+function eventStamps(ev, hist) {
+  const total = eventTotal(ev), have = new Set((hist || []).map((e) => e.date));
+  const days = Array.from({ length: total }, (_, i) => have.has(eventDay(ev, i)));
+  const played = days.filter(Boolean).length;
+  const n = played ? Math.min(total, played + ev.gift) : 0;
+  return { n, played, total, days, earned: ev.thresholds.map((t) => n >= t) };
+}
+// Dezelfde daghistorie als stats/streak (zie dailyHistoryForDisplay), maar synchroon: de server-historie uit de cache, lokale dagen vullen aan.
+function eventHistorySync() {
+  const local = loadHistory();
+  if (!auth.user) return local;
+  const map = new Map();
+  for (const e of myHistoryCache || []) map.set(e.date, e);
+  for (const e of local) if (!map.has(e.date)) map.set(e.date, e);
+  return [...map.values()];
+}
+const eventState = (ev) => eventStamps(ev, eventHistorySync());
+const eventEarnedAt = (ev, at) => !!auth.user && eventState(ev).n >= at;
+// Welke events staan nu in beeld (lopend of nog in de inhaaldagen), en van welke is alleen nog het archief over (wie meedeed)?
+const eventsInView = (day = eventToday()) => EVENTS.filter((ev) => { const p = eventPhase(ev, day); return p === "run" || p === "catch"; });
+const eventsArchived = (day = eventToday()) => EVENTS.filter((ev) => eventPhase(ev, day) === "past" && eventState(ev).played > 0);
+const eventTabEvents = () => [...eventsInView(), ...eventsArchived()];   // wat de Events-tab/het Events-scherm toont
+// Event-effecten staan in FLAIR_FX zoals alle andere (kluis-keuzerij, pop-up, borden, podium lopen vanzelf mee); de teller is hier de stempelstand.
+for (const ev of EVENTS) for (const r of ev.rewards) if (r.kind === "fx") FLAIR_FX[r.fx] = { emoji: r.emoji, reward: r.key, key: "event", event: ev.id, min: r.at, earned: () => eventEarnedAt(ev, r.at) };
 const isFlairFx = (id) => Object.prototype.hasOwnProperty.call(FLAIR_FX, id);
 function parseFlair(raw) {
   const str = String(raw || ""), i = str.indexOf(FLAIR_FX_SEP);
@@ -7905,6 +7990,7 @@ function setFlairConfetti(on) {
   try {
     localStorage.setItem("jaardle:flairconfetti", on ? "1" : "0");
     if (on) {                                   // wederzijds uitsluitend
+      clearEventFx();
       localStorage.setItem("jaardle:beerfx", "0");
       localStorage.setItem("jaardle:goldyears", "0");
       localStorage.setItem("jaardle:calfx", "0");
@@ -7931,6 +8017,7 @@ function setBeerFx(on) {
   try {
     localStorage.setItem("jaardle:beerfx", on ? "1" : "0");
     if (on) {                                   // wederzijds uitsluitend
+      clearEventFx();
       localStorage.setItem("jaardle:flairconfetti", "0");
       localStorage.setItem("jaardle:goldyears", "0");
       localStorage.setItem("jaardle:calfx", "0");
@@ -7964,6 +8051,7 @@ function setGoldYearsFx(on) {
   try {
     localStorage.setItem("jaardle:goldyears", on ? "1" : "0");
     if (on) {                                   // wederzijds uitsluitend
+      clearEventFx();
       localStorage.setItem("jaardle:beerfx", "0");
       localStorage.setItem("jaardle:flairconfetti", "0");
       localStorage.setItem("jaardle:calfx", "0");
@@ -7986,6 +8074,7 @@ function setCalendarFx(on) {
   try {
     localStorage.setItem("jaardle:calfx", on ? "1" : "0");
     if (on) {                                   // wederzijds uitsluitend
+      clearEventFx();
       localStorage.setItem("jaardle:flairconfetti", "0");
       localStorage.setItem("jaardle:beerfx", "0");
       localStorage.setItem("jaardle:goldyears", "0");
@@ -7994,6 +8083,31 @@ function setCalendarFx(on) {
 }
 function calendarFxActive() {
   return calendarFxUnlocked(achvCache) && calendarFxEnabled();
+}
+
+// Event-viering (opt-in, zoals de Scheurkalender): de "feest"-beloning van een event (EVENTS), één keuze per apparaat (jaardle:evfx = event-id,
+// "" = geen). Hij speelt de laag van het event (bv. Halloween + vleermuizen) bij elke winst zolang je 'm aanhebt, ook ná het event.
+const EVFX_KEY = "jaardle:evfx";
+const eventFxReward = (ev) => ev.rewards.find((r) => r.kind === "feest") || null;
+const eventFxUnlocked = (ev) => { const r = eventFxReward(ev); return !!(r && eventEarnedAt(ev, r.at)); };
+const eventFxUnlockedList = () => EVENTS.filter(eventFxUnlocked);
+function clearEventFx() { try { localStorage.setItem(EVFX_KEY, ""); } catch (e) {} }
+function eventFxActive() {
+  let id = "";
+  try { id = localStorage.getItem(EVFX_KEY) || ""; } catch (e) {}
+  const ev = eventById(id);
+  return ev && eventFxUnlocked(ev) ? ev : null;
+}
+function setEventFx(id) {
+  try {
+    localStorage.setItem(EVFX_KEY, id || "");
+    if (id) {                                   // wederzijds uitsluitend
+      localStorage.setItem("jaardle:flairconfetti", "0");
+      localStorage.setItem("jaardle:beerfx", "0");
+      localStorage.setItem("jaardle:goldyears", "0");
+      localStorage.setItem("jaardle:calfx", "0");
+    }
+  } catch (e) {}
 }
 
 // Sierrand: verdiend op capstone-platina (alle 5 grind-ladders ≥ platina). Blijvende result-kaart-decoratie —
@@ -8249,6 +8363,7 @@ function achvEarnedFlairs() {
   }
   const ct = capstoneTier(a);
   for (const cf of CAPSTONE_FLAIRS) if (ct >= cf.tier) out.push(cf.emoji);
+  for (const ev of EVENTS) { const st = eventState(ev); ev.rewards.forEach((r) => { if (r.kind === "flair" && st.n >= r.at) out.push(r.emoji); }); }   // event-flairs (bv. 🎃)
   return out;
 }
 
@@ -8302,7 +8417,7 @@ function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith
 // menu-items (data-i18n) worden elders volledig herschreven — een class met
 // ::after overleeft dat, een kind-element niet.
 function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties óf weekpodium)
-  const has = achvNewLoad().length > 0 || podiumHasNew();
+  const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew();
   document.getElementById("menu-btn")?.classList.toggle("has-new", has);
 }
 function renderAchvDot() {
@@ -8695,9 +8810,11 @@ const REWARDS = {
 };
 // Flair-effecten komen uit FLAIR_FX (geen tweede lijst): de reward-key + het effect-id.
 for (const [id, f] of Object.entries(FLAIR_FX)) REWARDS[f.reward] = { emoji: f.emoji, cat: "flairfx", sect: "flairfx", fx: id };
+// Event-beloningen (flair, effect, viering): één rij per EVENTS-beloning; de pop-up springt naar de Events-tab van de kluis.
+for (const ev of EVENTS) for (const r of ev.rewards) REWARDS[r.key] = { emoji: r.emoji, cat: r.kind === "flair" ? "flair" : r.kind === "fx" ? "flairfx" : "effect", sect: "events", event: ev.id, ...(r.kind === "fx" ? { fx: r.fx } : {}) };
 // Volgorde van zeldzaamheid (oplopend) → de wachtrij eindigt op de zeldzaamste.
 // Voor de flair-effecten: ruwweg de zeldzaamheid van hun drempel (Nippertje/Zweetdruppel op goud … Lotus op diamant).
-const REWARD_ORDER = ["fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
+const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_ember",
   "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme",
   "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "cap_obsidian"];
@@ -8707,8 +8824,12 @@ const REWARD_NAME_KEY = {
   fx_confetti: "achv_cap_confetti", fx_goldyears: "achv_cap_goldyears", fx_calendar: "achv_fx_calendar",
   fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme",
 };
+// De teksten van een event komen uit het lui geladen /season-event.js (vijf talen); zonder dat bestand valt alles terug op het icoon.
+const eventCopy = (id) => (window.SeasonEvent ? window.SeasonEvent.copy(id, lang) : null);
+const eventRewardKind = (key) => { const ev = eventOfReward(key); const r = ev && ev.rewards.find((x) => x.key === key); return r ? r.kind : ""; };
 function rewardName(key) {
   const r = REWARDS[key];
+  if (r.event) { const c = eventCopy(r.event); return (c && c.rewardName[eventRewardKind(key)]) || r.emoji; }
   if (r.cat === "obsidian") return achvTierName(CAPSTONE_MAX - 1);
   return r.cat === "flair" ? t("rewards_sect_flair") : r.cat === "flairfx" ? t("fxn_" + r.fx) : t(REWARD_NAME_KEY[key]);
 }
@@ -8731,6 +8852,7 @@ function earnedRewardKeys() {
   if (ct >= 5) got.add("theme");
   if (ct >= CAPSTONE_MAX) got.add("cap_obsidian");
   for (const id of flairFxEarned(a)) got.add(FLAIR_FX[id].reward);
+  for (const ev of EVENTS) { const st = eventState(ev); for (const r of ev.rewards) if (r.kind === "feest" && st.n >= r.at) got.add(r.key); }   // event-vieringen (flair + effect komen hierboven al mee)
   return REWARD_ORDER.filter((k) => got.has(k));
 }
 
@@ -8793,16 +8915,19 @@ async function maybeShowRewards() {
   }
   const earned = earnedRewardKeys();
   if (myRewardsSeen === null) {
-    // eerste keer (retroactief): stil baseline'en op je huidige verdiensten.
-    myRewardsSeen = earned.slice();
-    rpc("mark_rewards_seen", { p_keys: earned }).catch(() => {});   // leeg → seed '{}'
-    return false;
+    // eerste keer (retroactief): stil baseline'en op je huidige verdiensten. Event-beloningen zijn nooit retroactief: wie inlogt na een paar
+    // anonieme dagen krijgt ze juist wél te zien (in één keer), dus die blijven buiten de baseline.
+    const base = earned.filter((k) => !EVENT_REWARD_KEYS.includes(k));
+    myRewardsSeen = base.slice();
+    rpc("mark_rewards_seen", { p_keys: base }).catch(() => {});   // leeg → seed '{}'
+    if (base.length === earned.length) return false;
   }
   const seen = new Set(myRewardsSeen);
   const pending = rewardQueueFor(earned.filter((k) => !seen.has(k)));   // al op zeldzaamheid gesorteerd; obsidiaan = één onthulling i.p.v. losse kaartjes
   if (!pending.length) return false;
   if (pending.includes("cap_obsidian")) loadObsidianFx().catch(() => {});   // alvast ophalen: de speler wacht straks niet op het bestand
-  if (pending.some((k) => REWARDS[k]?.cat === "flairfx")) await ensureMyIdentity();   // de pop-up toont je gedragen flair
+  if (pending.some((k) => REWARDS[k]?.cat === "flairfx" || k.startsWith("evgroup:"))) await ensureMyIdentity();   // de pop-up toont je gedragen flair
+  if (pending.some((k) => k.startsWith("evgroup:") || (REWARDS[k] && REWARDS[k].event))) { try { await ensureEventUi(EVENTS); } catch (e) { return false; } }   // de teksten van een event-beloning (volgende pot opnieuw als het laden mislukt)
   if (document.getElementById("modal-reward")) return true;                              // intussen al eentje open
   if (document.querySelector(".modal:not([hidden])")) { rewardRetry = true; return false; }   // intussen ander scherm
   rewardQueue = pending;
@@ -8813,6 +8938,7 @@ async function maybeShowRewards() {
 function showNextReward() {
   const key = rewardQueue.shift();
   if (key === "cap_obsidian") showObsidianReveal("first");
+  else if (key && key.startsWith("evgroup:")) { const [, id, ks] = key.split(":"); showEventGroup(id, ks.split(",")); }
   else if (key) showReward(key);
 }
 
@@ -8823,7 +8949,16 @@ function showNextReward() {
 // keer gevierd; de losse unlock-kaartjes van die items vervallen (rewardQueueFor) en gaan samen op "gezien" als de show sluit.
 const OBSIDIAN_FX_DEFAULT = "eclipse";   // wat "Draag nu" zet
 const obsidianGroupKeys = () => ["cap_obsidian", "fl_obsidian", ...Object.values(FLAIR_FX).filter((f) => f.key === "capstone").map((f) => f.reward)];
-const rewardQueueFor = (pending) => pending.includes("cap_obsidian") ? pending.filter((k) => k === "cap_obsidian" || !obsidianGroupKeys().includes(k)) : pending;
+function rewardQueueFor(pending) {
+  let q = pending.includes("cap_obsidian") ? pending.filter((k) => k === "cap_obsidian" || !obsidianGroupKeys().includes(k)) : pending;
+  // Event: vallen er meerdere beloningen van hetzelfde event tegelijk (bv. na inloggen met een paar anonieme dagen), dan is dat één groep-kaart
+  // i.p.v. een rij pop-ups ("evgroup:<event>:<key>,<key>").
+  for (const ev of EVENTS) {
+    const ks = q.filter((k) => REWARDS[k] && REWARDS[k].event === ev.id);
+    if (ks.length > 1) { const at = q.indexOf(ks[0]); q = q.filter((k) => !ks.includes(k)); q.splice(at, 0, `evgroup:${ev.id}:${ks.join(",")}`); }
+  }
+  return q;
+}
 let obxHandle = null, obxAction = null, obxMode = "";
 // mode: "first" (net verdiend) · "replay" (opnieuw kijken, kluis) · "preview" (?fx=obsidian: nepgegevens, geen server)
 async function showObsidianReveal(mode) {
@@ -8880,6 +9015,7 @@ function obsidianClosed() {
 function activateReward(key) {
   const fxr = REWARDS[key];
   if (fxr && fxr.cat === "flairfx") { setMyFlairFx(fxr.fx); return; }   // effect op de flair die je draagt
+  if (fxr && fxr.event && fxr.cat === "effect") { setWinFx("ev:" + fxr.event); return; }   // event-viering (opt-in)
   if (key === "fx_confetti") setWinFx("flair");
   else if (key === "fx_beer") setWinFx("beer");
   else if (key === "fx_goldyears") setWinFx("gold");
@@ -8899,7 +9035,8 @@ function showReward(key) {
   const isEffect = r.cat === "effect" || (fxCat && !!worn);
   const heroInner = flairPreviewHtml(fxCat ? (worn || r.emoji) : r.emoji);
   const hero = fxCat ? flairFxWrap(r.fx, heroInner) : heroInner;
-  const sub = t(isFlair ? "reward_sub_flair" : fxCat ? "reward_sub_flairfx" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
+  const evc = r.event ? eventCopy(r.event) : null;   // een event-beloning heeft eigen teksten (en een eigen kopregel)
+  const sub = evc ? evc.popSub[eventRewardKind(key)] : t(isFlair ? "reward_sub_flair" : fxCat ? "reward_sub_flairfx" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
   const el = document.createElement("div");
   el.id = "modal-reward";
   el.className = "modal rw-pop rw-" + r.cat + (reduced ? "" : " rw-pop-anim");
@@ -8911,7 +9048,7 @@ function showReward(key) {
     `<div class="modal-card rw-card">` +
       `<button type="button" class="rw-x" data-close aria-label="${escHtml(t("aria_close"))}">✕</button>` +
       `<div class="rw-inner">` +
-        `<span class="rw-eyebrow">${escHtml(t("reward_pop_eyebrow"))}</span>` +
+        `<span class="rw-eyebrow">${escHtml(evc ? evc.popEyebrow : t("reward_pop_eyebrow"))}</span>` +
         `<div class="rw-heroWrap"><span class="rw-glow"></span><span class="rw-hero">${hero}</span></div>` +
         `<div class="rw-name" id="rw-pop-name">${escHtml(rewardName(key))}</div>` +
         `<p class="rw-sub">${escHtml(sub)}</p>` +
@@ -8956,6 +9093,58 @@ function showReward(key) {
   at(560, () => el.querySelector(".rw-btns")?.classList.add("in"));
 }
 
+// Meerdere beloningen van één event tegelijk (bv. 2 of 3 drempels in één keer): één kaart met je pompoen mét effect en de namen eronder; "Draag nu"
+// zet flair en effect in één keer (de server valideert beide), "Alles aanzetten" zet ook de viering aan. Sluiten markeert alle beloningen als gezien.
+function showEventGroup(evId, keys) {
+  if (document.getElementById("modal-reward")) return;
+  const ev = eventById(evId), c = eventCopy(evId);
+  if (!ev || !c) return;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pick = (kind) => ev.rewards.find((r) => r.kind === kind && keys.includes(r.key));
+  const flairR = pick("flair"), fxR = pick("fx"), feestR = pick("feest");
+  const emoji = flairR ? flairR.emoji : (parseFlair(myFlair).emoji || (ev.rewards.find((r) => r.kind === "flair") || {}).emoji || ev.icon);
+  const heroInner = flairPreviewHtml(emoji), hero = fxR ? flairFxWrap(fxR.fx, heroInner) : heroInner;
+  const el = document.createElement("div");
+  el.id = "modal-reward";
+  el.className = "modal rw-pop rw-flair" + (reduced ? "" : " rw-pop-anim");
+  el.hidden = true;
+  el.dataset.keys = keys.join(",");
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "rw-pop-name");
+  el.innerHTML =
+    `<div class="modal-backdrop" data-close></div>` +
+    `<div class="modal-card rw-card">` +
+      `<button type="button" class="rw-x" data-close aria-label="${escHtml(t("aria_close"))}">✕</button>` +
+      `<div class="rw-inner">` +
+        `<span class="rw-eyebrow">${escHtml(c.popEyebrow)}</span>` +
+        `<div class="rw-heroWrap"><span class="rw-glow"></span><span class="rw-hero">${hero}</span></div>` +
+        `<div class="rw-name" id="rw-pop-name">${escHtml(c.popGroupTitle(keys.length))}</div>` +
+        `<p class="rw-sub">${escHtml(c.popGroupSub)}</p>` +
+        `<div class="rw-got">${keys.map((k) => `<span>${escHtml(rewardName(k))}</span>`).join("")}</div>` +
+        `<div class="rw-btns">` +
+          `<button type="button" class="rw-go" data-rw-group>${escHtml(feestR ? c.turnAllOn : t("reward_equip"))}</button>` +
+          `<button type="button" class="rw-more" data-close>${escHtml(t("lb_pop_continue"))}</button>` +
+        `</div>` +
+      `</div>` +
+    `</div>`;
+  document.body.appendChild(el);
+  el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeAllModals()));
+  el.querySelector("[data-rw-group]")?.addEventListener("click", () => {
+    if (emoji && (flairR || fxR)) saveMyFlair(joinFlair(emoji, fxR ? fxR.fx : parseFlair(myFlair).fx), false);   // flair én effect in één keer
+    if (feestR) setWinFx("ev:" + evId);
+    closeAllModals();   // → rewardClosed markeert alles gezien + keten door
+  });
+  el.hidden = false;
+  lockBodyScroll();
+  requestAnimationFrame(() => el.classList.add("in"));
+  if (reduced) return;
+  showPodiumConfetti(el.querySelector(".rw-card"), { burst: true });
+  const at = (ms, fn) => rewardTimers.push(setTimeout(fn, ms));
+  at(120, () => el.querySelector(".rw-glow")?.classList.add("on"));
+  at(300, () => el.querySelector(".rw-name")?.classList.add("in"));
+  at(430, () => el.querySelector(".rw-sub")?.classList.add("in"));
+  at(560, () => el.querySelector(".rw-btns")?.classList.add("in"));
+}
+
 // Sluit-hook (zelfde patroon als coronationClosed): dicht = gevierd → markeer de
 // key gezien (server + lokale cache). Ketent daarna door: volgende in de wachtrij,
 // of — als die leeg is — de kroning als finale. Bij een vault-sprong stopt de keten
@@ -8965,11 +9154,11 @@ function rewardClosed() {
   if (!el || !el.hidden) return;
   rewardTimers.forEach(clearTimeout); rewardTimers = [];
   stopPodiumConfetti();
-  const key = el.dataset.key;
+  const keys = el.dataset.keys ? el.dataset.keys.split(",") : el.dataset.key ? [el.dataset.key] : [];   // een groep-kaart (event) markeert al zijn beloningen
   el.remove();
-  if (key) {
-    if (Array.isArray(myRewardsSeen) && !myRewardsSeen.includes(key)) myRewardsSeen.push(key);
-    rpc("mark_rewards_seen", { p_keys: [key] }).catch(() => {});
+  if (keys.length) {
+    if (Array.isArray(myRewardsSeen)) for (const key of keys) if (!myRewardsSeen.includes(key)) myRewardsSeen.push(key);
+    rpc("mark_rewards_seen", { p_keys: keys }).catch(() => {});
   }
   const jumping = rewardJumping; rewardJumping = false;
   if (jumping) { rewardQueue = []; return; }
@@ -9389,6 +9578,8 @@ function winFxUnlockedMap(a) {
 // Welk effect speelt nu? Spiegelt de precedentie in finishGame (goud > bier >
 // flair-confetti > gewone confetti), maar op de opgeslagen aan/uit-vlaggen.
 function currentWinFxChoice() {
+  const evx = eventFxActive();
+  if (evx) return "ev:" + evx.id;
   if (calendarFxActive()) return "cal";
   if (goldYearsFxActive()) return "gold";
   if (beerFxActive()) return "beer";
@@ -9402,7 +9593,8 @@ function setWinFx(choice) {
   else if (choice === "beer") setBeerFx(true);
   else if (choice === "gold") setGoldYearsFx(true);
   else if (choice === "cal") setCalendarFx(true);
-  else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); setCalendarFx(false); }
+  else if (typeof choice === "string" && choice.startsWith("ev:")) setEventFx(choice.slice(3));
+  else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); setCalendarFx(false); clearEventFx(); }
 }
 // Flair-rooster: verdiende prestatie-flairs vooraan (gouden randje), dan de
 // gesnoeide gratis-set. Altijd open (de kluis draait om kiezen — geen inklap).
@@ -9428,6 +9620,9 @@ async function renderRewards() {
   if (!warm) body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
   const a = warm || await fetchAchievements();
   await ensureMyIdentity();
+  // Een event in beeld, in het archief of een event-viering verdiend: het event-bestand moet er zijn voor de tab en de namen (lukt het niet: zonder tab).
+  const evs = [...new Set([...eventTabEvents(), ...eventFxUnlockedList()])];
+  if (evs.length) { try { await ensureEventUi(evs); } catch (e) {} }
   if (document.getElementById("modal-rewards").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
   renderRewardsBody(body, a);
@@ -9460,13 +9655,14 @@ function flairFxSectionHtml(a) {
 // hebt verdiend (geen sloten uittekenen; de gedimde 🔒-regel onderaan blijft de enige wegwijzer). Zelfde
 // .rc-tabs/.rc-track/.rc-slide als de eindscherm-carrousel; swipen en tikken blijven in sync. Elke beloning
 // heeft een voorbeeld: je flair op een bordrij, de vieringen als lusje, de sierrand als miniatuur.
-const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", frame: "frame", theme: "theme" };   // vault-sprong → tab
+const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", frame: "frame", theme: "theme", events: "events" };   // vault-sprong → tab
 let rewardsTab = "flair";   // actieve tab; reset bij openen (openModal), blijft staan bij herrenderen
 function rewardsTabsAvailable(a) {
   const u = winFxUnlockedMap(a), tabs = ["flair"];
-  if (u.flair || u.beer || u.gold || u.cal) tabs.push("vier");
+  if (u.flair || u.beer || u.gold || u.cal || eventFxUnlockedList().length) tabs.push("vier");
   if (platinaFrameUnlocked(a)) tabs.push("frame");
   if (auth.user && capstoneTier(a) >= 5) tabs.push("theme");
+  if (auth.user && window.SeasonEvent && eventTabEvents().length) tabs.push("events");   // Events: tijdens een event voor iedereen, daarna voor wie meedeed
   return tabs;
 }
 // Zo zien anderen je op het bord: de échte naamcel (naam · flair met effect · titel).
@@ -9489,6 +9685,13 @@ function winFxPreviewHtml(k) {
     // twee bladen: het voorste kruld op en waait weg, het blad van morgen ligt eronder (CSS, geen canvas)
     const day = +todayKey().slice(8);
     h = `<span class="rw-calp"><span class="rw-calpg"><em>${day + 1}</em></span><span class="rw-calpg front"><em>${day}</em></span></span>`;
+  } else if (typeof k === "string" && k.startsWith("ev:")) {
+    // event-viering: het icoon van het event valt omlaag, het icoon van de viering zweeft omhoog (zoals de echte laag)
+    const ev = eventById(k.slice(3)), r = ev && eventFxReward(ev);
+    if (ev && r) {
+      for (let i = 0; i < 5; i++) h += `<b style="left:${[6, 22, 40, 58, 76][i]}%;animation-delay:-${(i * 0.55).toFixed(2)}s;animation-duration:${(2.1 + (i % 3) * 0.3).toFixed(1)}s">${escHtml(ev.icon)}</b>`;
+      h += `<b class="rw-up" style="left:30%;animation-delay:-0.9s;animation-duration:3s">${escHtml(r.icon)}</b><b class="rw-up" style="left:64%;animation-delay:-2s;animation-duration:3.4s">${escHtml(r.icon)}</b>`;
+    }
   } else if (k === "beer") {
     h = `<span class="rw-glass">🍻</span>` + [0, 1, 2, 3, 4, 5].map((j) => `<span class="rw-bub" style="left:${28 + j * 9}%;animation-delay:-${(j * 0.45).toFixed(2)}s"></span>`).join("");
   } else {
@@ -9504,6 +9707,7 @@ function rewardsVierHtml(unlocked) {
   if (unlocked.beer) opts.push(["beer", t("achv_fx_beer")]);
   if (unlocked.gold) opts.push(["gold", t("achv_cap_goldyears")]);
   if (unlocked.cal) opts.push(["cal", t("achv_fx_calendar")]);
+  for (const ev of eventFxUnlockedList()) opts.push(["ev:" + ev.id, rewardName(eventFxReward(ev).key)]);   // event-vieringen (bv. 🎃 Spookfeest)
   const tiles = opts.map(([k, lbl]) =>
     `<button type="button" class="rw-tile" role="radio" aria-checked="${cur === k}" data-winfx="${k}">${winFxPreviewHtml(k)}<span class="rw-tile-nm">${escHtml(lbl)}</span></button>`).join("");
   return `<section class="rw-sect" data-rw-sect="endscreen"><h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>` +
@@ -9538,6 +9742,7 @@ function renderRewardsBody(body, a) {
     vier: () => rewardsVierHtml(unlocked),
     frame: () => rewardsFrameHtml(),
     theme: () => `<section class="rw-sect" data-rw-sect="theme"><h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>${themePickerHtml()}</section>`,
+    events: () => (window.SeasonEvent ? window.SeasonEvent.tab(eventTabEvents().map(eventView)) : ""),
   };
   // Alles verdiend = geen wegwijzer. Anders één gedimde 🔒-regel naar Prestaties.
   const lock = !(themed && unlocked.beer) ? `<p class="rw-locked">🔒 ${escHtml(t("rewards_locked_hint"))}</p>` : "";
@@ -9545,7 +9750,7 @@ function renderRewardsBody(body, a) {
     body.innerHTML = slide.flair() + lock;   // niets extra's verdiend: één scherm, geen tabbalk
   } else {
     const bar = tabs.map((id, i) => (i ? `<span class="rc-sep"></span>` : "") +
-      `<button type="button" class="rc-tab" role="tab" data-rw-tab="${id}" aria-selected="${id === rewardsTab}">${escHtml(t("rewards_tab_" + id))}</button>`).join("");
+      `<button type="button" class="rc-tab" role="tab" data-rw-tab="${id}" aria-selected="${id === rewardsTab}">${escHtml((id === "events" ? (eventTabEvents()[0] || {}).icon + " " : "") + t("rewards_tab_" + id))}</button>`).join("");
     body.innerHTML = `<div class="rc-tabs rw-tabs${tabs.length >= 3 ? " n" + tabs.length : ""}" role="tablist">${bar}</div>` +
       `<div class="rc-track rw-track">${tabs.map((id) => `<div class="rc-slide rw-slide" role="tabpanel" data-rw-panel="${id}">${slide[id]()}</div>`).join("")}</div>${lock}`;
   }
@@ -9572,6 +9777,7 @@ function mountRewardsTabs(body, tabs) {
       if (id === rewardsTab) return;
       rewardsTab = id;
       btns.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.rwTab === id)));
+      if (id === "events") markEventSeen();
     });
   }, { passive: true });
   btns.forEach((b) => b.addEventListener("click", () => go(b.dataset.rwTab, true)));
@@ -9603,6 +9809,10 @@ function wireRewards(body) {
   body.querySelectorAll("[data-theme-pick]").forEach((b) => {
     b.onclick = () => applyTheme(b.dataset.themePick);
   });
+  // Events-tab: beloningen dragen/aanzetten, vandaag spelen; zie wireEventBody.
+  wireEventBody(body);
+  if (rewardsTab === "events" && body.querySelector('[data-rw-panel="events"]')) markEventSeen();   // de tab is in beeld = gezien
+  else renderEventDots();
 }
 
 async function renderAchievements() {
@@ -9613,6 +9823,8 @@ async function renderAchievements() {
   const a = warm || await fetchAchievements();
   if (document.getElementById("modal-achv").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
+  const played = EVENTS.filter((ev) => eventState(ev).played > 0);   // zegels van events waaraan je meedeed: het event-bestand levert namen en plaatje
+  if (played.length) { try { await ensureEventUi(played); } catch (e) {} }
   await ensureTitleEquipped(a);   // titel is niet-aflegbaar: draag altijd de hoogst verdiende
   if (document.getElementById("modal-achv").hidden) return;
   renderAchvBoard(body, a);
@@ -9669,6 +9881,21 @@ function wireCapPips(body) {
   });
 }
 
+// Events in Prestaties: een zegel per event waaraan je meedeed, met een ring die meegroeit met de beloningen die je haalde (geen ring-kleur =
+// meegedaan). Ook zonder account (lokaal, met de gewone "niet opgeslagen"-regel eronder). Het plaatje komt uit het event-bestand (SeasonEvent.art).
+function eventAchvHtml() {
+  if (!window.SeasonEvent) return "";
+  const played = EVENTS.filter((ev) => eventState(ev).played > 0);
+  if (!played.length) return "";
+  const defs = document.querySelector("#achv-svg-defs svg");
+  for (const ev of played) if (defs && !defs.querySelector("#achv-art-" + ev.id)) defs.insertAdjacentHTML("beforeend", window.SeasonEvent.art(ev.id));
+  const tiles = played.map((ev) => {
+    const st = eventState(ev), c = eventCopy(ev.id), tier = st.earned.filter(Boolean).length;
+    return `<div class="achv-trophy achv-t${tier}"><span class="achv-tring tiered"><svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${ev.id}"/></svg></span>` +
+      `<span class="achv-tname">${escHtml(c.achName)}${tier ? ` <span class="achv-ttier">${escHtml(achvTierName(tier - 1))}</span>` : ""}</span><span class="achv-tsub">${escHtml(c.achSub(st.n, st.total))}</span></div>`;
+  }).join("");
+  return `<h3 class="stats-heading">${escHtml(eventCopy(played[0].id).achH)}</h3><div class="achv-trophies">${tiles}</div>`;
+}
 function renderAchvBoard(body, a) {
   const visSeries = ACHV_SERIES.filter((s) => !s.authOnly || auth.user);
   // Daily-only prestaties staan bij elkaar in een eigen "Dagelijks"-sectie: de
@@ -9695,6 +9922,7 @@ function renderAchvBoard(body, a) {
     <div class="achv-trophies">${dailyTrophies}</div>
     <h3 class="stats-heading">${escHtml(t("achv_sect_trophies"))}</h3>
     <div class="achv-trophies">${milestones}</div>
+    ${eventAchvHtml()}
     ${achvAnonNoteHtml()}`;
   wireCapPips(body);
   body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
@@ -10713,6 +10941,7 @@ function setSeason(on) {
   });
   syncSeasonCheck();
   syncSeasonCat();
+  syncEventUi();   // de event-balk volgt de skin (zonder Halloween-look ook geen balk)
 }
 // Het katje hoort bij de Halloween-skin: er zolang die aanstaat (ook bij ?skin=halloween), weg zodra je 'm uitzet. Het bestand
 // (/season-cat.js, ~6 KB gzip) wordt pas in een rustig moment opgehaald, en alleen als de skin aanstaat: op alle andere dagen nooit.
@@ -10729,6 +10958,138 @@ function syncSeasonCheck() {
   btn.dataset.i18n = SEASONS[id].label;          // een taalwissel vertaalt via data-i18n, dus ook het label volgt de skin
   btn.textContent = t(SEASONS[id].label);
   btn.setAttribute("aria-checked", String(seasonActive() === id));
+}
+
+// ── Events: de aansluiting op het scherm (balk, strook, Events-scherm, Events-tab, stip) ─────────────────────────────────────
+// De opbouw van al die onderdelen woont in /season-event.js (lui); hier alleen: wanneer is er iets te tonen, met welke gegevens
+// (eventView), en wat een tik doet. Eén event tegelijk in de balk en de strook (het eerste dat in beeld is).
+const EVENT_MASCOTS = { cat: () => loadSeasonCat() };   // mascotte-id → het bestand dat 'm levert (SeasonCat.head)
+function eventView(ev) {
+  const st = eventState(ev), today = eventToday(), idx = daysBetween(ev.start, today), flair = parseFlair(myFlair), fx = eventFxActive();
+  const head = ev.mascot === "cat" && window.SeasonCat && window.SeasonCat.head ? window.SeasonCat.head : "";
+  return {
+    id: ev.id, icon: ev.icon, mascot: head, lang, locale: LANGS[lang].intl, start: ev.start, end: ev.end, catchupEnd: eventCatchupEnd(ev),
+    total: st.total, thresholds: ev.thresholds, gift: ev.gift, rewards: ev.rewards,
+    n: st.n, played: st.played, days: st.days, earned: st.earned,
+    phase: eventPhase(ev, today), todayPlayed: idx >= 0 && idx < st.total && st.days[idx], daysLeft: Math.max(1, st.total - Math.max(idx, 0)),
+    anon: !auth.user, anyFlair: !!flair.emoji, wornFlair: flair.emoji,
+    worn: ev.rewards.map((r) => (r.kind === "flair" ? flair.emoji === r.emoji : r.kind === "fx" ? flair.fx === r.fx : !!fx && fx.id === ev.id)),
+    fxWrap: flairFxWrap,
+  };
+}
+// Alles wat de UI van deze events nodig heeft: het event-bestand en de mascotte(s).
+const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot]() : null))]);
+
+// "Nieuw"-stip: er staat een stempel op de kaart die je nog niet zag (bij het openen van de Events-tab/het scherm wordt het gezien).
+const EVSEEN_KEY = (id) => "jaardle:ev-seen:" + id;
+function eventHasNew() {
+  return eventTabEvents().some((ev) => {
+    if (eventPhase(ev, eventToday()) === "past") return false;
+    let seen = 0;
+    try { seen = Number(localStorage.getItem(EVSEEN_KEY(ev.id))) || 0; } catch (e) {}
+    return eventState(ev).n > seen;
+  });
+}
+function markEventSeen() {
+  for (const ev of eventTabEvents()) { try { localStorage.setItem(EVSEEN_KEY(ev.id), String(eventState(ev).n)); } catch (e) {} }
+  renderEventDots();
+}
+function renderEventDots() {
+  const has = eventHasNew();
+  document.querySelector('.menu-item[data-action="events"]')?.classList?.toggle("has-new", has);
+  document.querySelector('.menu-item[data-action="rewards"]')?.classList?.toggle("has-new", has);
+  document.querySelector('.rw-tabs .rc-tab[data-rw-tab="events"]')?.classList?.toggle("has-new", has && rewardsTab !== "events");
+  renderMenuDot();
+}
+
+// Waar leidt een tik naartoe? Ingelogd: de Events-tab van de 🪎-kluis; anders het Events-scherm (zonder tabbalk, kluis is login-only).
+function openEventScreen() {
+  closeAllModals();
+  if (auth.user) { rewardScrollSect = "events"; openModal("modal-rewards"); }
+  else openModal("modal-events");
+}
+async function renderEventsModal() {
+  const body = document.getElementById("events-body");
+  if (!body) return;
+  const evs = eventTabEvents();
+  if (!evs.length) { body.innerHTML = ""; return; }
+  body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  try { await ensureEventUi(evs); } catch (e) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
+  if (document.getElementById("modal-events").hidden) return;
+  body.innerHTML = window.SeasonEvent.tab(evs.map(eventView), { google: document.querySelector("#login-google svg")?.outerHTML || "" });
+  wireEventBody(body);
+  markEventSeen();
+}
+// Knoppen in de Events-tab en het Events-scherm: beloningen dragen/aanzetten, vandaag spelen, inloggen (het haakje).
+function wireEventBody(body) {
+  body.querySelectorAll("[data-ev-act]").forEach((b) => {
+    b.onclick = () => {
+      const ev = eventById(b.dataset.evId), r = ev && ev.rewards[Number(b.dataset.evAct)];
+      if (!r) return;
+      if (r.kind === "flair") setMyFlair(r.emoji);
+      else if (r.kind === "fx") setMyFlairFx(r.fx);
+      else { setWinFx("ev:" + ev.id); renderRewards(); playWinFxPreview("ev:" + ev.id); }
+    };
+  });
+  body.querySelectorAll("[data-ev-play]").forEach((b) => { b.onclick = () => { closeAllModals(); document.querySelector('.tab[data-mode="daily"]')?.click(); }; });
+  wireAcctPitch(body);
+}
+
+// De balk boven de feitenkaart: alleen tijdens het event, met de skin aan (zonder skin is er ook geen katje), op de daily en zolang
+// je speelt (na afloop neemt de strook op het eindscherm het over). De eerste dagen twee regels met de aankondiging, daarna één dunne regel.
+const EVBAR_KEY = (id) => "jaardle:ev-bar:" + id;
+function eventBarIntro(ev) {
+  let rec = {};
+  try { rec = JSON.parse(localStorage.getItem(EVBAR_KEY(ev.id)) || "{}") || {}; } catch (e) {}
+  const day = eventToday();
+  if (rec.day !== day) { rec = { n: (rec.n || 0) + 1, day }; try { localStorage.setItem(EVBAR_KEY(ev.id), JSON.stringify(rec)); } catch (e) {} }
+  return rec.n <= 3;
+}
+function eventBarEvent() {
+  return eventsInView().find((ev) => eventPhase(ev, eventToday()) === "run" && (!ev.skin || seasonActive() === ev.skin)) || null;
+}
+function renderEventBar() {
+  const el = document.getElementById("event-bar");
+  if (!el) return;
+  const ev = eventBarEvent();
+  if (!ev || !window.SeasonEvent || !state || state.mode !== "daily" || state.done) { el.hidden = true; el.innerHTML = ""; return; }
+  el.innerHTML = window.SeasonEvent.bar(eventView(ev), { intro: eventBarIntro(ev) });
+  el.hidden = false;
+}
+// De regel in het ⋮-menu: alleen voor wie niet is ingelogd (ingelogd heeft de Events-tab en de stip op 🪎).
+let eventMenuShown = false;   // alleen aan het DOM komen als de regel er is of net verdween (op gewone dagen raakt dit niets aan)
+function renderEventMenuItem() {
+  const ev = eventsInView()[0], show = !!(ev && !auth.user && window.SeasonEvent);
+  if (!show && !eventMenuShown) return;
+  const item = document.querySelector('.menu-item[data-action="events"]');
+  if (!item) return;
+  eventMenuShown = show;
+  item.hidden = !show;
+  if (show) item.innerHTML = window.SeasonEvent.menuItem(eventView(ev));
+}
+// Eén plek die alles bijwerkt (balk, menu-regel, stip): bij laden, een nieuw spel, inloggen, taal- of skinwissel. Het bestand wordt in
+// een rustig moment opgehaald en alleen als er een event in beeld is, dus op gewone dagen gebeurt er niets.
+function syncEventUi() {
+  const evs = eventsInView();
+  if (!evs.length) { renderEventBar(); renderEventMenuItem(); renderEventDots(); return; }
+  const go = () => ensureEventUi(evs).then(() => { renderEventBar(); renderEventMenuItem(); renderEventDots(); }).catch(() => {});
+  if (window.SeasonEvent) { go(); return; }
+  if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
+}
+// De strook onder de wereldstatistiek van het eindscherm (daily, ook een inhaalpot): je stand en wat de volgende beloning is.
+async function renderEventStrip(arrive) {
+  els.result.querySelectorAll(".evs").forEach((e) => e.remove());
+  const ev = eventsInView()[0];
+  if (!ev || !state || !state.done || state.mode !== "daily") return;
+  try { await ensureEventUi([ev]); } catch (e) { return; }
+  if (!state || !state.done) return;
+  els.result.querySelectorAll(".evs").forEach((e) => e.remove());   // een tweede aanroep intussen: nooit twee stroken
+  const v = eventView(ev), quiet = v.n >= v.thresholds[v.thresholds.length - 1];
+  const box = document.createElement("div");
+  box.innerHTML = window.SeasonEvent.strip(v, { arrive: !!arrive && v.played > 0, quiet });
+  const strip = box.firstElementChild;
+  els.result.insertBefore(strip, document.getElementById("result-actions"));
+  strip.onclick = openEventScreen;
 }
 
 function syncThemeCheck() {
@@ -10876,7 +11237,7 @@ function unlockBodyScroll() {
 
 // De navigeerbare panelen (géén pop-ups: kroning/podium/beloning blokkeren de UI
 // zelf en beheren hun eigen sluiten). Eén tegelijk zichtbaar.
-const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards",
+const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards", "modal-events",
   "modal-leaderboard", "modal-recap", "modal-login"];
 
 // Kwam je via de flair-chip op het bord of via een capstone-pip in Prestaties in de
@@ -11283,6 +11644,7 @@ function openModal(id, opts) {
     }
     renderRewards(); setModalUrl("rewards");
   }
+  if (id === "modal-events") renderEventsModal();
   if (id === "modal-recap") { renderRecap(); setModalUrl("recap"); }
   if (id === "modal-leaderboard") { renderLeaderboard(); setModalUrl("leaderboard"); }
   if (id === "modal-login") {
@@ -12038,6 +12400,7 @@ async function init() {
     else if (action === "history") openModal("modal-history");
     else if (action === "achievements") openModal("modal-achv");
     else if (action === "rewards") openModal("modal-rewards");
+    else if (action === "events") openEventScreen();
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
@@ -12071,6 +12434,8 @@ async function init() {
   syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → vinkje bijzetten
   syncSeasonCheck();   // idem voor de seizoens-skin: regel alleen tijdens het event, vinkje = aan, label van de juiste skin
   syncSeasonCat();   // en het Halloween-katje, als de skin aanstaat
+  syncEventUi();     // en de event-balk/menu-regel/stip als er een event loopt
+  document.getElementById("event-bar")?.addEventListener("click", openEventScreen);
 
   // Modals: backdrop / ✕ knop / Escape. De kluis (modal-rewards) is bijzonder: kwam
   // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc

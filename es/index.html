@@ -131,7 +131,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=200">
+<link rel="stylesheet" href="/style.css?v=201">
 </head>
 <body>
   <main>
@@ -148,6 +148,8 @@
           <button class="menu-item" role="menuitem" data-action="history" data-i18n="menu_history">📅 Historial</button>
           <button class="menu-item" role="menuitem" data-action="achievements" data-i18n="menu_achv">🏅 Logros</button>
           <button class="menu-item" role="menuitem" data-action="rewards" data-i18n="menu_rewards" hidden>🪎 Recompensas</button>
+          <!-- Tijdelijk (alleen tijdens een event, alleen zonder account; ingelogd heeft de Events-tab in 🪎): game.js vult en toont. -->
+          <button class="menu-item" role="menuitem" data-action="events" hidden></button>
           <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Clasificación</button>
           <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">☀️ Tema claro</button>
           <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>🎃 Aspecto de Halloween</button>
@@ -169,6 +171,10 @@
          Verbergt zichzelf als het gat nog te dichten is (dan wint de balk
          hierboven); game.js vult en toont. -->
     <div id="repair-banner" hidden></div>
+
+    <!-- Event-balk (Spooktober, later kerst, …): de aankondiging boven de feitenkaart; tikken opent het Events-scherm.
+         Alleen tijdens een event, met de skin en zolang je speelt; game.js (syncEventUi) vult en toont. -->
+    <div id="event-bar" hidden></div>
 
     <section id="event-card">
       <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Dato anterior" data-i18n-aria="fact_prev" hidden>‹</button>
@@ -305,6 +311,18 @@
         <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
       </header>
       <div id="achv-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Events-scherm voor wie niet is ingelogd (de kluis met de Events-tab is login-only): dezelfde kaart + beloningen. -->
+  <div id="modal-events" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-events-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-events-title" data-i18n="rewards_tab_events">Eventos</h2>
+        <button class="modal-close" data-close aria-label="Cerrar" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="events-body" class="modal-body"></div>
     </div>
   </div>
 
@@ -467,7 +485,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=333"></script>
+  <script src="/game.js?v=334"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

@@ -283,7 +283,28 @@ window.HolidayFx = (() => {
       rot: ((r0, vr) => (u) => r0 + vr * u)(rnd(-0.4, 0.4), rnd(-2.5, 2.5)), r: rnd(9, 14) * S, draw(ctx) { pumpkin(ctx, this.r, P); } }));
     const ghosts = Array.from({ length: 5 }, (_, i) => ({ x: 0.12 + ((i * PHI + 0.3) % 1) * 0.76, delay: rnd(0.2, 1.4), vy: rnd(170, 240) * HS, ph: rnd(0, TAU), wob: rnd(1.2, 1.8), amp: rnd(14, 26) * S, tilt: 0.12,
       r: rnd(13, 18) * S, draw(ctx) { ghost(ctx, this.r, P); } }));
-    return [fallLayer(pumpkins, 3.8, stats), riseLayer(ghosts, 3.8, stats)];
+    const layers = [fallLayer(pumpkins, 3.8, stats), riseLayer(ghosts, 3.8, stats)];
+    if (e.opts.bats) layers.push(batsLayer(W, H));   // Spookfeest (event-viering): er vliegt ook een zwerm vleermuizen doorheen
+    return layers;
+  }
+  // Zeven vleermuizen vliegen golvend van links naar rechts of andersom (vorm = twee kwadratische bogen per vleugel). Vector, geen emoji.
+  function batsLayer(W, H) {
+    const S = Math.max(0.6, Math.min(1.5, Math.min(W, H) / 400));
+    const bats = Array.from({ length: 7 }, (_, i) => ({ y0: H * (0.12 + 0.11 * i), dir: i % 2 ? 1 : -1, delay: i * 0.34, dur: 2.6 + (i % 3) * 0.3, s: (14 + (i % 3) * 5) * S, ph: i * 1.7, amp: 14 * S }));
+    return { end: 4.6, draw(ctx, t, w, h) {
+      ctx.save(); ctx.fillStyle = currentTheme() === "light" ? "#2d1b45" : "#e6dbff";
+      for (const b of bats) {
+        const u = (t - b.delay) / b.dur; if (u < 0 || u > 1) continue;
+        const x = b.dir > 0 ? -30 + u * (w + 60) : w + 30 - u * (w + 60), y = b.y0 + Math.sin(u * 7 + b.ph) * b.amp, flap = Math.sin(t * 22 + b.ph);
+        ctx.save(); ctx.translate(x, y); ctx.scale(b.dir > 0 ? 1 : -1, 1);
+        ctx.beginPath(); ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(b.s * 0.5, -b.s * (0.55 + 0.35 * flap), b.s * 1.1, -b.s * 0.1 * flap + b.s * 0.1);
+        ctx.quadraticCurveTo(b.s * 0.8, b.s * 0.2, b.s * 0.5, b.s * 0.12); ctx.quadraticCurveTo(b.s * 0.25, b.s * 0.3, 0, b.s * 0.2);
+        ctx.quadraticCurveTo(-b.s * 0.25, b.s * 0.3, -b.s * 0.5, b.s * 0.12); ctx.quadraticCurveTo(-b.s * 0.8, b.s * 0.2, -b.s * 1.1, -b.s * 0.1 * flap + b.s * 0.1);
+        ctx.quadraticCurveTo(-b.s * 0.5, -b.s * (0.55 + 0.35 * flap), 0, 0); ctx.fill(); ctx.restore();
+      }
+      ctx.restore();
+    } };
   }
 
   // ── Kerst: zachte sneeuwval met een paar sterretjes ─────────────────────────

@@ -70,6 +70,9 @@ src += `
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
   seasonFor, SEASONS, SEASON_KEY, seasonKey, THEME_COLORS, themeBarColor, setSeason, seasonActive, seasonCurrent, seasonMenuShown, syncSeasonCheck,
+  EVENTS, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
+  eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
+  setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -1302,6 +1305,7 @@ test("FLAIR_FX — het getal van de gate is precies de trede/teller van de prest
     if (tr.tiers) assert.ok(Number.isInteger(tr.flairFxAt), `${tr.key}: getierd, dus een flairFxAt`);
   }
   for (const [id, f] of Object.entries(T.FLAIR_FX)) {
+    if (f.key === "event") continue;   // event-effecten hangen aan de stempelstand van hun event (eigen test: "EVENTS — …")
     if (f.key === "capstone") { assert.equal(f.min, T.CAPSTONE_MAX, `${id}: een capstone-effect hoort bij de hoogste trede`); continue; }   // obsidiaan: geen losse prestatie maar de capstone zelf
     assert.ok(links[id], `${id}: hangt aan geen enkele prestatie (zou onvindbaar zijn)`);
     assert.equal(links[id].key, f.key, `${id}: andere teller dan de prestatie`);
@@ -1319,7 +1323,7 @@ test("flairFxEarned — alleen ingelogd, en elk effect volgt zijn teller op de d
     assert.deepEqual(T.flairFxEarned({ flawless: false }), []);
     assert.deepEqual(T.flairFxEarned(null), []);
     for (const [id, f] of Object.entries(T.FLAIR_FX)) {
-      if (f.key === "flawless" || f.key === "capstone") continue;   // sprankel = boolean; obsidiaan-effecten volgen capstoneTier (eigen test)
+      if (f.key === "flawless" || f.key === "capstone" || f.key === "event") continue;   // sprankel = boolean; obsidiaan-effecten volgen capstoneTier; event-effecten de stempelstand (eigen tests)
       const got = (n) => T.flairFxEarned({ [f.key]: n }).includes(id);
       assert.ok(got(f.min), `${id}: op ${f.min} verdiend`);
       assert.ok(got(f.min + 40), `${id}: erboven ook`);
@@ -2484,4 +2488,333 @@ test("Gok-knop: bij hover blijft hij de accentkleur (.key:hover mag .key-wide ni
   const css = readFileSync(join(dir, "..", "style.css"), "utf8");
   assert.match(css, /\.key-wide:hover\s*\{[^}]*background:\s*var\(--accent\)/, ".key-wide:hover houdt de accentkleur");
   assert.ok(css.indexOf(".key-wide:hover") > css.indexOf(".key:hover"), ".key-wide:hover moet ná .key:hover staan (gelijke specificiteit)");
+});
+
+
+// ── Events (Spooktober, later kerst/Pasen): config, stempels, beloningen, UI-bestand ───────────────────────────────
+const evHist = (days) => days.map((d) => ({ date: d, won: true, score: 80, guesses: 3 }));
+const evDays = (n, from = "2026-10-21") => Array.from({ length: n }, (_, i) => T.eventDay(T.EVENTS[0], i));   // eerste n dagen van het event
+const evClean = () => { localStorage.removeItem("jaardle:history"); localStorage.removeItem(T.EVFX_KEY); localStorage.removeItem("jaardle:evfx"); T.setHistoryCache(null); T.setPlayer(null, null, null); T.setAchv(null); T.setEventToday("2025-01-01"); };
+const loadSeasonEvent = () => {
+  // het UI-bestand in een eigen context (nep-DOM): puur HTML-bouwers, dus alleen document.head/createElement/querySelector nodig
+  const head = { kids: [], appendChild(e) { this.kids.push(e); } };
+  const doc = { head, querySelector: () => null, createElement: () => ({ setAttribute() {}, textContent: "" }) };
+  const win = {};
+  const ctx = vm.createContext({ window: win, document: doc, Intl, String, Object, Array, Math, Date });
+  vm.runInContext(readFileSync(join(dir, "..", "season-event.js"), "utf8"), ctx);
+  return { SE: win.SeasonEvent, head, win };
+};
+
+test("EVENTS — elke rij is sluitend: datums, drempels, beloningen, effect, skin en reward-sleutels", () => {
+  const ids = new Set();
+  for (const ev of T.EVENTS) {
+    assert.ok(!ids.has(ev.id), `${ev.id}: dubbel id`); ids.add(ev.id);
+    assert.match(ev.start, /^\d{4}-\d{2}-\d{2}$/); assert.match(ev.end, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(ev.start <= ev.end);
+    const total = T.eventTotal(ev);
+    assert.equal(ev.thresholds.length, ev.rewards.length, `${ev.id}: één drempel per beloning`);
+    assert.deepEqual([...ev.thresholds].sort((a, b) => a - b), ev.thresholds, `${ev.id}: drempels oplopend`);
+    assert.ok(ev.thresholds.every((x, i, a) => x >= 1 && x <= total && (i === 0 || x > a[i - 1])), `${ev.id}: drempels binnen 1..${total} en strikt oplopend`);
+    assert.ok(ev.gift >= 0 && ev.gift < ev.thresholds[0], `${ev.id}: het cadeau is minder dan de eerste drempel`);
+    assert.ok(!ev.skin || T.SEASONS[ev.skin], `${ev.id}: skin ${ev.skin} bestaat niet in SEASONS`);
+    for (const [i, r] of ev.rewards.entries()) {
+      assert.ok(["flair", "fx", "feest"].includes(r.kind), `${r.key}: onbekende soort`);
+      assert.equal(r.at, ev.thresholds[i]); assert.equal(r.event, ev.id);
+      assert.ok(T.REWARDS[r.key] && T.REWARDS[r.key].event === ev.id && T.REWARDS[r.key].sect === "events", `${r.key}: REWARDS-regel`);
+      assert.ok(T.REWARD_ORDER.includes(r.key), `${r.key}: staat in REWARD_ORDER`);
+      assert.ok(T.RW_SECT_TAB[T.REWARDS[r.key].sect]);
+      if (r.kind === "fx") { const f = T.FLAIR_FX[r.fx]; assert.ok(f && f.reward === r.key && f.min === r.at && f.event === ev.id && f.key === "event", `${r.fx}: FLAIR_FX-rij`); assert.equal(T.REWARDS[r.key].cat, "flairfx"); }
+      if (r.kind === "feest") assert.ok(T.HOLIDAY_FX_IDS.includes(r.layer), `${r.key}: laag ${r.layer} bestaat in HolidayFx`);
+    }
+    assert.equal(new Set(ev.rewards.map((r) => r.key)).size, ev.rewards.length, `${ev.id}: reward-sleutels uniek`);
+  }
+  // reward-sleutels zijn globaal uniek
+  const all = T.EVENTS.flatMap((e) => e.rewards.map((r) => r.key));
+  assert.equal(new Set(all).size, all.length);
+  assert.deepEqual(T.EVENT_REWARD_KEYS, all);
+  // Spooktober 2026: woe 21 okt t/m zo 1 nov = 12 puzzeldagen, inhalen t/m wo 4 nov
+  const sp = T.eventById("spook");
+  assert.equal(T.eventTotal(sp), 12); assert.equal(T.eventDay(sp, 11), "2026-11-01"); assert.equal(T.eventCatchupEnd(sp), "2026-11-04");
+  assert.deepEqual(sp.thresholds, [3, 6, 10]);
+  assert.equal(T.eventOfReward("ev_spook_fx").id, "spook"); assert.equal(T.eventOfReward("fl_star"), null);
+});
+
+test("eventPhase — voor · lopend · inhaaldagen · voorbij, op de grenzen", () => {
+  const sp = T.eventById("spook");
+  const ph = (d) => T.eventPhase(sp, d);
+  assert.equal(ph("2026-10-20"), "soon"); assert.equal(ph("2026-10-21"), "run"); assert.equal(ph("2026-11-01"), "run");
+  assert.equal(ph("2026-11-02"), "catch"); assert.equal(ph("2026-11-04"), "catch"); assert.equal(ph("2026-11-05"), "past");
+  assert.deepEqual(T.eventsInView("2026-10-25").map((e) => e.id), ["spook"]);
+  assert.deepEqual(T.eventsInView("2026-11-04").map((e) => e.id), ["spook"], "inhaaldagen: de kaart staat er nog");
+  assert.deepEqual(T.eventsInView("2026-11-05"), []); assert.deepEqual(T.eventsInView("2026-10-01"), []);
+});
+
+test("eventStamps — een gespeelde dag = een stempel, het cadeau komt bij de eerste dag, alleen dagen uit het venster, nooit meer dan het totaal", () => {
+  const sp = T.eventById("spook"), st = (days) => T.eventStamps(sp, evHist(days));
+  assert.equal(st([]).n, 0, "niets gespeeld: ook geen cadeau");
+  assert.equal(st(evDays(1)).n, 2, "de eerste dag geeft het cadeau erbij");
+  assert.equal(st(evDays(2)).n, 3); assert.deepEqual(st(evDays(2)).earned, [true, false, false], "2 gespeelde dagen = de eerste beloning (3 stempels)");
+  assert.deepEqual(st(evDays(5)).earned, [true, true, false]); assert.equal(st(evDays(5)).n, 6);
+  assert.deepEqual(st(evDays(9)).earned, [true, true, true]); assert.equal(st(evDays(9)).n, 10);
+  assert.equal(st(evDays(12)).n, 12, "plafond op het totaal"); assert.equal(st(evDays(12)).played, 12);
+  assert.equal(st(["2026-10-20", "2026-11-02", "2025-10-21"]).n, 0, "dagen buiten het venster tellen niet");
+  assert.equal(st([...evDays(2), ...evDays(2)]).played, 2, "dezelfde dag telt één keer");
+  assert.deepEqual(st(["2026-10-21", "2026-10-23"]).days.slice(0, 4), [true, false, true, false], "inhalen: ook een dag ertussen telt, gaten blijven gaten");
+  assert.equal(T.eventStamps(sp, [{ date: "2026-10-22", won: false, score: 0, guesses: 6 }]).n, 2, "een verlies telt ook (je speelde de dag)");
+});
+
+test("event-beloningen — flair, effect en viering vallen op hun drempel; alleen ingelogd; blijven na het event", () => {
+  evClean();
+  const wasUser = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" }; T.setAchv(mkAch([0, 0, 0, 0, 0]));
+    const want = (n) => { T.setLocalHistory(evHist(evDays(n))); return T.earnedRewardKeys().filter((k) => T.EVENT_REWARD_KEYS.includes(k)); };
+    assert.deepEqual(want(0), []); assert.deepEqual(want(1), []);
+    assert.deepEqual(want(2), ["ev_spook_flair"]); assert.ok(T.achvEarnedFlairs().includes("🎃"));
+    assert.deepEqual(want(4), ["ev_spook_flair"]); assert.deepEqual(T.flairFxEarned(T.setAchv(mkAch([0, 0, 0, 0, 0])) || mkAch([0, 0, 0, 0, 0])), []);
+    assert.deepEqual(want(5), ["ev_spook_flair", "ev_spook_fx"]); assert.ok(T.flairFxEarned(mkAch([0, 0, 0, 0, 0])).includes("web"));
+    assert.deepEqual(want(8), ["ev_spook_flair", "ev_spook_fx"]);
+    assert.deepEqual(want(9), ["ev_spook_flair", "ev_spook_fx", "ev_spook_feest"], "in de volgorde van REWARD_ORDER");
+    // ná het event: nog steeds van jou (de stand komt uit de historie, niet uit de datum)
+    T.setEventToday("2027-03-01"); assert.equal(want(9).length, 3);
+    // anoniem: niets te dragen
+    T.auth.user = null; assert.deepEqual(T.earnedRewardKeys(), []); assert.deepEqual(T.achvEarnedFlairs(), []);
+    assert.equal(T.eventEarnedAt(T.eventById("spook"), 3), false);
+  } finally { T.auth.user = wasUser; evClean(); }
+});
+
+test("event-beloningen — de server-gebonden historie telt mee (DB-dagen + lokale dagen, geen dubbelen)", () => {
+  evClean();
+  const wasUser = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    T.setHistoryCache(evHist(evDays(3)));                         // de server kent drie dagen
+    T.setLocalHistory(evHist([...evDays(3), T.eventDay(T.eventById("spook"), 3)]));   // lokaal één dag erbij (nog niet gesynct) + dezelfde drie
+    assert.equal(T.eventState(T.eventById("spook")).played, 4);
+    assert.equal(T.eventState(T.eventById("spook")).n, 5);
+  } finally { T.auth.user = wasUser; evClean(); }
+});
+
+test("event-viering — opt-in, sluit de andere vieringen uit en omgekeerd; alleen als verdiend", () => {
+  evClean();
+  const wasUser = T.auth.user, sp = T.eventById("spook");
+  try {
+    T.auth.user = { uid: "u" }; T.setAchv(mkAch([0, 0, 0, 0, 0]));
+    T.setLocalHistory(evHist(evDays(5)));                          // 6 stempels: effect, nog geen viering
+    assert.equal(T.eventFxUnlocked(sp), false); T.setEventFx("spook"); assert.equal(T.eventFxActive(), null, "niet verdiend = niet actief");
+    T.setLocalHistory(evHist(evDays(9)));                          // 10 stempels
+    assert.equal(T.eventFxUnlocked(sp), true); assert.deepEqual(T.eventFxUnlockedList().map((e) => e.id), ["spook"]);
+    assert.equal(T.eventFxActive().id, "spook", "verdiend + gekozen (de keuze van daarnet stond al bewaard) = actief");
+    T.setWinFx("none"); assert.equal(T.eventFxActive(), null);
+    T.setWinFx("ev:spook"); assert.equal(T.eventFxActive().id, "spook"); assert.equal(T.currentWinFxChoice(), "ev:spook");
+    for (const k of ["jaardle:flairconfetti", "jaardle:beerfx", "jaardle:goldyears", "jaardle:calfx"]) assert.equal(localStorage.getItem(k), "0", `${k} gaat uit`);
+    T.setBeerFx(true); assert.equal(T.eventFxActive(), null, "een andere viering aanzetten zet deze uit");
+    T.setWinFx("ev:spook"); T.setCalendarFx(true); assert.equal(T.eventFxActive(), null);
+    T.setWinFx("ev:spook"); T.setGoldYearsFx(true); assert.equal(T.eventFxActive(), null);
+    T.setWinFx("ev:spook"); T.setFlairConfetti(true); assert.equal(T.eventFxActive(), null);
+    T.setWinFx("ev:spook"); T.setWinFx("none"); assert.equal(T.eventFxActive(), null, "'gewone confetti' zet 'm uit");
+    assert.ok(T.winFxPreviewHtml("ev:spook").includes("rw-up") && T.winFxPreviewHtml("ev:spook").includes("🎃"), "het voorbeeld in de Viering-tab");
+    // de viering staat in de Viering-tab (tegel) en de tab verschijnt
+    T.setWinFx("ev:spook");
+    assert.ok(T.rewardsTabsAvailable(mkAch([0, 0, 0, 0, 0])).includes("vier"));
+    assert.ok(T.rewardsVierHtml({ flair: false, beer: false, gold: false, cal: false }).includes('data-winfx="ev:spook"'));
+    assert.match(T.rewardsVierHtml({}), /aria-checked="true" data-winfx="ev:spook"/);
+  } finally { T.auth.user = wasUser; evClean(); }
+});
+
+test("Events-tab in de kluis — alleen met het UI-bestand, ingelogd en een event in beeld (of het archief voor wie meedeed)", () => {
+  evClean();
+  const wasUser = T.auth.user, A = mkAch([0, 0, 0, 0, 0]), hadSE = window.SeasonEvent;
+  try {
+    T.auth.user = { uid: "u" };
+    T.setEventToday("2026-10-25");
+    assert.deepEqual(T.rewardsTabsAvailable(A), ["flair"], "zonder het UI-bestand geen tab (de kluis wacht erop)");
+    window.SeasonEvent = {};
+    assert.deepEqual(T.rewardsTabsAvailable(A), ["flair", "events"], "tijdens het event voor elke ingelogde speler, ook zonder stempels");
+    T.setEventToday("2026-11-04"); assert.deepEqual(T.rewardsTabsAvailable(A), ["flair", "events"], "ook in de inhaaldagen");
+    T.setEventToday("2026-12-01"); assert.deepEqual(T.rewardsTabsAvailable(A), ["flair"], "daarna: wie niet meedeed ziet er niets van");
+    T.setLocalHistory(evHist(evDays(1))); assert.deepEqual(T.rewardsTabsAvailable(A), ["flair", "events"], "wie meedeed houdt het archief");
+    T.auth.user = null; assert.deepEqual(T.rewardsTabsAvailable(A), ["flair"], "de kluis is login-only");
+    assert.equal(T.RW_SECT_TAB.events, "events");
+  } finally { T.auth.user = wasUser; if (hadSE) window.SeasonEvent = hadSE; else delete window.SeasonEvent; evClean(); }
+});
+
+test("event-pop-ups — meerdere beloningen van één event tegelijk worden één groep-kaart; één beloning blijft een gewone kaart", () => {
+  const g = T.rewardQueueFor(["ev_spook_flair", "ev_spook_fx", "fx_glow"]);
+  assert.deepEqual(g, ["evgroup:spook:ev_spook_flair,ev_spook_fx", "fx_glow"]);
+  assert.deepEqual(T.rewardQueueFor(["ev_spook_flair", "ev_spook_fx", "ev_spook_feest"]), ["evgroup:spook:ev_spook_flair,ev_spook_fx,ev_spook_feest"]);
+  assert.deepEqual(T.rewardQueueFor(["ev_spook_fx", "fx_glow"]), ["ev_spook_fx", "fx_glow"]);
+  assert.deepEqual(T.rewardQueueFor(["fl_star", "fx_glow"]), ["fl_star", "fx_glow"]);
+  // en de event-beloningen komen vóór de prestige-beloningen (de zeldzaamste komt altijd als laatste)
+  assert.ok(T.REWARD_ORDER.indexOf("ev_spook_feest") < T.REWARD_ORDER.indexOf("fl_star"));
+});
+
+test("eventView — de gegevens voor de UI: fase, dagen over, vandaag gespeeld, wat je draagt", () => {
+  evClean();
+  const wasUser = T.auth.user, sp = T.eventById("spook");
+  try {
+    T.setLang("nl"); T.setEventToday("2026-10-23"); T.auth.user = { uid: "u" };
+    T.setPlayer("Jip", "🎃~web", null); T.setLocalHistory(evHist(["2026-10-21", "2026-10-23"]));
+    const v = T.eventView(sp);
+    assert.equal(v.phase, "run"); assert.equal(v.total, 12); assert.equal(v.n, 3); assert.equal(v.todayPlayed, true); assert.equal(v.daysLeft, 10, "21 + 12 dagen: op de 3e dag nog 10 (met vandaag)");
+    assert.deepEqual(v.worn, [true, true, false]); assert.equal(v.anyFlair, true); assert.equal(v.anon, false);
+    T.setEventToday("2026-10-22"); assert.equal(T.eventView(sp).todayPlayed, false);
+    T.setEventToday("2026-11-03"); const late = T.eventView(sp); assert.equal(late.phase, "catch"); assert.equal(late.todayPlayed, false);
+    T.auth.user = null; assert.equal(T.eventView(sp).anon, true);
+  } finally { T.auth.user = wasUser; evClean(); }
+});
+
+test("nieuwe-stip — er staat een stempel op de kaart die je nog niet zag; weg zodra je kijkt; niet na het event", () => {
+  evClean();
+  const sp = T.eventById("spook");
+  try {
+    T.setEventToday("2026-10-22");
+    assert.equal(T.eventHasNew(), false, "niets gespeeld: niets nieuws");
+    T.setLocalHistory(evHist(evDays(1))); assert.equal(T.eventHasNew(), true, "het eerste stempel (met cadeau) is nieuw");
+    localStorage.setItem(T.EVSEEN_KEY("spook"), String(T.eventState(sp).n)); assert.equal(T.eventHasNew(), false);
+    T.setLocalHistory(evHist(evDays(2))); assert.equal(T.eventHasNew(), true);
+    T.setEventToday("2026-12-01"); assert.equal(T.eventHasNew(), false, "voorbij: geen stip meer");
+  } finally { localStorage.removeItem(T.EVSEEN_KEY("spook")); evClean(); }
+});
+
+test("season-event.js — teksten in alle vijf de talen, zelfde sleutels, geen lege waarden; elk EVENTS-id heeft een UI-blok", () => {
+  const { SE } = loadSeasonEvent();
+  const langs = Object.keys(T.I18N);
+  for (const ev of T.EVENTS) assert.ok(SE.ids().includes(ev.id), `${ev.id}: geen blok in EVENT_UI`);
+  const shape = (o) => JSON.stringify(Object.keys(o).sort().map((k) => [k, typeof o[k] === "object" ? Object.keys(o[k]).sort() : typeof o[k]]));
+  for (const ev of T.EVENTS) {
+    const base = SE.copy(ev.id, "nl");
+    for (const l of langs) {
+      const c = SE.copy(ev.id, l);
+      assert.equal(shape(c), shape(base), `${ev.id}/${l}: andere sleutels dan nl`);
+      for (const [k, v] of Object.entries(c)) {
+        if (typeof v === "string") assert.ok(v.trim().length > 0, `${ev.id}/${l}.${k} is leeg`);
+        else if (typeof v === "object") for (const [k2, v2] of Object.entries(v)) assert.ok(String(v2).trim().length > 0, `${ev.id}/${l}.${k}.${k2} is leeg`);
+        else if (typeof v === "function") { assert.ok(String(v(3, 12, 5)).length > 0 && !String(v(3, 12, 5)).includes("undefined"), `${ev.id}/${l}.${k}() geeft niets bruikbaars`); }
+      }
+      for (const kind of ["flair", "fx", "feest"]) assert.ok(c.rewardName[kind] && c.popSub[kind], `${ev.id}/${l}: naam en pop-up-tekst voor ${kind}`);
+    }
+  }
+});
+
+test("season-event.js — de stempelkaart: vakjes, cadeau, drempels als open cadeau-vakjes, het nieuwste stempel", () => {
+  const { SE } = loadSeasonEvent(), sp = T.eventById("spook");
+  const view = (n, extra = {}) => ({ id: "spook", icon: "🎃", mascot: "", lang: "nl", locale: "nl", start: sp.start, end: sp.end, catchupEnd: "2026-11-04", total: 12, thresholds: sp.thresholds, gift: 1, rewards: sp.rewards,
+    n, played: Math.max(0, n - 1), days: [], earned: sp.thresholds.map((x) => n >= x), phase: "run", todayPlayed: false, daysLeft: 10, anon: false, anyFlair: true, wornFlair: "🎃", worn: [false, false, false], fxWrap: (fx, h) => `<span class="fl-fx fx-${fx}">${h}</span>`, ...extra });
+  const count = (h, re) => (h.match(re) || []).length;
+  let h = SE.card(view(0));
+  assert.equal(count(h, /class="evp-s/g), 12); assert.match(h, /evp-s gift0/, "nog niets gespeeld: het cadeau-vakje ligt dicht");
+  h = SE.card(view(2));
+  assert.equal(count(h, /class="evp-s on/g), 2, "twee stempels"); assert.match(h, /evp-s on gift/, "het eerste vakje is het cadeau"); assert.match(h, /nextup/);
+  h = SE.card(view(3)); assert.match(h, /evp-s on rw rw1/); assert.match(h, /evp-ic">🎃</, "de eerste drempel toont de beloning");
+  assert.equal(count(h, /evp-gf/g), 2, "de twee andere drempels zijn nog dicht (cadeau-vakje)");
+  h = SE.card(view(12)); assert.equal(count(h, /class="evp-s on/g), 12); assert.ok(!/nextup/.test(h));
+  assert.match(SE.card(view(5), { arrive: true }), /evc arrive/); assert.match(SE.card(view(5), { arrive: true }), /evp-s on new/, "het nieuwste stempel landt");
+  assert.ok(!/evp-s on[^"]* new/.test(SE.card(view(5))), "zonder arrive geen animatie");
+  assert.match(h, /role="img" aria-label="12 van 12"/);
+});
+
+test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haakje, archief; alles geëscaped", () => {
+  const { SE } = loadSeasonEvent(), sp = T.eventById("spook");
+  const view = (n, extra = {}) => ({ id: "spook", icon: "🎃", mascot: "", lang: "nl", locale: "nl", start: sp.start, end: sp.end, catchupEnd: "2026-11-04", total: 12, thresholds: sp.thresholds, gift: 1, rewards: sp.rewards,
+    n, played: Math.max(0, n - 1), days: [], earned: sp.thresholds.map((x) => n >= x), phase: "run", todayPlayed: false, daysLeft: 10, anon: false, anyFlair: true, wornFlair: "🎃", worn: [false, false, false], fxWrap: (fx, h) => `<span class="fl-fx fx-${fx}">${h}</span>`, ...extra });
+  // balk: de eerste dagen de aankondiging, daarna de dunne regel met je stand; tikken = openen
+  const intro = SE.bar(view(0), { intro: true }), slim = SE.bar(view(4), { intro: false });
+  assert.match(intro, /data-ev-open="spook"/); assert.match(intro, /Het is Spooktober!/); assert.match(intro, /Elke daily is een 🎃/); assert.match(intro, /21 okt – 1 nov/); assert.ok(!/ slim/.test(intro));
+  assert.match(slim, /class="ev-bar slim"/); assert.match(slim, /Spooktober · 🎃 4 van 12/);
+  assert.match(SE.bar(view(4), { intro: false }), /<button type="button" class="ev-bar/, "een knop: toetsenbord en screenreader");
+  assert.match(SE.bar({ ...view(0), lang: "en" }, { intro: true }), /It's Spooktober!/); assert.match(SE.bar({ ...view(0), lang: "xx" }, { intro: true }), /Spooktober/, "onbekende taal valt terug op Engels");
+  // mascotte: het kattenkopje als het er is, anders het icoon
+  assert.match(SE.bar({ ...view(0), mascot: '<svg class="cat-head"></svg>' }, { intro: true }), /class="cat-head"/); assert.match(SE.bar(view(0), { intro: true }), /ev-ico">🎃/);
+  // strook: stand, puntjes, volgende beloning; anoniem: slotje, daarna het haakje; stil na de laatste drempel
+  const st = SE.strip(view(4)); assert.match(st, /data-ev-open="spook"/); assert.equal((st.match(/class="evs-pip[ "]/g) || []).length, 12); assert.match(st, /4 van 12/); assert.match(st, /nog 2 tot .*Spinnenweb/);
+  assert.equal((st.match(/class="evs-pip on/g) || []).length, 4); assert.equal((st.match(/class="evs-pip[^"]* rw/g) || []).length, 3, "drie drempel-pinnen");
+  assert.match(SE.strip(view(1, { anon: true })), /evs-note/); assert.match(SE.strip(view(3, { anon: true })), /evs-hookline/); assert.ok(!/evs-note|evs-hookline/.test(SE.strip(view(3))));
+  assert.match(SE.strip(view(10), { quiet: true }), /evs quiet/); assert.match(SE.strip(view(12)), /Kaart compleet/);
+  assert.match(SE.strip(view(5), { arrive: true }), /evs arrive[\s\S]*evs-pip on rw new|evs-pip on new/, "het nieuwste puntje landt");
+  // scherm: kop, kaart, vandaag-chip, rijen met knoppen
+  let sc = SE.screen(view(3));
+  assert.match(sc, /Spooktober/); assert.match(sc, /21 okt – 1 nov · nog 10 dagen/); assert.match(sc, /data-ev-play="1"/, "vandaag nog niet gespeeld: een knop naar de daily");
+  assert.match(SE.screen(view(3, { todayPlayed: true })), /Vandaag binnen/);
+  assert.equal((sc.match(/class="ev-row /g) || []).length, 3);
+  assert.match(sc, /ev-row done[\s\S]*?data-ev-act="0"[^>]*>Draag nu/, "verdiende flair: Draag nu"); assert.match(sc, /ev-row next/); assert.match(sc, /ev-row lock/);
+  assert.match(SE.screen(view(6)), /data-ev-act="1"[^>]*>Zet aan/, "verdiend effect: Zet aan");
+  assert.match(SE.screen(view(6, { worn: [true, false, false] })), /ev-btn on">✓ Gedragen/); assert.match(SE.screen(view(6, { anyFlair: false })), /Draag eerst een flair[\s\S]*ev-btn" disabled>Zet aan/, "zonder flair kan een effect niet aan");
+  assert.match(SE.screen(view(3, { anon: true })), /ev-hook/); assert.ok(!/data-ev-act/.test(SE.screen(view(3, { anon: true }))), "anoniem kan niets dragen");
+  assert.match(SE.screen(view(3)), /ev-note/);
+  assert.match(SE.screen(view(5, { phase: "catch" })), /Het event is voorbij[\s\S]*Inhalen kan nog t\/m wo 4 nov/); assert.ok(!/data-ev-play/.test(SE.screen(view(5, { phase: "catch" }))));
+  assert.match(SE.screen(view(3)), /fx-web/, "het effect-voorbeeld draagt de effect-klasse");
+  // archief: het zegel met zijn ring (aantal beloningen) en alleen wat je verdiende
+  const ar = SE.archive(view(6, { phase: "past" })); assert.match(ar, /achv-t2/); assert.match(ar, /#achv-art-spook/); assert.equal((ar.match(/<i>/g) || []).length, 2); assert.match(ar, /6 van 12/);
+  assert.match(SE.archive(view(2, { phase: "past" })), /achv-t0/, "meegedaan, nog niets: een ring zonder kleur");
+  const tab = SE.tab([view(6, { phase: "past" })]); assert.match(tab, /Eerdere events/); assert.match(tab, /Dit event is voorbij/);
+  const both = SE.tab([view(3), view(6, { phase: "past", id: "spook" })]); assert.ok(!/Dit event is voorbij/.test(both.replace(/Het event is voorbij/g, "")), "de afsluitende regel alleen als er geen lopend event is");
+  // escapen: een kwaadaardige naam kan geen HTML invoegen
+  assert.ok(!SE.card(view(3)).includes("<script"));
+  assert.equal(SE.menuItem(view(0)).includes("Spooktober"), true);
+});
+
+test("season-event.js — de CSS: tokens per event, geen fixed, geen onbekende variabelen, reduced-motion; het bestand injecteert één <style>", () => {
+  const { SE, head } = loadSeasonEvent();
+  const css = SE.css;
+  for (const ev of T.EVENTS) assert.ok(css.includes(`[data-ev="${ev.id}"] {`), `${ev.id}: geen tokens-blok`);
+  for (const tok of ["--ev-pk", "--ev-pk-soft", "--ev-stamp", "--ev-gift", "--ev-ok"]) assert.ok(new RegExp(`${tok}\\s*:`).test(css), `${tok} niet gedefinieerd`);
+  const inline = new Set(["--n"]);   // het aantal puntjes van de strook: staat inline op het element
+  const used = new Set([...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]).filter((u) => !inline.has(u))), defined = new Set([...css.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+  const host = readFileSync(join(dir, "..", "style.css"), "utf8"), hostDefined = new Set([...host.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+  for (const u of used) assert.ok(defined.has(u) || hostDefined.has(u), `${u} wordt gebruikt maar nergens gedefinieerd (ook niet in style.css)`);
+  assert.ok(!/position:\s*fixed/.test(css)); assert.match(css, /prefers-reduced-motion: reduce/);
+  for (const m of css.matchAll(/animation(?:-name)?:\s*([a-z-]+)/g)) if (!["none"].includes(m[1])) assert.ok(new RegExp(`@keyframes ${m[1]}\\b`).test(css) || new RegExp(`@keyframes ${m[1]}\\b`).test(host), `@keyframes ${m[1]} ontbreekt`);
+  assert.equal(head.kids.length, 1, "één <style> bij het laden");
+  assert.ok(readFileSync(join(dir, "..", "season-event.js"), "utf8").length < 60000, "het lui geladen bestand blijft klein");
+});
+
+test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template heeft balk/menu-regel/scherm, MODAL_PANELS kent het scherm", () => {
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8"), tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+  assert.match(g, /const loadSeasonEvent = fxLoader\("\/season-event\.js", "SeasonEvent"\)/);
+  assert.match(tpl, /<div id="event-bar" hidden><\/div>/); assert.match(tpl, /data-action="events" hidden/); assert.match(tpl, /id="modal-events"/); assert.match(tpl, /id="events-body"/);
+  assert.match(g, /MODAL_PANELS = \[[^\]]*"modal-events"/);
+  assert.match(g, /action === "events"\) openEventScreen\(\)/);
+  // de balk staat boven de feitenkaart
+  assert.ok(tpl.indexOf('id="event-bar"') < tpl.indexOf('id="event-card"') && tpl.indexOf('id="event-bar"') > tpl.indexOf('id="repair-banner"'));
+  // op een gewone dag raakt syncEventUi niets aan: de hulpfuncties bestaan en worden vanuit het ritme van de banners aangeroepen
+  assert.match(g, /async function refreshStreakBanners\(\) \{\s*syncEventUi\(\)/);
+  assert.match(g, /renderEventStrip\(fresh\)/);
+  // het katje levert het kopje voor de balk
+  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, css: CSS, head: HEAD \}/);
+  assert.ok(existsSync(join(dir, "..", "emoji", "flair-pumpkin.webp")), "de animatie van de 🎃-flair");
+});
+
+test("Spinnenweb — het effect staat in flair-fx.css (niet in de eerste paint), met stilstaande pose en minder-beweging-pose", () => {
+  const lazy = readFileSync(join(dir, "..", "flair-fx.css"), "utf8"), base = readFileSync(join(dir, "..", "style.css"), "utf8");
+  assert.match(lazy, /\.fx-web::before/); assert.match(lazy, /\.fx-web::after/); assert.match(lazy, /\.fl-still\.fx-web::before/); assert.match(lazy, /\.fl-fx\.fx-web::before/);
+  assert.ok(!/\.fx-web\b/.test(base)); assert.ok(T.FLAIR_ANIM["🎃"] === "flair-pumpkin");
+  for (const l of Object.keys(T.I18N)) assert.ok(T.I18N[l].fxn_web.startsWith("\u{1F578}️"), `${l}: fxn_web begint met het icoon`);
+});
+
+test("Vleermuizen — de Halloween-laag krijgt er een zwerm bij met opts.bats, en niet zonder", () => {
+  const HF = globalThis.HolidayFx, draws = (layers) => layers.length, de = document.documentElement;
+  document.documentElement = { dataset: {} };   // currentTheme() leest het thema
+  try {
+  const base = HF.build("halloween", 390, 844, {}), more = HF.build("halloween", 390, 844, { bats: true });
+  assert.equal(draws(more), draws(base) + 1, "één laag erbij");
+  const calls = []; const ctx = new Proxy({}, { get: (_, k) => (k === "save" || k === "restore" || k === "beginPath" ? () => {} : k === "fillStyle" ? "" : () => calls.push(k)), set: () => true });
+  const bats = more[more.length - 1]; assert.ok(bats.end > 0 && bats.end <= 6);
+  for (const t of [0, 1, 2.5, 4.5]) bats.draw(ctx, t, 390, 844);   // geen fout, ook buiten de zichtbare tijd
+  assert.ok(calls.includes("quadraticCurveTo") && calls.includes("fill"), "er worden vleugels getekend");
+  } finally { document.documentElement = de; }
+});
+
+test("Prestaties — een zegel per event waaraan je meedeed, met de ring van het aantal beloningen; ook anoniem; niets als je niet meedeed", () => {
+  evClean();
+  const had = window.SeasonEvent;
+  try {
+    const { SE } = loadSeasonEvent(); window.SeasonEvent = SE; T.setLang("nl");
+    assert.equal(T.eventAchvHtml(), "", "niet meegedaan: geen sectie");
+    T.setLocalHistory(evHist(evDays(1)));
+    let h = T.eventAchvHtml(); assert.match(h, /Evenementen/); assert.match(h, /achv-t0/); assert.match(h, /Spooktober 2026/); assert.match(h, /2 van 12/); assert.match(h, /#achv-art-spook/);
+    T.auth.user = { uid: "u" }; T.setLocalHistory(evHist(evDays(5)));
+    h = T.eventAchvHtml(); assert.match(h, /achv-t2/, "twee beloningen = ring 2"); assert.match(h, /6 van 12/);
+    window.SeasonEvent = undefined; assert.equal(T.eventAchvHtml(), "", "zonder het UI-bestand niets (het bord wacht er niet op)");
+  } finally { T.auth.user = null; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; evClean(); }
 });
