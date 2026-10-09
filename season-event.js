@@ -157,7 +157,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       anonLock: "Een gratis account bewaart je beloningen.", anonHook: "Bewaar je beloningen met een gratis account", google: "Doorgaan met Google", orMail: "of met e-mail",
       later: "Later", turnAllOn: "Alles aanzetten", needFlair: "Draag eerst een flair om je effect te zien.",
       afterNote: "Dit event is voorbij; je beloningen staan in de Flair- en Viering-tab.", achH: "Evenementen", achSub: (n, tot) => `${n} van ${tot}`,
-      popGroupTitle: (n) => `${n} beloningen vrijgespeeld`, barEvery: (i) => `Elke daily is een ${i}`, tab: "Events",
+      countsAnyway: "telt toch mee", popGroupTitle: (n) => `${n} beloningen vrijgespeeld`, barEvery: (i) => `Elke daily is een ${i}`, tab: "Events",
     },
     en: {
       left: (n) => (n <= 1 ? "last day" : `${n} days left`), over: "The event is over", catchupUntil: (d) => `You can still catch up until ${d}`,
@@ -168,7 +168,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       anonLock: "A free account keeps your rewards.", anonHook: "Keep your rewards with a free account", google: "Continue with Google", orMail: "or with email",
       later: "Later", turnAllOn: "Turn everything on", needFlair: "Wear a flair first to see your effect.",
       afterNote: "This event is over; your rewards are in the Flair and Party tabs.", achH: "Events", achSub: (n, tot) => `${n} of ${tot}`,
-      popGroupTitle: (n) => `${n} rewards unlocked`, barEvery: (i) => `Every daily is a ${i}`, tab: "Events",
+      countsAnyway: "still counts", popGroupTitle: (n) => `${n} rewards unlocked`, barEvery: (i) => `Every daily is a ${i}`, tab: "Events",
     },
     de: {
       left: (n) => (n <= 1 ? "letzter Tag" : `noch ${n} Tage`), over: "Das Event ist vorbei", catchupUntil: (d) => `Nachholen ist noch bis ${d} möglich`,
@@ -179,7 +179,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       anonLock: "Ein kostenloses Konto bewahrt deine Belohnungen.", anonHook: "Behalte deine Belohnungen mit einem kostenlosen Konto", google: "Weiter mit Google", orMail: "oder mit E-Mail",
       later: "Später", turnAllOn: "Alles einschalten", needFlair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.",
       afterNote: "Dieses Event ist vorbei; deine Belohnungen findest du in den Tabs Flair und Feier.", achH: "Events", achSub: (n, tot) => `${n} von ${tot}`,
-      popGroupTitle: (n) => `${n} Belohnungen freigeschaltet`, barEvery: (i) => `Jedes Daily ist ein ${i}`, tab: "Events",
+      countsAnyway: "zählt trotzdem", popGroupTitle: (n) => `${n} Belohnungen freigeschaltet`, barEvery: (i) => `Jedes Daily ist ein ${i}`, tab: "Events",
     },
     es: {
       left: (n) => (n <= 1 ? "último día" : `quedan ${n} días`), over: "El evento ha terminado", catchupUntil: (d) => `Aún puedes recuperar hasta el ${d}`,
@@ -190,7 +190,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       anonLock: "Una cuenta gratuita guarda tus recompensas.", anonHook: "Guarda tus recompensas con una cuenta gratuita", google: "Continuar con Google", orMail: "o con correo electrónico",
       later: "Más tarde", turnAllOn: "Activar todo", needFlair: "Lleva primero un distintivo para ver tu efecto.",
       afterNote: "Este evento ha terminado; tus recompensas están en las pestañas Distintivo y Fiesta.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
-      popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada daily es una ${i}`, tab: "Eventos",
+      countsAnyway: "cuenta igual", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada daily es una ${i}`, tab: "Eventos",
     },
     pt: {
       left: (n) => (n <= 1 ? "último dia" : `faltam ${n} dias`), over: "O evento acabou", catchupUntil: (d) => `Você ainda pode recuperar até ${d}`,
@@ -201,7 +201,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       anonLock: "Uma conta gratuita guarda suas recompensas.", anonHook: "Guarde suas recompensas com uma conta gratuita", google: "Continuar com o Google", orMail: "ou com e-mail",
       later: "Depois", turnAllOn: "Ativar tudo", needFlair: "Use primeiro um distintivo para ver seu efeito.",
       afterNote: "Este evento acabou; suas recompensas estão nas abas Distintivo e Festa.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
-      popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada daily é uma ${i}`, tab: "Eventos",
+      countsAnyway: "conta mesmo assim", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada daily é uma ${i}`, tab: "Eventos",
     },
   };
 
@@ -304,16 +304,18 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
   }
 
   // ── de strook op het eindscherm: dagen als puntjes, drempels als ronde pinnen, één tekstregel ──────────────────
-  // o.arrive = het nieuwe stempel landt (één keer) · o.quiet = zonder puntjes · o.hook = (anoniem) de eerste beloning is binnen
+  // o.arrive = het nieuwe stempel landt (één keer) · o.quiet = zonder puntjes · o.mood = "cheer" (winst) of "comfort" (verlies): het kopje viert of
+  // troost (de animaties staan in season-cat.js) · o.lost = "telt toch mee" · o.hat = het kopje draagt de heksenhoed (hoogste beloning binnen)
   function strip(v, o) {
     o = o || {};
     const c = copy(v.id, v.lang);
     let pips = "";
     for (let i = 1; i <= v.total; i++) pips += `<i class="evs-pip${i <= v.n ? " on" : ""}${v.thresholds.includes(i) ? " rw" : ""}${o.arrive && i === v.n ? " new" : ""}"></i>`;
     const note = v.anon ? (v.n >= v.thresholds[0] ? `<span class="evs-hookline">${esc(c.hookLine)} ›</span>` : `<span class="evs-note">\u{1F512} ${esc(c.anonLock)}</span>`) : "";
-    return `<button type="button" class="evs${o.arrive ? " arrive" : ""}${o.quiet ? " quiet" : ""}" data-ev="${esc(v.id)}" data-ev-open="${esc(v.id)}" aria-label="${esc(c.name + " " + c.count(v.n, v.total))}">` +
+    const next = (o.lost ? `${c.countsAnyway} · ` : "") + nextText(v, c);
+    return `<button type="button" class="evs${o.arrive ? " arrive" : ""}${o.quiet ? " quiet" : ""}${o.mood === "cheer" || o.mood === "comfort" ? " " + o.mood : ""}${o.hat ? " hat" : ""}" data-ev="${esc(v.id)}" data-ev-open="${esc(v.id)}" aria-label="${esc(c.name + " " + c.count(v.n, v.total))}">` +
       `<span class="evs-top">${mascotOf(v) || `<span class="evs-ico">${esc(v.icon)}</span>`}<b>${esc(c.name)}</b><span class="evs-n"><span class="evs-num">${esc(c.count(v.n, v.total))}</span></span><span class="evs-go" aria-hidden="true">›</span></span>` +
-      `<span class="evs-pips" style="--n:${v.total}">${pips}</span><span class="evs-next">${esc(nextText(v, c))}</span>${note}</button>`;
+      `<span class="evs-pips" style="--n:${v.total}">${pips}</span><span class="evs-next">${esc(next)}</span>${note}</button>`;
   }
 
   // ── het Events-scherm (de Events-tab in de kluis én het scherm voor wie niet is ingelogd) ─────────────────────

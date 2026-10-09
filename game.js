@@ -1967,6 +1967,7 @@ function appendDigit(d) {
   const digits = neg ? cur.slice(1) : cur;
   if (digits.length >= MAX_DIGITS) return;
   setYearString((neg ? "-" : "") + digits + d);
+  window.SeasonCat?.type?.();   // het Halloween-katje kijkt mee (alleen als hij er is)
 }
 
 function backspaceYear() {
@@ -1980,6 +1981,7 @@ function backspaceYear() {
   }
   const trimmed = digits.slice(0, -1);
   setYearString((neg && trimmed.length > 0 ? "-" : "") + trimmed);
+  window.SeasonCat?.type?.();
 }
 
 function toggleSign() {
@@ -10950,7 +10952,7 @@ function setSeason(on) {
 // (/season-cat.js, ~6 KB gzip) wordt pas in een rustig moment opgehaald, en alleen als de skin aanstaat: op alle andere dagen nooit.
 function syncSeasonCat() {
   if (seasonActive() !== "halloween") { if (window.SeasonCat) window.SeasonCat.unmount(); return; }
-  const go = () => loadSeasonCat().then((c) => { if (seasonActive() === "halloween") c.mount(); }).catch(() => {});
+  const go = () => loadSeasonCat().then((c) => { if (seasonActive() === "halloween") c.mount(eventCatOpts()); }).catch(() => {});
   if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
 }
 function syncSeasonCheck() {
@@ -10981,6 +10983,9 @@ function eventView(ev) {
     fxWrap: flairFxWrap,
   };
 }
+// Het katje (SeasonCat) draagt een heksenhoed zodra je de hoogste beloning van het event hebt, en heeft op 31 oktober vurige ogen en slaapt dan niet.
+const eventCatHat = () => EVENTS.some((ev) => ev.skin === seasonActive() && eventState(ev).n >= ev.thresholds[ev.thresholds.length - 1]);
+const eventCatOpts = () => ({ night: eventToday().slice(5) === "10-31", hat: eventCatHat() });
 // Alles wat de UI van deze events nodig heeft: het event-bestand en de mascotte(s).
 const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot]() : null))]).then((r) => { injectEventArt(); return r; });
 // De zegel-plaatjes van de events (SVG-defs, id achv-art-<event>) hangen bij de badge-artwork van Prestaties; het archief in de kluis gebruikt ze ook.
@@ -11086,6 +11091,7 @@ function renderEventMenuItem() {
 // een rustig moment opgehaald en alleen als er een event in beeld is, dus op gewone dagen gebeurt er niets.
 function syncEventUi() {
   const evs = eventsInView();
+  if (window.SeasonCat && window.SeasonCat.set) window.SeasonCat.set({ hat: eventCatHat() });   // de hoed komt bij de volgende pot (of nu, na inloggen)
   if (evs.length && auth.user && !myHistoryCache) getMyHistory().then(() => { if (myHistoryCache) syncEventUi(); }).catch(() => {});   // de stand komt (mede) uit de server-historie: opnieuw tekenen als die binnen is
   if (!evs.length) { renderEventBar(); renderEventMenuItem(); renderEventDots(); return; }
   const go = () => ensureEventUi(evs).then(() => { renderEventBar(); renderEventMenuItem(); renderEventDots(); }).catch(() => { const b = document.getElementById("event-bar"); if (b && !window.SeasonEvent) { b.hidden = true; b.className = ""; } });
@@ -11101,12 +11107,22 @@ async function renderEventStrip(arrive) {
   try { await ensureEventUi([ev]); } catch (e) { return; }
   if (!state || !state.done) return;
   els.result.querySelectorAll(".evs").forEach((e) => e.remove());   // een tweede aanroep intussen: nooit twee stroken
-  const v = eventView(ev), quiet = v.n >= v.thresholds[v.thresholds.length - 1];
+  const v = eventView(ev), last = v.thresholds.length - 1, quiet = v.n >= v.thresholds[last];
+  // Na een verse pot: het kopje viert (winst) of troost (verlies). Haalde je met deze pot een drempel, dan krijgt die stip een ring en (bij de
+  // hoogste) plopt het hoedje er bij; anders draagt het kopje de hoed gewoon zodra je 'm hebt.
+  const fresh = !!arrive && v.played > 0, today = state.puzzleDate || todayKey();
+  const prev = fresh ? eventStamps(ev, eventHistorySync().filter((e) => e.date !== today)).n : v.n;
+  const crossed = fresh ? v.thresholds.findIndex((t) => prev < t && v.n >= t) : -1;
   const box = document.createElement("div");
-  box.innerHTML = window.SeasonEvent.strip(v, { arrive: !!arrive && v.played > 0, quiet });
+  box.innerHTML = window.SeasonEvent.strip(v, { arrive: fresh, quiet, lost: fresh && !state.won, mood: fresh ? (state.won ? "cheer" : "comfort") : "", hat: v.n >= v.thresholds[last] && crossed !== last });
   const strip = box.firstElementChild;
   els.result.insertBefore(strip, document.getElementById("result-actions"));
   strip.onclick = () => openEventScreen("strip");
+  if (crossed >= 0) setTimeout(() => {
+    if (!strip.isConnected) return;
+    strip.querySelectorAll(".evs-pip.rw")[crossed]?.classList.add("ring");
+    if (crossed === last) strip.classList.add("hat", "hatnew");
+  }, 700);
 }
 
 function syncThemeCheck() {
@@ -11929,6 +11945,7 @@ function submitGuess() {
   save();
   renderHintStatus();
   updateLiveScore(true);   // tel zichtbaar omlaag bij deze (mis)gok
+  window.SeasonCat?.guess?.();   // het katje spitst zijn oren: bij elke geaccepteerde gok hetzelfde, nooit op warm of koud (dat zou de Richting-hint weggeven)
   if (cls === "correct") {
     finishGame(true, true);
   } else if (state.guesses.length >= MAX_GUESSES) {
