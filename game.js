@@ -5049,7 +5049,9 @@ function eventPhase(ev, day) {
   if (day <= ev.end) return "run";
   return day <= eventCatchupEnd(ev) ? "catch" : "past";
 }
-let eventTodayFn = () => todayKey();   // één plek voor "vandaag" (de tests zetten hem vast)
+// ?evdate=2026-10-23 = voorvertoning: de events doen alsof het die puzzeldag is (balk, strook, kaart, tab); alleen op dit apparaat, verder niets.
+const previewEventDay = (() => { try { const v = new URLSearchParams(location.search).get("evdate"); return /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : null; } catch (e) { return null; } })();
+let eventTodayFn = () => previewEventDay || todayKey();   // één plek voor "vandaag" (de tests zetten hem vast)
 const eventToday = () => eventTodayFn();
 // De stand van een event uit een daghistorie ([{date}]): per dag gespeeld of niet, het aantal stempels (met cadeau) en welke beloningen binnen zijn.
 function eventStamps(ev, hist) {
@@ -9033,7 +9035,8 @@ function showReward(key) {
   const fxCat = r.cat === "flairfx";   // flair-effect: "Zet aan" kan alleen op een flair die je draagt, anders naar de kluis
   const worn = parseFlair(myFlair).emoji;
   const isEffect = r.cat === "effect" || (fxCat && !!worn);
-  const heroInner = flairPreviewHtml(fxCat ? (worn || r.emoji) : r.emoji);
+  const evFlair = r.event ? (eventById(r.event).rewards.find((x) => x.kind === "flair") || {}).emoji : null;   // een event-effect zonder gedragen flair: laat de event-flair zien (niet het effect-icoon)
+  const heroInner = flairPreviewHtml(fxCat ? (worn || evFlair || r.emoji) : r.emoji);
   const hero = fxCat ? flairFxWrap(r.fx, heroInner) : heroInner;
   const evc = r.event ? eventCopy(r.event) : null;   // een event-beloning heeft eigen teksten (en een eigen kopregel)
   const sub = evc ? evc.popSub[eventRewardKind(key)] : t(isFlair ? "reward_sub_flair" : fxCat ? "reward_sub_flairfx" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect");
@@ -9756,9 +9759,9 @@ function renderRewardsBody(body, a) {
   }
   wireRewards(body);
   if (tabs.length > 1) mountRewardsTabs(body, tabs);
-  // Na een vault-sprong vanuit een beloning-pop-up: scroll naar díe sectie.
+  // Na een vault-sprong vanuit een beloning-pop-up: scroll naar díe sectie (de Events-tab begint zelf bovenaan: daar schuift de tabbalk niet weg).
   if (rewardScrollSect) {
-    const sect = body.querySelector(`[data-rw-sect="${rewardScrollSect}"]`);
+    const sect = rewardScrollSect === "events" ? null : body.querySelector(`[data-rw-sect="${rewardScrollSect}"]`);
     rewardScrollSect = null;
     if (sect) requestAnimationFrame(() => sect.scrollIntoView({
       behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }));
@@ -9887,8 +9890,7 @@ function eventAchvHtml() {
   if (!window.SeasonEvent) return "";
   const played = EVENTS.filter((ev) => eventState(ev).played > 0);
   if (!played.length) return "";
-  const defs = document.querySelector("#achv-svg-defs svg");
-  for (const ev of played) if (defs && !defs.querySelector("#achv-art-" + ev.id)) defs.insertAdjacentHTML("beforeend", window.SeasonEvent.art(ev.id));
+  injectEventArt();
   const tiles = played.map((ev) => {
     const st = eventState(ev), c = eventCopy(ev.id), tier = st.earned.filter(Boolean).length;
     return `<div class="achv-trophy achv-t${tier}"><span class="achv-tring tiered"><svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${ev.id}"/></svg></span>` +
@@ -10978,7 +10980,13 @@ function eventView(ev) {
   };
 }
 // Alles wat de UI van deze events nodig heeft: het event-bestand en de mascotte(s).
-const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot]() : null))]);
+const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot]() : null))]).then((r) => { injectEventArt(); return r; });
+// De zegel-plaatjes van de events (SVG-defs, id achv-art-<event>) hangen bij de badge-artwork van Prestaties; het archief in de kluis gebruikt ze ook.
+function injectEventArt() {
+  const defs = document.querySelector("#achv-svg-defs svg");
+  if (!defs || !window.SeasonEvent) return;
+  for (const id of window.SeasonEvent.ids()) if (!defs.querySelector("#achv-art-" + id)) defs.insertAdjacentHTML("beforeend", window.SeasonEvent.art(id));
+}
 
 // "Nieuw"-stip: er staat een stempel op de kaart die je nog niet zag (bij het openen van de Events-tab/het scherm wordt het gezien).
 const EVSEEN_KEY = (id) => "jaardle:ev-seen:" + id;
@@ -11071,6 +11079,7 @@ function renderEventMenuItem() {
 // een rustig moment opgehaald en alleen als er een event in beeld is, dus op gewone dagen gebeurt er niets.
 function syncEventUi() {
   const evs = eventsInView();
+  if (evs.length && auth.user && !myHistoryCache) getMyHistory().then(() => { if (myHistoryCache) syncEventUi(); }).catch(() => {});   // de stand komt (mede) uit de server-historie: opnieuw tekenen als die binnen is
   if (!evs.length) { renderEventBar(); renderEventMenuItem(); renderEventDots(); return; }
   const go = () => ensureEventUi(evs).then(() => { renderEventBar(); renderEventMenuItem(); renderEventDots(); }).catch(() => {});
   if (window.SeasonEvent) { go(); return; }
