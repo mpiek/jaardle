@@ -185,13 +185,18 @@ html[data-season="halloween"] .sk-cat.intro { animation: skk-in 1.15s cubic-bezi
     later(() => el.classList.remove("drowsy"), 4300);
     later(() => wake(), 4300 + rnd(PACE.sleep));
   }
+  let afterWake = null;   // wat er na het rekken volgt: aaien als je tikte, anders gewoon wakker
   function wake(next) {
+    afterWake = next || awake;
     el.classList.remove("asleep"); el.classList.add("wake");
-    later(() => { el.classList.remove("wake"); (next || awake)(); }, 1700);
+    later(() => { el.classList.remove("wake"); const f = afterWake; afterWake = null; f(); }, 1700);
   }
   function pet() { drop(); flash("pet", 1600); later(awake, 1700); }
   function tap() {
-    const was = el.classList.contains("asleep");
+    const k = el.classList;
+    if (k.contains("pet")) return;                        // spam-tikken: het aaien wordt gewoon afgemaakt, niet opnieuw gestart
+    if (k.contains("wake")) { afterWake = pet; return; }  // midden in het rekken: eerst afmaken, dan aaien
+    const was = k.contains("asleep");
     clear(); drop();
     if (was) wake(pet); else pet();
   }

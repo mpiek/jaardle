@@ -2401,6 +2401,32 @@ test("season-cat.js: tikken — wakker = aaien (hartjes) en daarna weer rustig; 
   advance(20000); assert.ok(!has("asleep"), "na een tik slaapt hij niet meteen weer");
 });
 
+test("season-cat.js: spam-tikken start het aaien/rekken niet opnieuw — de lopende animatie wordt afgemaakt", () => {
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9" } });
+  w.api.mount(); const c = w.cat(), has = (k) => c.classList.contains(k);
+  // wakker: tik, nog eens tikken midden in het aaien → klaar op 1,6 s na de éérste tik
+  c.on.click(); advance(500); c.on.click(); advance(400); c.on.click(); advance(300);
+  assert.ok(has("pet"), "t=1,2 s: nog bezig");
+  advance(450); assert.ok(!has("pet"), "t=1,65 s: het eerste aaien is af, de extra tikken hebben niets herstart");
+  advance(100); assert.ok(!has("pet") && !has("wake"), "en er volgt geen tweede aaien");
+  // na afloop werkt een nieuwe tik gewoon weer
+  c.on.click(); assert.ok(has("pet"), "een tik ná afloop aait opnieuw");
+  advance(1700);
+  // slapend: tik + spam tijdens het rekken → één rekbeweging, daarna één keer aaien
+  advance(60000); assert.ok(has("asleep"));
+  c.on.click(); advance(600); c.on.click(); c.on.click();
+  assert.ok(has("wake") && !has("pet"), "nog midden in het rekken");
+  advance(1150); assert.ok(!has("wake") && has("pet"), "rekken afgemaakt (1,7 s), dan aaien");
+  advance(1700); assert.ok(!has("pet") && !has("asleep"), "en weer rustig; de spam is niet blijven hangen");
+  // vanzelf wakker worden (rekken op 164,3 s na de start) en dan tikken: rekken afmaken, dan aaien
+  const L = loadSeasonCat(), x = L.make({ store: { "jaardle:season:halloween:cat": "9" } });
+  x.api.mount(); const k = x.cat(), on = (n) => k.classList.contains(n);
+  L.advance(164400); assert.ok(on("wake"), "hij rekt zich uit zichzelf");
+  k.on.click(); k.on.click(); assert.ok(on("wake") && !on("pet"), "de tik breekt het rekken niet af");
+  L.advance(1650); assert.ok(!on("wake") && on("pet"), "rekken af (1,7 s), dan aaien");
+  L.advance(1700); assert.ok(!on("pet") && !on("wake"), "en weer rustig");
+});
+
 test("season-cat.js: verborgen tab of ingeklapt speelveld = hij wacht; minder beweging = slaapt stil, geen timers, geen tikken", () => {
   const { make, advance } = loadSeasonCat();
   const w = make({ store: { "jaardle:season:halloween:cat": "9" } }); w.api.mount(); const c = w.cat();
