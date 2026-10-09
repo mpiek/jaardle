@@ -2774,7 +2774,7 @@ test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template
   assert.match(g, /const loadSeasonEvent = fxLoader\("\/season-event\.js", "SeasonEvent"\)/);
   assert.match(tpl, /<div id="event-bar" hidden><\/div>/); assert.match(tpl, /data-action="events" hidden/); assert.match(tpl, /id="modal-events"/); assert.match(tpl, /id="events-body"/);
   assert.match(g, /MODAL_PANELS = \[[^\]]*"modal-events"/);
-  assert.match(g, /action === "events"\) openEventScreen\(\)/);
+  assert.match(g, /action === "events"\) openEventScreen\("menu"\)/); assert.match(g, /openEventScreen\("bar"\)/); assert.match(g, /openEventScreen\("strip"\)/);   // elke ingang telt cookieloos mee (GoatCounter)
   // de balk staat boven de feitenkaart
   assert.ok(tpl.indexOf('id="event-bar"') < tpl.indexOf('id="event-card"') && tpl.indexOf('id="event-bar"') > tpl.indexOf('id="repair-banner"'));
   // op een gewone dag raakt syncEventUi niets aan: de hulpfuncties bestaan en worden vanuit het ritme van de banners aangeroepen

@@ -3984,6 +3984,10 @@ html[data-theme="light"] .achv-card::after {
   background: var(--achv-new);
   box-shadow: 0 0 0 2px var(--bg);
 }
+/* Event-balk (#event-bar, gevuld door /season-event.js): zolang dat bestand nog laadt blijft de plek vrij, zodat de feitenkaart niet omlaag springt.
+   Maten = die van .ev-bar (intro: twee regels, slim: één regel) + de marge eronder. */
+#event-bar.ph { height: 2.83rem; margin-bottom: 0.5rem; }
+#event-bar.ph.slim { height: 1.93rem; }
 .menu-item.has-new::after {
   content: "";
   display: inline-block;

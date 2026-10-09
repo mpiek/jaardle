@@ -11011,7 +11011,9 @@ function renderEventDots() {
 }
 
 // Waar leidt een tik naartoe? Ingelogd: de Events-tab van de 🪎-kluis; anders het Events-scherm (zonder tabbalk, kluis is login-only).
-function openEventScreen() {
+function openEventScreen(from) {
+  const ev = eventsInView()[0] || eventTabEvents()[0];
+  if (ev) gcCount(`event-open-${ev.id}-${typeof from === "string" ? from : "bar"}`, `Event ${ev.id}: screen opened from ${typeof from === "string" ? from : "bar"}`);   // anoniem en cookieloos: werkt het event (waar tikken ze op: balk, strook, menu)?
   closeAllModals();
   if (auth.user) { rewardScrollSect = "events"; openModal("modal-rewards"); }
   else openModal("modal-events");
@@ -11060,8 +11062,11 @@ function renderEventBar() {
   const el = document.getElementById("event-bar");
   if (!el) return;
   const ev = eventBarEvent();
-  if (!ev || !window.SeasonEvent || !state || state.mode !== "daily" || state.done) { el.hidden = true; el.innerHTML = ""; return; }
-  el.innerHTML = window.SeasonEvent.bar(eventView(ev), { intro: eventBarIntro(ev) });
+  if (!ev || !state || state.mode !== "daily" || state.done) { el.hidden = true; el.innerHTML = ""; el.className = ""; return; }
+  const intro = eventBarIntro(ev);
+  if (!window.SeasonEvent) { el.className = "ph" + (intro ? "" : " slim"); el.innerHTML = ""; el.hidden = false; return; }   // het bestand laadt nog: de plek vrijhouden (de kaart springt niet omlaag)
+  el.className = "";
+  el.innerHTML = window.SeasonEvent.bar(eventView(ev), { intro });
   el.hidden = false;
 }
 // De regel in het ⋮-menu: alleen voor wie niet is ingelogd (ingelogd heeft de Events-tab en de stip op 🪎).
@@ -11081,8 +11086,9 @@ function syncEventUi() {
   const evs = eventsInView();
   if (evs.length && auth.user && !myHistoryCache) getMyHistory().then(() => { if (myHistoryCache) syncEventUi(); }).catch(() => {});   // de stand komt (mede) uit de server-historie: opnieuw tekenen als die binnen is
   if (!evs.length) { renderEventBar(); renderEventMenuItem(); renderEventDots(); return; }
-  const go = () => ensureEventUi(evs).then(() => { renderEventBar(); renderEventMenuItem(); renderEventDots(); }).catch(() => {});
+  const go = () => ensureEventUi(evs).then(() => { renderEventBar(); renderEventMenuItem(); renderEventDots(); }).catch(() => { const b = document.getElementById("event-bar"); if (b && !window.SeasonEvent) { b.hidden = true; b.className = ""; } });
   if (window.SeasonEvent) { go(); return; }
+  renderEventBar();   // meteen de plek vrijhouden; het bestand komt in een rustig moment
   if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
 }
 // De strook onder de wereldstatistiek van het eindscherm (daily, ook een inhaalpot): je stand en wat de volgende beloning is.
@@ -11098,7 +11104,7 @@ async function renderEventStrip(arrive) {
   box.innerHTML = window.SeasonEvent.strip(v, { arrive: !!arrive && v.played > 0, quiet });
   const strip = box.firstElementChild;
   els.result.insertBefore(strip, document.getElementById("result-actions"));
-  strip.onclick = openEventScreen;
+  strip.onclick = () => openEventScreen("strip");
 }
 
 function syncThemeCheck() {
@@ -12409,7 +12415,7 @@ async function init() {
     else if (action === "history") openModal("modal-history");
     else if (action === "achievements") openModal("modal-achv");
     else if (action === "rewards") openModal("modal-rewards");
-    else if (action === "events") openEventScreen();
+    else if (action === "events") openEventScreen("menu");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
@@ -12444,7 +12450,7 @@ async function init() {
   syncSeasonCheck();   // idem voor de seizoens-skin: regel alleen tijdens het event, vinkje = aan, label van de juiste skin
   syncSeasonCat();   // en het Halloween-katje, als de skin aanstaat
   syncEventUi();     // en de event-balk/menu-regel/stip als er een event loopt
-  document.getElementById("event-bar")?.addEventListener("click", openEventScreen);
+  document.getElementById("event-bar")?.addEventListener("click", () => openEventScreen("bar"));
 
   // Modals: backdrop / ✕ knop / Escape. De kluis (modal-rewards) is bijzonder: kwam
   // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc
