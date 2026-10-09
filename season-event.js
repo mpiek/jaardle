@@ -1,4 +1,4 @@
-/* Event-UI (lui geladen, ~6 KB gzip): de balk boven de feitenkaart, de strook op het eindscherm, de stempelkaart, het Events-scherm en
+/* Event-UI (lui geladen, ~12 KB gzip): de balk boven de feitenkaart, de strook op het eindscherm, de stempelkaart, het Events-scherm en
    het archief van een event (EVENTS in game.js), plus de teksten in vijf talen en de kleuren per event. game.js haalt dit bestand (±12 KB gzip) pas op
    zodra er een event in beeld is (of de kluis een Events-tab heeft), dus op gewone dagen wordt het nooit geladen.
    De functies hier zijn puur: ze krijgen een "view" (de stand van het event, gebouwd door eventView() in game.js) en geven HTML terug;
@@ -155,9 +155,9 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       at: (n) => `bij ${n}`, toGo: (n) => `nog ${n}`, wear: "Draag nu", turnOn: "Zet aan", worn: "Gedragen", on: "Aan",
       archH: "Eerdere events", archLine: (n, tot) => `${n} van ${tot}`, lineNext: (k, nm) => `nog ${k} tot ${nm}`, lineDone: "Kaart compleet", allIn: "Alle beloningen binnen",
       anonLock: "Een gratis account bewaart je beloningen.", anonHook: "Bewaar je beloningen met een gratis account", google: "Doorgaan met Google", orMail: "of met e-mail",
-      later: "Later", turnAllOn: "Alles aanzetten", needFlair: "Draag eerst een flair om je effect te zien.",
-      afterNote: "Dit event is voorbij; je beloningen staan in de Flair- en Viering-tab.", achH: "Evenementen", achSub: (n, tot) => `${n} van ${tot}`,
-      countsAnyway: "telt toch mee", popGroupTitle: (n) => `${n} beloningen vrijgespeeld`, barEvery: (i) => `Elke daily is een ${i}`, tab: "Events",
+      turnAllOn: "Alles aanzetten", needFlair: "Draag eerst een flair om je effect te zien.",
+      afterNote: "Dit event is voorbij; je beloningen staan in de Flair- en Viering-tab.", achH: "Events", achSub: (n, tot) => `${n} van ${tot}`,
+      lockedHint: "Dit lukt nog niet: je eerdere dagen staan nog niet op je account. Speel de daily van vandaag en probeer het opnieuw.", countsAnyway: "telt toch mee", popGroupTitle: (n) => `${n} beloningen vrijgespeeld`, barEvery: (i) => `Elke daily is een ${i}`,
     },
     en: {
       left: (n) => (n <= 1 ? "last day" : `${n} days left`), over: "The event is over", catchupUntil: (d) => `You can still catch up until ${d}`,
@@ -166,42 +166,42 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       at: (n) => `at ${n}`, toGo: (n) => `${n} to go`, wear: "Wear it now", turnOn: "Turn it on", worn: "Wearing", on: "On",
       archH: "Past events", archLine: (n, tot) => `${n} of ${tot}`, lineNext: (k, nm) => `${k} to go for ${nm}`, lineDone: "Card complete", allIn: "All rewards earned",
       anonLock: "A free account keeps your rewards.", anonHook: "Keep your rewards with a free account", google: "Continue with Google", orMail: "or with email",
-      later: "Later", turnAllOn: "Turn everything on", needFlair: "Wear a flair first to see your effect.",
+      turnAllOn: "Turn everything on", needFlair: "Wear a flair first to see your effect.",
       afterNote: "This event is over; your rewards are in the Flair and Party tabs.", achH: "Events", achSub: (n, tot) => `${n} of ${tot}`,
-      countsAnyway: "still counts", popGroupTitle: (n) => `${n} rewards unlocked`, barEvery: (i) => `Every daily is a ${i}`, tab: "Events",
+      lockedHint: "Not yet: your earlier days aren't on your account yet. Play today's daily and try again.", countsAnyway: "still counts", popGroupTitle: (n) => `${n} rewards unlocked`, barEvery: (i) => `Every daily is a ${i}`,
     },
     de: {
       left: (n) => (n <= 1 ? "letzter Tag" : `noch ${n} Tage`), over: "Das Event ist vorbei", catchupUntil: (d) => `Nachholen ist noch bis ${d} möglich`,
       keep: "Was du verdienst, bleibt dein – auch nach dem Event.", count: (n, tot) => `${n} von ${tot}`, gift: "Geschenk: dein erster Stempel ist schon drauf.",
-      todayDone: "Heute geschafft", todayOpen: "Heutiges Daily spielen", catchup: "Nachholen zählt auch.", rewardsH: "Belohnungen",
+      todayDone: "Heute geschafft", todayOpen: "Das heutige Daily spielen", catchup: "Nachholen zählt auch.", rewardsH: "Belohnungen",
       at: (n) => `bei ${n}`, toGo: (n) => `noch ${n}`, wear: "Jetzt tragen", turnOn: "Einschalten", worn: "Getragen", on: "An",
       archH: "Frühere Events", archLine: (n, tot) => `${n} von ${tot}`, lineNext: (k, nm) => `noch ${k} bis ${nm}`, lineDone: "Karte komplett", allIn: "Alle Belohnungen verdient",
       anonLock: "Ein kostenloses Konto bewahrt deine Belohnungen.", anonHook: "Behalte deine Belohnungen mit einem kostenlosen Konto", google: "Weiter mit Google", orMail: "oder mit E-Mail",
-      later: "Später", turnAllOn: "Alles einschalten", needFlair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.",
+      turnAllOn: "Alles einschalten", needFlair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.",
       afterNote: "Dieses Event ist vorbei; deine Belohnungen findest du in den Tabs Flair und Feier.", achH: "Events", achSub: (n, tot) => `${n} von ${tot}`,
-      countsAnyway: "zählt trotzdem", popGroupTitle: (n) => `${n} Belohnungen freigeschaltet`, barEvery: (i) => `Jedes Daily ist ein ${i}`, tab: "Events",
+      lockedHint: "Das klappt noch nicht: deine früheren Tage sind noch nicht in deinem Konto. Spiele das heutige Daily und versuche es erneut.", countsAnyway: "zählt trotzdem", popGroupTitle: (n) => `${n} Belohnungen freigeschaltet`, barEvery: (i) => `Jedes Daily ist ein ${i}`,
     },
     es: {
       left: (n) => (n <= 1 ? "último día" : `quedan ${n} días`), over: "El evento ha terminado", catchupUntil: (d) => `Aún puedes recuperar hasta el ${d}`,
       keep: "Lo que ganes es tuyo para siempre, también después del evento.", count: (n, tot) => `${n} de ${tot}`, gift: "Regalo: tu primer sello ya está en la tarjeta.",
-      todayDone: "La de hoy ya está", todayOpen: "Juega el daily de hoy", catchup: "Recuperar también cuenta.", rewardsH: "Recompensas",
+      todayDone: "El de hoy ya está", todayOpen: "Juega el diario de hoy", catchup: "Recuperar también cuenta.", rewardsH: "Recompensas",
       at: (n) => `con ${n}`, toGo: (n) => `faltan ${n}`, wear: "Usar ahora", turnOn: "Activar", worn: "En uso", on: "Activado",
       archH: "Eventos anteriores", archLine: (n, tot) => `${n} de ${tot}`, lineNext: (k, nm) => `faltan ${k} para ${nm}`, lineDone: "Tarjeta completa", allIn: "Todas las recompensas ganadas",
       anonLock: "Una cuenta gratuita guarda tus recompensas.", anonHook: "Guarda tus recompensas con una cuenta gratuita", google: "Continuar con Google", orMail: "o con correo electrónico",
-      later: "Más tarde", turnAllOn: "Activar todo", needFlair: "Lleva primero un distintivo para ver tu efecto.",
+      turnAllOn: "Activar todo", needFlair: "Lleva primero un distintivo para ver tu efecto.",
       afterNote: "Este evento ha terminado; tus recompensas están en las pestañas Distintivo y Fiesta.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
-      countsAnyway: "cuenta igual", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada daily es una ${i}`, tab: "Eventos",
+      lockedHint: "Aún no: tus días anteriores todavía no están en tu cuenta. Juega el diario de hoy y vuelve a intentarlo.", countsAnyway: "cuenta igual", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada diario es una ${i}`,
     },
     pt: {
       left: (n) => (n <= 1 ? "último dia" : `faltam ${n} dias`), over: "O evento acabou", catchupUntil: (d) => `Você ainda pode recuperar até ${d}`,
       keep: "O que você ganhar fica com você, mesmo depois do evento.", count: (n, tot) => `${n} de ${tot}`, gift: "Presente: seu primeiro carimbo já está no cartão.",
-      todayDone: "A de hoje já foi", todayOpen: "Jogue o daily de hoje", catchup: "Recuperar também conta.", rewardsH: "Recompensas",
+      todayDone: "O de hoje já está feito", todayOpen: "Jogue o diário de hoje", catchup: "Recuperar também conta.", rewardsH: "Recompensas",
       at: (n) => `com ${n}`, toGo: (n) => `faltam ${n}`, wear: "Usar agora", turnOn: "Ativar", worn: "Em uso", on: "Ativado",
       archH: "Eventos anteriores", archLine: (n, tot) => `${n} de ${tot}`, lineNext: (k, nm) => `faltam ${k} para ${nm}`, lineDone: "Cartão completo", allIn: "Todas as recompensas conquistadas",
       anonLock: "Uma conta gratuita guarda suas recompensas.", anonHook: "Guarde suas recompensas com uma conta gratuita", google: "Continuar com o Google", orMail: "ou com e-mail",
-      later: "Depois", turnAllOn: "Ativar tudo", needFlair: "Use primeiro um distintivo para ver seu efeito.",
+      turnAllOn: "Ativar tudo", needFlair: "Use primeiro um distintivo para ver seu efeito.",
       afterNote: "Este evento acabou; suas recompensas estão nas abas Distintivo e Festa.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
-      countsAnyway: "conta mesmo assim", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada daily é uma ${i}`, tab: "Eventos",
+      lockedHint: "Ainda não: seus dias anteriores ainda não estão na sua conta. Jogue o diário de hoje e tente de novo.", countsAnyway: "conta mesmo assim", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada diário é uma ${i}`,
     },
   };
 
@@ -214,7 +214,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
           rewardName: { flair: "Pompoen-flair", fx: "\u{1F578}️ Spinnenweb", feest: "\u{1F383} Spookfeest" },
           popEyebrow: "Spooktober-beloning",
           popSub: { flair: "Je pompoen voor op het leaderboard. Blijft van jou, ook na Spooktober.", fx: "Een effect rond je flair, zichtbaar op elk bord. Blijft van jou.", feest: "Pompoenen, spoken en vleermuizen bij elke winst. Je zet 'm zelf aan of uit." },
-          popGroupSub: "Je pompoen en je effect, samen te dragen.", popAnonTitle: "Je pompoen-flair is verdiend", popAnonSub: "Maak een gratis account om hem te bewaren en te dragen.",
+          popGroupSub: "Je pompoen en je effect, samen te dragen.",
           hookLine: "Je pompoen-flair is verdiend. Met een gratis account kun je hem dragen.",
         },
         en: {
@@ -222,7 +222,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
           rewardName: { flair: "Pumpkin flair", fx: "\u{1F578}️ Cobweb", feest: "\u{1F383} Spooky party" },
           popEyebrow: "Spooktober reward",
           popSub: { flair: "Your pumpkin for the leaderboard. Yours to keep, even after Spooktober.", fx: "An effect around your flair, visible on every board. Yours to keep.", feest: "Pumpkins, ghosts and bats with every win. You turn it on or off yourself." },
-          popGroupSub: "Your pumpkin and your effect, to wear together.", popAnonTitle: "You earned the pumpkin flair", popAnonSub: "Make a free account to keep it and wear it.",
+          popGroupSub: "Your pumpkin and your effect, to wear together.",
           hookLine: "You earned the pumpkin flair. A free account lets you wear it.",
         },
         de: {
@@ -230,7 +230,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
           rewardName: { flair: "Kürbis-Flair", fx: "\u{1F578}️ Spinnennetz", feest: "\u{1F383} Gruselparty" },
           popEyebrow: "Spooktober-Belohnung",
           popSub: { flair: "Dein Kürbis für die Bestenliste. Bleibt dein, auch nach Spooktober.", fx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste. Bleibt dein.", feest: "Kürbisse, Geister und Fledermäuse bei jedem Sieg. Du schaltest es selbst ein oder aus." },
-          popGroupSub: "Dein Kürbis und dein Effekt – zusammen zu tragen.", popAnonTitle: "Dein Kürbis-Flair ist verdient", popAnonSub: "Erstelle ein kostenloses Konto, um ihn zu behalten und zu tragen.",
+          popGroupSub: "Dein Kürbis und dein Effekt – trag beides zusammen.",
           hookLine: "Dein Kürbis-Flair ist verdient. Mit einem kostenlosen Konto kannst du es tragen.",
         },
         es: {
@@ -238,7 +238,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
           rewardName: { flair: "Distintivo de calabaza", fx: "\u{1F578}️ Telaraña", feest: "\u{1F383} Fiesta de miedo" },
           popEyebrow: "Recompensa de Spooktober",
           popSub: { flair: "Tu calabaza para la clasificación. Es tuya para siempre, incluso después de Spooktober.", fx: "Un efecto alrededor de tu distintivo, visible en cada clasificación. Es tuyo.", feest: "Calabazas, fantasmas y murciélagos en cada victoria. Tú lo activas o lo apagas." },
-          popGroupSub: "Tu calabaza y tu efecto, para llevar juntos.", popAnonTitle: "Has ganado el distintivo de calabaza", popAnonSub: "Crea una cuenta gratuita para guardarlo y usarlo.",
+          popGroupSub: "Tu calabaza y tu efecto, para llevar juntos.",
           hookLine: "Has ganado el distintivo de calabaza. Con una cuenta gratuita podrás usarlo.",
         },
         pt: {
@@ -246,7 +246,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
           rewardName: { flair: "Distintivo de abóbora", fx: "\u{1F578}️ Teia de aranha", feest: "\u{1F383} Festa assombrada" },
           popEyebrow: "Recompensa do Spooktober",
           popSub: { flair: "Sua abóbora para o placar. Fica com você, mesmo depois do Spooktober.", fx: "Um efeito em volta do seu distintivo, visível em todo placar. Fica com você.", feest: "Abóboras, fantasmas e morcegos a cada vitória. Você liga ou desliga quando quiser." },
-          popGroupSub: "Sua abóbora e seu efeito, para usar juntos.", popAnonTitle: "Você ganhou o distintivo de abóbora", popAnonSub: "Crie uma conta gratuita para guardá-lo e usá-lo.",
+          popGroupSub: "Sua abóbora e seu efeito, para usar juntos.",
           hookLine: "Você ganhou o distintivo de abóbora. Com uma conta gratuita você pode usá-lo.",
         },
       },
@@ -263,7 +263,9 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
   // Alle teksten van een event in een taal: het gedeelde deel + het deel van dit event (een ontbrekende taal valt terug op Engels).
   function copy(id, lang) {
     const ui = EVENT_UI[id] || { copy: {} };
-    return Object.assign({}, SHARED[lang] || SHARED[LANG_FALLBACK], ui.copy[lang] || ui.copy[LANG_FALLBACK] || {});
+    // Een onbekend event (id zonder blok in EVENT_UI) valt terug op veilige lege teksten i.p.v. een fout.
+    const blank = { name: id, barLead: "", menu: id, achName: id, rewardName: {}, popEyebrow: "", popSub: {}, popGroupSub: "", hookLine: "" };
+    return Object.assign(blank, SHARED[lang] || SHARED[LANG_FALLBACK], ui.copy[lang] || ui.copy[LANG_FALLBACK] || {});
   }
   const mascotOf = (v) => v.mascot || "";   // de mascotte (bv. het kattenkopje van /season-cat.js) komt mee in de view; zonder valt het terug op het icoon
 
@@ -361,7 +363,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
   }
   // Het archief (na het event, voor wie meedeed): het zegel met zijn ring en wat je verdiende. Wat je niet haalde staat er niet.
   function archive(v) {
-    const c = copy(v.id, v.lang), tier = v.earned[2] ? 3 : v.earned[1] ? 2 : v.earned[0] ? 1 : 0;
+    const c = copy(v.id, v.lang), tier = v.earned.filter(Boolean).length;
     const got = v.rewards.map((r, i) => (v.earned[i] ? `<i>${esc(r.icon)}</i>` : "")).join("");
     return `<div class="ev-arch" data-ev="${esc(v.id)}"><span class="ev-ring achv-t${tier}"><span class="achv-tring tiered"><svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${esc(v.id)}"></use></svg></span></span>` +
       `<div class="ev-tx"><b class="ev-nm">${esc(c.achName)}</b><span class="ev-sb">${esc(dates(v) + " · " + c.archLine(v.n, v.total))}</span><span class="ev-got">${got}</span></div></div>`;

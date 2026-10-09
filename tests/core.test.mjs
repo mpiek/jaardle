@@ -70,7 +70,7 @@ src += `
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
   seasonFor, SEASONS, SEASON_KEY, seasonKey, THEME_COLORS, themeBarColor, setSeason, seasonActive, seasonCurrent, seasonMenuShown, syncSeasonCheck,
-  EVENTS, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
+  EVENTS, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventDayCounts, rewardsBaselineKeys, EVENT_MASCOTS, ensureEventUi, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
   eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
@@ -2814,8 +2814,9 @@ test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haak
   assert.match(SE.archive(view(2, { phase: "past" })), /achv-t0/, "meegedaan, nog niets: een ring zonder kleur");
   const tab = SE.tab([view(6, { phase: "past" })]); assert.match(tab, /Eerdere events/); assert.match(tab, /Dit event is voorbij/);
   const both = SE.tab([view(3), view(6, { phase: "past", id: "spook" })]); assert.ok(!/Dit event is voorbij/.test(both.replace(/Het event is voorbij/g, "")), "de afsluitende regel alleen als er geen lopend event is");
-  // escapen: een kwaadaardige naam kan geen HTML invoegen
-  assert.ok(!SE.card(view(3)).includes("<script"));
+  // escapen: een kwaadaardig icoon/id uit de view kan geen HTML invoegen (balk, strook, scherm, archief)
+  const evil = { ...view(3), icon: '<img src=x onerror=alert(1)>', id: 'spook"><script>' };
+  for (const html of [SE.bar(evil, { intro: true }), SE.bar(evil, { intro: false }), SE.strip(evil), SE.screen(evil), SE.archive(evil), SE.menuItem(evil), SE.card(evil)]) assert.ok(!/<img |<script/i.test(html), "ongeëscaped: " + html.slice(0, 120));
   assert.equal(SE.menuItem(view(0)).includes("Spooktober"), true);
 });
 
@@ -2877,7 +2878,7 @@ test("Prestaties — een zegel per event waaraan je meedeed, met de ring van het
     const { SE } = loadSeasonEvent(); window.SeasonEvent = SE; T.setLang("nl");
     assert.equal(T.eventAchvHtml(), "", "niet meegedaan: geen sectie");
     T.setLocalHistory(evHist(evDays(1)));
-    let h = T.eventAchvHtml(); assert.match(h, /Evenementen/); assert.match(h, /achv-t0/); assert.match(h, /Spooktober 2026/); assert.match(h, /2 van 12/); assert.match(h, /#achv-art-spook/);
+    let h = T.eventAchvHtml(); assert.match(h, /Events/); assert.match(h, /achv-t0/); assert.match(h, /Spooktober 2026/); assert.match(h, /2 van 12/); assert.match(h, /#achv-art-spook/);
     T.auth.user = { uid: "u" }; T.setLocalHistory(evHist(evDays(5)));
     h = T.eventAchvHtml(); assert.match(h, /achv-t2/, "twee beloningen = ring 2"); assert.match(h, /6 van 12/);
     window.SeasonEvent = undefined; assert.equal(T.eventAchvHtml(), "", "zonder het UI-bestand niets (het bord wacht er niet op)");
@@ -2913,4 +2914,47 @@ test("de strook met het kattenkopje: winst = viert, verlies = troost + 'telt toc
   assert.match(SE.strip({ ...view(4), lang: "es" }, { lost: true }), /cuenta igual/); assert.match(SE.strip({ ...view(4), lang: "pt" }, { lost: true }), /conta mesmo assim/);
   const css = readFileSync(join(dir, "..", "season-cat.js"), "utf8");
   for (const cls of [".cheer .cat-head", ".comfort .cat-head", ".hat .acc-hat", ".hatnew .acc-hat", ".evs-pip.ring", ".evs.cheer::before"]) assert.ok(css.includes(cls), `${cls} staat in de kat-CSS`);
+});
+
+
+test("ensureEventUi — het kattenbestand (mascotte) is optioneel: een mislukte lading breekt de event-UI niet; het event-bestand zelf wel verplicht", async () => {
+  const had = window.SeasonEvent, load = T.EVENT_MASCOTS.cat.load;
+  try {
+    window.SeasonEvent = { ids: () => [], art: () => "" };          // het event-bestand is er al
+    T.EVENT_MASCOTS.cat.load = () => Promise.reject(new Error("404"));
+    await T.ensureEventUi(T.EVENTS);                                 // mag niet rejecten
+    assert.ok(typeof T.EVENT_MASCOTS.cat.head() === "string");       // zonder kat: lege string → de UI valt terug op het icoon
+  } finally { T.EVENT_MASCOTS.cat.load = load; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; }
+});
+
+test("eventDayCounts — alleen een pot binnen het venster is een stempel (geen viering voor een gewone daily in de inhaaldagen)", () => {
+  const sp = T.eventById("spook");
+  assert.equal(T.eventDayCounts(sp, "2026-10-20"), false); assert.equal(T.eventDayCounts(sp, "2026-10-21"), true);
+  assert.equal(T.eventDayCounts(sp, "2026-11-01"), true); assert.equal(T.eventDayCounts(sp, "2026-11-02"), false, "vandaag (2 nov) is geen eventdag, ook al staat het event nog in beeld");
+  assert.equal(T.eventDayCounts(sp, "2026-10-30"), true, "een ingehaalde eventdag telt wel (de datum van de pot, niet van vandaag)");
+});
+
+test("event-viering — opties voor de laag zitten in de config (fxOpts), niet in de logica; de laag bestaat", () => {
+  const r = T.eventFxReward(T.eventById("spook"));
+  assert.deepEqual(r.fxOpts, { bats: true }); assert.ok(T.HOLIDAY_FX_IDS.includes(r.layer) || T.EVENT_FX_IDS.includes(r.layer));
+  assert.ok(!("bats" in r), "geen losse bats-vlag meer op de beloning");
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.ok(!/r\.bats/.test(g), "de logica kent geen Spooktober-opties");
+  assert.match(g, /showHolidayFx\(r\.layer, \{ \.\.\.r\.fxOpts, firstTry \}\)/, "first-try: het vuurwerk gaat mee (zoals bij goud/bier/kalender)");
+});
+
+test("emoji-subset — het font-bereik bevat geen accolade (een losse U+FE0F na }) en de event-emoji staan als escape of literal, niet half", () => {
+  const css = readFileSync(join(dir, "..", "style.css"), "utf8"), g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  const range = css.match(/unicode-range:\s*([^;]+);/)[1].split(",").map((x) => x.trim());
+  assert.ok(!range.includes("U+7D"), "U+7D (}) hoort niet in de emoji-subset: elke tekst met een accolade zou het lettertype (75 KB) ophalen");
+  assert.ok(!/\\u\{1F578\}️/.test(g), "een echte U+FE0F ná een \\u{…}-escape laat het bouwscript de accolade als emoji zien: schrijf \\uFE0F");
+});
+
+test("stille baseline bij de eerste keer — alles wat je al had telt als gezien, behalve de event-beloningen (die worden juist gevierd, ook na inloggen met anonieme dagen)", () => {
+  assert.deepEqual(T.rewardsBaselineKeys(["ev_spook_flair", "fl_star", "ev_spook_fx", "fx_glow"]), ["fl_star", "fx_glow"]);
+  assert.deepEqual(T.rewardsBaselineKeys(["ev_spook_flair"]), []);
+  assert.deepEqual(T.rewardsBaselineKeys([]), []);
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(g, /const base = rewardsBaselineKeys\(earned\)/, "maybeShowRewards gebruikt dezelfde regel");
+  assert.match(g, /if \(base\.length === earned\.length\) return false;/, "geen event-beloning in de baseline = niets te tonen; anders door naar de pop-up");
 });

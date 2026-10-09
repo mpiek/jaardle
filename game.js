@@ -3683,6 +3683,7 @@ async function showHolidayFx(id, extra) {
     const fx = await (EVENT_FX_IDS.includes(id) ? loadEventFx() : loadHolidayFx());
     if (!fx.has(id)) throw new Error("onbekende viering " + id);
     const layers = fx.build(id, innerWidth, innerHeight, { years: new Date().getFullYear() - 2026, ...extra });   // years: voor de verjaardag; extra: bv. de vleermuizen van een event-viering
+    if (extra && extra.firstTry) layers.unshift(fireworksLayer());   // een event-viering bij een first-try: het vuurwerk zit er, zoals bij goud/bier/kalender, ook bij in
     holidayFxUntil = performance.now() + layers.reduce((m, l) => Math.max(m, l.end), 0) * 1000 + 250;
     runFx(layers);
   } catch (e) {
@@ -4167,8 +4168,8 @@ function playWinFxPreview(kind) {
   } else if (typeof kind === "string" && kind.startsWith("ev:")) {
     const ev = eventById(kind.slice(3)), r = ev && eventFxReward(ev);
     if (!r) return;
-    loadHolidayFx().then((fx) => {
-      if (winFxPreviewLive) runFx(fx.build(r.layer, innerWidth, innerHeight, { years: 0, bats: !!r.bats }));
+    (EVENT_FX_IDS.includes(r.layer) ? loadEventFx() : loadHolidayFx()).then((fx) => {
+      if (winFxPreviewLive) runFx(fx.build(r.layer, innerWidth, innerHeight, { years: 0, ...r.fxOpts }));
     }).catch(() => {});
   } else return;
   winFxPreviewLive = true;
@@ -4274,7 +4275,7 @@ function finishGame(won, fresh = false) {
     const celebration = previewFx && fxKnown(fxResolve(previewFx)) ? fxResolve(previewFx)
       : (calOn || goldYearsFxActive() || beerFxActive() || flairOn || firstTry || evOn) ? null : winCelebrationFx();
     if (celebration) showHolidayFx(celebration);
-    else if (evOn) { const r = eventFxReward(evOn); showHolidayFx(r.layer, { bats: !!r.bats }); if (bunting) addBunting(); }
+    else if (evOn) { const r = eventFxReward(evOn); showHolidayFx(r.layer, { ...r.fxOpts, firstTry }); if (bunting) addBunting(); }
     else if (calOn) showCalendar(firstTry, bunting);
     else if (goldYearsFxActive()) { showGoldYears(firstTry); if (bunting) addBunting(); }
     else if (beerFxActive()) { showBeer(firstTry); if (bunting) addBunting(); }
@@ -5033,8 +5034,8 @@ const EVENTS = [
     thresholds: [3, 6, 10], gift: 1,                     // met het cadeau-🎃 is dat 2 · 5 · 9 gespeelde dagen
     rewards: [
       { kind: "flair", key: "ev_spook_flair", emoji: "🎃", icon: "🎃" },
-      { kind: "fx", key: "ev_spook_fx", fx: "web", emoji: "\u{1F578}️", icon: "\u{1F578}️" },   // Spinnenweb
-      { kind: "feest", key: "ev_spook_feest", emoji: "🎃", icon: "\u{1F47B}", layer: "halloween", bats: true },   // Spookfeest: de Halloween-laag + vleermuizen
+      { kind: "fx", key: "ev_spook_fx", fx: "web", emoji: "\u{1F578}\uFE0F", icon: "\u{1F578}\uFE0F" },   // Spinnenweb
+      { kind: "feest", key: "ev_spook_feest", emoji: "🎃", icon: "\u{1F47B}", layer: "halloween", fxOpts: { bats: true } },   // Spookfeest: de Halloween-laag + vleermuizen (fxOpts gaan als opties naar HolidayFx.build)
     ],
   },
 ];
@@ -5045,6 +5046,7 @@ const EVENT_REWARD_KEYS = EVENTS.flatMap((ev) => ev.rewards.map((r) => r.key));
 const eventDay = (ev, i) => shiftDay(ev.start, i);
 const eventTotal = (ev) => daysBetween(ev.start, ev.end) + 1;
 const eventCatchupEnd = (ev) => shiftDay(ev.end, CATCHUP_WINDOW);   // t/m deze dag telt een ingehaalde dag nog mee
+const eventDayCounts = (ev, day) => day >= ev.start && day <= ev.end;   // een pot van deze puzzeldag levert een stempel (een gewone daily in de inhaaldagen niet)
 // Waar staat dit event op deze puzzeldatum? "soon" (nog niet begonnen) · "run" · "catch" (voorbij, inhalen telt nog) · "past".
 function eventPhase(ev, day) {
   if (day < ev.start) return "soon";
@@ -5519,27 +5521,34 @@ async function setMyFlair(flair) {   // een nieuwe flair behoudt je effect; wiss
 async function setMyFlairFx(fx) {
   return saveMyFlair(joinFlair(parseFlair(myFlair).emoji, fx), false);
 }
+// Een event-flair/-effect telt op de server ook de dagen die je op déze browser anoniem speelde (db/87: p_client_id); alleen dan sturen we 'm mee,
+// zodat gewone flairs ook werken als die migratie er (nog) niet is. En mislukt het ("locked"), dan zeggen we wat er aan de hand is.
+const eventOfFlair = (raw) => { const { emoji, fx } = parseFlair(raw); return EVENTS.find((ev) => ev.rewards.some((r) => (r.kind === "flair" && r.emoji === emoji) || (r.kind === "fx" && r.fx === fx))) || null; };
+function flairErrText(next, status) {
+  const ev = status === "locked" ? eventOfFlair(next) : null, c = ev && eventCopy(ev.id);
+  return (c && c.lockedHint) || t("lb_flair_err");
+}
 async function saveMyFlair(next, autoBack) {
   const prev = myFlair;
   const same = (prev || "") === (next || "");
   if (!same) { myFlair = next || null; renderRewards(); refreshResultFrame(); }   // ring meteen, geen wachten
   const rpcP = same
     ? Promise.resolve("ok")
-    : rpc("set_my_flair", { p_flair: next }).catch(() => "err");
+    : rpc("set_my_flair", eventOfFlair(next) && clientId() ? { p_flair: next, p_client_id: clientId() } : { p_flair: next }).catch(() => "err");
   if (autoBack && rewardsReturnTo) {
     const target = rewardsReturnTo;
     const [status] = await Promise.all([rpcP, new Promise((r) => setTimeout(r, 450))]);
     if (status !== "ok") {   // opslaan mislukt → rollback, blijf in de kluis
       myFlair = prev; refreshResultFrame();
       if (!document.getElementById("modal-rewards").hidden) renderRewards();
-      alert(t("lb_flair_err"));
+      alert(flairErrText(next, status));
       return;
     }
     if (rewardsReturnTo === target) rewardsReturn();   // niet al handmatig teruggegaan
     return;
   }
   const status = await rpcP;
-  if (status !== "ok") { myFlair = prev; renderRewards(); refreshResultFrame(); alert(t("lb_flair_err")); }
+  if (status !== "ok") { myFlair = prev; renderRewards(); refreshResultFrame(); alert(flairErrText(next, status)); }
 }
 
 // Vraag een nieuwe weergavenaam en sla 'm op via set_my_username. De server
@@ -8921,7 +8930,7 @@ async function maybeShowRewards() {
   if (myRewardsSeen === null) {
     // eerste keer (retroactief): stil baseline'en op je huidige verdiensten. Event-beloningen zijn nooit retroactief: wie inlogt na een paar
     // anonieme dagen krijgt ze juist wél te zien (in één keer), dus die blijven buiten de baseline.
-    const base = earned.filter((k) => !EVENT_REWARD_KEYS.includes(k));
+    const base = rewardsBaselineKeys(earned);
     myRewardsSeen = base.slice();
     rpc("mark_rewards_seen", { p_keys: base }).catch(() => {});   // leeg → seed '{}'
     if (base.length === earned.length) return false;
@@ -8939,6 +8948,8 @@ async function maybeShowRewards() {
   return true;
 }
 
+// Wat de stille eerste-keer-baseline als "gezien" markeert: alles wat je al had, behalve de event-beloningen (die vieren we juist wél, ook na inloggen).
+const rewardsBaselineKeys = (earned) => earned.filter((k) => !EVENT_REWARD_KEYS.includes(k));
 function showNextReward() {
   const key = rewardQueue.shift();
   if (key === "cap_obsidian") showObsidianReveal("first");
@@ -9829,7 +9840,7 @@ async function renderAchievements() {
   if (document.getElementById("modal-achv").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
   const played = EVENTS.filter((ev) => eventState(ev).played > 0);   // zegels van events waaraan je meedeed: het event-bestand levert namen en plaatje
-  if (played.length) { try { await ensureEventUi(played); } catch (e) {} }
+  if (played.length) { try { await Promise.race([ensureEventUi(played), new Promise((r) => setTimeout(r, 1500))]); } catch (e) {} }   // een trage lading houdt het bord niet op (dan zonder de Events-sectie)
   await ensureTitleEquipped(a);   // titel is niet-aflegbaar: draag altijd de hoogst verdiende
   if (document.getElementById("modal-achv").hidden) return;
   renderAchvBoard(body, a);
@@ -10968,11 +10979,11 @@ function syncSeasonCheck() {
 // ── Events: de aansluiting op het scherm (balk, strook, Events-scherm, Events-tab, stip) ─────────────────────────────────────
 // De opbouw van al die onderdelen woont in /season-event.js (lui); hier alleen: wanneer is er iets te tonen, met welke gegevens
 // (eventView), en wat een tik doet. Eén event tegelijk in de balk en de strook (het eerste dat in beeld is).
-const EVENT_MASCOTS = { cat: () => loadSeasonCat() };   // mascotte-id → het bestand dat 'm levert (SeasonCat.head)
+const EVENT_MASCOTS = { cat: { load: () => loadSeasonCat(), head: () => (window.SeasonCat && window.SeasonCat.head) || "" } };   // mascotte-id → het (lui) bestand en het kopje (HTML)
 function eventView(ev) {
   const st = eventState(ev), today = eventToday(), idx = daysBetween(ev.start, today), flair = parseFlair(myFlair), fx = eventFxActive();
   // De mascotte alleen mét de skin: het kopje zit zonder de CSS van /season-cat.js (die komt pas bij aanstaande skin) vol overlappende standen.
-  const head = ev.mascot === "cat" && seasonActive() === ev.skin && window.SeasonCat && window.SeasonCat.head ? window.SeasonCat.head : "";
+  const mascot = EVENT_MASCOTS[ev.mascot], head = mascot && seasonActive() === ev.skin ? mascot.head() : "";
   return {
     id: ev.id, icon: ev.icon, mascot: head, lang, locale: LANGS[lang].intl, start: ev.start, end: ev.end, catchupEnd: eventCatchupEnd(ev),
     total: st.total, thresholds: ev.thresholds, gift: ev.gift, rewards: ev.rewards,
@@ -10987,7 +10998,8 @@ function eventView(ev) {
 const eventCatHat = () => EVENTS.some((ev) => ev.skin === seasonActive() && eventState(ev).n >= ev.thresholds[ev.thresholds.length - 1]);
 const eventCatOpts = () => ({ night: eventToday().slice(5) === "10-31", hat: eventCatHat() });
 // Alles wat de UI van deze events nodig heeft: het event-bestand en de mascotte(s).
-const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot]() : null))]).then((r) => { injectEventArt(); return r; });
+// De mascotte is optioneel: laadt dat bestand niet, dan toont de UI gewoon het icoon (alleen het event-bestand zelf is verplicht).
+const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot].load().catch(() => null) : null))]).then((r) => { injectEventArt(); return r; });
 // De zegel-plaatjes van de events (SVG-defs, id achv-art-<event>) hangen bij de badge-artwork van Prestaties; het archief in de kluis gebruikt ze ook.
 function injectEventArt() {
   const defs = document.querySelector("#achv-svg-defs svg");
@@ -11092,7 +11104,11 @@ function renderEventMenuItem() {
 function syncEventUi() {
   const evs = eventsInView();
   if (window.SeasonCat && window.SeasonCat.set) window.SeasonCat.set({ hat: eventCatHat() });   // de hoed komt bij de volgende pot (of nu, na inloggen)
-  if (evs.length && auth.user && !myHistoryCache) getMyHistory().then(() => { if (myHistoryCache) syncEventUi(); }).catch(() => {});   // de stand komt (mede) uit de server-historie: opnieuw tekenen als die binnen is
+  if (evs.length && auth.user && !myHistoryCache) getMyHistory().then(() => {
+    if (!myHistoryCache) return;
+    syncEventUi();
+    if (state && state.done && !els.result.querySelector(".evs.cheer, .evs.comfort")) renderEventStrip(false);   // een herstelde pot: de strook met de volledige stand (een net gevierde strook blijft staan)
+  }).catch(() => {});   // de stand komt (mede) uit de server-historie: opnieuw tekenen als die binnen is
   if (!evs.length) { renderEventBar(); renderEventMenuItem(); renderEventDots(); return; }
   const go = () => ensureEventUi(evs).then(() => { renderEventBar(); renderEventMenuItem(); renderEventDots(); }).catch(() => { const b = document.getElementById("event-bar"); if (b && !window.SeasonEvent) { b.hidden = true; b.className = ""; } });
   if (window.SeasonEvent) { go(); return; }
@@ -11105,12 +11121,14 @@ async function renderEventStrip(arrive) {
   const ev = eventsInView()[0];
   if (!ev || !state || !state.done || state.mode !== "daily") return;
   try { await ensureEventUi([ev]); } catch (e) { return; }
+  if (auth.user && !myHistoryCache) { try { await getMyHistory(); } catch (e) {} }   // de stand komt (mede) uit de server-historie (andere apparaten): eerst die, anders een te lage stand
   if (!state || !state.done) return;
   els.result.querySelectorAll(".evs").forEach((e) => e.remove());   // een tweede aanroep intussen: nooit twee stroken
   const v = eventView(ev), last = v.thresholds.length - 1, quiet = v.n >= v.thresholds[last];
   // Na een verse pot: het kopje viert (winst) of troost (verlies). Haalde je met deze pot een drempel, dan krijgt die stip een ring en (bij de
   // hoogste) plopt het hoedje er bij; anders draagt het kopje de hoed gewoon zodra je 'm hebt.
-  const fresh = !!arrive && v.played > 0, today = state.puzzleDate || todayKey();
+  const today = state.puzzleDate || todayKey();
+  const fresh = !!arrive && v.played > 0 && eventDayCounts(ev, today);   // een pot buiten het venster (bv. een gewone daily in de inhaaldagen) is geen stempel: niets te vieren
   const prev = fresh ? eventStamps(ev, eventHistorySync().filter((e) => e.date !== today)).n : v.n;
   const crossed = fresh ? v.thresholds.findIndex((t) => prev < t && v.n >= t) : -1;
   const box = document.createElement("div");
