@@ -30,8 +30,8 @@ html[data-theme="light"] [data-ev="spook"], html[data-theme="parchment"] [data-e
 .ev-bar .ev-chev { flex: none; color: var(--ev-pk); font-size: 1.2rem; line-height: 1; }
 
 /* ── stempelkaart: de dagen als ronde vakjes; de drempels zijn cadeau-vakjes die opengaan en de beloning laten zien ── */
-.evp { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 0.6rem 0.5rem; justify-items: center; padding: 0.15rem 0; }
-.evp-s { position: relative; display: grid; place-items: center; width: min(100%, 3.7rem); aspect-ratio: 1; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--muted) 50%, transparent); box-sizing: border-box; font-style: normal; color: var(--muted); }
+.evp { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 0.6rem calc(2.2rem / var(--cols, 4)); justify-items: center; padding: 0.15rem 0; }
+.evp-s { position: relative; display: grid; place-items: center; width: min(100%, 3.7rem); aspect-ratio: 1; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--muted) 50%, transparent); box-sizing: border-box; font-style: normal; color: var(--muted); container-type: inline-size; }
 .evp-no { position: absolute; font-size: 0.62rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .evp-s:not(.rw) .evp-no { opacity: 0.8; }
 .evp-s.on { border-style: solid; border-color: var(--ev-pk); background: var(--ev-pk-soft); }
@@ -42,8 +42,9 @@ html[data-theme="light"] [data-ev="spook"], html[data-theme="parchment"] [data-e
 .evp-s.rw .evp-no { right: 0.05rem; bottom: -0.1rem; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: grid; place-items: center; font-size: 0.58rem; color: var(--fg); }
 .evp-gf { width: 52%; height: 52%; background: var(--achv-gold); -webkit-mask: var(--ev-gift) center / contain no-repeat; mask: var(--ev-gift) center / contain no-repeat; opacity: 0.85; }
 .evp-s.rw.on { border-style: solid; border-color: var(--achv-gold); background: color-mix(in srgb, var(--achv-gold) 16%, transparent); box-shadow: 0 0 0.9rem -0.2rem color-mix(in srgb, var(--achv-gold) 70%, transparent); }
-.evp-ic { font-size: 1.55rem; line-height: 1; font-weight: 400; }
-.evp-s.gift::after { content: ""; position: absolute; top: -0.12rem; right: -0.12rem; width: 1.05rem; height: 1.05rem; border-radius: 50%; background-color: var(--achv-gold); -webkit-mask: var(--ev-gift) center / 64% no-repeat; mask: var(--ev-gift) center / 64% no-repeat; }
+.evp-ic { font-size: 1.55rem; font-size: min(1.55rem, 60cqw); line-height: 1; font-weight: 400; }
+@container (max-width: 34px) { .evp-s.rw .evp-no { display: none; } }   /* smalle vakjes (7 kolommen op een telefoon): alleen het icoon, het getal staat in de lijst eronder */
+.evp-s.gift::after { content: ""; position: absolute; top: -0.12rem; right: -0.12rem; width: 1.05rem; width: min(1.05rem, 46cqw); height: 1.05rem; height: min(1.05rem, 46cqw); border-radius: 50%; background-color: var(--achv-gold); -webkit-mask: var(--ev-gift) center / 64% no-repeat; mask: var(--ev-gift) center / 64% no-repeat; }
 .evp-s.gift0 { border-color: color-mix(in srgb, var(--achv-gold) 70%, transparent); }
 /* het nieuwste stempel landt één keer */
 .evc.arrive .evp-s.new { animation: ev-pop 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) 0.3s both; }
