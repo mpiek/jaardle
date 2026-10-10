@@ -125,7 +125,9 @@ html[data-season="halloween"] .hat .acc-hat {display:inline }
 html[data-season="halloween"] .hat .cat-zzz {transform:translate(5px,-3px) }
 html[data-season="halloween"] .cat-gap {stroke:#2b2338 }
 html[data-season="halloween"] .sk-cat :is(.cat-sit,.cat-nap,.cat-stretch) {transition-duration:0.15s }
-html[data-season="halloween"] #play-bar.collapsing .sk-cat {opacity:0;transition:opacity 0.15s }
+html[data-season="halloween"] .sk-cat.perched {position:relative;left:auto;top:auto;display:block;width:37px;height:45px;margin:-6px 0 -5px 14px }
+html[data-season="halloween"] .sk-cat.arrive {animation:skk-arrive 0.5s ease 0.25s both }
+@keyframes skk-arrive{from{opacity:0}to{opacity:1}}
 html[data-season="halloween"][data-theme="gold"] :is(.sk-cat,.cat-head) {filter:drop-shadow(0 0 1.1px rgba(244,196,48,0.75)) }
 html[data-season="halloween"] .cat-head * {animation:none }
 html[data-season="halloween"] .cat-head :where(.cat-eyes) {animation:skk-blink1 0.5s 0.9s both }
@@ -225,7 +227,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
   // Op 31 oktober slaapt hij niet en miauwt hij telkens opnieuw.
   const PACE = { awake: [30000, 50000], sleep: [90000, 150000], meowAt: [14000, 26000] };
 
-  let el = null, style = null, timers = [], live = false, night = false, streak = 0, lastTap = 0, watchT = 0, introT = 0, afterWake = null;
+  let el = null, style = null, timers = [], live = false, night = false, perched = false, streak = 0, lastTap = 0, watchT = 0, introT = 0, arriveT = 0, afterWake = null;
   const rnd = (a) => a[0] + Math.random() * (a[1] - a[0]);
   const reduced = () => { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
   // Wacht met een stap tot de tab én het speelveld in beeld zijn (na afloop klapt #play-bar in; dan hoeft er niets te gebeuren).
@@ -322,6 +324,23 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     } catch (e) { return false; }
   }
 
+  // Na afloop klapt #play-bar in en neemt de uitslagkaart zijn plek: dan zit hij als eigen rij op de bovenrand van die kaart (op; een
+  // hoek van de kaart zelf botst op een telefoon met de titel), bij een nieuwe pot gaat hij terug naast de score (neer). Hij blijft
+  // dezelfde kat: slaapt, miauwt en laat zich aaien, ook op het eindscherm.
+  function perch(on) {
+    if (!el || perched === !!on) return;
+    const bar = document.getElementById("play-bar"), result = document.getElementById("result");
+    if (on && !(result && result.parentNode)) return;
+    if (!on && !bar) return;
+    perched = !!on;
+    if (on) result.parentNode.insertBefore(el, result); else bar.insertBefore(el, bar.firstChild);
+    clearTimeout(arriveT);
+    if (perched) {
+      el.classList.add("perched"); el.classList.add("arrive");
+      arriveT = setTimeout(() => { if (el) el.classList.remove("arrive"); }, 900);
+    } else { el.classList.remove("perched"); el.classList.remove("arrive"); }
+  }
+
   // opts: { night: 31 oktober, hat: draagt een heksenhoed }
   function mount(opts) {
     const bar = document.getElementById("play-bar");
@@ -340,17 +359,20 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     live = !reduced();
     const intro = live && introWanted();
     if (intro) el.classList.add("intro");
-    bar.insertBefore(el, bar.firstChild);
+    // Is de pot al klaar (ingeklapte balk), dan zit hij meteen in de uitslagkaart.
+    const done = bar.hidden || bar.classList.contains("collapsing"), result = done && document.getElementById("result");
+    perched = !!(result && result.parentNode);
+    if (perched) { el.classList.add("perched"); result.parentNode.insertBefore(el, result); } else bar.insertBefore(el, bar.firstChild);
     if (!live) { el.classList.add("asleep"); return; }   // minder beweging: hij slaapt stil, geen timers, geen tikken
     el.addEventListener("click", tap);
     if (intro) introT = setTimeout(() => { if (el) el.classList.remove("intro"); }, 1300);
     awake();
   }
   function unmount() {
-    clear(); clearTimeout(watchT); clearTimeout(introT);
+    clear(); clearTimeout(watchT); clearTimeout(introT); clearTimeout(arriveT);
     if (el) el.remove();
     if (style) style.remove();
-    el = style = null; live = false; streak = 0; afterWake = null;
+    el = style = null; live = false; perched = false; streak = 0; afterWake = null;
   }
-  return { mount, unmount, type, guess, set, css: CSS, head: HEAD };
+  return { mount, unmount, perch, type, guess, set, css: CSS, head: HEAD };
 })();

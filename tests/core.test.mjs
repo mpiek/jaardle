@@ -2317,19 +2317,22 @@ const loadSeasonCat = () => {
       classList: { add: (c) => cls.add(c), remove: (c) => cls.delete(c), contains: (c) => cls.has(c), list: () => [...cls] },
       set className(v) { cls.clear(); v.split(/\s+/).filter(Boolean).forEach((c) => cls.add(c)); }, get className() { return [...cls].join(" "); },
       setAttribute(k, v) { this.attrs[k] = v; }, addEventListener(t, f) { on[t] = f; },
-      appendChild(c) { c.parent = this; kids.push(c); }, insertBefore(c, ref) { c.parent = this; kids.unshift(c); },
+      get parentNode() { return this.parent; },
+      appendChild(c) { c.parent = this; kids.push(c); },
+      insertBefore(c, ref) { if (c.parent) c.parent.kids.splice(c.parent.kids.indexOf(c), 1); c.parent = this; const i = ref ? kids.indexOf(ref) : -1; if (i >= 0) kids.splice(i, 0, c); else kids.unshift(c); },
       remove() { if (this.parent) { this.parent.kids.splice(this.parent.kids.indexOf(this), 1); this.parent = null; } } };
     return e;
   };
   const make = ({ reduced = false, store = {}, hidden = false, rand = 0.5 } = {}) => {
-    const bar = mkEl("div"), head = mkEl("head");
-    const doc = { hidden, getElementById: (id) => (id === "play-bar" ? bar : null), createElement: mkEl, head };
+    const bar = mkEl("div"), head = mkEl("head"), main = mkEl("main"), result = mkEl("section");
+    main.appendChild(bar); main.appendChild(result);   // zoals de pagina: speelbalk, dan de uitslagkaart
+    const doc = { hidden, getElementById: (id) => (id === "play-bar" ? bar : id === "result" ? result : null), createElement: mkEl, head };
     const ls = { _: { ...store }, getItem(k) { return k in this._ ? this._[k] : null; }, setItem(k, v) { this._[k] = String(v); } };
     const win = { matchMedia: () => ({ matches: reduced }) };
     const M = Object.create(Math); M.random = () => rand;
     const ctx = vm.createContext({ window: win, document: doc, localStorage: ls, setTimeout: setT, clearTimeout: clearT, Math: M, Number, String, Array, Set, Date: { now: () => clock.now } });
     vm.runInContext(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), ctx);
-    return { api: win.SeasonCat, bar, head, doc, ls, cat: () => bar.kids[0], clock };
+    return { api: win.SeasonCat, bar, main, result, head, doc, ls, cat: () => bar.kids[0], clock };
   };
   return { make, advance, clock };
 };
@@ -2500,7 +2503,7 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   // elke klasse waar de SVG's of het script mee werken staat in de CSS
   w.api.mount();
   const used = new Set([...w.cat().innerHTML.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/)));
-  for (const c of ["meow", "yawn", "drowsy", "asleep", "wake", "pet", "intro", "hear", "watch", "flick", "purr", "grump", "hallow", "hat", "cheer", "comfort", "hatnew", "ring", "collapsing"]) used.add(c);
+  for (const c of ["meow", "yawn", "drowsy", "asleep", "wake", "pet", "intro", "hear", "watch", "flick", "purr", "grump", "hallow", "hat", "cheer", "comfort", "hatnew", "ring", "perched", "arrive"]) used.add(c);
   for (const c of used) if (!["cat-sit", "cat-nap", "cat-stretch"].includes(c)) assert.ok(css.includes("." + c), `.${c} ontbreekt in de CSS`);
   for (const c of ["cat-sit", "cat-nap", "cat-stretch"]) assert.ok(css.includes("." + c), c);
   // animaties
@@ -2509,7 +2512,8 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   for (const m of css.matchAll(/animation:\s*([^;}]+)[;}]/g)) for (const part of m[1].replace(/\([^)]*\)/g, "").split(",")) { const n = part.trim().split(/\s+/)[0]; if (n !== "none") assert.ok(names.has(n), `animatie ${n} heeft geen @keyframes`); }
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*animation: none !important[\s\S]*\.cat-zzz path \{ opacity: 0\.85; \}/, "minder beweging: alles staat stil (en de Zzz blijft zichtbaar)");
   assert.ok(!/acc-pk|acc-sp/.test(css + js), "geen pompoentje of spinnetje op de kat (alleen het hoedje)");
-  assert.match(css, /#play-bar\.collapsing \.sk-cat \{opacity:0;transition:opacity 0\.15s \}/, "de kat vervaagt mee als de speelbalk inklapt (niet plat afgesneden)");
+  assert.match(css, /\.sk-cat\.perched \{position:relative;[^}]*margin:[^}]*\}/, "op het eindscherm een eigen rij vóór de kaart (een hoek van de kaart botst op een telefoon met de titel)");
+  assert.match(css, /\.sk-cat\.arrive \{animation:skk-arrive /, "zachte aankomst op de kaart"); assert.ok(!/#play-bar\.collapsing \.sk-cat/.test(css), "de oude fade-out is niet meer nodig: hij verhuist");
   assert.ok(!/position:\s*fixed/.test(css), "geen fixed");
   assert.ok(!/\bz-index:\s*(?!4\b)\d+/.test(css), "de kat blijft laag (z-index 4)");
   assert.ok(!/(#keypad|#year-input|\.key\s*\{|main\s*\{)/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "raakt de speelkolom niet aan");
@@ -2519,6 +2523,32 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/@media[^{]*\{/g, "").replace(/\([^)]*\)/g, (x) => x.replace(/,/g, ";")).split(",")) {
     if (one.trim()) assert.ok(one.trim().startsWith('html[data-season="halloween"]'), `regel buiten de skin: ${one.trim().slice(0, 80)}`);
   }
+});
+
+test("season-cat.js: na afloop zit het katje als eigen rij vlak vóór de uitslagkaart, bij een nieuwe pot terug in #play-bar (perch)", () => {
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9" } });
+  w.api.mount(); const cat = w.cat();
+  assert.equal(cat.parent, w.bar, "tijdens het spelen naast de score");
+  w.api.perch(true);
+  assert.equal(cat.parent, w.main, "klaar: uit de (inklappende) speelbalk");
+  assert.equal(w.main.kids.indexOf(cat), w.main.kids.indexOf(w.result) - 1, "direct vóór #result");
+  assert.ok(cat.classList.contains("perched") && cat.classList.contains("arrive"), "zachte aankomst");
+  w.api.perch(true); assert.equal(w.main.kids.filter((k) => k === cat).length, 1, "twee keer neerzetten geeft geen dubbele kat");
+  advance(1000); assert.ok(!cat.classList.contains("arrive") && cat.classList.contains("perched"), "aankomst-klasse gaat weer weg");
+  cat.on.click(); assert.ok(cat.classList.contains("pet"), "ook op het eindscherm laat hij zich aaien");
+  w.api.perch(false);
+  assert.equal(cat.parent, w.bar, "nieuwe pot: terug"); assert.equal(w.bar.kids[0], cat); assert.ok(!cat.classList.contains("perched"));
+  w.api.perch(true); w.api.unmount();
+  assert.ok(!w.main.kids.includes(cat), "uitzetten haalt hem ook van de kaart"); assert.equal(w.clock.q.length, 0, "geen lopende timers (ook de aankomst niet)");
+  // laden terwijl de pot al klaar is (balk ingeklapt of aan het inklappen): meteen op de kaart
+  for (const mark of [(b) => { b.hidden = true; }, (b) => b.classList.add("collapsing")]) {
+    const x = make({ store: { "jaardle:season:halloween:cat": "9" } }); mark(x.bar); x.api.mount();
+    const k = x.main.kids.find((e) => e.classList && e.classList.contains("sk-cat"));
+    assert.ok(k && k.classList.contains("perched") && x.main.kids.indexOf(k) === x.main.kids.indexOf(x.result) - 1, "klaar bij het laden");
+  }
+  // minder beweging: hij slaapt stil, maar verhuist wel mee
+  const r = make({ reduced: true, store: {} }); r.api.mount(); const rc = r.cat(); r.api.perch(true);
+  assert.equal(rc.parent, r.main); assert.ok(rc.classList.contains("asleep"));
 });
 
 test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bestand wordt lui geladen met de game.js-versie, alleen bij de skin", () => {
@@ -2535,6 +2565,9 @@ test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bes
   assert.ok((dig.match(/SeasonCat\?\.type\?\.\(\)/g) || []).length === 2, "appendDigit en backspaceYear");
   assert.match(sub, /SeasonCat\?\.guess\?\.\(\)/); assert.ok(sub.indexOf("SeasonCat?.guess") > sub.indexOf("state.guesses.push"), "pas ná het accepteren van de gok");
   assert.ok(!/SeasonCat[^;]*\b(diff|cls|classify)\b/.test(sub), "de reactie hangt niet af van hoe dichtbij de gok was");
+  const bar = g.slice(g.indexOf("function setPlayBarCollapsed("), g.indexOf("let state = null;"));
+  assert.match(bar, /SeasonCat\?\.perch\?\.\(collapsed\)/, "inklappen = katje naar de uitslagkaart, uitklappen = terug");
+  assert.ok(bar.indexOf("SeasonCat?.perch") < bar.indexOf("if (bar.hidden) return"), "ook als de balk al dicht is (een afgeronde pot die opnieuw wordt getekend)");
   const set = g.slice(g.indexOf("function setSeason("), g.indexOf("function syncSeasonCat()"));
   assert.match(set, /syncSeasonCat\(\)/, "setSeason ververst de kat");
   assert.ok(existsSync(join(dir, "..", "season-cat.js")));
@@ -2847,7 +2880,7 @@ test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template
   assert.match(g, /async function refreshStreakBanners\(\) \{\s*syncEventUi\(\)/);
   assert.match(g, /renderEventStrip\(fresh\)/);
   // het katje levert het kopje voor de balk
-  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, type, guess, set, css: CSS, head: HEAD \}/);
+  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, type, guess, set, css: CSS, head: HEAD \}/);
   assert.ok(existsSync(join(dir, "..", "emoji", "flair-pumpkin.webp")), "de animatie van de 🎃-flair");
 });
 

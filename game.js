@@ -2027,6 +2027,7 @@ function setPlayBarCollapsed(collapsed, animate = false) {
   const bar = els.playBar;
   if (!bar) return;
   const seq = ++playBarSeq;
+  window.SeasonCat?.perch?.(collapsed);   // het katje verhuist mee: na afloop naar de uitslagkaart, bij een nieuwe pot terug
   bar.classList.remove("collapsing");
   bar.style.height = "";
   if (!collapsed) { bar.hidden = false; return; }
