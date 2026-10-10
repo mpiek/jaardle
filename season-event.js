@@ -101,6 +101,8 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 .ev-prev { position: relative; width: 2.7rem; height: 2.7rem; border-radius: 10px; background: var(--card); border: 1px solid var(--border); display: grid; place-items: center; font-size: 1.5rem; line-height: 1; overflow: hidden; }
 .ev-prev .fl-fx { font-size: 1.5rem; }
 .ev-prev.fx { overflow: visible; }
+.ev-prev.seal { overflow: visible; background: none; border: 0; }
+.ev-prev.seal .ev-ring, .ev-prev.seal .achv-tring { display: block; margin: 0; width: 2.7rem; height: 2.7rem; }   /* .achv-tring is van zichzelf inline: dan tekent de box-shadow-ring maar losse stukjes */
 .ev-tx { min-width: 0; }
 .ev-nm { display: block; font-size: 0.88rem; font-weight: 700; line-height: 1.2; }
 .ev-sb { display: block; margin-top: 0.12rem; font-size: 0.74rem; color: var(--muted); line-height: 1.25; }
@@ -154,6 +156,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       keep: "Wat je verdient blijft van jou, ook na het event.", count: (n, tot) => `${n} van ${tot}`, gift: "Cadeau: je eerste stempel staat er al op.",
       todayDone: "Vandaag binnen", todayOpen: "Speel de daily van vandaag", catchup: "Inhalen telt ook mee.", rewardsH: "Beloningen",
       at: (n) => `bij ${n}`, toGo: (n) => `nog ${n}`, wear: "Draag nu", turnOn: "Zet aan", worn: "Gedragen", on: "Aan",
+      sealRow: "Zegel in Prestaties", sealFirst: (nm, at) => `${nm} bij ${at}`, sealNext: (have, nm, at) => `${have} · volgende: ${nm} bij ${at}`, sealTop: (have) => `${have} · het hoogste`, sealOf: (nm) => `${nm}-zegel`,
       archH: "Eerdere events", archLine: (n, tot) => `${n} van ${tot}`, lineNext: (k, nm) => `nog ${k} tot ${nm}`, lineDone: "Kaart compleet", allIn: "Alle beloningen binnen",
       anonLock: "Een gratis account bewaart je beloningen.", anonHook: "Bewaar je beloningen met een gratis account", google: "Doorgaan met Google", orMail: "of met e-mail",
       turnAllOn: "Alles aanzetten", needFlair: "Draag eerst een flair om je effect te zien.",
@@ -165,6 +168,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       keep: "What you earn is yours to keep, even after the event.", count: (n, tot) => `${n} of ${tot}`, gift: "Gift: your first stamp is already on the card.",
       todayDone: "Today's is in", todayOpen: "Play today's daily", catchup: "Catching up counts too.", rewardsH: "Rewards",
       at: (n) => `at ${n}`, toGo: (n) => `${n} to go`, wear: "Wear it now", turnOn: "Turn it on", worn: "Wearing", on: "On",
+      sealRow: "Seal in Achievements", sealFirst: (nm, at) => `${nm} at ${at}`, sealNext: (have, nm, at) => `${have} · next: ${nm} at ${at}`, sealTop: (have) => `${have} · the highest`, sealOf: (nm) => `${nm} seal`,
       archH: "Past events", archLine: (n, tot) => `${n} of ${tot}`, lineNext: (k, nm) => `${k} to go for ${nm}`, lineDone: "Card complete", allIn: "All rewards earned",
       anonLock: "A free account keeps your rewards.", anonHook: "Keep your rewards with a free account", google: "Continue with Google", orMail: "or with email",
       turnAllOn: "Turn everything on", needFlair: "Wear a flair first to see your effect.",
@@ -176,6 +180,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       keep: "Was du verdienst, bleibt dein – auch nach dem Event.", count: (n, tot) => `${n} von ${tot}`, gift: "Geschenk: dein erster Stempel ist schon drauf.",
       todayDone: "Heute geschafft", todayOpen: "Das heutige Daily spielen", catchup: "Nachholen zählt auch.", rewardsH: "Belohnungen",
       at: (n) => `bei ${n}`, toGo: (n) => `noch ${n}`, wear: "Jetzt tragen", turnOn: "Einschalten", worn: "Getragen", on: "An",
+      sealRow: "Siegel in den Erfolgen", sealFirst: (nm, at) => `${nm} bei ${at}`, sealNext: (have, nm, at) => `${have} · nächste: ${nm} bei ${at}`, sealTop: (have) => `${have} · die höchste Stufe`, sealOf: (nm) => `${nm}-Siegel`,
       archH: "Frühere Events", archLine: (n, tot) => `${n} von ${tot}`, lineNext: (k, nm) => `noch ${k} bis ${nm}`, lineDone: "Karte komplett", allIn: "Alle Belohnungen verdient",
       anonLock: "Ein kostenloses Konto bewahrt deine Belohnungen.", anonHook: "Behalte deine Belohnungen mit einem kostenlosen Konto", google: "Weiter mit Google", orMail: "oder mit E-Mail",
       turnAllOn: "Alles einschalten", needFlair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.",
@@ -187,6 +192,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       keep: "Lo que ganes es tuyo para siempre, también después del evento.", count: (n, tot) => `${n} de ${tot}`, gift: "Regalo: tu primer sello ya está en la tarjeta.",
       todayDone: "El de hoy ya está", todayOpen: "Juega el diario de hoy", catchup: "Recuperar también cuenta.", rewardsH: "Recompensas",
       at: (n) => `con ${n}`, toGo: (n) => `faltan ${n}`, wear: "Usar ahora", turnOn: "Activar", worn: "En uso", on: "Activado",
+      sealRow: "Sello en Logros", sealFirst: (nm, at) => `${nm} con ${at}`, sealNext: (have, nm, at) => `${have} · siguiente: ${nm} con ${at}`, sealTop: (have) => `${have} · el más alto`, sealOf: (nm) => `sello de ${nm}`,
       archH: "Eventos anteriores", archLine: (n, tot) => `${n} de ${tot}`, lineNext: (k, nm) => `faltan ${k} para ${nm}`, lineDone: "Tarjeta completa", allIn: "Todas las recompensas ganadas",
       anonLock: "Una cuenta gratuita guarda tus recompensas.", anonHook: "Guarda tus recompensas con una cuenta gratuita", google: "Continuar con Google", orMail: "o con correo electrónico",
       turnAllOn: "Activar todo", needFlair: "Lleva primero un distintivo para ver tu efecto.",
@@ -198,6 +204,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       keep: "O que você ganhar fica com você, mesmo depois do evento.", count: (n, tot) => `${n} de ${tot}`, gift: "Presente: seu primeiro carimbo já está no cartão.",
       todayDone: "O de hoje já está feito", todayOpen: "Jogue o diário de hoje", catchup: "Recuperar também conta.", rewardsH: "Recompensas",
       at: (n) => `com ${n}`, toGo: (n) => `faltam ${n}`, wear: "Usar agora", turnOn: "Ativar", worn: "Em uso", on: "Ativado",
+      sealRow: "Selo em Conquistas", sealFirst: (nm, at) => `${nm} com ${at}`, sealNext: (have, nm, at) => `${have} · próximo: ${nm} com ${at}`, sealTop: (have) => `${have} · o mais alto`, sealOf: (nm) => `selo de ${nm}`,
       archH: "Eventos anteriores", archLine: (n, tot) => `${n} de ${tot}`, lineNext: (k, nm) => `faltam ${k} para ${nm}`, lineDone: "Cartão completo", allIn: "Todas as recompensas conquistadas",
       anonLock: "Uma conta gratuita guarda suas recompensas.", anonHook: "Guarde suas recompensas com uma conta gratuita", google: "Continuar com o Google", orMail: "ou com e-mail",
       turnAllOn: "Ativar tudo", needFlair: "Use primeiro um distintivo para ver seu efeito.",
@@ -274,10 +281,15 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
   const fmtDay = (v, key, o) => new Intl.DateTimeFormat(v.locale, Object.assign({ timeZone: "UTC" }, o)).format(new Date(key + "T00:00:00Z"));
   const dates = (v) => `${fmtDay(v, v.start, { day: "numeric", month: "short" })} – ${fmtDay(v, v.end, { day: "numeric", month: "short" })}`;
   const nextReward = (v) => v.rewards.find((r, i) => !v.earned[i]) || null;
+  // De volgende ring-tier van het zegel (stempels + tiernaam), of null als de hoogste al is gehaald (of het event geen tiers meldt).
+  const nextSeal = (v) => { const i = (v.sealTiers || []).findIndex((x) => v.n < x); return i >= 0 && v.tierNames && v.tierNames[i] ? { at: v.sealTiers[i], name: v.tierNames[i], i } : null; };
+  const capFirst = (x) => String(x).charAt(0).toUpperCase() + String(x).slice(1);
   function nextText(v, c) {
     const r = nextReward(v);
     if (v.n >= v.total) return c.lineDone;
-    return r ? c.lineNext(r.at - v.n, c.rewardName[r.kind]) : c.allIn;
+    if (r) return c.lineNext(r.at - v.n, c.rewardName[r.kind]);
+    const nx = nextSeal(v);
+    return nx ? c.lineNext(nx.at - v.n, c.sealOf(nx.name)) : c.allIn;
   }
   
   // ── de balk boven de feitenkaart (alleen tijdens het event, met de skin) ─────────────────────────────────────
@@ -341,6 +353,15 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
     const hint = earned && !v.anon && r.kind === "fx" && !v.anyFlair ? `<span class="ev-hint">${esc(c.needFlair)}</span>` : "";
     return `<div class="ev-row ${earned ? "done" : isNext ? "next" : "lock"}" data-ev="${esc(v.id)}">${rewardPreview(v, r)}<div class="ev-tx"><b class="ev-nm">${esc(c.rewardName[r.kind])}</b><span class="ev-sb">${sub}</span>${hint}</div>${act}</div>`;
   }
+  // Het zegel van Prestaties als vierde rij onder de beloningen: je ring nu en wat de volgende tier kost.
+  function sealRow(v, c) {
+    if (!v.tierNames || !v.sealTiers) return "";
+    const tier = v.tier || 0, nx = nextSeal(v), have = tier ? capFirst(v.tierNames[tier - 1]) : "";
+    const sub = !tier ? c.sealFirst(capFirst(v.tierNames[0]), v.sealTiers[0]) : nx ? c.sealNext(have, v.tierNames[nx.i], nx.at) : c.sealTop(have);
+    const act = tier ? `<span class="ev-lk" aria-hidden="true">✓</span>` : `<span class="ev-lk" aria-hidden="true">\u{1F512}</span>`;
+    return `<div class="ev-row seal ${tier ? "done" : "lock"}" data-ev="${esc(v.id)}"><span class="ev-prev seal"><span class="ev-ring achv-t${tier}"><span class="achv-tring tiered"><svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${esc(v.id)}"></use></svg></span></span></span>` +
+      `<div class="ev-tx"><b class="ev-nm">${esc(c.sealRow)}</b><span class="ev-sb">${esc(sub)}</span></div>${act}</div>`;
+  }
   function hook(v, c, google) {
     return `<div class="ev-hook"><p>${esc(c.anonHook)}</p><button type="button" class="google-btn js-google-btn">${google || ""}<span>${esc(c.google)}</span></button><button type="button" class="link-btn js-acct-btn">${esc(c.orMail)}</button></div>`;
   }
@@ -358,13 +379,13 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       foot = `<p class="ev-foot">${chip}${tip}</p>`;
     }
     const hero = `<section class="rw-sect ev-sect" data-rw-sect="events" data-ev="${esc(v.id)}"><div class="ev-hero">${head}${card(v, { arrive: o.arrive })}${foot}</div></section>`;
-    const rows = v.rewards.map((r, i) => row(v, c, r, i)).join("");
+    const rows = v.rewards.map((r, i) => row(v, c, r, i)).join("") + sealRow(v, c);
     return hero + `<section class="rw-sect" data-rw-sect="ev-rewards" data-ev="${esc(v.id)}"><h3 class="stats-heading">${esc(c.rewardsH)}</h3><div class="ev-list">${rows}</div>` +
       (v.anon ? hook(v, c, o.google) : `<p class="ev-note">${esc(c.keep)}</p>`) + `</section>`;
   }
   // Het archief (na het event, voor wie meedeed): het zegel met zijn ring en wat je verdiende. Wat je niet haalde staat er niet.
   function archive(v) {
-    const c = copy(v.id, v.lang), tier = v.earned.filter(Boolean).length;
+    const c = copy(v.id, v.lang), tier = v.tier != null ? v.tier : v.earned.filter(Boolean).length;
     const got = v.rewards.map((r, i) => (v.earned[i] ? `<i>${esc(r.icon)}</i>` : "")).join("");
     return `<div class="ev-arch" data-ev="${esc(v.id)}"><span class="ev-ring achv-t${tier}"><span class="achv-tring tiered"><svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${esc(v.id)}"></use></svg></span></span>` +
       `<div class="ev-tx"><b class="ev-nm">${esc(c.achName)}</b><span class="ev-sb">${esc(dates(v) + " · " + c.archLine(v.n, v.total))}</span><span class="ev-got">${got}</span></div></div>`;

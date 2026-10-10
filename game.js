@@ -5034,6 +5034,7 @@ const EVENTS = [
     id: "spook", skin: "halloween", icon: "🎃", mascot: "cat",   // skin: de balk volgt die skin; icon = de eenheid ("3 van 12"); mascot: het kattenkopje van /season-cat.js in de balk/strook/het menu
     start: "2026-10-19", end: "2026-11-01",              // puzzeldatums, inclusief: ma 19 okt t/m zo 1 nov = 14 dagen (twee volle weken)
     thresholds: [3, 6, 10], gift: 1,                     // met het cadeau-🎃 is dat 2 · 5 · 9 gespeelde dagen (van 14)
+    sealTiers: [3, 6, 10, 12, 13, 14],                   // stempels per ring-tier van het zegel in Prestaties: brons · zilver · goud · platina · diamant · obsidiaan (14 = de hele kaart)
     rewards: [
       { kind: "flair", key: "ev_spook_flair", emoji: "🎃", icon: "🎃" },
       { kind: "fx", key: "ev_spook_fx", fx: "web", emoji: "\u{1F578}\uFE0F", icon: "\u{1F578}\uFE0F" },   // Spinnenweb
@@ -5077,6 +5078,9 @@ function eventHistorySync() {
   return [...map.values()];
 }
 const eventState = (ev) => eventStamps(ev, eventHistorySync());
+// De ring van het zegel (Prestaties, Events-scherm, archief): de 6-treden-schaal van de rest van het spel, op je stempels. Zonder sealTiers = het aantal beloningen.
+const eventSealTiers = (ev) => ev.sealTiers || ev.thresholds;
+const eventTier = (ev, n) => eventSealTiers(ev).filter((x) => n >= x).length;   // 0 = geen ring · 1 = brons … 6 = obsidiaan
 const eventEarnedAt = (ev, at) => !!auth.user && eventState(ev).n >= at;
 // Welke events staan nu in beeld (lopend of nog in de inhaaldagen), en van welke is alleen nog het archief over (wie meedeed)?
 const eventsInView = (day = eventToday()) => EVENTS.filter((ev) => { const p = eventPhase(ev, day); return p === "run" || p === "catch"; });
@@ -9907,7 +9911,7 @@ function eventAchvHtml() {
   if (!played.length) return "";
   injectEventArt();
   const tiles = played.map((ev) => {
-    const st = eventState(ev), c = eventCopy(ev.id), tier = st.earned.filter(Boolean).length;
+    const st = eventState(ev), c = eventCopy(ev.id), tier = eventTier(ev, st.n);
     return `<div class="achv-trophy achv-t${tier}"><span class="achv-tring tiered"><svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${ev.id}"/></svg></span>` +
       `<span class="achv-tname">${escHtml(c.achName)}${tier ? ` <span class="achv-ttier">${escHtml(achvTierName(tier - 1))}</span>` : ""}</span><span class="achv-tsub">${escHtml(c.achSub(st.n, st.total))}</span></div>`;
   }).join("");
@@ -10990,6 +10994,7 @@ function eventView(ev) {
     id: ev.id, icon: ev.icon, mascot: head, lang, locale: LANGS[lang].intl, start: ev.start, end: ev.end, catchupEnd: eventCatchupEnd(ev),
     total: st.total, thresholds: ev.thresholds, gift: ev.gift, rewards: ev.rewards,
     n: st.n, played: st.played, days: st.days, earned: st.earned,
+    tier: eventTier(ev, st.n), sealTiers: eventSealTiers(ev), tierNames: ACHV_TIER_KEYS.map((_, i) => achvTierName(i)),
     phase: eventPhase(ev, today), todayPlayed: idx >= 0 && idx < st.total && st.days[idx], daysLeft: Math.max(1, st.total - Math.max(idx, 0)),
     anon: !auth.user, anyFlair: !!flair.emoji, wornFlair: flair.emoji,
     worn: ev.rewards.map((r) => (r.kind === "flair" ? flair.emoji === r.emoji : r.kind === "fx" ? flair.fx === r.fx : !!fx && fx.id === ev.id)),
@@ -11126,7 +11131,7 @@ async function renderEventStrip(arrive) {
   if (auth.user && !myHistoryCache) { try { await getMyHistory(); } catch (e) {} }   // de stand komt (mede) uit de server-historie (andere apparaten): eerst die, anders een te lage stand
   if (!state || !state.done) return;
   els.result.querySelectorAll(".evs").forEach((e) => e.remove());   // een tweede aanroep intussen: nooit twee stroken
-  const v = eventView(ev), last = v.thresholds.length - 1, quiet = v.n >= v.thresholds[last];
+  const v = eventView(ev), last = v.thresholds.length - 1, quiet = v.n >= Math.max(v.thresholds[last], ...v.sealTiers);
   // Na een verse pot: het kopje viert (winst) of troost (verlies). Haalde je met deze pot een drempel, dan krijgt die stip een ring en (bij de
   // hoogste) plopt het hoedje er bij; anders draagt het kopje de hoed gewoon zodra je 'm hebt.
   const today = state.puzzleDate || todayKey();

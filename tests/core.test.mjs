@@ -70,7 +70,7 @@ src += `
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
   seasonFor, SEASONS, SEASON_KEY, seasonKey, THEME_COLORS, themeBarColor, setSeason, seasonActive, seasonCurrent, seasonMenuShown, syncSeasonCheck,
-  EVENTS, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventDayCounts, rewardsBaselineKeys, EVENT_MASCOTS, ensureEventUi, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
+  EVENTS, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventTier, eventSealTiers, eventDayCounts, rewardsBaselineKeys, EVENT_MASCOTS, ensureEventUi, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
   eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
@@ -2625,6 +2625,7 @@ test("EVENTS — elke rij is sluitend: datums, drempels, beloningen, effect, ski
     assert.deepEqual([...ev.thresholds].sort((a, b) => a - b), ev.thresholds, `${ev.id}: drempels oplopend`);
     assert.ok(ev.thresholds.every((x, i, a) => x >= 1 && x <= total && (i === 0 || x > a[i - 1])), `${ev.id}: drempels binnen 1..${total} en strikt oplopend`);
     assert.ok(ev.gift >= 0 && ev.gift < ev.thresholds[0], `${ev.id}: het cadeau is minder dan de eerste drempel`);
+    const tiers = T.eventSealTiers(ev); assert.ok(tiers.length >= 1 && tiers.length <= 6 && tiers.every((x, i, a) => x >= 1 && x <= total && (i === 0 || x > a[i - 1])), `${ev.id}: zegel-tiers oplopend binnen 1..${total}, hooguit 6`);
     assert.ok(!ev.skin || T.SEASONS[ev.skin], `${ev.id}: skin ${ev.skin} bestaat niet in SEASONS`);
     for (const [i, r] of ev.rewards.entries()) {
       assert.ok(["flair", "fx", "feest"].includes(r.kind), `${r.key}: onbekende soort`);
@@ -2646,6 +2647,18 @@ test("EVENTS — elke rij is sluitend: datums, drempels, beloningen, effect, ski
   assert.equal(T.eventTotal(sp), 14); assert.equal(T.eventDay(sp, 13), "2026-11-01"); assert.equal(T.eventDay(sp, 0), "2026-10-19"); assert.equal(T.eventCatchupEnd(sp), "2026-11-04");
   assert.deepEqual(sp.thresholds, [3, 6, 10]);
   assert.equal(T.eventOfReward("ev_spook_fx").id, "spook"); assert.equal(T.eventOfReward("fl_star"), null);
+});
+
+test("eventTier — de ring van het zegel loopt over de 6-treden-schaal op je stempels: brons 3 · zilver 6 · goud 10 · platina 12 · diamant 13 · obsidiaan 14", () => {
+  const sp = T.eventById("spook");
+  assert.deepEqual(T.eventSealTiers(sp), [3, 6, 10, 12, 13, 14]); assert.equal(T.eventSealTiers(sp).at(-1), T.eventTotal(sp), "obsidiaan = de hele kaart");
+  const tier = (n) => T.eventTier(sp, n);
+  assert.deepEqual([0, 1, 2, 3, 5, 6, 9, 10, 11, 12, 13, 14].map(tier), [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 6]);
+  // de eerste drie tiers vallen samen met de beloningen (zoals vóór de zes tiers), daarna alleen status
+  for (const [i, th] of sp.thresholds.entries()) assert.equal(tier(th), i + 1, "beloning = tier " + (i + 1));
+  assert.equal(T.eventTier({ thresholds: [2, 4] }, 4), 2, "zonder sealTiers: het aantal beloningen");
+  // met het cadeau is 14 stempels = 13 gespeelde dagen
+  assert.equal(T.eventStamps(sp, evHist(evDays(13))).n, 14);
 });
 
 test("eventPhase — voor · lopend · inhaaldagen · voorbij, op de grenzen", () => {
@@ -2875,6 +2888,31 @@ test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haak
   assert.equal(SE.menuItem(view(0)).includes("Spooktober"), true);
 });
 
+test("season-event.js — het zegel als vierde rij (ring, tiernaam, volgende tier), de strook loopt door tot de volgende tier, het archief volgt de tier", () => {
+  const { SE } = loadSeasonEvent(), sp = T.eventById("spook"), names = ["brons", "zilver", "goud", "platina", "diamant", "obsidiaan"];
+  const view = (n, tier, lang = "nl", extra = {}) => ({ id: "spook", icon: "🎃", mascot: "", lang, locale: lang, start: sp.start, end: sp.end, catchupEnd: "2026-11-04", total: 14, thresholds: sp.thresholds, gift: 1, rewards: sp.rewards,
+    n, played: Math.max(0, n - 1), days: [], earned: sp.thresholds.map((x) => n >= x), phase: "run", todayPlayed: false, daysLeft: 10, anon: false, anyFlair: true, wornFlair: "🎃", worn: [false, false, false], fxWrap: (fx, h) => h,
+    tier, sealTiers: sp.sealTiers, tierNames: names, ...extra });
+  const seal = (h) => (h.match(/<div class="ev-row seal[^]*?<\/div><\/div>/) || [""])[0];
+  let r = seal(SE.screen(view(0, 0)));
+  assert.match(r, /ev-row seal lock/); assert.match(r, /achv-t0/); assert.match(r, /Zegel in Prestaties/); assert.match(r, /Brons bij 3/); assert.match(r, /#achv-art-spook/);
+  r = seal(SE.screen(view(6, 2)));
+  assert.match(r, /ev-row seal done/); assert.match(r, /achv-t2\b/); assert.match(r, /Zilver · volgende: goud bij 10/);
+  r = seal(SE.screen(view(14, 6)));
+  assert.match(r, /achv-t6/); assert.match(r, /Obsidiaan · het hoogste/);
+  { const en = seal(SE.screen(view(6, 2, "en"))); assert.match(en, /Seal in Achievements/); assert.match(en, /Zilver · next: goud at 10/, "de tiernamen komen uit het spel (hier nl), de zinsbouw uit de taal"); }
+  assert.equal((SE.screen(view(6, 2)).match(/class="ev-row /g) || []).length, 4, "drie beloningen + het zegel");
+  assert.ok(!/ev-row seal/.test(SE.screen({ ...view(6, 2), tierNames: undefined })), "zonder tiernamen geen zegel-rij (geen kapotte regel)");
+  // de strook: na de laatste beloning loopt de tekst door naar de volgende ring-tier; pas bij de hele kaart is het klaar
+  assert.match(SE.strip(view(10, 3)), /nog 2 tot platina-zegel/); assert.match(SE.strip(view(12, 4)), /nog 1 tot diamant-zegel/);
+  assert.match(SE.strip(view(14, 6)), /Kaart compleet/); assert.match(SE.strip(view(10, 3, "en")), /2 to go for platina seal/);
+  assert.match(SE.strip({ ...view(10, 3), sealTiers: undefined, tierNames: undefined }), /Alle beloningen binnen/, "zonder tiers: zoals voorheen");
+  // archief: de ring volgt de tier
+  assert.match(SE.archive(view(14, 6, "nl", { phase: "past" })), /ev-ring achv-t6/); assert.match(SE.archive({ ...view(6, 2, "nl", { phase: "past" }), tier: undefined }), /ev-ring achv-t2/, "zonder tier: het aantal beloningen");
+  // alle talen hebben de zegel-teksten
+  for (const lang of ["nl", "en", "de", "es", "pt"]) { const c = SE.copy("spook", lang); for (const k of ["sealRow", "sealFirst", "sealNext", "sealTop", "sealOf"]) assert.ok(c[k], `${lang}.${k}`); assert.match(c.sealNext("A", "B", 7), /A/); assert.match(c.sealNext("A", "B", 7), /7/); }
+});
+
 test("season-event.js — de CSS: tokens per event, geen fixed, geen onbekende variabelen, reduced-motion; het bestand injecteert één <style>", () => {
   const { SE, head } = loadSeasonEvent();
   const css = SE.css;
@@ -2936,6 +2974,8 @@ test("Prestaties — een zegel per event waaraan je meedeed, met de ring van het
     let h = T.eventAchvHtml(); assert.match(h, /Events/); assert.match(h, /achv-t0/); assert.match(h, /Spooktober 2026/); assert.match(h, /2 van 14/); assert.match(h, /#achv-art-spook/);
     T.auth.user = { uid: "u" }; T.setLocalHistory(evHist(evDays(5)));
     h = T.eventAchvHtml(); assert.match(h, /achv-t2/, "twee beloningen = ring 2"); assert.match(h, /6 van 14/);
+    for (const [days, t] of [[11, 4], [12, 5], [13, 6]]) { T.setLocalHistory(evHist(evDays(days))); h = T.eventAchvHtml(); assert.match(h, new RegExp(`achv-t${t}\\b`), `${days} dagen (+ cadeau) = ring ${t}`); }
+    assert.match(h, />obsidiaan</, "de naam van de tier staat erbij"); assert.match(h, /14 van 14/);
     window.SeasonEvent = undefined; assert.equal(T.eventAchvHtml(), "", "zonder het UI-bestand niets (het bord wacht er niet op)");
   } finally { T.auth.user = null; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; evClean(); }
 });
