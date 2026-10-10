@@ -125,7 +125,7 @@ html[data-season="halloween"] .hat .acc-hat {display:inline }
 html[data-season="halloween"] .hat .cat-zzz {transform:translate(5px,-3px) }
 html[data-season="halloween"] .cat-gap {stroke:#2b2338 }
 html[data-season="halloween"] .sk-cat :is(.cat-sit,.cat-nap,.cat-stretch) {transition-duration:0.15s }
-html[data-season="halloween"] .sk-cat.perched {position:relative;left:auto;top:auto;display:block;width:37px;height:45px;margin:-6px 0 -5px 14px }
+html[data-season="halloween"] .sk-cat.perched {position:relative;left:auto;top:auto;display:block;width:46px;height:56px;margin:-8px 0 -6px 10px }
 html[data-season="halloween"] .sk-cat.arrive {animation:skk-arrive 0.5s ease 0.25s both }
 @keyframes skk-arrive{from{opacity:0}to{opacity:1}}
 html[data-season="halloween"][data-theme="gold"] :is(.sk-cat,.cat-head) {filter:drop-shadow(0 0 1.1px rgba(244,196,48,0.75)) }
