@@ -1,13 +1,12 @@
-// De vraag van de dag als bericht in het Jaardle-Discordkanaal (algemeen). Draait elke ochtend via
-// .github/workflows/discord-daily.yml; lokaal kun je 'm als preview draaien.
+// De vraag van de dag als bericht in het Jaardle-Discordkanaal (algemeen). De DAGELIJKSE post draait niet hier maar in
+// de database (pg_cron + pg_net, post_daily_discord(); de GitHub-planner liet runs uren te laat komen of weg). Dit script is
+// de preview en de handmatige variant (workflow .github/workflows/discord-daily.yml, alleen met de hand te starten) en
+// de bron van de tekst die de database nabootst — pas je de tekst aan, pas dan ook de SQL-functie aan.
 //
 //   node tools/discord-daily.mjs                      preview van vandaag (Amsterdamse datum), er wordt niets gepost
 //   node tools/discord-daily.mjs --date 2026-10-03    preview van een andere dag
 //   node tools/discord-daily.mjs --check-webhook      preview + controleren dat de webhook bestaat (post niets)
 //   node tools/discord-daily.mjs --send               echt posten
-//   node tools/discord-daily.mjs --send --window 6-12 --posted-file .discord-posted
-//                                                     alleen posten als het in Amsterdam tussen 06:00 en 12:00 is (zie workflow);
-//                                                     na het posten komt de datum in het bestand (de workflow onthoudt dat per dag)
 //
 // De webhook komt uit $DISCORD_DAILY_WEBHOOK (de GitHub-secret) of lokaal uit ~/Games/discord_daily_webhook.txt en
 // wordt nooit geprint. De publieke Supabase-URL/key lezen we uit index.template.html, net als de pagina zelf.
@@ -16,7 +15,7 @@
 // uitnodiging om in ||spoilers|| te gokken. Het jaartal staat er nooit in — niet vandaag en niet gisteren; het script
 // weigert te posten als het antwoord in de vraag voorkomt. LET OP: de Actions-logs van deze (publieke) repo zijn
 // openbaar, dus ook foutmeldingen mogen het antwoordjaar nooit bevatten.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -38,13 +37,6 @@ export function amsterdamParts(now = new Date()) {
   });
   const p = Object.fromEntries(f.formatToParts(now).map((x) => [x.type, x.value]));
   return { date: `${p.year}-${p.month}-${p.day}`, hour: Number(p.hour) };
-}
-
-// "6-12" = vanaf 06:00 tot 12:00 (Amsterdam). Een run die te vroeg of te laat komt, post niet.
-export function inWindow(hour, spec) {
-  const m = /^(\d{1,2})-(\d{1,2})$/.exec(spec);
-  if (!m) throw new Error("--window moet de vorm 6-12 hebben");
-  return hour >= Number(m[1]) && hour < Number(m[2]);
 }
 
 export function dayNumber(dateStr) {
@@ -151,12 +143,6 @@ async function main() {
   const opt = (name) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined; };
   const has = (name) => argv.includes(name);
 
-  if (has("--window")) {
-    const { hour } = amsterdamParts();
-    let ok;
-    try { ok = inWindow(hour, opt("--window")); } catch (e) { die(e.message); }
-    if (!ok) { console.log(`overgeslagen: in Amsterdam is het nu ${hour}:xx, buiten het venster ${opt("--window")}`); return; }
-  }
   const day = opt("--date") ?? amsterdamParts().date;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) die("--date moet YYYY-MM-DD zijn");
 
@@ -176,7 +162,6 @@ async function main() {
   if (!has("--send")) { console.log("(alleen preview; er is niets gepost. Met --send wordt er echt gepost.)"); return; }
   const msg = await send(payload, webhookUrl());
   console.log(`✔ gepost (bericht-id ${msg.id}, kanaal ${msg.channel_id})`);
-  if (opt("--posted-file")) writeFileSync(opt("--posted-file"), `${day}\n`);   // de workflow onthoudt hiermee dat vandaag klaar is
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();

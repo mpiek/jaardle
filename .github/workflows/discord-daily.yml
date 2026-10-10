@@ -1,27 +1,23 @@
-# Dagelijks bericht met de vraag van de dag in het Jaardle-Discordkanaal (algemeen).
-# Tekst en regels: tools/discord-daily.mjs. De webhook staat als repo-secret DISCORD_DAILY_WEBHOOK.
+# Discord-bericht met de vraag van de dag — ALLEEN HANDMATIG te starten (Actions → Discord daily → Run workflow).
 #
-# GitHub-cron is "best effort": runs komen te laat of vallen weleens helemaal weg (op 9/10/2026 kwamen de eerste twee
-# geplande runs nooit). Daarom geen enkele run op een vast uur, maar vier kansen per dag (04:17-07:17 UTC = ruim
-# 06:00-09:00 in de zomer, 05:00-08:00 in de winter) en een venster: het script post alleen als het in Amsterdam
-# tussen 06:00 en 12:00 is. De eerste run die erdoor komt post en onthoudt dat in de Actions-cache (sleutel = de
-# Amsterdamse datum); de overige runs van die dag zien dat en doen niets. Zo is er nooit een dubbele post en maakt
-# een weggevallen of late run niet uit. Minuut 17 i.p.v. :00, want GitHub is druk op hele uren.
-# Een mislukte run (rood) mailt je en post niets.
+# De dagelijkse post draait NIET meer hier: GitHub liet geplande runs op 9–10/10/2026 4–7 uur te laat komen of weg, dus
+# het plannen gebeurt in de database (pg_cron + pg_net, post_daily_discord()). Daarom heeft deze workflow bewust geen
+# `schedule:` (een test bewaakt dat): twee planners naast elkaar zouden dubbel posten.
+#
+#   check = alleen controleren (preview + bestaat de webhook; post niets)
+#   post  = nu echt posten. LET OP: de database weet daar niets van; zet daarna een rij in public.discord_daily_posts
+#           (confirmed = true) voor die datum, anders post pg_cron dezelfde dag nog eens.
+#
+# Tekst en regels: tools/discord-daily.mjs. De webhook staat als repo-secret DISCORD_DAILY_WEBHOOK.
 name: Discord daily
 
 on:
-  schedule:
-    - cron: "17 4 * * *"
-    - cron: "17 5 * * *"
-    - cron: "17 6 * * *"
-    - cron: "17 7 * * *"
   workflow_dispatch:
     inputs:
       action:
-        description: "check = alleen controleren (post niets) · post = nu echt posten · mark = alleen vastleggen dat vandaag al gepost is (na een handmatige post)"
+        description: "check = alleen controleren (post niets) · post = nu echt posten (zie de opmerking bovenin)"
         type: choice
-        options: [check, post, mark]
+        options: [check, post]
         default: check
 
 permissions:
@@ -32,38 +28,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  post:
+  run:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       DISCORD_DAILY_WEBHOOK: ${{ secrets.DISCORD_DAILY_WEBHOOK }}
     steps:
       - uses: actions/checkout@v4
-      - name: Datum in Amsterdam
-        id: day
-        run: echo "date=$(TZ=Europe/Amsterdam date +%F)" >> "$GITHUB_OUTPUT"
-      - name: Is vandaag al gepost?
-        id: seen
-        uses: actions/cache/restore@v4
-        with:
-          path: .discord-posted
-          key: discord-daily-${{ steps.day.outputs.date }}
-          lookup-only: true
       - name: Controleren zonder te posten
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'check'
+        if: inputs.action == 'check'
         run: node tools/discord-daily.mjs --check-webhook
-      - name: Posten (schema, venster 06:00-12:00)
-        if: github.event_name == 'schedule' && steps.seen.outputs.cache-hit != 'true'
-        run: node tools/discord-daily.mjs --send --window 6-12 --posted-file .discord-posted
-      - name: Posten (handmatig gestart)
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'post'
-        run: node tools/discord-daily.mjs --send --posted-file .discord-posted
-      - name: Vastleggen dat vandaag gepost is (handmatig)
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'mark'
-        run: echo "${{ steps.day.outputs.date }}" > .discord-posted
-      - name: Onthouden dat vandaag klaar is
-        if: steps.seen.outputs.cache-hit != 'true' && hashFiles('.discord-posted') != ''
-        uses: actions/cache/save@v4
-        with:
-          path: .discord-posted
-          key: discord-daily-${{ steps.day.outputs.date }}
+      - name: Posten
+        if: inputs.action == 'post'
+        run: node tools/discord-daily.mjs --send
