@@ -3759,7 +3759,7 @@ function holidayFxFor(date) {
   if (m === 10 && d >= 29) return "halloween";         // 29–31 okt: de kern; wint van Diwali (Halloween is het grootste thema voor de speler-basis). 1–2 nov blijft Día de Muertos
   if (key === "11-01" || key === "11-02") return "muertos";
   if (near(DIWALI)) return "diwali";
-  if (m === 10 && d >= 21) return "halloween";         // 21–28 okt: vanaf de eerste spook-daily, gelijk aan de skin; Diwali (2027: 28 okt, 2030: 25–27 okt) gaat hier voor
+  if (m === 10 && d >= 19) return "halloween";         // 19–28 okt: vanaf de eerste spook-daily, gelijk aan de skin; Diwali (2027: 28 okt, 2030: 25–27 okt) gaat hier voor
   if (key === "12-24" || key === "12-25" || key === "12-26") return "xmas";
   return null;
 }
@@ -5032,8 +5032,8 @@ for (const f of Object.values(FLAIR_FX)) f.earned = f.key === "capstone" ? (a) =
 const EVENTS = [
   {
     id: "spook", skin: "halloween", icon: "🎃", mascot: "cat",   // skin: de balk volgt die skin; icon = de eenheid ("3 van 12"); mascot: het kattenkopje van /season-cat.js in de balk/strook/het menu
-    start: "2026-10-21", end: "2026-11-01",              // puzzeldatums, inclusief: woe 21 okt t/m zo 1 nov = 12 dagen
-    thresholds: [3, 6, 10], gift: 1,                     // met het cadeau-🎃 is dat 2 · 5 · 9 gespeelde dagen
+    start: "2026-10-19", end: "2026-11-01",              // puzzeldatums, inclusief: ma 19 okt t/m zo 1 nov = 14 dagen (twee volle weken)
+    thresholds: [3, 6, 10], gift: 1,                     // met het cadeau-🎃 is dat 2 · 5 · 9 gespeelde dagen (van 14)
     rewards: [
       { kind: "flair", key: "ev_spook_flair", emoji: "🎃", icon: "🎃" },
       { kind: "fx", key: "ev_spook_fx", fx: "web", emoji: "\u{1F578}\uFE0F", icon: "\u{1F578}\uFE0F" },   // Spinnenweb
@@ -10889,7 +10889,7 @@ function applyTheme(theme) {
   syncThemePicker();
 }
 
-// --- Seizoens-skins (Halloween 21 okt t/m 1 nov, Sinterklaas 5 dec) -----------------------------------------
+// --- Seizoens-skins (Halloween 19 okt t/m 1 nov, Sinterklaas 5 dec) -----------------------------------------
 // Het head-script in de template zet data-season="<id>" op de apparaatdatum (of met ?skin=<id>) en haalt dan de
 // versiering (SEASONS[id].css) en een andere balkkleur op, bij Halloween ook de pompoen-favicon. Hier dezelfde
 // datumregels (een test houdt de twee gelijk), de aan/uit-regel in het ⋮-menu en de balkkleur bij een themawissel.
@@ -10902,7 +10902,7 @@ const SEASONS = {
     bar: { dark: "#120a1e", light: "#f3edf8" },                 // sync met --bg van het palet in style.css + head-script
     icon: "/favicon-halloween",                                 // pompoen-favicon (Sinterklaas houdt het gewone icoon)
     label: "menu_season_halloween",
-    on: (m, d) => (m === 10 && d >= 21) || (m === 11 && d === 1),
+    on: (m, d) => (m === 10 && d >= 19) || (m === 11 && d === 1),
   },
   sinterklaas: {
     css: "/season-sinterklaas.css?v=1",

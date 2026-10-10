@@ -314,9 +314,9 @@ test("holidayFxFor — vaste dagen, paas-afgeleiden, maankalender, voorrang bij 
 
 test("holidayFxFor — ronde 4: Halloween 29–31 okt, Eid al-Adha, 1 april, Moederdag, verjaardag, Mid-Autumn, schrikkeldag", () => {
   const d = (y, m, dd) => new Date(y, m - 1, dd, 12);
-  // Halloween: 21–31 okt (gelijk aan de skin en de spook-daily's; 8/10/2026), de kern 29–31 wint van Diwali, 21–28 geeft Diwali voorrang
-  assert.equal(T.holidayFxFor(d(2026, 10, 20)), null);
-  for (const dd of [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]) assert.equal(T.holidayFxFor(d(2026, 10, dd)), "halloween", `okt ${dd}`);
+  // Halloween: 19–31 okt (gelijk aan de skin en de spook-daily's; 10/10/2026: vanaf maandag 19), de kern 29–31 wint van Diwali, 19–28 geeft Diwali voorrang
+  assert.equal(T.holidayFxFor(d(2026, 10, 18)), null);
+  for (const dd of [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]) assert.equal(T.holidayFxFor(d(2026, 10, dd)), "halloween", `okt ${dd}`);
   assert.equal(T.holidayFxFor(d(2030, 10, 25)), "diwali");     // Diwali 2030 (26 okt) ±1: 25–27 blijft Diwali
   assert.equal(T.holidayFxFor(d(2030, 10, 27)), "diwali");
   assert.equal(T.holidayFxFor(d(2030, 10, 28)), "halloween");
@@ -2134,16 +2134,16 @@ function runSeasonHead({ date, search = "", store = {}, theme } = {}) {
 }
 const seasonDay = (y, m, dd) => new Date(y, m - 1, dd, 12);
 
-test("seasonFor — Halloween 21 okt t/m 1 nov, Sinterklaas alleen 5 december, elk jaar; daarbuiten niets", () => {
+test("seasonFor — Halloween 19 okt t/m 1 nov, Sinterklaas alleen 5 december, elk jaar; daarbuiten niets", () => {
   for (const [y, m, dd, want] of [
-    [2026, 10, 18, null], [2026, 10, 20, null], [2026, 10, 21, "halloween"], [2026, 10, 25, "halloween"], [2026, 10, 31, "halloween"], [2026, 11, 1, "halloween"], [2026, 11, 2, null],
+    [2026, 10, 18, null], [2026, 10, 19, "halloween"], [2026, 10, 20, "halloween"], [2026, 10, 21, "halloween"], [2026, 10, 25, "halloween"], [2026, 10, 31, "halloween"], [2026, 11, 1, "halloween"], [2026, 11, 2, null],
     [2027, 10, 25, "halloween"], [2027, 11, 1, "halloween"], [2026, 10, 1, null], [2026, 1, 1, null], [2026, 6, 15, null],
     [2026, 12, 4, null], [2026, 12, 5, "sinterklaas"], [2026, 12, 6, null], [2027, 12, 5, "sinterklaas"], [2030, 12, 5, "sinterklaas"],
     [2026, 12, 24, null], [2026, 5, 12, null], [2026, 11, 5, null],
   ]) assert.equal(T.seasonFor(seasonDay(y, m, dd)), want, `${y}-${m}-${dd}`);
   const days = new Set();
   for (let m = 1; m <= 12; m++) for (let dd = 1; dd <= new Date(2026, m, 0).getDate(); dd++) if (T.seasonFor(seasonDay(2026, m, dd))) days.add(`${m}/${dd}`);
-  assert.equal(days.size, 12 + 1, "12 dagen Halloween (21 okt t/m 1 nov) + 1 dag Sinterklaas");
+  assert.equal(days.size, 14 + 1, "14 dagen Halloween (19 okt t/m 1 nov) + 1 dag Sinterklaas");
 });
 
 test("head-script van de skins ≡ seasonFor(): elke dag van het jaar, ?skin=-voorvertoning, uitzetten per skin, versie van de CSS", () => {
@@ -2641,9 +2641,9 @@ test("EVENTS — elke rij is sluitend: datums, drempels, beloningen, effect, ski
   const all = T.EVENTS.flatMap((e) => e.rewards.map((r) => r.key));
   assert.equal(new Set(all).size, all.length);
   assert.deepEqual(T.EVENT_REWARD_KEYS, all);
-  // Spooktober 2026: woe 21 okt t/m zo 1 nov = 12 puzzeldagen, inhalen t/m wo 4 nov
+  // Spooktober 2026: ma 19 okt t/m zo 1 nov = 14 puzzeldagen (twee volle weken), inhalen t/m wo 4 nov
   const sp = T.eventById("spook");
-  assert.equal(T.eventTotal(sp), 12); assert.equal(T.eventDay(sp, 11), "2026-11-01"); assert.equal(T.eventCatchupEnd(sp), "2026-11-04");
+  assert.equal(T.eventTotal(sp), 14); assert.equal(T.eventDay(sp, 13), "2026-11-01"); assert.equal(T.eventDay(sp, 0), "2026-10-19"); assert.equal(T.eventCatchupEnd(sp), "2026-11-04");
   assert.deepEqual(sp.thresholds, [3, 6, 10]);
   assert.equal(T.eventOfReward("ev_spook_fx").id, "spook"); assert.equal(T.eventOfReward("fl_star"), null);
 });
@@ -2651,7 +2651,7 @@ test("EVENTS — elke rij is sluitend: datums, drempels, beloningen, effect, ski
 test("eventPhase — voor · lopend · inhaaldagen · voorbij, op de grenzen", () => {
   const sp = T.eventById("spook");
   const ph = (d) => T.eventPhase(sp, d);
-  assert.equal(ph("2026-10-20"), "soon"); assert.equal(ph("2026-10-21"), "run"); assert.equal(ph("2026-11-01"), "run");
+  assert.equal(ph("2026-10-18"), "soon"); assert.equal(ph("2026-10-19"), "run"); assert.equal(ph("2026-11-01"), "run");
   assert.equal(ph("2026-11-02"), "catch"); assert.equal(ph("2026-11-04"), "catch"); assert.equal(ph("2026-11-05"), "past");
   assert.deepEqual(T.eventsInView("2026-10-25").map((e) => e.id), ["spook"]);
   assert.deepEqual(T.eventsInView("2026-11-04").map((e) => e.id), ["spook"], "inhaaldagen: de kaart staat er nog");
@@ -2665,10 +2665,10 @@ test("eventStamps — een gespeelde dag = een stempel, het cadeau komt bij de ee
   assert.equal(st(evDays(2)).n, 3); assert.deepEqual(st(evDays(2)).earned, [true, false, false], "2 gespeelde dagen = de eerste beloning (3 stempels)");
   assert.deepEqual(st(evDays(5)).earned, [true, true, false]); assert.equal(st(evDays(5)).n, 6);
   assert.deepEqual(st(evDays(9)).earned, [true, true, true]); assert.equal(st(evDays(9)).n, 10);
-  assert.equal(st(evDays(12)).n, 12, "plafond op het totaal"); assert.equal(st(evDays(12)).played, 12);
-  assert.equal(st(["2026-10-20", "2026-11-02", "2025-10-21"]).n, 0, "dagen buiten het venster tellen niet");
+  assert.equal(st(evDays(14)).n, 14, "plafond op het totaal"); assert.equal(st(evDays(14)).played, 14);
+  assert.equal(st(["2026-10-18", "2026-11-02", "2025-10-21"]).n, 0, "dagen buiten het venster tellen niet");
   assert.equal(st([...evDays(2), ...evDays(2)]).played, 2, "dezelfde dag telt één keer");
-  assert.deepEqual(st(["2026-10-21", "2026-10-23"]).days.slice(0, 4), [true, false, true, false], "inhalen: ook een dag ertussen telt, gaten blijven gaten");
+  assert.deepEqual(st(["2026-10-19", "2026-10-21"]).days.slice(0, 4), [true, false, true, false], "inhalen: ook een dag ertussen telt, gaten blijven gaten");
   assert.equal(T.eventStamps(sp, [{ date: "2026-10-22", won: false, score: 0, guesses: 6 }]).n, 2, "een verlies telt ook (je speelde de dag)");
 });
 
@@ -2766,7 +2766,7 @@ test("eventView — de gegevens voor de UI: fase, dagen over, vandaag gespeeld, 
     T.setLang("nl"); T.setEventToday("2026-10-23"); T.auth.user = { uid: "u" };
     T.setPlayer("Jip", "🎃~web", null); T.setLocalHistory(evHist(["2026-10-21", "2026-10-23"]));
     const v = T.eventView(sp);
-    assert.equal(v.phase, "run"); assert.equal(v.total, 12); assert.equal(v.n, 3); assert.equal(v.todayPlayed, true); assert.equal(v.daysLeft, 10, "21 + 12 dagen: op de 3e dag nog 10 (met vandaag)");
+    assert.equal(v.phase, "run"); assert.equal(v.total, 14); assert.equal(v.n, 3); assert.equal(v.todayPlayed, true); assert.equal(v.daysLeft, 10, "19 + 14 dagen: op de 5e dag nog 10 (met vandaag)");
     assert.deepEqual(v.worn, [true, true, false]); assert.equal(v.anyFlair, true); assert.equal(v.anon, false);
     T.setEventToday("2026-10-22"); assert.equal(T.eventView(sp).todayPlayed, false);
     T.setEventToday("2026-11-03"); const late = T.eventView(sp); assert.equal(late.phase, "catch"); assert.equal(late.todayPlayed, false);
@@ -2830,6 +2830,8 @@ test("season-event.js — de stempelkaart: vakjes, cadeau, drempels als open cad
   assert.match(SE.card(view(5), { arrive: true }), /evc arrive/); assert.match(SE.card(view(5), { arrive: true }), /evp-s on new/, "het nieuwste stempel landt");
   assert.ok(!/evp-s on[^"]* new/.test(SE.card(view(5))), "zonder arrive geen animatie");
   assert.match(h, /role="img" aria-label="12 van 12"/);
+  // kolommen volgen het aantal dagen: 12 → 4 (3 rijen), 14 → 7 (2 rijen), nooit een scheve laatste rij
+  assert.match(SE.card(view(3)), /--cols:4/); assert.match(SE.card({ ...view(3), total: 14 }), /--cols:7/); assert.match(SE.card({ ...view(3), total: 10 }), /--cols:5/); assert.match(SE.card({ ...view(3), total: 11 }), /--cols:4/);
 });
 
 test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haakje, archief; alles geëscaped", () => {
@@ -2838,7 +2840,7 @@ test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haak
     n, played: Math.max(0, n - 1), days: [], earned: sp.thresholds.map((x) => n >= x), phase: "run", todayPlayed: false, daysLeft: 10, anon: false, anyFlair: true, wornFlair: "🎃", worn: [false, false, false], fxWrap: (fx, h) => `<span class="fl-fx fx-${fx}">${h}</span>`, ...extra });
   // balk: de eerste dagen de aankondiging, daarna de dunne regel met je stand; tikken = openen
   const intro = SE.bar(view(0), { intro: true }), slim = SE.bar(view(4), { intro: false });
-  assert.match(intro, /data-ev-open="spook"/); assert.match(intro, /Het is Spooktober!/); assert.match(intro, /Elke daily is een 🎃/); assert.match(intro, /21 okt – 1 nov/); assert.ok(!/ slim/.test(intro));
+  assert.match(intro, /data-ev-open="spook"/); assert.match(intro, /Het is Spooktober!/); assert.match(intro, /Elke daily is een 🎃/); assert.match(intro, /19 okt – 1 nov/); assert.ok(!/ slim/.test(intro));
   assert.match(slim, /class="ev-bar slim"/); assert.match(slim, /Spooktober · 🎃 4 van 12/);
   assert.match(SE.bar(view(4), { intro: false }), /<button type="button" class="ev-bar/, "een knop: toetsenbord en screenreader");
   assert.match(SE.bar({ ...view(0), lang: "en" }, { intro: true }), /It's Spooktober!/); assert.match(SE.bar({ ...view(0), lang: "xx" }, { intro: true }), /Spooktober/, "onbekende taal valt terug op Engels");
@@ -2852,7 +2854,7 @@ test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haak
   assert.match(SE.strip(view(5), { arrive: true }), /evs arrive[\s\S]*evs-pip on rw new|evs-pip on new/, "het nieuwste puntje landt");
   // scherm: kop, kaart, vandaag-chip, rijen met knoppen
   let sc = SE.screen(view(3));
-  assert.match(sc, /Spooktober/); assert.match(sc, /21 okt – 1 nov · nog 10 dagen/); assert.match(sc, /data-ev-play="1"/, "vandaag nog niet gespeeld: een knop naar de daily");
+  assert.match(sc, /Spooktober/); assert.match(sc, /19 okt – 1 nov · nog 10 dagen/); assert.match(sc, /data-ev-play="1"/, "vandaag nog niet gespeeld: een knop naar de daily");
   assert.match(SE.screen(view(3, { todayPlayed: true })), /Vandaag binnen/);
   assert.equal((sc.match(/class="ev-row /g) || []).length, 3);
   assert.match(sc, /ev-row done[\s\S]*?data-ev-act="0"[^>]*>Draag nu/, "verdiende flair: Draag nu"); assert.match(sc, /ev-row next/); assert.match(sc, /ev-row lock/);
@@ -2878,7 +2880,7 @@ test("season-event.js — de CSS: tokens per event, geen fixed, geen onbekende v
   const css = SE.css;
   for (const ev of T.EVENTS) assert.ok(css.includes(`[data-ev="${ev.id}"] {`), `${ev.id}: geen tokens-blok`);
   for (const tok of ["--ev-pk", "--ev-pk-soft", "--ev-stamp", "--ev-gift", "--ev-ok"]) assert.ok(new RegExp(`${tok}\\s*:`).test(css), `${tok} niet gedefinieerd`);
-  const inline = new Set(["--n"]);   // het aantal puntjes van de strook: staat inline op het element
+  const inline = new Set(["--n", "--cols"]);   // het aantal puntjes van de strook en de kolommen van de stempelkaart: staan inline op het element
   const used = new Set([...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]).filter((u) => !inline.has(u))), defined = new Set([...css.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
   const host = readFileSync(join(dir, "..", "style.css"), "utf8"), hostDefined = new Set([...host.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u) || hostDefined.has(u), `${u} wordt gebruikt maar nergens gedefinieerd (ook niet in style.css)`);
@@ -2931,9 +2933,9 @@ test("Prestaties — een zegel per event waaraan je meedeed, met de ring van het
     const { SE } = loadSeasonEvent(); window.SeasonEvent = SE; T.setLang("nl");
     assert.equal(T.eventAchvHtml(), "", "niet meegedaan: geen sectie");
     T.setLocalHistory(evHist(evDays(1)));
-    let h = T.eventAchvHtml(); assert.match(h, /Events/); assert.match(h, /achv-t0/); assert.match(h, /Spooktober 2026/); assert.match(h, /2 van 12/); assert.match(h, /#achv-art-spook/);
+    let h = T.eventAchvHtml(); assert.match(h, /Events/); assert.match(h, /achv-t0/); assert.match(h, /Spooktober 2026/); assert.match(h, /2 van 14/); assert.match(h, /#achv-art-spook/);
     T.auth.user = { uid: "u" }; T.setLocalHistory(evHist(evDays(5)));
-    h = T.eventAchvHtml(); assert.match(h, /achv-t2/, "twee beloningen = ring 2"); assert.match(h, /6 van 12/);
+    h = T.eventAchvHtml(); assert.match(h, /achv-t2/, "twee beloningen = ring 2"); assert.match(h, /6 van 14/);
     window.SeasonEvent = undefined; assert.equal(T.eventAchvHtml(), "", "zonder het UI-bestand niets (het bord wacht er niet op)");
   } finally { T.auth.user = null; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; evClean(); }
 });
@@ -2982,7 +2984,7 @@ test("ensureEventUi — het kattenbestand (mascotte) is optioneel: een mislukte 
 
 test("eventDayCounts — alleen een pot binnen het venster is een stempel (geen viering voor een gewone daily in de inhaaldagen)", () => {
   const sp = T.eventById("spook");
-  assert.equal(T.eventDayCounts(sp, "2026-10-20"), false); assert.equal(T.eventDayCounts(sp, "2026-10-21"), true);
+  assert.equal(T.eventDayCounts(sp, "2026-10-18"), false); assert.equal(T.eventDayCounts(sp, "2026-10-19"), true);
   assert.equal(T.eventDayCounts(sp, "2026-11-01"), true); assert.equal(T.eventDayCounts(sp, "2026-11-02"), false, "vandaag (2 nov) is geen eventdag, ook al staat het event nog in beeld");
   assert.equal(T.eventDayCounts(sp, "2026-10-30"), true, "een ingehaalde eventdag telt wel (de datum van de pot, niet van vandaag)");
 });

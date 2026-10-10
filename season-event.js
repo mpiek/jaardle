@@ -30,7 +30,7 @@ html[data-theme="light"] [data-ev="spook"], html[data-theme="parchment"] [data-e
 .ev-bar .ev-chev { flex: none; color: var(--ev-pk); font-size: 1.2rem; line-height: 1; }
 
 /* ── stempelkaart: de dagen als ronde vakjes; de drempels zijn cadeau-vakjes die opengaan en de beloning laten zien ── */
-.evp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem 0.5rem; justify-items: center; padding: 0.15rem 0; }
+.evp { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 0.6rem 0.5rem; justify-items: center; padding: 0.15rem 0; }
 .evp-s { position: relative; display: grid; place-items: center; width: min(100%, 3.7rem); aspect-ratio: 1; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--muted) 50%, transparent); box-sizing: border-box; font-style: normal; color: var(--muted); }
 .evp-no { position: absolute; font-size: 0.62rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .evp-s:not(.rw) .evp-no { opacity: 0.8; }
@@ -302,7 +302,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       const inner = rw ? (on ? `<b class="evp-ic">${esc(v.rewards[r].icon)}</b>` : `<em class="evp-gf"></em>`) + `<span class="evp-no">${i}</span>` : `<span class="evp-no">${i}</span>`;
       slots += `<i class="${cls}">${inner}</i>`;
     }
-    return `<div class="evc${arrive ? " arrive" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp">${slots}</div></div>`;
+    return `<div class="evc${arrive ? " arrive" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp" style="--cols:${v.total % 4 === 0 ? 4 : v.total % 7 === 0 ? 7 : v.total % 5 === 0 ? 5 : 4}">${slots}</div></div>`;
   }
 
   // ── de strook op het eindscherm: dagen als puntjes, drempels als ronde pinnen, één tekstregel ──────────────────

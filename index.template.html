@@ -91,7 +91,7 @@
     } catch (e) { /* geen CSS.supports → geen preload, font-display: swap vangt het op */ }
   })();
 </script>
-<!-- Seizoens-skins (Halloween 21 okt t/m 1 nov, Sinterklaas 5 dec): data-season vóór de stylesheet zetten, net als het thema,
+<!-- Seizoens-skins (Halloween 19 okt t/m 1 nov, Sinterklaas 5 dec): data-season vóór de stylesheet zetten, net als het thema,
      zodat er niets flitst. Actief op de apparaatdatum (elk jaar), tenzij de speler 'm uitzette (jaardle:season:<id>=off;
      "jaardle:season"=off is de oude Halloween-sleutel); ?skin=<id> toont 'm altijd (voorvertoning). Alleen dan haalt dit
      ook de versiering (/season-<id>.css) en een andere kleur voor de browserbalk op, bij Halloween ook de pompoen-favicon.
@@ -101,7 +101,7 @@
     try {
       var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
       var S = {
-        halloween: { on: (m === 10 && day >= 21) || (m === 11 && day === 1), css: "/season-halloween.css?v=1", bar: ["#120a1e", "#f3edf8"], icon: "/favicon-halloween" },
+        halloween: { on: (m === 10 && day >= 19) || (m === 11 && day === 1), css: "/season-halloween.css?v=1", bar: ["#120a1e", "#f3edf8"], icon: "/favicon-halloween" },
         sinterklaas: { on: m === 12 && day === 5, css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"] }
       };
       var q = /[?&]skin=([a-z]+)(&|$)/.exec(location.search), id = q && S.hasOwnProperty(q[1]) ? q[1] : "";
@@ -463,7 +463,7 @@
     });
     window.dispatchEvent(new Event("sb-ready"));
   </script>
-  <script src="/game.js?v=337"></script>
+  <script src="/game.js?v=338"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>
