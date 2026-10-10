@@ -370,6 +370,8 @@ const I18N = {
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
+    achv_cap_pct: (p, tier) => `${p}% naar ${tier}`, achv_cap_count: (n) => `${n} van 5 reeksen klaar.`,
+    achv_sect_prestige: "Prestige-reeksen", achv_sect_other: "Overige reeksen",
     achv_cap_confetti: "🎊 Flair-confetti", achv_cap_wear: "⭐ Draag als flair", achv_cap_goldyears: "🗓️ Gouden jaartallen", achv_cap_platinaframe: "🖼️ Sierrand", achv_cap_theme: "Thema",
     theme_dark: "Donker", theme_light: "Licht", theme_parchment: "Perkament", theme_midnight: "Nachtpaars", theme_gold: "Goud",
     achv_tiers: { bronze: "brons", silver: "zilver", gold: "goud", platinum: "platina", diamond: "diamant", obsidian: "obsidiaan" },
@@ -706,6 +708,8 @@ const I18N = {
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
+    achv_cap_pct: (p, tier) => `${p}% to ${tier}`, achv_cap_count: (n) => `${n} of 5 series done.`,
+    achv_sect_prestige: "Prestige series", achv_sect_other: "Other series",
     achv_cap_confetti: "🎊 Flair confetti", achv_cap_wear: "⭐ Wear as flair", achv_cap_goldyears: "🗓️ Golden years", achv_cap_platinaframe: "🖼️ Ornate frame", achv_cap_theme: "Theme",
     theme_dark: "Dark", theme_light: "Light", theme_parchment: "Parchment", theme_midnight: "Midnight", theme_gold: "Gold",
     achv_tiers: { bronze: "bronze", silver: "silver", gold: "gold", platinum: "platinum", diamond: "diamond", obsidian: "obsidian" },
@@ -1035,6 +1039,8 @@ const I18N = {
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
+    achv_cap_pct: (p, tier) => `${p} % bis ${tier}`, achv_cap_count: (n) => `${n} von 5 Serien geschafft.`,
+    achv_sect_prestige: "Prestige-Serien", achv_sect_other: "Weitere Serien",
     achv_cap_confetti: "🎊 Flair-Konfetti", achv_cap_wear: "⭐ Als Flair tragen", achv_cap_goldyears: "🗓️ Goldene Jahreszahlen", achv_cap_platinaframe: "🖼️ Zierrahmen", achv_cap_theme: "Design",
     theme_dark: "Dunkel", theme_light: "Hell", theme_parchment: "Pergament", theme_midnight: "Mitternacht", theme_gold: "Gold",
     achv_tiers: { bronze: "Bronze", silver: "Silber", gold: "Gold", platinum: "Platin", diamond: "Diamant", obsidian: "Obsidian" },
@@ -1368,6 +1374,8 @@ const I18N = {
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
+    achv_cap_pct: (p, tier) => `${p} % hacia ${tier}`, achv_cap_count: (n) => `${n} de 5 series completadas.`,
+    achv_sect_prestige: "Series de prestigio", achv_sect_other: "Otras series",
     achv_cap_confetti: "🎊 Confeti de flair", achv_cap_wear: "⭐ Llevar como distintivo", achv_cap_goldyears: "🗓️ Años dorados", achv_cap_platinaframe: "🖼️ Marco ornamental", achv_cap_theme: "Tema",
     theme_dark: "Oscuro", theme_light: "Claro", theme_parchment: "Pergamino", theme_midnight: "Medianoche", theme_gold: "Oro",
     achv_tiers: { bronze: "bronce", silver: "plata", gold: "oro", platinum: "platino", diamond: "diamante", obsidian: "obsidiana" },
@@ -1701,6 +1709,8 @@ const I18N = {
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
+    achv_cap_pct: (p, tier) => `${p}% para ${tier}`, achv_cap_count: (n) => `${n} de 5 séries concluídas.`,
+    achv_sect_prestige: "Séries de prestígio", achv_sect_other: "Outras séries",
     achv_cap_confetti: "🎊 Confete do flair", achv_cap_wear: "⭐ Usar como distintivo", achv_cap_goldyears: "🗓️ Anos dourados", achv_cap_platinaframe: "🖼️ Moldura ornamental", achv_cap_theme: "Tema",
     theme_dark: "Escuro", theme_light: "Claro", theme_parchment: "Pergaminho", theme_midnight: "Meia-noite", theme_gold: "Ouro",
     achv_tiers: { bronze: "bronze", silver: "prata", gold: "ouro", platinum: "platina", diamond: "diamante", obsidian: "obsidiana" },
@@ -4839,7 +4849,7 @@ let myTitleLoaded = false;            // null = geen titel, dus "nog niet opgeha
 // draagt staat er nog in (geen migratie nodig), de rest is de best-renderende /
 // iconische kern. De server-allowlist (set_my_flair) blijft een superset en is
 // dus onveranderd veilig: hij weigert alleen, en de UI biedt nooit een gesnoeide.
-const FLAIR_OPTIONS = ["🔥", "👑", "⚡", "🌟", "💎", "🚀", "🧠", "🍀", "🎲", "🥸", "💅", "🍻", "🍕", "☕", "🎉", "☄️", "🌈", "💀",
+const FLAIR_OPTIONS = ["🔥", "⚡", "🌟", "💎", "🚀", "🧠", "🍀", "🎲", "🥸", "💅", "🍻", "🍕", "☕", "🎉", "☄️", "🌈", "💀",
   "🦊", "🦉", "🐉", "🦄", "🐙", "🐼", "🦁", "🐐", "🐢", "🦫", "🫪"];
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingOpenModal = null;          // ?rating / ?achievements / ?history-deeplink → modal-id
@@ -7841,15 +7851,18 @@ const ACHV_YEARS = [-509, -336, -221, -44, 79, 476, 622, 793, 800, 1066, 1215, 1
   1440, 1453, 1485, 1492, 1517, 1543, 1588, 1648, 1687, 1776, 1789, 1815, 1859, 1889, 1903,
   1912, 1914, 1929, 1945, 1953, 1957, 1969, 1989, 2008, 2020];
 const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond", "obsidian"];
-// Reeksen: steps = de treden (6 voor de 5 capstone-ladders, 5 voor rating/jaren:
-// die hebben een talent-/albumplafond en geen 6e trede); flairs = [{emoji, at}]
+// Reeksen: steps = de treden (alle zeven hebben er 6; rating en jaren tellen alleen niet mee
+// voor de capstone: talent-/albumplafond); flairs = [{emoji, at}]
 // (0-based trede) — de server-gate in set_my_flair (db/41) moet dezelfde
 // drempels hanteren, dus een flair blijft aan zijn GETAL hangen: schuift een trede,
 // verhuis dan alleen `at` zodat het getal gelijk blijft.
 // floor = ondergrens voor het voortgangsbalkje vóór de eerste trede (rating
 // start op 1500, dus 0..1600 zou het balkje meteen vol tekenen).
-// De rating-ladder is de enige met meer dan één flair: de drie medailles staan
-// op brons/zilver/diamant, zodat de klim ook onderweg iets zichtbaars oplevert.
+// De rating-ladder is de enige met meer dan één flair: de medailles staan op
+// brons/zilver/obsidiaan (🥇 blijft op 1850, het getal van de server-gate), zodat de klim ook
+// onderweg iets zichtbaars oplevert; 👑 (db/90) deelt de obsidiaan-trede met 🥇.
+// Rating en jaren kregen op 10/10/2026 een 6e trede: obsidiaan = de oude diamant-waarde (1850 / 38 zegels), de
+// treden ertussen liggen lager; brons/zilver en de getallen van 🥇 (1850) en 🗿 (28) bleven staan.
 // Obsidiaan (6e trede) = de oude diamant-waarde; goud/platina/diamant liggen sinds
 // de 6e trede lager (okt 2026), brons/zilver bleven staan (zie capstone-track-design).
 // fx = {emoji, at}: een niet-flair-beloning op een trede (nu alleen het biertje
@@ -7866,9 +7879,9 @@ const ACHV_SERIES = [
   { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 1500, 3000], fx: BEER_FX },   // top-2 verlaagd 8/10/2026 (Matthijs: 2000/5000 → 1500/3000)
   { key: "perfect", art: "100",        steps: [1, 10, 25, 50, 100, 250],  flairs: [{ emoji: "💯", at: 3 }] },   // 💯 = 50 (db/41)
   { key: "pure",    art: "zen",        steps: [5, 25, 50, 100, 250, 500], flairFxs: [{ id: "ripple", at: 3 }, { id: "lotus", at: 4 }] },   // 🌊 Rimpel = 100 · 🪷 Lotus = 250 (db/79)
-  { key: "rating",  art: "bolt",       steps: [1600, 1700, 1775, 1825, 1850], floor: 1500, authOnly: true,
-    flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }] },
-  { key: "years",   art: "albumcover", steps: [4, 10, 18, 28, 38], flairs: [{ emoji: "🗿", at: 3 }], album: true },
+  { key: "rating",  art: "bolt",       steps: [1600, 1700, 1740, 1780, 1815, 1850], floor: 1500, authOnly: true,
+    flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 5 }, { emoji: "👑", at: 5 }] },   // 🥇 = 1850 (db/41), 👑 = 1850 (db/90)
+  { key: "years",   art: "albumcover", steps: [4, 10, 16, 22, 28, 38], flairs: [{ emoji: "🗿", at: 4 }], album: true },   // 🗿 = 28 (db/41)
 ];
 // repeatable: true → het veld is een oplopende TELLER (niet ooit-ja/nee) en
 // krijgt een ×N-badge; blijft weg → strikt eenmalig. Zie memory
@@ -7918,7 +7931,7 @@ const GM_AT           = 2000;   // GM/Legende-drempel; award_titles() in db/59. 
 const LEGEND_REVEAL   = 1925;   // Legende-trofee verschijnt pas als je JM-terrein aantikte
 // Reveal bewust NIET meeverhoogd: bij de omzetting stond er al iemand boven 1850, en dan
 // zou de trofee weer verdwijnen bij wie hem al kon zien.
-const OBSIDIAN_REVEAL = 1850;   // = de diamant-trede van de rating-ladder
+const OBSIDIAN_REVEAL = 1850;   // = de obsidiaan-trede van de rating-ladder (was de diamant-trede tot 10/10/2026)
 const ACHV_REPEAT_KEYS = ACHV_TROPHIES.filter((tr) => tr.repeatable).map((tr) => tr.key);
 
 // Getierde herhaalbare trofeeën: een eigen 6-trede-schaal (brons→diamant +
@@ -7988,6 +8001,21 @@ function capstoneLagging(a) {
   const tier = capstoneTier(a);
   if (tier >= CAPSTONE_MAX) return [];
   return CAPSTONE_KEYS.filter((k) => achvTier(achvValue(a, capstoneSeries(k)), capstoneSeries(k).steps) === tier);
+}
+// Voortgang naar de volgende trede: goal = die trede (null bij obsidiaan), avg = gemiddelde van de vijf reeksen
+// richting dat doel (een reeks die er al is telt als vol). De trede zelf blijft de MIN (capstoneTier): pas als alle vijf
+// er zijn schuift de track. pct zit op 99 vast zolang iemand achterblijft.
+function capstoneProgress(a) {
+  const ct = capstoneTier(a), goal = ct >= CAPSTONE_MAX ? null : ct;
+  const done = {}, rem = {}, fr = CAPSTONE_KEYS.map((k) => {
+    const st = capstoneSeries(k).steps, n = achvValue(a, capstoneSeries(k));
+    if (goal == null || n >= st[goal]) { done[k] = true; return 1; }
+    rem[k] = st[goal] - n;
+    const prev = goal ? st[goal - 1] : 0;
+    return Math.max(0, (n - prev) / (st[goal] - prev));
+  });
+  const avg = fr.reduce((x, y) => x + y, 0) / fr.length;
+  return { ct, goal, avg, pct: goal == null ? 100 : Math.min(99, Math.floor(avg * 100)), done, rem, nDone: CAPSTONE_KEYS.filter((k) => done[k]).length, lag: capstoneLagging(a) };
 }
 
 // Zilver-beloning aan/uit: aan is de default zodra je 'm verdient, uit is
@@ -8814,6 +8842,7 @@ const REWARDS = {
   fl_bronze:    { emoji: "🥉", cat: "flair",  sect: "flair" },
   fl_silver:    { emoji: "🥈", cat: "flair",  sect: "flair" },
   fl_gold:      { emoji: "🥇", cat: "flair",  sect: "flair" },
+  fl_crown:     { emoji: "👑", cat: "flair",  sect: "flair" },     // rating-obsidiaan (1850, db/90)
   fl_100:       { emoji: "💯", cat: "flair",  sect: "flair" },
   fl_hourglass: { emoji: "⏳", cat: "flair",  sect: "flair" },
   fl_moai:      { emoji: "🗿", cat: "flair",  sect: "flair" },
@@ -8835,7 +8864,7 @@ for (const ev of EVENTS) for (const r of ev.rewards) REWARDS[r.key] = { emoji: r
 // Voor de flair-effecten: ruwweg de zeldzaamheid van hun drempel (Nippertje/Zweetdruppel op goud … Lotus op diamant).
 const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_ember",
-  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "theme",
+  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fl_crown", "fx_platina", "theme",
   "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "cap_obsidian"];
 // Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
 // dragen zelf hun emoji; de flair-naam is gewoon "Flair"/"Distintivo"/…).
@@ -9429,7 +9458,7 @@ function achvRailPct(n, s) {
   return prevPos + frac * (nextPos - prevPos);
 }
 
-function achvRowSub(a, s) {
+function achvRowSub(a, s, goal) {   // goal = trede-index waar de prestige-track naartoe werkt (null/undefined = de eigen volgende trede)
   const n = achvValue(a, s);
   const shown = s.key === "rating" && a.rating == null ? "–" : fmtN(n);
   const unit = t(`achv_${s.key}_n`);
@@ -9439,6 +9468,7 @@ function achvRowSub(a, s) {
   // tellen terwijl je op 1500 start — laat het nog-stuk dan weg.
   if (s.key === "rating" && a.rating == null) return unitLine;
   const tier = achvTier(n, s.steps);
+  if (goal != null) return `${unitLine} · ${n >= s.steps[goal] ? "✓ " + achvTierName(goal) : t("achv_next")(fmtN(s.steps[goal] - n), achvTierName(goal))}`;
   const next = tier >= s.steps.length ? t("achv_maxed")
     : t("achv_next")(fmtN(s.steps[tier] - n), achvTierName(tier));
   return `${unitLine} · ${next}`;
@@ -9464,11 +9494,14 @@ function achvDetailHtml(a, s) {
   // leest hij als "hier verdien je de 🍻-flair" i.p.v. een viering.
   // Flair-effecten (Gloed, Rimpel, Lotus) hangen er op dezelfde manier: pin met het icoon van het effect.
   const flairFxs = auth.user ? (s.flairFxs || []) : [];
-  const pins = flairs.map((f) =>
-    `<span class="achv-flairpin" style="left:${achvTickPos(f.at, s.steps.length)}%">${f.emoji}</span>`).join("")
-    + (fx ? `<span class="achv-flairpin achv-fxpin" style="left:${achvTickPos(fx.at, s.steps.length)}%">${fx.emoji}</span>` : "")
-    + flairFxs.map((f) =>
-      `<span class="achv-flairpin achv-fxpin" style="left:${achvTickPos(f.at, s.steps.length)}%">${FLAIR_FX[f.id].emoji}</span>`).join("");
+  // Pins op dezelfde trede (🥇 + 👑 bij rating-obsidiaan) staan naast elkaar i.p.v. op elkaar.
+  const pinList = [...flairs.map((f) => ({ at: f.at, emoji: f.emoji, cls: "" })),
+    ...(fx ? [{ at: fx.at, emoji: fx.emoji, cls: " achv-fxpin" }] : []),
+    ...flairFxs.map((f) => ({ at: f.at, emoji: FLAIR_FX[f.id].emoji, cls: " achv-fxpin" }))];
+  const pins = pinList.map((pin) => {
+    const group = pinList.filter((x) => x.at === pin.at), off = (group.indexOf(pin) - (group.length - 1) / 2) * 1.1;
+    return `<span class="achv-flairpin${pin.cls}" style="left:calc(${achvTickPos(pin.at, s.steps.length)}% + ${off.toFixed(2)}rem)">${pin.emoji}</span>`;
+  }).join("");
   // Eén flair → de hele zin; meerdere (de rating-medailles) → een opsomming,
   // anders staat dezelfde regel drie keer onder elkaar.
   const note = !flairs.length ? ""
@@ -9512,21 +9545,24 @@ function achvPanelClosed() {
   achvNewShown = new Set();
 }
 
-function achvRowHtml(a, s) {
+// goal: een prestige-reeks meet zijn balk naar het GEDEELDE doel van de track (de trede die de laagste reeks nog moet halen),
+// zodat de korte balk de reeks is die je tegenhoudt; lag markeert die reeksen. Zonder goal: de eigen volgende trede.
+function achvRowHtml(a, s, goal, lag) {
   const n = achvValue(a, s);
   const tier = achvTier(n, s.steps);
-  const prevStep = tier === 0 ? (s.floor || 0) : s.steps[tier - 1];
-  const barPct = tier >= s.steps.length ? 100
-    : Math.max(0, Math.min(100, ((n - prevStep) / (s.steps[tier] - prevStep)) * 100));
+  const target = goal != null ? goal : tier;
+  const prevStep = target === 0 ? (s.floor || 0) : s.steps[target - 1];
+  const barPct = target >= s.steps.length || n >= s.steps[target] ? 100
+    : Math.max(0, Math.min(100, ((n - prevStep) / (s.steps[target] - prevStep)) * 100));
   const chip = tier > 0 ? `<span class="achv-chip">${escHtml(achvTierName(tier - 1))}</span>` : "";
   const chev = s.album ? `${achvNewDot("y:")}<span class="achv-chev">›</span>` : "";
-  return `<div class="achv-row achv-t${tier}" data-key="${s.key}">
+  return `<div class="achv-row achv-t${tier}${lag ? " achv-lag" : ""}" data-key="${s.key}">
     <button class="achv-rowbtn" type="button" aria-expanded="false">
       <span class="achv-ring">${achvBadgeHtml(s.art)}</span>
       <span class="achv-body">
         <span class="achv-name">${escHtml(t(`achv_${s.key}`))}${achvNewMark(`s:${s.key}:`)}</span>
-        <span class="achv-sub">${escHtml(achvRowSub(a, s))}</span>
-        <span class="achv-bar"><i style="width:${barPct.toFixed(1)}%"></i></span>
+        <span class="achv-sub">${escHtml(achvRowSub(a, s, goal))}</span>
+        <span class="achv-bar${goal != null ? " achv-g" + (goal + 1) : ""}"><i style="width:${barPct.toFixed(1)}%"></i></span>
       </span>
       ${chip}${chev}
     </button>
@@ -9857,41 +9893,37 @@ function achvAnonNoteHtml() {
 }
 
 // Master-balk bovenaan het bord: de capstone-track (laagste trede over de 5
-// grind-ladders). Alleen-ingelogd; toont welke ladder je tegenhoudt naar de
-// volgende trede. De 6e pip (obsidiaan) heeft nog geen beloning: die wordt in het
-// voorjaar van 2027 gekozen, voordat iemand 'm kan halen (365 dailies + streak 365).
-function capstoneBarHtml(a) {
+// grind-ladders). Alleen-ingelogd. Eén band met zes vakken (de kleur van de trede):
+// gehaalde treden vol, het vak van het doel vult naar het gemiddelde van de vijf reeksen
+// (capstoneProgress). Onder de band de treden met hun beloning; een gehaalde is een sprong
+// naar de 🪎-kluis (de bediening woont daar, v239), een vergrendelde toont 🔒 (de beloning
+// onthult zich pas als je 'm haalt — suspense). Tekst: "78% naar goud", en welke reeksen
+// de trede tegenhouden. De obsidiaan-beloning is 🖤 (flair + effecten + onthulling).
+function capstoneBarHtml(pg) {
   if (!auth.user) return "";
-  const ct = capstoneTier(a);
-  const REWARD = CAP_REWARD_ICONS;   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer, obsidiaan=🖤 (flair + effecten + onthulling)
-  // Brons en zilver hebben een bediening (dragen / confetti aan-uit) die pas
-  // verschijnt zodra je de trede zelf aantikt — geen vaste extra regels onder
-  // de balk, dat kostte te veel verticale ruimte (zelfde uitklap-idee als de
-  // reeksen eronder: klik = .cap-detail vult zich, nogmaals klikken sluit 'm).
-  const pips = ACHV_TIER_KEYS.map((tk, i) => {
-    const reached = i + 1 <= ct;
-    // Read-only voortgang/eer sinds v239: de bediening (dragen/aanzetten) woont in
-    // de 🪎-kluis. Een gehaalde pip is een sprong daarheen; vergrendeld = 🔒 (de
-    // beloning onthult zich pas als je 'm haalt — suspense blijft).
-    const hasReward = i < REWARD.length;
-    const tag = reached && hasReward ? "button" : "div";
-    const attrs = reached && hasReward ? ` type="button" data-cap-rewards="1"` : "";
-    const ico = reached ? (REWARD[i] || "🖤") : "🔒";
-    return `<${tag} class="cap-pip cap-${tk}${reached ? " on" : " soon"}${reached && hasReward ? " cap-pip-btn" : ""}"${attrs}>
-        <span class="cap-pip-ico">${ico}</span>
-        <span class="cap-pip-lbl">${escHtml(achvTierName(i))}</span>
-      </${tag}>`;
+  const { ct, goal } = pg;
+  const REWARD = CAP_REWARD_ICONS;   // brons=flair, zilver=confetti, goud=jaartallen, platina=sierrand, diamant=thema-kiezer, obsidiaan=🖤
+  const segs = ACHV_TIER_KEYS.map((tk, i) =>
+    `<i class="cap-seg cap-${tk}${i === ct ? " cur" : ""}" style="--f:${(i < ct ? 100 : i === ct ? pg.avg * 100 : 0).toFixed(1)}%"></i>`).join("");
+  const ticks = ACHV_TIER_KEYS.map((tk, i) => {
+    const reached = i < ct;
+    const btn = reached && i < REWARD.length;
+    return `<${btn ? "button" : "div"} class="cap-tk cap-${tk}${reached ? " on" : " soon"}${i === ct ? " cur" : ""}${btn ? " cap-tk-btn" : ""}"${btn ? ` type="button" data-cap-rewards="1"` : ""}>
+        <span class="cap-tk-ico">${reached ? REWARD[i] || "🖤" : "🔒"}</span>
+        <span class="cap-tk-lbl">${escHtml(achvTierName(i))}</span>
+      </${btn ? "button" : "div"}>`;
   }).join("");
-  let hint;
-  if (ct >= CAPSTONE_MAX) hint = t("achv_cap_done");
-  else {
-    const lag = capstoneLagging(a).map((k) => `${t("achv_" + k)} +${fmtN(capstoneSeries(k).steps[ct] - achvValue(a, capstoneSeries(k)))}`).join(" · ");
-    hint = t("achv_cap_next")(achvTierName(ct), lag);
+  const goalTxt = goal == null ? t("achv_cap_done") : t("achv_cap_pct")(pg.pct, achvTierName(goal));
+  let hint = "";
+  if (goal != null) {
+    const lag = pg.lag.map((k) => `${t("achv_" + k)} +${fmtN(pg.rem[k])}`).join(" · ");
+    hint = `<p class="cap-next">${escHtml(t("achv_cap_count")(pg.nDone))} ${escHtml(t("achv_cap_next")(achvTierName(ct), lag))}</p>`;
   }
   return `<div class="achv-capstone">
-      <div class="cap-head"><span class="cap-title">${escHtml(t("achv_cap_title"))}</span></div>
-      <div class="cap-rail">${pips}</div>
-      <p class="cap-next">${escHtml(hint)}</p>
+      <div class="cap-head"><span class="cap-title">${escHtml(t("achv_cap_title"))}</span><span class="cap-goal${goal == null ? "" : " cap-" + ACHV_TIER_KEYS[goal]}">${escHtml(goalTxt)}</span></div>
+      <div class="cap-bar" role="img" aria-label="${escHtml(goalTxt)}">${segs}</div>
+      <div class="cap-ticks">${ticks}</div>
+      ${hint}
     </div>`;
 }
 
@@ -9923,7 +9955,13 @@ function renderAchvBoard(body, a) {
   // ladders (dailies/streak) én de daily-trofeeën. De capstone leest de ladders
   // op sleutel, niet op positie, dus dit verschuift alleen de weergave.
   const dailyRows = visSeries.filter((s) => s.daily).map((s) => achvRowHtml(a, s)).join("");
-  const rows = visSeries.filter((s) => !s.daily).map((s) => achvRowHtml(a, s)).join("");
+  // Ingelogd: de Reeksen zijn gesplitst in prestige-reeksen (de 5 grind-ladders: tellen mee voor de track, balken naar het
+  // gedeelde doel) en overige (rating, jaren). Anoniem is er geen track: één lijst zoals vroeger.
+  const pg = auth.user ? capstoneProgress(a) : null;
+  const notDaily = visSeries.filter((s) => !s.daily);
+  const seriesHtml = !pg ? `<h3 class="stats-heading">${escHtml(t("achv_sect_series"))}</h3><div class="achv-rows">${notDaily.map((s) => achvRowHtml(a, s)).join("")}</div>`
+    : `<h3 class="stats-heading">${escHtml(t("achv_sect_prestige"))}</h3><div class="achv-rows">${notDaily.filter((s) => CAPSTONE_KEYS.includes(s.key)).map((s) => achvRowHtml(a, s, pg.goal, pg.lag.includes(s.key))).join("")}</div>
+    <h3 class="stats-heading">${escHtml(t("achv_sect_other"))}</h3><div class="achv-rows">${notDaily.filter((s) => !CAPSTONE_KEYS.includes(s.key)).map((s) => achvRowHtml(a, s)).join("")}</div>`;
   // Een verborgen trofee (reveal) bestaat pas op het bord als de poort open staat,
   // of als je 'm al hebt — anders zou een lege plek verraden dát er iets is.
   const shown = ACHV_TROPHIES.filter((tr) =>
@@ -9933,9 +9971,8 @@ function renderAchvBoard(body, a) {
   const repeatable = rest.filter((tr) => tr.repeatable).map((tr) => achvTrophyHtml(a, tr)).join("");
   const milestones = rest.filter((tr) => !tr.repeatable).map((tr) => achvTrophyHtml(a, tr)).join("");
   body.innerHTML = `
-    ${capstoneBarHtml(a)}
-    <h3 class="stats-heading">${escHtml(t("achv_sect_series"))}</h3>
-    <div class="achv-rows">${rows}</div>
+    ${pg ? capstoneBarHtml(pg) : ""}
+    ${seriesHtml}
     <h3 class="stats-heading">${escHtml(t("achv_sect_repeat"))}</h3>
     <div class="achv-trophies">${repeatable}</div>
     <h3 class="stats-heading">${escHtml(t("achv_sect_daily"))}</h3>

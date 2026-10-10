@@ -3468,51 +3468,58 @@ html[data-theme="light"] {
    (blauw), en de zeldzaamste tint. */
 .achv-t6, .achv-line-t6 { --tc: var(--achv-obsidian); }
 
-/* Capstone-track: master-balk bovenaan het bord (alleen-ingelogd). Laagste
-   trede over de 5 grind-ladders; goud/platina/diamant = "binnenkort" (fase 2+). */
+/* Capstone-track: master-balk bovenaan het bord (alleen-ingelogd). Eén band met zes vakken
+   (de tredekleuren); gehaalde treden vol, het vak van het doel vult naar het gemiddelde van
+   de vijf reeksen. Zie capstoneBarHtml() in game.js. */
 .achv-capstone {
   background: var(--card-soft);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.7rem 0.85rem;
 }
-.cap-head { margin-bottom: 0.55rem; }
+.cap-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; }
 .cap-title { font-weight: 700; font-size: 0.95rem; }
-.cap-rail { display: flex; gap: 0.2rem; }   /* 6 pips (obsidiaan): krappere ruggen, anders loopt de rij op 360px de padding in */
-.cap-pip {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.4rem 0.1rem;
-  border-radius: 9px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  opacity: 0.5;
-}
-.cap-pip.on { opacity: 1; border-color: var(--pc); box-shadow: inset 0 0 0 1px var(--pc); }
-.cap-pip-ico { font-size: 1.15rem; line-height: 1; }
-.cap-pip-lbl { font-size: clamp(0.5rem, 2.5vw, 0.62rem); color: var(--muted); text-transform: capitalize; }   /* meeschalen: "obsidiaan"/"obsidiana" is het breedste label */
-.cap-pip.on .cap-pip-lbl { color: var(--pc); font-weight: 600; }
-.cap-pip.soon .cap-pip-ico { filter: grayscale(1); }
+.cap-goal { font-size: 0.8rem; font-weight: 700; color: var(--pc, var(--muted)); font-variant-numeric: tabular-nums; text-align: right; }
 .cap-bronze   { --pc: var(--achv-bronze); }
 .cap-silver   { --pc: var(--achv-silver); }
 .cap-gold     { --pc: var(--achv-gold); }
 .cap-platinum { --pc: var(--achv-plat); }
 .cap-diamond  { --pc: var(--achv-diamond); }
 .cap-obsidian { --pc: var(--achv-obsidian); }
-@media (max-width: 340px) { .achv-capstone { padding-inline: 0.5rem; } }   /* 320px-telefoons: zes pips (pt "obsidiana") passen anders net niet */
+.cap-bar, .cap-ticks { display: flex; gap: 3px; }   /* zes vakken: krappe ruggen, anders loopt de rij op 360px de padding in */
+.cap-seg {
+  position: relative;
+  flex: 1;
+  height: 0.8rem;
+  border-radius: 4px;
+  background: var(--penalty-tint);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pc) 22%, transparent);
+}
+.cap-seg::before { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--f, 0%); background: var(--pc); border-radius: 4px; }
+.cap-seg.cur::before { background: linear-gradient(90deg, color-mix(in srgb, var(--pc) 78%, #000), var(--pc)); }
+.cap-ticks { margin-top: 0.3rem; }
+.cap-tk {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+}
+.cap-tk-btn { cursor: pointer; -webkit-tap-highlight-color: transparent; }   /* een gehaalde trede springt naar de 🪎-kluis */
+.cap-tk-ico { font-size: 1rem; line-height: 1; }
+.cap-tk.soon .cap-tk-ico { filter: grayscale(1); opacity: 0.55; }
+.cap-tk-lbl { font-size: clamp(0.5rem, 2.5vw, 0.62rem); color: var(--muted); text-transform: capitalize; }   /* meeschalen: "obsidiaan"/"obsidiana" is het breedste label */
+.cap-tk.on .cap-tk-lbl { color: var(--pc); font-weight: 600; }
+.cap-tk.cur .cap-tk-lbl { color: var(--pc); font-weight: 700; }
+@media (max-width: 340px) { .achv-capstone { padding-inline: 0.5rem; } }   /* 320px-telefoons: zes vakken (pt "obsidiana") passen anders net niet */
 .cap-next { margin: 0.55rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; }
-
-/* Bereikte brons/zilver-pip is zelf een knop: aantikken vult .cap-detail
-   eronder met de bijbehorende bediening (dragen ⭐ / confetti aan-uit). Eén
-   gedeeld slot voor de hele balk i.p.v. een vaste regel per trede — kost dus
-   nooit meer dan één extra regel, en alleen wanneer je 'm openklapt. */
-.cap-pip-btn { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; position: relative; }
-.cap-pip-btn::before { content: "›"; position: absolute; top: 0.15rem; right: 0.3rem; font-size: 0.7rem; color: var(--muted); transform: rotate(90deg); transition: transform 0.15s; }
-.cap-pip-btn[aria-expanded="true"]::before { transform: rotate(-90deg); }
-.cap-pip-btn[aria-expanded="true"] { background: var(--card-soft); }
 
 /* Zelfde vinkje-patroon als .menu-item[role=menuitemcheckbox], maar dan in de
    uitklap onder de balk. */
@@ -3675,6 +3682,14 @@ html[data-theme="light"] {
   background: var(--tc);
 }
 .achv-t0 .achv-bar i { background: var(--accent); }
+/* Prestige-reeksen meten naar het gedeelde doel van de track: de balk draagt de kleur van dát doel, en de reeks die de trede tegenhoudt staat gemarkeerd. */
+.achv-bar.achv-g1 i { background: var(--achv-bronze); }
+.achv-bar.achv-g2 i { background: var(--achv-silver); }
+.achv-bar.achv-g3 i { background: var(--achv-gold); }
+.achv-bar.achv-g4 i { background: var(--achv-plat); }
+.achv-bar.achv-g5 i { background: var(--achv-diamond); }
+.achv-bar.achv-g6 i { background: var(--achv-obsidian); }
+.achv-row.achv-lag { box-shadow: inset 3px 0 0 var(--accent); }
 .achv-chip {
   flex: 0 0 auto;
   font-size: 0.72rem;

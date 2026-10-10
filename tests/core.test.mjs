@@ -53,7 +53,7 @@ src += `
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
-  ACHV_SERIES, ACHV_TIER_KEYS, CAPSTONE_MAX, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
+  ACHV_SERIES, ACHV_TIER_KEYS, ACHV_YEARS, CAPSTONE_KEYS, CAPSTONE_MAX, FLAIR_OPTIONS, capstoneProgress, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   recapAccountHtml, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
@@ -1123,7 +1123,7 @@ test("recapArrowKey — ←/→ sturen de recap-tabs zodra het eindscherm gemoun
   T.setRecapArrow(null);
 });
 
-test("grind-ladders — 6 treden (obsidiaan = de oude diamant), brons/zilver bevroren, flairs aan hun getal", () => {
+test("alle reeksen — 6 treden (obsidiaan = de oude diamant), brons/zilver bevroren, flairs aan hun getal", () => {
   const S = (k) => T.ACHV_SERIES.find((x) => x.key === k);
   // brons/zilver zijn bewust nooit gewijzigd (retro tier-bump); de top is de oude diamant-waarde
   const want = {
@@ -1137,9 +1137,17 @@ test("grind-ladders — 6 treden (obsidiaan = de oude diamant), brons/zilver bev
   assert.equal(T.CAPSTONE_MAX, 6);
   assert.equal(T.ACHV_TIER_KEYS.length, 6);
   assert.equal(T.ACHV_TIER_KEYS[5], "obsidian");
-  // rating/jaren houden 5 treden (talent-/albumplafond)
-  assert.equal(S("rating").steps.length, 5);
-  assert.equal(S("years").steps.length, 5);
+  // rating/jaren kregen op 10/10/2026 ook een 6e trede (obsidiaan = de oude diamant: 1850 / 38 zegels); ze tellen niet mee voor de capstone
+  assert.deepEqual(S("rating").steps, [1600, 1700, 1740, 1780, 1815, 1850]);
+  assert.deepEqual(S("years").steps, [4, 10, 16, 22, 28, 38]);
+  assert.equal(S("years").steps[5], T.ACHV_YEARS.length, "obsidiaan = het hele album");
+  assert.ok(!T.CAPSTONE_KEYS.includes("rating") && !T.CAPSTONE_KEYS.includes("years"));
+  // medailles/flairs aan hun getal (set_my_flair): 🥉 1600 · 🥈 1700 · 🥇 1850 · 👑 1850 (db/90) · 🗿 28 (db/41)
+  const fl = (k, e) => { const f = S(k).flairs.find((x) => x.emoji === e); return S(k).steps[f.at]; };
+  assert.equal(fl("rating", "🥉"), 1600); assert.equal(fl("rating", "🥈"), 1700);
+  assert.equal(fl("rating", "🥇"), 1850); assert.equal(fl("rating", "👑"), 1850);
+  assert.equal(fl("years", "🗿"), 28);
+  assert.ok(!T.FLAIR_OPTIONS.includes("👑"), "👑 is geen vrije flair meer: rating-obsidiaan");
   // De server-gate (db/41: ⏳ ≥90, 💯 ≥50) en het bier (1500) hangen aan een GETAL: de pin staat op de
   // trede waar dat getal valt. Verschuift een trede, dan klopt dit niet meer met set_my_flair.
   assert.equal(S("streak").steps[S("streak").flairs[0].at], 90);
@@ -1157,6 +1165,24 @@ test("capstoneTier — laagste trede over de 5 ladders, max 6", () => {
   assert.equal(T.capstoneTier(a(3000, 365, 365, 250, 500)), 6); // alles op de top = obsidiaan
   assert.equal(T.capstoneTier(a(3000, 364, 365, 250, 500)), 5); // één dag te weinig = diamant
   assert.equal(T.capstoneTier(a(2999, 365, 365, 250, 500)), 5); // één potje te weinig = diamant
+});
+
+test("capstoneProgress — gemiddelde naar het gedeelde doel; de trede zelf blijft de min", () => {
+  const a = (games, dailies, streak, perfect, pure) => ({ games, dailies, streak, perfect, pure, years: [], rating: null });
+  // midden: dailies/games/pure staan al op goud (doel), streak 41 (30→60 = 36,7%) en perfect 18 (10→25 = 53,3%) houden de trede tegen
+  const m = T.capstoneProgress(a(310, 78, 41, 18, 62));
+  assert.equal(m.ct, 2); assert.equal(m.goal, 2);
+  assert.equal(m.nDone, 3); assert.deepEqual(m.lag.sort(), ["perfect", "streak"]);
+  assert.equal(m.pct, 78); assert.equal(m.rem.streak, 19); assert.equal(m.rem.perfect, 7);
+  // niets gehaald: doel = brons, een reeks die er al is telt als vol
+  const z = T.capstoneProgress(a(0, 0, 0, 0, 0));
+  assert.equal(z.goal, 0); assert.equal(z.pct, 0); assert.equal(z.nDone, 0);
+  // vier van de vijf op de top: nooit 100% zolang de laatste achterblijft (pct vast op 99)
+  const almost = T.capstoneProgress(a(3000, 365, 364, 250, 500));
+  assert.equal(almost.goal, 5); assert.ok(almost.pct <= 99); assert.deepEqual(almost.lag, ["streak"]);
+  // compleet: geen doel meer
+  const top = T.capstoneProgress(a(3000, 365, 365, 250, 500));
+  assert.equal(top.goal, null); assert.equal(top.pct, 100); assert.equal(top.nDone, 5);
 });
 
 test("achvTickPos — tick-posities per aantal treden (5 = 10/30/50/70/90, 6 = gelijke vakken)", () => {
@@ -1178,7 +1204,7 @@ test("achvRailPct — loopt monotoon op en bereikt 100 pas op de hoogste trede (
     assert.equal(T.achvRailPct(s.steps[s.steps.length - 1], s), 100, s.key);
     assert.ok(T.achvRailPct(s.steps[s.steps.length - 2], s) < 100, s.key);
   }
-  // rating start op 1500 (floor): 5 treden, ongewijzigd gedrag
+  // rating start op 1500 (floor)
   const rating = T.ACHV_SERIES.find((x) => x.key === "rating");
   assert.equal(T.achvRailPct(1850, rating), 100);
   assert.ok(T.achvRailPct(1500, rating) === 0);
