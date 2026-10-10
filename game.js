@@ -3668,6 +3668,8 @@ const loadEventFx = fxLoader("/event-fx.js", "EventFx");
 const loadRewardFx = fxLoader("/reward-fx.js", "RewardFx");   // Scheurkalender + Wimpels (beloningen), zie showCalendar/showBunting
 const loadObsidianFx = fxLoader("/obsidian-fx.js", "ObsidianFx");   // de onthulling bij obsidiaan (capstone-trede 6), zie showObsidianReveal
 const loadSeasonCat = fxLoader("/season-cat.js", "SeasonCat");   // het Halloween-katje naast je score (markup + CSS + gedrag), zie syncSeasonCat
+const loadSeasonProps = fxLoader("/season-props.js", "SeasonProps");   // de bewegingen van het voorwerpje bij het katje (neutraal, dus ook voor kerst), zie syncCatProp
+const SEASON_PROP_LIBS = { halloween: fxLoader("/props-halloween.js", "SeasonPropsHalloween") };   // skin → het bestand met de voorwerpen (plaatjes, hun eigen leven) en de dagtrekking
 const loadSeasonEvent = fxLoader("/season-event.js", "SeasonEvent");   // de UI van een event (balk, strook, kaart, scherm, teksten, kleuren), zie EVENTS
 // Vooruitladen in een rustig moment, maar alleen op een dag waarop er iets te vieren
 // valt (feestdag, hoogtijdag of ?fx=-voorvertoning): dan staat de laag klaar op het
@@ -11010,8 +11012,22 @@ function setSeason(on) {
 // (/season-cat.js, ~6 KB gzip) wordt pas in een rustig moment opgehaald, en alleen als de skin aanstaat: op alle andere dagen nooit.
 function syncSeasonCat() {
   if (seasonActive() !== "halloween") { if (window.SeasonCat) window.SeasonCat.unmount(); return; }
-  const go = () => loadSeasonCat().then((c) => { if (seasonActive() === "halloween") c.mount(eventCatOpts()); }).catch(() => {});
+  const go = () => loadSeasonCat().then((c) => { if (seasonActive() === "halloween") { c.mount(eventCatOpts()); syncCatProp(); } }).catch(() => {});
   if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
+}
+// Het vriendje bij het katje (de lantaarn, het spookje): volgens het rooster in de lib van de skin, op de datum (voor iedereen en in elke spelstand
+// hetzelfde: eerst drie dagen niets, dan de lantaarn, dan het spookje), nooit gekoppeld aan wat het feit zegt, dus ook geen hint. ?prop=<id> toont
+// er altijd één, ?evdate= een andere dag, ter voorvertoning. Alles lui en optioneel: ontbreekt een bestand, dan zit hij gewoon zonder.
+const previewProp = (() => { try { return new URLSearchParams(location.search).get("prop"); } catch (e) { return null; } })();
+let catPropSeq = 0;
+function syncCatProp() {
+  const skin = seasonActive(), seq = ++catPropSeq, loadLib = skin && SEASON_PROP_LIBS[skin];
+  if (!loadLib || !window.SeasonCat || !state) return;
+  const ctx = { today: eventToday() };   // de datum (eventToday volgt ?evdate=)
+  Promise.all([loadSeasonProps(), loadLib()])
+    .then(([props, lib]) => { const spec = lib.pick(ctx, previewProp); return spec ? props.load(spec).then((node) => [node, spec]) : [null, null]; })
+    .then(([node, spec]) => { if (seq === catPropSeq && window.SeasonCat) window.SeasonCat.prop(node, spec); })
+    .catch(() => {});
 }
 function syncSeasonCheck() {
   const btn = document.querySelector('[data-action="season"]'), id = seasonCurrent();
@@ -12330,6 +12346,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   rememberSeen(state.hashes);   // main + extra's → p_exclude van volgende potjes
   save();
   syncUrl();
+  syncCatProp();   // het voorwerpje van deze pot bij het katje (alleen met de Halloween-skin)
   loadLaterClues();   // async: vult/herrendert de clues zodra binnen
 
   if (state.done) finishGame(state.won);

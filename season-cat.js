@@ -7,7 +7,7 @@
    Reageert op je spel via SeasonCat.type() (cijfers) en SeasonCat.guess() (een geaccepteerde gok), nooit op warm of koud: dat zou de
    Richting-hint gratis weggeven. */
 window.SeasonCat = (() => {
-  const SIT = `<svg class="cat-sit" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-tail"><path d="M36 61.2C45 62.6 50.6 54.4 47.6 46.4C46.2 42.6 43 43.2 43.6 45.8" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><path d="M19.2 30C18.6 36 15.6 40 13.6 46C11.6 51 10.6 56 11 60.4C11.2 62.6 13 63.4 15.4 63.4L33.8 63.4C36.4 63.4 38.2 62.4 38.2 60C38.4 54 36.6 48 33.6 43C31.6 39.6 29.6 36 29 30Z" fill="#0b0910"/><g fill="#0b0910"><ellipse cx="18.2" cy="63" rx="1.9" ry="1.3"/><ellipse cx="21.6" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="26.4" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="29.8" cy="63" rx="1.9" ry="1.3"/></g><g class="cat-gap" fill="none" stroke-width=".5" stroke-linecap="round"><path d="M21.6 47C21.2 52 21.4 57 21.8 62"/><path d="M26.4 47C26.8 52 26.6 57 26.2 62"/></g><g class="cat-hd"><g transform="translate(-2.4 -3.4) scale(1.1)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 23.5C10.8 16.2 16.2 11.4 24 11.4C31.8 11.4 37.2 16.2 37.2 23.5C37.2 25.4 37.8 27 39.4 29.6C37 29.2 35.6 29.6 34.6 30.6C31.6 32.6 27.6 33.2 24 33.2C20.4 33.2 16.4 32.6 13.4 30.6C12.4 29.6 11 29.2 8.6 29.6C10.2 27 10.8 25.4 10.8 23.5Z" fill="#0b0910"/><g class="cat-eyes"><g class="fire"><ellipse cx="18" cy="21" rx="6.4" ry="8.2"/><ellipse cx="30" cy="21" rx="6.4" ry="8.2"/></g><g class="cat-ball"><circle cx="18" cy="22.4" r="4.5" fill="#fbf7ff"/><circle cx="30" cy="22.4" r="4.5" fill="#fbf7ff"/></g><g class="cat-pup"><circle cx="18.25" cy="22.9" r="1.55" fill="#0b0910"/><circle cx="30.25" cy="22.9" r="1.55" fill="#0b0910"/></g></g><g class="cat-happy" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 23.7Q18 18.5 21.9 23.7"/><path d="M26.1 23.7Q30 18.5 33.9 23.7"/></g><g class="cat-closed" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/><path d="M38.4 26.8Q44 25 49.4 25.6"/><path d="M39 28.4Q44.4 28.6 49.8 30.2"/><path d="M38 29.8Q42.4 31.6 47 34.6"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g><g class="cat-wave" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"><path d="M44 8.4q3.4 3.8 0 7.6"/><path d="M48.4 5.4q5.2 6.8 0 13.6"/></g><g><path class="cat-heart h1" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/><path class="cat-heart h2" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff8fb4"/><path class="cat-heart h3" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/></g></svg>`;
+  const SIT = `<svg class="cat-sit" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-tail"><path d="M36 61.2C45 62.6 50.6 54.4 47.6 46.4C46.2 42.6 43 43.2 43.6 45.8" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><path d="M19.2 30C18.6 36 15.6 40 13.6 46C11.6 51 10.6 56 11 60.4C11.2 62.6 13 63.4 15.4 63.4L33.8 63.4C36.4 63.4 38.2 62.4 38.2 60C38.4 54 36.6 48 33.6 43C31.6 39.6 29.6 36 29 30Z" fill="#0b0910"/><g fill="#0b0910"><ellipse cx="18.2" cy="63" rx="1.9" ry="1.3"/><ellipse cx="21.6" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="26.4" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="29.8" cy="63" rx="1.9" ry="1.3"/></g><g class="cat-paw"><path d="M33 42C38 43 44 46 48.4 50" fill="none" stroke="#0b0910" stroke-width="5.4" stroke-linecap="round"/><ellipse cx="49" cy="50.6" rx="3.5" ry="3.2" fill="#0b0910"/></g><g class="cat-gap" fill="none" stroke-width=".5" stroke-linecap="round"><path d="M21.6 47C21.2 52 21.4 57 21.8 62"/><path d="M26.4 47C26.8 52 26.6 57 26.2 62"/></g><g class="cat-hd"><g transform="translate(-2.4 -3.4) scale(1.1)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 23.5C10.8 16.2 16.2 11.4 24 11.4C31.8 11.4 37.2 16.2 37.2 23.5C37.2 25.4 37.8 27 39.4 29.6C37 29.2 35.6 29.6 34.6 30.6C31.6 32.6 27.6 33.2 24 33.2C20.4 33.2 16.4 32.6 13.4 30.6C12.4 29.6 11 29.2 8.6 29.6C10.2 27 10.8 25.4 10.8 23.5Z" fill="#0b0910"/><g class="cat-eyes"><g class="fire"><ellipse cx="18" cy="21" rx="6.4" ry="8.2"/><ellipse cx="30" cy="21" rx="6.4" ry="8.2"/></g><g class="cat-ball"><circle cx="18" cy="22.4" r="4.5" fill="#fbf7ff"/><circle cx="30" cy="22.4" r="4.5" fill="#fbf7ff"/></g><g class="cat-pup"><circle cx="18.25" cy="22.9" r="1.55" fill="#0b0910"/><circle cx="30.25" cy="22.9" r="1.55" fill="#0b0910"/></g></g><g class="cat-happy" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 23.7Q18 18.5 21.9 23.7"/><path d="M26.1 23.7Q30 18.5 33.9 23.7"/></g><g class="cat-closed" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/><path d="M38.4 26.8Q44 25 49.4 25.6"/><path d="M39 28.4Q44.4 28.6 49.8 30.2"/><path d="M38 29.8Q42.4 31.6 47 34.6"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g><g class="cat-wave" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"><path d="M44 8.4q3.4 3.8 0 7.6"/><path d="M48.4 5.4q5.2 6.8 0 13.6"/></g><g><path class="cat-heart h1" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/><path class="cat-heart h2" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff8fb4"/><path class="cat-heart h3" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/></g></svg>`;
   const NAP = `<svg class="cat-nap" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-nb"><path d="M8 61.8C6 52 12 43.4 25 41.4C35 39.8 45 42 48 51C49.4 55.6 48 61.8 43 61.8Z" fill="#0b0910"/><path d="M46.4 50.6C52.4 52.4 52 60.8 44 62.4C38 63.6 30 63.2 23 62.6" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><g class="cat-nh"><g transform="translate(-4.6 30.2) scale(.95) rotate(-5 24 26)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 24C10.8 16.4 16.2 11.4 24 11.4C31.8 11.4 37.2 16.4 37.2 24C37.2 29.4 32 33.4 24 33.4C16 33.4 10.8 29.4 10.8 24Z" fill="#0b0910"/><g class="cat-shut" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g><g class="cat-zzz" fill="none" stroke="#b79cff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path class="z1" d="M27 24h5l-5 6.2h5"/><path class="z2" d="M34.6 14.6h4.2l-4.2 5.2h4.2"/><path class="z3" d="M42 6.4h3.4l-3.4 4.2h3.4"/></g></svg>`;
   const STRETCH = `<svg class="cat-stretch" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-tail"><path d="M41.6 28C40.6 20 44 12.4 48.4 10.2C51.4 8.8 52.8 12 50.4 12.8" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><path d="M15 49C22 44 29 36 34 28.5C36.5 25 41.5 24.5 43 29C44 33 43.2 42 43.6 52C43.8 57 44.6 60.4 46.4 62.4L38.4 62.4C37.6 58.4 37 54 37 49C32 51 26 56.6 21 59C18 60.4 14 60 14 56.6C14 53 14.4 51 15 49Z" fill="#0b0910"/><path d="M4 59.4C3 61 4 62.6 6.4 62.6L19 62.6C21 62.6 22 61 21 59.4C20 57.6 17 57 14 57.4L8 58C6 58.2 4.6 58.6 4 59.4Z" fill="#0b0910"/><g fill="#0b0910"><ellipse cx="5" cy="61.2" rx="2" ry="1.4"/><ellipse cx="8.4" cy="62" rx="2" ry="1.3"/></g><g class="cat-hd"><g transform="translate(-5.7 30.4) scale(.8)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 23.5C10.8 16.2 16.2 11.4 24 11.4C31.8 11.4 37.2 16.2 37.2 23.5C37.2 25.4 37.8 27 39.4 29.6C37 29.2 35.6 29.6 34.6 30.6C31.6 32.6 27.6 33.2 24 33.2C20.4 33.2 16.4 32.6 13.4 30.6C12.4 29.6 11 29.2 8.6 29.6C10.2 27 10.8 25.4 10.8 23.5Z" fill="#0b0910"/><g class="cat-eyes"><g class="fire"><ellipse cx="18" cy="21" rx="6.4" ry="8.2"/><ellipse cx="30" cy="21" rx="6.4" ry="8.2"/></g><g class="cat-ball"><circle cx="18" cy="22.4" r="4.5" fill="#fbf7ff"/><circle cx="30" cy="22.4" r="4.5" fill="#fbf7ff"/></g><g class="cat-pup"><circle cx="18.25" cy="22.9" r="1.55" fill="#0b0910"/><circle cx="30.25" cy="22.9" r="1.55" fill="#0b0910"/></g></g><g class="cat-happy" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 23.7Q18 18.5 21.9 23.7"/><path d="M26.1 23.7Q30 18.5 33.9 23.7"/></g><g class="cat-closed" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/><path d="M38.4 26.8Q44 25 49.4 25.6"/><path d="M39 28.4Q44.4 28.6 49.8 30.2"/><path d="M38 29.8Q42.4 31.6 47 34.6"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g></svg>`;
   // Alleen het kopje (balk en strook van het event, menu): dezelfde ogen/oortjes, dus het knippert en kijkt mee met de CSS hieronder.
@@ -140,6 +140,12 @@ html[data-season="halloween"] .hear .cat-sit .cat-pup circle {animation:skk-wide
 html[data-season="halloween"] .flick .cat-nap .cat-ear-r {animation:skk-flick 0.8s ease-out both }
 html[data-season="halloween"] .watch .cat-sit .cat-pup {animation:skk-watch 0.25s ease-out both }
 html[data-season="halloween"] .watch .cat-sit .cat-hd {animation:skk-watch-hd 0.5s ease-out both }
+html[data-season="halloween"] .cat-paw {opacity:0;transform-box:fill-box;transform-origin:12% 20% }
+html[data-season="halloween"] .bat .cat-sit .cat-paw {animation:skk-paw 1.3s ease-in-out both }
+html[data-season="halloween"] .bat .cat-sit .cat-hd {animation:skk-bat-hd 1.3s ease-in-out both }
+html[data-season="halloween"] :is(.bat,.sniff) .cat-sit .cat-pup {animation:skk-prop-pup 1.8s ease-in-out both }
+html[data-season="halloween"] .bat .cat-sit .cat-pup {animation-duration:1.3s }
+html[data-season="halloween"] .sniff .cat-sit .cat-hd {animation:skk-sniff 1.8s ease-in-out both }
 html[data-season="halloween"] .purr .cat-sit {animation:skk-purr 0.1s linear infinite alternate }
 html[data-season="halloween"] .purr .cat-sit .cat-hd {animation:skk-content 0.5s ease-out both }
 html[data-season="halloween"] .purr .cat-sit .cat-eyes {animation:none;opacity:0 }
@@ -203,6 +209,10 @@ html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-ear-r {animation:skk
 @keyframes skk-wide{0%,100%{transform:none}18%,72%{transform:scale(1.45)}}
 @keyframes skk-wide-slit{0%,100%{transform:scale(0.42,1.5)}18%,72%{transform:scale(1.3)}}
 @keyframes skk-flick{0%,100%{transform:none}22%{transform:rotate(18deg)}48%{transform:rotate(-4deg)}70%{transform:rotate(7deg)}}
+@keyframes skk-paw{0%{opacity:0;transform:rotate(-60deg) scale(0.55)}14%{opacity:1;transform:rotate(-50deg) scale(0.9)}30%{opacity:1;transform:rotate(-52deg) scale(0.95)}38%{opacity:1;transform:rotate(8deg) scale(1.08)}50%{opacity:1;transform:rotate(0) scale(1)}66%{opacity:1;transform:rotate(-4deg) scale(1)}84%{opacity:1;transform:rotate(-45deg) scale(0.8)}100%{opacity:0;transform:rotate(-60deg) scale(0.55)}}
+@keyframes skk-bat-hd{0%,100%{transform:none}12%{transform:rotate(4deg) translateY(0.8px)}40%{transform:rotate(6deg) translateY(1.2px)}55%{transform:rotate(4deg) translateY(0.8px)}80%{transform:rotate(2deg)}}
+@keyframes skk-sniff{0%,100%{transform:none}15%{transform:rotate(5deg) translate(0.8px,1.2px)}30%{transform:rotate(7deg) translate(1.2px,1.8px)}42%{transform:rotate(5deg) translate(0.8px,1.2px)}54%{transform:rotate(7deg) translate(1.2px,1.8px)}80%{transform:rotate(3deg)}}
+@keyframes skk-prop-pup{0%,100%{transform:none}10%,82%{transform:translate(1.7px,0.9px)}}
 @keyframes skk-watch{to{transform:translate(1.7px,0.9px)}}
 @keyframes skk-watch-hd{to{transform:rotate(2.5deg)}}
 @keyframes skk-purr{to{transform:translateY(0.4px)}}
@@ -237,13 +247,14 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
 }
 `;
   const VISITS_KEY = "jaardle:season:halloween:cat";   // hoe vaak hij al binnenhupte (de eerste drie bezoeken)
-  const BUSY = ["asleep", "drowsy", "yawn", "wake", "meow", "pet", "hear", "purr", "grump", "cheer", "comfort"];   // dan reageert hij niet op typen of een gok
-  const STATES = ["meow", "yawn", "drowsy", "wake", "pet", "hear", "watch", "purr", "grump", "cheer", "comfort"];
+  const FRIEND_KEY = "jaardle:season:halloween:prop";   // welk vriendje hij de vorige keer had (een nieuw vriendje begroet hij nieuwsgierig)
+  const BUSY = ["asleep", "drowsy", "yawn", "wake", "meow", "pet", "hear", "purr", "grump", "cheer", "comfort", "bat", "sniff"];   // dan reageert hij niet op typen of een gok
+  const STATES = ["meow", "yawn", "drowsy", "wake", "pet", "hear", "watch", "purr", "grump", "cheer", "comfort", "bat", "sniff"];
   // Echt tempo: ±30–50 s wakker (één miauw na 14–26 s), dan gapen (1,6 s) + slaperig (2 s) en 90–150 s slapen, dan rekken (1,7 s).
   // Op 31 oktober slaapt hij niet en miauwt hij telkens opnieuw.
-  const PACE = { awake: [30000, 50000], sleep: [90000, 150000], meowAt: [14000, 26000] };
+  const PACE = { awake: [30000, 50000], sleep: [90000, 150000], meowAt: [14000, 26000], fiddle: [7000, 16000] };
 
-  let el = null, style = null, timers = [], live = false, night = false, perched = false, streak = 0, lastTap = 0, watchT = 0, introT = 0, arriveT = 0, afterWake = null;
+  let el = null, style = null, timers = [], live = false, night = false, perched = false, streak = 0, lastTap = 0, watchT = 0, introT = 0, arriveT = 0, afterWake = null, propEl = null, propId = null, calmProp = false;
   const rnd = (a) => a[0] + Math.random() * (a[1] - a[0]);
   const reduced = () => { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
   // Wacht met een stap tot de tab én het speelveld in beeld zijn (na afloop klapt #play-bar in; dan hoeft er niets te gebeuren).
@@ -271,9 +282,10 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
       if (night) mew();
     }, rnd(PACE.meowAt));
   }
-  function awake() {
+  function awake(playIn) {
     clear(); drop(); el.classList.remove("asleep");
     mew();
+    if (propEl) later(fiddle, typeof playIn === "number" ? playIn : rnd(PACE.fiddle));
     if (!night) later(sleepy, rnd(PACE.awake));
   }
   function sleepy() {
@@ -294,8 +306,9 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
   function pet() { clear(); drop(); flash("pet", 1600); later(awake, 1700); }
   function purr() { clear(); drop(); el.classList.add("purr"); later(() => { el.classList.remove("purr"); awake(); }, 1900); }
   function grump() { clear(); drop(); streak = 0; flash("grump", 2200); later(awake, 2300); }
-  function tap() {
+  function tap(e) {
     if (!el) return;
+    if (propEl && e && e.target && e.target.closest && e.target.closest(".sk-prop") && !busy()) { toy(); return; }   // een tik op het voorwerpje: hij speelt ermee (slapend of bezig = gewoon de gewone tik)
     const now = Date.now();
     streak = now - lastTap < 900 ? streak + 1 : 1;
     lastTap = now;
@@ -309,10 +322,39 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     if (has("pet")) return;                                     // spam-tikken: het aaien wordt afgemaakt, niet opnieuw gestart
     pet();
   }
+  // Het voorwerpje van de dag (season-props.js, het leeft zelf: een flikkerende vlam, bellen, een zwevend spookje): af en toe tikt hij het aan
+  // met een pootje (het voorwerp wiebelt op zijn eigen manier terug), of hij snuffelt er alleen aan (calm = vuur en een ketel); in beide
+  // gevallen doet het voorwerp zijn eigen uitbarsting (.pulse: de vlam waait weg, het borrelt harder). Alleen als hij wakker is en niets anders
+  // doet; een tik op het voorwerp doet het ook.
+  function play() {
+    if (!el || !live || !propEl || busy()) return;
+    el.classList.remove("watch");
+    if (calmProp) flash("sniff", 1800);
+    else { flash("bat", 1300); window.SeasonProps.play(propEl, "hit"); }
+    window.SeasonProps.pulse(propEl);
+  }
+  function fiddle() { play(); }
+  function toy() { clear(); drop(); play(); later(awake, 1500); }
+  // spec = { id, kind, calm } en node = het knoopje uit SeasonProps.make(spec); null haalt het voorwerp weg. Verse voorwerpjes vallen erin.
+  function prop(node, spec) {
+    if (!el) return;
+    if (node && propEl && spec && spec.id === propId) return;   // hetzelfde vriendje: laten staan (geen nieuwe plop bij elke pot)
+    if (propEl) { propEl.remove(); propEl = null; }
+    calmProp = !!(spec && spec.calm); propId = node && spec ? spec.id : null;
+    if (!node) return;
+    propEl = node;
+    el.appendChild(propEl);
+    if (live) {
+      window.SeasonProps.play(propEl, "plop");
+      if (has("intro")) propEl.classList.add("late");   // hij hupt binnen, het voorwerp valt er pas na erin
+      if (!busy()) awake();   // dezelfde wakker-cyclus, nu mét speeltijd; slaapt hij, dan begint dat bij het wakker worden vanzelf
+      if (friendWanted(spec && spec.id)) later(play, 1800);   // een nieuw vriendje: eerst laten vallen, dan nieuwsgierig mee spelen
+    }
+  }
   // Typen houdt hem wakker (de slaaptimer begint opnieuw) en hij kijkt naar je invoer.
   function stay() {
     if (night) return;
-    clear(); mew(); later(sleepy, rnd(PACE.awake));
+    clear(); mew(); if (propEl) later(fiddle, rnd(PACE.fiddle)); later(sleepy, rnd(PACE.awake));
   }
   function type() {
     if (!el || !live || busy()) return;
@@ -335,13 +377,23 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     later(() => {
       clear(); drop(); el.classList.remove("asleep");
       el.classList.add(won ? "cheer" : "comfort");
-      later(() => { el.classList.remove("cheer"); el.classList.remove("comfort"); awake(); }, won ? 4900 : 5300);
+      if (propEl && won) window.SeasonProps.play(propEl, "hop");
+      later(() => { el.classList.remove("cheer"); el.classList.remove("comfort"); if (propEl) window.SeasonProps.stop(propEl, "hop"); awake(1400); }, won ? 4900 : 5300);
     }, 900);
   }
   function set(o) {
     if (el && o && "hat" in o) el.classList[o.hat ? "add" : "remove"]("hat");
   }
 
+  // Komt er een ander vriendje (voorwerp) bij hem dan de vorige keer (het eerste ooit telt ook), dan kijkt hij er nieuwsgierig naar en speelt hij er
+  // meteen mee; hetzelfde vriendje op een volgende dag of pot krijgt geen begroeting meer (zonder localStorage: nooit).
+  function friendWanted(id) {
+    try {
+      if (!id || localStorage.getItem(FRIEND_KEY) === id) return false;
+      localStorage.setItem(FRIEND_KEY, id);
+      return true;
+    } catch (e) { return false; }
+  }
   // Hoe vaak hij al binnenhupte: de eerste drie bezoeken (zonder localStorage: nooit).
   function introWanted() {
     try {
@@ -399,7 +451,8 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     clear(); clearTimeout(watchT); clearTimeout(introT); clearTimeout(arriveT);
     if (el) el.remove();
     if (style) style.remove();
-    el = style = null; live = false; perched = false; streak = 0; afterWake = null;
+    if (window.SeasonProps) window.SeasonProps.dispose();
+    el = style = propEl = null; live = false; perched = false; streak = 0; afterWake = null; calmProp = false; propId = null;
   }
-  return { mount, unmount, perch, cheer, type, guess, set, css: CSS, head: HEAD };
+  return { mount, unmount, perch, cheer, type, guess, set, prop, css: CSS, head: HEAD };
 })();

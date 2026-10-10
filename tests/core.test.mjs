@@ -6,7 +6,7 @@
 import { test } from "node:test";
 import vm from "node:vm";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -2358,8 +2358,9 @@ const loadSeasonCat = () => {
     const win = { matchMedia: () => ({ matches: reduced }) };
     const M = Object.create(Math); M.random = () => rand;
     const ctx = vm.createContext({ window: win, document: doc, localStorage: ls, setTimeout: setT, clearTimeout: clearT, Math: M, Number, String, Array, Set, Date: { now: () => clock.now } });
+    vm.runInContext(readFileSync(join(dir, "..", "season-props.js"), "utf8"), ctx);
     vm.runInContext(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), ctx);
-    return { api: win.SeasonCat, bar, main, result, head, doc, ls, cat: () => bar.kids[0], clock };
+    return { api: win.SeasonCat, props: win.SeasonProps, bar, main, result, head, doc, ls, cat: () => bar.kids[0], clock };
   };
   return { make, advance, clock };
 };
@@ -2530,7 +2531,7 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   // elke klasse waar de SVG's of het script mee werken staat in de CSS
   w.api.mount();
   const used = new Set([...w.cat().innerHTML.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/)));
-  for (const c of ["meow", "yawn", "drowsy", "asleep", "wake", "pet", "intro", "hear", "watch", "flick", "purr", "grump", "hallow", "hat", "cheer", "comfort", "hatnew", "ring", "perched", "arrive"]) used.add(c);
+  for (const c of ["meow", "yawn", "drowsy", "asleep", "wake", "pet", "intro", "hear", "watch", "flick", "purr", "grump", "hallow", "hat", "cheer", "comfort", "hatnew", "ring", "perched", "arrive", "bat", "sniff", "cat-paw"]) used.add(c);
   for (const c of used) if (!["cat-sit", "cat-nap", "cat-stretch"].includes(c)) assert.ok(css.includes("." + c), `.${c} ontbreekt in de CSS`);
   for (const c of ["cat-sit", "cat-nap", "cat-stretch"]) assert.ok(css.includes("." + c), c);
   // animaties
@@ -2544,7 +2545,7 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   assert.ok(!/position:\s*fixed/.test(css), "geen fixed");
   assert.ok(!/\bz-index:\s*(?!4\b)\d+/.test(css), "de kat blijft laag (z-index 4)");
   assert.ok(!/(#keypad|#year-input|\.key\s*\{|main\s*\{)/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "raakt de speelkolom niet aan");
-  assert.ok(js.length < 44000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);
+  assert.ok(js.length < 48000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);   // 44000 → 48000 met het pootje, het snuffelen en het voorwerpje (9 KB gz)
   // alleen opgemaakt onder de skin: elke selector (buiten @keyframes) begint met html[data-season="halloween"]
   const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "");
   for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/@media[^{]*\{/g, "").replace(/\([^)]*\)/g, (x) => x.replace(/,/g, ";")).split(",")) {
@@ -2596,6 +2597,174 @@ test("season-cat.js: cheer(won) = drie keer springen (winst) of twee keer een za
   w.api.unmount(); assert.equal(w.clock.q.length, 0, "geen lopende timers meer");
 });
 
+// --- Voorwerpjes bij het katje: season-props.js (de bewegingen, neutraal), props-halloween.js (plaatjes, hun eigen leven, de dagtrekking) en wat het katje ermee doet ---
+const SPEC = { id: "skull", kind: "round", calm: false, svg: '<svg viewBox="0 0 32 32"></svg>' };
+const inner = (html) => `<span class="in">${html}</span>`;
+test("season-props.js: make() bouwt één aria-hidden .sk-prop met het plaatje in .in, kind/calm als klasse, onbekend kind = upright; fx-lagen erbij; één <style>, dispose ruimt op", () => {
+  const { make } = loadSeasonCat(), w = make(), P = w.props, styles = (a) => w.head.kids.filter((k) => k.attrs && a in k.attrs).length;
+  assert.deepEqual([...P.kinds], ["round", "upright", "flat", "float"]);
+  const a = P.make(SPEC), b = P.make({ ...SPEC, id: "candle", kind: "bogus", calm: true, svg: "<svg></svg>", fx: '<i class="gw"></i>' });
+  assert.equal(a.className, "sk-prop k-round"); assert.equal(a.attrs["aria-hidden"], "true"); assert.equal(a.attrs["data-prop"], "skull"); assert.equal(a.innerHTML, inner(SPEC.svg));
+  assert.equal(b.className, "sk-prop k-upright calm", "onbekend kind valt terug op upright; calm komt als klasse"); assert.equal(b.innerHTML, inner('<svg></svg><i class="gw"></i>'), "de fx-lagen staan náást het plaatje, in .in");
+  assert.equal(styles("data-season-props"), 1, "de CSS van de engine wordt maar één keer ingehangen"); assert.ok(!a.parent, "make() hangt het knoopje nog niet in");
+  assert.equal(styles("data-season-props-lib"), 0, "zonder lib-CSS geen tweede <style>");
+  P.make({ ...SPEC, css: ".a{}" }); P.make({ ...SPEC, css: ".a{}" }); assert.equal(styles("data-season-props-lib"), 1, "de lib-CSS één keer, ook na twee voorwerpen");
+  const lib = w.head.kids.find((k) => k.attrs && "data-season-props-lib" in k.attrs); assert.equal(lib.textContent, ".a{}"); P.make({ ...SPEC, css: ".b{}" }); assert.equal(lib.textContent, ".b{}", "een andere lib vervangt de CSS");
+  P.dispose(); assert.equal(styles("data-season-props") + styles("data-season-props-lib"), 0, "dispose haalt beide <style>'s weg");
+});
+test("season-props.js: een plaatje-bestand wordt eerst binnengehaald (load), een fout geeft null, een inline plaatje is meteen klaar", async () => {
+  const { make } = loadSeasonCat(), w = make(), P = w.props, made = [], orig = w.doc.createElement;
+  w.doc.createElement = (t) => { const e = orig(t); made.push(e); return e; };
+  const n = await P.load(SPEC); assert.equal(n.innerHTML, inner(SPEC.svg), "svg: geen wachten");
+  const ok = P.load({ ...SPEC, svg: undefined, img: "/props/halloween/skull.webp" });
+  const im = made.find((e) => e.tag === "img"); assert.equal(im.src, "/props/halloween/skull.webp", "eerst als losse afbeelding laden"); im.onload();
+  const node = await ok; assert.match(node.innerHTML, /<span class="in"><img src="\/props\/halloween\/skull\.webp" alt="" draggable="false" decoding="async"><\/span>/, "alt leeg: Firefox toont anders de alt-tekst tijdens het laden");
+  const bad = P.load({ ...SPEC, svg: undefined, img: "/props/x.webp" }); made.filter((e) => e.tag === "img").pop().onerror(); assert.equal(await bad, null, "laadt het plaatje niet: geen voorwerp");
+});
+test("season-props.js: play() laat één beweging tegelijk lopen (opnieuw te starten), stop() zet de rust terug, pulse() loopt náást de wiebel en kan steeds opnieuw", () => {
+  const { make } = loadSeasonCat(), w = make(), P = w.props, n = P.make(SPEC);
+  P.play(n, "plop"); n.classList.add("late"); assert.ok(n.classList.contains("plop") && n.classList.contains("late"));
+  P.play(n, "hit"); assert.ok(n.classList.contains("hit") && !n.classList.contains("plop") && !n.classList.contains("late"), "een nieuwe beweging haalt de vorige weg (anders speelt die opnieuw af)");
+  P.pulse(n); assert.ok(n.classList.contains("pulse") && n.classList.contains("hit"), "de uitbarsting van het eigen leven loopt naast de wiebel");
+  P.play(n, "hop"); assert.ok(n.classList.contains("hop") && !n.classList.contains("hit") && n.classList.contains("pulse"), "een wiebel haalt de uitbarsting niet weg");
+  let reflow = 0; Object.defineProperty(n, "offsetWidth", { get() { reflow++; return 1; } }); P.pulse(n); assert.ok(reflow >= 1 && n.classList.contains("pulse"), "opnieuw starten = klasse weg, reflow, klasse erop");
+  P.stop(n, "hop"); assert.ok(!n.classList.contains("hop") && !n.classList.contains("plop"), "na stop is het voorwerp in rust, geen herhaling van de plop");
+  P.play(null, "hit"); P.stop(null, "hit"); P.pulse(null);   // geen voorwerp = geen fout
+});
+test("season-props.js (CSS): neutraal (.sk-prop, geen skin), elke animatie een @keyframes, een beweging per kind, <i>-lagen op hun midden, minder beweging dempt ook de lagen, geen fixed/z-index, klein", () => {
+  const { make } = loadSeasonCat(), P = make().props, css = P.css, js = readFileSync(join(dir, "..", "season-props.js"), "utf8");
+  const names = new Set([...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]));
+  for (const m of css.matchAll(/animation:\s*([^;}]+)[;}]/g)) { const n = m[1].trim().split(/\s+/)[0]; if (n !== "none") assert.ok(names.has(n), `animatie ${n} heeft geen @keyframes`); }
+  for (const k of P.kinds) assert.match(css, new RegExp(`\\.sk-prop\\.k-${k}\\.hit \\{animation:`), `${k} heeft een .hit-beweging`);
+  for (const c of ["plop", "hop", "plop.late"]) assert.ok(css.includes(`.sk-prop.${c}`), c);
+  assert.match(css, /\.sk-prop i \{[^}]*position:absolute[^}]*translate:-50% -50%/, "een <i>-laag staat met zijn midden op left/top");
+  assert.match(css, /\.sk-prop \.in \{position:absolute/, "het eigen leven draait op .in, niet op .sk-prop (dat is voor de wiebel)"); assert.match(css, /--w:var\(--prop-w,30px\)/, "de maat komt via --prop-w en de lib rekent met var(--w)");
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.sk-prop, \.sk-prop \* \{ animation: none !important/, "minder beweging: ook de lagen staan stil");
+  const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "").replace(/@media[^{]*\{/g, "");
+  for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/\([^)]*\)/g, (x) => x.replace(/,/g, ";")).split(",")) if (one.trim()) assert.ok(one.trim().startsWith(".sk-prop"), `regel buiten .sk-prop: ${one.trim().slice(0, 60)}`);
+  assert.ok(!/data-season|position:\s*fixed|z-index/.test(css), "geen skin-afhankelijkheid (kerst gebruikt dit ook), geen fixed, geen z-index");
+  assert.ok(!/<style|<\/style/.test(js.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "")), "de CSS is een string");
+  assert.ok(js.length < 8000, `season-props.js is onverwacht groot geworden (${js.length} bytes)`);
+});
+test("props-halloween.js: elk voorwerp een plaatje en een bekend kind, de CSS alleen onder bestaande voorwerpen en met alle @keyframes, het rooster op de datum (3 dagen niets, 5 dagen lantaarn, dan het spookje)", () => {
+  const src = readFileSync(join(dir, "..", "props-halloween.js"), "utf8"), win = {};
+  vm.runInContext(src, vm.createContext({ window: win, Object, Array, Math, String, Date, RegExp }));
+  const L = win.SeasonPropsHalloween, kinds = ["round", "upright", "flat", "float"], ids = Object.keys(L.items);
+  assert.deepEqual([...ids].sort(), ["ghost", "lantern"], "twee vriendjes: de lantaarn en het spookje");
+  for (const [id, it] of Object.entries(L.items)) {
+    assert.ok(kinds.includes(it.kind), `${id}: kind`); assert.ok(it.svg || it.img, `${id}: plaatje`);
+    if (it.svg) assert.match(it.svg, /^<svg viewBox="0 0 32 32"[^>]*aria-hidden="true"/, `${id}: 32×32, aria-hidden`);
+    if (it.img) { assert.match(it.img, /^\/props\/halloween\/[\w-]+\.webp$/, `${id}: bestand onder /props/halloween/`); assert.ok(existsSync(join(dir, "..", it.img.slice(1))), `${id}: ${it.img} bestaat`); assert.ok(statSync(join(dir, "..", it.img.slice(1))).size < 8000, `${id}: plaatje blijft klein (alleen dat van de dag wordt opgehaald)`); }
+    // het plaatje en de lagen zijn eigen markup: geen scripts, geen handlers, geen externe verwijzingen; ids binnen een svg met het voorvoegsel van het voorwerp
+    const markup = `${it.svg || ""}${it.fx || ""}`;
+    assert.ok(!/<script|<style|<foreignObject|<iframe|<object|<embed|javascript:|https?:\/\/|\son\w+\s*=/i.test(markup), `${id}: onveilige markup`);
+    for (const m of markup.matchAll(/\s(?:src|href|xlink:href)="([^"]*)"/g)) assert.ok(/^(#skh-[\w-]+|\/props\/halloween\/[\w-]+\.webp)$/.test(m[1]), `${id}: verwijzing ${m[1]} niet toegestaan`);
+    for (const m of markup.matchAll(/\sid="([^"]*)"/g)) assert.ok(m[1].startsWith(`skh-${id}-`), `${id}: id ${m[1]} moet met skh-${id}- beginnen`);
+    if (it.fx) assert.ok(/^<(?:i|s|b|img|svg)[\s>]/.test(it.fx), `${id}: fx begint met een laag`);
+  }
+  // de CSS: alleen onder [data-prop="<bestaand id>"], elke animatie een @keyframes, eigen prefix, geen pointer-events/position:fixed
+  const css = L.css, names = new Set([...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]));
+  for (const n of names) { const mm = n.match(/^skh-(\w+?)-/); assert.ok(mm && ids.includes(mm[1]), `keyframes ${n}: prefix skh-<voorwerp>-`); }
+  const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "");
+  // elke animatienaam die ergens in de regels staat (ook in een var(--amb)-lijst) heeft een @keyframes, en elke @keyframes wordt gebruikt
+  const used = new Set(flat.match(/skh-[\w-]+/g) || []);
+  for (const n of used) assert.ok(names.has(n), `${n} heeft geen @keyframes`); for (const n of names) assert.ok(used.has(n), `@keyframes ${n} wordt nergens gebruikt`);
+  for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/\([^)]*\)/g, (x) => x.replace(/,/g, ";")).split(",")) if (one.trim()) { const mm = one.trim().match(/^\[data-prop="(\w+)"\]/); assert.ok(mm && ids.includes(mm[1]), `regel buiten een voorwerp: ${one.trim().slice(0, 60)}`); }
+  assert.ok(!/position:\s*fixed|z-index:\s*(?!-1\b)/.test(css), "geen fixed en geen hoge z-index (alleen -1, binnen het geïsoleerde voorwerp, voor een gloed erachter)");
+  // het rooster: 19-21 okt alleen het katje, 22-26 okt de lantaarn (5 dagen), 27 okt t/m 1 nov het spookje (de finale, ook op Halloween); voor iedereen en in elke spelstand hetzelfde
+  assert.deepEqual([...L.schedule].map((e) => [...e]), [["2026-10-22", "lantern"], ["2026-10-27", "ghost"]]); for (const [from, id] of L.schedule) { assert.match(from, /^\d{4}-\d{2}-\d{2}$/); assert.ok(L.items[id], `${id} bestaat`); }
+  const dayOf = (i) => new Date(Date.UTC(2026, 9, 19 + i)).toISOString().slice(0, 10), want = (i) => (i < 3 ? null : i < 8 ? "lantern" : "ghost");
+  for (let i = 0; i < 14; i++) { const p = L.pick({ today: dayOf(i) }, null); assert.equal(p ? p.id : null, want(i), `${dayOf(i)} (dag ${i + 1}): ${want(i) || "niets"}`); }
+  assert.equal(L.pick({ today: "2026-10-31" }, null).id, "ghost", "Halloween zelf: het spookje"); assert.equal(L.pick({ today: "2026-11-02" }, null).id, "ghost", "daarna blijft het laatste staan");
+  assert.equal(L.pick({ today: "2026-10-20" }, "ghost").id, "ghost", "?prop= werkt ook in de eerste drie dagen"); assert.equal(L.pick({ today: "2026-10-27" }, "lantern").id, "lantern", "en gaat voor het rooster");
+  assert.equal(L.pick({ today: "2026-10-27" }, "bestaat-niet").id, "ghost", "een onbekende ?prop= valt terug op het rooster");
+  for (const bad of [{}, null, undefined, { today: "" }, { today: "morgen" }, { today: "2026-10-2" }, { date: "2026-10-30", hash: "abcdef0123" }]) assert.equal(L.pick(bad, null), null, `zonder een geldige datum niets (${JSON.stringify(bad)})`);
+  const f = L.pick({ today: "2026-10-28" }, null); assert.equal(typeof f.calm, "boolean"); assert.equal(f.css, css, "de spec draagt de lib-CSS mee"); assert.equal(L.items.lantern.calm, true, "de lantaarn snuffelt de kat aan"); assert.ok(!L.items.ghost.calm);
+  assert.ok(!("pool" in L) && !("days" in L), "geen trekking en geen koppeling per feit meer");
+});
+test("season-cat.js + voorwerp: prop() hangt het in, vervangt het, haalt het weg; het gaat mee naar de uitslagkaart; unmount ruimt alles op", () => {
+  const { make } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } });
+  w.api.mount(); const cat = w.cat(), n1 = w.props.make(SPEC), n2 = w.props.make({ ...SPEC, id: "candle", kind: "upright", calm: true });
+  w.api.prop(n1, SPEC); assert.equal(n1.parent, cat, "het voorwerp hangt aan de kat, dus het gaat overal mee"); assert.ok(n1.classList.contains("plop") && !n1.classList.contains("late"), "het valt erin (geen intro: meteen)");
+  w.api.prop(n2, { ...SPEC, id: "candle", calm: true }); assert.ok(!n1.parent && n2.parent === cat, "een ander voorwerp vervangt het oude");
+  w.api.perch(true); assert.equal(n2.parent, cat, "ook op de uitslagkaart zit het bij hem"); w.api.perch(false);
+  w.api.prop(null, null); assert.ok(!n2.parent, "null haalt het weg"); w.api.prop(null, null);
+  w.api.prop(n1, SPEC); w.api.unmount(); assert.equal(w.clock.q.length, 0, "geen timers meer"); w.api.prop(n2, SPEC);   // zonder kat: niets, geen fout
+  assert.equal(w.head.kids.filter((k) => k.attrs && ("data-season-props" in k.attrs || "data-season-props-lib" in k.attrs || "data-season-cat" in k.attrs)).length, 0, "alle <style>'s zijn weg");
+  // de eerste bezoeken hupt hij binnen: het voorwerp valt er pas daarna in
+  const v = make({ store: {} }); v.api.mount(); const m = v.props.make(SPEC); v.api.prop(m, SPEC); assert.ok(v.cat().classList.contains("intro") && m.classList.contains("late"), "intro: vertraagd");
+});
+test("season-cat.js + voorwerp: af en toe tikt hij het aan (kat .bat + voorwerp .hit + .pulse), een rustig voorwerp alleen snuffelen (+ .pulse); niet als hij slaapt of bezig is", () => {
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } });
+  w.api.mount(); const cat = w.cat(), n = w.props.make(SPEC); w.api.prop(n, SPEC);
+  advance(6900); assert.ok(!cat.classList.contains("bat"), "niet meteen: pas na 7–16 s");
+  advance(5000); assert.ok(cat.classList.contains("bat") && n.classList.contains("hit") && n.classList.contains("pulse"), "tikt het aan, het voorwerp wiebelt én doet zijn uitbarsting");
+  advance(1300); assert.ok(!cat.classList.contains("bat"), "het pootje is 1,3 s onderweg"); assert.ok(n.classList.contains("hit"), "het voorwerp beweegt op zijn eigen manier uit");
+  // rustig voorwerp (vuur, ketel): snuffelen, geen wiebel maar wel de uitbarsting
+  const c = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } }); c.api.mount(); const cn = c.props.make({ ...SPEC, calm: true }); c.api.prop(cn, { ...SPEC, calm: true });
+  advance(12000); assert.ok(c.cat().classList.contains("sniff") && !cn.classList.contains("hit") && !c.cat().classList.contains("bat"), "snuffelt, geen pootje"); assert.ok(cn.classList.contains("pulse"), "de vlam waait toch weg");
+  advance(1800); assert.ok(!c.cat().classList.contains("sniff"));
+  // slapend of bezig: niets (en geen verstoring van het slapen)
+  const s = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } }); s.api.mount(); const sn = s.props.make(SPEC); s.api.prop(sn, SPEC);
+  advance(60000); assert.ok(s.cat().classList.contains("asleep") || s.cat().classList.contains("wake") || !s.cat().classList.contains("bat"), "slaapt hij, dan speelt hij niet");
+  const t = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } }); t.api.mount(); const tn = t.props.make(SPEC); t.api.prop(tn, SPEC);
+  t.cat().on.click(); assert.ok(t.cat().classList.contains("pet"), "een tik op de kat zelf = aaien"); advance(11500); assert.ok(!t.cat().classList.contains("bat") || !t.cat().classList.contains("pet"), "nooit pootje en aaien tegelijk");
+  // slaapt hij als het voorwerp binnenkomt, dan wordt hij er niet door wakker
+  const z = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } }); z.api.mount(); advance(60000); const zn = z.props.make(SPEC);
+  const was = z.cat().classList.contains("asleep") || z.cat().classList.contains("drowsy") || z.cat().classList.contains("yawn"); z.api.prop(zn, SPEC);
+  if (was) assert.ok(z.cat().classList.contains("asleep") || z.cat().classList.contains("drowsy") || z.cat().classList.contains("yawn"), "het voorwerp wekt hem niet");
+});
+test("season-cat.js + voorwerp: een tik op het voorwerp = hij speelt ermee; tikt de speler op de kat, dan gewoon aaien; slapend/bezig = de gewone tik", () => {
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } });
+  w.api.mount(); const cat = w.cat(), n = w.props.make(SPEC); w.api.prop(n, SPEC);
+  const onProp = { target: { closest: (sel) => (sel === ".sk-prop" ? n : null) } }, onCat = { target: { closest: () => null } };
+  cat.on.click(onProp); assert.ok(cat.classList.contains("bat") && n.classList.contains("hit") && n.classList.contains("pulse") && !cat.classList.contains("pet"), "tik op het voorwerp: pootje");
+  advance(1500); assert.ok(!cat.classList.contains("bat"), "en daarna weer rustig");
+  cat.on.click(onCat); assert.ok(cat.classList.contains("pet") && !cat.classList.contains("bat"), "tik op de kat: aaien");
+  cat.on.click(onProp); assert.ok(!cat.classList.contains("bat"), "tijdens het aaien: de gewone tik (wordt afgemaakt)");
+  advance(1800);
+  // zes snelle tikken op het voorwerp tellen niet als spam-tikken (grumpy blijft voor de kat zelf)
+  for (let i = 0; i < 3; i++) { cat.on.click(onProp); advance(1600); }
+  assert.ok(!cat.classList.contains("grump") && !cat.classList.contains("purr"), "speelt, wordt niet boos of gaat spinnen");
+  // een rustig voorwerp: snuffelen
+  const c = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } }); c.api.mount(); const cn = c.props.make({ ...SPEC, calm: true }); c.api.prop(cn, { ...SPEC, calm: true });
+  c.cat().on.click({ target: { closest: (sel) => (sel === ".sk-prop" ? cn : null) } }); assert.ok(c.cat().classList.contains("sniff") && !cn.classList.contains("hit") && cn.classList.contains("pulse"));
+});
+test("season-cat.js + voorwerp: bij winst springt het voorwerp mee en speelt hij er kort daarna mee; bij verlies blijft het stil; typen houdt de speeltimer aan", () => {
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } });
+  w.api.mount(); const cat = w.cat(), n = w.props.make(SPEC); w.api.prop(n, SPEC); w.api.perch(true); w.api.cheer(true);
+  advance(900); assert.ok(cat.classList.contains("cheer") && n.classList.contains("hop"), "het voorwerp springt mee");
+  advance(4900); assert.ok(!n.classList.contains("hop") && !n.classList.contains("plop"), "klaar met springen: in rust (geen nieuwe plop)");
+  advance(1400); assert.ok(cat.classList.contains("bat") && n.classList.contains("hit"), "kort na het vieren speelt hij ermee");
+  advance(1500); w.api.cheer(false); advance(900); assert.ok(cat.classList.contains("comfort") && !n.classList.contains("hop"), "verlies: geen gehop");
+  // typen: de speeltimer begint opnieuw, dus tijdens het typen (steeds < 7 s tussen toetsen) speelt hij niet, daarna wel
+  const t = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } }); t.api.mount(); const tn = t.props.make(SPEC); t.api.prop(tn, SPEC);
+  for (let i = 0; i < 6; i++) { advance(5000); t.api.type(); }
+  assert.ok(!t.cat().classList.contains("bat"), "tijdens het typen speelt hij niet"); advance(8000 + 5000); assert.ok(t.cat().classList.contains("bat") || tn.classList.contains("hit"), "na het typen komt het spelen vanzelf terug");
+  // minder beweging: het voorwerp zit er gewoon, zonder beweging of timers
+  const r = loadSeasonCat().make({ reduced: true, store: {} }); r.api.mount(); const rn = r.props.make(SPEC); r.api.prop(rn, SPEC);
+  assert.equal(rn.parent, r.cat()); assert.ok(!rn.classList.contains("plop") && !rn.classList.contains("hit") && r.clock.q.length === 0, "geen beweging, geen timers");
+});
+
+test("season-cat.js + voorwerp: een NIEUW vriendje (ander voorwerp dan de vorige keer) begroet hij nieuwsgierig; hetzelfde vriendje blijft staan zonder nieuwe plop of begroeting", () => {
+  const { make, advance } = loadSeasonCat();
+  for (const [last, plays] of [[undefined, true], ["lantern", true], ["skull", false]]) {
+    const store = { "jaardle:season:halloween:cat": "9" }; if (last) store["jaardle:season:halloween:prop"] = last;
+    const w = make({ store });
+    w.api.mount(); const n = w.props.make(SPEC); w.api.prop(n, SPEC);
+    advance(1700); assert.ok(!w.cat().classList.contains("bat"), `eerst valt het neer (${last})`);
+    advance(200); assert.equal(w.cat().classList.contains("bat") && n.classList.contains("pulse"), plays, `vorige vriendje ${last}: ${plays ? "speelt hij meteen mee" : "geen begroeting"}`);
+    assert.equal(w.ls._["jaardle:season:halloween:prop"], "skull", "het huidige vriendje wordt onthouden"); w.api.unmount();
+  }
+  // dezelfde pot opnieuw (of de volgende pot): hetzelfde vriendje wordt niet vervangen (geen nieuwe plop), een ander wel
+  const v = make({ store: { "jaardle:season:halloween:cat": "9", "jaardle:season:halloween:prop": "skull" } }); v.api.mount();
+  const a = v.props.make(SPEC), b = v.props.make(SPEC), c = v.props.make({ ...SPEC, id: "ghost" });
+  v.api.prop(a, SPEC); assert.equal(a.parent, v.cat()); v.api.prop(b, SPEC); assert.equal(a.parent, v.cat(), "hetzelfde vriendje blijft staan"); assert.ok(!b.parent, "het nieuwe knoopje wordt niet ingehangen");
+  v.api.prop(c, { ...SPEC, id: "ghost" }); assert.ok(!a.parent && c.parent === v.cat(), "een ander vriendje vervangt het oude"); v.api.prop(null, null); assert.ok(!c.parent); v.api.prop(a, SPEC); assert.equal(a.parent, v.cat(), "na weghalen kan hetzelfde weer");
+  // zonder localStorage nooit; minder beweging: ook niet (hij slaapt stil)
+  const r = loadSeasonCat().make({ reduced: true, store: {} }); r.api.mount(); r.api.prop(r.props.make(SPEC), SPEC); assert.equal(r.clock.q.length, 0, "geen timers");
+});
+
 test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bestand wordt lui geladen met de game.js-versie, alleen bij de skin", () => {
   const g = readFileSync(join(dir, "..", "game.js"), "utf8");
   assert.match(g, /const loadSeasonCat = fxLoader\("\/season-cat\.js", "SeasonCat"\)/);
@@ -2604,7 +2773,7 @@ test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bes
   assert.match(fn, /seasonActive\(\) !== "halloween"/, "alleen bij Halloween");
   assert.match(fn, /unmount\(\)/, "uitzetten haalt de kat weg");
   assert.match(fn, /requestIdleCallback/, "pas in een rustig moment");
-  assert.match(fn, /if \(seasonActive\(\) === "halloween"\) c\.mount\(eventCatOpts\(\)\)/, "niet mounten als de skin intussen uit is gezet; 31 oktober en de hoed gaan mee");
+  assert.match(fn, /if \(seasonActive\(\) === "halloween"\) \{ c\.mount\(eventCatOpts\(\)\); syncCatProp\(\); \}/, "niet mounten als de skin intussen uit is gezet; 31 oktober en de hoed gaan mee; daarna het voorwerpje van de pot");
   // het katje reageert op je spel: cijfers, wissen en een geaccepteerde gok (nooit op warm of koud, dat verklapt de Richting-hint)
   const dig = g.slice(g.indexOf("function appendDigit("), g.indexOf("function toggleSign()")), sub = g.slice(g.indexOf("function submitGuess()"), g.indexOf("let inputFlashOff"));
   assert.ok((dig.match(/SeasonCat\?\.type\?\.\(\)/g) || []).length === 2, "appendDigit en backspaceYear");
@@ -2618,6 +2787,23 @@ test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bes
   const set = g.slice(g.indexOf("function setSeason("), g.indexOf("function syncSeasonCat()"));
   assert.match(set, /syncSeasonCat\(\)/, "setSeason ververst de kat");
   assert.ok(existsSync(join(dir, "..", "season-cat.js")));
+});
+
+test("game.js ↔ voorwerpje: lui geladen per skin, per pot gekozen op de dag of het feit (nooit op de uitslag of de feittekst), ?prop= is voorvertoning, verouderde antwoorden worden genegeerd", () => {
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(g, /const loadSeasonProps = fxLoader\("\/season-props\.js", "SeasonProps"\)/);
+  assert.match(g, /const SEASON_PROP_LIBS = \{ halloween: fxLoader\("\/props-halloween\.js", "SeasonPropsHalloween"\) \}/, "een lib per skin: kerst voegt er één toe");
+  const fn = g.slice(g.indexOf("function syncCatProp()"), g.indexOf("function syncSeasonCheck()"));
+  assert.match(fn, /seasonActive\(\)/, "per skin"); assert.match(fn, /!window\.SeasonCat \|\| !state\) return/, "zonder kat of pot niets doen");
+  assert.match(fn, /const ctx = \{ today: eventToday\(\) \}/, "het rooster loopt op de datum (eventToday volgt ?evdate=), voor iedereen en in elke spelstand hetzelfde");
+  assert.match(fn, /lib\.pick\(ctx, previewProp\)/); assert.match(fn, /props\.load\(spec\)/, "een plaatje-bestand eerst binnenhalen");
+  assert.match(fn, /seq === catPropSeq/, "een trage lading van de vorige pot mag de huidige niet overschrijven");
+  assert.match(fn, /\.catch\(\(\) => \{\}\)/, "alles optioneel: een mislukte lading laat hem gewoon zonder voorwerp");
+  assert.ok(!/won|state\.done|guesses|\.year\b|answer/.test(fn.replace(/\/\/.*$/gm, "")), "de keuze hangt alleen van de feit-hash af, niet van het antwoord of de stand");
+  assert.match(g, /const previewProp = .*URLSearchParams\(location\.search\)\.get\("prop"\)/);
+  const sg = g.slice(g.indexOf("async function startGame("), g.indexOf("function syncUrl()"));
+  assert.ok(sg.indexOf("syncCatProp();") > sg.indexOf("state = {"), "na het zetten van de pot");
+  assert.ok(existsSync(join(dir, "..", "season-props.js")) && existsSync(join(dir, "..", "props-halloween.js")));
 });
 
 test("Gok-knop: bij hover blijft hij de accentkleur (.key:hover mag .key-wide niet overschrijven)", () => {
@@ -2967,7 +3153,7 @@ test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template
   assert.match(g, /async function refreshStreakBanners\(\) \{\s*syncEventUi\(\)/);
   assert.match(g, /renderEventStrip\(fresh\)/);
   // het katje levert het kopje voor de balk
-  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, cheer, type, guess, set, css: CSS, head: HEAD \}/);
+  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, cheer, type, guess, set, prop, css: CSS, head: HEAD \}/);
   assert.ok(existsSync(join(dir, "..", "emoji", "flair-pumpkin.webp")), "de animatie van de 🎃-flair");
 });
 
