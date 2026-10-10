@@ -10171,10 +10171,14 @@ async function appendStreakLine(won) {
 // sinds db/64 — ONDERWEG uit daily_progress (halve pot van een ander apparaat).
 // De DB bewaart de gegokte jaren + hint-aantallen/-rijen; kleuren/afstanden leiden
 // we af uit het antwoordjaar. Geeft {done, ...board} of null (anon / geen rij).
-async function reconstructDailyBoard(answerYear, d = todayKey()) {
+// preRow = het antwoord van get_my_daily_state dat de aanroeper al (parallel) ophaalde (null = mislukt/geen rij);
+// undefined = zelf ophalen.
+async function reconstructDailyBoard(answerYear, d = todayKey(), preRow) {
   if (!auth.user) return null;
-  let row;
-  try { row = await rpc("get_my_daily_state", { d }); } catch (e) { return null; }
+  let row = preRow;
+  if (row === undefined) {
+    try { row = await rpc("get_my_daily_state", { d }); } catch (e) { return null; }
+  }
   if (!row || !Array.isArray(row.guesses)) return null;
   const guesses = row.guesses.map((year) => {
     const diff = answerYear - year;
@@ -12196,13 +12200,19 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
     const d = targetDate || todayKey();   // targetDate = inhaalpot (gisteren); anders vandaag
     const cached = loadRecord("daily", d);   // bevat de puzzel (offline/instant) + bord
     if (cached) return { mode: "daily", puzzleDate: d, ...cached };
-    const p = await rpc("get_daily", { d });
-    if (!p) return null;
     // Geen lokale cache (ander apparaat / cache gewist), maar ingelogd? Herstel het
     // bord uit de DB: afgerond (niet opnieuw speelbaar) óf halverwege (db/64: de
     // gokken/hints van je andere apparaat). synced=true: startGame hoeft daarna
-    // niet nóg eens te reconcilen.
-    const board = await reconstructDailyBoard(p.year, d);
+    // niet nóg eens te reconcilen. Die bordstand hangt niet van de puzzel af, dus beide
+    // lopen tegelijk: twee retours na elkaar kostten vanuit Australië ±0,8 s extra. De
+    // bridge weet de gebruiker (window.sbAuthState) vaak al vóórdat onze auth-handler hem
+    // heeft gezien; is hij nog onbekend, dan haalt reconstructDailyBoard het bord achteraf zelf op.
+    const [p, row] = await Promise.all([
+      rpc("get_daily", { d }),
+      (auth.user || window.sbAuthState?.user) ? rpc("get_my_daily_state", { d }).catch(() => null) : undefined,
+    ]);
+    if (!p) return null;
+    const board = await reconstructDailyBoard(p.year, d, row);
     return { mode: "daily", puzzleDate: d, hashes: p.hashes, band: p.band ?? null, event: toEvent(p), board, synced: true };
   }
   // free
@@ -12532,8 +12542,8 @@ async function init() {
     document.querySelector('#newpw-form input[name="password"]')?.focus();
   });
 
-  // Sync auth-state vanuit de Supabase module-bridge.
-  window.addEventListener("sb-auth-changed", async (e) => {
+  // Sync auth-state vanuit de Supabase-bridge (index.template.html).
+  const onAuthChanged = async (e) => {
     auth.user = e.detail
       ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null, name: e.detail.name || null }
       : null;
@@ -12568,7 +12578,12 @@ async function init() {
     if (state?.done && state.mode === "daily") appendStreakLine(state.won);
     // Historie-bron wisselde (login/logout) → herbeoordeel inhaal + reparatie.
     refreshStreakBanners();
-  });
+  };
+  window.addEventListener("sb-auth-changed", onAuthChanged);
+  // De bridge draait vóór game.js, dus het eerste sessie-event kan al gevuurd hebben voordat deze luisteraar bestond: dat ging
+  // verloren en je leek uitgelogd. Speel daarom de laatst bekende stand (ook null = anoniem) af, net als een echt event: iets later,
+  // na het synchrone deel van init(), zoals het event vroeger ook binnenkwam.
+  if (window.sbAuthState) queueMicrotask(() => onAuthChanged({ detail: window.sbAuthState.user }));
 
   // Pepertjes: tik toont het moeilijkheidslabel even (hover bestaat niet op mobiel).
   if (els.diffHeat) els.diffHeat.addEventListener("click", () => openDiffHeat(1800));

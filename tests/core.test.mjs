@@ -74,6 +74,7 @@ src += `
   eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
+  resolveRecord, reconstructDailyBoard,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -3052,4 +3053,125 @@ test("stille baseline bij de eerste keer — alles wat je al had telt als gezien
   const g = readFileSync(join(dir, "..", "game.js"), "utf8");
   assert.match(g, /const base = rewardsBaselineKeys\(earned\)/, "maybeShowRewards gebruikt dezelfde regel");
   assert.match(g, /if \(base\.length === earned\.length\) return false;/, "geen event-beloning in de baseline = niets te tonen; anders door naar de pop-up");
+});
+
+// ── Laadroute: de bordstand loopt parallel aan de puzzel (vanuit Australië scheelt elk retour 0,3–0,5 s) ─────────────────────
+const DAILY_RPC = { year: 1815, hashes: ["abcdef0123"], band: 2, facts: [{ hash: "abcdef0123", nl: "feit", en: "fact", source: "" }], extras: [] };
+const MY_DAILY_STATE = { guesses: [1900, 1800], done: false, won: false, dir_hints_used: 0, text_hints_used: 0, century_hint_used: false, last_digit_used: false };
+function deferredRpc() {
+  const calls = [], waiting = {};
+  return { calls, waiting, rpc: (fn, args) => new Promise((resolve, reject) => { calls.push(fn); waiting[fn] = { resolve, reject, args }; }) };
+}
+async function withRpc(known, fn) {
+  const oldSb = globalThis.window.sb, oldUser = T.auth.user, oldState = globalThis.window.sbAuthState, d = deferredRpc();
+  globalThis.window.sb = { rpc: d.rpc };
+  try {
+    T.auth.user = known.auth ? { uid: "u1", email: "x@example.invalid" } : null;
+    if (known.bridge) globalThis.window.sbAuthState = { user: { uid: "u1" } }; else delete globalThis.window.sbAuthState;
+    await fn(d);
+  } finally {
+    globalThis.window.sb = oldSb; T.auth.user = oldUser;
+    if (oldState === undefined) delete globalThis.window.sbAuthState; else globalThis.window.sbAuthState = oldState;
+  }
+}
+
+test("resolveRecord — ingelogd: get_daily en get_my_daily_state worden tegelijk gevraagd; het bord komt uit dat ene antwoord", async () => {
+  await withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    assert.deepEqual(d.calls, ["get_daily", "get_my_daily_state"], "beide vragen zijn weg vóór er één antwoord is");
+    d.waiting.get_my_daily_state.resolve(MY_DAILY_STATE);
+    d.waiting.get_daily.resolve(DAILY_RPC);
+    const rec = await p;
+    assert.deepEqual(d.calls, ["get_daily", "get_my_daily_state"], "geen derde, seriële aanroep");
+    assert.equal(rec.synced, true); assert.equal(rec.hashes[0], "abcdef0123");
+    assert.deepEqual(rec.board.guesses.map((g) => g.year), [1900, 1800]);
+    assert.equal(rec.board.guesses[0].diff, 1815 - 1900, "afstand uit het antwoordjaar van het gelijktijdige get_daily");
+  });
+});
+
+test("resolveRecord — de bridge kent de gebruiker al (window.sbAuthState) maar de auth-handler nog niet: toch tegelijk; het bord volgt zodra auth.user er is", async () => {
+  await withRpc({ bridge: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    assert.deepEqual(d.calls, ["get_daily", "get_my_daily_state"]);
+    T.auth.user = { uid: "u1" };   // de teruggespeelde sb-auth-changed (microtask) is intussen binnen
+    d.waiting.get_daily.resolve(DAILY_RPC); d.waiting.get_my_daily_state.resolve(MY_DAILY_STATE);
+    const rec = await p;
+    assert.equal(rec.board.guesses.length, 2);
+    assert.deepEqual(d.calls, ["get_daily", "get_my_daily_state"]);
+  });
+});
+
+test("resolveRecord — anoniem: alleen get_daily, geen bord; en een nog onbekende gebruiker die tijdens get_daily bekend wordt krijgt het bord alsnog (oude, seriële pad)", async () => {
+  await withRpc({}, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    assert.deepEqual(d.calls, ["get_daily"]);
+    d.waiting.get_daily.resolve(DAILY_RPC);
+    const rec = await p;
+    assert.equal(rec.board, null); assert.deepEqual(d.calls, ["get_daily"], "anoniem vraagt nooit om een bordstand");
+  });
+  await withRpc({}, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    assert.deepEqual(d.calls, ["get_daily"]);
+    T.auth.user = { uid: "u1" };   // auth komt binnen terwijl get_daily nog onderweg is
+    d.waiting.get_daily.resolve(DAILY_RPC);
+    await flushMicrotasks();
+    assert.deepEqual(d.calls, ["get_daily", "get_my_daily_state"], "reconstructDailyBoard haalt het bord zelf op");
+    d.waiting.get_my_daily_state.resolve(MY_DAILY_STATE);
+    assert.equal((await p).board.guesses.length, 2);
+  });
+});
+const flushMicrotasks = () => new Promise((r) => setTimeout(r, 0));
+
+test("resolveRecord — een mislukte bordstand breekt de puzzel niet (zelfde gedrag als vroeger: geen bord); een mislukte get_daily wel (foutmelding + opnieuw)", async () => {
+  await withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    d.waiting.get_my_daily_state.reject(new Error("timeout")); d.waiting.get_daily.resolve(DAILY_RPC);
+    const rec = await p;
+    assert.equal(rec.board, null); assert.equal(rec.hashes[0], "abcdef0123");
+  });
+  await withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    d.waiting.get_my_daily_state.resolve(MY_DAILY_STATE); d.waiting.get_daily.reject(new Error("offline"));
+    await assert.rejects(p, /offline/);
+  });
+  await withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    d.waiting.get_my_daily_state.resolve({ guesses: [], done: false }); d.waiting.get_daily.resolve(DAILY_RPC);
+    assert.equal((await p).board, null, "een rij zonder voortgang is ruis (zoals vroeger)");
+  });
+});
+
+test("reconstructDailyBoard — preRow: null/rij wordt gebruikt zonder nieuwe aanroep, undefined haalt zelf op, anoniem is altijd null", async () => {
+  await withRpc({ auth: true }, async (d) => {
+    assert.equal(await T.reconstructDailyBoard(1815, "2026-09-30", null), null); assert.deepEqual(d.calls, []);
+    assert.equal((await T.reconstructDailyBoard(1815, "2026-09-30", MY_DAILY_STATE)).guesses.length, 2); assert.deepEqual(d.calls, []);
+    const p = T.reconstructDailyBoard(1815, "2026-09-30");
+    assert.deepEqual(d.calls, ["get_my_daily_state"]);
+    d.waiting.get_my_daily_state.resolve(MY_DAILY_STATE);
+    assert.equal((await p).guesses.length, 2);
+  });
+  await withRpc({}, async (d) => {
+    assert.equal(await T.reconstructDailyBoard(1815, "2026-09-30", MY_DAILY_STATE), null); assert.deepEqual(d.calls, []);
+  });
+});
+
+// De dag-sleutel van de vroege puzzel (head-script in de template) en todayKey() in game.js zijn twee kopieën van dezelfde regel.
+test("todayKey() ≡ de dag die het vroege head-script kiest (Amsterdam): elk half uur rond zomer-/wintertijd, jaarwisseling en middernacht", () => {
+  const tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+  const code = [...tpl.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((b) => b.includes("window.sbEarly ="));
+  assert.ok(code, "vroege-puzzel-script staat niet in de template");
+  const RealDate = Date, instants = [];
+  for (const [start, days] of [["2026-03-27T00:00:00Z", 4], ["2026-10-24T00:00:00Z", 4], ["2026-12-30T12:00:00Z", 3], ["2027-06-30T12:00:00Z", 3]]) {
+    for (let i = 0; i < days * 48; i++) instants.push(RealDate.parse(start) + i * 30 * 60000);
+  }
+  try {
+    for (const at of instants) {
+      class FakeDate extends RealDate { constructor(...a) { a.length ? super(...a) : super(at); } static now() { return at; } }
+      globalThis.Date = FakeDate;
+      const sandbox = { Intl, JSON, Promise, Error, RegExp, Date: FakeDate, location: { search: "" }, localStorage: { getItem: () => null }, fetch: () => new Promise(() => {}) };
+      sandbox.window = sandbox;
+      vm.runInNewContext(code, sandbox);
+      assert.equal(sandbox.sbEarly.d, T.todayKey(), new RealDate(at).toISOString());
+    }
+  } finally { globalThis.Date = RealDate; }
 });

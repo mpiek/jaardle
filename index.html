@@ -12,7 +12,9 @@
   Tokens (telkens tussen dubbele accolades):
     html, url, intl, og, hreflang  → per-taal <head>/SEO-waarden
     csp             → Content-Security-Policy (build berekent de sha256-hash
-                      van het inline Supabase-script; taal-onafhankelijk)
+                      van de inline scripts, o.a. de Supabase-bridge; taal-onafhankelijk)
+    gameSrc         → de src van de game.js-tag onderaan (met ?v=), voor de preload
+                      in de head; zo blijft het versienummer op één plek
     i18n:<key>      → platte tekst uit I18N[lang][key] (HTML-geëscaped)
     i18nhtml:<key>  → HTML-waarde uit I18N[lang][key] (ruw, mag tags bevatten)
     json:<key>      → JSON-geëscapede waarde (voor ld+json)
@@ -24,7 +26,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://esm.sh https://gc.zgo.at 'sha256-f7JR0ZsOd9h8/+b27nVEnlZPa0nRTbmyMu1fj2EemHM=' 'sha256-TJ3lRoK+c3DBlSFhR31LnU6u9tgx0jzEHBIouxOkB9M=' 'sha256-VdV5wbVB8IVtw5vYA3CoMUtOrZvs9YxfRuPVMe8v2D4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-f7JR0ZsOd9h8/+b27nVEnlZPa0nRTbmyMu1fj2EemHM=' 'sha256-TJ3lRoK+c3DBlSFhR31LnU6u9tgx0jzEHBIouxOkB9M=' 'sha256-BeA3R4ljLDMmpT4rj5E+kAtwkEMqb8P3bP9lRv7OFmE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com">
+<!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=341 = de src van de game.js-tag onderaan (build). -->
+<link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
+<link rel="preload" as="script" href="/game.js?v=341">
+<script>
+  // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
+  window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
+  // Dagpuzzel alvast ophalen (alleen de daily, en alleen als hij nog niet lokaal staat): de bridge geeft dit antwoord één keer
+  // terug aan rpc("get_daily", { d }); bij een fout volgt de gewone aanroep. Dag = todayKey() in game.js (een test bewaakt dat).
+  (function () {
+    try {
+      if (/[?&]p=/.test(location.search)) return;   // gedeeld vrij spel: de daily is dan niet nodig
+      var d = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+      if (localStorage.getItem("jaardle:daily:" + d)) return;
+      var c = window.sbConfig;
+      var p = fetch(c.url + "/rest/v1/rpc/get_daily", {
+        method: "POST",
+        headers: { apikey: c.key, Authorization: "Bearer " + c.key, "Content-Type": "application/json" },
+        body: JSON.stringify({ d: d })
+      }).then(function (r) { if (!r.ok) throw new Error("get_daily " + r.status); return r.json(); });
+      p.catch(function () {});   // geen "Uncaught (in promise)": de bridge valt bij een fout terug op de gewone aanroep
+      window.sbEarly = { fn: "get_daily", d: d, p: p };
+    } catch (e) { /* geen fetch/Intl/localStorage → gewoon het gewone pad */ }
+  })();
+</script>
 <title>Jaardle — Wordle for history: guess the year</title>
 <meta name="description" content="Jaardle is a free daily year-guessing game — a Yeardle for history, in the style of Wordle: guess the year of a historic event in six tries. Daily puzzle or endless free play.">
 <link rel="canonical" href="https://jaardle.com/">
@@ -428,64 +455,81 @@
     </div>
   </footer>
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.108.2";
+  <!-- supabase-js staat zelf gehost in /vendor (zie vendor/README.md; zet window.supabase, versie in de bestandsnaam). Volgorde:
+       bibliotheek → bridge → game.js. -->
+  <script src="/vendor/supabase-js-2.108.2.umd.js"></script>
+  <script>
+    (function () {
+      // Brug naar game.js. Supabase retourneert {data,error} zonder te throwen;
+      // we throwen zelf zodat de UI-laag try/catch kan blijven gebruiken.
+      const unwrap = async (p) => {
+        const { data, error } = await p;
+        if (error) throw error;
+        return data;
+      };
 
-    // Publieke sleutels; beveiliging komt straks van Row Level Security in Postgres.
-    const supabase = createClient(
-      "https://xyvvkxbhkijjwcvpojru.supabase.co",
-      "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa",
-    );
+      // Bibliotheek niet binnen? Dan weigert window.sb meteen: het spel meldt "laden mislukt" met een knop, i.p.v. eindeloos "Loading…".
+      if (!window.supabase || !window.supabase.createClient) {
+        window.sb = { rpc: () => Promise.reject(new Error("Supabase nog niet geladen")) };
+        window.dispatchEvent(new Event("sb-ready"));
+        return;
+      }
 
-    // Brug naar game.js. Supabase retourneert {data,error} zonder te throwen;
-    // we throwen zelf zodat de UI-laag try/catch kan blijven gebruiken.
-    const unwrap = async (p) => {
-      const { data, error } = await p;
-      if (error) throw error;
-      return data;
-    };
-    window.sbAuth = {
-      signIn:  (email, password) => unwrap(supabase.auth.signInWithPassword({ email, password })),
-      signUp:  (email, password) => unwrap(supabase.auth.signUp({ email, password })),
-      // Eén OAuth-ingang voor alle providers ("google", "discord"): redirect (geen popup), terug op dezelfde (taal)pagina.
-      signInWithProvider: (provider) => unwrap(supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: location.origin + location.pathname },
-      })),
-      // Stuurt een reset-mail; de link komt terug op dezelfde (taal)pagina,
-      // waar supabase-js de recovery-token in de hash oppikt en PASSWORD_RECOVERY vuurt.
-      resetPassword: (email) => unwrap(supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: location.origin + location.pathname + "?auth=recovery",
-      })),
-      updatePassword: (password) => unwrap(supabase.auth.updateUser({ password })),
-      signOut: () => unwrap(supabase.auth.signOut()),
-    };
+      const client = window.supabase.createClient(window.sbConfig.url, window.sbConfig.key);
 
-    // Brug voor de game-RPC's (publieke leesfuncties + telemetrie via Postgres).
-    window.sb = {
-      rpc: (fn, args) => unwrap(supabase.rpc(fn, args || {})),
-    };
+      window.sbAuth = {
+        signIn:  (email, password) => unwrap(client.auth.signInWithPassword({ email, password })),
+        signUp:  (email, password) => unwrap(client.auth.signUp({ email, password })),
+        // Eén OAuth-ingang voor alle providers ("google", "discord"): redirect (geen popup), terug op dezelfde (taal)pagina.
+        signInWithProvider: (provider) => unwrap(client.auth.signInWithOAuth({
+          provider,
+          options: { redirectTo: location.origin + location.pathname },
+        })),
+        // Stuurt een reset-mail; de link komt terug op dezelfde (taal)pagina,
+        // waar supabase-js de recovery-token in de hash oppikt en PASSWORD_RECOVERY vuurt.
+        resetPassword: (email) => unwrap(client.auth.resetPasswordForEmail(email, {
+          redirectTo: location.origin + location.pathname + "?auth=recovery",
+        })),
+        updatePassword: (password) => unwrap(client.auth.updateUser({ password })),
+        signOut: () => unwrap(client.auth.signOut()),
+      };
 
-    const emit = (session) => {
-      const u = session?.user;
-      const m = u?.user_metadata || {};
-      const user = u
-        ? { email: u.email, uid: u.id,
-            avatar: m.avatar_url || m.picture || null,
-            name: m.full_name || m.name || null }
-        : null;
-      window.dispatchEvent(new CustomEvent("sb-auth-changed", { detail: user }));
-    };
-    // Sessie herstellen bij page-load (ook na Google OAuth-redirect).
-    supabase.auth.getSession().then(({ data }) => emit(data.session));
-    supabase.auth.onAuthStateChange((event, session) => {
-      // Recovery-link geklikt: laat game.js het "nieuw wachtwoord"-scherm openen.
-      if (event === "PASSWORD_RECOVERY") window.dispatchEvent(new Event("sb-recovery"));
-      emit(session);
-    });
-    window.dispatchEvent(new Event("sb-ready"));
+      // Brug voor de game-RPC's (publieke leesfuncties + telemetrie via Postgres).
+      window.sb = {
+        rpc: (fn, args) => {
+          // De vroege get_daily uit de head: één keer, alleen voor dezelfde dag; faalt die, dan de gewone aanroep.
+          const e = window.sbEarly;
+          if (e && !e.used && fn === e.fn && args && args.d === e.d) {
+            e.used = true;
+            return e.p.catch(() => unwrap(client.rpc(fn, args)));
+          }
+          return unwrap(client.rpc(fn, args || {}));
+        },
+      };
+
+      const emit = (session) => {
+        const u = session?.user;
+        const m = u?.user_metadata || {};
+        const user = u
+          ? { email: u.email, uid: u.id,
+              avatar: m.avatar_url || m.picture || null,
+              name: m.full_name || m.name || null }
+          : null;
+        // Draait vóór game.js: bewaar de laatste stand (null = anoniem) zodat game.js die kan afspelen als het event al vuurde.
+        window.sbAuthState = { user };
+        window.dispatchEvent(new CustomEvent("sb-auth-changed", { detail: user }));
+      };
+      // Sessie herstellen bij page-load (ook na Google OAuth-redirect).
+      client.auth.getSession().then(({ data }) => emit(data.session));
+      client.auth.onAuthStateChange((event, session) => {
+        // Recovery-link geklikt: laat game.js het "nieuw wachtwoord"-scherm openen.
+        if (event === "PASSWORD_RECOVERY") window.dispatchEvent(new Event("sb-recovery"));
+        emit(session);
+      });
+      window.dispatchEvent(new Event("sb-ready"));
+    })();
   </script>
-  <script src="/game.js?v=340"></script>
+  <script src="/game.js?v=341"></script>
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </body>

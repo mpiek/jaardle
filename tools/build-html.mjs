@@ -62,18 +62,22 @@ function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG) {
   return lines.join("\n");
 }
 
-// Bouw de Content-Security-Policy. Het inline Supabase-script kan niet via
-// 'self' worden toegestaan en op statische hosting (GitHub Pages) is er geen
-// nonce — dus hashen we de exacte scriptinhoud (sha256) en zetten die in
-// script-src. De hash wordt elke build vers berekend, dus een wijziging aan het
-// inline script (bv. de Supabase-versie pinnen) houdt 'm vanzelf kloppend.
+// Bouw de Content-Security-Policy. De inline scripts (thema, skin, vroege puzzel,
+// Supabase-bridge) kunnen niet via 'self' worden toegestaan en op statische hosting
+// (GitHub Pages) is er geen nonce — dus hashen we de exacte scriptinhoud (sha256) en
+// zetten die in script-src. De hash wordt elke build vers berekend, dus een wijziging
+// aan een inline script houdt 'm vanzelf kloppend. De Supabase-bibliotheek zelf staat
+// in /vendor (dus 'self'); er is geen externe script-host meer nodig behalve GoatCounter.
 // Hosts (Supabase, GoatCounter) lezen we uit de template zodat ze niet driften.
 // NB: frame-ancestors werkt niet via <meta>; dat hoort thuis in een HTTP-header.
 function buildCsp(template) {
-  // Alle uitvoerbare inline scripts hashen: het thema-script in de <head> én de
-  // module-bridge. (ld+json heeft een ander type, voert niet uit → geen hash.)
+  // Alle uitvoerbare inline scripts hashen: het thema-script in de <head>, de skin-, de
+  // vroege-puzzel- en de bridge-scripts. (ld+json heeft een ander type, voert niet uit → geen hash.)
   const matches = [...template.matchAll(/<script(\s+type="module")?>([\s\S]*?)<\/script>/g)];
-  if (!matches.some(([, mod]) => mod)) throw new Error("Inline module-script niet gevonden voor CSP-hash");
+  const inlineBody = matches.map(([, , body]) => body).join("\n");
+  if (!inlineBody.includes("window.sbAuth") || !inlineBody.includes("window.sbConfig")) {
+    throw new Error("Inline Supabase-bridge (window.sbAuth) of -config (window.sbConfig) niet gevonden voor CSP-hash");
+  }
   const hashes = matches.map(([, , body]) => {
     if (body.includes("{{")) {
       throw new Error("Inline script bevat {{tokens}}; CSP-hash zou niet kloppen met de output");
@@ -91,7 +95,7 @@ function buildCsp(template) {
     "base-uri 'self'",
     "object-src 'none'",
     "form-action 'self'",
-    `script-src 'self' https://esm.sh https://gc.zgo.at ${hashes.join(" ")}`,
+    `script-src 'self' https://gc.zgo.at ${hashes.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",                       // inline style-attrs via innerHTML
     `img-src 'self' data: https://*.googleusercontent.com ${goat}`,  // Google-avatars + GoatCounter-pixel
     "font-src 'self'",
@@ -100,7 +104,7 @@ function buildCsp(template) {
 }
 
 // Vul de {{…}}-tokens voor één taal. str-keys uit I18N met fallback op DEFAULT_LANG.
-function render(template, code, mod, csp) {
+function render(template, code, mod, csp, gameSrc) {
   const { I18N, LANGS, LANG_CODES, DEFAULT_LANG } = mod;
   const strings = I18N[code];
   const get = (key) => {
@@ -113,6 +117,7 @@ function render(template, code, mod, csp) {
   const meta = LANGS[code];
   return template
     .replace(/\{\{csp\}\}/g, csp)
+    .replace(/\{\{gameSrc\}\}/g, gameSrc)
     .replace(/\{\{manifestHref\}\}/g, meta.path ? `/${meta.path}/manifest.webmanifest` : "/manifest.webmanifest")
     .replace(/\{\{html\}\}/g, meta.html)
     .replace(/\{\{url\}\}/g, urlFor(meta.path))
@@ -164,13 +169,16 @@ function sitemap(LANGS, LANG_CODES) {
 const mod = loadGameModule();
 const template = readFileSync(join(ROOT, "index.template.html"), "utf8");
 const csp = buildCsp(template);   // taal-onafhankelijk; één keer berekenen
+// De src van het game.js-<script> (met ?v=): de preload in de head gebruikt precies dezelfde URL, anders haalt de browser 'm dubbel op.
+const gameSrc = (template.match(/<script src="(\/game\.js\?v=\d+)"><\/script>/) || [])[1];
+if (!gameSrc) throw new Error('<script src="/game.js?v=N"> niet gevonden in de template (nodig voor {{gameSrc}})');
 
 // sanity: nog onvervangbare tokens overgebleven?
 const leftover = (s) => (s.match(/\{\{[^}]+\}\}/g) || []);
 
 let count = 0;
 for (const code of mod.LANG_CODES) {
-  const html = render(template, code, mod, csp);
+  const html = render(template, code, mod, csp, gameSrc);
   const missing = leftover(html);
   if (missing.length) throw new Error(`Onbekende tokens voor "${code}": ${[...new Set(missing)].join(", ")}`);
 
