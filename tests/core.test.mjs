@@ -2517,7 +2517,7 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   assert.ok(!/position:\s*fixed/.test(css), "geen fixed");
   assert.ok(!/\bz-index:\s*(?!4\b)\d+/.test(css), "de kat blijft laag (z-index 4)");
   assert.ok(!/(#keypad|#year-input|\.key\s*\{|main\s*\{)/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "raakt de speelkolom niet aan");
-  assert.ok(js.length < 42000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);
+  assert.ok(js.length < 44000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);
   // alleen opgemaakt onder de skin: elke selector (buiten @keyframes) begint met html[data-season="halloween"]
   const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "");
   for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/@media[^{]*\{/g, "").replace(/\([^)]*\)/g, (x) => x.replace(/,/g, ";")).split(",")) {
@@ -2551,6 +2551,24 @@ test("season-cat.js: na afloop zit het katje als eigen rij vlak vóór de uitsla
   assert.equal(rc.parent, r.main); assert.ok(rc.classList.contains("asleep"));
 });
 
+test("season-cat.js: cheer(won) = drie keer springen (winst) of twee keer een zachte knipoog (verlies) nadat hij op de kaart zit; tikken worden afgemaakt; daarna weer wakker", () => {
+  const { make, advance } = loadSeasonCat(), w = make({ store: { "jaardle:season:halloween:cat": "9" } });
+  w.api.mount(); const c = w.cat(); w.api.perch(true);
+  w.api.cheer(true);
+  advance(800); assert.ok(!c.classList.contains("cheer"), "pas na de aankomst op de kaart");
+  advance(200); assert.ok(c.classList.contains("cheer") && !c.classList.contains("comfort"));
+  c.on.click(); assert.ok(c.classList.contains("cheer") && !c.classList.contains("pet"), "een tik tijdens het vieren wordt afgemaakt, niet opnieuw begonnen");
+  advance(4900); assert.ok(!c.classList.contains("cheer") && !c.classList.contains("asleep"), "daarna weer gewoon wakker");
+  w.api.cheer(false); advance(900); assert.ok(c.classList.contains("comfort") && !c.classList.contains("cheer"), "verlies: de zachte knipoog");
+  advance(5300); assert.ok(!c.classList.contains("comfort"));
+  // slaapt hij, dan wekt het vieren hem
+  advance(150000); w.api.cheer(true); advance(900); assert.ok(c.classList.contains("cheer") && !c.classList.contains("asleep"));
+  // minder beweging: hij slaapt stil en viert niet
+  const r = make({ reduced: true, store: {} }); r.api.mount(); r.api.cheer(true); advance(2000);
+  assert.ok(!r.cat().classList.contains("cheer") && r.cat().classList.contains("asleep"));
+  w.api.unmount(); assert.equal(w.clock.q.length, 0, "geen lopende timers meer");
+});
+
 test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bestand wordt lui geladen met de game.js-versie, alleen bij de skin", () => {
   const g = readFileSync(join(dir, "..", "game.js"), "utf8");
   assert.match(g, /const loadSeasonCat = fxLoader\("\/season-cat\.js", "SeasonCat"\)/);
@@ -2565,6 +2583,8 @@ test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bes
   assert.ok((dig.match(/SeasonCat\?\.type\?\.\(\)/g) || []).length === 2, "appendDigit en backspaceYear");
   assert.match(sub, /SeasonCat\?\.guess\?\.\(\)/); assert.ok(sub.indexOf("SeasonCat?.guess") > sub.indexOf("state.guesses.push"), "pas ná het accepteren van de gok");
   assert.ok(!/SeasonCat[^;]*\b(diff|cls|classify)\b/.test(sub), "de reactie hangt niet af van hoe dichtbij de gok was");
+  const fin = g.slice(g.indexOf("function finishGame("), g.indexOf("function finishGame(") + 900);
+  assert.match(fin, /if \(fresh\) window\.SeasonCat\?\.cheer\?\.\(won\)/, "alleen na een verse pot (geen herstelde)");
   const bar = g.slice(g.indexOf("function setPlayBarCollapsed("), g.indexOf("let state = null;"));
   assert.match(bar, /SeasonCat\?\.perch\?\.\(collapsed\)/, "inklappen = katje naar de uitslagkaart, uitklappen = terug");
   assert.ok(bar.indexOf("SeasonCat?.perch") < bar.indexOf("if (bar.hidden) return"), "ook als de balk al dicht is (een afgeronde pot die opnieuw wordt getekend)");
@@ -2880,7 +2900,7 @@ test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template
   assert.match(g, /async function refreshStreakBanners\(\) \{\s*syncEventUi\(\)/);
   assert.match(g, /renderEventStrip\(fresh\)/);
   // het katje levert het kopje voor de balk
-  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, type, guess, set, css: CSS, head: HEAD \}/);
+  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, cheer, type, guess, set, css: CSS, head: HEAD \}/);
   assert.ok(existsSync(join(dir, "..", "emoji", "flair-pumpkin.webp")), "de animatie van de 🎃-flair");
 });
 

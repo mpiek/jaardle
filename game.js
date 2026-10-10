@@ -4190,6 +4190,7 @@ function finishGame(won, fresh = false) {
   save();
   setKeypadDisabled(true);
   setPlayBarCollapsed(true, fresh);   // dood keypad weg, uitslag schuift omhoog (#21)
+  if (fresh) window.SeasonCat?.cheer?.(won);   // het katje viert (winst) of troost (verlies), zoals het kopje in de event-strook
   renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
   updateLiveScore(false);   // spel klaar → live-teller verbergen (eindscherm toont de score)
   els.result.hidden = false;

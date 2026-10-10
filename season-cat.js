@@ -1,7 +1,7 @@
 /* Het Halloween-katje (lui geladen, alleen met de Halloween-skin): een vlak zwart silhouet met grote witte ogen. Hij doet niets functioneels:
    hij zit, knippert, miauwt af en toe, gaapt, slaapt, rekt zich uit en reageert op wat jij doet. Ontwerp: de kat-mockup (artifact
    "Spooktober-kat"); de CSS hieronder is daar 1-op-1 uit overgenomen en onder de skin gescopet.
-   Standen (klasse op .sk-cat): .meow .yawn .drowsy .asleep .wake .pet .hear .watch .flick .purr .grump .intro; .hallow = 31 oktober
+   Standen (klasse op .sk-cat): .meow .yawn .drowsy .asleep .wake .pet .hear .watch .flick .purr .grump .intro .cheer .comfort .perched; .hallow = 31 oktober
    (vurige ogen, slaapt niet); .hat = draagt een heksenhoed (de hoogste beloning van het event). Het kopje in de balk/strook/het menu
    (SeasonCat.head) gebruikt dezelfde klassen; de strook krijgt .cheer (winst) of .comfort (verlies) van game.js.
    Reageert op je spel via SeasonCat.type() (cijfers) en SeasonCat.guess() (een geaccepteerde gok), nooit op warm of koud: dat zou de
@@ -179,6 +179,22 @@ html[data-season="halloween"] .comfort .cat-head .cat-eyes {animation:skk-slow-b
 html[data-season="halloween"] .comfort .cat-head .cat-ear-l {animation:skk-soft-l 2.6s ease-in-out 2 both }
 html[data-season="halloween"] .comfort .cat-head .cat-ear-r {animation:skk-soft-r 2.6s ease-in-out 2 both }
 html[data-season="halloween"] .evs-pip.ring {animation:skk-ring 0.9s ease-out 2 }
+/* Het staande katje op het eindscherm: dezelfde vreugde (springen, blije oogjes, grijns, twee sterretjes) en dezelfde zachte knipoog als het kopje in de strook */
+html[data-season="halloween"] .sk-cat::before,
+html[data-season="halloween"] .sk-cat::after {content:"";position:absolute;top:2px;left:-7px;width:9px;height:9px;opacity:0;pointer-events:none;clip-path:var(--fx-star);background:radial-gradient(circle,var(--fx-core)0 24%,var(--fx-edge) 85%) }
+html[data-season="halloween"] .sk-cat::after {top:5px;left:44px }
+html[data-season="halloween"] .sk-cat.cheer::before {animation:skk-star-l 1.6s 0.15s ease-out 3 both }
+html[data-season="halloween"] .sk-cat.cheer::after {animation:skk-star-r 1.6s 0.35s ease-out 3 both }
+html[data-season="halloween"] .sk-cat.cheer .cat-sit {animation:skk-hop 1.6s ease-in-out 3 both }
+html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-eyes {animation:none;opacity:0 }
+html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-happy {opacity:1 }
+html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-mouth {animation:skk-grin 1.6s ease-in-out 3 both }
+html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-ear-l {animation:skk-perk-l 1.6s ease-in-out 3 both }
+html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-ear-r {animation:skk-perk-r 1.6s ease-in-out 3 both }
+html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-hd {animation:skk-tilt-soft 2.6s ease-in-out 2 both }
+html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-eyes {animation:skk-slow-blink 2.6s ease-in-out 2 both }
+html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-ear-l {animation:skk-soft-l 2.6s ease-in-out 2 both }
+html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-ear-r {animation:skk-soft-r 2.6s ease-in-out 2 both }
 @keyframes skk-flame{0%,100%{opacity:0.75;transform:none}17%{opacity:1;transform:scale(1.04,1.16)}34%{opacity:0.82;transform:scale(0.97,1.04)}52%{opacity:0.95;transform:scale(1.02,1.2)}70%{opacity:0.68;transform:scale(0.98,1.02)}86%{opacity:0.9;transform:scale(1.03,1.12)}}
 @keyframes skk-blink1{0%,100%{transform:none}50%{transform:scaleY(0.08)}}
 @keyframes skk-tilt{0%,100%{transform:none}22%,70%{transform:rotate(-9deg) translateY(-0.6px)}}
@@ -221,8 +237,8 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
 }
 `;
   const VISITS_KEY = "jaardle:season:halloween:cat";   // hoe vaak hij al binnenhupte (de eerste drie bezoeken)
-  const BUSY = ["asleep", "drowsy", "yawn", "wake", "meow", "pet", "hear", "purr", "grump"];   // dan reageert hij niet op typen of een gok
-  const STATES = ["meow", "yawn", "drowsy", "wake", "pet", "hear", "watch", "purr", "grump"];
+  const BUSY = ["asleep", "drowsy", "yawn", "wake", "meow", "pet", "hear", "purr", "grump", "cheer", "comfort"];   // dan reageert hij niet op typen of een gok
+  const STATES = ["meow", "yawn", "drowsy", "wake", "pet", "hear", "watch", "purr", "grump", "cheer", "comfort"];
   // Echt tempo: ±30–50 s wakker (één miauw na 14–26 s), dan gapen (1,6 s) + slaperig (2 s) en 90–150 s slapen, dan rekken (1,7 s).
   // Op 31 oktober slaapt hij niet en miauwt hij telkens opnieuw.
   const PACE = { awake: [30000, 50000], sleep: [90000, 150000], meowAt: [14000, 26000] };
@@ -284,6 +300,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     streak = now - lastTap < 900 ? streak + 1 : 1;
     lastTap = now;
     if (has("grump")) return;                                   // even uitboeken: niet opnieuw beginnen
+    if (has("cheer") || has("comfort")) return;                 // even vieren: dat wordt afgemaakt
     if (has("wake")) { afterWake = pet; return; }               // midden in het rekken: eerst afmaken, dan aaien
     if (has("asleep")) { streak = 0; clear(); drop(); wake(pet); return; }
     if (streak >= 6) { grump(); return; }
@@ -310,6 +327,16 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     if (!el || !live) return;
     if (has("asleep")) flash("flick", 800);
     else if (!busy()) { stay(); el.classList.remove("watch"); flash("hear", 1200); }
+  }
+  // Een verse pot is afgerond: winst = drie keer vrolijk springen met twee sterretjes, verlies = twee keer een zachte knipoog (zoals het
+  // kopje in de strook). Pas als hij op de kaart is aangekomen; slaapt hij, dan wordt hij er vanzelf wakker van.
+  function cheer(won) {
+    if (!el || !live) return;
+    later(() => {
+      clear(); drop(); el.classList.remove("asleep");
+      el.classList.add(won ? "cheer" : "comfort");
+      later(() => { el.classList.remove("cheer"); el.classList.remove("comfort"); awake(); }, won ? 4900 : 5300);
+    }, 900);
   }
   function set(o) {
     if (el && o && "hat" in o) el.classList[o.hat ? "add" : "remove"]("hat");
@@ -374,5 +401,5 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     if (style) style.remove();
     el = style = null; live = false; perched = false; streak = 0; afterWake = null;
   }
-  return { mount, unmount, perch, type, guess, set, css: CSS, head: HEAD };
+  return { mount, unmount, perch, cheer, type, guess, set, css: CSS, head: HEAD };
 })();
