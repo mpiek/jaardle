@@ -61,7 +61,7 @@ src += `
   setState: (s) => { state = s; },
   refreshWeekPodiumResult, soloPathOk, fetchMyPools, popupSteps, withTimeout, teamAfterLoginPark, getPendingTeam: () => pendingTeamAfterLogin, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
   fmtDailyDate, fmtHistoryDate,
-  achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml,
+  achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml, trophyTierOf, trophyFlairEarned, flairPreviewHtml, FLAIR_SVG,
   streakFlameTier, streakFlameHtml, withAnimEmoji,
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
@@ -1374,7 +1374,7 @@ test("flairFxEarned — alleen ingelogd, en elk effect volgt zijn teller op de d
   } finally { T.auth.user = was; }
 });
 
-test("unlock-kaart: een effect komt alleen op de stap die het vrijspeelt (reeks, getierd, teller, eenmalig)", () => {
+test("unlock-kaart: een effect komt alleen op de stap die het vrijspeelt (reeks, getierd, eenmalig)", () => {
   T.setLang("nl");
   const ser = (k) => T.ACHV_SERIES.find((x) => x.key === k);
   const tro = (k) => T.ACHV_TROPHIES.find((x) => x.key === k);
@@ -1393,16 +1393,61 @@ test("unlock-kaart: een effect komt alleen op de stap die het vrijspeelt (reeks,
   assert.equal(T.achvTrophyItem(ft, 80, 4, A(), 3).flairFx, "vizier");
   assert.equal(T.achvTrophyItem(ft, 200, 5, A(), 4).flairFx, null);
   assert.equal(T.achvTrophyItem(ft, 80, 4, A(), 1).flairFx, "vizier", "trede 2 → 4 in één pot");
-  // teller-trofee (geen treden): Vuurproef → Vonken bij 25; snapshot 0 → 1 (eerste) → 2 (mijlpaal)
+  // Vuurproef (getierd sinds db/93): 🌶️-flair op goud (10), Vonken op platina (25); snapshot = trede-index
   const sp = tro("spicy");
   assert.equal(T.achvSnapshot(A({ spicy: 0 })).spicy, 0);
-  assert.equal(T.achvSnapshot(A({ spicy: 24 })).spicy, 1);
-  assert.equal(T.achvSnapshot(A({ spicy: 25 })).spicy, 2);
-  assert.equal(T.achvTrophyItem(sp, 1, 0, A({ spicy: 1 }), 0).flairFx, null, "de eerste Vuurproef is nog geen effect");
-  assert.equal(T.achvTrophyItem(sp, 25, 0, A({ spicy: 25 }), 1).flairFx, "ember");
-  assert.equal(T.achvTrophyItem(sp, 26, 0, A({ spicy: 26 }), 2).flairFx, null);
+  assert.equal(T.achvSnapshot(A({ spicy: 9 })).spicy, 2);
+  assert.equal(T.achvSnapshot(A({ spicy: 10 })).spicy, 3);
+  assert.equal(T.achvSnapshot(A({ spicy: 24 })).spicy, 3);
+  assert.equal(T.achvSnapshot(A({ spicy: 25 })).spicy, 4);
+  const first = T.achvTrophyItem(sp, 1, 1, A({ spicy: 1 }), 0);
+  assert.equal(first.flairFx, null, "de eerste Vuurproef is nog geen effect"); assert.equal(first.flair, null, "…en nog geen flair");
+  const gold = T.achvTrophyItem(sp, 10, 3, A({ spicy: 10 }), 2);
+  assert.equal(gold.flair, "🌶️", "goud → de peper"); assert.equal(gold.flairFx, null);
+  assert.equal(T.achvTrophyItem(sp, 15, 3, A({ spicy: 15 }), 3).flair, null, "al eerder gehaald → niet nog eens melden");
+  const plat = T.achvTrophyItem(sp, 25, 4, A({ spicy: 25 }), 3);
+  assert.equal(plat.flairFx, "ember"); assert.equal(plat.flair, null);
+  const jump = T.achvTrophyItem(sp, 25, 4, A({ spicy: 25 }), 1);
+  assert.equal(jump.flair, "🌶️", "zilver → platina in één keer: flair én effect"); assert.equal(jump.flairFx, "ember");
+  assert.equal(T.achvTrophyItem(tro("eras"), 1, 1, A({ eras: 1 }), 0).flair, "🦕", "flair zonder trede: bij de eerste keer");
+  assert.equal(T.achvTrophyItem(tro("eras"), 5, 2, A({ eras: 5 }), 1).flair, "🦕", "…en zonder `at` ook op elke latere kaart (ongewijzigd gedrag)");
   // eenmalige trofee (Vlekkeloos) → het effect komt meteen mee
   assert.equal(T.achvTrophyItem(tro("flawless"), 0, 0, A({ flawless: true }), 0).flairFx, "sparkle");
+});
+
+test("🌶️ Vuurproef-flair (db/93): goud = 10 = de server-gate, eigen inline-SVG als bewegende vorm i.p.v. een Noto-webp", () => {
+  T.setLang("nl");
+  const sp = T.ACHV_TROPHIES.find((x) => x.key === "spicy");
+  assert.deepEqual(sp.tiers, [1, 5, 10, 25, 50, 100]);
+  assert.equal(sp.flair.emoji, "🌶️"); assert.equal(sp.tiers[sp.flair.at], 10, "🌶️ op goud = 10 (set_my_flair, db/93)");
+  assert.equal(sp.tiers[sp.flairFxAt], T.FLAIR_FX.ember.min, "Vonken op platina = 25, hetzelfde getal als vóór de treden");
+  assert.equal(T.REWARDS.fl_pepper.emoji, "🌶️"); assert.equal(T.REWARDS.fl_pepper.cat, "flair");
+  assert.ok(T.REWARD_ORDER.includes("fl_pepper"), "anders komt de unlock-pop-up nooit");
+  assert.ok(T.REWARD_ORDER.indexOf("fl_pepper") < T.REWARD_ORDER.indexOf("fx_ember"), "flair (goud) vóór het effect (platina)");
+  // bewegend = de eigen SVG (klasse emoji-anim voor de maat, pep-b = de huppel); statisch = het gewone teken
+  const anim = T.flairPreviewHtml("🌶️");
+  assert.ok(anim.startsWith("<svg") && anim.includes("emoji-anim") && anim.includes("pep-b") && !anim.includes("<img"), anim.slice(0, 80));
+  assert.equal(anim, T.FLAIR_SVG["🌶️"]);
+  assert.ok(!anim.includes("`") && !anim.includes("${"), "veilig als template-literal");
+  assert.equal(anim.match(/<circle class="pep-spark"/g).length, 5, "vijf vonkjes (CSS nth-of-type)");
+  assert.equal(T.flairStaticHtml("🌶️"), "🌶️");
+  assert.ok(T.flairBadgeHtml("🌶️", 1).includes("<svg"), "rang 1 beweegt");
+  assert.ok(!T.flairBadgeHtml("🌶️", 2).includes("<svg") && T.flairBadgeHtml("🌶️", 2).includes("🌶️"), "rang 2 statisch");
+  let n = 0; T.onFlairAnimReady("🌶️", () => n++); assert.equal(n, 1, "niets te laden/decoden: het voorproefje wisselt meteen");
+  // verdiend vanaf goud; 🦕 (zonder `at`) blijft bij de eerste keer
+  const A = (o) => ({ games: 0, dailies: 0, streak: 0, perfect: 0, pure: 0, rating: 0, years: [], ...o });
+  assert.equal(T.trophyFlairEarned(A({ spicy: 9 }), sp), false);
+  assert.equal(T.trophyFlairEarned(A({ spicy: 10 }), sp), true);
+  assert.equal(T.trophyFlairEarned(A({ eras: 1 }), T.ACHV_TROPHIES.find((x) => x.key === "eras")), true);
+  const was = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    T.setAchv(A({ spicy: 9 })); assert.ok(!T.achvEarnedFlairs().includes("🌶️"));
+    T.setAchv(A({ spicy: 10 })); assert.ok(T.achvEarnedFlairs().includes("🌶️"));
+    assert.ok(T.earnedRewardKeys().includes("fl_pepper"), "de kluis/pop-up kennen 'm als beloning");
+    const tip = (T.achvTrophyHtml(A({ spicy: 3 }), sp).match(/title="([^"]*)"/) || [])[1] || "";
+    assert.ok(tip.includes("bij goud verdien je de 🌶️-flair") && tip.includes("bij platina") && tip.includes("nog 2 tot zilver"), tip);
+  } finally { T.auth.user = was; T.setAchv(null); }
 });
 
 test("prestatiebord: pins en tooltips noemen de effecten alleen voor ingelogde spelers", () => {

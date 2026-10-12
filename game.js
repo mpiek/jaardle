@@ -4998,6 +4998,14 @@ const FLAIR_ANIM = {
   "🎃": "flair-pumpkin",      // Spooktober (event-flair, blijft daarna van je)
   "✨": "sparkles",     // geen flair, maar het icoon van het flair-effect-reward (pop-up zonder gedragen flair)
 };
+// Flairs met een EIGEN bewegende vorm (inline-SVG + CSS in style.css, .pep) i.p.v. een Noto-webp: voor emoji waar Noto geen
+// animatie van heeft. Statisch blijft het gewone teken uit de emoji-font (de SVG is aan de Noto-glyph gemeten: dezelfde kleuren
+// en vorm, 3,7 % randpixels anders op 320 px), dus het bord wisselt onzichtbaar tussen teken en SVG. Geen laden/decode nodig:
+// onFlairAnimReady vuurt meteen. Bron + mockup: jaardle-tools/mockups/pepper-flair (gen.py).
+// 🌶️ = Vuurproef-goud (db/93): huppel met squash & stretch, vijf vonkjes bij de landing (variant B uit de mockup).
+const FLAIR_SVG = {
+  "🌶️": `<svg class="emoji-anim pep pep-b" viewBox="-4 -8 136 128" aria-hidden="true"><g class="pep-all"><path class="pep-body" d="M62 40C64.4 36.7 69.3 31.3 74 30C78.7 28.7 85.3 30.3 90 32C94.7 33.7 99.2 37 102 40C104.8 43 106.4 46.3 107 50C107.6 53.7 106.8 57.8 105.5 62C104.2 66.2 102 70.8 99.5 75C97 79.2 94.2 83 90.5 87C86.8 91 82.4 95.6 77 99C71.6 102.4 64.2 105.6 58 107.5C51.8 109.4 46 110.8 40 110.5C34 110.2 27.2 108.2 22 106C16.8 103.8 12.2 100.5 9 97C5.8 93.5 4 88.7 2.5 85C1 81.3 0.1 77.8 0 75C-0.1 72.2 0.5 68.5 2 68C3.5 67.5 7.1 70.3 9 72C10.9 73.7 11.3 76.2 13.5 78C15.7 79.8 19.1 81.8 22 83C24.9 84.2 28 85.5 31 85.5C34 85.5 37.2 84.2 40 83C42.8 81.8 45.3 80.3 47.5 78C49.7 75.7 51.4 72 53 69C54.6 66 55.9 63.2 57 60C58.1 56.8 58.7 53.3 59.5 50C60.3 46.7 59.6 43.3 62 40Z" fill="#ff5117"/><path class="pep-shade" d="M102 40C104.8 43 106.4 46.3 107 50C107.6 53.7 106.8 57.8 105.5 62C104.2 66.2 102 70.8 99.5 75C97 79.2 94.2 83 90.5 87C86.8 91 82.4 95.6 77 99C71.6 102.4 64.2 105.6 58 107.5C51.8 109.4 46 110.8 40 110.5C41.2 110.1 44.3 108.9 47 108C49.7 107.1 53.3 106.1 56 105C58.7 103.9 60.5 103 63 101.5C65.5 100 68.4 97.9 71 96C73.6 94.1 76.5 92 78.5 90C80.5 88 81.6 86.1 83 84C84.4 81.9 85.9 79.7 87 77.5C88.1 75.3 88.7 73.1 89.5 71C90.3 68.9 91.2 67 92 65C92.8 63 93.2 61.2 94 59C94.8 56.8 96.1 54.5 96.5 52C96.9 49.5 96.2 46.3 96.5 44C96.8 41.7 97.8 39 98 38Z" fill="#dc0d28"/><path class="pep-tip" d="M2 68C3.5 67.5 7.1 70.3 9 72C10.9 73.7 11.3 76.2 13.5 78C15.7 79.8 19.1 81.8 22 83C24.9 84.2 28 85.5 31 85.5C20.7 82.5 16.3 81.3 14 80C11.7 78.7 9.8 76.7 8 75C6.2 73.3 4.2 70.8 3.5 70Z" fill="#dc0d28"/><path class="pep-hi" d="M72 40.5C73 40.5 74.2 42.1 74.5 44C74.8 45.9 74.1 49.3 73.5 52C72.9 54.7 71.9 57.6 71 60C70.1 62.4 68.9 64.9 68 66.5C67.1 68.1 66.1 69.6 65.5 69.5C64.9 69.4 64.6 67.9 64.5 66C64.4 64.1 64.7 60.7 65 58C65.3 55.3 65.9 52.3 66.5 50C67.1 47.7 67.6 45.6 68.5 44C69.4 42.4 71 40.5 72 40.5Z" fill="#ffcb88"/><path class="pep-hi2" d="M61.5 70.5C62.2 70.5 62.9 72 63 73C63.1 74 62.5 75.7 62 76.5C61.5 77.3 60.6 78.1 60 78C59.4 77.9 58.7 76.8 58.5 76C58.3 75.2 58.5 73.9 59 73C59.5 72.1 60.8 70.5 61.5 70.5Z" fill="#ffcb88"/><path class="pep-cap" d="M68.5 29C68.9 28.6 69.8 27.3 71 26.8C72.2 26.3 73.8 26.1 76 26C78.2 25.9 82 26.3 84 26C86 25.7 86.9 24.9 88 24.2C89.1 23.4 89.8 22.4 90.5 21.5C91.2 20.6 91.4 19.4 92.5 19C93.6 18.6 96 18.2 97 19C98 19.8 98.5 22.1 98.8 24C99.1 25.9 98.5 29.1 99 30.5C99.5 31.9 100.7 31.8 101.5 32.5C102.3 33.2 103.2 34 104 35C104.8 36 105.8 37 106.5 38.2C107.2 39.4 107.9 40.7 108.3 42C108.7 43.3 108.7 45.5 108.8 46.2C108.4 46.1 107.2 45.8 106.5 45.3C105.8 44.8 105.2 43.8 104.5 43.3C103.8 42.8 102.9 42.4 102 42C101.1 41.6 100 41.2 99 41.1C98 41 96.8 41 96 41.2C95.2 41.4 95 41.9 94.5 42.3C94 42.6 93.2 43.1 93 43.3C92.8 43.1 92.1 42.8 91.5 42.2C90.9 41.6 90.1 40.5 89.5 39.8C88.9 39.1 88.6 38.4 88 37.8C87.4 37.2 87.3 36.5 86 36.2C84.7 35.9 81.6 36 80 36C78.4 36 77.4 36.2 76.5 36.5C75.6 36.8 75 37.5 74.7 37.7C74.5 37.2 74 35.6 73.7 34.5C73.5 33.4 73.7 31.6 73.2 30.8C72.7 30.1 71.3 30.3 70.5 30C69.7 29.7 68.8 29.2 68.5 29Z" fill="#98b71e"/><path class="pep-stem" d="M88 24.5C86.8 24 89.2 22.5 90 21.5C90.8 20.5 91.8 19.6 92.5 18.5C93.2 17.4 93.7 16.2 94 15C94.3 13.8 94.6 12.2 94.5 11C94.4 9.8 94 8.9 93.5 8C93 7.1 92.3 6 91.5 5.6C90.7 5.1 89.5 5.3 88.5 5.3C87.5 5.3 86.5 5.6 85.8 5.4C85.1 5.2 84.5 4.4 84.4 3.9C84.3 3.4 84.7 2.7 85.2 2.3C85.7 1.9 86.6 1.8 87.5 1.6C88.4 1.4 89.4 1.2 90.5 1.2C91.6 1.1 93 1 94 1.3C95 1.6 96.1 2 96.8 2.8C97.5 3.6 98 4.8 98.4 6C98.8 7.2 99.2 8.5 99.2 10C99.2 11.5 98.9 13.3 98.6 15C98.3 16.7 97.8 18.4 97.6 20C97.4 21.6 98.8 23.8 97.2 24.5C95.6 25.2 89.2 25 88 24.5Z" fill="#98b71e"/></g><g class="pep-fx pep-fx-sparks"><circle class="pep-spark" cx="12" cy="106" r="3.2" fill="#ffd166"/><circle class="pep-spark" cx="30" cy="111" r="2.6" fill="#ff9b4a"/><circle class="pep-spark" cx="52" cy="110" r="3.4" fill="#ffd166"/><circle class="pep-spark" cx="74" cy="103" r="2.8" fill="#ff9b4a"/><circle class="pep-spark" cx="90" cy="92" r="2.4" fill="#ffd166"/></g></svg>`,
+};
 
 // ── Flair-effecten ("flair+") ─────────────────────────────────────────────────
 // Een flair kan een effect-laag dragen (sprankel, vonken, gloed, …). Opslag = één string
@@ -5017,7 +5025,7 @@ const FLAIR_ANIM = {
 const FLAIR_FX_SEP = "~";
 const FLAIR_FX = {
   sparkle:  { emoji: "✨",  reward: "fx_sparkle",  key: "flawless",  min: 1 },     // Vlekkeloos: 5 perfecte 100's op rij
-  ember:    { emoji: "🌶️", reward: "fx_ember",    key: "spicy",     min: 25 },    // Vuurproef: 25 hardste dagen gewonnen
+  ember:    { emoji: "🌶️", reward: "fx_ember",    key: "spicy",     min: 25 },    // Vuurproef, trede 4 (platina): 25 hardste dagen gewonnen
   glow:     { emoji: "🔥",  reward: "fx_glow",     key: "streak",    min: 180 },   // streak, trede 5
   vizier:   { emoji: "🎯",  reward: "fx_vizier",   key: "first_try", min: 80 },    // Voltreffer, trede 4
   sweat:    { emoji: "💧",  reward: "fx_sweat",    key: "nailbiter", min: 18 },    // Nagelbijter, trede 3
@@ -5151,6 +5159,7 @@ function flairBadgeHtml(flair, rank, live) {
 // De geanimeerde vorm van een flair: de Noto-webp, of de CSS-cheer voor de
 // flairs zonder webp (🐷/🎩/🦫).
 function flairPreviewHtml(flair) {
+  if (FLAIR_SVG[flair]) return FLAIR_SVG[flair];
   const file = FLAIR_ANIM[flair];
   return file
     ? `<img class="emoji-anim" src="/emoji/${file}.webp" alt="${escHtml(flair)}">`
@@ -5167,7 +5176,7 @@ function flairPreviewHtml(flair) {
 const flairAnimLoaded = new Map();
 function onFlairAnimReady(flair, cb) {
   const file = FLAIR_ANIM[flair];
-  if (!file) { cb(); return; }
+  if (!file || FLAIR_SVG[flair]) { cb(); return; }
   let img = flairAnimLoaded.get(file);
   if (img && img.complete && img.naturalWidth) { cb(); return; }
   if (!img) { img = new Image(); img.src = `/emoji/${file}.webp`; flairAnimLoaded.set(file, img); }
@@ -7905,7 +7914,10 @@ const ACHV_TROPHIES = [
   { key: "zigzag",    i18n: "achv_t_zigzag",   art: "pendulum", repeatable: true, tiers: [1, 6, 18, 45, 90, 180], flairFx: "pendulum", flairFxAt: 3 }, // win na zowel te vroege als te late gok
   { key: "nailbiter", i18n: "achv_t_nailbiter",art: "tightrope",repeatable: true, tiers: [1, 6, 18, 45, 90, 180], flairFx: "sweat", flairFxAt: 2 }, // win na ≥2 gokken die ≤2 jaar ("veryclose") ernaast zaten
   { key: "perfect_week", i18n: "achv_t_week",   art: "weekcheck", repeatable: true, daily: true, tiers: [1, 3, 8, 16, 30, 52] }, // win alle 7 dailies van een ma–zo week — daily-trofee, NIET retroactief (telt vanaf PERFECT_WEEK_SINCE, zie perfectWeeks); client-side afgeleid uit de daghistorie, geen server-teller
-  { key: "spicy",     i18n: "achv_t_spicy",    art: "pepper",   repeatable: true, daily: true, flairFx: "ember" }, // win een 🌶️🌶️🌶️-daily (hardste band) · 🌶️ Vonken bij FLAIR_FX.ember.min (geen trede: een getal)
+  // win een 🌶️🌶️🌶️-daily (hardste band). Treden sinds 12/10/2026 (db/93): band-3-dagen vallen ~1× per week, dus goud (10) is
+  // ruim een seizoen winnen en obsidiaan (100) een paar jaar. Goud geeft de 🌶️-flair (eigen SVG, zie FLAIR_SVG; gate in
+  // set_my_flair), platina (25) het Vonken-effect — hetzelfde getal als vóór de treden, dus de server-gate schoof niet.
+  { key: "spicy",     i18n: "achv_t_spicy",    art: "pepper",   repeatable: true, daily: true, tiers: [1, 5, 10, 25, 50, 100], flair: { emoji: "🌶️", at: 2 }, flairFx: "ember", flairFxAt: 3 },
   { key: "flawless",  i18n: "achv_t_flawless", art: "shine", flairFx: "sparkle" },   // 5 perfecte 100's op rij → ✨ sprankel-effect (FLAIR_FX)
   { key: "saver",     i18n: "achv_t_saver",    art: "buoy", daily: true },
   { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" }, repeatable: true, tiers: [1, 5, 15, 35, 70, 130] },
@@ -8217,6 +8229,11 @@ function refreshResultFrame() { if (els.result && !els.result.hidden) applyResul
 function achvTrophyDone(a, tr) {
   return tr.repeatable ? (a[tr.key] || 0) > 0 : !!a[tr.key];
 }
+// De flair van een trofee: zonder `at` bij de eerste keer (🦕), met `at` pas vanaf die trede-index (🌶️ op goud = 2).
+function trophyFlairEarned(a, tr) {
+  if (!tr.flair) return false;
+  return tr.flair.at == null ? achvTrophyDone(a, tr) : trophyTierOf(a, tr) > tr.flair.at;
+}
 function achvTrophyCount(a, tr) { return tr.repeatable ? (a[tr.key] || 0) : 0; }
 // Zelfde 6 tijdperk-grenzen als eraName (en de eras-CTE in db/33).
 function eraIndex(year) {
@@ -8413,7 +8430,7 @@ function achvEarnedFlairs() {
     for (const f of s.flairs || []) if (tier >= f.at + 1) out.push(f.emoji);
   }
   for (const tr of ACHV_TROPHIES) {
-    if (tr.flair && achvTrophyDone(a, tr)) out.push(tr.flair.emoji);
+    if (trophyFlairEarned(a, tr)) out.push(tr.flair.emoji);
   }
   const ct = capstoneTier(a);
   for (const cf of CAPSTONE_FLAIRS) if (ct >= cf.tier) out.push(cf.emoji);
@@ -8432,7 +8449,7 @@ function achvSnapshot(a) {
   for (const s of ACHV_SERIES) snap[s.key] = achvTier(achvValue(a, s), s.steps);
   for (const tr of ACHV_TROPHIES) {
     if (tr.tiers) snap[tr.key] = trophyTierOf(a, tr);                       // getierd: trede-index → notificatie alleen op tier-up
-    else if (tr.repeatable) snap[tr.key] = ((a[tr.key] || 0) > 0 ? 1 : 0) + (trophyFxReached(a, tr) ? 1 : 0);   // ongetierd herhaalbaar (spicy): de eerste keer, en de effect-mijlpaal (Vonken)
+    else if (tr.repeatable) snap[tr.key] = ((a[tr.key] || 0) > 0 ? 1 : 0) + (trophyFxReached(a, tr) ? 1 : 0);   // ongetierd herhaalbaar (sinds db/93 geen meer; spicy was het): de eerste keer, en de effect-mijlpaal
     else snap[tr.key] = achvTrophyDone(a, tr) ? 1 : 0;                      // eenmalig
   }
   return snap;
@@ -8854,6 +8871,7 @@ const REWARDS = {
   fl_hourglass: { emoji: "⏳", cat: "flair",  sect: "flair" },
   fl_moai:      { emoji: "🗿", cat: "flair",  sect: "flair" },
   fl_dino:      { emoji: "🦕", cat: "flair",  sect: "flair" },
+  fl_pepper:    { emoji: "🌶️", cat: "flair",  sect: "flair" },     // Vuurproef-goud (10 gewonnen 🌶️🌶️🌶️-dagen, db/93); eigen SVG-animatie (FLAIR_SVG)
   // 12/10/2026 (db/91): vier ladder-flairs die vrij waren + 💎 op capstone-diamant
   fl_glowstar:  { emoji: "🌟", cat: "flair",  sect: "flair" },     // dailies 60
   fl_fire:      { emoji: "🔥", cat: "flair",  sect: "flair" },     // streak 30
@@ -8875,7 +8893,7 @@ for (const [id, f] of Object.entries(FLAIR_FX)) REWARDS[f.reward] = { emoji: f.e
 for (const ev of EVENTS) for (const r of ev.rewards) REWARDS[r.key] = { emoji: r.emoji, cat: r.kind === "flair" ? "flair" : r.kind === "fx" ? "flairfx" : "effect", sect: "events", event: ev.id, ...(r.kind === "fx" ? { fx: r.fx } : {}) };
 // Volgorde van zeldzaamheid (oplopend) → de wachtrij eindigt op de zeldzaamste.
 // Voor de flair-effecten: ruwweg de zeldzaamheid van hun drempel (Nippertje/Zweetdruppel op goud … Lotus op diamant).
-const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_glowstar", "fl_fire", "fl_brain", "fl_100", "fl_dice",
+const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_glowstar", "fl_fire", "fl_brain", "fl_100", "fl_dice", "fl_pepper",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_ember",
   "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "fl_gem", "theme", "fl_crown",
   "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "cap_obsidian"];
@@ -9271,7 +9289,8 @@ function achvTrophyItem(tr, count, tier, a, prev) {
     weight: tier > 0 ? TROPHY_TIER_WEIGHT[tier - 1] : (tr.weight || ACHV_TROPHY_WEIGHT),
     art: tr.art, tier: tier || 0,
     head: t("achv_unlocked"), title: `${t(tr.i18n)}${tierTxt}${suffix}`, sub: t(`${tr.i18n}_sub`),
-    next: "", flair: tr.flair ? tr.flair.emoji : null,
+    // Flair zonder trede: bij elke kaart van die trofee; op een trede (🌶️ goud): alleen op de stap die 'm vrijspeelt.
+    next: "", flair: tr.flair && (tr.flair.at == null || (tier > tr.flair.at && prev <= tr.flair.at)) ? tr.flair.emoji : null,
     // Eenmalige trofee (Vlekkeloos) → het effect komt meteen; getierd/teller → alleen op de stap die het vrijspeelt.
     flairFx: tr.tiers || tr.repeatable ? trophyFxCrossing(a, tr, tier, prev) : (tr.flairFx || null),
   };
@@ -9420,7 +9439,7 @@ async function checkAchievements() {
       items.push(achvTrophyItem(tr, a[tr.key] || 0, tr.tiers ? curv : 0, a, prev));
       // Rood bolletje bij élke MIJLPAAL: een tier-up (incl. de eerste keer = brons)
       // is nieuw. Tussen tredes vuurt de diff niet, dus geen ×N-spam meer. Voor
-      // een ongetierde trofee (spicy) is curv 0/1, dus dit is alleen de eerste keer.
+      // een ongetierde trofee (saver) is curv 0/1, dus dit is alleen de eerste keer.
       newIds.push(`t:${tr.key}`);
     }
   }
@@ -9597,8 +9616,9 @@ function achvTrophyHtml(a, tr) {
   const fxTip = !tr.flairFx || !auth.user ? ""
     : !tr.repeatable ? t("achv_flairfx_note_flat")(t("fxn_" + tr.flairFx))
     : t("achv_flairfx_note")(t("fxn_" + tr.flairFx), tr.tiers ? trophyTierName(tr.flairFxAt + 1) : `×${fmtN(FLAIR_FX[tr.flairFx].min)}`);
-  const titleAttr = tr.flair ? ` title="${escHtml(t("achv_flair_note_flat")(tr.flair.emoji))}"`
-    : (fxTip || nextTip) ? ` title="${escHtml([fxTip, nextTip].filter(Boolean).join(" · "))}"` : "";
+  const flairTip = !tr.flair ? "" : tr.flair.at == null ? t("achv_flair_note_flat")(tr.flair.emoji) : t("achv_flair_note")(tr.flair.emoji, trophyTierName(tr.flair.at + 1));
+  const tips = [flairTip, fxTip, nextTip].filter(Boolean);
+  const titleAttr = tips.length ? ` title="${escHtml(tips.join(" · "))}"` : "";
   // Een titel (JM/GM) is niet-aflegbaar: je hébt 'm of niet (zoals GM bij een
   // schaakmeester). Geen draag-schakelaar meer — gewoon een tegel (v239).
   const art = !done && tr.lockedArt ? tr.lockedArt : tr.art;

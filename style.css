@@ -1479,6 +1479,32 @@ html[data-theme="light"], html[data-theme="parchment"] {
   .flm-saved > :first-child { animation: none; }
 }
 
+/* 🌶️ Vuurproef-flair (goud): eigen inline-SVG (geen Noto-webp voor de peper); FLAIR_SVG in game.js. Statisch = het gewone
+   teken uit de emoji-font; dit beweegt alleen waar een flair-animatie hoort (rang 1, hover, unlock-kaart). Huppel met
+   squash & stretch om de onderkant, bij de landing spatten vijf vonkjes op; stil bij prefers-reduced-motion. */
+.pep { overflow: visible; }
+.pep .pep-all, .pep .pep-spark { transform-box: fill-box; }
+.pep .pep-all { transform-origin: 50% 100%; animation: pep-hop 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.pep .pep-spark { opacity: 0; transform-origin: 50% 50%; animation: pep-spark 2.2s ease-out infinite; }
+.pep .pep-spark:nth-of-type(1) { --dx: -16px; --dy: -14px; animation-delay: 0s; }
+.pep .pep-spark:nth-of-type(2) { --dx: -8px; --dy: -20px; animation-delay: 0.05s; }
+.pep .pep-spark:nth-of-type(3) { --dx: 6px; --dy: -22px; animation-delay: 0.02s; }
+.pep .pep-spark:nth-of-type(4) { --dx: 16px; --dy: -16px; animation-delay: 0.08s; }
+.pep .pep-spark:nth-of-type(5) { --dx: 18px; --dy: -8px; animation-delay: 0.04s; }
+@keyframes pep-hop {
+  0%, 60%, 100% { transform: translateY(0) scale(1, 1); }
+  8% { transform: translateY(0) scale(1.07, 0.9); }
+  20% { transform: translateY(-15px) scale(0.95, 1.09); }
+  30% { transform: translateY(-17px) scale(1, 1); }
+  42% { transform: translateY(0) scale(1.1, 0.88); }
+  51% { transform: translateY(0) scale(0.98, 1.03); }
+}
+@keyframes pep-spark {
+  0%, 41% { transform: translate(0, 0) scale(0.4); opacity: 0; } 44% { opacity: 1; transform: translate(0, 0) scale(1); }
+  70%, 100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .pep .pep-all, .pep .pep-spark { animation: none; } .pep .pep-spark { display: none; } }
+
 /* Nep-animatie voor rang-1-flairs zonder Noto-webp (🎩/🦫): een subtiele
    "cheer" zodat ze tóch meebewegen. Uit bij prefers-reduced-motion. */
 @keyframes flair-cheer {
