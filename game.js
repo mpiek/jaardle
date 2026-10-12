@@ -223,7 +223,7 @@ const I18N = {
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "Aller tijden",
-    lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord",
+    lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord", lb_pool_switch: "Wissel van team",
     lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week", lb_wk_recap: "Recap van vorige week",
     lb_wk_live: "loopt nog", lb_wk_done: "afgerond",
     lb_wk_dagzeges: "dagzeges", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "dagzege" : "dagzeges"}`,
@@ -561,7 +561,7 @@ const I18N = {
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
     lb_daily: "Daily", lb_overall: "All-time",
-    lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board",
+    lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board", lb_pool_switch: "Switch team",
     lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week", lb_wk_recap: "Last week's recap",
     lb_wk_live: "live", lb_wk_done: "final",
     lb_wk_dagzeges: "daily wins", lb_wk_n_dagzeges: (n) => `${n} daily ${n === 1 ? "win" : "wins"}`,
@@ -892,7 +892,7 @@ const I18N = {
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
     lb_daily: "Daily", lb_overall: "Allzeit",
-    lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen",
+    lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen", lb_pool_switch: "Team wechseln",
     lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche", lb_wk_recap: "Rückblick auf die letzte Woche",
     lb_wk_live: "läuft noch", lb_wk_done: "beendet",
     lb_wk_dagzeges: "Tagessiege", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "Tagessieg" : "Tagessiege"}`,
@@ -1227,7 +1227,7 @@ const I18N = {
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
     lb_daily: "Diario", lb_overall: "Histórico",
-    lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla",
+    lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla", lb_pool_switch: "Cambiar de equipo",
     lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente", lb_wk_recap: "Resumen de la semana pasada",
     lb_wk_live: "en curso", lb_wk_done: "cerrada",
     lb_wk_dagzeges: "victorias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "victoria diaria" : "victorias diarias"}`,
@@ -1562,7 +1562,7 @@ const I18N = {
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
     lb_daily: "Diário", lb_overall: "Geral",
-    lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela",
+    lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela", lb_pool_switch: "Trocar de equipe",
     lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana", lb_wk_recap: "Resumo da semana passada",
     lb_wk_live: "em andamento", lb_wk_done: "encerrada",
     lb_wk_dagzeges: "vitórias", lb_wk_n_dagzeges: (n) => `${n} ${n === 1 ? "vitória diária" : "vitórias diárias"}`,
@@ -4923,22 +4923,79 @@ async function refreshPoolState() {
   renderMenu();
 }
 
-// Wissel-chips tussen je pools — leeg (dus onzichtbaar) bij 0 of 1 pool, zodat
-// de single-pool-flow er niets van merkt. De actieve pool is uitgelicht (.sel).
-function poolChipsHtml() {
-  if (myPools.length < 2) return "";
-  return `<div class="lb-poolchips">` + myPools.map((p) =>
-    `<button type="button" class="lb-chip${myPool && p.id === myPool.id ? " sel" : ""}" data-pool="${p.id}">${escHtml(p.name)}</button>`
-  ).join("") + `</div>`;
+// Teamkiezer: de naam van je actieve pool is zelf de knop (met een pijltje); tik opent
+// een menu met al je pools, het ledental en een vinkje bij de actieve. Bij 0 of 1 pool
+// alleen de naam als tekst, zodat de single-pool-flow er niets van merkt (geen pijltje).
+// Verving de losse wissel-chips, die de naam dubbel boven de kop zetten (12/10/2026).
+const POOLPICK_CHEV = `<svg class="lb-poolpick-chev" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.6 3.4 5 6.8l3.4-3.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function poolPickerHtml() {
+  if (!myPool) return "";
+  const name = escHtml(myPool.name);
+  if (myPools.length < 2) return `<span class="lb-poolpick-nm">${name}</span>`;
+  const items = myPools.map((p) => {
+    const on = p.id === myPool.id;
+    return `<button type="button" class="lb-poolitem" role="menuitemradio" aria-checked="${on}" data-pool="${p.id}">` +
+      `<span class="lb-poolitem-ck" aria-hidden="true">${on ? "✓" : ""}</span>` +
+      `<span class="lb-poolitem-nm">${escHtml(p.name)}</span>` +
+      `<span class="lb-poolitem-n">${t("lb_members_n")(p.members || 0)}</span></button>`;
+  }).join("");
+  return `<span class="lb-poolpick-wrap">` +
+    `<button type="button" class="lb-poolpick" aria-haspopup="menu" aria-expanded="false"><span class="lb-poolpick-nm">${name}</span>${POOLPICK_CHEV}</button>` +
+    `<div class="lb-poolmenu" role="menu" aria-label="${t("lb_pool_switch")}" popover="manual" hidden>${items}</div></span>`;
 }
 
-function wirePoolChips(root, onSwitch) {
-  root.querySelectorAll(".lb-chip[data-pool]").forEach((b) => {
+// Bedraadt de kiezer in root (bord of eindscherm): open/dicht, buiten-tik en Escape
+// sluiten alleen het menu (niet de modal eromheen), pijltjes lopen door de lijst.
+// Met de Popover-API staat het menu in de top layer (de modal-kaart scrolt en zou het
+// anders afknippen als er weinig onder de kop staat); JS zet het op de knop-rect en
+// klapt naar boven als het onderaan niet past. Zonder Popover-API: absolute onder de knop.
+function wirePoolPicker(root, onSwitch) {
+  const btn = root.querySelector(".lb-poolpick");
+  const menu = root.querySelector(".lb-poolmenu");
+  if (!btn || !menu) return;
+  const pop = typeof menu.showPopover === "function";
+  if (pop) menu.hidden = false;   // zichtbaarheid loopt dan via de popover-staat
+  const isOpen = () => pop ? menu.matches(":popover-open") : !menu.hidden;
+  const place = () => {
+    const r = btn.getBoundingClientRect(), w = menu.offsetWidth, h = menu.offsetHeight;
+    const left = Math.max(8, Math.min(r.left + 3, window.innerWidth - w - 8));
+    const below = r.bottom + 4, top = below + h <= window.innerHeight - 8 ? below : Math.max(8, r.top - 4 - h);
+    menu.style.left = `${Math.round(left)}px`; menu.style.top = `${Math.round(top)}px`;
+  };
+  const onOutside = (e) => { if (!menu.contains(e.target) && !btn.contains(e.target)) close(); };
+  const onScroll = (e) => { if (!menu.contains(e.target)) close(); };
+  const close = () => {
+    if (!isOpen()) return;
+    if (pop) menu.hidePopover(); else menu.hidden = true;
+    btn.setAttribute("aria-expanded", "false");
+    document.removeEventListener("pointerdown", onOutside, true);
+    document.removeEventListener("scroll", onScroll, true);
+    window.removeEventListener("resize", close);
+  };
+  btn.onclick = () => {
+    if (isOpen()) { close(); return; }
+    if (pop) { menu.showPopover(); place(); } else menu.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    document.addEventListener("pointerdown", onOutside, true);
+    document.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", close);
+  };
+  menu.querySelectorAll(".lb-poolitem[data-pool]").forEach((b) => {
     b.onclick = () => {
+      close();
       if (myPool && b.dataset.pool === myPool.id) return;   // al actief
       setActivePool(b.dataset.pool);
       onSwitch();
     };
+  });
+  btn.parentElement.addEventListener("keydown", (e) => {
+    if (!isOpen()) return;
+    if (e.key === "Escape") { e.stopPropagation(); close(); btn.focus(); return; }
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    const items = [...menu.querySelectorAll(".lb-poolitem")];
+    const i = items.indexOf(document.activeElement);
+    items[(i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus();
   });
 }
 
@@ -6356,10 +6413,10 @@ async function renderLeaderboard() {
 
   const inviteUrl = `https://jaardle.com/?join=${myPool.invite_code}`;
   const renameBtnHtml = myPool.is_owner ? `<button id="lb-rename-btn" class="lb-pillbtn">${t("lb_rename")}</button>` : "";
-  // "Pool erbij" alleen onder de cap; bij 2+ pools verschijnen de wissel-chips.
+  // "Pool erbij" alleen onder de cap; bij 2+ pools wordt de naam in de kop de teamkiezer (poolPickerHtml).
   const addBtnHtml = myPools.length < LB_MAX_POOLS ? `<button id="lb-add-btn" class="lb-pillbtn">${t("lb_pool_add")}</button>` : "";
-  let html = nameEditorHtml() + poolChipsHtml() + `<div class="lb-poolhead">
-      <div class="lb-poolname">${escHtml(myPool.name)}${myPool.is_owner ? ` <span class="lb-tag">${t("lb_owner_tag")}</span>` : ""}</div>
+  let html = nameEditorHtml() + `<div class="lb-poolhead">
+      <div class="lb-poolname">${poolPickerHtml()}${myPool.is_owner ? ` <span class="lb-tag">${t("lb_owner_tag")}</span>` : ""}</div>
       <div class="lb-poolsub">${t("lb_members_n")(myPool.members)}</div>
       <div class="lb-poolactions">
         <button id="lb-invite-btn" class="lb-pillbtn">${t("lb_invite")}</button>
@@ -6407,7 +6464,7 @@ async function renderLeaderboard() {
   body.innerHTML = html;
   document.getElementById("lb-recap-last")?.addEventListener("click", () => replayWeekRecap(lastDoneWk));
   wireNameEditor();
-  wirePoolChips(body, renderLeaderboard);
+  wirePoolPicker(body, renderLeaderboard);
   const addBtn = document.getElementById("lb-add-btn");
   if (addBtn) addBtn.onclick = () => renderPoolEmptyState(body);
 
@@ -7801,10 +7858,11 @@ async function loadRecapTeam() {
     renderTeamNudge(wrap);
     return;
   }
-  // Bij 2+ pools staan dezelfde wissel-chips boven het teambord; het bord zelf
-  // zit in een eigen div zodat setBoard de chips niet wegvaagt.
-  wrap.innerHTML = poolChipsHtml() + `<div id="recap-team-board"><p class="lb-empty">${t("loading")}</p></div>`;
-  wirePoolChips(wrap, loadRecapTeam);
+  // Bij 2+ pools staat dezelfde teamkiezer als in het bord boven het teambord; het bord
+  // zelf zit in een eigen div zodat setBoard de kiezer niet wegvaagt.
+  wrap.innerHTML = (myPools.length >= 2 ? `<div class="lb-poolname lb-poolpick-row">${poolPickerHtml()}</div>` : "") +
+    `<div id="recap-team-board"><p class="lb-empty">${t("loading")}</p></div>`;
+  wirePoolPicker(wrap, loadRecapTeam);
   lbDailyDate = todayKey();   // stuurt de lege-staat-tekst van dailyTableHtml
   const poolId = myPool.id;   // wisselt de gebruiker intussen van pool → gooi dit antwoord weg
   // Dagbord + weekstand parallel; het weekblok verschijnt pas vanaf de podium-epoch
