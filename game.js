@@ -7881,7 +7881,7 @@ const BEER_FX = { key: "games", at: 4, emoji: "🍻" };   // at = 0-based trede-
 const CAL_FX = { key: "dailies", at: 3, emoji: "📆", optIn: true, note: "achv_fx_note_cal" };
 const ACHV_SERIES = [
   { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365], flairs: [{ emoji: "🌟", at: 2 }], fx: CAL_FX },   // 🌟 = 60 (db/91) · ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
-  { key: "streak",  art: "flame",      steps: [7, 30, 60, 90, 180, 365],  flairs: [{ emoji: "🔥", at: 1 }, { emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // 🔥 = 30 (db/91) · ⏳ = 90 (db/41) · 🔥 Gloed = 180 (db/79)
+  { key: "streak",  art: "flame",      steps: [7, 30, 60, 90, 180, 250],  flairs: [{ emoji: "🔥", at: 1 }, { emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // 🔥 = 30 (db/91) · ⏳ = 90 (db/41) · 🔥 Gloed = 180 (db/79) · top 365 → 250 (12/10/2026, db/92: obsidiaan-poort)
   { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 1500, 3000], flairs: [{ emoji: "🎲", at: 2 }], fx: BEER_FX },   // 🎲 = 250 (db/91) · top-2 verlaagd 8/10/2026 (Matthijs: 2000/5000 → 1500/3000)
   { key: "perfect", art: "100",        steps: [1, 10, 25, 50, 100, 250],  flairs: [{ emoji: "💯", at: 3 }] },   // 💯 = 50 (db/41)
   { key: "pure",    art: "zen",        steps: [5, 25, 50, 100, 250, 500], flairs: [{ emoji: "🧠", at: 2 }], flairFxs: [{ id: "ripple", at: 3 }, { id: "lotus", at: 4 }] },   // 🧠 = 50 (db/91) · 🌊 Rimpel = 100 · 🪷 Lotus = 250 (db/79)
@@ -12168,7 +12168,7 @@ function withAnimEmoji(str, flame) {
 
 // ── De vlam groeit mee met je streak ─────────────────────────────────────────
 // Op de streak-regels (eindscherm, recap, reparatie) krijgt de 🔥 de kleur, grootte en ring van de trede waar je
-// huidige streak op staat: dezelfde zes treden als de streak-reeks op het prestatiebord (7 · 30 · 60 · 90 · 180 · 365),
+// huidige streak op staat: dezelfde zes treden als de streak-reeks op het prestatiebord (7 · 30 · 60 · 90 · 180 · 250),
 // in dezelfde tredekleuren. Onder de eerste trede blijft hij gewoon. Puur cosmetisch, voor jezelf, geen server.
 // `saved` = de redding met de inhaal-daily: er valt even een reddingsboei om de vlam (CSS, één keer).
 const streakFlameTier = (n) => (n > 0 ? achvTier(n, capstoneSeries("streak").steps) : 0);   // 0 … 6

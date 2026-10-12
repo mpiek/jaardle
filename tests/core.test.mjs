@@ -1129,7 +1129,7 @@ test("alle reeksen — 6 treden (obsidiaan = de oude diamant), brons/zilver bevr
   const want = {
     games:   [10, 100, 250, 750, 1500, 3000],   // top-2 verlaagd 8/10/2026
     dailies: [7, 30, 60, 120, 200, 365],
-    streak:  [7, 30, 60, 90, 180, 365],
+    streak:  [7, 30, 60, 90, 180, 250],   // top 365 → 250 (12/10/2026, db/92)
     perfect: [1, 10, 25, 50, 100, 250],
     pure:    [5, 25, 50, 100, 250, 500],
   };
@@ -1171,9 +1171,10 @@ test("capstoneTier — laagste trede over de 5 ladders, max 6", () => {
   assert.equal(T.capstoneTier(a(33, 26, 5, 3, 5)), 0);          // streak 5 < 7 houdt brons tegen
   assert.equal(T.capstoneTier(a(1133, 119, 89, 80, 218)), 3);   // goud (dailies/streak: 60 / 60)
   assert.equal(T.capstoneTier(a(4261, 121, 98, 297, 807)), 4);  // platina: dailies 120 + streak 90 halen platina, de rest ver erboven
-  assert.equal(T.capstoneTier(a(3000, 365, 365, 250, 500)), 6); // alles op de top = obsidiaan
-  assert.equal(T.capstoneTier(a(3000, 364, 365, 250, 500)), 5); // één dag te weinig = diamant
-  assert.equal(T.capstoneTier(a(2999, 365, 365, 250, 500)), 5); // één potje te weinig = diamant
+  assert.equal(T.capstoneTier(a(3000, 365, 250, 250, 500)), 6); // alles op de top = obsidiaan
+  assert.equal(T.capstoneTier(a(3000, 364, 250, 250, 500)), 5); // één daily te weinig = diamant
+  assert.equal(T.capstoneTier(a(3000, 365, 249, 250, 500)), 5); // één streak-dag te weinig = diamant (top 250 sinds 12/10/2026)
+  assert.equal(T.capstoneTier(a(2999, 365, 250, 250, 500)), 5); // één potje te weinig = diamant
 });
 
 test("capstoneProgress — gemiddelde naar het gedeelde doel; de trede zelf blijft de min", () => {
@@ -1187,10 +1188,10 @@ test("capstoneProgress — gemiddelde naar het gedeelde doel; de trede zelf blij
   const z = T.capstoneProgress(a(0, 0, 0, 0, 0));
   assert.equal(z.goal, 0); assert.equal(z.pct, 0); assert.equal(z.nDone, 0);
   // vier van de vijf op de top: nooit 100% zolang de laatste achterblijft (pct vast op 99)
-  const almost = T.capstoneProgress(a(3000, 365, 364, 250, 500));
+  const almost = T.capstoneProgress(a(3000, 365, 249, 250, 500));
   assert.equal(almost.goal, 5); assert.ok(almost.pct <= 99); assert.deepEqual(almost.lag, ["streak"]);
   // compleet: geen doel meer
-  const top = T.capstoneProgress(a(3000, 365, 365, 250, 500));
+  const top = T.capstoneProgress(a(3000, 365, 250, 250, 500));
   assert.equal(top.goal, null); assert.equal(top.pct, 100); assert.equal(top.nDone, 5);
 });
 
@@ -1382,7 +1383,7 @@ test("unlock-kaart: een effect komt alleen op de stap die het vrijspeelt (reeks,
   assert.equal(T.achvSeriesItem(A({ streak: 90 }), ser("streak"), 4, 3).flairFx, null);
   assert.equal(T.achvSeriesItem(A({ streak: 90 }), ser("streak"), 4, 3).flair, "⏳");
   assert.equal(T.achvSeriesItem(A({ streak: 180 }), ser("streak"), 5, 4).flairFx, "glow");
-  assert.equal(T.achvSeriesItem(A({ streak: 365 }), ser("streak"), 6, 5).flairFx, null, "al eerder gehaald → niet nog eens melden");
+  assert.equal(T.achvSeriesItem(A({ streak: 250 }), ser("streak"), 6, 5).flairFx, null, "al eerder gehaald → niet nog eens melden");
   assert.equal(T.achvSeriesItem(A({ pure: 100 }), ser("pure"), 4, 3).flairFx, "ripple");
   assert.equal(T.achvSeriesItem(A({ pure: 250 }), ser("pure"), 5, 4).flairFx, "lotus");
   assert.equal(T.achvSeriesItem(A({ pure: 250 }), ser("pure"), 5, 3).flairFx, "lotus", "twee treden in één pot: de hoogste wint");
@@ -1424,9 +1425,9 @@ test("prestatiebord: pins en tooltips noemen de effecten alleen voor ingelogde s
 });
 
 // ── De vlam groeit mee met de streak ──
-test("streakFlameTier — de zes treden van de streak-reeks (7 · 30 · 60 · 90 · 180 · 365), daaronder geen tier", () => {
+test("streakFlameTier — de zes treden van de streak-reeks (7 · 30 · 60 · 90 · 180 · 250), daaronder geen tier", () => {
   const steps = T.ACHV_SERIES.find((x) => x.key === "streak").steps;
-  assert.deepEqual(steps, [7, 30, 60, 90, 180, 365]);
+  assert.deepEqual(steps, [7, 30, 60, 90, 180, 250]);
   assert.equal(T.streakFlameTier(0), 0);
   assert.equal(T.streakFlameTier(6), 0);
   steps.forEach((n, i) => { assert.equal(T.streakFlameTier(n), i + 1, `${n} dagen = trede ${i + 1}`); assert.equal(T.streakFlameTier(n - 1), i, `${n - 1} dagen = nog trede ${i}`); });
