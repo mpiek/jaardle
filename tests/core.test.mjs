@@ -1137,21 +1137,30 @@ test("alle reeksen — 6 treden (obsidiaan = de oude diamant), brons/zilver bevr
   assert.equal(T.CAPSTONE_MAX, 6);
   assert.equal(T.ACHV_TIER_KEYS.length, 6);
   assert.equal(T.ACHV_TIER_KEYS[5], "obsidian");
-  // rating/jaren kregen op 10/10/2026 ook een 6e trede (obsidiaan = de oude diamant: 1850 / 38 zegels); ze tellen niet mee voor de capstone
-  assert.deepEqual(S("rating").steps, [1600, 1700, 1740, 1780, 1815, 1850]);
+  // rating/jaren kregen op 10/10/2026 ook een 6e trede; rating-obsidiaan = 1900 sinds 12/10 (db/91), jaren = 38 zegels; ze tellen niet mee voor de capstone
+  assert.deepEqual(S("rating").steps, [1600, 1700, 1740, 1780, 1815, 1900]);
   assert.deepEqual(S("years").steps, [4, 10, 16, 22, 28, 38]);
   assert.equal(S("years").steps[5], T.ACHV_YEARS.length, "obsidiaan = het hele album");
   assert.ok(!T.CAPSTONE_KEYS.includes("rating") && !T.CAPSTONE_KEYS.includes("years"));
-  // medailles/flairs aan hun getal (set_my_flair): 🥉 1600 · 🥈 1700 · 🥇 1850 · 👑 1850 (db/90) · 🗿 28 (db/41)
+  // medailles/flairs aan hun getal (set_my_flair, db/91): 🥉 1600 · 🥈 1700 · 🥇 1815 · 👑 1900 · 🗿 28 (db/41)
   const fl = (k, e) => { const f = S(k).flairs.find((x) => x.emoji === e); return S(k).steps[f.at]; };
   assert.equal(fl("rating", "🥉"), 1600); assert.equal(fl("rating", "🥈"), 1700);
-  assert.equal(fl("rating", "🥇"), 1850); assert.equal(fl("rating", "👑"), 1850);
+  assert.equal(fl("rating", "🥇"), 1815); assert.equal(fl("rating", "👑"), 1900);
   assert.equal(fl("years", "🗿"), 28);
-  assert.ok(!T.FLAIR_OPTIONS.includes("👑"), "👑 is geen vrije flair meer: rating-obsidiaan");
+  // 12/10/2026 (db/91): vier ladder-flairs die vrij waren, elk aan hun getal in de server-gate
+  assert.equal(fl("streak", "🔥"), 30); assert.equal(fl("games", "🎲"), 250);
+  assert.equal(fl("dailies", "🌟"), 60); assert.equal(fl("pure", "🧠"), 50);
+  for (const e of ["👑", "🔥", "🎲", "🌟", "🧠", "💎"]) assert.ok(!T.FLAIR_OPTIONS.includes(e), `${e} is geen vrije flair meer`);
+  for (const e of ["🔥", "🎲", "🌟", "🧠", "💎"]) assert.ok(T.FLAIR_ANIM[e], `${e} heeft een animatie`);
+  // elke ladder-flair heeft een REWARDS-rij (anders komt de unlock-pop-up nooit)
+  for (const s of T.ACHV_SERIES) for (const f of s.flairs || []) {
+    const key = Object.keys(T.REWARDS).find((k) => T.REWARDS[k].cat === "flair" && T.REWARDS[k].emoji === f.emoji);
+    assert.ok(key && T.REWARD_ORDER.includes(key), `${s.key} ${f.emoji}: REWARDS + REWARD_ORDER`);
+  }
   // De server-gate (db/41: ⏳ ≥90, 💯 ≥50) en het bier (1500) hangen aan een GETAL: de pin staat op de
   // trede waar dat getal valt. Verschuift een trede, dan klopt dit niet meer met set_my_flair.
-  assert.equal(S("streak").steps[S("streak").flairs[0].at], 90);
-  assert.equal(S("perfect").steps[S("perfect").flairs[0].at], 50);
+  assert.equal(fl("streak", "⏳"), 90);
+  assert.equal(fl("perfect", "💯"), 50);
   assert.equal(S("games").steps[T.BEER_FX.at], 1500);
 });
 
@@ -1206,7 +1215,8 @@ test("achvRailPct — loopt monotoon op en bereikt 100 pas op de hoogste trede (
   }
   // rating start op 1500 (floor)
   const rating = T.ACHV_SERIES.find((x) => x.key === "rating");
-  assert.equal(T.achvRailPct(1850, rating), 100);
+  assert.equal(T.achvRailPct(1900, rating), 100);
+  assert.ok(T.achvRailPct(1850, rating) < 100, "1850 is sinds db/91 diamant, niet de top");
   assert.ok(T.achvRailPct(1500, rating) === 0);
 });
 
@@ -2067,6 +2077,24 @@ test("obsidiaan — 🖤, de drie effecten en de onthulling komen samen op trede
     }
     T.auth.user = null; T.setAchv(TOP);
     assert.deepEqual(T.earnedRewardKeys(), [], "anoniem verdient niets");
+  } finally { T.auth.user = wasUser; T.setAchv(null); }
+});
+
+test("capstone-diamant — 💎 komt samen met de thema-kiezer op trede 5, niet op platina", () => {
+  const wasUser = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    const cf = T.CAPSTONE_FLAIRS.find((x) => x.emoji === "💎");
+    assert.equal(cf.tier, 5);
+    assert.equal(T.REWARDS.fl_gem.emoji, "💎");
+    assert.ok(T.REWARD_ORDER.indexOf("fl_gem") < T.REWARD_ORDER.indexOf("fl_obsidian"));
+    const DIA = mkAch([1500, 200, 180, 100, 250]), PLAT = mkAch([1500, 200, 179, 100, 250]);
+    T.setAchv(DIA);
+    assert.equal(T.capstoneTier(DIA), 5);
+    assert.ok(T.earnedRewardKeys().includes("fl_gem") && T.earnedRewardKeys().includes("theme"));
+    assert.ok(T.achvEarnedFlairs().includes("💎"));
+    T.setAchv(PLAT);
+    assert.ok(!T.earnedRewardKeys().includes("fl_gem") && !T.achvEarnedFlairs().includes("💎"), "één dag streak te weinig = platina");
   } finally { T.auth.user = wasUser; T.setAchv(null); }
 });
 

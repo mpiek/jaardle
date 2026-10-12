@@ -4851,7 +4851,9 @@ let myTitleLoaded = false;            // null = geen titel, dus "nog niet opgeha
 // draagt staat er nog in (geen migratie nodig), de rest is de best-renderende /
 // iconische kern. De server-allowlist (set_my_flair) blijft een superset en is
 // dus onveranderd veilig: hij weigert alleen, en de UI biedt nooit een gesnoeide.
-const FLAIR_OPTIONS = ["🔥", "⚡", "🌟", "💎", "🚀", "🧠", "🍀", "🎲", "🥸", "💅", "🍻", "🍕", "☕", "🎉", "☄️", "🌈", "💀",
+// 12/10/2026: 🔥 🎲 🌟 🧠 💎 zijn prestatie-flairs geworden (ACHV_SERIES/CAPSTONE_FLAIRS,
+// gate in db/91) — niemand droeg ze, dus geen migratie; de kluis toont ze nu vergrendeld.
+const FLAIR_OPTIONS = ["⚡", "🚀", "🍀", "🥸", "💅", "🍻", "🍕", "☕", "🎉", "☄️", "🌈", "💀",
   "🦊", "🦉", "🐉", "🦄", "🐙", "🐼", "🦁", "🐐", "🐢", "🦫", "🫪"];
 let pendingOpenLeaderboard = false;   // ?leaderboard-deeplink
 let pendingOpenModal = null;          // ?rating / ?achievements / ?history-deeplink → modal-id
@@ -4987,6 +4989,7 @@ const FLAIR_ANIM = {
   "🦁": "flair-lion", "💀": "flair-skull",
   "🌈": "flair-rainbow", "🫪": "flair-distorted",
   // Prestatie-flairs (unlockbaar via het 🏅-bord, gegate in set_my_flair/db36).
+  // 🔥 🎲 🌟 🧠 💎 (hierboven) zijn sinds db/91 óók prestatie-flairs.
   "💯": "flair-hundred", "⏳": "flair-hourglass", "🗿": "flair-moai",
   "🦕": "flair-sauropod",
   "🥇": "flair-goldmedal", "🥈": "flair-silvermedal", "🥉": "flair-bronzemedal",
@@ -7860,13 +7863,14 @@ const ACHV_TIER_KEYS = ["bronze", "silver", "gold", "platinum", "diamond", "obsi
 // verhuis dan alleen `at` zodat het getal gelijk blijft.
 // floor = ondergrens voor het voortgangsbalkje vóór de eerste trede (rating
 // start op 1500, dus 0..1600 zou het balkje meteen vol tekenen).
-// De rating-ladder is de enige met meer dan één flair: de medailles staan op
-// brons/zilver/obsidiaan (🥇 blijft op 1850, het getal van de server-gate), zodat de klim ook
-// onderweg iets zichtbaars oplevert; 👑 (db/90) deelt de obsidiaan-trede met 🥇.
-// Rating en jaren kregen op 10/10/2026 een 6e trede: obsidiaan = de oude diamant-waarde (1850 / 38 zegels), de
-// treden ertussen liggen lager; brons/zilver en de getallen van 🥇 (1850) en 🗿 (28) bleven staan.
-// Obsidiaan (6e trede) = de oude diamant-waarde; goud/platina/diamant liggen sinds
-// de 6e trede lager (okt 2026), brons/zilver bleven staan (zie capstone-track-design).
+// De rating-ladder heeft de meeste flairs: de medailles staan op brons/zilver/diamant en de
+// 👑 op obsidiaan, zodat de klim ook onderweg iets zichtbaars oplevert.
+// Rating en jaren kregen op 10/10/2026 een 6e trede; op 12/10 schoof rating-obsidiaan van 1850 naar
+// 1900 (👑, db/91) en zakte 🥇 naar diamant 1815. Jaren: obsidiaan = 38 zegels (album vol), 🗿 bleef op 28.
+// Goud/platina/diamant liggen sinds de 6e trede lager (okt 2026), brons/zilver bleven staan
+// (zie capstone-track-design).
+// 12/10/2026 (db/91): vier voorheen vrije flairs hangen nu aan een trede — 🔥 streak 30, 🎲 potjes 250,
+// 🌟 dailies 60, 🧠 puur 50 (en 💎 op capstone-diamant, zie CAPSTONE_FLAIRS). Niemand droeg ze.
 // fx = {emoji, at}: een niet-flair-beloning op een trede (nu alleen het biertje
 // op potjes-diamant). Staat als pin op de rail, precies als een flair, en heeft
 // géén server-gate nodig — het is puur cosmetisch en alleen zichtbaar voor
@@ -7876,13 +7880,13 @@ const BEER_FX = { key: "games", at: 4, emoji: "🍻" };   // at = 0-based trede-
 // dan het bier staat hij niet vanzelf aan — een nieuwe viering mag niemands bestaande keuze overnemen.
 const CAL_FX = { key: "dailies", at: 3, emoji: "📆", optIn: true, note: "achv_fx_note_cal" };
 const ACHV_SERIES = [
-  { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365], fx: CAL_FX },   // ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
-  { key: "streak",  art: "flame",      steps: [7, 30, 60, 90, 180, 365],  flairs: [{ emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // ⏳ = 90 (db/41) · 🔥 Gloed = 180 (db/79)
-  { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 1500, 3000], fx: BEER_FX },   // top-2 verlaagd 8/10/2026 (Matthijs: 2000/5000 → 1500/3000)
+  { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365], flairs: [{ emoji: "🌟", at: 2 }], fx: CAL_FX },   // 🌟 = 60 (db/91) · ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
+  { key: "streak",  art: "flame",      steps: [7, 30, 60, 90, 180, 365],  flairs: [{ emoji: "🔥", at: 1 }, { emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // 🔥 = 30 (db/91) · ⏳ = 90 (db/41) · 🔥 Gloed = 180 (db/79)
+  { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 1500, 3000], flairs: [{ emoji: "🎲", at: 2 }], fx: BEER_FX },   // 🎲 = 250 (db/91) · top-2 verlaagd 8/10/2026 (Matthijs: 2000/5000 → 1500/3000)
   { key: "perfect", art: "100",        steps: [1, 10, 25, 50, 100, 250],  flairs: [{ emoji: "💯", at: 3 }] },   // 💯 = 50 (db/41)
-  { key: "pure",    art: "zen",        steps: [5, 25, 50, 100, 250, 500], flairFxs: [{ id: "ripple", at: 3 }, { id: "lotus", at: 4 }] },   // 🌊 Rimpel = 100 · 🪷 Lotus = 250 (db/79)
-  { key: "rating",  art: "bolt",       steps: [1600, 1700, 1740, 1780, 1815, 1850], floor: 1500, authOnly: true,
-    flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 5 }, { emoji: "👑", at: 5 }] },   // 🥇 = 1850 (db/41), 👑 = 1850 (db/90)
+  { key: "pure",    art: "zen",        steps: [5, 25, 50, 100, 250, 500], flairs: [{ emoji: "🧠", at: 2 }], flairFxs: [{ id: "ripple", at: 3 }, { id: "lotus", at: 4 }] },   // 🧠 = 50 (db/91) · 🌊 Rimpel = 100 · 🪷 Lotus = 250 (db/79)
+  { key: "rating",  art: "bolt",       steps: [1600, 1700, 1740, 1780, 1815, 1900], floor: 1500, authOnly: true,
+    flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }, { emoji: "👑", at: 5 }] },   // 🥇 = 1815, 👑 = 1900 (db/91; was 1850/1850)
   { key: "years",   art: "albumcover", steps: [4, 10, 16, 22, 28, 38], flairs: [{ emoji: "🗿", at: 4 }], album: true },   // 🗿 = 28 (db/41)
 ];
 // repeatable: true → het veld is een oplopende TELLER (niet ooit-ja/nee) en
@@ -7932,8 +7936,9 @@ const OBSIDIAN_AT     = 1925;   // JM-drempel; moet gelijklopen met award_titles
 const GM_AT           = 2000;   // GM/Legende-drempel; award_titles() in db/59. Bewust ~onhaalbaar.
 const LEGEND_REVEAL   = 1925;   // Legende-trofee verschijnt pas als je JM-terrein aantikte
 // Reveal bewust NIET meeverhoogd: bij de omzetting stond er al iemand boven 1850, en dan
-// zou de trofee weer verdwijnen bij wie hem al kon zien.
-const OBSIDIAN_REVEAL = 1850;   // = de obsidiaan-trede van de rating-ladder (was de diamant-trede tot 10/10/2026)
+// zou de trofee weer verdwijnen bij wie hem al kon zien. Sinds 12/10/2026 is dit een los
+// getal (rating-obsidiaan schoof naar 1900): wie ooit 1850 haalde, ziet de kist.
+const OBSIDIAN_REVEAL = 1850;
 const ACHV_REPEAT_KEYS = ACHV_TROPHIES.filter((tr) => tr.repeatable).map((tr) => tr.key);
 
 // Getierde herhaalbare trofeeën: een eigen 6-trede-schaal (brons→diamant +
@@ -7984,7 +7989,7 @@ function achvValue(a, s) {
 // platina/diamant + de ladder-rebalance zijn gedefereerd. Zie het ontwerp in
 // de memory (capstone-track-design).
 const CAPSTONE_KEYS = ["games", "dailies", "streak", "perfect", "pure"];
-const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "⭐" }, { tier: 6, emoji: "🖤" }];   // brons ⭐ en obsidiaan 🖤 (server-gate: set_my_flair, db/84); zilver = confetti, goud+ = viering/rand/thema
+const CAPSTONE_FLAIRS = [{ tier: 1, emoji: "⭐" }, { tier: 5, emoji: "💎" }, { tier: 6, emoji: "🖤" }];   // brons ⭐, diamant 💎 (naast de thema-kiezer, db/91) en obsidiaan 🖤 (server-gate: set_my_flair, db/84); zilver = confetti, goud/platina = viering/rand
 const CAP_REWARD_ICONS = ["⭐", "🎊", "🗓️", "🖼️", "🎨", "🖤"];   // per trede: flair · flair-confetti · jaartallen · sierrand · thema · obsidiaan (flair + effecten + de onthulling)
 const capstoneSeries = (k) => ACHV_SERIES.find((x) => x.key === k);
 
@@ -8843,12 +8848,18 @@ const REWARDS = {
   fl_star:      { emoji: "⭐",  cat: "flair",  sect: "flair" },     // brons
   fl_bronze:    { emoji: "🥉", cat: "flair",  sect: "flair" },
   fl_silver:    { emoji: "🥈", cat: "flair",  sect: "flair" },
-  fl_gold:      { emoji: "🥇", cat: "flair",  sect: "flair" },
-  fl_crown:     { emoji: "👑", cat: "flair",  sect: "flair" },     // rating-obsidiaan (1850, db/90)
+  fl_gold:      { emoji: "🥇", cat: "flair",  sect: "flair" },     // rating-diamant (1815, db/91; was 1850)
+  fl_crown:     { emoji: "👑", cat: "flair",  sect: "flair" },     // rating-obsidiaan (1900, db/91)
   fl_100:       { emoji: "💯", cat: "flair",  sect: "flair" },
   fl_hourglass: { emoji: "⏳", cat: "flair",  sect: "flair" },
   fl_moai:      { emoji: "🗿", cat: "flair",  sect: "flair" },
   fl_dino:      { emoji: "🦕", cat: "flair",  sect: "flair" },
+  // 12/10/2026 (db/91): vier ladder-flairs die vrij waren + 💎 op capstone-diamant
+  fl_glowstar:  { emoji: "🌟", cat: "flair",  sect: "flair" },     // dailies 60
+  fl_fire:      { emoji: "🔥", cat: "flair",  sect: "flair" },     // streak 30
+  fl_brain:     { emoji: "🧠", cat: "flair",  sect: "flair" },     // puur 50
+  fl_dice:      { emoji: "🎲", cat: "flair",  sect: "flair" },     // potjes 250
+  fl_gem:       { emoji: "💎", cat: "flair",  sect: "flair" },     // capstone-diamant
   fx_confetti:  { emoji: "🎊", cat: "effect", sect: "endscreen" },  // capstone-zilver
   fx_beer:      { emoji: "🍻", cat: "effect", sect: "endscreen" },  // 1500 potjes (potjes-diamant)
   fx_goldyears: { emoji: "🗓️", cat: "effect", sect: "endscreen" },  // capstone-goud
@@ -8864,9 +8875,9 @@ for (const [id, f] of Object.entries(FLAIR_FX)) REWARDS[f.reward] = { emoji: f.e
 for (const ev of EVENTS) for (const r of ev.rewards) REWARDS[r.key] = { emoji: r.emoji, cat: r.kind === "flair" ? "flair" : r.kind === "fx" ? "flairfx" : "effect", sect: "events", event: ev.id, ...(r.kind === "fx" ? { fx: r.fx } : {}) };
 // Volgorde van zeldzaamheid (oplopend) → de wachtrij eindigt op de zeldzaamste.
 // Voor de flair-effecten: ruwweg de zeldzaamheid van hun drempel (Nippertje/Zweetdruppel op goud … Lotus op diamant).
-const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_100",
+const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_glowstar", "fl_fire", "fl_brain", "fl_100", "fl_dice",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_ember",
-  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fl_crown", "fx_platina", "theme",
+  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "fl_gem", "theme", "fl_crown",
   "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "cap_obsidian"];
 // Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
 // dragen zelf hun emoji; de flair-naam is gewoon "Flair"/"Distintivo"/…).
