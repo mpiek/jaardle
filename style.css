@@ -2784,10 +2784,11 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
    de koploper, de flair is de renner. Geen eigen kaart/omlijsting — het eindscherm
    blijft er verder uitzien zoals het deed. Spoorhoogte = de langste slide. */
 .rc-tabs { display: flex; align-items: center; gap: 0.7rem; margin: 0 0 0.5rem; }
-.rc-tab { appearance: none; border: 0; border-bottom: 2px solid transparent; background: none; padding: 0.1rem 0; margin: 0; font: inherit; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); opacity: 0.6; cursor: pointer; }
+/* eindscherm-tabs: 0.9rem (was 0.8/0.74) — "voelt klein" (12/10/2026); de kluis houdt z'n compacte maat (.rw-tabs hieronder) */
+.rc-tab { appearance: none; border: 0; border-bottom: 2px solid transparent; background: none; padding: 0.2rem 0; margin: 0; font: inherit; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); opacity: 0.6; cursor: pointer; }
 .rc-tab[aria-selected="true"] { color: var(--fg); opacity: 1; border-bottom-color: var(--accent); }
 .rc-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
-.rc-sep { width: 1px; height: 0.95rem; background: var(--border); }
+.rc-sep { width: 1px; height: 1.05rem; background: var(--border); }
 .rc-track { position: relative; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
 .rc-track::-webkit-scrollbar { display: none; }
 .rc-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
@@ -2852,8 +2853,8 @@ html[data-theme="light"], html[data-theme="parchment"] {
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
   --s-other: #8a877f;
 }
-.rc-tabs.n3 { gap: 0.5rem; }
-.rc-tabs.n3 .rc-tab { font-size: 0.74rem; letter-spacing: 0.02em; }
+.rc-tabs.n3 { gap: 0.6rem; }
+.rc-tabs.n3 .rc-tab { font-size: 0.88rem; letter-spacing: 0.03em; }
 .odds { display: flex; flex-direction: column; gap: 0.55rem; }
 .odds-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); min-height: 1.3rem; }
 /* plek-schakelaar 🥇 🥈 🥉 in de kopregel van de Kans-slide (geen eigen rij: ± 4 px extra hoogte) + tik op het midden = volgende plek */
@@ -3619,6 +3620,11 @@ html[data-theme="light"] {
 /* ── kluis in tabs: tabbalk = die van het eindscherm (.rc-tabs); voorbeelden per beloning ── */
 .rw-tabs { margin: 0 0 0.85rem; overflow-x: auto; scrollbar-width: none; }
 .rw-tabs::-webkit-scrollbar { display: none; }
+/* kluis: compacte maat van vóór de vergroting van de eindscherm-tabs (4 tabs moeten op telefoonbreedte passen) */
+.rw-tabs .rc-tab { font-size: 0.8rem; padding: 0.1rem 0; }
+.rw-tabs.n3 { gap: 0.5rem; }
+.rw-tabs.n3 .rc-tab { font-size: 0.74rem; letter-spacing: 0.02em; }
+.rw-tabs .rc-sep { height: 0.95rem; }
 .rc-tabs.n4 { gap: 0.35rem; }
 .rc-tabs.n4 .rc-tab { font-size: 0.68rem; letter-spacing: 0.01em; white-space: nowrap; }
 .rw-track .rw-slide { padding-bottom: 0.1rem; }
