@@ -66,6 +66,7 @@ src += `
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
+  VT_ROOS_FX, VTFX_KEY, vtRoosUnlocked, voltrefferChoice, setVoltrefferFx, loadVoltrefferFx, rewardsVoltrefferHtml, vtPreviewHtml, achvSeriesItem_: achvSeriesItem, elBox,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
@@ -81,6 +82,7 @@ src += `
 (0, eval)(readFileSync(join(dir, "..", "holiday-fx.js"), "utf8"));
 (0, eval)(readFileSync(join(dir, "..", "event-fx.js"), "utf8"));
 (0, eval)(readFileSync(join(dir, "..", "reward-fx.js"), "utf8"));
+(0, eval)(readFileSync(join(dir, "..", "voltreffer-fx.js"), "utf8"));
 const T = globalThis.__T;
 
 test("classify — afstand → bucket", () => {
@@ -3460,4 +3462,106 @@ test("todayKey() ≡ de dag die het vroege head-script kiest (Amsterdam): elk ha
       assert.equal(sandbox.sbEarly.d, T.todayKey(), new RealDate(at).toISOString());
     }
   } finally { globalThis.Date = RealDate; }
+});
+
+// ── Voltreffer-viering: In de roos (Perfectionist-top, 250 perfecte scores; 13/10/2026) ───────────────────────────────
+test("In de roos — verdiend op 250 perfecte scores, vanzelf aan, eigen kluis-rij en pop-up, los van de win-effecten", () => {
+  const ls = globalThis.localStorage, wasUser = T.auth.user;
+  const A = (perfect, extra = {}) => ({ games: 0, dailies: 0, streak: 0, perfect, pure: 0, rating: 0, years: [], ...extra });
+  try {
+    ls.removeItem(T.VTFX_KEY); T.auth.user = { uid: "u" };
+    const pf = T.ACHV_SERIES.find((x) => x.key === "perfect");
+    assert.equal(pf.fx, T.VT_ROOS_FX);
+    assert.equal(pf.steps[T.VT_ROOS_FX.at], 250, "de obsidiaan-trede van Perfectionist");
+    assert.equal(T.vtRoosUnlocked(A(249)), false);
+    assert.equal(T.vtRoosUnlocked(A(250)), true);
+    T.auth.user = null;
+    assert.equal(T.vtRoosUnlocked(A(999)), false, "alleen ingelogd");
+    T.auth.user = { uid: "u" };
+    T.setAchv(A(100));
+    assert.equal(T.voltrefferChoice(), "fw", "niet verdiend: het vuurwerk");
+    T.setAchv(A(250));
+    assert.equal(T.voltrefferChoice(), "roos", "verdiend en nooit gekozen: vanzelf aan");
+    T.setVoltrefferFx("fw");
+    assert.equal(T.voltrefferChoice(), "fw", "het vuurwerk terugzetten blijft staan");
+    T.setVoltrefferFx("roos");
+    for (const c of ["none", "gold", "beer", "cal", "flair"]) T.setWinFx(c);
+    assert.equal(T.voltrefferChoice(), "roos", "een win-effect kiezen raakt de voltreffer-keuze niet");
+    T.setWinFx("none");
+    // kluis: alleen In de roos verdiend → de Viering-tab bestaat, zonder de rij met één tegel
+    const u = T.winFxUnlockedMap(A(250));
+    assert.equal(u.vt, true);
+    assert.ok(T.rewardsTabsAvailable(A(250)).includes("vier"));
+    const only = T.rewardsVierHtml(u);
+    assert.match(only, /data-rw-sect="voltreffer"/);
+    assert.match(only, /aria-checked="false" data-vtfx="fw"/);
+    assert.match(only, /aria-checked="true" data-vtfx="roos"[^>]*>.*rw-vt-roos/s);
+    assert.ok(!only.includes('data-rw-sect="endscreen"'), "geen gewone-winst-rij met alleen 'standaard'");
+    // met andere vieringen erbij: beide rijen
+    const both = T.rewardsVierHtml(T.winFxUnlockedMap(A(250, { dailies: 120 })));
+    assert.ok(both.indexOf('data-rw-sect="endscreen"') < both.indexOf('data-rw-sect="voltreffer"'), "eerst de gewone winst, dan de voltreffer");
+    assert.ok(!T.rewardsVierHtml(T.winFxUnlockedMap(A(249, { dailies: 120 }))).includes("data-vtfx"), "niet verdiend: geen voltreffer-rij");
+    // pop-up: verdiend, in de volgorde, landt in de Viering-tab, eigen ondertitel
+    assert.ok(T.earnedRewardKeys().includes("fx_bullseye"));
+    assert.ok(T.REWARD_ORDER.includes("fx_bullseye") && T.REWARDS.fx_bullseye.cat === "effect");
+    assert.equal(T.RW_SECT_TAB[T.REWARDS.fx_bullseye.sect], "vier");
+    T.setLang("nl");
+    assert.equal(T.rewardName("fx_bullseye"), "🎯 In de roos");
+    assert.match(T.t(T.REWARDS.fx_bullseye.sub), /één gok/);
+    // unlock-kaart: eigen zin (niet "bij elke winst")
+    const it = T.achvSeriesItem_(A(250), pf, 6, 5);
+    assert.equal(it.fx, "🎯");
+    assert.match(T.t(it.fxEarned)(it.fx), /één gok/);
+    assert.equal(T.achvSeriesItem_(A(250), pf, 6, 6).fx, null, "geen tweede melding");
+    // 🎆 staat als escape in game.js (anders komt er een glyph in de emoji-font voor iedereen)
+    assert.ok(!readFileSync(join(dir, "..", "game.js"), "utf8").includes("🎆"));
+    assert.equal(T.t("vt_fw"), "\u{1F386} Vuurwerk");
+  } finally { ls.removeItem(T.VTFX_KEY); T.auth.user = wasUser; T.setAchv(null); T.setWinFx("none"); }
+});
+
+test("voltreffer-fx.js — In de roos tekent op een strikte canvas, deterministisch, binnen het teken-budget", () => {
+  const VF = globalThis.VoltrefferFx, saved = document.createElement;
+  document.createElement = () => ({ width: 0, height: 0, __sprite: true, getContext: () => strictCtx() });
+  try {
+    assert.deepEqual(VF.ids, ["roos"]);
+    assert.ok(VF.has("roos") && !VF.has("toString"));
+    const anchor = { x: 230, y: 470, w: 64, h: 28 }, card = { x: 16, y: 450, w: 358, h: 230 };
+    for (const theme of ["dark", "light"]) for (const knal of [1, 2, 3]) for (const [W, H, an] of [[390, 844, anchor], [360, 780, null], [1280, 760, null], [844, 390, null]]) {
+      const layers = VF.build("roos", W, H, { anchor: an, card: an ? card : null, theme, seed: 7, knal });
+      assert.equal(layers.length, 1);
+      assert.ok(layers[0].end > 3 && layers[0].end < 4.5, "duur");
+      const ctx = strictCtx();
+      for (let t = 0; t <= layers[0].end + 0.05; t += 1 / 60) layers[0].draw(ctx, t, W, H);
+    }
+    // determinisme: zelfde seed = dezelfde reeks aanroepen; een andere seed = een andere knal
+    const record = (seed, t) => {
+      const log = [];
+      const ctx = new Proxy({}, { get: (_, k) => (k === "createLinearGradient" || k === "createRadialGradient") ? () => ({ addColorStop() {} }) : (...a) => log.push(String(k) + a.map((v) => typeof v === "number" ? v.toFixed(3) : "").join(",")), set: () => true });
+      VF.build("roos", 390, 844, { anchor, card, theme: "dark", seed, knal: 2 })[0].draw(ctx, t, 390, 844);
+      return log.join(";");
+    };
+    assert.equal(record(7, 1.5), record(7, 1.5));
+    assert.notEqual(record(7, 1.5), record(8, 1.5));
+    // teken-budget: vonken gebundeld, hoe dicht de knal ook is
+    const calls = (knal) => {
+      let max = 0;
+      const layer = VF.build("roos", 390, 844, { anchor, card, theme: "dark", seed: 3, knal })[0];
+      for (let t = 0; t < layer.end; t += 1 / 60) {
+        let n = 0;
+        const ctx = new Proxy({}, { get: (_, k) => (k === "createLinearGradient" || k === "createRadialGradient") ? () => ({ addColorStop() {} }) : (...a) => { if (["fill", "stroke", "drawImage", "fillRect", "fillText"].includes(k)) n++; }, set: () => true });
+        layer.draw(ctx, t, 390, 844); max = Math.max(max, n);
+      }
+      return max;
+    };
+    assert.ok(calls(1) <= 30 && calls(3) <= 30, `draw-calls per frame ${calls(1)} / ${calls(3)}`);
+  } finally { document.createElement = saved; }
+});
+
+test("loadVoltrefferFx — laadt voltreffer-fx.js lui; de halo-maat komt uit offsetWidth/-Height, het midden uit de box", () => {
+  assert.match(readFileSync(join(dir, "..", "game.js"), "utf8"), /const loadVoltrefferFx = fxLoader\("\/voltreffer-fx\.js", "VoltrefferFx"\)/);
+  // pop-animatie op scale(1.2): de bounding box is groter, het midden gelijk → de box krijgt de echte maat om hetzelfde midden
+  const el = { isConnected: true, offsetWidth: 60, offsetHeight: 26, getBoundingClientRect: () => ({ left: 94, top: 197.4, width: 72, height: 31.2 }) };
+  assert.deepEqual(T.elBox(el), { x: 100, y: 200, w: 60, h: 26 });
+  assert.equal(T.elBox({ ...el, isConnected: false }), null);
+  assert.equal(T.elBox(null), null);
 });
