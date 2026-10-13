@@ -3693,3 +3693,26 @@ test("Eclips — voltreffer-viering van capstone-obsidiaan: standaard de zeldzaa
     assert.equal(T.t("vt_eclips"), "\u{1F311} Eclips");
   } finally { ls.removeItem(T.VTFX_KEY); T.auth.user = wasUser; T.setAchv(null); }
 });
+
+test("recapAccountHtml — tijdens een event begint het account-kaartje met je stempels (of je verdiende beloning), in alle talen; daarbuiten of zonder het UI-bestand niets extra's", () => {
+  evClean();
+  const wasUser = T.auth.user, had = window.SeasonEvent;
+  try {
+    const { SE } = loadSeasonEvent(); window.SeasonEvent = SE;
+    T.auth.user = null; T.setLang("nl"); T.setEventToday("2026-10-21");
+    assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "zonder stempels geen regel (geschiedenis/stats-kaartje vóór je eerste pot)");
+    T.setLocalHistory(evHist(evDays(1)));   // 1 dag + cadeau = 2 stempels, nog geen beloning
+    let h = T.recapAccountHtml();
+    assert.match(h, /<li class="recap-perk-ev" data-ev="spook">🎃 Je Spooktober-stempels \(2 van 14\) gaan mee<\/li>/, "onderweg: je stempels gaan mee");
+    assert.ok(h.indexOf('class="recap-perk-ev"') < h.indexOf("<li>"), "de eventregel staat bovenaan de voordelen");
+    T.setLocalHistory(evHist(evDays(2)));   // 3 stempels = de pompoen-flair
+    h = T.recapAccountHtml();
+    assert.match(h, /<li class="recap-perk-ev" data-ev="spook">🎃 Draag je verdiende Pompoen-flair \(je 3 stempels gaan mee\)<\/li>/, "verdiend: draag 'm met een account");
+    for (const l of Object.keys(T.I18N)) { T.setLang(l); const x = T.recapAccountHtml(); assert.ok(x.includes("recap-perk-ev") && !x.includes("undefined"), `${l}: eventregel zonder gaten`); }
+    T.setLang("nl");
+    T.setEventToday("2026-11-04"); assert.ok(T.recapAccountHtml().includes("recap-perk-ev"), "inhaaldagen: het event is nog in beeld");
+    T.setEventToday("2026-12-01"); assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "na het event het gewone kaartje");
+    T.setEventToday("2026-10-21"); window.SeasonEvent = undefined; assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "zonder het UI-bestand het gewone kaartje");
+    window.SeasonEvent = {}; assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "een half geladen UI-bestand breekt het kaartje niet");
+  } finally { T.auth.user = wasUser; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; evClean(); T.setLang("nl"); }
+});

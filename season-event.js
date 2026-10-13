@@ -134,6 +134,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 @media (prefers-reduced-motion: reduce) { .ev-fxp b { animation: none; top: 14px; } .ev-fxp b.up { top: 22px; bottom: auto; } .rw-fxp b.rw-up { animation: none; top: 52px; bottom: auto; } }
 
 /* haakje voor wie niet is ingelogd: de beloningen zijn publiek en dus alleen met een account te bewaren en te dragen */
+.recap-perk-ev { color: var(--ev-pk); font-weight: 700; }   /* de eventregel bovenaan het account-kaartje van het eindscherm (game.js recapAccountHtml) */
 .ev-hook { margin-top: 0.85rem; padding: 0.75rem 0.8rem 0.8rem; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--ev-pk) 55%, var(--border)); background: color-mix(in srgb, var(--ev-pk) 7%, transparent); text-align: center; }
 .ev-hook p { margin: 0 0 0.6rem; font-size: 0.8rem; line-height: 1.4; }
 .ev-hook .google-btn { margin: 0 auto; }
@@ -168,6 +169,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Alles aanzetten", needFlair: "Draag eerst een flair om je effect te zien.",
       afterNote: "Dit event is voorbij; je beloningen staan in de Flair- en Viering-tab.", achH: "Events", achSub: (n, tot) => `${n} van ${tot}`,
       lockedHint: "Dit lukt nog niet: je eerdere dagen staan nog niet op je account. Speel de daily van vandaag en probeer het opnieuw.", countsAnyway: "telt toch mee", popGroupTitle: (n) => `${n} beloningen vrijgespeeld`, barEvery: (i) => `Elke daily is een ${i}`,
+      recapKeep: (name, n, tot) => `Je ${name}-stempels (${n} van ${tot}) gaan mee`, recapWear: (name, n) => `Draag je verdiende ${name} (je ${n} stempels gaan mee)`,
     },
     en: {
       left: (n) => (n <= 1 ? "last day" : `${n} days left`), over: "The event is over", catchupUntil: (d) => `You can still catch up until ${d}`,
@@ -180,6 +182,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Turn everything on", needFlair: "Wear a flair first to see your effect.",
       afterNote: "This event is over; your rewards are in the Flair and Party tabs.", achH: "Events", achSub: (n, tot) => `${n} of ${tot}`,
       lockedHint: "Not yet: your earlier days aren't on your account yet. Play today's daily and try again.", countsAnyway: "still counts", popGroupTitle: (n) => `${n} rewards unlocked`, barEvery: (i) => `Every daily is a ${i}`,
+      recapKeep: (name, n, tot) => `Your ${name} stamps (${n} of ${tot}) come with you`, recapWear: (name, n) => `Wear the ${name} you earned (your ${n} stamps come with you)`,
     },
     de: {
       left: (n) => (n <= 1 ? "letzter Tag" : `noch ${n} Tage`), over: "Das Event ist vorbei", catchupUntil: (d) => `Nachholen ist noch bis ${d} möglich`,
@@ -192,6 +195,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Alles einschalten", needFlair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.",
       afterNote: "Dieses Event ist vorbei; deine Belohnungen findest du in den Tabs Flair und Feier.", achH: "Events", achSub: (n, tot) => `${n} von ${tot}`,
       lockedHint: "Das klappt noch nicht: deine früheren Tage sind noch nicht in deinem Konto. Spiele das heutige Daily und versuche es erneut.", countsAnyway: "zählt trotzdem", popGroupTitle: (n) => `${n} Belohnungen freigeschaltet`, barEvery: (i) => `Jedes Daily ist ein ${i}`,
+      recapKeep: (name, n, tot) => `Deine ${name}-Stempel (${n} von ${tot}) kommen mit`, recapWear: (name, n) => `Trag dein verdientes ${name} (deine ${n} Stempel kommen mit)`,
     },
     es: {
       left: (n) => (n <= 1 ? "último día" : `quedan ${n} días`), over: "El evento ha terminado", catchupUntil: (d) => `Aún puedes recuperar hasta el ${d}`,
@@ -204,6 +208,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Activar todo", needFlair: "Lleva primero un distintivo para ver tu efecto.",
       afterNote: "Este evento ha terminado; tus recompensas están en las pestañas Distintivo y Fiesta.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
       lockedHint: "Aún no: tus días anteriores todavía no están en tu cuenta. Juega el diario de hoy y vuelve a intentarlo.", countsAnyway: "cuenta igual", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada diario es una ${i}`,
+      recapKeep: (name, n, tot) => `Tus sellos de ${name} (${n} de ${tot}) van contigo`, recapWear: (name, n) => `Usa el ${name} que ganaste (tus ${n} sellos van contigo)`,
     },
     pt: {
       left: (n) => (n <= 1 ? "último dia" : `faltam ${n} dias`), over: "O evento acabou", catchupUntil: (d) => `Você ainda pode recuperar até ${d}`,
@@ -216,6 +221,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Ativar tudo", needFlair: "Use primeiro um distintivo para ver seu efeito.",
       afterNote: "Este evento acabou; suas recompensas estão nas abas Distintivo e Festa.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
       lockedHint: "Ainda não: seus dias anteriores ainda não estão na sua conta. Jogue o diário de hoje e tente de novo.", countsAnyway: "conta mesmo assim", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada diário é uma ${i}`,
+      recapKeep: (name, n, tot) => `Seus carimbos de ${name} (${n} de ${tot}) vão junto`, recapWear: (name, n) => `Use o ${name} que você ganhou (seus ${n} carimbos vão junto)`,
     },
   };
 

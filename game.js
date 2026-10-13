@@ -7150,6 +7150,7 @@ async function renderRecap() {
     fetchGlobalScoreDist(), fetchFactStatsSafe(), streakLineInfo(state.won), fetchScoreRankSafe(),
     auth.user && !myPoolsOk ? fetchMyPools() : null,
     auth.user ? ensureMyIdentity() : null,   // je flair staat in de pin; liever vóór het eerste tekenen dan erna
+    !auth.user && eventsInView().length ? loadSeasonEvent().catch(() => null) : null,   // het account-kaartje noemt je stempels: de teksten moeten er zijn (meestal al binnen via de strook)
   ]);
   if (document.getElementById("modal-recap").hidden) return;
   const teamRoom = !!auth.user && myPools.some((p) => (p.members || 0) >= 2);
@@ -7205,12 +7206,24 @@ async function renderRecap() {
 // stats-modal (anon) — daarom een class i.p.v. id op de knop (kan 2× in de DOM).
 // De hoofdknop is direct "Doorgaan met Google" (één tik minder dan eerst de login-modal openen);
 // "of met e-mail" opent die modal nog steeds (inloggen/registreren/wachtwoord vergeten).
+// Tijdens een event (ook de inhaaldagen) begint het account-kaartje met je stempels: wie al een beloning heeft verdiend hoort dat hij die
+// met een account kan dragen, wie nog onderweg is dat zijn stempels meegaan. Het eindscherm opent bovenop de strook met dezelfde
+// boodschap, dus zonder deze regel zag een uitgelogde speler er niets van (13/10/2026). Teksten uit SHARED in season-event.js.
+function recapEventPerkHtml() {
+  const ev = eventsInView()[0], c = ev && eventCopy(ev.id);
+  if (!ev || !c || typeof c.recapKeep !== "function") return "";
+  const st = eventState(ev);
+  if (!st.n) return "";   // nog niets gespeeld (geschiedenis/stats-kaartje): niets te beloven
+  const first = ev.rewards[0];
+  const text = first && st.n >= first.at ? c.recapWear(c.rewardName[first.kind] || first.emoji, st.n) : c.recapKeep(c.name, st.n, st.total);
+  return `<li class="recap-perk-ev" data-ev="${escHtml(ev.id)}">${escHtml(ev.icon + " " + text)}</li>`;
+}
 function recapAccountHtml() {
   // Het Google-logo komt uit de login-modal (één bron, officiële kleuren); zonder DOM (tests) gewoon geen icoon.
   const googleIcon = document.querySelector("#login-google svg")?.outerHTML || "";
   return `<div class="recap-account">
     <h3 class="stats-heading">${t("recap_acct_title")}</h3>
-    <ul class="recap-perks">
+    <ul class="recap-perks">${recapEventPerkHtml()}
       <li>${t("recap_acct_1")}</li>
       <li>${t("recap_acct_2")}</li>
       <li>${t("recap_acct_3")}</li>
@@ -9078,7 +9091,7 @@ const REWARD_NAME_KEY = {
   fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme", fx_bullseye: "vt_roos", fx_vt_eclips: "vt_eclips",
 };
 // De teksten van een event komen uit het lui geladen /season-event.js (vijf talen); zonder dat bestand valt alles terug op het icoon.
-const eventCopy = (id) => (window.SeasonEvent ? window.SeasonEvent.copy(id, lang) : null);
+const eventCopy = (id) => (window.SeasonEvent && typeof window.SeasonEvent.copy === "function" ? window.SeasonEvent.copy(id, lang) : null);
 const eventRewardKind = (key) => { const ev = eventOfReward(key); const r = ev && ev.rewards.find((x) => x.key === key); return r ? r.kind : ""; };
 function rewardName(key) {
   const r = REWARDS[key];
