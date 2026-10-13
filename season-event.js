@@ -134,11 +134,54 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 @media (prefers-reduced-motion: reduce) { .ev-fxp b { animation: none; top: 14px; } .ev-fxp b.up { top: 22px; bottom: auto; } .rw-fxp b.rw-up { animation: none; top: 52px; bottom: auto; } }
 
 /* haakje voor wie niet is ingelogd: de beloningen zijn publiek en dus alleen met een account te bewaren en te dragen */
-.recap-perk-ev { color: var(--ev-pk); font-weight: 700; }   /* de eventregel bovenaan het account-kaartje van het eindscherm (game.js recapAccountHtml) */
 .ev-hook { margin-top: 0.85rem; padding: 0.75rem 0.8rem 0.8rem; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--ev-pk) 55%, var(--border)); background: color-mix(in srgb, var(--ev-pk) 7%, transparent); text-align: center; }
 .ev-hook p { margin: 0 0 0.6rem; font-size: 0.8rem; line-height: 1.4; }
 .ev-hook .google-btn { margin: 0 auto; }
 .ev-hook .link-btn { display: block; margin: 0.5rem auto 0; }
+
+/* ── de 🎃-tab van het eindscherm (pane): zelfde onderdelen als het Events-scherm, maar kort, want het eindscherm is al lang ── */
+.evr { display: flex; flex-direction: column; gap: 0.55rem; padding-top: 0.1rem; }
+.evr-head { appearance: none; display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0; margin: 0; border: 0; background: none; font: inherit; color: var(--fg); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.evr-head .cat-head { flex: none; width: 28px; height: 28px; filter: drop-shadow(0 0 1px rgba(205, 170, 255, 0.9)); }
+.evr-head .ev-ico { font-size: 1.3rem; line-height: 1; }
+.evr-ttl { flex: 1; min-width: 0; }
+.evr-ttl b { display: block; font-size: 0.92rem; line-height: 1.15; }
+.evr-ttl span { display: block; margin-top: 0.08rem; font-size: 0.7rem; color: var(--muted); }
+.evr .ev-count { font-size: 1.15rem; }
+.evr .ev-count small { font-size: 0.7rem; }
+.evr-go { color: var(--muted); font-size: 1.05rem; line-height: 1; }
+.evc.mini .evp { gap: 0.3rem 0.2rem; padding: 0; }
+.evc.mini .evp-s { width: min(100%, 1.95rem); border-width: 1.5px; }
+.evc.mini .evp-no { font-size: 0.55rem; }
+.evr-rw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+.evr-t { display: flex; flex-direction: column; align-items: center; gap: 0.22rem; min-width: 0; padding: 0.45rem 0.25rem 0.4rem; background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; text-align: center; }
+.evr-t.lock { opacity: 0.68; }
+.evr-t.next { border-color: color-mix(in srgb, var(--ev-pk) 55%, var(--border)); }
+.evr-t .ev-prev { width: 2.1rem; height: 2.1rem; font-size: 1.2rem; border-radius: 8px; }
+.evr-t .ev-prev .fl-fx { font-size: 1.2rem; }
+.evr-nm { font-size: 0.7rem; line-height: 1.2; font-weight: 700; overflow-wrap: anywhere; }
+.evr-st { font-size: 0.66rem; line-height: 1.2; color: var(--muted); font-weight: 600; }
+.evr-st.go { color: var(--ev-pk); }
+.evr-btn { appearance: none; font: inherit; font-size: 0.66rem; font-weight: 700; line-height: 1.2; padding: 0.18rem 0.55rem; border-radius: 999px; border: 1px solid var(--ev-pk); background: var(--ev-pk); color: var(--ev-pk-ink); cursor: pointer; white-space: nowrap; }
+.evr-btn:disabled { cursor: default; background: none; color: var(--muted); border-color: var(--border); opacity: 0.7; }
+.evr-hook { padding: 0.55rem 0.6rem 0.6rem; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--ev-pk) 55%, var(--border)); background: color-mix(in srgb, var(--ev-pk) 7%, transparent); text-align: center; }
+.evr-hook p { margin: 0 0 0.45rem; font-size: 0.76rem; line-height: 1.35; font-weight: 600; }
+.evr-hook .google-btn { margin: 0 auto; }
+.evr-hook .link-btn { display: block; margin: 0.35rem auto 0; font-size: 0.74rem; }
+/* het tabbalkje bovenaan (uitgelogd, of zonder team-carrousel): klein, het eindscherm is al lang */
+.rce-tabs { gap: 0.55rem; margin: 0 0 0.7rem; }
+.rce-tabs .rc-tab { font-size: 0.76rem; padding: 0.1rem 0; }
+.rce-tabs .rc-sep { height: 0.9rem; }
+/* in de team-carrousel is het alleen het icoon; de labels breken nooit af (Vandaag · Week · Kans + 🎃 liep op 360 px in 4 talen over twee
+   regels), met drie teksttabs worden ze kleiner, en lukt het dan nog niet (320 px) dan schuift de balk zelf */
+.rc-tabs.has-ev { gap: 0.55rem; overflow-x: auto; scrollbar-width: none; }
+.rc-tabs.has-ev::-webkit-scrollbar { display: none; }
+.rc-tabs.has-ev .rc-tab { flex: none; white-space: nowrap; }
+.rc-tabs.n3.has-ev { gap: 0.5rem; }
+.rc-tabs.n3.has-ev .rc-tab:not(.rc-tab-ev) { font-size: 0.8rem; letter-spacing: 0.02em; }
+@media (max-width: 340px) { .rc-tabs.n3.has-ev { gap: 0.35rem; } .rc-tabs.n3.has-ev .rc-tab:not(.rc-tab-ev) { font-size: 0.7rem; letter-spacing: 0.01em; } }
+.rc-tab.rc-tab-ev { font-size: 1rem; letter-spacing: 0; text-transform: none; padding: 0.05rem 0.1rem; }
+.rce-tabs .rc-tab.rc-tab-ev { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.1rem 0; }
 
 /* archief: wat je van eerdere events hebt */
 .ev-arch { display: grid; grid-template-columns: 2.9rem minmax(0, 1fr); gap: 0.7rem; align-items: center; padding: 0.55rem 0.65rem; background: var(--card-soft); border: 1px solid var(--border); border-radius: 12px; }
@@ -169,7 +212,6 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Alles aanzetten", needFlair: "Draag eerst een flair om je effect te zien.",
       afterNote: "Dit event is voorbij; je beloningen staan in de Flair- en Viering-tab.", achH: "Events", achSub: (n, tot) => `${n} van ${tot}`,
       lockedHint: "Dit lukt nog niet: je eerdere dagen staan nog niet op je account. Speel de daily van vandaag en probeer het opnieuw.", countsAnyway: "telt toch mee", popGroupTitle: (n) => `${n} beloningen vrijgespeeld`, barEvery: (i) => `Elke daily is een ${i}`,
-      recapKeep: (name, n, tot) => `Je ${name}-stempels (${n} van ${tot}) gaan mee`, recapWear: (name, n) => `Draag je verdiende ${name} (je ${n} stempels gaan mee)`,
     },
     en: {
       left: (n) => (n <= 1 ? "last day" : `${n} days left`), over: "The event is over", catchupUntil: (d) => `You can still catch up until ${d}`,
@@ -182,7 +224,6 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Turn everything on", needFlair: "Wear a flair first to see your effect.",
       afterNote: "This event is over; your rewards are in the Flair and Party tabs.", achH: "Events", achSub: (n, tot) => `${n} of ${tot}`,
       lockedHint: "Not yet: your earlier days aren't on your account yet. Play today's daily and try again.", countsAnyway: "still counts", popGroupTitle: (n) => `${n} rewards unlocked`, barEvery: (i) => `Every daily is a ${i}`,
-      recapKeep: (name, n, tot) => `Your ${name} stamps (${n} of ${tot}) come with you`, recapWear: (name, n) => `Wear the ${name} you earned (your ${n} stamps come with you)`,
     },
     de: {
       left: (n) => (n <= 1 ? "letzter Tag" : `noch ${n} Tage`), over: "Das Event ist vorbei", catchupUntil: (d) => `Nachholen ist noch bis ${d} möglich`,
@@ -195,7 +236,6 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Alles einschalten", needFlair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.",
       afterNote: "Dieses Event ist vorbei; deine Belohnungen findest du in den Tabs Flair und Feier.", achH: "Events", achSub: (n, tot) => `${n} von ${tot}`,
       lockedHint: "Das klappt noch nicht: deine früheren Tage sind noch nicht in deinem Konto. Spiele das heutige Daily und versuche es erneut.", countsAnyway: "zählt trotzdem", popGroupTitle: (n) => `${n} Belohnungen freigeschaltet`, barEvery: (i) => `Jedes Daily ist ein ${i}`,
-      recapKeep: (name, n, tot) => `Deine ${name}-Stempel (${n} von ${tot}) kommen mit`, recapWear: (name, n) => `Trag dein verdientes ${name} (deine ${n} Stempel kommen mit)`,
     },
     es: {
       left: (n) => (n <= 1 ? "último día" : `quedan ${n} días`), over: "El evento ha terminado", catchupUntil: (d) => `Aún puedes recuperar hasta el ${d}`,
@@ -208,7 +248,6 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Activar todo", needFlair: "Lleva primero un distintivo para ver tu efecto.",
       afterNote: "Este evento ha terminado; tus recompensas están en las pestañas Distintivo y Fiesta.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
       lockedHint: "Aún no: tus días anteriores todavía no están en tu cuenta. Juega el diario de hoy y vuelve a intentarlo.", countsAnyway: "cuenta igual", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada diario es una ${i}`,
-      recapKeep: (name, n, tot) => `Tus sellos de ${name} (${n} de ${tot}) van contigo`, recapWear: (name, n) => `Usa el ${name} que ganaste (tus ${n} sellos van contigo)`,
     },
     pt: {
       left: (n) => (n <= 1 ? "último dia" : `faltam ${n} dias`), over: "O evento acabou", catchupUntil: (d) => `Você ainda pode recuperar até ${d}`,
@@ -221,7 +260,6 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       turnAllOn: "Ativar tudo", needFlair: "Use primeiro um distintivo para ver seu efeito.",
       afterNote: "Este evento acabou; suas recompensas estão nas abas Distintivo e Festa.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
       lockedHint: "Ainda não: seus dias anteriores ainda não estão na sua conta. Jogue o diário de hoje e tente de novo.", countsAnyway: "conta mesmo assim", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada diário é uma ${i}`,
-      recapKeep: (name, n, tot) => `Seus carimbos de ${name} (${n} de ${tot}) vão junto`, recapWear: (name, n) => `Use o ${name} que você ganhou (seus ${n} carimbos vão junto)`,
     },
   };
 
@@ -363,8 +401,11 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
   // beter dan veel kleine en houden op een telefoon de getallen bij de cadeaus in beeld (13/10/2026; bij 7 per rij waren de vakjes 33 px en vielen ze weg).
   const CARD_MAX_COLS = 4;
   const cardCols = (total) => Math.ceil(total / Math.ceil(total / CARD_MAX_COLS));
+  // o.mini = de kleine kaart in de 🎃-tab van het eindscherm: hoogstens 7 per rij (14 → 7×2), het eindscherm is al lang.
+  const CARD_MINI_COLS = 7;
+  const miniCols = (total) => Math.ceil(total / Math.ceil(total / CARD_MINI_COLS));
   function card(v, o) {
-    const c = copy(v.id, v.lang), arrive = !!(o && o.arrive);
+    const c = copy(v.id, v.lang), arrive = !!(o && o.arrive), mini = !!(o && o.mini);
     let slots = "";
     for (let i = 1; i <= v.total; i++) {
       const r = v.thresholds.indexOf(i), on = i <= v.n, rw = r >= 0;
@@ -373,7 +414,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       const inner = rw ? (on ? `<b class="evp-ic">${esc(v.rewards[r].icon)}</b>` : `<em class="evp-gf"></em>`) + `<span class="evp-no">${i}</span>` : `<span class="evp-no">${i}</span>`;
       slots += `<i class="${cls}">${inner}</i>`;
     }
-    return `<div class="evc${arrive ? " arrive" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp"${v.tier > 0 ? ` data-tier="${Math.min(6, v.tier | 0)}"` : ""} style="--cols:${cardCols(v.total)}">${slots}</div></div>`;
+    return `<div class="evc${arrive ? " arrive" : ""}${mini ? " mini" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp"${v.tier > 0 ? ` data-tier="${Math.min(6, v.tier | 0)}"` : ""} style="--cols:${mini ? miniCols(v.total) : cardCols(v.total)}">${slots}</div></div>`;
   }
 
   // ── de strook op het eindscherm: dagen als puntjes, drempels als ronde pinnen, één tekstregel ──────────────────
@@ -441,6 +482,27 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
     return hero + `<section class="rw-sect" data-rw-sect="ev-rewards" data-ev="${esc(v.id)}"><h3 class="stats-heading">${esc(c.rewardsH)}</h3><div class="ev-list">${rows}</div>` +
       (v.anon ? hook(v, c, o.google) : `<p class="ev-note">${esc(c.keep)}</p>`) + `</section>`;
   }
+  // ── het compacte blok voor de 🎃-tab van het eindscherm: kop (tik = het volledige scherm), mini-kaart, de beloningen als drie tegels en,
+  // voor wie niet is ingelogd, het haakje direct daaronder (geen vier rijen scrollen). Knoppen: data-ev-act (dragen/aanzetten), data-ev-open.
+  function paneTile(v, c, r, i) {
+    const earned = v.earned[i], worn = !!v.worn[i], isNext = !earned && nextReward(v) === r;
+    let st;
+    if (!earned) st = `<span class="evr-st${isNext ? " go" : ""}">\u{1F512} ${esc(c.toGo(r.at - v.n))}</span>`;
+    else if (v.anon) st = `<span class="evr-st">✓ ${esc(c.at(r.at))}</span>`;
+    else if (worn) st = `<span class="evr-st">✓ ${esc(r.kind === "flair" ? c.worn : c.on)}</span>`;
+    else if (r.kind === "fx" && !v.anyFlair) st = `<button type="button" class="evr-btn" disabled title="${esc(c.needFlair)}">${esc(c.turnOn)}</button>`;
+    else st = `<button type="button" class="evr-btn" data-ev-act="${i}" data-ev-id="${esc(v.id)}">${esc(r.kind === "flair" ? c.wear : c.turnOn)}</button>`;
+    const nm = String(c.rewardName[r.kind] || "").replace(/^[^\p{L}\p{N}]+\s+/u, "");   // "🕸️ Spinnenweb" → "Spinnenweb": het voorbeeld erboven toont het al
+    return `<div class="evr-t ${earned ? "done" : isNext ? "next" : "lock"}">${rewardPreview(v, r)}<b class="evr-nm">${esc(nm)}</b>${st}</div>`;
+  }
+  function pane(v, o) {
+    o = o || {};
+    const c = copy(v.id, v.lang), when = v.phase !== "run" ? c.over : c.left(v.daysLeft);
+    const head = `<button type="button" class="evr-head" data-ev-open="${esc(v.id)}">${mascotOf(v) || `<span class="ev-ico">${esc(v.icon)}</span>`}` +
+      `<span class="evr-ttl"><b>${esc(c.name)}</b><span>${esc(dates(v) + " · " + when)}</span></span><span class="ev-count"><b>${v.n}</b><small>/ ${v.total}</small></span><span class="evr-go" aria-hidden="true">›</span></button>`;
+    const hook = v.anon ? `<div class="evr-hook"><p>${esc(c.anonHook)}</p><button type="button" class="google-btn js-google-btn">${o.google || ""}<span>${esc(c.google)}</span></button><button type="button" class="link-btn js-acct-btn">${esc(c.orMail)}</button></div>` : "";
+    return `<div class="evr" data-ev="${esc(v.id)}">${head}${card(v, { mini: true })}<div class="evr-rw">${v.rewards.map((r, i) => paneTile(v, c, r, i)).join("")}</div>${hook}</div>`;
+  }
   // Het archief (na het event, voor wie meedeed): het zegel met zijn ring en wat je verdiende. Wat je niet haalde staat er niet.
   function archive(v) {
     const c = copy(v.id, v.lang), tier = v.tier != null ? v.tier : v.earned.filter(Boolean).length;
@@ -472,5 +534,5 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
     }
   } catch (e) {}
 
-  return { copy, bar, card, strip, screen, archive, tab, menuItem, art, ids, css: CSS, nextText: (v) => nextText(v, copy(v.id, v.lang)), dates };
+  return { copy, bar, card, strip, screen, pane, archive, tab, menuItem, art, ids, css: CSS, nextText: (v) => nextText(v, copy(v.id, v.lang)), dates };
 })();

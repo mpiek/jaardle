@@ -7144,13 +7144,15 @@ async function renderRecap() {
   const body = document.getElementById("recap-body");
   if (!body) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
+  takeRecapEvFocus(); recapEvCounted = false;
   // Of er teamgezichtjes kunnen komen moet vóór het eerste tekenen vaststaan (het histogram reserveert er ruimte voor);
   // my_pools loopt daarom parallel met de rest mee als hij nog niet binnen was (koude start).
   const [dist, stats, streak, scoreRank] = await Promise.all([
     fetchGlobalScoreDist(), fetchFactStatsSafe(), streakLineInfo(state.won), fetchScoreRankSafe(),
     auth.user && !myPoolsOk ? fetchMyPools() : null,
     auth.user ? ensureMyIdentity() : null,   // je flair staat in de pin; liever vóór het eerste tekenen dan erna
-    !auth.user && eventsInView().length ? loadSeasonEvent().catch(() => null) : null,   // het account-kaartje noemt je stempels: de teksten moeten er zijn (meestal al binnen via de strook)
+    recapEvent() ? ensureEventUi([recapEvent()]).catch(() => null) : null,   // de 🎃-tab: het event-bestand (+ kattenkopje), meestal al binnen via de strook
+    recapEvent() && auth.user && !myHistoryCache ? getMyHistory().catch(() => null) : null,   // de stempels komen (mede) uit je server-historie
   ]);
   if (document.getElementById("modal-recap").hidden) return;
   const teamRoom = !!auth.user && myPools.some((p) => (p.members || 0) >= 2);
@@ -7199,6 +7201,8 @@ async function renderRecap() {
   });
   const sbtn = document.getElementById("recap-share-btn");
   if (sbtn) sbtn.onclick = () => doShare(sbtn);
+  // De 🎃-tab: in de team-carrousel als die er komt (pool, team-voorproefje = nudge-stap 0), anders hier een tabbalkje bovenaan.
+  if (recapEventReady() && (!auth.user || (!myPool && teamNudgeStage() !== 0))) mountRecapEventTopbar(body);
 }
 
 // Voordelen-blok voor uitgelogde spelers op het recap-scherm: een gecentreerd,
@@ -7206,24 +7210,12 @@ async function renderRecap() {
 // stats-modal (anon) — daarom een class i.p.v. id op de knop (kan 2× in de DOM).
 // De hoofdknop is direct "Doorgaan met Google" (één tik minder dan eerst de login-modal openen);
 // "of met e-mail" opent die modal nog steeds (inloggen/registreren/wachtwoord vergeten).
-// Tijdens een event (ook de inhaaldagen) begint het account-kaartje met je stempels: wie al een beloning heeft verdiend hoort dat hij die
-// met een account kan dragen, wie nog onderweg is dat zijn stempels meegaan. Het eindscherm opent bovenop de strook met dezelfde
-// boodschap, dus zonder deze regel zag een uitgelogde speler er niets van (13/10/2026). Teksten uit SHARED in season-event.js.
-function recapEventPerkHtml() {
-  const ev = eventsInView()[0], c = ev && eventCopy(ev.id);
-  if (!ev || !c || typeof c.recapKeep !== "function") return "";
-  const st = eventState(ev);
-  if (!st.n) return "";   // nog niets gespeeld (geschiedenis/stats-kaartje): niets te beloven
-  const first = ev.rewards[0];
-  const text = first && st.n >= first.at ? c.recapWear(c.rewardName[first.kind] || first.emoji, st.n) : c.recapKeep(c.name, st.n, st.total);
-  return `<li class="recap-perk-ev" data-ev="${escHtml(ev.id)}">${escHtml(ev.icon + " " + text)}</li>`;
-}
 function recapAccountHtml() {
   // Het Google-logo komt uit de login-modal (één bron, officiële kleuren); zonder DOM (tests) gewoon geen icoon.
   const googleIcon = document.querySelector("#login-google svg")?.outerHTML || "";
   return `<div class="recap-account">
     <h3 class="stats-heading">${t("recap_acct_title")}</h3>
-    <ul class="recap-perks">${recapEventPerkHtml()}
+    <ul class="recap-perks">
       <li>${t("recap_acct_1")}</li>
       <li>${t("recap_acct_2")}</li>
       <li>${t("recap_acct_3")}</li>
@@ -7300,20 +7292,104 @@ function recapArrowKey(dir, repeat) {
   if (!repeat) r.go(dir);
   return true;
 }
+// ── Het event als tab in het eindscherm (13/10/2026: "zo'n tab die je ook ziet tijdens halloween … dat je daar ook je achievements ziet in
+// het eindscherm"). Tijdens een event (ook de inhaaldagen, eventsInView) krijgt de recap een tab met het compacte blok uit /season-event.js
+// (SeasonEvent.pane: kop, mini-stempelkaart, de beloningen als tegels, voor wie niet is ingelogd het haakje). Staat er al een carrousel
+// (pool, team-voorproefje), dan is het de laatste tab (alleen het icoon); anders (uitgelogd, of ingelogd zonder team-carrousel) een klein
+// tabbalkje bovenaan: Vandaag · 🎃 Spooktober. De recap opent altijd op Vandaag; een stip op de tab = een stempel dat je nog niet zag.
+// Na het event verdwijnt de tab vanzelf. Wie via het haakje met Google inlogt, komt terug in het eindscherm op deze tab (RECAP_EV_KEY).
+const RECAP_EV_KEY = "jaardle:pendingRecapEv";   // tijdstip (ms) van een Google-login vanuit de 🎃-tab
+let recapEvFocusUntil = 0;   // tot dit moment opent de recap op de 🎃-tab (ook een herrender, bv. na claim_play bij het inloggen)
+let recapEvCounted = false;  // GoatCounter: één telling per recap
+const recapEvent = () => (state && state.mode === "daily" && state.done ? eventsInView()[0] || null : null);
+const recapEventReady = () => { const ev = recapEvent(); return ev && window.SeasonEvent && typeof window.SeasonEvent.pane === "function" ? ev : null; };
+function takeRecapEvFocus() {
+  let at = 0;
+  try { at = Number(localStorage.getItem(RECAP_EV_KEY)) || 0; if (at) localStorage.removeItem(RECAP_EV_KEY); } catch (e) {}
+  if (at && Date.now() - at < 15 * 60 * 1000) recapEvFocusUntil = Date.now() + 20000;
+}
+const recapEvFocus = () => Date.now() < recapEvFocusUntil;
+function recapEventPaneSpec() {
+  const ev = recapEventReady();
+  if (!ev) return null;
+  const c = eventCopy(ev.id);
+  return { id: ev.id, icon: ev.icon, name: (c && c.name) || ev.id, html: window.SeasonEvent.pane(eventView(ev), { google: document.querySelector("#login-google svg")?.outerHTML || "" }) };
+}
+// De tab is gezien: de stempelstand op "gezien" (stip weg, ook op 🪎/⋮) en één GoatCounter-telling per recap.
+function recapEventSeen(ev) {
+  markEventSeen();
+  document.querySelectorAll("#recap-body .rc-tab-ev.has-new").forEach((b) => b.classList.remove("has-new"));
+  if (!recapEvCounted && ev) { recapEvCounted = true; gcCount(`event-open-${ev.id}-recaptab`, `Event ${ev.id}: recap tab opened`); }
+}
+// Knoppen in het blok: dragen/aanzetten (daarna het blok opnieuw, zodat er "✓ Gedragen" staat; mislukt het opslaan, dan zet saveMyFlair
+// alles terug met een melding en tekenen we dat), de kop = het volledige Events-scherm, Google = na de redirect terug op deze tab.
+function wireRecapEventPane(el) {
+  const ev = recapEvent();
+  if (!el || !ev) return;
+  const redraw = () => { const s = recapEventPaneSpec(); if (s && el.isConnected) { el.innerHTML = s.html; armEmojiFallbacks(el); wireRecapEventPane(el); } };
+  el.querySelectorAll("[data-ev-act]").forEach((b) => {
+    b.onclick = () => {
+      const r = ev.rewards[Number(b.dataset.evAct)];
+      if (!r) return;
+      let p = null;
+      if (r.kind === "flair") p = setMyFlair(r.emoji);
+      else if (r.kind === "fx") p = setMyFlairFx(r.fx);
+      else { setWinFx("ev:" + ev.id); renderRewards(); playWinFxPreview("ev:" + ev.id); }
+      redraw();
+      Promise.resolve(p).finally(redraw);
+    };
+  });
+  const head = el.querySelector("[data-ev-open]");
+  if (head) head.onclick = () => openEventScreen("recap");
+  const g = el.querySelector(".js-google-btn");
+  if (g) g.onclick = () => { try { localStorage.setItem(RECAP_EV_KEY, String(Date.now())); } catch (e) {} doGoogleSignIn(g, "recap"); };
+  const m = el.querySelector(".js-acct-btn");
+  if (m) m.onclick = () => { closeAllModals(); openModal("modal-login"); };
+}
+// Het tabbalkje bovenaan voor wie geen team-carrousel heeft: Vandaag = de recap zoals hij was, de tweede tab = het blok. Geen swipen:
+// de twee delen verschillen te veel in hoogte voor een spoor (dat is zo hoog als de langste slide).
+function mountRecapEventTopbar(body) {
+  const spec = recapEventPaneSpec(), ev = recapEvent();
+  if (!spec || !body || body.querySelector(".rce-tabs")) return;
+  const day = document.createElement("div");
+  while (body.firstChild) day.appendChild(body.firstChild);
+  const pane = document.createElement("div");
+  pane.hidden = true;
+  pane.innerHTML = spec.html;
+  const bar = document.createElement("div");
+  bar.className = "rc-tabs rce-tabs";
+  bar.setAttribute("role", "tablist");
+  bar.innerHTML = `<button type="button" role="tab" class="rc-tab" data-k="day" aria-selected="true">${escHtml(t("recap_tab_today"))}</button><span class="rc-sep" aria-hidden="true"></span>` +
+    `<button type="button" role="tab" class="rc-tab rc-tab-ev${eventHasNew() ? " has-new" : ""}" data-k="ev" aria-selected="false">${escHtml(spec.icon + " " + spec.name)}</button>`;
+  body.append(bar, day, pane);
+  armEmojiFallbacks(pane);
+  wireRecapEventPane(pane);
+  const show = (k) => {
+    day.hidden = k !== "day"; pane.hidden = k !== "ev";
+    bar.querySelectorAll(".rc-tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.k === k)));
+    if (k === "ev") recapEventSeen(ev);
+  };
+  bar.querySelectorAll(".rc-tab").forEach((b) => { b.onclick = () => show(b.dataset.k); });
+  if (recapEvFocus()) show("ev");
+}
 // `slides` ({ day, week } html) vervangt de twee echte slides — alleen gebruikt door het voorproefje voor
 // spelers zonder team (teamTeaserHtml); tabs, spoor en mount zijn dan exact die van een echt team.
-function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides, awards) {
-  const tab = (i, key) => `<button type="button" role="tab" class="rc-tab" data-i="${i}" aria-selected="${i === 0}">${escHtml(t(key))}</button>`;
+// `evPane` ({ icon, name, html }, recapEventPaneSpec) = de event-tab als laatste (alleen het icoon); zonder weekrijen kan de carrousel ook
+// Vandaag + event zijn. De slides dragen hun soort (data-k: day · week · odds · ev), mountRecapCarousel zoekt ze daarop.
+function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides, awards, evPane) {
+  const parts = [{ k: "day", label: t("recap_tab_today"), aria: t("recap_team_title"), html: slides ? slides.day : dailyTableHtml(dailyRows) }];
+  if (slides ? slides.week : weekRows && weekRows.length) parts.push({ k: "week", label: t("recap_tab_week"), aria: t("recap_week_title"), html: slides ? slides.week : recapRaceHtml(weekRows, awards) });
+  if (oddsItems) parts.push({ k: "odds", label: t("recap_tab_odds"), aria: t("odds_head"), html: oddsSlideHtml(oddsItems) });
+  if (evPane) parts.push({ k: "ev", label: evPane.icon, aria: evPane.name, html: evPane.html });
+  const n = parts.length, texts = parts.filter((p) => p.k !== "ev").length;
   const sep = `<span class="rc-sep" aria-hidden="true"></span>`;
-  const n = oddsItems ? 3 : 2;
+  const tab = (p, i) => p.k === "ev"
+    ? `<button type="button" role="tab" class="rc-tab rc-tab-ev${eventHasNew() ? " has-new" : ""}" data-i="${i}" data-k="ev" aria-selected="${i === 0}" aria-label="${escHtml(p.aria)}">${escHtml(p.label)}</button>`
+    : `<button type="button" role="tab" class="rc-tab" data-i="${i}" data-k="${p.k}" aria-selected="${i === 0}">${escHtml(p.label)}</button>`;
   return `<div class="rc">` +
-    `<div class="rc-tabs${n === 3 ? " n3" : ""}" role="tablist" aria-label="${escHtml(t("recap_team_title"))}">` +
-      tab(0, "recap_tab_today") + sep + tab(1, "recap_tab_week") + (oddsItems ? sep + tab(2, "recap_tab_odds") : "") +
-    `</div>` +
+    `<div class="rc-tabs${texts === 3 ? " n3" : ""}${evPane ? " has-ev" : ""}" role="tablist" aria-label="${escHtml(t("recap_team_title"))}">${parts.map(tab).join(sep)}</div>` +
     `<div class="rc-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${escHtml(t("recap_team_title"))}">` +
-      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="1/${n} · ${escHtml(t("recap_team_title"))}">${slides ? slides.day : dailyTableHtml(dailyRows)}</div>` +
-      `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="2/${n} · ${escHtml(t("recap_week_title"))}">${slides ? slides.week : recapRaceHtml(weekRows, awards)}</div>` +
-      (oddsItems ? `<div class="rc-slide" role="group" aria-roledescription="slide" aria-label="3/3 · ${escHtml(t("odds_head"))}">${oddsSlideHtml(oddsItems)}</div>` : "") +
+      parts.map((p, i) => `<div class="rc-slide" data-k="${p.k}" role="group" aria-roledescription="slide" aria-label="${i + 1}/${n} · ${escHtml(p.aria)}">${p.html}</div>`).join("") +
     `</div></div>`;
 }
 
@@ -7361,13 +7437,18 @@ function mountRecapCarousel(root, oddsItems) {
   const slides = [...track.querySelectorAll(".rc-slide")];
   const tabs = [...root.querySelectorAll(".rc-tab")];
   const last = slides.length - 1;
+  const byK = (k) => slides.find((s) => s.dataset.k === k) || null;
+  const weekS = byK("week"), oddsS = byK("odds"), evS = byK("ev"), ev = evS ? recapEvent() : null;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const step = () => (slides[1].offsetLeft - slides[0].offsetLeft) || 1;
+  const step = () => (slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : 0) || 1;
   const cur = () => Math.max(0, Math.min(last, Math.round(track.scrollLeft / step())));
+  let evSeen = false;
   const setActive = (i) => {
     recapTab = i;
     tabs.forEach((tb, j) => tb.setAttribute("aria-selected", String(i === j)));
+    if (evS && !evSeen && slides[i] === evS) { evSeen = true; recapEventSeen(ev); }
   };
+  if (evS) wireRecapEventPane(evS);
   const goTo = (i, smooth) => track.scrollTo({ left: Math.max(0, Math.min(last, i)) * step(), behavior: smooth && !reduced ? "smooth" : "auto" });
   let raf = 0;
   track.addEventListener("scroll", () => {
@@ -7393,7 +7474,7 @@ function mountRecapCarousel(root, oddsItems) {
   });
   // Eenmalige instappen: de race-banen en de donut spelen af zodra hun slide voor het eerst echt in
   // beeld is. Reduced-motion (of geen IntersectionObserver): meteen de eindstand.
-  const odds = oddsItems ? mountOdds(slides[2], oddsItems) : null;
+  const odds = oddsItems && oddsS ? mountOdds(oddsS, oddsItems) : null;
   const lanes = root.querySelectorAll(".race-lane");
   if (reduced || !("IntersectionObserver" in window)) {
     lanes.forEach((l) => l.classList.add("go"));
@@ -7401,17 +7482,17 @@ function mountRecapCarousel(root, oddsItems) {
   } else {
     recapRaceReset(root);
     odds?.reset();
-    const seen = [false, false, false];
+    const seen = new Set();
     const io = new IntersectionObserver((es) => es.forEach((en) => {
-      const i = slides.indexOf(en.target);
-      if (!en.isIntersecting || seen[i]) return;
-      seen[i] = true;
-      if (i === 1) recapRacePlay(root);
-      else if (i === 2) odds?.play();
+      if (!en.isIntersecting || seen.has(en.target)) return;
+      seen.add(en.target);
+      if (en.target === weekS) recapRacePlay(root);
+      else if (en.target === oddsS) odds?.play();
     }), { root: track, threshold: 0.6 });
-    io.observe(slides[1]);
-    if (odds) io.observe(slides[2]);
+    if (weekS) io.observe(weekS);
+    if (odds) io.observe(oddsS);
   }
+  if (evS && recapEvFocus()) recapTab = slides.indexOf(evS);   // net ingelogd via het haakje op de 🎃-tab: daar weer verder
   setActive(Math.min(recapTab, last));
   goTo(recapTab, false);
 }
@@ -7903,7 +7984,7 @@ function teamTeaserHtml() {
     `<span class="lb-name race-name"></span><span class="race-track"><span class="race-runner"></span></span><span class="lb-val">–</span></div>`;
   const day = `<div class="lb-table">${dailyRowHtml(me)}${ghostRow(2, escHtml(t("recap_team_ghost")), false)}${ghostRow(3, "", true)}</div>`;
   const week = `<div class="lb-table race-table">${raceLaneHtml(lane, 0, RACE_LEAD_POS)}${ghostLane(2, 1, false)}${ghostLane(3, 2, true)}</div>`;
-  return recapCarouselHtml(null, null, null, { day, week }) +
+  return recapCarouselHtml(null, null, null, { day, week }, undefined, recapEventPaneSpec()) +
     `<p class="lb-wk-note recap-team-cap">${escHtml(t("recap_team_cap"))}</p>` +
     `<div class="recap-cta"><button id="recap-pool-btn">${escHtml(t("recap_team_make"))}</button></div>`;
 }
@@ -7985,15 +8066,16 @@ async function loadRecapTeam() {
   // Met weekrijen: tabs-als-kop + carrousel (de kale h3 gaat weg). Zonder: de daily-tabel
   // onder de gewone kop, precies zoals vóór de carrousel.
   const head = document.getElementById("recap-team-head");
-  if (head) head.hidden = weekRows.length > 0;
-  if (!weekRows.length) { setBoard(board, dailyTableHtml(dailyRows)); return; }
+  const evPane = recapEventPaneSpec();   // tijdens een event: de 🎃-tab als laatste (ook zonder weekrijen)
+  if (head) head.hidden = weekRows.length > 0 || !!evPane;
+  if (!weekRows.length && !evPane) { setBoard(board, dailyTableHtml(dailyRows)); return; }
   let oddsItems = null;
-  try {
+  if (weekRows.length) try {
     oddsItems = oddsBuild(fc, dailyRows, weekRows, {
       poolId, weekStart: currentWeekStart(), todayKey: todayKey(), secsSinceMidnight: 86400 - secsToNextDaily(),
     });
   } catch (e) { console.error(e); oddsItems = null; }   // een rekenfout mag de recap nooit breken: dan gewoon geen derde tab
-  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards));
+  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards, evPane));
   mountRecapCarousel(board.querySelector(".rc"), oddsItems);
 }
 
@@ -11344,6 +11426,7 @@ function renderEventDots() {
   document.querySelector('.menu-item[data-action="events"]')?.classList?.toggle("has-new", has);
   document.querySelector('.menu-item[data-action="rewards"]')?.classList?.toggle("has-new", has);
   document.querySelector('.rw-tabs .rc-tab[data-rw-tab="events"]')?.classList?.toggle("has-new", has && rewardsTab !== "events");
+  document.querySelectorAll("#recap-body .rc-tab-ev").forEach((b) => b.classList.toggle("has-new", has && b.getAttribute("aria-selected") !== "true"));
   renderMenuDot();
 }
 

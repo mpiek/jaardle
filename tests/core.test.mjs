@@ -56,7 +56,7 @@ src += `
   ACHV_SERIES, ACHV_TIER_KEYS, ACHV_YEARS, CAPSTONE_KEYS, CAPSTONE_MAX, FLAIR_OPTIONS, capstoneProgress, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
-  recapAccountHtml, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
+  recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
   setState: (s) => { state = s; },
   refreshWeekPodiumResult, soloPathOk, fetchMyPools, popupSteps, withTimeout, teamAfterLoginPark, getPendingTeam: () => pendingTeamAfterLogin, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
@@ -3303,7 +3303,7 @@ test("season-event.js — de CSS: tokens per event, geen fixed, geen onbekende v
   assert.ok(!/position:\s*fixed/.test(css)); assert.match(css, /prefers-reduced-motion: reduce/);
   for (const m of css.matchAll(/animation(?:-name)?:\s*([a-z-]+)/g)) if (!["none"].includes(m[1])) assert.ok(new RegExp(`@keyframes ${m[1]}\\b`).test(css) || new RegExp(`@keyframes ${m[1]}\\b`).test(host), `@keyframes ${m[1]} ontbreekt`);
   assert.equal(head.kids.length, 1, "één <style> bij het laden");
-  assert.ok(readFileSync(join(dir, "..", "season-event.js"), "utf8").length < 60000, "het lui geladen bestand blijft klein");
+  assert.ok(readFileSync(join(dir, "..", "season-event.js"), "utf8").length < 64000, "het lui geladen bestand blijft klein (64 KB sinds de 🎃-tab van het eindscherm, 13/10/2026)");
 });
 
 test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template heeft balk/menu-regel/scherm, MODAL_PANELS kent het scherm", () => {
@@ -3694,25 +3694,66 @@ test("Eclips — voltreffer-viering van capstone-obsidiaan: standaard de zeldzaa
   } finally { ls.removeItem(T.VTFX_KEY); T.auth.user = wasUser; T.setAchv(null); }
 });
 
-test("recapAccountHtml — tijdens een event begint het account-kaartje met je stempels (of je verdiende beloning), in alle talen; daarbuiten of zonder het UI-bestand niets extra's", () => {
+test("season-event.js — pane (de 🎃-tab van het eindscherm): kop, mini-kaart (7 per rij), drie tegels, haakje alleen anoniem; dragen-knoppen alleen ingelogd", () => {
+  const { SE } = loadSeasonEvent(), sp = T.eventById("spook");
+  const base = { id: "spook", icon: "🎃", mascot: "", lang: "nl", locale: "nl-NL", start: sp.start, end: sp.end, catchupEnd: "2026-11-04", total: 14, thresholds: sp.thresholds, gift: 1, rewards: sp.rewards,
+    days: Array(14).fill(false), tier: 1, sealTiers: sp.sealTiers, tierNames: ["brons", "zilver", "goud", "platina", "diamant", "obsidiaan"], phase: "run", todayPlayed: true, daysLeft: 12,
+    anyFlair: true, wornFlair: "🐉", fxWrap: (fx, h) => h };
+  const anon = SE.pane({ ...base, n: 3, played: 2, earned: [true, false, false], anon: true, worn: [false, false, false] }, { google: "<svg></svg>" });
+  assert.match(anon, /class="evr" data-ev="spook"/);
+  assert.match(anon, /class="evr-head" data-ev-open="spook"/, "kop = het volledige scherm");
+  assert.match(anon, /class="evc mini"[^>]*>.*style="--cols:7"/s, "mini-kaart: 14 = 7×2");
+  assert.equal((anon.match(/class="evr-t /g) || []).length, 3, "drie tegels");
+  assert.match(anon, /class="evr-hook">.*js-google-btn.*js-acct-btn/s, "anoniem: Google + e-mail direct onder de tegels");
+  assert.ok(!/data-ev-act/.test(anon), "anoniem: niets te dragen");
+  assert.match(anon, /evr-t next.*🔒 nog 3/s, "de volgende beloning: nog 3");
+  assert.match(anon, /<b class="evr-nm">Spinnenweb<\/b>/, "in de tegel zonder het icoon (dat staat er al boven)");
+  const logged = SE.pane({ ...base, n: 6, played: 5, earned: [true, true, false], anon: false, worn: [true, false, false] }, {});
+  assert.ok(!/evr-hook/.test(logged), "ingelogd: geen haakje");
+  assert.match(logged, /✓ Gedragen/, "gedragen flair");
+  assert.match(logged, /data-ev-act="1" data-ev-id="spook">Zet aan</, "verdiend effect: aanzetten");
+  const noFlair = SE.pane({ ...base, n: 6, played: 5, earned: [true, true, false], anon: false, worn: [false, false, false], anyFlair: false }, {});
+  assert.match(noFlair, /class="evr-btn" disabled/, "effect zonder flair: uitgeschakeld");
+  for (const l of Object.keys(T.I18N)) assert.ok(!SE.pane({ ...base, lang: l, n: 0, played: 0, earned: [false, false, false], anon: true, worn: [false, false, false] }, {}).includes("undefined"), `${l}: geen gaten`);
+});
+
+test("recapCarouselHtml — de event-tab als laatste (alleen het icoon, aria-label = naam, stip bij een nieuw stempel); zonder weekrijen Vandaag + event; zonder event ongewijzigd", () => {
   evClean();
-  const wasUser = T.auth.user, had = window.SeasonEvent;
+  T.setLang("nl");
+  const ev = { icon: "🎃", name: "Spooktober", html: "<p>EV</p>" };
+  const plain = T.recapCarouselHtml([], [{ rank: 1, is_me: true, display_name: "a", week_score: 10, daily_wins: 0 }], null, undefined, []);
+  assert.equal((plain.match(/class="rc-slide"/g) || []).length, 2);
+  assert.ok(!/rc-tab-ev|has-ev/.test(plain), "buiten een event niets extra's");
+  const both = T.recapCarouselHtml([], [{ rank: 1, is_me: true, display_name: "a", week_score: 10, daily_wins: 0 }], null, undefined, [], ev);
+  assert.match(both, /class="rc-tabs has-ev"/);
+  assert.match(both, /class="rc-tab rc-tab-ev" data-i="2" data-k="ev" aria-selected="false" aria-label="Spooktober">🎃<\/button>/);
+  assert.match(both, /data-k="ev"[^>]*aria-label="3\/3 · Spooktober"><p>EV<\/p>/);
+  const noWeek = T.recapCarouselHtml([], [], null, undefined, [], ev);
+  assert.deepEqual([...noWeek.matchAll(/class="rc-slide" data-k="(\w+)"/g)].map((m) => m[1]), ["day", "ev"], "zonder weekrijen: Vandaag + event");
+  T.setEventToday("2026-10-21"); T.setLocalHistory(evHist(evDays(2)));
+  assert.match(T.recapCarouselHtml([], [], null, undefined, [], ev), /rc-tab rc-tab-ev has-new/, "nieuw stempel: stip");
+  evClean();
+});
+
+test("recapEventPaneSpec — alleen tijdens een event, na een afgeronde daily en met het UI-bestand; daarna vanzelf weg", () => {
+  evClean();
+  const had = window.SeasonEvent, wasUser = T.auth.user, saveDs = document.documentElement.dataset;
   try {
+    document.documentElement.dataset = {};   // seasonActive() leest data-season
     const { SE } = loadSeasonEvent(); window.SeasonEvent = SE;
-    T.auth.user = null; T.setLang("nl"); T.setEventToday("2026-10-21");
-    assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "zonder stempels geen regel (geschiedenis/stats-kaartje vóór je eerste pot)");
-    T.setLocalHistory(evHist(evDays(1)));   // 1 dag + cadeau = 2 stempels, nog geen beloning
-    let h = T.recapAccountHtml();
-    assert.match(h, /<li class="recap-perk-ev" data-ev="spook">🎃 Je Spooktober-stempels \(2 van 14\) gaan mee<\/li>/, "onderweg: je stempels gaan mee");
-    assert.ok(h.indexOf('class="recap-perk-ev"') < h.indexOf("<li>"), "de eventregel staat bovenaan de voordelen");
-    T.setLocalHistory(evHist(evDays(2)));   // 3 stempels = de pompoen-flair
-    h = T.recapAccountHtml();
-    assert.match(h, /<li class="recap-perk-ev" data-ev="spook">🎃 Draag je verdiende Pompoen-flair \(je 3 stempels gaan mee\)<\/li>/, "verdiend: draag 'm met een account");
-    for (const l of Object.keys(T.I18N)) { T.setLang(l); const x = T.recapAccountHtml(); assert.ok(x.includes("recap-perk-ev") && !x.includes("undefined"), `${l}: eventregel zonder gaten`); }
-    T.setLang("nl");
-    T.setEventToday("2026-11-04"); assert.ok(T.recapAccountHtml().includes("recap-perk-ev"), "inhaaldagen: het event is nog in beeld");
-    T.setEventToday("2026-12-01"); assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "na het event het gewone kaartje");
-    T.setEventToday("2026-10-21"); window.SeasonEvent = undefined; assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "zonder het UI-bestand het gewone kaartje");
-    window.SeasonEvent = {}; assert.ok(!T.recapAccountHtml().includes("recap-perk-ev"), "een half geladen UI-bestand breekt het kaartje niet");
-  } finally { T.auth.user = wasUser; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; evClean(); T.setLang("nl"); }
+    T.auth.user = null; T.setLang("nl");
+    T.setState({ mode: "daily", done: true, won: true, guesses: [], hashes: ["x"] });
+    T.setEventToday("2026-10-21"); T.setLocalHistory(evHist(evDays(2)));
+    const s = T.recapEventPaneSpec();
+    assert.equal(s.icon, "🎃"); assert.equal(s.name, "Spooktober");
+    assert.match(s.html, /class="evr"/); assert.match(s.html, /evr-hook/, "uitgelogd: met het haakje");
+    T.setEventToday("2026-11-04"); assert.ok(T.recapEventPaneSpec(), "inhaaldagen: nog in beeld");
+    T.setEventToday("2026-11-05"); assert.equal(T.recapEventPaneSpec(), null, "na de inhaaldagen: vanzelf weg");
+    T.setEventToday("2026-10-21");
+    T.setState({ mode: "free", done: true, guesses: [], hashes: ["x"] }); assert.equal(T.recapEventPaneSpec(), null, "vrij spel: geen recap-tab");
+    T.setState({ mode: "daily", done: false, guesses: [], hashes: ["x"] }); assert.equal(T.recapEventPaneSpec(), null, "pot nog bezig");
+    T.setState({ mode: "daily", done: true, won: true, guesses: [], hashes: ["x"] });
+    window.SeasonEvent = {}; assert.equal(T.recapEventPaneSpec(), null, "half geladen UI-bestand: geen tab");
+    window.SeasonEvent = undefined; assert.equal(T.recapEventPaneSpec(), null, "zonder UI-bestand: geen tab");
+  } finally { T.auth.user = wasUser; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; T.setState(null); document.documentElement.dataset = saveDs; evClean(); }
 });
