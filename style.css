@@ -3447,6 +3447,9 @@ html[data-theme="light"], html[data-theme="parchment"] { --fx-core: #ffc933; --f
 }
 /* De naamcel knipt af (ellipsis): geef het effect verticale ruimte zonder de rij hoger te maken. */
 .lb-name:has(.fl-fx) { padding-block: 0.4em; margin-block: -0.4em; padding-inline-end: 0.3em; }
+/* Idem voor de huppelende 🌶️ (rang 1 en hover): op het hoogste punt van de sprong stak het steeltje ~0,1em boven de cel uit en
+   werd plat afgeknipt. Alleen verticaal: de SVG komt pas bij hover, dus ruimte opzij zou een lange naam dan net anders afkappen. */
+.lb-name:has(.pep) { padding-block: 0.4em; margin-block: -0.4em; }
 /* kluis: keuzerij met je eigen flair + effect */
 .rw-fxlbl { display: inline-flex; align-items: center; gap: 0.7rem; }
 .rw-fxprev { font-size: 1.25rem; line-height: 1; padding: 0.15em 0.3em; }
