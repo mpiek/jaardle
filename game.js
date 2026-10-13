@@ -420,6 +420,8 @@ const I18N = {
     achv_fx_vt_earned: (e) => `${e} In de roos vrijgespeeld — hij speelt bij elke winst in één gok`,
     rewards_sect_firsttry: "Bij een voltreffer", vt_fw: "\u{1F386} Vuurwerk", vt_roos: "🎯 In de roos",
     reward_sub_vt: "Speelt bij elke winst in één gok, in plaats van het vuurwerk.",
+    vt_eclips: "\u{1F311} Eclips", rewards_sect_anywin: "Bij elke winst", rewards_note_anywin: "Speelt na elke gewonnen pot.",
+    rewards_note_firsttry: "Bij een winst in één gok. Het vuurwerk komt bovenop je gewone viering, de andere spelen alleen.",
     achv_flair_choose: (e) => `kies ${e}`,
     achv_flairfx_earned: (n) => `${n}-effect vrijgespeeld`, achv_flairfx_choose: "zet aan",
     achv_flairfx_note_flat: (n) => `hiermee verdien je het ${n}-effect voor je flair`,
@@ -760,6 +762,8 @@ const I18N = {
     achv_fx_vt_earned: (e) => `${e} Bullseye unlocked — it plays on every first-try win`,
     rewards_sect_firsttry: "On a first-try win", vt_fw: "\u{1F386} Fireworks", vt_roos: "🎯 Bullseye",
     reward_sub_vt: "Plays on every first-try win, instead of the fireworks.",
+    vt_eclips: "\u{1F311} Eclipse", rewards_sect_anywin: "On every win", rewards_note_anywin: "Plays after every win.",
+    rewards_note_firsttry: "Fireworks play on top of your regular celebration; the others play on their own.",
     achv_flair_choose: (e) => `choose ${e}`,
     achv_flairfx_earned: (n) => `${n} effect unlocked`, achv_flairfx_choose: "turn on",
     achv_flairfx_note_flat: (n) => `earns you the ${n} effect for your flair`,
@@ -1095,6 +1099,8 @@ const I18N = {
     achv_fx_vt_earned: (e) => `${e} Ins Schwarze freigeschaltet — es spielt bei jedem Sieg im ersten Versuch`,
     rewards_sect_firsttry: "Bei einem Volltreffer", vt_fw: "\u{1F386} Feuerwerk", vt_roos: "🎯 Ins Schwarze",
     reward_sub_vt: "Spielt bei jedem Sieg im ersten Versuch, statt des Feuerwerks.",
+    vt_eclips: "\u{1F311} Finsternis", rewards_sect_anywin: "Bei jedem Sieg", rewards_note_anywin: "Spielt nach jedem Sieg.",
+    rewards_note_firsttry: "Bei einem Sieg im ersten Versuch. Das Feuerwerk kommt zu deiner normalen Feier dazu, die anderen spielen allein.",
     achv_flair_choose: (e) => `${e} wählen`,
     achv_flairfx_earned: (n) => `${n}-Effekt freigeschaltet`, achv_flairfx_choose: "einschalten",
     achv_flairfx_note_flat: (n) => `damit verdienst du den ${n}-Effekt für dein Flair`,
@@ -1434,6 +1440,8 @@ const I18N = {
     achv_fx_vt_earned: (e) => `${e} En el blanco desbloqueado — suena en cada victoria al primer intento`,
     rewards_sect_firsttry: "Al acertar al primer intento", vt_fw: "\u{1F386} Fuegos artificiales", vt_roos: "🎯 En el blanco",
     reward_sub_vt: "Suena en cada victoria al primer intento, en lugar de los fuegos artificiales.",
+    vt_eclips: "\u{1F311} Eclipse", rewards_sect_anywin: "En cada victoria", rewards_note_anywin: "Suena tras cada victoria.",
+    rewards_note_firsttry: "Los fuegos artificiales se suman a tu celebración normal; las demás suenan solas.",
     achv_flair_choose: (e) => `elegir ${e}`,
     achv_flairfx_earned: (n) => `efecto ${n} desbloqueado`, achv_flairfx_choose: "activar",
     achv_flairfx_note_flat: (n) => `con esto consigues el efecto ${n} para tu distintivo`,
@@ -1773,6 +1781,8 @@ const I18N = {
     achv_fx_vt_earned: (e) => `${e} No alvo desbloqueado — toca em cada vitória de primeira`,
     rewards_sect_firsttry: "Ao acertar de primeira", vt_fw: "\u{1F386} Fogos de artifício", vt_roos: "🎯 No alvo",
     reward_sub_vt: "Toca em cada vitória de primeira, no lugar dos fogos de artifício.",
+    vt_eclips: "\u{1F311} Eclipse", rewards_sect_anywin: "Em cada vitória", rewards_note_anywin: "Toca após cada vitória.",
+    rewards_note_firsttry: "Os fogos se somam à sua comemoração normal; as outras tocam sozinhas.",
     achv_flair_choose: (e) => `escolher ${e}`,
     achv_flairfx_earned: (n) => `efeito ${n} desbloqueado`, achv_flairfx_choose: "ativar",
     achv_flairfx_note_flat: (n) => `isso dá o efeito ${n} para o seu distintivo`,
@@ -3605,8 +3615,10 @@ function showFireworks() { runFx([fireworksLayer()]); }
 
 // ── Voltreffer-viering (In de roos, VT_ROOS_FX): de lagen staan in /voltreffer-fx.js ───────────────────────────────────
 // Verankerd op de jaartal-pil: het midden uit de bounding box (de pop-animatie schaalt om het midden), de maat uit
-// offsetWidth/-Height (zonder die schaal), zodat de halo precies om de pil valt. Schuift de pagina tijdens de show (unlock-kaart,
-// scrollen), dan schuift de hele laag mee met de pil. De daily-recap wacht tot de show klaar is (holidayFxUntil): de inslag valt
+// offsetWidth/-Height (zonder die schaal), zodat de halo precies om de pil valt. Na een verse winst klapt het toetsenbord nog
+// 1,5 s in en schuift de uitslag omhoog: de lagen krijgen daarom de EINDplek (nu min de resthoogte van het toetsenbord). Een laag
+// met follow (In de roos: alles hangt aan de pil) schuift per frame mee met de echte pil, ook bij latere verschuivingen (unlock-kaart,
+// scrollen); een laag zonder follow (Eclips: sluier over het hele scherm, schijf boven de kaart) staat vast op die eindplek. De daily-recap wacht tot de show klaar is (holidayFxUntil): de inslag valt
 // op 1,2 s, precies wanneer de recap anders opent. Lukt het laden niet (offline), dan gewoon het vuurwerk.
 function elBox(el) {
   if (!el || !el.isConnected) return null;
@@ -3619,9 +3631,11 @@ async function showVoltreffer(id, preview) {
   try {
     const fx = await loadVoltrefferFx();
     if (!fx.has(id)) throw new Error("onbekende voltreffer-viering " + id);
-    const A = elBox(pill), C = A ? elBox(els.result) : null;
+    const shift = els.playBar && els.playBar.classList.contains("collapsing") ? els.playBar.offsetHeight : 0;   // zoveel schuift de uitslag nog omhoog
+    const at = (b) => (b ? { ...b, y: b.y - shift } : null);
+    const A = at(elBox(pill)), C = A ? at(elBox(els.result)) : null;
     const layers = fx.build(id, innerWidth, innerHeight, { anchor: A, card: C, theme: currentTheme(), seed: (Math.random() * 2147483647) | 0, knal: 2 });
-    const follow = !A ? layers : layers.map((l) => ({ end: l.end, draw(ctx, t, W, H) {
+    const follow = !A ? layers : layers.map((l) => !l.follow ? l : ({ end: l.end, draw(ctx, t, W, H) {
       const b = elBox(pill), dx = b ? b.x - A.x : 0, dy = b ? b.y - A.y : 0;
       if (!dx && !dy) { l.draw(ctx, t, W, H); return; }
       ctx.save(); ctx.translate(dx, dy); l.draw(ctx, t, W, H); ctx.restore();
@@ -4219,7 +4233,7 @@ function warmRewardFx() {
 
 // In de roos alvast ophalen in een rustig moment, zodat de show bij een voltreffer meteen klaarstaat. Alleen voor wie hem heeft.
 function warmVoltrefferFx() {
-  if (window.VoltrefferFx || voltrefferChoice() !== "roos") return;
+  if (window.VoltrefferFx || voltrefferChoice() === "fw") return;
   const go = () => loadVoltrefferFx().catch(() => {});
   if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 2000);
 }
@@ -4241,9 +4255,9 @@ function playWinFxPreview(kind) {
       if (winFxPreviewLive) runFx(fx.build("calendar", innerWidth, innerHeight, { labels: calendarLabels(todayKey(), 1), first: false }));
     }).catch(() => {});
   } else if (kind === "vt:fw") runFx([fireworksLayer()]);
-  else if (kind === "vt:roos") {
+  else if (kind === "vt:roos" || kind === "vt:eclips") {
     // zonder kaart op het scherm: de standaardplek (midden, iets onder het midden)
-    loadVoltrefferFx().then(() => { if (winFxPreviewLive) showVoltreffer("roos", true); }).catch(() => {});
+    loadVoltrefferFx().then(() => { if (winFxPreviewLive) showVoltreffer(kind.slice(3), true); }).catch(() => {});
   } else if (typeof kind === "string" && kind.startsWith("ev:")) {
     const ev = eventById(kind.slice(3)), r = ev && eventFxReward(ev);
     if (!r) return;
@@ -4355,8 +4369,9 @@ function finishGame(won, fresh = false) {
     const celebration = previewFx && fxKnown(fxResolve(previewFx)) ? fxResolve(previewFx)
       : (calOn || goldYearsFxActive() || beerFxActive() || flairOn || firstTry || evOn) ? null : winCelebrationFx();
     // Voltreffer-viering (In de roos): bij een winst in één gok in plaats van het vuurwerk, en dan als enige: geen gekozen
-    // viering (goud/bier/kalender/event) eronder, zoals het vuurwerk die wel heeft. Wimpels mogen er wel bovenop. ?fx=roos = voorvertoning.
-    const vtId = previewFx === "roos" || (firstTry && !celebration && voltrefferChoice() === "roos") ? "roos" : null;
+    // viering (goud/bier/kalender/event) eronder, zoals het vuurwerk die wel heeft. Wimpels mogen er wel bovenop. ?fx=roos / ?fx=eclips = voorvertoning.
+    const vtPick = firstTry && !celebration ? voltrefferChoice() : "fw";
+    const vtId = previewFx === "roos" || previewFx === "eclips" ? previewFx : vtPick !== "fw" ? vtPick : null;
     if (vtId) { showVoltreffer(vtId); if (bunting) addBunting(); }
     else if (celebration) showHolidayFx(celebration);
     else if (evOn) { const r = eventFxReward(evOn); showHolidayFx(r.layer, { ...r.fxOpts, firstTry }); if (bunting) addBunting(); }
@@ -8284,20 +8299,28 @@ function calendarFxActive() {
   return calendarFxUnlocked(achvCache) && calendarFxEnabled();
 }
 
-// Voltreffer-viering (VT_ROOS_FX): alleen-ingelogd, zoals de andere vieringen; één keuze per apparaat (jaardle:vtfx = "roos" of "fw").
-// Zonder keuze speelt In de roos zodra je 'm hebt: hij neemt geen eerdere keuze over (het vuurwerk was nooit te kiezen).
+// Voltreffer-vieringen: alleen-ingelogd, zoals de andere vieringen; één keuze per apparaat (jaardle:vtfx = "fw", "roos" of "eclips").
+// Zonder (geldige) keuze speelt de zeldzaamste die je hebt: hij neemt geen eerdere keuze over (het vuurwerk was nooit te kiezen).
+// VOLTREFFER_FX staat op volgorde van zeldzaamheid: Eclips (capstone-obsidiaan) vóór In de roos (Perfectionist 250).
 const VTFX_KEY = "jaardle:vtfx";
 function vtRoosUnlocked(a) {
   if (!auth.user || !a) return false;
   const s = ACHV_SERIES.find((x) => x.key === VT_ROOS_FX.key);
   return !!s && VT_ROOS_FX.at < s.steps.length && achvTier(achvValue(a, s), s.steps) > VT_ROOS_FX.at;
 }
-function voltrefferChoice() {   // "roos" | "fw"
+const VOLTREFFER_FX = [
+  { id: "eclips", reward: "fx_vt_eclips", earned: (a) => capstoneTier(a) >= CAPSTONE_MAX },
+  { id: "roos", reward: "fx_bullseye", earned: (a) => vtRoosUnlocked(a) },
+];
+function voltrefferAvailable(a) { return auth.user && a ? VOLTREFFER_FX.filter((v) => v.earned(a)).map((v) => v.id) : []; }
+function voltrefferChoice() {   // "fw" | "roos" | "eclips"
   let v = null;
   try { v = localStorage.getItem(VTFX_KEY); } catch (e) {}
-  return v !== "fw" && vtRoosUnlocked(achvCache) ? "roos" : "fw";
+  if (v === "fw") return "fw";
+  const avail = voltrefferAvailable(achvCache);
+  return avail.includes(v) ? v : avail[0] || "fw";
 }
-function setVoltrefferFx(v) { try { localStorage.setItem(VTFX_KEY, v === "roos" ? "roos" : "fw"); } catch (e) {} }
+function setVoltrefferFx(v) { try { localStorage.setItem(VTFX_KEY, VOLTREFFER_FX.some((x) => x.id === v) ? v : "fw"); } catch (e) {} }
 
 // Event-viering (opt-in, zoals de Scheurkalender): de "feest"-beloning van een event (EVENTS), één keuze per apparaat (jaardle:evfx = event-id,
 // "" = geen). Hij speelt de laag van het event (bv. Halloween + vleermuizen) bij elke winst zolang je 'm aanhebt, ook ná het event.
@@ -9032,6 +9055,7 @@ const REWARDS = {
   fx_goldyears: { emoji: "🗓️", cat: "effect", sect: "endscreen" },  // capstone-goud
   fx_calendar:  { emoji: "📆", cat: "effect", sect: "endscreen" },  // 120 dailies (dailies-platina), opt-in
   fx_bullseye:  { emoji: "🎯", cat: "effect", sect: "voltreffer", sub: "reward_sub_vt" },  // In de roos: Perfectionist-top (250), voltreffer-viering
+  fx_vt_eclips: { emoji: "🖤", cat: "effect", sect: "voltreffer", sub: "reward_sub_vt" },  // Eclips: capstone-obsidiaan, voltreffer-viering (valt in de onthulling)
   fx_platina:   { emoji: "🖼️", cat: "effect", sect: "frame" },  // capstone-platina (sierrand-keuze, Uiterlijk-tab)
   theme:        { emoji: "🎨", cat: "theme",  sect: "theme" },      // capstone-diamant
   fl_obsidian:  { emoji: "🖤", cat: "flair",  sect: "flair" },      // capstone-obsidiaan: de flair
@@ -9046,12 +9070,12 @@ for (const ev of EVENTS) for (const r of ev.rewards) REWARDS[r.key] = { emoji: r
 const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_glowstar", "fl_fire", "fl_brain", "fl_100", "fl_dice", "fl_pepper",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_ember",
   "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fx_goldyears", "fl_gold", "fx_platina", "fl_gem", "theme", "fl_crown", "fx_bullseye",
-  "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "cap_obsidian"];
+  "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "fx_vt_eclips", "cap_obsidian"];
 // Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
 // dragen zelf hun emoji; de flair-naam is gewoon "Flair"/"Distintivo"/…).
 const REWARD_NAME_KEY = {
   fx_confetti: "achv_cap_confetti", fx_goldyears: "achv_cap_goldyears", fx_calendar: "achv_fx_calendar",
-  fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme", fx_bullseye: "vt_roos",
+  fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme", fx_bullseye: "vt_roos", fx_vt_eclips: "vt_eclips",
 };
 // De teksten van een event komen uit het lui geladen /season-event.js (vijf talen); zonder dat bestand valt alles terug op het icoon.
 const eventCopy = (id) => (window.SeasonEvent ? window.SeasonEvent.copy(id, lang) : null);
@@ -9080,7 +9104,7 @@ function earnedRewardKeys() {
   if (vtRoosUnlocked(a)) got.add("fx_bullseye");
   if (platinaFrameUnlocked(a)) got.add("fx_platina");
   if (ct >= 5) got.add("theme");
-  if (ct >= CAPSTONE_MAX) got.add("cap_obsidian");
+  if (ct >= CAPSTONE_MAX) { got.add("cap_obsidian"); got.add("fx_vt_eclips"); }
   for (const id of flairFxEarned(a)) got.add(FLAIR_FX[id].reward);
   for (const ev of EVENTS) { const st = eventState(ev); for (const r of ev.rewards) if (r.kind === "feest" && st.n >= r.at) got.add(r.key); }   // event-vieringen (flair + effect komen hierboven al mee)
   return REWARD_ORDER.filter((k) => got.has(k));
@@ -9180,7 +9204,7 @@ function showNextReward() {
 // Hier alleen de aansluiting: wanneer, met welke gegevens en wat erna gebeurt. De hele groep (de show, 🖤 en de effecten) wordt in één
 // keer gevierd; de losse unlock-kaartjes van die items vervallen (rewardQueueFor) en gaan samen op "gezien" als de show sluit.
 const OBSIDIAN_FX_DEFAULT = "eclipse";   // wat "Draag nu" zet
-const obsidianGroupKeys = () => ["cap_obsidian", "fl_obsidian", ...Object.values(FLAIR_FX).filter((f) => f.key === "capstone").map((f) => f.reward)];
+const obsidianGroupKeys = () => ["cap_obsidian", "fl_obsidian", "fx_vt_eclips", ...Object.values(FLAIR_FX).filter((f) => f.key === "capstone").map((f) => f.reward)];
 function rewardQueueFor(pending) {
   let q = pending.includes("cap_obsidian") ? pending.filter((k) => k === "cap_obsidian" || !obsidianGroupKeys().includes(k)) : pending;
   // Event: vallen er meerdere beloningen van hetzelfde event tegelijk (bv. na inloggen met een paar anonieme dagen), dan is dat één groep-kaart
@@ -9253,6 +9277,7 @@ function activateReward(key) {
   else if (key === "fx_goldyears") setWinFx("gold");
   else if (key === "fx_calendar") setWinFx("cal");
   else if (key === "fx_bullseye") setVoltrefferFx("roos");
+  else if (key === "fx_vt_eclips") setVoltrefferFx("eclips");
   else if (key === "fx_platina") setResultFrame("a");   // standaardrand; kiezen kan in de Uiterlijk-tab
 }
 
@@ -9817,7 +9842,7 @@ function winFxUnlockedMap(a) {
     beer: beerFxUnlocked(a),
     gold: goldYearsFxUnlocked(a),
     cal: calendarFxUnlocked(a),
-    vt: vtRoosUnlocked(a),   // voltreffer-viering (In de roos): een eigen rij in de Viering-tab
+    vt: voltrefferAvailable(a).length > 0,   // voltreffer-viering (In de roos, Eclips): een eigen rij in de Viering-tab
   };
 }
 // Welk effect speelt nu? Spiegelt de precedentie in finishGame (goud > bier >
@@ -9955,23 +9980,28 @@ function rewardsVierHtml(unlocked) {
   for (const ev of eventFxUnlockedList()) opts.push(["ev:" + ev.id, rewardName(eventFxReward(ev).key)]);   // event-vieringen (bv. 🎃 Spookfeest)
   const tiles = opts.map(([k, lbl]) =>
     `<button type="button" class="rw-tile" role="radio" aria-checked="${cur === k}" data-winfx="${k}">${winFxPreviewHtml(k)}<span class="rw-tile-nm">${escHtml(lbl)}</span></button>`).join("");
-  // Alleen de voltreffer-viering verdiend: dan geen rij met één tegel ("standaard") bij de gewone winst.
-  const win = opts.length > 1 || !unlocked.vt ? `<section class="rw-sect" data-rw-sect="endscreen"><h3 class="stats-heading">${escHtml(t("rewards_sect_endscreen"))}</h3>` +
-    `<div class="rw-grid2" role="radiogroup" aria-label="${escHtml(t("rewards_sect_endscreen"))}">${tiles}</div></section>` : "";
+  // Alleen de voltreffer-viering verdiend: dan geen rij met één tegel ("standaard") bij de gewone winst. Mét een voltreffer-viering
+  // zeggen beide koppen wanneer ze spelen ("Bij elke winst" / "Bij een voltreffer"), met een regel uitleg eronder.
+  const head = unlocked.vt ? t("rewards_sect_anywin") : t("rewards_sect_endscreen");
+  const win = opts.length > 1 || !unlocked.vt ? `<section class="rw-sect" data-rw-sect="endscreen"><h3 class="stats-heading">${escHtml(head)}</h3>` +
+    (unlocked.vt ? `<p class="rw-sect-note">${escHtml(t("rewards_note_anywin"))}</p>` : "") +
+    `<div class="rw-grid2" role="radiogroup" aria-label="${escHtml(head)}">${tiles}</div></section>` : "";
   return win + (unlocked.vt ? rewardsVoltrefferHtml() : "");
 }
-// "Bij een voltreffer": een tweede keuze, los van de gewone winst-viering (vuurwerk of In de roos).
+// "Bij een voltreffer": een tweede keuze, los van de gewone winst-viering (vuurwerk, In de roos, Eclips; zeldzaamste achteraan).
 function rewardsVoltrefferHtml() {
-  const cur = voltrefferChoice();
-  const tiles = [["fw", t("vt_fw")], ["roos", t("vt_roos")]].map(([k, lbl]) =>
+  const cur = voltrefferChoice(), avail = voltrefferAvailable(achvCache);
+  const tiles = [["fw", t("vt_fw")], ...["roos", "eclips"].filter((k) => avail.includes(k)).map((k) => [k, t("vt_" + k)])].map(([k, lbl]) =>
     `<button type="button" class="rw-tile" role="radio" aria-checked="${cur === k}" data-vtfx="${k}">${vtPreviewHtml(k)}<span class="rw-tile-nm">${escHtml(lbl)}</span></button>`).join("");
-  return `<section class="rw-sect" data-rw-sect="voltreffer"><h3 class="stats-heading">${escHtml(t("rewards_sect_firsttry"))}</h3>` +
+  return `<section class="rw-sect rw-sect-vt" data-rw-sect="voltreffer"><h3 class="stats-heading">${escHtml(t("rewards_sect_firsttry"))}</h3>` +
+    `<p class="rw-sect-note">${escHtml(t("rewards_note_firsttry"))}</p>` +
     `<div class="rw-grid2" role="radiogroup" aria-label="${escHtml(t("rewards_sect_firsttry"))}">${tiles}</div></section>`;
 }
 // Voorbeeld op de tegel (CSS, geen canvas): vonken uit één punt; bij In de roos eerst drie ringen om een pilletje, dan de knal.
 function vtPreviewHtml(k) {
   const sparks = Array.from({ length: 12 }, (_, i) => `<span class="rw-sk" style="--a:${i * 30}deg"></span>`).join("");
-  if (k !== "roos") return `<div class="rw-fxp" aria-hidden="true"><span class="rw-vt rw-vt-fw">${sparks}</span><span class="rw-vt rw-vt-fw2">${sparks}</span></div>`;   // twee knallen om en om: de tegel is nooit leeg
+  if (k === "fw") return `<div class="rw-fxp" aria-hidden="true"><span class="rw-vt rw-vt-fw">${sparks}</span><span class="rw-vt rw-vt-fw2">${sparks}</span></div>`;   // twee knallen om en om: de tegel is nooit leeg
+  if (k === "eclips") return `<div class="rw-fxp rw-fxp-dim" aria-hidden="true"><span class="rw-vt rw-vt-eclips"><span class="rw-disc"></span>${sparks}</span></div>`;   // de zwarte schijf met corona, dan de knal
   const rings = [0, 1, 2].map((i) => `<span class="rw-rg" style="--r:${68 - i * 16}px;animation-delay:${(i * 0.12).toFixed(2)}s"></span>`).join("");
   return `<div class="rw-fxp" aria-hidden="true"><span class="rw-vt rw-vt-roos">${rings}${sparks}<span class="rw-pill">1969</span></span></div>`;
 }

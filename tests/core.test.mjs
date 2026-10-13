@@ -66,7 +66,7 @@ src += `
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
-  VT_ROOS_FX, VTFX_KEY, vtRoosUnlocked, voltrefferChoice, setVoltrefferFx, loadVoltrefferFx, rewardsVoltrefferHtml, vtPreviewHtml, achvSeriesItem_: achvSeriesItem, elBox,
+  VT_ROOS_FX, VTFX_KEY, vtRoosUnlocked, voltrefferChoice, setVoltrefferFx, loadVoltrefferFx, rewardsVoltrefferHtml, vtPreviewHtml, achvSeriesItem_: achvSeriesItem, elBox, voltrefferAvailable, VOLTREFFER_FX,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
@@ -3523,29 +3523,33 @@ test("voltreffer-fx.js — In de roos tekent op een strikte canvas, deterministi
   const VF = globalThis.VoltrefferFx, saved = document.createElement;
   document.createElement = () => ({ width: 0, height: 0, __sprite: true, getContext: () => strictCtx() });
   try {
-    assert.deepEqual(VF.ids, ["roos"]);
-    assert.ok(VF.has("roos") && !VF.has("toString"));
+    assert.deepEqual(VF.ids, ["roos", "eclips"]);
+    assert.deepEqual([...VF.ids].sort(), T.VOLTREFFER_FX.map((v) => v.id).sort(), "elke keuze in game.js heeft een laag");
+    assert.ok(VF.has("roos") && VF.has("eclips") && !VF.has("toString"));
     const anchor = { x: 230, y: 470, w: 64, h: 28 }, card = { x: 16, y: 450, w: 358, h: 230 };
-    for (const theme of ["dark", "light"]) for (const knal of [1, 2, 3]) for (const [W, H, an] of [[390, 844, anchor], [360, 780, null], [1280, 760, null], [844, 390, null]]) {
-      const layers = VF.build("roos", W, H, { anchor: an, card: an ? card : null, theme, seed: 7, knal });
+    for (const id of VF.ids) for (const theme of ["dark", "light"]) for (const knal of [1, 2, 3]) for (const [W, H, an] of [[390, 844, anchor], [360, 780, null], [1280, 760, null], [844, 390, null]]) {
+      const layers = VF.build(id, W, H, { anchor: an, card: an ? card : null, theme, seed: 7, knal });
       assert.equal(layers.length, 1);
+      assert.equal(!!layers[0].follow, id === "roos", "In de roos volgt de pil, Eclips staat vast op de eindplek");
       assert.ok(layers[0].end > 3 && layers[0].end < 4.5, "duur");
       const ctx = strictCtx();
       for (let t = 0; t <= layers[0].end + 0.05; t += 1 / 60) layers[0].draw(ctx, t, W, H);
     }
     // determinisme: zelfde seed = dezelfde reeks aanroepen; een andere seed = een andere knal
-    const record = (seed, t) => {
+    const record = (seed, t, id = "roos") => {
       const log = [];
       const ctx = new Proxy({}, { get: (_, k) => (k === "createLinearGradient" || k === "createRadialGradient") ? () => ({ addColorStop() {} }) : (...a) => log.push(String(k) + a.map((v) => typeof v === "number" ? v.toFixed(3) : "").join(",")), set: () => true });
-      VF.build("roos", 390, 844, { anchor, card, theme: "dark", seed, knal: 2 })[0].draw(ctx, t, 390, 844);
+      VF.build(id, 390, 844, { anchor, card, theme: "dark", seed, knal: 2 })[0].draw(ctx, t, 390, 844);
       return log.join(";");
     };
     assert.equal(record(7, 1.5), record(7, 1.5));
     assert.notEqual(record(7, 1.5), record(8, 1.5));
+    assert.equal(record(7, 2.1, "eclips"), record(7, 2.1, "eclips"));
+    assert.notEqual(record(7, 2.1, "eclips"), record(8, 2.1, "eclips"));
     // teken-budget: vonken gebundeld, hoe dicht de knal ook is
-    const calls = (knal) => {
+    const calls = (knal, id = "roos") => {
       let max = 0;
-      const layer = VF.build("roos", 390, 844, { anchor, card, theme: "dark", seed: 3, knal })[0];
+      const layer = VF.build(id, 390, 844, { anchor, card, theme: "dark", seed: 3, knal })[0];
       for (let t = 0; t < layer.end; t += 1 / 60) {
         let n = 0;
         const ctx = new Proxy({}, { get: (_, k) => (k === "createLinearGradient" || k === "createRadialGradient") ? () => ({ addColorStop() {} }) : (...a) => { if (["fill", "stroke", "drawImage", "fillRect", "fillText"].includes(k)) n++; }, set: () => true });
@@ -3554,6 +3558,7 @@ test("voltreffer-fx.js — In de roos tekent op een strikte canvas, deterministi
       return max;
     };
     assert.ok(calls(1) <= 30 && calls(3) <= 30, `draw-calls per frame ${calls(1)} / ${calls(3)}`);
+    assert.ok(calls(1, "eclips") <= 50 && calls(3, "eclips") <= 50, `Eclips draw-calls per frame ${calls(1, "eclips")} / ${calls(3, "eclips")}`);
   } finally { document.createElement = saved; }
 });
 
@@ -3564,4 +3569,38 @@ test("loadVoltrefferFx — laadt voltreffer-fx.js lui; de halo-maat komt uit off
   assert.deepEqual(T.elBox(el), { x: 100, y: 200, w: 60, h: 26 });
   assert.equal(T.elBox({ ...el, isConnected: false }), null);
   assert.equal(T.elBox(null), null);
+});
+
+test("Eclips — voltreffer-viering van capstone-obsidiaan: standaard de zeldzaamste, valt in de onthulling, derde tegel in de kluis", () => {
+  const ls = globalThis.localStorage, wasUser = T.auth.user;
+  const TOP = { games: 3000, dailies: 365, streak: 250, perfect: 250, pure: 500, rating: 0, years: [] };
+  const ROOS = { games: 0, dailies: 0, streak: 0, perfect: 250, pure: 0, rating: 0, years: [] };
+  try {
+    ls.removeItem(T.VTFX_KEY); T.auth.user = { uid: "u" };
+    assert.deepEqual(T.voltrefferAvailable(TOP), ["eclips", "roos"], "zeldzaamste eerst");
+    assert.deepEqual(T.voltrefferAvailable(ROOS), ["roos"]);
+    T.setAchv(TOP);
+    assert.equal(T.voltrefferChoice(), "eclips", "zonder keuze: de zeldzaamste");
+    T.setVoltrefferFx("roos"); assert.equal(T.voltrefferChoice(), "roos");
+    T.setVoltrefferFx("fw"); assert.equal(T.voltrefferChoice(), "fw");
+    T.setVoltrefferFx("eclips"); T.setAchv(ROOS);
+    assert.equal(T.voltrefferChoice(), "roos", "een gekozen viering die je (op dit apparaat) niet hebt valt terug");
+    T.setVoltrefferFx("onzin"); assert.equal(ls.getItem(T.VTFX_KEY), "fw");
+    // beloning: in de obsidiaan-groep, dus één moment met de onthulling
+    assert.ok(T.obsidianGroupKeys().includes("fx_vt_eclips"));
+    T.setAchv(TOP);
+    assert.ok(T.earnedRewardKeys().includes("fx_vt_eclips"));
+    assert.deepEqual(T.rewardQueueFor(["fx_bullseye", "fx_vt_eclips", "cap_obsidian"]), ["fx_bullseye", "cap_obsidian"]);
+    assert.equal(T.RW_SECT_TAB[T.REWARDS.fx_vt_eclips.sect], "vier");
+    // kluis: drie tegels, zeldzaamste achteraan; twee koppen die zeggen wanneer ze spelen, de voltreffer-rij met een scheiding
+    T.setLang("nl"); ls.removeItem(T.VTFX_KEY);
+    const html = T.rewardsVierHtml(T.winFxUnlockedMap(TOP));
+    const order = [...html.matchAll(/data-vtfx="(\w+)"/g)].map((m) => m[1]);
+    assert.deepEqual(order, ["fw", "roos", "eclips"]);
+    assert.match(html, /aria-checked="true" data-vtfx="eclips"[^>]*>.*rw-disc/s);
+    assert.match(html, /Bij elke winst<\/h3><p class="rw-sect-note">/);
+    assert.match(html, /rw-sect rw-sect-vt[^>]*><h3 class="stats-heading">Bij een voltreffer<\/h3><p class="rw-sect-note">[^<]*vuurwerk/);
+    assert.ok(!T.rewardsVierHtml(T.winFxUnlockedMap({ ...TOP, perfect: 0, games: 0 })).includes("Bij elke winst"), "zonder voltreffer-viering blijft de oude kop");
+    assert.equal(T.t("vt_eclips"), "\u{1F311} Eclips");
+  } finally { ls.removeItem(T.VTFX_KEY); T.auth.user = wasUser; T.setAchv(null); }
 });
