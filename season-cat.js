@@ -5,9 +5,12 @@
    (vurige ogen, slaapt niet); .hat = draagt een heksenhoed (de hoogste beloning van het event). Het kopje in de balk/strook/het menu
    (SeasonCat.head) gebruikt dezelfde klassen; de strook krijgt .cheer (winst) of .comfort (verlies) van game.js.
    Reageert op je spel via SeasonCat.type() (cijfers) en SeasonCat.guess() (een geaccepteerde gok), nooit op warm of koud: dat zou de
-   Richting-hint gratis weggeven. */
+   Richting-hint gratis weggeven.
+   Kunstjes (.sneeze = Hatsjoe!, .swat = Bonk!): af en toe in de plaats van zijn miauw, en één keer op het eindscherm. Het ding erin (een blaadje
+   dat op zijn neus valt, een spinnetje aan een draadje) komt uit de lib van de skin (SeasonCat.actors, uit props-halloween.js) en hangt in een
+   eigen laagje .sk-act met de maten van de kat; voor een ander event wisselt dus alleen dat tekeningetje, de beweging hier blijft gelijk. */
 window.SeasonCat = (() => {
-  const SIT = `<svg class="cat-sit" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-tail"><path d="M36 61.2C45 62.6 50.6 54.4 47.6 46.4C46.2 42.6 43 43.2 43.6 45.8" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><path d="M19.2 30C18.6 36 15.6 40 13.6 46C11.6 51 10.6 56 11 60.4C11.2 62.6 13 63.4 15.4 63.4L33.8 63.4C36.4 63.4 38.2 62.4 38.2 60C38.4 54 36.6 48 33.6 43C31.6 39.6 29.6 36 29 30Z" fill="#0b0910"/><g fill="#0b0910"><ellipse cx="18.2" cy="63" rx="1.9" ry="1.3"/><ellipse cx="21.6" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="26.4" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="29.8" cy="63" rx="1.9" ry="1.3"/></g><g class="cat-paw"><path d="M33 42C38 43 44 46 48.4 50" fill="none" stroke="#0b0910" stroke-width="5.4" stroke-linecap="round"/><ellipse cx="49" cy="50.6" rx="3.5" ry="3.2" fill="#0b0910"/></g><g class="cat-gap" fill="none" stroke-width=".5" stroke-linecap="round"><path d="M21.6 47C21.2 52 21.4 57 21.8 62"/><path d="M26.4 47C26.8 52 26.6 57 26.2 62"/></g><g class="cat-hd"><g transform="translate(-2.4 -3.4) scale(1.1)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 23.5C10.8 16.2 16.2 11.4 24 11.4C31.8 11.4 37.2 16.2 37.2 23.5C37.2 25.4 37.8 27 39.4 29.6C37 29.2 35.6 29.6 34.6 30.6C31.6 32.6 27.6 33.2 24 33.2C20.4 33.2 16.4 32.6 13.4 30.6C12.4 29.6 11 29.2 8.6 29.6C10.2 27 10.8 25.4 10.8 23.5Z" fill="#0b0910"/><g class="cat-eyes"><g class="fire"><ellipse cx="18" cy="21" rx="6.4" ry="8.2"/><ellipse cx="30" cy="21" rx="6.4" ry="8.2"/></g><g class="cat-ball"><circle cx="18" cy="22.4" r="4.5" fill="#fbf7ff"/><circle cx="30" cy="22.4" r="4.5" fill="#fbf7ff"/></g><g class="cat-pup"><circle cx="18.25" cy="22.9" r="1.55" fill="#0b0910"/><circle cx="30.25" cy="22.9" r="1.55" fill="#0b0910"/></g></g><g class="cat-happy" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 23.7Q18 18.5 21.9 23.7"/><path d="M26.1 23.7Q30 18.5 33.9 23.7"/></g><g class="cat-closed" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/><path d="M38.4 26.8Q44 25 49.4 25.6"/><path d="M39 28.4Q44.4 28.6 49.8 30.2"/><path d="M38 29.8Q42.4 31.6 47 34.6"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g><g class="cat-wave" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"><path d="M44 8.4q3.4 3.8 0 7.6"/><path d="M48.4 5.4q5.2 6.8 0 13.6"/></g><g><path class="cat-heart h1" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/><path class="cat-heart h2" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff8fb4"/><path class="cat-heart h3" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/></g></svg>`;
+  const SIT = `<svg class="cat-sit" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-tail"><path d="M36 61.2C45 62.6 50.6 54.4 47.6 46.4C46.2 42.6 43 43.2 43.6 45.8" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><path d="M19.2 30C18.6 36 15.6 40 13.6 46C11.6 51 10.6 56 11 60.4C11.2 62.6 13 63.4 15.4 63.4L33.8 63.4C36.4 63.4 38.2 62.4 38.2 60C38.4 54 36.6 48 33.6 43C31.6 39.6 29.6 36 29 30Z" fill="#0b0910"/><g fill="#0b0910"><ellipse cx="18.2" cy="63" rx="1.9" ry="1.3"/><ellipse cx="21.6" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="26.4" cy="63.4" rx="1.9" ry="1.3"/><ellipse cx="29.8" cy="63" rx="1.9" ry="1.3"/></g><g class="cat-paw"><path d="M33 42C38 43 44 46 48.4 50" fill="none" stroke="#0b0910" stroke-width="5.4" stroke-linecap="round"/><ellipse cx="49" cy="50.6" rx="3.5" ry="3.2" fill="#0b0910"/></g><g class="cat-gap" fill="none" stroke-width=".5" stroke-linecap="round"><path d="M21.6 47C21.2 52 21.4 57 21.8 62"/><path d="M26.4 47C26.8 52 26.6 57 26.2 62"/></g><g class="cat-hd"><g transform="translate(-2.4 -3.4) scale(1.1)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 23.5C10.8 16.2 16.2 11.4 24 11.4C31.8 11.4 37.2 16.2 37.2 23.5C37.2 25.4 37.8 27 39.4 29.6C37 29.2 35.6 29.6 34.6 30.6C31.6 32.6 27.6 33.2 24 33.2C20.4 33.2 16.4 32.6 13.4 30.6C12.4 29.6 11 29.2 8.6 29.6C10.2 27 10.8 25.4 10.8 23.5Z" fill="#0b0910"/><g class="cat-eyes"><g class="fire"><ellipse cx="18" cy="21" rx="6.4" ry="8.2"/><ellipse cx="30" cy="21" rx="6.4" ry="8.2"/></g><g class="cat-ball"><circle cx="18" cy="22.4" r="4.5" fill="#fbf7ff"/><circle cx="30" cy="22.4" r="4.5" fill="#fbf7ff"/></g><g class="cat-pup"><circle cx="18.25" cy="22.9" r="1.55" fill="#0b0910"/><circle cx="30.25" cy="22.9" r="1.55" fill="#0b0910"/></g></g><g class="cat-happy" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 23.7Q18 18.5 21.9 23.7"/><path d="M26.1 23.7Q30 18.5 33.9 23.7"/></g><g class="cat-closed" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/><path d="M38.4 26.8Q44 25 49.4 25.6"/><path d="M39 28.4Q44.4 28.6 49.8 30.2"/><path d="M38 29.8Q42.4 31.6 47 34.6"/></g><g class="cat-squeeze" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 19.9L20.5 22.4L15.2 24.9"/><path d="M32.8 19.9L27.5 22.4L32.8 24.9"/></g><g class="cat-puff" fill="none" stroke-width=".62" stroke-linecap="round"><path d="M20.85 29.07L18.99 29.82M22.1 30.62L20.98 32.28M24 31.2L24 33.2M25.9 30.62L27.02 32.28M27.15 29.07L29.01 29.82"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g><g class="cat-wave" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"><path d="M44 8.4q3.4 3.8 0 7.6"/><path d="M48.4 5.4q5.2 6.8 0 13.6"/></g><g><path class="cat-heart h1" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/><path class="cat-heart h2" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff8fb4"/><path class="cat-heart h3" d="M0 -1.4C-3.6 -5 -6.4 -1 0 3.6C6.4 -1 3.6 -5 0 -1.4Z" fill="#ff6f9c"/></g></svg>`;
   const NAP = `<svg class="cat-nap" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-nb"><path d="M8 61.8C6 52 12 43.4 25 41.4C35 39.8 45 42 48 51C49.4 55.6 48 61.8 43 61.8Z" fill="#0b0910"/><path d="M46.4 50.6C52.4 52.4 52 60.8 44 62.4C38 63.6 30 63.2 23 62.6" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><g class="cat-nh"><g transform="translate(-4.6 30.2) scale(.95) rotate(-5 24 26)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 24C10.8 16.4 16.2 11.4 24 11.4C31.8 11.4 37.2 16.4 37.2 24C37.2 29.4 32 33.4 24 33.4C16 33.4 10.8 29.4 10.8 24Z" fill="#0b0910"/><g class="cat-shut" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g><g class="cat-zzz" fill="none" stroke="#b79cff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path class="z1" d="M27 24h5l-5 6.2h5"/><path class="z2" d="M34.6 14.6h4.2l-4.2 5.2h4.2"/><path class="z3" d="M42 6.4h3.4l-3.4 4.2h3.4"/></g></svg>`;
   const STRETCH = `<svg class="cat-stretch" viewBox="-2 0 52 64" aria-hidden="true" focusable="false"><g class="cat-tail"><path d="M41.6 28C40.6 20 44 12.4 48.4 10.2C51.4 8.8 52.8 12 50.4 12.8" fill="none" stroke="#0b0910" stroke-width="3.4" stroke-linecap="round"/></g><path d="M15 49C22 44 29 36 34 28.5C36.5 25 41.5 24.5 43 29C44 33 43.2 42 43.6 52C43.8 57 44.6 60.4 46.4 62.4L38.4 62.4C37.6 58.4 37 54 37 49C32 51 26 56.6 21 59C18 60.4 14 60 14 56.6C14 53 14.4 51 15 49Z" fill="#0b0910"/><path d="M4 59.4C3 61 4 62.6 6.4 62.6L19 62.6C21 62.6 22 61 21 59.4C20 57.6 17 57 14 57.4L8 58C6 58.2 4.6 58.6 4 59.4Z" fill="#0b0910"/><g fill="#0b0910"><ellipse cx="5" cy="61.2" rx="2" ry="1.4"/><ellipse cx="8.4" cy="62" rx="2" ry="1.3"/></g><g class="cat-hd"><g transform="translate(-5.7 30.4) scale(.8)"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 23.5C10.8 16.2 16.2 11.4 24 11.4C31.8 11.4 37.2 16.2 37.2 23.5C37.2 25.4 37.8 27 39.4 29.6C37 29.2 35.6 29.6 34.6 30.6C31.6 32.6 27.6 33.2 24 33.2C20.4 33.2 16.4 32.6 13.4 30.6C12.4 29.6 11 29.2 8.6 29.6C10.2 27 10.8 25.4 10.8 23.5Z" fill="#0b0910"/><g class="cat-eyes"><g class="fire"><ellipse cx="18" cy="21" rx="6.4" ry="8.2"/><ellipse cx="30" cy="21" rx="6.4" ry="8.2"/></g><g class="cat-ball"><circle cx="18" cy="22.4" r="4.5" fill="#fbf7ff"/><circle cx="30" cy="22.4" r="4.5" fill="#fbf7ff"/></g><g class="cat-pup"><circle cx="18.25" cy="22.9" r="1.55" fill="#0b0910"/><circle cx="30.25" cy="22.9" r="1.55" fill="#0b0910"/></g></g><g class="cat-happy" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 23.7Q18 18.5 21.9 23.7"/><path d="M26.1 23.7Q30 18.5 33.9 23.7"/></g><g class="cat-closed" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="cat-wh" fill="none" stroke="#cfc4e6" stroke-width=".5" stroke-linecap="round"><path d="M9.6 26.8Q4 25 -1.4 25.6"/><path d="M9 28.4Q3.6 28.6 -1.8 30.2"/><path d="M10 29.8Q5.6 31.6 1 34.6"/><path d="M38.4 26.8Q44 25 49.4 25.6"/><path d="M39 28.4Q44.4 28.6 49.8 30.2"/><path d="M38 29.8Q42.4 31.6 47 34.6"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></g></svg>`;
   // Alleen het kopje (balk en strook van het event, menu): dezelfde ogen/oortjes, dus het knippert en kijkt mee met de CSS hieronder.
@@ -164,7 +167,7 @@ html[data-season="halloween"] .hallow .fire {display:inline }
 html[data-season="halloween"] .hallow .fire ellipse {fill:url(#skk-glow)none;transform-box:fill-box;transform-origin:50% 72%;animation:skk-flame 1.7s ease-in-out infinite }
 html[data-season="halloween"] .hallow .fire ellipse+ellipse {animation-duration:1.3s;animation-delay:-0.6s }
 html[data-season="halloween"] .hallow .cat-ball circle {fill:url(#skk-eye)#ffb21f }
-html[data-season="halloween"] .hallow :is(.cat-happy,.cat-closed,.cat-shut) {stroke:#ffb21f }
+html[data-season="halloween"] .hallow :is(.cat-happy,.cat-closed,.cat-shut,.cat-squeeze) {stroke:#ffb21f }
 html[data-season="halloween"] .hallow .cat-pup circle {transform:scale(0.42,1.5) }
 html[data-season="halloween"] .hallow.hear .cat-sit .cat-pup circle {animation-name:skk-wide-slit }
 html[data-season="halloween"] .evs {position:relative }
@@ -235,6 +238,84 @@ html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-ear-r {animation:skk
 @keyframes skk-soft-r{0%,100%{transform:none}25%,72%{transform:rotate(14deg)}}
 @keyframes skk-ring{from{box-shadow:0 0 0 0 var(--ev-pk, var(--accent))}to{box-shadow:0 0 0 6px transparent}}
 @keyframes skk-plop{from{opacity:0;transform:scale(0)}50%{opacity:1}to{transform:none}}
+/* Kunstjes: Hatsjoe! (.sneeze, 4,2 s) en Bonk! (.swat, 5,4 s). De kat beweegt met zijn gewone groepen; het ding (blaadje, spinnetje) zit in een
+   eigen laagje .sk-act met de maten van de kat (viewBox -2 0 52 64) en komt uit de lib van de skin, dus een ander tekeningetje landt op dezelfde plek */
+html[data-season="halloween"] .sk-cat {--act-silk:rgba(226,216,246,0.85);--act-tink:#ffbe3b }
+html[data-season="halloween"][data-theme="light"] .sk-cat,
+html[data-season="halloween"][data-theme="parchment"] .sk-cat {--act-silk:rgba(60,40,100,0.7);--act-tink:#e08a00 }
+html[data-season="halloween"] .sk-cat .sk-act {position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none }
+html[data-season="halloween"] .cat-squeeze,
+html[data-season="halloween"] .cat-puff {opacity:0 }
+html[data-season="halloween"] .cat-puff {stroke:var(--fg) }
+html[data-season="halloween"] .act-tink {fill:var(--act-tink);opacity:0 }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit {animation:skk-sn-body 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-hd {animation:skk-sn-hd 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-eyes {animation:skk-sn-eyes 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-pup {animation:skk-sn-pup 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-pup circle:first-child {animation:skk-sn-xl 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-pup circle:last-child {animation:skk-sn-xr 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-squeeze {animation:skk-sn-sq 4.2s both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-ear-l {animation:skk-sn-el 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-ear-r {animation:skk-sn-er 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-mouth {animation:skk-sn-mo 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-tail {animation:skk-sn-tail 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff {transform-origin:24px 27.8px;animation:skk-sn-puff 4.2s ease-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p1 {animation:skk-sn-p1 4.2s ease-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p2 {animation:skk-sn-p2 4.2s ease-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p3 {animation:skk-sn-p3 4.2s ease-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p4 {animation:skk-sn-p4 4.2s ease-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .pr {animation:skk-sn-pr 4.2s ease-out both }
+html[data-season="halloween"] .sk-cat.sneeze .cat-sit .acc-hat {transform-box:fill-box;transform-origin:50% 100%;animation:skk-sn-hat 4.2s ease-out both }
+html[data-season="halloween"] .sk-cat.sneeze .act-fall {animation:skk-sn-fall 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.sneeze .act-spin {animation:skk-sn-spin 4.2s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit {animation:skk-sw-body 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-hd {animation:skk-sw-hd 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-eyes {animation:skk-sw-eyes 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-squeeze {animation:skk-sw-sq 5.4s both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-pup {animation:skk-sw-pup 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-pup circle {animation:skk-sw-wide 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-ear-l {animation:skk-sw-el 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-ear-r {animation:skk-sw-er 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-tail {animation:skk-sw-tail 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-paw {animation:skk-sw-paw 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .act-drop {animation:skk-sw-drop 5.4s both }
+html[data-season="halloween"] .sk-cat.swat .act-swing {transform-origin:49px -42px;animation:skk-sw-swing 5.4s ease-in-out both }
+html[data-season="halloween"] .sk-cat.swat .act-legs {transform-origin:0 0;animation:skk-sw-legs 5.4s linear both }
+html[data-season="halloween"] .sk-cat.swat .act-tink {transform-origin:0 0;animation:skk-sw-tink 5.4s ease-out both }
+@keyframes skk-sn-body{0%,70.5%{transform:none}71.5%{transform:scale(1.045,0.92)}74.5%{transform:scale(0.98,1.03)}78%,100%{transform:none}}
+@keyframes skk-sn-hd{0%{transform:none}14%{transform:rotate(-3deg) translateY(-0.4px)}25%{transform:rotate(3deg) translateY(-0.4px)}35%{transform:rotate(-2.5deg) translateY(-0.3px)}42%{transform:rotate(1.5deg) translateY(-0.3px)}45%{transform:translateY(0.5px)}47%{transform:translateY(-0.2px)}51%{transform:translateY(0.8px)}54%{transform:translateY(-0.6px)}58%,61%{transform:translateY(0.3px)}64.5%{transform:rotate(-5deg) translateY(-1px)}69%{transform:rotate(-9.5deg) translateY(-1.8px);animation-timing-function:cubic-bezier(0.7,0,1,1)}71.5%{transform:rotate(10deg) translateY(1.9px) scale(1.035)}75%{transform:rotate(5deg) translateY(1px)}79%{transform:rotate(-7deg)}82.5%{transform:rotate(6deg)}86%{transform:rotate(-3.5deg)}89.5%{transform:rotate(1deg)}93%,100%{transform:none}}
+@keyframes skk-sn-eyes{0%,62%{transform:none;opacity:1}66%{transform:scaleY(0.5)}68.4%{transform:scaleY(0.12);opacity:1}68.5%,80%{transform:scaleY(0.12);opacity:0}80.1%{transform:scaleY(0.12);opacity:1}84%,92%{transform:none}93.5%{transform:scaleY(0.1)}95.5%,100%{transform:none;opacity:1}}
+@keyframes skk-sn-pup{0%{transform:none}6%{transform:translate(0.5px,-1.9px)}15%{transform:translate(-0.9px,-1.8px)}26%{transform:translate(1px,-1.7px)}36%{transform:translate(-1.1px,-1.6px)}42%{transform:translate(0.5px,-1.8px)}44.5%,86%{transform:none}88%,91%{transform:translate(-1.5px,0.3px)}94%,100%{transform:none}}
+@keyframes skk-sn-xl{0%,43%{translate:0 0}45.5%{translate:0.9px -1.8px}47%{translate:1.1px -1.4px}51%,62%{translate:2.15px 1.35px}66%,100%{translate:0 0}}
+@keyframes skk-sn-xr{0%,43%{translate:0 0}45.5%{translate:-0.9px -1.8px}47%{translate:-1.1px -1.4px}51%,62%{translate:-2.15px 1.35px}66%,100%{translate:0 0}}
+@keyframes skk-sn-sq{0%,68.4%{opacity:0}68.5%,80%{opacity:1}80.1%,100%{opacity:0}}
+@keyframes skk-sn-el{0%{transform:none}6%,42%{transform:rotate(6deg) scale(1.1)}45%{transform:rotate(-12deg)}46.5%{transform:rotate(4deg) scale(1.05)}48.5%{transform:rotate(-4deg)}52%,62%{transform:rotate(-15deg)}68%{transform:rotate(-6deg)}71.5%{transform:rotate(-26deg) scaleY(0.84)}78%{transform:rotate(5deg)}84%,100%{transform:none}}
+@keyframes skk-sn-er{0%{transform:none}6%,42%{transform:rotate(-6deg) scale(1.1)}45%{transform:rotate(12deg)}46.5%{transform:rotate(-4deg) scale(1.05)}48.5%{transform:rotate(4deg)}52%,62%{transform:rotate(15deg)}68%{transform:rotate(6deg)}71.5%{transform:rotate(26deg) scaleY(0.84)}78%{transform:rotate(-5deg)}84%,100%{transform:none}}
+@keyframes skk-sn-mo{0%,60.5%{transform:scale(0)}64%{transform:scale(0.6,0.45)}66.5%{transform:scale(0.2)}69%{transform:scale(0.85,0.6)}71.5%{transform:scale(1.15,0.8)}74%{transform:scale(0.3)}76%,100%{transform:scale(0)}}
+@keyframes skk-sn-tail{0%{transform:rotate(-4deg)}22%{transform:rotate(7deg)}44%{transform:rotate(-2deg)}70.5%{transform:rotate(2deg)}73%{transform:rotate(19deg)}76.5%{transform:rotate(-11deg)}80.5%{transform:rotate(8deg)}86%,100%{transform:none}}
+@keyframes skk-sn-puff{0%,71.2%{opacity:0;transform:scale(0.7)}71.8%{opacity:0.9;transform:scale(0.85)}79%{opacity:0.6;transform:scale(1.45)}84%,100%{opacity:0;transform:scale(1.6)}}
+@keyframes skk-sn-p1{0%,71%{transform:none}86%,100%{transform:translate(-7.5px,1.6px) scale(0.6)}}
+@keyframes skk-sn-p2{0%,71%{transform:none}86%,100%{transform:translate(8px,1px) scale(0.6)}}
+@keyframes skk-sn-p3{0%,71%{transform:none}86%,100%{transform:translate(-4.2px,6.4px) scale(0.5)}}
+@keyframes skk-sn-p4{0%,71%{transform:none}86%,100%{transform:translate(4.8px,6.6px) scale(0.5)}}
+@keyframes skk-sn-pr{0%,71%{transform:scale(0.6)}84%,100%{transform:scale(3.4)}}
+@keyframes skk-sn-hat{0%,71%{transform:none}73.5%{transform:translateY(-3.4px) rotate(-11deg)}77.5%{transform:translateY(0.6px) rotate(4deg)}81%,100%{transform:none}}
+@keyframes skk-sn-fall{0%{transform:translate(31px,-28px);opacity:0}4%{opacity:1}13%{transform:translate(15px,-15px)}24%{transform:translate(32.5px,-3.5px)}34%{transform:translate(16px,5px)}41%{transform:translate(27px,9px)}45%{transform:translate(24.4px,12.2px);animation-timing-function:ease-out}46.5%{transform:translate(24.4px,12.7px);animation-timing-function:cubic-bezier(0.5,0,0.6,1)}50.5%{transform:translate(24.2px,27.3px);animation-timing-function:ease-out}62%{transform:translate(24.2px,27.3px)}66%{transform:translate(23.45px,26.35px)}69%{transform:translate(22.8px,25.6px)}71.5%{transform:translate(25.7px,29px);opacity:1;animation-timing-function:cubic-bezier(0.15,0.8,0.45,1)}76%{transform:translate(38px,12px)}88%{transform:translate(60px,-16px);opacity:1}92%,100%{transform:translate(65px,-22px);opacity:0}}
+@keyframes skk-sn-spin{0%{transform:rotate(32deg)}13%{transform:rotate(-30deg)}24%{transform:rotate(27deg)}34%{transform:rotate(-23deg)}41%{transform:rotate(15deg)}45%{transform:rotate(-8deg)}46.5%{transform:rotate(-3deg)}50.5%{transform:rotate(-17deg)}52.5%{transform:rotate(-12deg)}54.5%{transform:rotate(-19deg)}56.5%{transform:rotate(-12deg)}58.5%{transform:rotate(-19deg)}60.5%,71.5%{transform:rotate(-16deg)}76%{transform:rotate(160deg)}88%{transform:rotate(430deg) scale(0.85)}100%{transform:rotate(470deg) scale(0.8)}}
+@keyframes skk-sw-body{0%,26%{transform:none}27.5%{transform:translateX(-0.7px)}29%{transform:translateX(0.7px)}30.5%{transform:translateX(-0.7px)}31.5%{transform:translateX(0.5px)}32.5%{transform:scale(1.02,0.98)}34%,100%{transform:none}}
+@keyframes skk-sw-hd{0%{transform:none}8%,16%{transform:rotate(4deg) translateY(-0.6px)}22%,30%{transform:rotate(3deg)}33%{transform:rotate(5deg) translateY(0.6px)}38%{transform:rotate(2deg)}48%{transform:rotate(1deg)}50%{transform:rotate(-9deg) translateX(-1.3px);animation-timing-function:ease-out}56%{transform:rotate(-6deg) translateX(-0.8px)}62%,70%{transform:rotate(-2deg)}76%,82%{transform:rotate(3deg) translateY(-0.6px)}86%{transform:rotate(-6deg)}89%{transform:rotate(6deg)}92%{transform:rotate(-2deg)}95%,100%{transform:none}}
+@keyframes skk-sw-eyes{0%,49.4%{opacity:1;transform:none}49.5%,58%{opacity:0;transform:scaleY(0.4)}58.1%{opacity:1;transform:scaleY(0.4)}61%,72%{transform:scaleY(0.55)}75%,95%{transform:none}96.5%{transform:scaleY(0.1)}98%,100%{transform:none}}
+@keyframes skk-sw-sq{0%,49.4%{opacity:0}49.5%,58%{opacity:1}58.1%,100%{opacity:0}}
+@keyframes skk-sw-pup{0%{transform:none}6%,13%{transform:translate(1.2px,-1.7px)}19%{transform:translate(1.9px,0.2px)}23%{transform:translate(2.1px,0.3px)}26%{transform:translate(1.5px,0.3px)}29%,33%{transform:translate(2px,0.4px)}38%{transform:translate(2.2px,-0.6px)}43%{transform:translate(2.2px,-0.9px)}47%{transform:translate(1.5px,0)}49%{transform:translate(0.6px,0.2px)}58%,70%{transform:translate(1.9px,0.2px)}76%{transform:translate(1.6px,-1.8px)}84%{transform:translate(1.2px,-2px)}88%,100%{transform:none}}
+@keyframes skk-sw-wide{0%,40%{scale:1}44%,48.5%{scale:1.45}49.5%,100%{scale:1}}
+@keyframes skk-sw-el{0%{transform:none}6%,30%{transform:rotate(6deg) scale(1.1)}33%{transform:rotate(9deg) scale(1.12)}40%,48%{transform:rotate(5deg) scale(1.08)}50%{transform:rotate(-28deg) scaleY(0.8)}62%,72%{transform:rotate(-14deg)}78%,84%{transform:rotate(6deg) scale(1.1)}90%,100%{transform:none}}
+@keyframes skk-sw-er{0%{transform:none}6%,30%{transform:rotate(-6deg) scale(1.1)}33%{transform:rotate(-9deg) scale(1.12)}40%,48%{transform:rotate(-5deg) scale(1.08)}50%{transform:rotate(28deg) scaleY(0.8)}62%,72%{transform:rotate(14deg)}78%,84%{transform:rotate(-6deg) scale(1.1)}90%,100%{transform:none}}
+@keyframes skk-sw-tail{0%{transform:rotate(-4deg)}20%{transform:rotate(6deg)}26%{transform:rotate(-2deg)}27.5%{transform:rotate(12deg)}29%{transform:rotate(-6deg)}30.5%{transform:rotate(12deg)}32%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}60%{transform:rotate(-12deg)}63%{transform:rotate(16deg)}66%{transform:rotate(-12deg)}69%{transform:rotate(16deg)}72%{transform:rotate(-8deg)}80%,100%{transform:none}}
+@keyframes skk-sw-paw{0%,27%{opacity:0;transform:rotate(-60deg) scale(0.55)}28.5%{opacity:1;transform:rotate(-98deg) scale(0.85)}31%{opacity:1;transform:rotate(-100deg) scale(0.9)}33%{opacity:1;transform:rotate(-60deg) scale(1.06)}35.5%{opacity:1;transform:rotate(-78deg) scale(0.9)}37.5%{opacity:0;transform:rotate(-70deg) scale(0.6)}100%{opacity:0;transform:rotate(-60deg) scale(0.55)}}
+@keyframes skk-sw-drop{0%{transform:translateY(-76px);animation-timing-function:cubic-bezier(0.3,0.6,0.5,1)}13%{transform:translateY(3px);animation-timing-function:ease-in-out}16.5%{transform:translateY(-1.6px)}20%,73%{transform:none;animation-timing-function:cubic-bezier(0.55,0,0.85,0.4)}86%,100%{transform:translateY(-84px)}}
+@keyframes skk-sw-swing{0%,20%{transform:none}24%{transform:rotate(-4deg)}28%{transform:rotate(2.5deg)}32%,33%{transform:none;animation-timing-function:cubic-bezier(0.15,0.75,0.35,1)}41%{transform:rotate(-38deg);animation-timing-function:cubic-bezier(0.6,0,0.85,0.5)}50%{transform:rotate(4.5deg);animation-timing-function:cubic-bezier(0.2,0.7,0.4,1)}56%{transform:rotate(-15deg)}61%{transform:rotate(3deg)}65.5%{transform:rotate(-5deg)}69.5%{transform:rotate(1deg)}73%,100%{transform:none}}
+@keyframes skk-sw-legs{0%,33%{transform:none}35%{transform:scale(1.18,0.86)}37%{transform:scale(0.9,1.1)}39%{transform:scale(1.18,0.86)}41%{transform:scale(0.9,1.1)}43%{transform:scale(1.18,0.86)}45%{transform:scale(0.9,1.1)}47%{transform:scale(1.18,0.86)}49%{transform:scale(0.9,1.1)}51%{transform:scale(1.18,0.86)}53%{transform:scale(0.9,1.1)}55%,73%{transform:none}75%{transform:scale(1.15,0.88)}77%{transform:scale(0.92,1.08)}79%{transform:scale(1.15,0.88)}81%{transform:scale(0.92,1.08)}83%{transform:scale(1.15,0.88)}85%,100%{transform:none}}
+@keyframes skk-sw-tink{0%,49.4%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(0.6) rotate(0)}53%{opacity:1;transform:scale(1.25) rotate(25deg)}57%,100%{opacity:0;transform:scale(0.4) rotate(45deg)}}
 html[data-season="halloween"] .sk-cat:is(.asleep,.wake) .cat-sit *,
 html[data-season="halloween"] .sk-cat:not(.asleep) .cat-nap *,
 html[data-season="halloween"] .sk-cat:not(.wake) .cat-stretch * {animation-play-state:paused }
@@ -244,17 +325,25 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
   html[data-season="halloween"] :is(.sk-cat, .cat-head, .evs-pip), html[data-season="halloween"] :is(.sk-cat, .cat-head) *,
   html[data-season="halloween"] .evs::before, html[data-season="halloween"] .evs::after { animation: none !important; transition: none !important; }
   html[data-season="halloween"] .cat-zzz path { opacity: 0.85; }
+  html[data-season="halloween"] .sk-cat .sk-act { display: none; }
 }
 `;
   const VISITS_KEY = "jaardle:season:halloween:cat";   // hoe vaak hij al binnenhupte (de eerste drie bezoeken)
   const FRIEND_KEY = "jaardle:season:halloween:prop";   // welk vriendje hij de vorige keer had (een nieuw vriendje begroet hij nieuwsgierig)
-  const BUSY = ["asleep", "drowsy", "yawn", "wake", "meow", "pet", "hear", "purr", "grump", "cheer", "comfort", "bat", "sniff"];   // dan reageert hij niet op typen of een gok
-  const STATES = ["meow", "yawn", "drowsy", "wake", "pet", "hear", "watch", "purr", "grump", "cheer", "comfort", "bat", "sniff"];
+  const BUSY = ["asleep", "drowsy", "yawn", "wake", "meow", "pet", "hear", "purr", "grump", "cheer", "comfort", "bat", "sniff", "sneeze", "swat"];   // dan reageert hij niet op typen of een gok
+  const STATES = ["meow", "yawn", "drowsy", "wake", "pet", "hear", "watch", "purr", "grump", "cheer", "comfort", "bat", "sniff", "sneeze", "swat"];
+  // Kunstjes: hoe lang (ms), wanneer het vriendje meeschrikt (zijn eigen .pulse begint zelf 0,5 s later: op de nies en als het spinnetje langs
+  // zwiept), en hoe vaak: de helft van de keren in plaats van zijn miauw, hoogstens één per 90 s, nooit binnen 3 s na typen of een gok;
+  // op het eindscherm één keer, 6 s na het juichen of troosten.
+  const TRICKS = { sneeze: 4200, swat: 5400 };
+  const TRICK_REACT = { sneeze: 2550, swat: 1450 };
+  const TRICK_PACE = { chance: 0.5, gap: 90000, quiet: 3000, end: 6000 };
   // Echt tempo: ±30–50 s wakker (één miauw na 14–26 s), dan gapen (1,6 s) + slaperig (2 s) en 90–150 s slapen, dan rekken (1,7 s).
   // Op 31 oktober slaapt hij niet en miauwt hij telkens opnieuw.
   const PACE = { awake: [30000, 50000], sleep: [90000, 150000], meowAt: [14000, 26000], fiddle: [7000, 16000] };
 
   let el = null, style = null, timers = [], live = false, night = false, perched = false, streak = 0, lastTap = 0, watchT = 0, introT = 0, arriveT = 0, afterWake = null, propEl = null, propId = null, calmProp = false;
+  let actors = null, actEl = null, lastTrick = null, lastTrickAt = -Infinity, lastInput = -Infinity, previewTrick = null;
   const rnd = (a) => a[0] + Math.random() * (a[1] - a[0]);
   const reduced = () => { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
   // Wacht met een stap tot de tab én het speelveld in beeld zijn (na afloop klapt #play-bar in; dan hoeft er niets te gebeuren).
@@ -269,7 +358,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
   const clear = () => { timers.forEach(clearTimeout); timers = []; };
   const has = (c) => el.classList.contains(c);
   const busy = () => BUSY.some(has);
-  const drop = () => STATES.forEach((c) => el.classList.remove(c));
+  const drop = () => { STATES.forEach((c) => el.classList.remove(c)); endTrick(); };
   function flash(c, ms) {
     el.classList.remove(c); void el.offsetWidth; el.classList.add(c);
     later(() => { if (el) el.classList.remove(c); }, ms);
@@ -278,9 +367,12 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
   // wakker → (miauw) → gaap → slaperig → slaapt → rekt zich → wakker …
   function mew() {
     later(() => {
-      if (!busy()) { el.classList.remove("watch"); flash("meow", 1500); }
+      if (busy()) { if (night || previewTrick) mew(); return; }   // bezig (speelt met het vriendje, wordt geaaid): dit keer niet; 31 oktober en ?trick= proberen het zo weer
+      el.classList.remove("watch");
+      if (wantTrick() && trick(pickTrick())) return;   // een kunstje in de plaats van de miauw (daarna begint awake() de miauw opnieuw)
+      flash("meow", 1500);
       if (night) mew();
-    }, rnd(PACE.meowAt));
+    }, previewTrick ? 2500 : rnd(PACE.meowAt));   // ?trick=: elke keer 2,5 s na het wakker worden (ook na het vorige kunstje)
   }
   function awake(playIn) {
     clear(); drop(); el.classList.remove("asleep");
@@ -314,6 +406,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     lastTap = now;
     if (has("grump")) return;                                   // even uitboeken: niet opnieuw beginnen
     if (has("cheer") || has("comfort")) return;                 // even vieren: dat wordt afgemaakt
+    if (has("sneeze") || has("swat")) return;                   // een kunstje wordt afgemaakt
     if (has("wake")) { afterWake = pet; return; }               // midden in het rekken: eerst afmaken, dan aaien
     if (has("asleep")) { streak = 0; clear(); drop(); wake(pet); return; }
     if (streak >= 6) { grump(); return; }
@@ -357,6 +450,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     clear(); mew(); if (propEl) later(fiddle, rnd(PACE.fiddle)); later(sleepy, rnd(PACE.awake));
   }
   function type() {
+    lastInput = Date.now();
     if (!el || !live || busy()) return;
     stay();
     el.classList.add("watch");
@@ -366,6 +460,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
   // Na een geaccepteerde gok spitst hij zijn oren en houdt hij zijn kopje schuin; slaapt hij, dan trilt alleen één oortje.
   // Hij reageert op elke gok hetzelfde: nooit op warm of koud.
   function guess() {
+    lastInput = Date.now();
     if (!el || !live) return;
     if (has("asleep")) flash("flick", 800);
     else if (!busy()) { stay(); el.classList.remove("watch"); flash("hear", 1200); }
@@ -378,9 +473,55 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
       clear(); drop(); el.classList.remove("asleep");
       el.classList.add(won ? "cheer" : "comfort");
       if (propEl && won) window.SeasonProps.play(propEl, "hop");
-      later(() => { el.classList.remove("cheer"); el.classList.remove("comfort"); if (propEl) window.SeasonProps.stop(propEl, "hop"); awake(1400); }, won ? 4900 : 5300);
+      later(() => { el.classList.remove("cheer"); el.classList.remove("comfort"); if (propEl) window.SeasonProps.stop(propEl, "hop"); awake(1400); later(endShow, TRICK_PACE.end); }, won ? 4900 : 5300);
     }, 900);
   }
+  // ── Kunstjes ──
+  // Het laagje met het ding: dezelfde viewBox als de kat, dus het blaadje landt op zijn neus en het spinnetje hangt binnen bereik van zijn pootje.
+  // Het draadje hangt aan (49,-42) en vervaagt naar boven toe; het sterretje is waar het spinnetje hem tegen zijn wang tikt.
+  function actLayer(name) {
+    const vb = 'viewBox="-2 0 52 64" aria-hidden="true" focusable="false"', n = document.createElement("div");
+    n.className = "sk-act";
+    n.innerHTML = name === "sneeze"
+      ? `<svg ${vb}><g class="act-fall"><g class="act-spin">${actors.sneeze}</g></g></svg>`
+      : `<svg ${vb}><defs><linearGradient id="skk-silk" gradientUnits="userSpaceOnUse" x1="0" y1="-60" x2="0" y2="-22"><stop offset="0" style="stop-color:${actors.thread};stop-opacity:0"/><stop offset="1" style="stop-color:${actors.thread}"/></linearGradient></defs>` +
+        `<g class="act-drop"><g class="act-swing"><path d="M49 -112V25.4" fill="none" stroke="url(#skk-silk)" stroke-width=".6"/><g transform="translate(49 30)">${actors.swat}</g></g></g>` +
+        `<g transform="translate(41.8 28.6)"><path class="act-tink" d="M0 -3.4L.85 -.85L3.4 0L.85 .85L0 3.4L-.85 .85L-3.4 0L-.85 -.85Z"/></g></svg>`;
+    return n;
+  }
+  function endTrick() { if (actEl) { actEl.remove(); actEl = null; } }
+  // Speelt een kunstje (false = kan niet: geen lib, of dat ding ontbreekt); daarna weer de gewone wakker-cyclus.
+  function trick(name) {
+    if (!el || !live || !name || !actors || !actors[name]) return false;
+    clear(); drop(); el.classList.remove("asleep");
+    actEl = actLayer(name);
+    el.appendChild(actEl);
+    void el.offsetWidth;
+    el.classList.add(name);
+    lastTrick = name; lastTrickAt = Date.now();
+    const p = propEl;
+    if (p) later(() => { if (propEl === p) window.SeasonProps.pulse(p); }, TRICK_REACT[name]);
+    later(() => { if (!el) return; el.classList.remove(name); endTrick(); awake(); }, TRICKS[name] + 60);
+    return true;
+  }
+  // Nooit twee keer hetzelfde na elkaar (als er een ander kunstje is); ?trick= kiest er altijd één.
+  function pickTrick() {
+    if (previewTrick) return previewTrick;
+    let pool = Object.keys(TRICKS).filter((t) => actors && actors[t]);
+    if (pool.length > 1) pool = pool.filter((t) => t !== lastTrick);
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+  }
+  // In de plaats van de miauw: niet op het eindscherm (daar één keer, endShow), niet vlak na een vorig kunstje en niet als je net typte of gokte.
+  function wantTrick() {
+    if (!actors || perched) return false;
+    if (previewTrick) return true;
+    const now = Date.now();
+    return now - lastTrickAt > TRICK_PACE.gap && now - lastInput > TRICK_PACE.quiet && Math.random() < TRICK_PACE.chance;
+  }
+  function endShow() { if (el && perched && !busy()) trick(pickTrick()); }
+  // De tekeningetjes van de skin: { sneeze, swat, thread } (props-halloween.js), of null = geen kunstjes.
+  function setActors(a) { actors = a && typeof a === "object" ? a : null; }
+
   function set(o) {
     if (el && o && "hat" in o) el.classList[o.hat ? "add" : "remove"]("hat");
   }
@@ -420,7 +561,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     } else { el.classList.remove("perched"); el.classList.remove("arrive"); }
   }
 
-  // opts: { night: 31 oktober, hat: draagt een heksenhoed }
+  // opts: { night: 31 oktober, hat: draagt een heksenhoed, trick: ?trick= (voorvertoning: dat kunstje steeds 2,5 s nadat hij wakker is, in plaats van de miauw) }
   function mount(opts) {
     const bar = document.getElementById("play-bar");
     if (!bar || el) return;
@@ -445,6 +586,7 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     if (!live) { el.classList.add("asleep"); return; }   // minder beweging: hij slaapt stil, geen timers, geen tikken
     el.addEventListener("click", tap);
     if (intro) introT = setTimeout(() => { if (el) el.classList.remove("intro"); }, 1300);
+    previewTrick = opts && TRICKS[opts.trick] ? opts.trick : null;
     awake();
   }
   function unmount() {
@@ -452,7 +594,8 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     if (el) el.remove();
     if (style) style.remove();
     if (window.SeasonProps) window.SeasonProps.dispose();
-    el = style = propEl = null; live = false; perched = false; streak = 0; afterWake = null; calmProp = false; propId = null;
+    el = style = propEl = actEl = null; live = false; perched = false; streak = 0; afterWake = null; calmProp = false; propId = null;
+    actors = lastTrick = previewTrick = null; lastTrickAt = lastInput = -Infinity;
   }
-  return { mount, unmount, perch, cheer, type, guess, set, prop, css: CSS, head: HEAD };
+  return { mount, unmount, perch, cheer, type, guess, set, prop, actors: setActors, css: CSS, head: HEAD };
 })();

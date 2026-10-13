@@ -2608,7 +2608,8 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   // elke klasse waar de SVG's of het script mee werken staat in de CSS
   w.api.mount();
   const used = new Set([...w.cat().innerHTML.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/)));
-  for (const c of ["meow", "yawn", "drowsy", "asleep", "wake", "pet", "intro", "hear", "watch", "flick", "purr", "grump", "hallow", "hat", "cheer", "comfort", "hatnew", "ring", "perched", "arrive", "bat", "sniff", "cat-paw"]) used.add(c);
+  for (const c of ["meow", "yawn", "drowsy", "asleep", "wake", "pet", "intro", "hear", "watch", "flick", "purr", "grump", "hallow", "hat", "cheer", "comfort", "hatnew", "ring", "perched", "arrive", "bat", "sniff", "cat-paw",
+    "sneeze", "swat", "sk-act", "act-fall", "act-spin", "act-drop", "act-swing", "act-tink", "act-legs", "cat-squeeze", "cat-puff"]) used.add(c);
   for (const c of used) if (!["cat-sit", "cat-nap", "cat-stretch"].includes(c)) assert.ok(css.includes("." + c), `.${c} ontbreekt in de CSS`);
   for (const c of ["cat-sit", "cat-nap", "cat-stretch"]) assert.ok(css.includes("." + c), c);
   // animaties
@@ -2622,7 +2623,7 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   assert.ok(!/position:\s*fixed/.test(css), "geen fixed");
   assert.ok(!/\bz-index:\s*(?!4\b)\d+/.test(css), "de kat blijft laag (z-index 4)");
   assert.ok(!/(#keypad|#year-input|\.key\s*\{|main\s*\{)/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "raakt de speelkolom niet aan");
-  assert.ok(js.length < 48000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);   // 44000 → 48000 met het pootje, het snuffelen en het voorwerpje (9 KB gz)
+  assert.ok(js.length < 70000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);   // 44000 → 48000 met het pootje, het snuffelen en het voorwerpje (9 KB gz); → 70000 met de kunstjes Hatsjoe! en Bonk! (±15 KB gz, alleen met de skin geladen)
   // alleen opgemaakt onder de skin: elke selector (buiten @keyframes) begint met html[data-season="halloween"]
   const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "");
   for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/@media[^{]*\{/g, "").replace(/\([^)]*\)/g, (x) => x.replace(/,/g, ";")).split(",")) {
@@ -2840,6 +2841,90 @@ test("season-cat.js + voorwerp: een NIEUW vriendje (ander voorwerp dan de vorige
   v.api.prop(c, { ...SPEC, id: "ghost" }); assert.ok(!a.parent && c.parent === v.cat(), "een ander vriendje vervangt het oude"); v.api.prop(null, null); assert.ok(!c.parent); v.api.prop(a, SPEC); assert.equal(a.parent, v.cat(), "na weghalen kan hetzelfde weer");
   // zonder localStorage nooit; minder beweging: ook niet (hij slaapt stil)
   const r = loadSeasonCat().make({ reduced: true, store: {} }); r.api.mount(); r.api.prop(r.props.make(SPEC), SPEC); assert.equal(r.clock.q.length, 0, "geen timers");
+});
+
+// --- Kunstjes van het katje (Hatsjoe!, Bonk!): de beweging in season-cat.js, het ding (blaadje, spinnetje) uit de lib van de skin ---
+const ACT = { sneeze: '<g class="act-leaf"></g>', swat: '<g class="act-spider"><g class="act-legs"></g></g>', thread: "var(--act-silk)" };
+const actLayerOf = (c) => c.kids.find((k) => k.className === "sk-act");
+test("season-cat.js: kunstjes — zonder tekeningetjes nooit; met actors() de helft van de keren in plaats van de miauw, hoogstens één per 90 s, nooit twee keer hetzelfde na elkaar; het ding in een eigen laagje dat weer verdwijnt", () => {
+  const ST = { "jaardle:season:halloween:cat": "9" };   // rand 0,3: wakker 36 s, slapen 108 s, miauw na 17,6 s
+  { const L = loadSeasonCat(), w = L.make({ store: ST, rand: 0.3 }); w.api.mount(); const c = w.cat();
+    L.advance(17600); assert.ok(c.classList.contains("meow") && !c.classList.contains("sneeze") && !actLayerOf(c), "zonder lib (nog niet binnen): gewoon de miauw"); }
+  { const L = loadSeasonCat(), w = L.make({ store: ST, rand: 0.6 }); w.api.actors(ACT); w.api.mount(); const c = w.cat();
+    L.advance(14000 + 0.6 * 12000); assert.ok(c.classList.contains("meow") && !actLayerOf(c), "de andere helft van de keren: de miauw"); }
+  const L = loadSeasonCat(), w = L.make({ store: ST, rand: 0.3 }); w.api.actors(ACT); w.api.mount(); const c = w.cat();
+  L.advance(17599); assert.ok(!c.classList.contains("sneeze") && !actLayerOf(c));
+  L.advance(1); assert.ok(c.classList.contains("sneeze") && !c.classList.contains("meow"), "Hatsjoe! in plaats van de miauw");
+  const lay = actLayerOf(c);
+  assert.ok(lay, "het ding hangt in een eigen laagje"); assert.match(lay.innerHTML, /viewBox="-2 0 52 64"/, "met de maten van de kat (dan landt het op zijn neus)");
+  assert.match(lay.innerHTML, /<g class="act-fall"><g class="act-spin"><g class="act-leaf">/, "het blaadje uit de lib, in de val- en draaigroep");
+  assert.equal(c.kids.indexOf(lay), c.kids.length - 1, "bovenop de kat");
+  L.advance(4260); assert.ok(!c.classList.contains("sneeze") && !actLayerOf(c) && !c.classList.contains("asleep"), "na 4,2 s opgeruimd en gewoon wakker");
+  L.advance(17600); assert.ok(c.classList.contains("meow") && !c.classList.contains("swat"), "de volgende miauw valt binnen 90 s: geen kunstje");
+  L.advance(150000); assert.ok(c.classList.contains("swat") && !c.classList.contains("sneeze"), "na slapen en wakker worden, ruim na 90 s: het andere kunstje (Bonk!)");
+  const lay2 = actLayerOf(c);
+  assert.match(lay2.innerHTML, /<g class="act-drop"><g class="act-swing">/, "het draadje zakt en zwaait"); assert.match(lay2.innerHTML, /<g class="act-spider"><g class="act-legs">/, "het spinnetje uit de lib");
+  assert.match(lay2.innerHTML, /stop-color:var\(--act-silk\)/, "de draadkleur uit de lib"); assert.match(lay2.innerHTML, /class="act-tink"/, "het sterretje bij de tik");
+  L.advance(5460); assert.ok(!c.classList.contains("swat") && !actLayerOf(c));
+  w.api.actors("x"); L.advance(400000); assert.ok(!c.classList.contains("sneeze") && !c.classList.contains("swat"), "geen object = geen kunstjes");
+  w.api.unmount(); assert.equal(L.clock.q.length, 0, "geen lopende timers meer");
+});
+
+test("season-cat.js: een kunstje wordt afgemaakt (tik, typen, gok), juichen onderbreekt het; op het eindscherm één kunstje 6 s na het juichen; het vriendje schrikt mee; nooit vlak na typen; ?trick= ; minder beweging: nooit", () => {
+  const ST = { "jaardle:season:halloween:cat": "9" };
+  { const L = loadSeasonCat(), w = L.make({ store: ST, rand: 0.3 }); w.api.actors(ACT); w.api.mount(); const c = w.cat();
+    L.advance(17600); assert.ok(c.classList.contains("sneeze"));
+    c.on.click(); w.api.type(); w.api.guess();
+    assert.ok(c.classList.contains("sneeze") && !["pet", "watch", "hear"].some((x) => c.classList.contains(x)), "tik, typen en gok maken het kunstje niet stuk");
+    w.api.perch(true); w.api.cheer(true); L.advance(900);
+    assert.ok(c.classList.contains("cheer") && !c.classList.contains("sneeze") && !actLayerOf(c), "een verse pot: het juichen gaat voor, het laagje is weg");
+    L.advance(4900); assert.ok(!c.classList.contains("cheer"));
+    L.advance(5999); assert.ok(!c.classList.contains("swat"), "pas 6 s na het juichen");
+    L.advance(1); assert.ok(c.classList.contains("swat") && actLayerOf(c), "op het eindscherm: één kunstje (zonder worp, het andere dan het vorige)");
+    L.advance(5460); assert.ok(!c.classList.contains("swat") && !actLayerOf(c));
+    L.advance(17600); assert.ok(c.classList.contains("meow") && !c.classList.contains("sneeze"), "daarna op het eindscherm weer de gewone miauw");
+  }
+  { const L = loadSeasonCat(), w = L.make({ store: { ...ST, "jaardle:season:halloween:prop": "skull" }, rand: 0.3 }); w.api.actors(ACT); w.api.mount(); const c = w.cat();
+    const n = w.props.make(SPEC); w.api.prop(n, SPEC);
+    L.advance(17600); assert.ok(c.classList.contains("sneeze")); n.classList.remove("pulse");
+    L.advance(2549); assert.ok(!n.classList.contains("pulse"));
+    L.advance(1); assert.ok(n.classList.contains("pulse"), "het vriendje schrikt van de nies (zijn eigen reactie)");
+    assert.ok(c.kids.indexOf(actLayerOf(c)) > c.kids.indexOf(n), "het ding hangt vóór het vriendje");
+  }
+  { const L = loadSeasonCat(), w = L.make({ store: ST, rand: 0.3 }); w.api.actors(ACT); w.api.mount({ night: true }); const c = w.cat();
+    L.advance(16000); w.api.type(); L.advance(1600);
+    assert.ok(c.classList.contains("meow") && !c.classList.contains("sneeze"), "31 oktober miauwt hij door typen heen, maar 1,6 s na typen nooit een kunstje"); }
+  { const L = loadSeasonCat(), w = L.make({ store: ST, rand: 0.9 }); w.api.actors(ACT); w.api.mount({ trick: "swat" }); const c = w.cat();
+    L.advance(2500); assert.ok(c.classList.contains("swat"), "?trick=swat: na 2,5 s");
+    L.advance(5460); assert.ok(!c.classList.contains("swat"));
+    L.advance(2500); assert.ok(c.classList.contains("swat"), "en daarna steeds opnieuw, 2,5 s na het vorige");
+    const p = L.make({ store: { ...ST, "jaardle:season:halloween:prop": "skull" }, rand: 0.9 }); p.api.actors(ACT); p.api.mount({ trick: "sneeze" });
+    p.api.prop(p.props.make(SPEC), SPEC); L.advance(2500); assert.ok(p.cat().classList.contains("sneeze"), "ook als er net een vriendje bij kwam (dat herstart zijn wakker-cyclus)");
+    const q = L.make({ store: ST, rand: 0.9 }); q.api.actors(ACT); q.api.mount({ trick: "swat" }); L.advance(1000); q.api.prop(q.props.make(SPEC), SPEC);   // een NIEUW vriendje: hij speelt er eerst mee
+    L.advance(2000); assert.ok(q.cat().classList.contains("bat") && !q.cat().classList.contains("swat"), "eerst het vriendje begroeten (1,8 s na de plop)");
+    L.advance(3000); assert.ok(q.cat().classList.contains("swat"), "daarna komt de voorvertoning alsnog (hij blijft het proberen)");
+    const x = L.make({ store: ST, rand: 0.9 }); x.api.actors(ACT); x.api.mount({ trick: "dans" }); L.advance(2500); assert.ok(!x.cat().classList.contains("dans"), "een onbekend kunstje bestaat niet"); }
+  { const L = loadSeasonCat(), r = L.make({ reduced: true, store: {} }); r.api.actors(ACT); r.api.mount({ trick: "sneeze" }); L.advance(200000);
+    assert.ok(!r.cat().classList.contains("sneeze") && !actLayerOf(r.cat()) && L.clock.q.length === 0, "minder beweging: geen kunstjes en geen timers"); }
+});
+
+test("props-halloween.js: de dingen in de kunstjes (actors): een herfstblaadje en een spinnetje, platte vormen zonder ids of verwijzingen, en de draadkleur", () => {
+  const src = readFileSync(join(dir, "..", "props-halloween.js"), "utf8"), win = {};
+  vm.runInContext(src, vm.createContext({ window: win, Object, Array, Math, String, Date, RegExp }));
+  const A = win.SeasonPropsHalloween.actors;
+  assert.deepEqual(Object.keys(A).sort(), ["sneeze", "swat", "thread"]);
+  assert.match(A.sneeze, /^<g class="act-leaf">/); assert.match(A.swat, /^<g class="act-spider"><g class="act-legs"/, "de pootjes spartelen als het zwiept (CSS in season-cat.js)");
+  for (const k of ["sneeze", "swat"]) assert.ok(!/<script|<style|<foreignObject|<image|javascript:|https?:\/\/|\son\w+\s*=|\sid=|href=/i.test(A[k]), `${k}: alleen platte vormen`);
+  assert.equal(A.thread, "var(--act-silk)", "het draadje kleurt mee met het thema");
+  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /--act-silk:rgba\(/, "season-cat.js zet --act-silk (donker en licht)");
+});
+
+test("game.js ↔ kunstjes: de tekeningetjes komen uit de lib van de skin (SeasonCat.actors), ?trick= is een voorvertoning via de mount-opties", () => {
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  const fn = g.slice(g.indexOf("function syncCatProp()"), g.indexOf("function syncSeasonCheck()"));
+  assert.match(fn, /window\.SeasonCat\.actors\?\.\(lib\.actors \|\| null\)/, "uit dezelfde lib als het vriendje");
+  assert.match(g, /const previewTrick = .*URLSearchParams\(location\.search\)\.get\("trick"\)/);
+  assert.match(g, /const eventCatOpts = \(\) => \(\{ night: [^}]*, trick: previewTrick \}\)/);
 });
 
 test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bestand wordt lui geladen met de game.js-versie, alleen bij de skin", () => {
@@ -3233,7 +3318,7 @@ test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template
   assert.match(g, /async function refreshStreakBanners\(\) \{\s*syncEventUi\(\)/);
   assert.match(g, /renderEventStrip\(fresh\)/);
   // het katje levert het kopje voor de balk
-  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, cheer, type, guess, set, prop, css: CSS, head: HEAD \}/);
+  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, cheer, type, guess, set, prop, actors: setActors, css: CSS, head: HEAD \}/);
   assert.ok(existsSync(join(dir, "..", "emoji", "flair-pumpkin.webp")), "de animatie van de 🎃-flair");
 });
 
@@ -3280,7 +3365,7 @@ test("het katje op een eventdag: hoed vanaf de hoogste beloning (alleen mét de 
   try {
     T.setLocalHistory(evHist(evDays(9)));   // 10 stempels = de hoogste beloning
     document.documentElement = { dataset: { season: "halloween" } }; T.setEventToday("2026-10-25");
-    assert.deepEqual(T.eventCatOpts(), { night: false, hat: true });
+    assert.deepEqual(T.eventCatOpts(), { night: false, hat: true, trick: null });   // trick = ?trick= (voorvertoning van een kunstje), hier niet gezet
     T.setEventToday("2026-10-31"); assert.equal(T.eventCatOpts().night, true, "31 oktober");
     T.setEventToday("2026-11-01"); assert.equal(T.eventCatOpts().night, false);
     document.documentElement = { dataset: {} }; assert.equal(T.eventCatHat(), false, "zonder skin geen kat, dus ook geen hoed");

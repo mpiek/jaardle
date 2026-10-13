@@ -6,7 +6,9 @@
    calm = hij snuffelt alleen (vuur), fx = overlay-lagen (<i>, <s>, <b>, een tweede kopie van het plaatje, of een svg; posities in % van het voorwerp),
    CSS_BY = per voorwerp een eigen blok regels en @keyframes (alleen onder [data-prop="<id>"], keyframes skh-<id>-*). De plaatjes (img) zijn losse
    WebP's van 128 px in /props/halloween/, alleen die van de dag wordt opgehaald. pick({ today }, forced): today = de datum (eventToday, dus ook
-   ?evdate=); forced = ?prop=<id> (voorvertoning, buiten het rooster om). */
+   ?evdate=); forced = ?prop=<id> (voorvertoning, buiten het rooster om).
+   actors = de dingen in de kunstjes van het katje (season-cat.js), elk dag van het event: het herfstblaadje dat op zijn neus valt (Hatsjoe!) en
+   het spinnetje aan een draadje (Bonk!). */
 window.SeasonPropsHalloween = (() => {
   const P = (id) => `/props/halloween/${id}.webp`;
   const items = {
@@ -59,5 +61,13 @@ window.SeasonPropsHalloween = (() => {
     const it = id && items[id];
     return it ? { id, kind: it.kind, calm: !!it.calm, svg: it.svg, img: it.img, fx: it.fx, css: CSS } : null;
   }
-  return { items, schedule: SCHEDULE, css: CSS, pick };
+  // De dingen in de kunstjes van het katje, getekend in de maten van de kat (viewBox -2 0 52 64) rond 0,0, plat zoals hij zelf: sneeze = wat er op
+  // zijn neus valt, swat = wat er aan het draadje hangt (vast aan de bovenkant, y≈-4,4; .act-legs spartelen als het zwiept), thread = de kleur van
+  // dat draadje. De beweging staat in season-cat.js; een ander event geeft hier alleen andere tekeningetjes.
+  const actors = {
+    sneeze: `<g class="act-leaf"><path d="M0 -3.8C2.65 -2.2 2.45 1.8 0 3.2C-2.3 1.9 -2.7 -1.8 0 -3.8Z" fill="#ff8a1f"/><path d="M0 -2.8L0 3.05M0 -.8L1.2 -1.75M0 .75L-1.3 -.25" fill="none" stroke="#c4560a" stroke-width=".42" stroke-linecap="round"/><path d="M0 3.05L.35 4.6" fill="none" stroke="#9c4a12" stroke-width=".6" stroke-linecap="round"/></g>`,
+    swat: `<g class="act-spider"><g class="act-legs" fill="none" stroke="#0b0910" stroke-width=".7" stroke-linecap="round"><path d="M-1.6 -1.2Q-4.4 -4 -5.8 -1.6M-2.1 0Q-5.4 -1 -6.4 1.6M-2.1 1.3Q-5.2 2.8 -5.7 5.2M-1.6 2.5Q-3.8 4.8 -3.5 6.9"/><path d="M1.6 -1.2Q4.4 -4 5.8 -1.6M2.1 0Q5.4 -1 6.4 1.6M2.1 1.3Q5.2 2.8 5.7 5.2M1.6 2.5Q3.8 4.8 3.5 6.9"/></g><circle cy="1.3" r="3.1" fill="#0b0910"/><circle cy="-2.3" r="2.15" fill="#0b0910"/><circle cx="-.85" cy="-2.55" r=".82" fill="#fbf7ff"/><circle cx=".85" cy="-2.55" r=".82" fill="#fbf7ff"/><circle cx="-.7" cy="-2.35" r=".36" fill="#0b0910"/><circle cx="1" cy="-2.35" r=".36" fill="#0b0910"/></g>`,
+    thread: "var(--act-silk)",
+  };
+  return { items, schedule: SCHEDULE, css: CSS, pick, actors };
 })();

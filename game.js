@@ -11255,13 +11255,18 @@ function syncSeasonCat() {
 // hetzelfde: eerst drie dagen niets, dan de lantaarn, dan het spookje), nooit gekoppeld aan wat het feit zegt, dus ook geen hint. ?prop=<id> toont
 // er altijd één, ?evdate= een andere dag, ter voorvertoning. Alles lui en optioneel: ontbreekt een bestand, dan zit hij gewoon zonder.
 const previewProp = (() => { try { return new URLSearchParams(location.search).get("prop"); } catch (e) { return null; } })();
+// ?trick=sneeze|swat: het katje doet dat kunstje meteen (na 2,5 s) en daarna steeds in plaats van zijn miauw, ter voorvertoning (season-cat.js)
+const previewTrick = (() => { try { return new URLSearchParams(location.search).get("trick"); } catch (e) { return null; } })();
 let catPropSeq = 0;
 function syncCatProp() {
   const skin = seasonActive(), seq = ++catPropSeq, loadLib = skin && SEASON_PROP_LIBS[skin];
   if (!loadLib || !window.SeasonCat || !state) return;
   const ctx = { today: eventToday() };   // de datum (eventToday volgt ?evdate=)
   Promise.all([loadSeasonProps(), loadLib()])
-    .then(([props, lib]) => { const spec = lib.pick(ctx, previewProp); return spec ? props.load(spec).then((node) => [node, spec]) : [null, null]; })
+    .then(([props, lib]) => {
+      window.SeasonCat.actors?.(lib.actors || null);   // de tekeningetjes van zijn kunstjes (blaadje, spinnetje) komen uit dezelfde lib
+      const spec = lib.pick(ctx, previewProp); return spec ? props.load(spec).then((node) => [node, spec]) : [null, null];
+    })
     .then(([node, spec]) => { if (seq === catPropSeq && window.SeasonCat) window.SeasonCat.prop(node, spec); })
     .catch(() => {});
 }
@@ -11296,7 +11301,7 @@ function eventView(ev) {
 }
 // Het katje (SeasonCat) draagt een heksenhoed zodra je de hoogste beloning van het event hebt, en heeft op 31 oktober vurige ogen en slaapt dan niet.
 const eventCatHat = () => EVENTS.some((ev) => ev.skin === seasonActive() && eventState(ev).n >= ev.thresholds[ev.thresholds.length - 1]);
-const eventCatOpts = () => ({ night: eventToday().slice(5) === "10-31", hat: eventCatHat() });
+const eventCatOpts = () => ({ night: eventToday().slice(5) === "10-31", hat: eventCatHat(), trick: previewTrick });
 // Alles wat de UI van deze events nodig heeft: het event-bestand en de mascotte(s).
 // De mascotte is optioneel: laadt dat bestand niet, dan toont de UI gewoon het icoon (alleen het event-bestand zelf is verplicht).
 const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot].load().catch(() => null) : null))]).then((r) => { injectEventArt(); return r; });
