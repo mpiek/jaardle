@@ -7492,9 +7492,12 @@ function mountRecapCarousel(root, oddsItems) {
     if (weekS) io.observe(weekS);
     if (odds) io.observe(oddsS);
   }
-  if (evS && recapEvFocus()) recapTab = slides.indexOf(evS);   // net ingelogd via het haakje op de 🎃-tab: daar weer verder
+  const focusEv = !!evS && recapEvFocus();
+  if (focusEv) recapTab = slides.indexOf(evS);   // net ingelogd via het haakje op de 🎃-tab: daar weer verder
   setActive(Math.min(recapTab, last));
   goTo(recapTab, false);
+  // …en dan ook in beeld: de carrousel staat onderaan het eindscherm, anders zie je "Draag nu" pas na scrollen.
+  if (focusEv) requestAnimationFrame(() => { if (root.isConnected) root.scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" }); });
 }
 
 // ── 🔮 Kans: winkansen op de weekzege (grill 3/10, mockup "Winkans-donut varianten", variant A) ──
