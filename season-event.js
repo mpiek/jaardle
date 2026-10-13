@@ -43,7 +43,7 @@ html[data-theme="light"] [data-ev="spook"], html[data-theme="parchment"] [data-e
 .evp-gf { width: 52%; height: 52%; background: var(--achv-gold); -webkit-mask: var(--ev-gift) center / contain no-repeat; mask: var(--ev-gift) center / contain no-repeat; opacity: 0.85; }
 .evp-s.rw.on { border-style: solid; border-color: var(--achv-gold); background: color-mix(in srgb, var(--achv-gold) 16%, transparent); box-shadow: 0 0 0.9rem -0.2rem color-mix(in srgb, var(--achv-gold) 70%, transparent); }
 .evp-ic { font-size: 1.55rem; font-size: min(1.55rem, 60cqw); line-height: 1; font-weight: 400; }
-@container (max-width: 34px) { .evp-s.rw .evp-no { display: none; } }   /* smalle vakjes (7 kolommen op een telefoon): alleen het icoon, het getal staat in de lijst eronder */
+@container (max-width: 34px) { .evp-s.rw .evp-no { display: none; } }   /* vangnet voor smalle vakjes: alleen het icoon, het getal staat in de lijst eronder */
 .evp-s.gift::after { content: ""; position: absolute; top: -0.12rem; right: -0.12rem; width: 1.05rem; width: min(1.05rem, 46cqw); height: 1.05rem; height: min(1.05rem, 46cqw); border-radius: 50%; background-color: var(--achv-gold); -webkit-mask: var(--ev-gift) center / 64% no-repeat; mask: var(--ev-gift) center / 64% no-repeat; }
 .evp-s.gift0 { border-color: color-mix(in srgb, var(--achv-gold) 70%, transparent); }
 /* het nieuwste stempel landt één keer */
@@ -346,6 +346,10 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 
   // ── de stempelkaart ───────────────────────────────────────────────────────────────────────────────────────────
   // Een vakje per dag; de drempels zijn cadeau-vakjes die opengaan en de beloning tonen; het cadeau is vakje 1.
+  // Kolommen: zo weinig mogelijk rijen van hoogstens 4 grote vakjes, gelijk verdeeld (14 → 4·4·4·2, 12 → 4×3, 24 → 4×6). Grote stempels lezen
+  // beter dan veel kleine en houden op een telefoon de getallen bij de cadeaus in beeld (13/10/2026; bij 7 per rij waren de vakjes 33 px en vielen ze weg).
+  const CARD_MAX_COLS = 4;
+  const cardCols = (total) => Math.ceil(total / Math.ceil(total / CARD_MAX_COLS));
   function card(v, o) {
     const c = copy(v.id, v.lang), arrive = !!(o && o.arrive);
     let slots = "";
@@ -356,7 +360,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       const inner = rw ? (on ? `<b class="evp-ic">${esc(v.rewards[r].icon)}</b>` : `<em class="evp-gf"></em>`) + `<span class="evp-no">${i}</span>` : `<span class="evp-no">${i}</span>`;
       slots += `<i class="${cls}">${inner}</i>`;
     }
-    return `<div class="evc${arrive ? " arrive" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp" style="--cols:${v.total % 4 === 0 ? 4 : v.total % 7 === 0 ? 7 : v.total % 5 === 0 ? 5 : 4}">${slots}</div></div>`;
+    return `<div class="evc${arrive ? " arrive" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp" style="--cols:${cardCols(v.total)}">${slots}</div></div>`;
   }
 
   // ── de strook op het eindscherm: dagen als puntjes, drempels als ronde pinnen, één tekstregel ──────────────────

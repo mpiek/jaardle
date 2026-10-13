@@ -3132,8 +3132,8 @@ test("season-event.js — de stempelkaart: vakjes, cadeau, drempels als open cad
   assert.match(SE.card(view(5), { arrive: true }), /evc arrive/); assert.match(SE.card(view(5), { arrive: true }), /evp-s on new/, "het nieuwste stempel landt");
   assert.ok(!/evp-s on[^"]* new/.test(SE.card(view(5))), "zonder arrive geen animatie");
   assert.match(h, /role="img" aria-label="12 van 12"/);
-  // kolommen volgen het aantal dagen: 12 → 4 (3 rijen), 14 → 7 (2 rijen), nooit een scheve laatste rij
-  assert.match(SE.card(view(3)), /--cols:4/); assert.match(SE.card({ ...view(3), total: 14 }), /--cols:7/); assert.match(SE.card({ ...view(3), total: 10 }), /--cols:5/); assert.match(SE.card({ ...view(3), total: 11 }), /--cols:4/);
+  // kolommen: zo weinig mogelijk rijen van hoogstens 4 grote vakjes (14 → 4·4·4·2, 12 → 4×3, 24 → 4×6, 3 → één rij van 3)
+  for (const [total, cols] of [[12, 4], [14, 4], [10, 4], [11, 4], [24, 4], [3, 3], [19, 4]]) assert.match(SE.card({ ...view(3), total }), new RegExp(`--cols:${cols}"`), `${total} vakjes → ${cols} per rij`);
 });
 
 test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haakje, archief; alles geëscaped", () => {
