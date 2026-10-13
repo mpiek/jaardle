@@ -46,6 +46,12 @@ html[data-theme="light"] [data-ev="spook"], html[data-theme="parchment"] [data-e
 @container (max-width: 34px) { .evp-s.rw .evp-no { display: none; } }   /* vangnet voor smalle vakjes: alleen het icoon, het getal staat in de lijst eronder */
 .evp-s.gift::after { content: ""; position: absolute; top: -0.12rem; right: -0.12rem; width: 1.05rem; width: min(1.05rem, 46cqw); height: 1.05rem; height: min(1.05rem, 46cqw); border-radius: 50%; background-color: var(--achv-gold); -webkit-mask: var(--ev-gift) center / 64% no-repeat; mask: var(--ev-gift) center / 64% no-repeat; }
 .evp-s.gift0 { border-color: color-mix(in srgb, var(--achv-gold) 70%, transparent); }
+/* de ringen kleuren mee met je zegel-tier (brons … obsidiaan, sealTiers in EVENTS): bij elke nieuwe tier verkleurt de hele kaart; zonder tier zoals hierboven */
+.evp[data-tier="1"] { --ev-tc: var(--achv-bronze); } .evp[data-tier="2"] { --ev-tc: var(--achv-silver); } .evp[data-tier="3"] { --ev-tc: var(--achv-gold); }
+.evp[data-tier="4"] { --ev-tc: var(--achv-plat); } .evp[data-tier="5"] { --ev-tc: var(--achv-diamond); } .evp[data-tier="6"] { --ev-tc: var(--achv-obsidian); }
+.evp[data-tier] .evp-s { border-color: color-mix(in srgb, var(--ev-tc) 72%, transparent); }
+.evp[data-tier] .evp-s.on, .evp[data-tier] .evp-s.nextup { border-color: var(--ev-tc); }
+.evp[data-tier] .evp-s.on:not(.rw) { box-shadow: 0 0 0.7rem -0.3rem var(--ev-tc); }
 /* het nieuwste stempel landt één keer */
 .evc.arrive .evp-s.new { animation: ev-pop 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) 0.3s both; }
 
@@ -346,6 +352,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 
   // ── de stempelkaart ───────────────────────────────────────────────────────────────────────────────────────────
   // Een vakje per dag; de drempels zijn cadeau-vakjes die opengaan en de beloning tonen; het cadeau is vakje 1.
+  // v.tier (de ring van het zegel, 1 = brons … 6 = obsidiaan) kleurt de ringen van de hele kaart mee.
   // Kolommen: zo weinig mogelijk rijen van hoogstens 4 grote vakjes, gelijk verdeeld (14 → 4·4·4·2, 12 → 4×3, 24 → 4×6). Grote stempels lezen
   // beter dan veel kleine en houden op een telefoon de getallen bij de cadeaus in beeld (13/10/2026; bij 7 per rij waren de vakjes 33 px en vielen ze weg).
   const CARD_MAX_COLS = 4;
@@ -360,7 +367,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       const inner = rw ? (on ? `<b class="evp-ic">${esc(v.rewards[r].icon)}</b>` : `<em class="evp-gf"></em>`) + `<span class="evp-no">${i}</span>` : `<span class="evp-no">${i}</span>`;
       slots += `<i class="${cls}">${inner}</i>`;
     }
-    return `<div class="evc${arrive ? " arrive" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp" style="--cols:${cardCols(v.total)}">${slots}</div></div>`;
+    return `<div class="evc${arrive ? " arrive" : ""}" role="img" aria-label="${esc(c.count(v.n, v.total))}"><div class="evp"${v.tier > 0 ? ` data-tier="${Math.min(6, v.tier | 0)}"` : ""} style="--cols:${cardCols(v.total)}">${slots}</div></div>`;
   }
 
   // ── de strook op het eindscherm: dagen als puntjes, drempels als ronde pinnen, één tekstregel ──────────────────

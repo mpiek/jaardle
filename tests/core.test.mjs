@@ -3134,6 +3134,9 @@ test("season-event.js — de stempelkaart: vakjes, cadeau, drempels als open cad
   assert.match(h, /role="img" aria-label="12 van 12"/);
   // kolommen: zo weinig mogelijk rijen van hoogstens 4 grote vakjes (14 → 4·4·4·2, 12 → 4×3, 24 → 4×6, 3 → één rij van 3)
   for (const [total, cols] of [[12, 4], [14, 4], [10, 4], [11, 4], [24, 4], [3, 3], [19, 4]]) assert.match(SE.card({ ...view(3), total }), new RegExp(`--cols:${cols}"`), `${total} vakjes → ${cols} per rij`);
+  // de ringen kleuren mee met je zegel-tier; zonder tier (of tier 0) blijft de kaart zoals hij was
+  assert.ok(!/data-tier/.test(SE.card(view(5))) && !/data-tier/.test(SE.card({ ...view(2), tier: 0 })), "zonder tier geen tierkleur");
+  assert.match(SE.card({ ...view(7), tier: 2 }), /class="evp" data-tier="2"/); assert.match(SE.card({ ...view(14), tier: 6 }), /data-tier="6"/);
 });
 
 test("season-event.js — balk, strook en scherm: tekst, tikdoelen, anoniem-haakje, archief; alles geëscaped", () => {
