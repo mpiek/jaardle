@@ -1131,7 +1131,7 @@ test("alle reeksen — 6 treden (obsidiaan = de oude diamant), brons/zilver bevr
   const want = {
     games:   [10, 100, 250, 750, 1500, 3000],   // top-2 verlaagd 8/10/2026
     dailies: [7, 30, 60, 120, 200, 365],
-    streak:  [7, 30, 60, 90, 180, 250],   // top 365 → 250 (12/10/2026, db/92)
+    streak:  [7, 30, 60, 100, 180, 250],  // top 365 → 250 (12/10/2026, db/92) · platina 90 → 100 (13/10/2026, db/96)
     perfect: [1, 10, 25, 50, 100, 250],
     pure:    [5, 25, 50, 100, 250, 500],
   };
@@ -1159,9 +1159,9 @@ test("alle reeksen — 6 treden (obsidiaan = de oude diamant), brons/zilver bevr
     const key = Object.keys(T.REWARDS).find((k) => T.REWARDS[k].cat === "flair" && T.REWARDS[k].emoji === f.emoji);
     assert.ok(key && T.REWARD_ORDER.includes(key), `${s.key} ${f.emoji}: REWARDS + REWARD_ORDER`);
   }
-  // De server-gate (db/41: ⏳ ≥90, 💯 ≥50) en het bier (1500) hangen aan een GETAL: de pin staat op de
+  // De server-gate (⏳ ≥100 sinds db/96, 💯 ≥50 uit db/41) en het bier (1500) hangen aan een GETAL: de pin staat op de
   // trede waar dat getal valt. Verschuift een trede, dan klopt dit niet meer met set_my_flair.
-  assert.equal(fl("streak", "⏳"), 90);
+  assert.equal(fl("streak", "⏳"), 100);
   assert.equal(fl("perfect", "💯"), 50);
   assert.equal(S("games").steps[T.BEER_FX.at], 1500);
 });
@@ -1172,7 +1172,8 @@ test("capstoneTier — laagste trede over de 5 ladders, max 6", () => {
   assert.equal(T.capstoneTier(a(0, 0, 0, 0, 0)), 0);
   assert.equal(T.capstoneTier(a(33, 26, 5, 3, 5)), 0);          // streak 5 < 7 houdt brons tegen
   assert.equal(T.capstoneTier(a(1133, 119, 89, 80, 218)), 3);   // goud (dailies/streak: 60 / 60)
-  assert.equal(T.capstoneTier(a(4261, 121, 98, 297, 807)), 4);  // platina: dailies 120 + streak 90 halen platina, de rest ver erboven
+  assert.equal(T.capstoneTier(a(4261, 121, 100, 297, 807)), 4); // platina: dailies 120 + streak 100 halen platina, de rest ver erboven
+  assert.equal(T.capstoneTier(a(4261, 121, 99, 297, 807)), 3);  // streak 99 = nog goud (platina 90 → 100 sinds 13/10/2026)
   assert.equal(T.capstoneTier(a(3000, 365, 250, 250, 500)), 6); // alles op de top = obsidiaan
   assert.equal(T.capstoneTier(a(3000, 364, 250, 250, 500)), 5); // één daily te weinig = diamant
   assert.equal(T.capstoneTier(a(3000, 365, 249, 250, 500)), 5); // één streak-dag te weinig = diamant (top 250 sinds 12/10/2026)
@@ -1381,9 +1382,9 @@ test("unlock-kaart: een effect komt alleen op de stap die het vrijspeelt (reeks,
   const ser = (k) => T.ACHV_SERIES.find((x) => x.key === k);
   const tro = (k) => T.ACHV_TROPHIES.find((x) => x.key === k);
   const A = (o) => ({ games: 0, dailies: 0, streak: 0, perfect: 0, pure: 0, rating: 0, years: [], ...o });
-  // reeks: streak trede 4 (90) → ⏳, trede 5 (180) → Gloed; pure trede 4 → Rimpel, trede 5 → Lotus
-  assert.equal(T.achvSeriesItem(A({ streak: 90 }), ser("streak"), 4, 3).flairFx, null);
-  assert.equal(T.achvSeriesItem(A({ streak: 90 }), ser("streak"), 4, 3).flair, "⏳");
+  // reeks: streak trede 4 (100) → ⏳, trede 5 (180) → Gloed; pure trede 4 → Rimpel, trede 5 → Lotus
+  assert.equal(T.achvSeriesItem(A({ streak: 100 }), ser("streak"), 4, 3).flairFx, null);
+  assert.equal(T.achvSeriesItem(A({ streak: 100 }), ser("streak"), 4, 3).flair, "⏳");
   assert.equal(T.achvSeriesItem(A({ streak: 180 }), ser("streak"), 5, 4).flairFx, "glow");
   assert.equal(T.achvSeriesItem(A({ streak: 250 }), ser("streak"), 6, 5).flairFx, null, "al eerder gehaald → niet nog eens melden");
   assert.equal(T.achvSeriesItem(A({ pure: 100 }), ser("pure"), 4, 3).flairFx, "ripple");
@@ -1472,9 +1473,9 @@ test("prestatiebord: pins en tooltips noemen de effecten alleen voor ingelogde s
 });
 
 // ── De vlam groeit mee met de streak ──
-test("streakFlameTier — de zes treden van de streak-reeks (7 · 30 · 60 · 90 · 180 · 250), daaronder geen tier", () => {
+test("streakFlameTier — de zes treden van de streak-reeks (7 · 30 · 60 · 100 · 180 · 250), daaronder geen tier", () => {
   const steps = T.ACHV_SERIES.find((x) => x.key === "streak").steps;
-  assert.deepEqual(steps, [7, 30, 60, 90, 180, 250]);
+  assert.deepEqual(steps, [7, 30, 60, 100, 180, 250]);
   assert.equal(T.streakFlameTier(0), 0);
   assert.equal(T.streakFlameTier(6), 0);
   steps.forEach((n, i) => { assert.equal(T.streakFlameTier(n), i + 1, `${n} dagen = trede ${i + 1}`); assert.equal(T.streakFlameTier(n - 1), i, `${n - 1} dagen = nog trede ${i}`); });
@@ -1486,18 +1487,18 @@ test("streakFlameHtml / withAnimEmoji — tier-klasse, boei bij een redding, res
   const was = globalThis.matchMedia;
   try {
     assert.ok(!T.streakFlameHtml(3).includes("flm"), "onder de eerste trede: de gewone geanimeerde vlam");
-    assert.match(T.streakFlameHtml(94), /^<span class="flm s4"><img class="emoji-anim"/, "94 dagen = platina");
+    assert.match(T.streakFlameHtml(104), /^<span class="flm s4"><img class="emoji-anim"/, "104 dagen = platina");
     assert.match(T.streakFlameHtml(400), /class="flm s6"/);
     assert.match(T.streakFlameHtml(3, true), /class="flm s0 flm-saved"/, "een redding zonder tier krijgt toch de boei");
-    assert.match(T.streakFlameHtml(94, true), /class="flm s4 flm-saved"/);
+    assert.match(T.streakFlameHtml(104, true), /class="flm s4 flm-saved"/);
     // alleen de 🔥 wordt vervangen; 🏆 e.d. animeren zoals altijd
-    const line = T.withAnimEmoji("🔥 94 dagen 🏆", T.streakFlameHtml(94));
-    assert.match(line, /flm s4/); assert.match(line, /trophy\.webp/); assert.ok(!line.includes("🔥 94"), "het losse teken is vervangen (alleen de alt-tekst houdt hem)");
+    const line = T.withAnimEmoji("🔥 104 dagen 🏆", T.streakFlameHtml(104));
+    assert.match(line, /flm s4/); assert.match(line, /trophy\.webp/); assert.ok(!line.includes("🔥 104"), "het losse teken is vervangen (alleen de alt-tekst houdt hem)");
     assert.match(T.withAnimEmoji("🔥 x"), /fire\.webp/, "zonder eigen vlam: de gewone");
     // minder beweging: geen webp, maar het teken in dezelfde ring (de tint zit op .flm-g)
     globalThis.matchMedia = () => ({ matches: true, addEventListener() {} });
     assert.equal(T.streakFlameHtml(3), "🔥");
-    assert.match(T.streakFlameHtml(94), /<span class="flm s4"><span class="flm-g">🔥<\/span><\/span>/);
+    assert.match(T.streakFlameHtml(104), /<span class="flm s4"><span class="flm-g">🔥<\/span><\/span>/);
   } finally { globalThis.matchMedia = was; }
 });
 
@@ -1599,7 +1600,7 @@ test("awardsHtml — vaste volgorde, eigen regel gemarkeerd, geen leeg blok, tus
     AW("record", { name: "Daan", detail: { week_score: 438, previous_best: 402 } }),
     AW("terug", { name: "Milan", detail: { gap_days: 12 } }),
   ], false);
-  const order = ["Stijger", "14 dagen op rij", "Persoonlijk record", "Welkom terug", "Reuzendoder"].map((x) => html.indexOf(x));
+  const order = ["Stijger", "14 dagen gespeeld op rij", "Persoonlijk record", "Welkom terug", "Reuzendoder"].map((x) => html.indexOf(x));
   assert.ok(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), "volgorde: " + order);
   assert.match(html, /<span>Weekprijzen<\/span>/);
   assert.match(html, /24% boven het eigen gemiddelde \(412 → 511\)/);
@@ -1617,7 +1618,7 @@ test("awardsHtml live (Week-tab) — compact: één regel per prijs zonder uitle
   assert.match(live, /<div class="lb-aw-t"><span>Weekprijzen tot nu toe<\/span><small>🏁 sluit ma 12:00 · nog 6 d<\/small><\/div>/);
   assert.ok(!live.includes("inhaalpotjes tellen mee") && !live.includes("boven het eigen gemiddelde") && !live.includes("versloeg"), "geen uitlegregels in de tussenstand");
   assert.match(live, /<b>Stijger<\/b><span>\+18%<\/span>/); assert.match(live, /<b>Persoonlijk record<\/b><span>438<\/span>/); assert.match(live, /<b>Reuzendoder<\/b><span>94–71<\/span>/);
-  assert.match(live, /<b>7 dagen op rij<\/b><\/div>/, "de reeks heeft het getal al in de titel");
+  assert.match(live, /<b>7 dagen gespeeld op rij<\/b><\/div>/, "de reeks heeft het getal al in de titel");
   assert.equal((live.match(/lb-aw-c/g) || []).length, 4);
   const closed = T.awardsHtml(aw, false);
   assert.ok(closed.includes("inhaalpotjes tellen mee") && closed.includes("versloeg Sem (woensdag)"), "een afgeronde week houdt de uitleg");
@@ -1662,11 +1663,11 @@ test("awardMeHtml — persoonlijke regel: wat je nog nodig hebt, alleen als je d
   assert.equal(T.awardMeHtml(me({ played: 0, week_score: 0, best_week_before: 400 })), "", "nog niet gespeeld → niets");
   const a = T.awardMeHtml(me({ played: 3, week_score: 281, best_week_before: 438, streak: 12, next_milestone: 14 }));
   assert.match(a, /Jij: 3 dagen gespeeld, 281 punten\. Nog 157 voor je beste week \(438\)\./);
-  assert.match(a, /🔥 12 dagen op rij, nog 2 tot 14\./);
+  assert.match(a, /📅 12 dagen gespeeld op rij, nog 2 tot 14\./);
   const b = T.awardMeHtml(me({ played: 1, week_score: 90, best_week_before: 0, streak: 1, next_milestone: 3 }));
   assert.match(b, /Jij: 1 dag gespeeld, 90 punten\./); assert.ok(!b.includes("beste week"), "geen beste week om mee te vergelijken");
   assert.match(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 0, next_milestone: 3 })), /Je zit al boven je beste week \(438\)/);
-  assert.ok(!/🔥/.test(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 20, next_milestone: 14 }))), "geen volgende mijlpaal → geen regel");
+  assert.ok(!/📅/.test(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 20, next_milestone: 14 }))), "geen volgende mijlpaal → geen regel");
 });
 
 test("awardsHtml — meerdere winnaars van één prijs staan samen op één regel, hoogste eerst; één winnaar houdt de gewone regel", () => {
@@ -1679,7 +1680,7 @@ test("awardsHtml — meerdere winnaars van één prijs staan samen op één rege
   assert.equal((html.match(/lb-aw-g/g) || []).length, 2);
   const iM = html.indexOf("Mike"), iJ = html.indexOf("Jij"), iC = html.indexOf("Cavia Tom");
   assert.ok(iM > 0 && iM < iJ && iJ < iC, "gesorteerd op dagen: 30, 14, 7");
-  assert.match(html, /<b>Dagen op rij<\/b>/); assert.match(html, /<b>Persoonlijk record<\/b>/);
+  assert.match(html, /<b>Dagen gespeeld op rij<\/b>/); assert.match(html, /<b>Persoonlijk record<\/b>/);
   assert.match(html, /lb-aw-p me">Jij/, "jouw naam in de groep is gemarkeerd");
   assert.match(html, /<li class="lb-aw lb-aw-g lb-me">/, "de groep waar jij in zit is gemarkeerd");
   assert.match(html, /<b>Welkom terug<\/b><span>weer meegedaan na 14 dagen<\/span>/, "een enkele winnaar houdt titel + uitleg");
@@ -1690,7 +1691,7 @@ test("awardMeHtml compact — één regel: wat je nog nodig hebt, zonder herhali
   T.setLang("nl");
   const me = (d) => [AW("me", { me: true, detail: d })];
   const a = T.awardMeHtml(me({ played: 3, week_score: 281, best_week_before: 438, streak: 12, next_milestone: 14 }), true);
-  assert.match(a, /<p>Nog 157 voor je beste week \(438\) · 🔥 nog 2 tot 14<\/p>/); assert.equal((a.match(/<p>/g) || []).length, 1);
+  assert.match(a, /<p>Nog 157 voor je beste week \(438\) · 📅 nog 2 tot 14<\/p>/); assert.equal((a.match(/<p>/g) || []).length, 1);
   assert.match(T.awardMeHtml(me({ played: 5, week_score: 450, best_week_before: 438, streak: 0, next_milestone: 3 }), true), /<p>Boven je beste week \(438\)<\/p>/);
   assert.equal(T.awardMeHtml(me({ played: 2, week_score: 90, best_week_before: 0, streak: 0, next_milestone: 3 }), true), "", "niets te melden → geen blok");
   assert.equal(T.awardMeHtml(me({ played: 0, week_score: 0, best_week_before: 400, streak: 5, next_milestone: 7 }), true), "");
@@ -1955,7 +1956,7 @@ test("fetchWeekAwards — een mislukte of ontbrekende RPC geeft een lege lijst (
 const mkAch = (n) => ({ games: n[0], dailies: n[1], streak: n[2], perfect: n[3], pure: n[4], rating: 0, years: [] });
 const A_NONE = mkAch([0, 0, 0, 0, 0]);
 const A_SILVER = mkAch([100, 30, 30, 10, 25]);        // capstone-zilver → flair-confetti
-const A_PLATINA = mkAch([750, 120, 90, 50, 100]);     // capstone-platina → sierrand
+const A_PLATINA = mkAch([750, 120, 100, 50, 100]);    // capstone-platina → sierrand (streak-platina = 100 sinds 13/10/2026)
 const A_DIAMOND = mkAch([1500, 200, 180, 100, 250]);  // capstone-diamant → thema + bier
 
 test("resultFrameStyle — keuze per apparaat, met migratie van de oude aan/uit-schakelaar", () => {
