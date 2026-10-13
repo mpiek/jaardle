@@ -146,23 +146,27 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 .evr-head .ev-ico { font-size: 1.3rem; line-height: 1; }
 .evr-ttl { flex: 1; min-width: 0; }
 .evr-ttl b { display: block; font-size: 0.92rem; line-height: 1.15; }
-.evr-ttl span { display: block; margin-top: 0.08rem; font-size: 0.7rem; color: var(--muted); }
+.evr-ttl span { display: block; margin-top: 0.08rem; font-size: 0.74rem; color: var(--muted); }
 .evr .ev-count { font-size: 1.15rem; }
 .evr .ev-count small { font-size: 0.7rem; }
 .evr-go { color: var(--muted); font-size: 1.05rem; line-height: 1; }
-.evc.mini .evp { gap: 0.3rem 0.2rem; padding: 0; }
-.evc.mini .evp-s { width: min(100%, 1.95rem); border-width: 1.5px; }
-.evc.mini .evp-no { font-size: 0.55rem; }
+/* mini-kaart: 7 per rij die de breedte vullen (±39 px op 360 px; 31 px was "super klein en priegelig", 13/10), dan staan ook de getallen bij de cadeaus erbij */
+.evc.mini .evp { gap: 0.45rem 0.25rem; padding: 0; }
+.evc.mini .evp-s { width: min(100%, 2.75rem); }
+.evc.mini .evp-no { font-size: 0.68rem; }
+.evc.mini .evp-s.rw .evp-no { display: grid; width: 1rem; height: 1rem; right: -0.15rem; bottom: -0.2rem; font-size: 0.6rem; }   /* ook op 320 px (33 px) */
+@container (max-width: 28px) { .evc.mini .evp-s.rw .evp-no { display: none; } }
 .evr-rw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
-.evr-t { display: flex; flex-direction: column; align-items: center; gap: 0.22rem; min-width: 0; padding: 0.45rem 0.25rem 0.4rem; background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; text-align: center; }
+.evr-t { display: flex; flex-direction: column; align-items: center; gap: 0.22rem; min-width: 0; padding: 0.45rem 0.15rem 0.4rem; background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; text-align: center; }
 .evr-t.lock { opacity: 0.68; }
 .evr-t.next { border-color: color-mix(in srgb, var(--ev-pk) 55%, var(--border)); }
-.evr-t .ev-prev { width: 2.1rem; height: 2.1rem; font-size: 1.2rem; border-radius: 8px; }
-.evr-t .ev-prev .fl-fx { font-size: 1.2rem; }
-.evr-nm { font-size: 0.7rem; line-height: 1.2; font-weight: 700; overflow-wrap: anywhere; }
-.evr-st { font-size: 0.66rem; line-height: 1.2; color: var(--muted); font-weight: 600; }
+.evr-t .ev-prev { width: 2.4rem; height: 2.4rem; font-size: 1.4rem; border-radius: 8px; }
+.evr-t .ev-prev .fl-fx { font-size: 1.4rem; }
+.evr-nm { font-size: 0.76rem; line-height: 1.2; font-weight: 700; overflow-wrap: anywhere; }
+.evr-st { font-size: 0.72rem; line-height: 1.2; color: var(--muted); font-weight: 600; }
 .evr-st.go { color: var(--ev-pk); }
-.evr-btn { appearance: none; font: inherit; font-size: 0.66rem; font-weight: 700; line-height: 1.2; padding: 0.18rem 0.55rem; border-radius: 999px; border: 1px solid var(--ev-pk); background: var(--ev-pk); color: var(--ev-pk-ink); cursor: pointer; white-space: nowrap; }
+.evr-btn { appearance: none; font: inherit; font-size: 0.7rem; font-weight: 700; line-height: 1.2; padding: 0.2rem 0.5rem; max-width: 100%; text-wrap: balance; border-radius: 999px; border: 1px solid var(--ev-pk); background: var(--ev-pk); color: var(--ev-pk-ink); cursor: pointer; }   /* breekt alleen af als het echt niet past ("Wear it now"/"Jetzt tragen" op 320 px), nooit over de rand */
+@media (max-width: 340px) { .evr-nm { font-size: 0.72rem; } .evr-btn { font-size: 0.66rem; padding: 0.18rem 0.4rem; } }   /* "Spinnenweb" brak op 320 px midden in het woord */
 .evr-btn:disabled { cursor: default; background: none; color: var(--muted); border-color: var(--border); opacity: 0.7; }
 .evr-hook { padding: 0.55rem 0.6rem 0.6rem; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--ev-pk) 55%, var(--border)); background: color-mix(in srgb, var(--ev-pk) 7%, transparent); text-align: center; }
 .evr-hook p { margin: 0 0 0.45rem; font-size: 0.76rem; line-height: 1.35; font-weight: 600; }
