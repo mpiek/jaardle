@@ -1505,7 +1505,72 @@ html[data-theme="light"], html[data-theme="parchment"] {
 }
 @media (prefers-reduced-motion: reduce) { .pep .pep-all, .pep .pep-spark { animation: none; } .pep .pep-spark { display: none; } }
 
-/* Nep-animatie voor rang-1-flairs zonder Noto-webp (🎩/🦫): een subtiele
+/* 🦫 Bever-flair: eigen inline-SVG (FLAIR_SVG in game.js), Noto heeft geen bever-animatie. Statisch = het gewone teken uit de
+   emoji-font; dit beweegt alleen waar een flair-animatie hoort. Zes knauwen (kop, tanden, pootjes), acht splinters die op de grond
+   vallen, drie zaagselwolkjes, staartzwaai; stil bij prefers-reduced-motion. */
+.bv { overflow: visible; }
+.bv .bv-p { opacity: 0; transform-box: fill-box; transform-origin: 50% 50%; }
+.bv .bv-eye { transform-box: fill-box; transform-origin: 50% 55%; animation: bv-blink 4.8s infinite; }
+@keyframes bv-blink { 0%, 87%, 93%, 100% { transform: scaleY(1); } 90% { transform: scaleY(0.1); } }
+
+.bv .bv-hd { transform-origin: 34px 46px; animation: bv-hd 2.4s infinite; }
+.bv .bv-up { transform-origin: 48px 112px; animation: bv-up 2.4s infinite; }
+.bv .bv-th { transform-box: fill-box; transform-origin: 50% 0; animation: bv-th 2.4s infinite; }
+.bv .bv-pw { animation: bv-pw 2.4s infinite; }
+.bv .bv-tail { transform-origin: 82px 80px; animation: bv-tail 2.4s ease-in-out infinite; }
+.bv .bv-p { animation: bv-p 2.4s linear infinite; }
+.bv .bv-p:nth-of-type(1) { --dx: -14px; --dy: 74px; --r: -340deg; animation-delay: 0.1s; }
+.bv .bv-p:nth-of-type(2) { --dx: -24px; --dy: 70px; --r: 260deg; animation-delay: 0.29s; }
+.bv .bv-p:nth-of-type(3) { --dx: -5px; --dy: 76px; --r: 300deg; animation-delay: 0.32s; }
+.bv .bv-p:nth-of-type(4) { --dx: -19px; --dy: 72px; --r: -280deg; animation-delay: 0.48s; }
+.bv .bv-p:nth-of-type(5) { --dx: -9px; --dy: 74px; --r: 220deg; animation-delay: 0.67s; }
+.bv .bv-p:nth-of-type(6) { --dx: -27px; --dy: 69px; --r: -300deg; animation-delay: 0.86s; }
+.bv .bv-p:nth-of-type(7) { --dx: -16px; --dy: 75px; --r: 200deg; animation-delay: 0.89s; }
+.bv .bv-p:nth-of-type(8) { --dx: -2px; --dy: 77px; --r: 320deg; animation-delay: 1.06s; }
+.bv .bv-d { opacity: 0; transform-box: fill-box; transform-origin: 50% 50%; animation: bv-d 2.4s ease-out infinite; }
+.bv .bv-d:nth-of-type(1) { animation-delay: 0.1s; }
+.bv .bv-d:nth-of-type(2) { animation-delay: 0.48s; }
+.bv .bv-d:nth-of-type(3) { animation-delay: 0.86s; }
+@keyframes bv-hd {
+  0%, 8%, 16%, 24%, 32%, 40%, 48%, 100% { transform: rotate(0) translateY(0); }
+  4%, 20%, 36% { transform: rotate(-8deg) translateY(2.5px); }
+  12%, 28%, 44% { transform: rotate(-5deg) translate(-0.5px, 2.5px); }
+}
+@keyframes bv-up {
+  0%, 8%, 16%, 24%, 32%, 40%, 48%, 100% { transform: scale(1, 1); }
+  4%, 12%, 20%, 28%, 36%, 44% { transform: scale(1.015, 0.985); }
+}
+@keyframes bv-th {
+  0%, 8%, 16%, 24%, 32%, 40%, 48%, 100% { transform: scaleY(1); }
+  4%, 12%, 20%, 28%, 36%, 44% { transform: scaleY(0.78); }
+}
+@keyframes bv-pw {
+  0%, 8%, 16%, 24%, 32%, 40%, 48%, 100% { transform: translateY(0); }
+  4%, 12%, 20%, 28%, 36%, 44% { transform: translateY(-1.5px); }
+}
+@keyframes bv-tail {
+  0%, 52%, 92%, 100% { transform: rotate(0); }
+  62% { transform: rotate(-12deg); }
+  73% { transform: rotate(4deg); }
+  83% { transform: rotate(-6deg); }
+}
+@keyframes bv-p {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }
+  5% { transform: translate(calc(var(--dx) * 0.4), -9px) rotate(calc(var(--r) * 0.3)); animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }
+  20% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); animation-timing-function: ease-out; }
+  23% { transform: translate(var(--dx), calc(var(--dy) - 3px)) rotate(var(--r)); animation-timing-function: ease-in; }
+  26% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 1; }
+  36% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; }
+  37%, 100% { opacity: 0; }
+}
+@keyframes bv-d {
+  0% { transform: translate(0, 0) scale(0.3); opacity: 0.9; }
+  11% { transform: translate(-5px, -3px) scale(1.8); opacity: 0; }
+  12%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .bv [class] { animation: none; } .bv .bv-p, .bv .bv-d { display: none; } }
+
+/* Nep-animatie voor rang-1-flairs zonder Noto-webp (🎩/🐷): een subtiele
    "cheer" zodat ze tóch meebewegen. Uit bij prefers-reduced-motion. */
 @keyframes flair-cheer {
   0%, 100% { transform: rotate(-7deg) scale(1); }

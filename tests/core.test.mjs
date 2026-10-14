@@ -1453,6 +1453,20 @@ test("🌶️ Vuurproef-flair (db/93): goud = 10 = de server-gate, eigen inline-
   } finally { T.auth.user = was; T.setAchv(null); }
 });
 
+test("🦫 bever-flair: eigen inline-SVG (knagen) i.p.v. de CSS-cheer, statisch blijft het teken", () => {
+  const anim = T.flairPreviewHtml("🦫");
+  assert.ok(anim.startsWith('<svg class="emoji-anim bv"') && !anim.includes("<img") && !anim.includes("flair-fake-anim"), anim.slice(0, 80));
+  assert.equal(anim, T.FLAIR_SVG["🦫"]);
+  assert.ok(!anim.includes("`") && !anim.includes("${"), "veilig als template-literal");
+  assert.equal(anim.match(/<rect class="bv-p"/g).length, 8, "acht splinters (CSS nth-of-type)");
+  assert.equal(anim.match(/<circle class="bv-d"/g).length, 3, "drie zaagselwolkjes (CSS nth-of-type)");
+  assert.equal(anim.match(/class="bv-hd"/g).length, 2, "oren en kop draaien om hetzelfde punt");
+  assert.equal(T.flairStaticHtml("🦫"), "🦫");
+  assert.ok(T.flairBadgeHtml("🦫", 1).includes("<svg"), "rang 1 beweegt");
+  assert.ok(!T.flairBadgeHtml("🦫", 2).includes("<svg") && T.flairBadgeHtml("🦫", 2).includes("🦫"), "rang 2 statisch");
+  let n = 0; T.onFlairAnimReady("🦫", () => n++); assert.equal(n, 1, "niets te laden/decoden: het voorproefje wisselt meteen");
+});
+
 test("prestatiebord: pins en tooltips noemen de effecten alleen voor ingelogde spelers", () => {
   const was = T.auth.user;
   T.setLang("nl");
