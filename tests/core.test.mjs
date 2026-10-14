@@ -76,7 +76,7 @@ src += `
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
   resolveRecord, reconstructDailyBoard,
-  LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues,
+  LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -176,6 +176,42 @@ test("⏩ +2000 — zes vensters, de zesde slide in alle drie de standen, en zes
   T.setState({ won: true, guesses: [{ cls: "correct" }], directionsRevealed: [], laterCluesShown: 6 });
   assert.equal(T.computeScore(), 100 - 6 * 3);
   T.setState(null);
+});
+
+test("⏩ stopt na een \"nog niet geweest\"-slide: de volgende zeggen niets nieuws", () => {
+  const fact = { nl: "x", en: "x", de: "x", es: "x", pt: "x" };
+  const modern = [{ facts: [fact] }, { future: true }, { future: true }, { future: true }, { future: true }, { future: true }];
+  const base = { done: false, laterClues: { slot_cands: modern }, laterPick: [0, 0, 0, 0, 0, 0] };
+  T.setState({ ...base, laterCluesShown: 0 });
+  assert.equal(T.canBuyLaterClue(), true, "nog niets gekocht: de knop staat er (de eerste slide verraadt zelf niets)");
+  T.setState({ ...base, laterCluesShown: 1 });
+  assert.equal(T.canBuyLaterClue(), true, "+100 was een echt feit: door naar +250");
+  T.setState({ ...base, laterCluesShown: 2 });
+  assert.equal(T.laterSlotFuture(1), true);
+  assert.equal(T.canBuyLaterClue(), false, "+250 zei nog niet geweest: knop weg");
+  assert.equal(T.availableLaterClues(), 6, "de teller blijft x/6");
+  // oud antwoord: alle zes echt, dan pas op als ze op zijn
+  const ancient = Array(6).fill({ facts: [fact] });
+  for (let n = 0; n <= 6; n++) {
+    T.setState({ done: false, laterClues: { slot_cands: ancient }, laterCluesShown: n });
+    assert.equal(T.canBuyLaterClue(), n < 6, `oud antwoord, ${n} gekocht`);
+  }
+  // een leeg venster ("geen gebeurtenis bekend") is geen toekomst: gewoon door
+  T.setState({ done: false, laterClues: { slot_cands: [{ facts: [] }, ...ancient.slice(1)] }, laterCluesShown: 1 });
+  assert.equal(T.canBuyLaterClue(), true);
+  // na afloop, zonder data, legacy-vormen
+  T.setState({ ...base, laterCluesShown: 1, done: true });
+  assert.equal(T.canBuyLaterClue(), false, "na afloop niet");
+  T.setState({ done: false, laterClues: null, laterCluesShown: 0 });
+  assert.equal(T.canBuyLaterClue(), false, "zonder data niet");
+  T.setState({ done: false, laterClues: { slots: [fact, { future: true }] }, laterCluesShown: 2 });
+  assert.equal(T.canBuyLaterClue(), false, "slots-vorm: toekomst = stop");
+  T.setState({ done: false, laterClues: { future: true, clues: [] }, laterCluesShown: 1 });
+  assert.equal(T.canBuyLaterClue(), false, "oudste vorm: +100 in de toekomst = stop");
+  T.setState({ done: false, laterClues: { future: false, clues: [] }, laterCluesShown: 1 });
+  assert.equal(T.canBuyLaterClue(), true, "offline-terugval: gewoon door");
+  T.setState(null);
+  assert.equal(T.canBuyLaterClue(), false, "zonder potje niet");
 });
 
 test("reconstructDailyBoard — zes ⏩ komen mee van je andere apparaat, meer wordt zes", async () => {

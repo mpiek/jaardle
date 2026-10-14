@@ -2804,7 +2804,7 @@ function renderHintStatus() {
     !state.directionsRevealed.includes(state.guesses.length - 1);
   const availLater = availableLaterClues();
   if (els.hintBtnLater) {
-    els.hintBtnLater.hidden = state.done || state.laterCluesShown >= availLater;
+    els.hintBtnLater.hidden = !canBuyLaterClue();
     // Het label volgt de vólgende onthulling: eerst "100 jaar later", daarna "250".
     const laterLbl = els.hintBtnLater.querySelector("[data-i18n]");
     if (laterLbl) laterLbl.textContent = t("hint_later_n")(laterWindow(state.laterCluesShown));
@@ -2891,6 +2891,26 @@ function availableLaterClues() {
   return Array.isArray(cc.slot_cands) ? Math.min(LATER_CLUE_SLOTS, cc.slot_cands.length) : LATER_CLUE_SLOTS;
 }
 
+// Is ⏩-slot i een "nog niet geweest"-slot? Dan zijn alle volgende dat ook (de vensters
+// lopen op), dus een volgende ⏩ vertelt niets nieuws.
+function laterSlotFuture(i) {
+  const cc = state?.laterClues;
+  if (!cc || i < 0) return false;
+  if (Array.isArray(cc.slot_cands)) return !!cc.slot_cands[i]?.future;
+  if (Array.isArray(cc.slots)) return !!cc.slots[i]?.future;
+  return !!cc.future;   // legacy: alle slots kwamen uit +100
+}
+
+// Nog een ⏩ te koop? Niet na afloop, niet als alles op is, en niet zodra de laatst
+// geopende slide "nog niet geweest" zei: dan kocht je verder alleen strafpunten (60
+// dagen tot 14/10/2026: 30 potjes, samen 61 van zulke ⏩'s), en sinds +2000 is de
+// zesde bij 94 % van de puzzels altijd zo'n slide. Lekt niets: dat het antwoord in
+// de afgelopen N jaar ligt, staat dan al op je scherm. Knop + sneltoets E.
+function canBuyLaterClue() {
+  return !!state && !state.done && state.laterCluesShown < availableLaterClues()
+    && !laterSlotFuture(state.laterCluesShown - 1);
+}
+
 // Tekst voor clue-slot i (venster = LATER_WINDOWS[i]). Elk slot is óf een
 // toekomst-markering ({future:true}), óf het echte feit ({nl,en,de}), óf leeg
 // (null → "geen bekend"). Teksten zijn per venster geparametriseerd op het
@@ -2929,8 +2949,7 @@ function laterSlotText(i) {
 // Onthul de volgende ⏩-clue (kost punten): voeg 'm als nieuwe oranje slide toe en
 // schuif erheen.
 function requestLaterClue() {
-  if (state.done) return;
-  if (state.laterCluesShown >= availableLaterClues()) return;
+  if (!canBuyLaterClue()) return;
   state.laterCluesShown += 1;
   markPaidHintUsed();
   renderEvent();
