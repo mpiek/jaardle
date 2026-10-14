@@ -76,6 +76,7 @@ src += `
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
   resolveRecord, reconstructDailyBoard,
+  LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -145,6 +146,46 @@ test("computeScore — penalties per gok + hints, niet onder 0", () => {
 
   T.setState({ won: true, guesses: Array(6).fill({ cls: "farthest" }), directionsRevealed: [0, 1], laterCluesShown: 0 });
   assert.equal(T.computeScore(), 0);                       // clamp op 0, niet negatief
+});
+
+test("⏩ +2000 — zes vensters, de zesde slide in alle drie de standen, en zes ⏩ kosten 18", () => {
+  assert.deepEqual(T.LATER_WINDOWS, [100, 250, 500, 1000, 1500, 2000]);
+  assert.equal(T.LATER_CLUE_SLOTS, 6);
+  assert.equal(T.laterWindow(5), 2000);
+  const fact = { nl: "Gebeurtenis in 2009", en: "Event in 2009", de: "x", es: "x", pt: "x" };
+  const five = [{ future: true }, { future: true }, { future: true }, { facts: [fact] }, { facts: [fact] }];
+  // echt feit (antwoord t/m het jaar 26)
+  T.setState({ laterClues: { slot_cands: [...five, { facts: [fact] }] }, laterPick: [0, 0, 0, 0, 0, 0] });
+  assert.equal(T.availableLaterClues(), 6, "de teller doet altijd alsof alle zes bestaan");
+  assert.equal(T.laterSlotText(5), fact.en);
+  // toekomst (antwoord na het jaar 26)
+  T.setState({ laterClues: { slot_cands: [...five, { future: true }] }, laterPick: [0, 0, 0, 0, 0, 0] });
+  assert.equal(T.laterSlotText(5), T.t("later_future")(2000));
+  // een server zonder db/97 geeft maar vijf slots: dan zijn er ook maar vijf te koop (geen lege zesde slide)
+  T.setState({ laterClues: { slot_cands: five }, laterPick: [0, 0, 0, 0, 0] });
+  assert.equal(T.availableLaterClues(), 5);
+  assert.equal(T.laterSlotText(5), T.t("later_none")(2000), "en mocht hij er toch om vragen, dan geen crash");
+  T.setState({ laterClues: { future: false, clues: [] } });
+  assert.equal(T.availableLaterClues(), 6, "offline-terugval zonder slot_cands: zoals voorheen alle slots");
+  for (const l of Object.keys(T.LANGS)) {
+    T.setLang(l);
+    assert.match(T.t("hint_later_n")(2000), /2000/, `${l}: knoplabel`);
+    assert.match(T.t("later_future")(2000), /2000/, `${l}: toekomst-tekst`);
+  }
+  T.setLang("nl");
+  T.setState({ won: true, guesses: [{ cls: "correct" }], directionsRevealed: [], laterCluesShown: 6 });
+  assert.equal(T.computeScore(), 100 - 6 * 3);
+  T.setState(null);
+});
+
+test("reconstructDailyBoard — zes ⏩ komen mee van je andere apparaat, meer wordt zes", async () => {
+  const wasUser = T.auth.user;
+  T.auth.user = { uid: "u1" };
+  try {
+    const row = (n) => ({ guesses: [1900, 1800], done: false, won: false, dir_hints_used: 0, text_hints_used: n, century_hint_used: false, last_digit_used: false });
+    assert.equal((await T.reconstructDailyBoard(1815, "2026-09-30", row(6))).laterCluesShown, 6);
+    assert.equal((await T.reconstructDailyBoard(1815, "2026-09-30", row(9))).laterCluesShown, 6);
+  } finally { T.auth.user = wasUser; }
 });
 
 test("scoreRankPct — score-percentiel: mid-rank, min-sample, clamps, alleen winst", () => {

@@ -2690,7 +2690,7 @@ function renderEvent() {
       slide.appendChild(factParagraph(s[lang] || s[DEFAULT_LANG], "fact-extra"));
     } else if (s.kind === "later") {
       // ⏩ (oranje): slot i = gebeurtenis uit ±LATER_WINDOWS[i] jaar later. Meer ⏩'s
-      // naarmate je verder vooruitspringt (100→⏩, 250→⏩⏩, 500→⏩⏩⏩, 1000→⏩⏩⏩⏩).
+      // naarmate je verder vooruitspringt (100→⏩, 250→⏩⏩, 500→⏩⏩⏩, 1000 en verder→⏩⏩⏩⏩).
       slide.classList.add("slide-later");
       const ff = "⏩".repeat(Math.min(s.slot + 1, 4));
       slide.appendChild(buildSlideTag("later-tag", "later-icon", ff, t("later_label")(laterWindow(s.slot))));
@@ -2863,7 +2863,7 @@ function eraName(year) {
   return e[lang] || e[DEFAULT_LANG];
 }
 
-// ⏩-clues: gebeurtenissen uit exact antwoordjaar + {100, 250, 500, 1000, 1500}
+// ⏩-clues: gebeurtenissen uit exact antwoordjaar + {100, 250, 500, 1000, 1500, 2000}
 // (deterministisch per antwoord-hash via get_century_clues) — grof tijdperk +
 // impliciet richting (antwoord ligt vóór die gebeurtenis). Opgevraagd via de
 // ⏩-knop (kost punten, één per venster) en getoond als oranje carrousel-slides.
@@ -2873,15 +2873,22 @@ function eraName(year) {
 // ⏩-clue venster-afstanden (jaar ná het antwoord), in onthul-volgorde. Eén plek
 // om een venster toe te voegen: labels/teksten zijn taal-geparametriseerd op het
 // jaartal, en get_century_clues levert per venster kandidaat-feiten.
-const LATER_WINDOWS = [100, 250, 500, 1000, 1500];
+// +2000 (db/97, 14/10/2026) geeft alleen bij antwoorden t/m het jaar 26 een echt feit
+// (uit 1247–2026); voor de rest is het de "nog niet geweest"-slide.
+const LATER_WINDOWS = [100, 250, 500, 1000, 1500, 2000];
 // We doen ALTIJD alsof alle vensters bestaan (zodra de data binnen is), zodat de
 // teller "x/N" niets verraadt: een korter wordende teller zou al lekken dat een
 // venster in de toekomst valt (en dus dat het antwoord recent is) zónder dat je
 // een clue gebruikt.
 const LATER_CLUE_SLOTS = LATER_WINDOWS.length;
 function laterWindow(i) { return LATER_WINDOWS[i] ?? LATER_WINDOWS[LATER_WINDOWS.length - 1]; }
+// Wel nooit meer slots dan de server levert: vóór db/97 zijn dat er 5, dan stopt de
+// knop na +1500 i.p.v. een lege zesde slide te verkopen. Lekt niets, want dat
+// aantal is voor elke puzzel gelijk; zo maakt de volgorde van uitrollen niet uit.
 function availableLaterClues() {
-  return state?.laterClues ? LATER_CLUE_SLOTS : 0;
+  const cc = state?.laterClues;
+  if (!cc) return 0;
+  return Array.isArray(cc.slot_cands) ? Math.min(LATER_CLUE_SLOTS, cc.slot_cands.length) : LATER_CLUE_SLOTS;
 }
 
 // Tekst voor clue-slot i (venster = LATER_WINDOWS[i]). Elk slot is óf een
