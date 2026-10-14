@@ -4285,6 +4285,20 @@ function finishGame(won, fresh = false) {
   if (fresh) window.SeasonCat?.cheer?.(won);   // het katje viert (winst) of troost (verlies), zoals het kopje in de event-strook
   renderEvent();   // herbouw de carrousel: na afloop tonen we álle hints
   updateLiveScore(false);   // spel klaar → live-teller verbergen (eindscherm toont de score)
+  // Regels van een vórige pot (⚡-rating, wereldstatistiek) staan buiten #result-text en
+  // bleven staan tot de nieuwe pot ze verving: dan zag je eerst nog de −4 van de vorige
+  // ronde, en een teller die nog liep telde gewoon door. Dezelfde pot opnieuw tekenen
+  // (taalwissel) houdt zijn ⚡-regel; de wereldstatistiek haalt showFactStats opnieuw op.
+  {
+    const pot = potKey();
+    els.result.querySelectorAll(".fact-stats").forEach((e) => {
+      if (e.classList.contains("rating-line") && e.dataset.pot === pot && auth.user) {
+        const lbl = e.querySelector(".rating-lbl");
+        if (lbl) lbl.innerHTML = ratingLabelHtml();
+        e.title = t("stats_rating");
+      } else e.remove();
+    });
+  }
   els.result.hidden = false;
   // Sierrand (capstone-platina): blijvende decoratie om de result-kaart, self-facing, bij winst én verlies.
   // De gekozen stijl (Certificaat/Holo-foil/Art deco) draagt je flair; die haalt applyResultFrame zo nodig nog op.
@@ -4437,6 +4451,8 @@ function sendTelemetry() {
   if (localStorage.getItem(sentKey)) return Promise.resolve();
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
   const first = state.guesses[0];
+  const prevRating = auth.rating;
+  const ratingLine = ratingLineStart(prevRating);   // ⚡-regel meteen in beeld met de oude stand
   return rpc("record_play", {
     p_fact_hash: hash,
     p_attempts: Math.min(6, Math.max(1, state.guesses.length)),
@@ -4456,12 +4472,12 @@ function sendTelemetry() {
   })
     .then((id) => {
       invalidateHistory();  // verse stats bij volgende opening
-      showLiveRating();     // ⚡-regel op het eindscherm (alleen ingelogd)
+      showLiveRating(ratingLine, prevRating);   // ⚡-delta op het eindscherm (alleen ingelogd)
       updateRepairAfterPlay();  // 🩹-voortgang/afronding + banners (alleen ingelogd)
       // Onthoud het rij-id zodat we de pot ná inloggen aan het account kunnen koppelen.
       try { if (id != null) localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); } catch (e) {}
     })
-    .catch(() => { try { localStorage.removeItem(sentKey); } catch (e) {} });
+    .catch(() => { ratingLine?.remove(); try { localStorage.removeItem(sentKey); } catch (e) {} });
 }
 
 // Koppel een (anoniem) net-afgeronde pot aan het account dat zojuist inlogde, door
@@ -6735,18 +6751,26 @@ function factStatsArgs(hash, extra) {
   return a;
 }
 
-// Globale statistieken van het hoofd-feit op het eindscherm.
+// Globale statistieken van het hoofd-feit op het eindscherm: onder de ⚡-regel als
+// die er staat, zodat die regel niet verspringt terwijl hij telt.
 async function showFactStats(hash) {
-  els.result.querySelectorAll(".fact-stats").forEach((e) => e.remove());
+  els.result.querySelectorAll(".fact-stats:not(.rating-line)").forEach((e) => e.remove());
   if (!hash) return;
+  const pot = potKey();
   let s;
   try { s = await rpc("get_fact_stats", factStatsArgs(hash)); } catch (e) { return; }
   if (!s || !s.games) return;
+  if (!state || potKey() !== pot) return;   // al een volgend potje begonnen
   const el = document.createElement("p");
   el.className = "fact-stats";
   const hasScore = s.avg_score != null;
   el.textContent = t("fact_stats")(s, hasScore);
-  els.resultText.after(el);   // direct onder de score, boven de knoppen
+  (els.result.querySelector(".rating-line") || els.resultText).after(el);   // onder de score, boven de knoppen
+}
+
+// Welke pot staat er op het eindscherm? (een ⚡-regel hoort bij precies één pot)
+function potKey() {
+  return state ? `${state.mode}:${state.hashes?.[0]}:${potSlot()}` : "";
 }
 
 // Live rating op het eindscherm (daily én vrij spel — op de daily laat hij zien
@@ -6755,43 +6779,79 @@ async function showFactStats(hash) {
 // recompute-replay blijft de bron van waarheid en mag het getal 's ochtends iets
 // verschuiven). Delta t.o.v. de gecachete rating van vóór deze pot; zonder cache
 // (net ingelogd) alleen het getal zelf.
-async function showLiveRating() {
-  if (!auth.user) return;
-  const prev = auth.rating;
-  let r;
-  try { r = await rpc("get_my_rating"); } catch (e) { return; }
-  if (!r || r.elo == null) return;
-  auth.rating = r.elo;
-  els.result.querySelectorAll(".rating-line").forEach((e) => e.remove());
-  const delta = prev == null ? 0 : r.elo - prev;
+//
+// De regel staat er meteen bij het eindscherm, met je stand van vóór de pot
+// (ratingLineStart, vanuit sendTelemetry); zodra record_play en get_my_rating terug
+// zijn popt de delta en telt het getal door. Eerder verscheen de regel pas na die
+// twee rondes, en tot dan stond de regel van de vórige pot er nog, mét zijn −4.
+function ratingLabelHtml() {
+  return `${animEmojiHtml("⚡")} ${escHtml(t("rating_line"))}: `;
+}
+
+function buildRatingLine(shown) {
   const el = document.createElement("p");
-  el.className = "fact-stats rating-line";
+  el.className = "fact-stats rating-line rating-line-link";
+  el.dataset.pot = potKey();
   const label = document.createElement("span");
-  label.innerHTML = `${animEmojiHtml("⚡")} ${escHtml(t("rating_line"))}: `;
+  label.className = "rating-lbl";
+  label.innerHTML = ratingLabelHtml();
   const num = document.createElement("span");
   num.className = "rating-num";
-  num.textContent = String(prev ?? r.elo);
-  el.append(label, num);
-  let badge = null;
-  if (prev != null) {
-    badge = document.createElement("span");
-    badge.className = `rating-delta ${delta === 0 ? "zero" : delta > 0 ? "up" : "down"}`;
-    badge.textContent = delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
-    el.append(badge);
-  }
+  num.textContent = String(shown);
   // De regel is een deur naar de rating-tab in Stats (chevron als hint).
   const go = document.createElement("span");
   go.className = "rating-go";
   go.textContent = "›";
-  el.append(go);
-  el.classList.add("rating-line-link");
+  el.append(label, num, go);
   el.setAttribute("role", "button");
   el.tabIndex = 0;
   el.title = t("stats_rating");
   const openRating = () => openModal("modal-stats", { tab: "rating" });
   el.onclick = openRating;
   el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openRating(); } };
+  return el;
+}
+
+// Zet de ⚡-regel van deze pot neer met de oude stand (alleen als die bekend is) en
+// tel alvast hoe lang die in beeld staat: die tijd gaat van de beat stilstand af,
+// zodat het tellen niet nóg eens RATING_HOLD_MS wacht als je de oude stand al zag.
+function ratingLineStart(prev) {
+  els.result.querySelectorAll(".rating-line").forEach((e) => e.remove());
+  if (!auth.user || prev == null) return null;
+  const el = buildRatingLine(prev);
   els.resultText.after(el);
+  el._seen = 0;
+  let prevT = performance.now();
+  (function watch(now) {
+    if (!el.isConnected || el._counting) return;
+    el._seen += ratingLineVisible(el) ? Math.min(100, Math.max(0, now - prevT)) : 0;
+    prevT = now;
+    if (el._seen < RATING_HOLD_MS) requestAnimationFrame(watch);
+  })(prevT);
+  return el;
+}
+
+async function showLiveRating(line, prev) {
+  let r = null;
+  if (auth.user) { try { r = await rpc("get_my_rating"); } catch (e) {} }
+  if (!r || r.elo == null) { line?.remove(); return; }
+  auth.rating = r.elo;   // ook als er al een nieuw potje loopt: dat potje meet hiertegen
+  if (line && !line.isConnected) return;
+  const el = line || buildRatingLine(r.elo);
+  if (!line) {
+    els.result.querySelectorAll(".rating-line").forEach((e) => e.remove());
+    els.resultText.after(el);
+  }
+  el._counting = true;
+  const num = el.querySelector(".rating-num");
+  const delta = prev == null ? 0 : r.elo - prev;
+  let badge = null;
+  if (prev != null) {
+    badge = document.createElement("span");
+    badge.className = `rating-delta ${delta === 0 ? "zero" : delta > 0 ? "up" : "down"}`;
+    badge.textContent = delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
+    el.querySelector(".rating-go").before(badge);
+  }
   // Bij reduced-motion of onbekende oude rating: meteen de eindstand (badge erbij).
   const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   if (delta === 0 || reduced) {
@@ -6799,10 +6859,10 @@ async function showLiveRating() {
     if (badge) setTimeout(() => badge.classList.add("pop"), 150);
     return;
   }
-  animateRatingCount(el, num, badge, prev, r.elo);
+  animateRatingCount(el, num, badge, prev, r.elo, el._seen || 0);
 }
 
-// Timing van de ⚡-teller. De regel verschijnt zodra record_play klaar is, en dat
+// Timing van de ⚡-teller. De delta komt binnen zodra record_play klaar is, en dat
 // is juist het moment waarop de daily-recap of een unlock-kaart eroverheen kan
 // schuiven — of de regel staat op mobiel nog onder de vouw. Een teller die dan
 // meteen begint is al grotendeels klaar voor je kijkt: bij −4 zie je 'm oppikken
@@ -6810,8 +6870,11 @@ async function showLiveRating() {
 // begint hij met een beat stilstand op de OUDE stand, en telt hij daarna met een
 // smoothstep (rustige start én landing, piektempo maar 1,5× het gemiddelde) op
 // een tempo per ratingpunt — zodat ook een daling van 3 zichtbaar stap voor stap
-// gaat in plaats van in één flits.
+// gaat in plaats van in één flits. Stond de oude stand al in beeld terwijl de
+// delta onderweg was, dan telt die tijd mee voor de stilstand (minimaal een korte
+// beat na het oppoppen van de badge).
 const RATING_HOLD_MS = 550;    // stilstand op de oude stand voor het tellen begint
+const RATING_BEAT_MS = 250;    // minimale stilstand na het oppoppen van de badge
 const RATING_STEP_MS = 220;    // richttempo per ratingpunt
 const RATING_MIN_MS = 700, RATING_MAX_MS = 2000;
 const RATING_GIVEUP_MS = 120000;   // nooit in beeld gekomen: stil afronden
@@ -6827,11 +6890,11 @@ function ratingLineVisible(el) {
   return r.bottom > 8 && r.top < vh - 8;
 }
 
-function animateRatingCount(line, num, badge, from, to) {
+function animateRatingCount(line, num, badge, from, to, held = 0) {
   const delta = to - from;
   const dur = Math.min(RATING_MAX_MS, Math.max(RATING_MIN_MS, Math.abs(delta) * RATING_STEP_MS));
   let prevT = performance.now();
-  let elapsed = -RATING_HOLD_MS;   // negatieve tijd = de beat stilstand vooraf
+  let elapsed = -Math.max(RATING_BEAT_MS, RATING_HOLD_MS - held);   // negatieve tijd = de beat stilstand vooraf
   let unseen = 0;
   num.textContent = String(from);
   (function tick(now) {
