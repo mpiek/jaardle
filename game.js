@@ -3683,8 +3683,10 @@ async function showVoltreffer(id, preview) {
 // gregoriaanse kalender 1582, … — gepind in de daily-pijplijn, db/69/70/78) met een
 // viering die erbij hoort. Alles uit de mockup-rondes van 2026-09-20 en 2026-10-04.
 //
-// Spelregels: alléén het standaardpad. Verdiende kluis-effecten (flair-confetti,
-// bier, gouden jaartallen) en het first-try-vuurwerk gaan vóór en veranderen niet.
+// Spelregels: gaat sinds 15/10/2026 altijd voor. Ook bij een first-try (het vuurwerk
+// komt erbij, In de roos/Eclips wijken) en vóór verdiende kluis-effecten (flair-confetti,
+// bier, gouden jaartallen, kalender) en een event-viering (Spookfeest: op een
+// Halloween-dag de feestdag in jouw versie, met de vleermuizen).
 // Feestdagen triggeren op de echte lokale datum van het apparaat (niet de
 // puzzeldatum — een inhaalpot in januari krijgt geen kerstsneeuw); hoogtijdagen
 // juist op de PUZZELdatum + het antwoordjaar (de puzzel is datumgebonden, en het
@@ -3712,7 +3714,7 @@ const fxResolve = (id) => { const v = FX_ALIASES[id]; return v ? v[(Math.random(
 // spel, de geschiedenis en de inhaal-daily. Geen DB-wijziging, geen pins. De elf nieuwe lagen staan
 // in /event-fx.js (EVENT_FX_IDS, lui geladen); een hash mag ook naar een bestaande HolidayFx-laag
 // wijzen (zusterfeiten: Stonewall → pride, 1582 → gregorian, ...). Voorrang in winCelebrationFx:
-// hoogtijdag (gepind feit) → feit-effect → feestdag. De eerste twee (answerCelebrationFx) spelen bij elke winst.
+// hoogtijdag (gepind feit) → feit-effect → feestdag, en die gaan bij elke winst vóór (ook first-try en kluis).
 const EVENT_FX_IDS = ["theses", "wall", "vesuvius", "edison", "curiosity", "railway", "penicillin", "einstein", "lumiere", "tapestry", "eiffel"];
 const EVENT_FX = {
   "07520fb099": "theses",     // 1517 Luthers 95 stellingen
@@ -3878,18 +3880,17 @@ function historicFxFor(puzzleDate, year) {
 // ?fx=<id> in de URL = voorvertoning: die viering bij élke winst (test op je telefoon).
 const previewFx = (() => { try { return new URLSearchParams(location.search).get("fx"); } catch (e) { return null; } })();
 const previewObxRank = (() => { try { const v = new URLSearchParams(location.search).get("obxrank"); return v === null ? 1 : Number(v); } catch (e) { return 1; } })();   // ?fx=obsidian&obxrank=0: welk volgnummer de voorvertoning toont
-// De viering die bij het ANTWOORD hoort (hoogtijdag of feit-effect), of null. Die speelt bij elke winst,
-// ook bij een voltreffer en over een gekozen kluis-viering heen (15/10/2026: "je moet hoe dan ook die animatie krijgen").
-function answerCelebrationFx() {
+// De viering voor déze winst, of null (→ de gekozen viering of de gewone confetti). Gaat bij elke winst vóór, ook bij
+// een voltreffer en vóór een gekozen kluis-viering (15/10/2026: "je moet hoe dan ook die animatie krijgen", "feestdag
+// moet altijd voorgaan").
+function winCelebrationFx() {
   if (state.mode === "daily") {
     const h = historicFxFor(state.puzzleDate || todayKey(), state.event?.year);
     if (h) return h;
   }
-  return eventFxFor(state.hashes?.[0]);   // het feit zelf heeft een animatie (elke modus)
-}
-// De viering voor déze winst op het standaardpad, of null (→ gewone confetti).
-function winCelebrationFx() {
-  return answerCelebrationFx() || fxResolve(holidayFxFor(new Date()));
+  const ev = eventFxFor(state.hashes?.[0]);   // het feit zelf heeft een animatie (elke modus)
+  if (ev) return ev;
+  return fxResolve(holidayFxFor(new Date()));
 }
 
 // ── Gouden-jaartallen-viering (capstone-goud) ────────────────────────────────
@@ -4398,26 +4399,25 @@ function finishGame(won, fresh = false) {
   // actief is — de volgorde hier weerspiegelt alleen de prestige-rangorde.
   if (fresh && won) {
     const firstTry = state.guesses.length === 1;
-    // Hoogtijdag- of feit-viering (hoort bij het antwoord): altijd, ook bij een first-try (dan met het vuurwerk erbij,
-    // in plaats van In de roos/Eclips) en over een kluis-effect heen. Feestdag-viering (hoort bij de datum): alléén op
-    // het standaardpad, dus pas als er geen kluis-effect (goud/bier/flair-confetti) en geen first-try is.
-    // ?fx=<id> in de URL is de voorvertoning en gaat overal vóór.
-    const flairOn = !!(auth.user && myFlair && capstoneTier(achvCache) >= 2 && flairConfettiEnabled());
+    // Hoogtijdag-, feit- en feestdag-viering (winCelebrationFx): altijd, ook bij een first-try (dan met het vuurwerk
+    // erbij, in plaats van In de roos/Eclips) en vóór een gekozen kluis- of event-viering (15/10/2026: "feestdag moet
+    // altijd voorgaan"). ?fx=<id> in de URL is de voorvertoning en gaat overal vóór.
     // Gekozen Scheurkalender: alleen bij een daily (een kalender heeft een datum nodig); in vrij spel blijft het standaard.
     const calOn = calendarFxActive() && state.mode === "daily";
     // Wimpels: de winst die een perfecte week compleet maakt. Een feestdag-, gebeurtenis- of hoogtijdag-show gaat voor
     // (dan blijven de wimpels weg), ook als je zelf een viering gekozen hebt.
     const bunting = !previewFx && perfectWeekJustCompleted() && !winCelebrationFx();
-    // Gekozen event-viering (bv. Spookfeest): opt-in, in elke modus; de gewone feestdag-laag wijkt ervoor.
+    // Gekozen event-viering (bv. Spookfeest): opt-in, in elke modus, op een gewone dag.
     const evOn = eventFxActive();
-    const celebration = previewFx && fxKnown(fxResolve(previewFx)) ? fxResolve(previewFx)
-      : answerCelebrationFx() || ((calOn || goldYearsFxActive() || beerFxActive() || flairOn || firstTry || evOn) ? null : winCelebrationFx());
+    const celebration = previewFx && fxKnown(fxResolve(previewFx)) ? fxResolve(previewFx) : winCelebrationFx();
+    // Is je event-viering dezelfde laag als die van vandaag (Spookfeest op een Halloween-dag), dan speelt jouw versie (met de vleermuizen).
+    const evR = evOn && eventFxReward(evOn), evOpts = evR && evR.layer === celebration ? evR.fxOpts : null;
     // Voltreffer-viering (In de roos): bij een winst in één gok in plaats van het vuurwerk, en dan als enige: geen gekozen
     // viering (goud/bier/kalender/event) eronder, zoals het vuurwerk die wel heeft. Wimpels mogen er wel bovenop. ?fx=roos / ?fx=eclips = voorvertoning.
     const vtPick = firstTry && !celebration ? voltrefferChoice() : "fw";
     const vtId = previewFx === "roos" || previewFx === "eclips" ? previewFx : vtPick !== "fw" ? vtPick : null;
     if (vtId) { showVoltreffer(vtId); if (bunting) addBunting(); }
-    else if (celebration) showHolidayFx(celebration, { firstTry });   // first-try: het vuurwerk gaat mee
+    else if (celebration) showHolidayFx(celebration, { ...evOpts, firstTry });   // first-try: het vuurwerk gaat mee
     else if (evOn) { const r = eventFxReward(evOn); showHolidayFx(r.layer, { ...r.fxOpts, firstTry }); if (bunting) addBunting(); }
     else if (calOn) showCalendar(firstTry, bunting);
     else if (goldYearsFxActive()) { showGoldYears(firstTry); if (bunting) addBunting(); }

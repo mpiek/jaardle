@@ -49,7 +49,7 @@ src += `
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
-  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
+  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
@@ -555,19 +555,30 @@ test("winCelebrationFx — hoogtijdag gaat vóór het feit-effect, dat gaat vó�
   assert.equal(T.winCelebrationFx(), "wall");
 });
 
-test("answerCelebrationFx — de viering van het antwoord speelt altijd: ook bij een first-try en over een kluis-viering heen", () => {
-  // hoort bij het antwoord: hoogtijdag (gepind jaar) of feit-effect
-  T.setState({ mode: "daily", puzzleDate: "2026-10-15", hashes: ["c1dac0d3d7"], event: { year: 1582 } });
-  assert.equal(T.answerCelebrationFx(), "gregorian");
-  T.setState({ mode: "free", hashes: ["7dceb65bb4"], event: { year: 1990 } });
-  assert.equal(T.answerCelebrationFx(), "wall");
-  T.setState({ mode: "free", hashes: ["zzzzzzzzzz"], event: { year: 1990 } });
-  assert.equal(T.answerCelebrationFx(), null, "een gewoon feit: geen viering van het antwoord (de feestdag blijft standaardpad)");
-  // de dispatch in finishGame: eerst het antwoord, pas daarna de uitsluitingen (kluis, first-try, event) voor de feestdag
+test("winCelebrationFx — antwoord en feestdag gaan altijd voor: ook bij een first-try en vóór een kluis-, event- of voltreffer-viering", () => {
+  const RealDate = Date, at = (y, m, dd) => { globalThis.Date = class extends RealDate { constructor(...a) { if (a.length) super(...a); else super(y, m - 1, dd, 12); } }; };
+  try {
+    at(2026, 12, 25);   // Kerst
+    T.setState({ mode: "free", hashes: ["zzzzzzzzzz"], event: { year: 1990 } });
+    assert.equal(T.winCelebrationFx(), "xmas", "een gewoon feit op een feestdag: de feestdag");
+    T.setState({ mode: "free", hashes: ["7dceb65bb4"], event: { year: 1990 } });
+    assert.equal(T.winCelebrationFx(), "wall", "het feit gaat vóór de feestdag");
+    T.setState({ mode: "daily", puzzleDate: "2026-10-15", hashes: ["c1dac0d3d7"], event: { year: 1582 } });
+    assert.equal(T.winCelebrationFx(), "gregorian", "inhaalpot van een hoogtijdag: de hoogtijdag");
+    at(2026, 10, 14);   // gewone dag
+    T.setState({ mode: "free", hashes: ["zzzzzzzzzz"], event: { year: 1990 } });
+    assert.equal(T.winCelebrationFx(), null, "gewone dag, gewoon feit: niets (dan de gekozen viering of de confetti)");
+    // Spookfeest is de Halloween-laag + vleermuizen: op een Halloween-dag speelt de feestdag in die versie (evOpts)
+    at(2026, 10, 25);
+    assert.equal(T.winCelebrationFx(), "halloween");
+    assert.equal(T.eventFxReward(T.eventById("spook")).layer, "halloween");
+  } finally { globalThis.Date = RealDate; }
+  // de dispatch in finishGame: geen uitsluiting meer voor kluis, first-try of event; In de roos/Eclips wijken
   const g = readFileSync(join(dir, "..", "game.js"), "utf8");
-  assert.match(g, /: answerCelebrationFx\(\) \|\| \(\(calOn \|\| goldYearsFxActive\(\) \|\| beerFxActive\(\) \|\| flairOn \|\| firstTry \|\| evOn\) \? null : winCelebrationFx\(\)\)/);
-  assert.match(g, /const vtPick = firstTry && !celebration \? voltrefferChoice\(\) : "fw";/, "In de roos/Eclips wijkt voor de viering van het antwoord");
-  assert.match(g, /else if \(celebration\) showHolidayFx\(celebration, \{ firstTry \}\)/, "first-try: het vuurwerk gaat mee");
+  assert.match(g, /const celebration = previewFx && fxKnown\(fxResolve\(previewFx\)\) \? fxResolve\(previewFx\) : winCelebrationFx\(\);/);
+  assert.match(g, /evOpts = evR && evR\.layer === celebration \? evR\.fxOpts : null;/, "Spookfeest op een Halloween-dag: met de vleermuizen");
+  assert.match(g, /const vtPick = firstTry && !celebration \? voltrefferChoice\(\) : "fw";/, "In de roos/Eclips wijken voor de feestdag");
+  assert.match(g, /else if \(celebration\) showHolidayFx\(celebration, \{ \.\.\.evOpts, firstTry \}\)/, "first-try: het vuurwerk gaat mee");
 });
 
 test("loadEventFx — laadt event-fx.js één keer lui en probeert opnieuw na een fout", async () => {
