@@ -4491,7 +4491,7 @@ function sendTelemetry() {
   if (localStorage.getItem(sentKey)) return Promise.resolve();
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
   const first = state.guesses[0];
-  const prevRating = auth.rating;
+  const prevRating = auth.rating, prevRaw = auth.ratingRaw;
   const ratingLine = ratingLineStart(prevRating);   // ⚡-regel meteen in beeld met de oude stand
   return rpc("record_play", {
     p_fact_hash: hash,
@@ -4512,7 +4512,7 @@ function sendTelemetry() {
   })
     .then((id) => {
       invalidateHistory();  // verse stats bij volgende opening
-      showLiveRating(ratingLine, prevRating);   // ⚡-delta op het eindscherm (alleen ingelogd)
+      showLiveRating(ratingLine, prevRating, prevRaw);   // ⚡-delta op het eindscherm (alleen ingelogd)
       updateRepairAfterPlay();  // 🩹-voortgang/afronding + banners (alleen ingelogd)
       // Onthoud het rij-id zodat we de pot ná inloggen aan het account kunnen koppelen.
       try { if (id != null) localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); } catch (e) {}
@@ -6871,11 +6871,28 @@ function ratingLineStart(prev) {
   return el;
 }
 
-async function showLiveRating(line, prev) {
+// Tekst + kleur van de ⚡-delta. Getoonde ratings zijn naar beneden afgerond
+// (FLOOR-regel, db/63), dus een pot kan je echte rating een fractie verschuiven
+// zonder dat het hele getal meebeweegt: 1712,30 → 1712,82 is dan "±0". In dat
+// geval de rauwe verschuiving met 2 decimalen, zoals de Rating-tab ("+0,52");
+// alleen een echte nul (repeat <24u) of een onbekende rauwe stand blijft "±0".
+function ratingDeltaBadge(delta, rawDelta) {
+  if (delta === 0 && rawDelta != null && isFinite(rawDelta)) {
+    const r = Math.round(rawDelta * 100) / 100;
+    if (r !== 0) return { cls: r > 0 ? "up" : "down", text: `${r > 0 ? "+" : "−"}${fmtEloRaw(Math.abs(r))}` };
+  }
+  return {
+    cls: delta === 0 ? "zero" : delta > 0 ? "up" : "down",
+    text: delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`,
+  };
+}
+
+async function showLiveRating(line, prev, prevRaw) {
   let r = null;
   if (auth.user) { try { r = await rpc("get_my_rating"); } catch (e) {} }
   if (!r || r.elo == null) { line?.remove(); return; }
   auth.rating = r.elo;   // ook als er al een nieuw potje loopt: dat potje meet hiertegen
+  auth.ratingRaw = r.elo_raw ?? null;   // rauw (2 dec., db/98) — alleen voor een ±0-delta
   if (line && !line.isConnected) return;
   const el = line || buildRatingLine(r.elo);
   if (!line) {
@@ -6887,9 +6904,11 @@ async function showLiveRating(line, prev) {
   const delta = prev == null ? 0 : r.elo - prev;
   let badge = null;
   if (prev != null) {
+    const raw = prevRaw != null && r.elo_raw != null ? r.elo_raw - prevRaw : null;
+    const b = ratingDeltaBadge(delta, raw);
     badge = document.createElement("span");
-    badge.className = `rating-delta ${delta === 0 ? "zero" : delta > 0 ? "up" : "down"}`;
-    badge.textContent = delta === 0 ? "±0" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`;
+    badge.className = `rating-delta ${b.cls}`;
+    badge.textContent = b.text;
     el.querySelector(".rating-go").before(badge);
   }
   // Bij reduced-motion of onbekende oude rating: meteen de eindstand (badge erbij).
@@ -6960,8 +6979,8 @@ function animateRatingCount(line, num, badge, from, to, held = 0) {
 
 // Cache de huidige rating zodat de volgende free-mode-pot een delta kan tonen.
 function refreshMyRating() {
-  if (!auth.user) { auth.rating = null; return; }
-  rpc("get_my_rating").then((r) => { auth.rating = r?.elo ?? null; }).catch(() => {});
+  if (!auth.user) { auth.rating = auth.ratingRaw = null; return; }
+  rpc("get_my_rating").then((r) => { auth.rating = r?.elo ?? null; auth.ratingRaw = r?.elo_raw ?? null; }).catch(() => {});
 }
 
 // --- Daily-recap (eindscherm na afronden) ---------------------------------

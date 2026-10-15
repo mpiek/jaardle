@@ -54,6 +54,7 @@ src += `
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   ACHV_SERIES, ACHV_TIER_KEYS, ACHV_YEARS, CAPSTONE_KEYS, CAPSTONE_MAX, FLAIR_OPTIONS, capstoneProgress, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
+  ratingDeltaBadge,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
@@ -3890,4 +3891,19 @@ test("recapEventPaneSpec — alleen tijdens een event, na een afgeronde daily en
     window.SeasonEvent = {}; assert.equal(T.recapEventPaneSpec(), null, "half geladen UI-bestand: geen tab");
     window.SeasonEvent = undefined; assert.equal(T.recapEventPaneSpec(), null, "zonder UI-bestand: geen tab");
   } finally { T.auth.user = wasUser; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; T.setState(null); document.documentElement.dataset = saveDs; evClean(); }
+});
+
+test("ratingDeltaBadge — ±0 op het hele getal toont de rauwe verschuiving met 2 decimalen; een echte nul en een onbekende rauwe stand blijven ±0", () => {
+  T.setLang("nl");
+  assert.deepEqual(T.ratingDeltaBadge(0, 1712.82 - 1712.30), { cls: "up", text: "+0,52" });
+  assert.deepEqual(T.ratingDeltaBadge(0, 1712.05 - 1712.91), { cls: "down", text: "−0,86" });
+  assert.deepEqual(T.ratingDeltaBadge(0, 0), { cls: "zero", text: "±0" });           // repeat <24u
+  assert.deepEqual(T.ratingDeltaBadge(0, 0.004), { cls: "zero", text: "±0" });       // rondt af op 0,00
+  assert.deepEqual(T.ratingDeltaBadge(0, null), { cls: "zero", text: "±0" });        // server zonder elo_raw
+  // een heel punt of meer blijft een heel getal, ook als het rauw maar 0,3 was
+  assert.deepEqual(T.ratingDeltaBadge(1, 0.3), { cls: "up", text: "+1" });
+  assert.deepEqual(T.ratingDeltaBadge(-4, -3.6), { cls: "down", text: "−4" });
+  T.setLang("en");
+  assert.deepEqual(T.ratingDeltaBadge(0, 0.52), { cls: "up", text: "+0.52" });
+  T.setLang("nl");
 });
