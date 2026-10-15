@@ -29,6 +29,9 @@
   --on-badge: #111;            /* tekst op groene/gele/oranje chips */
   --green-text: var(--green);  /* groen als tékst (score, rating-delta, ✓-status) */
   --red-text: var(--red);
+  /* ⚡-delta onder 1 punt ("+0,52"): lichter groen / oranje i.p.v. rood */
+  --gain-soft: #8fca92;
+  --loss-soft: #f7b267;
   --gold-text: #f4c430;        /* nr. 1 op het leaderboard */
   --danger: #ff8a8a;           /* uitloggen/verwijderen/fouten */
   --flame: #ff9d4d;            /* 🔥-streak-regels */
@@ -61,6 +64,8 @@ html[data-theme="light"] {
   --on-accent: #fff;
   --green-text: #2c7031;
   --red-text: #c62828;
+  --gain-soft: #3d7d43;   /* ≥4.5:1 op --card, ook in de seizoens-lichte thema's */
+  --loss-soft: #a65a00;
   --gold-text: #755a0b;
   --danger: #b3261e;
   --flame: #b35309;
@@ -97,6 +102,8 @@ html[data-theme="parchment"] {
   --on-accent: #fbf3df;
   --green-text: #3a6a2f;
   --red-text: #b23a26;
+  --gain-soft: #467339;
+  --loss-soft: #8f5310;
   --gold-text: #7a5a10;
   --danger: #a5321f;
   --flame: #a85512;
@@ -2585,6 +2592,8 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 .rating-delta.up { color: var(--green-text); }
 .rating-delta.down { color: var(--red-text); }
 .rating-delta.zero { color: var(--muted); animation-delay: 0.15s; }
+.rating-delta.up.frac { color: var(--gain-soft); }
+.rating-delta.down.frac { color: var(--loss-soft); }
 @keyframes delta-pop { from { opacity: 0; transform: scale(0.3) rotate(-8deg); } }
 /* Op het eindscherm popt JS de badge (.pop) op het moment dat de teller gaat
    lopen — en dat moment hangt af van wanneer de regel echt in beeld komt, dus

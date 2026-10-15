@@ -6876,10 +6876,11 @@ function ratingLineStart(prev) {
 // zonder dat het hele getal meebeweegt: 1712,30 → 1712,82 is dan "±0". In dat
 // geval de rauwe verschuiving met 2 decimalen, zoals de Rating-tab ("+0,52");
 // alleen een echte nul (repeat <24u) of een onbekende rauwe stand blijft "±0".
+// Zo'n fractie krijgt .frac: zachter groen/oranje, "winst, maar stelt weinig voor".
 function ratingDeltaBadge(delta, rawDelta) {
   if (delta === 0 && rawDelta != null && isFinite(rawDelta)) {
     const r = Math.round(rawDelta * 100) / 100;
-    if (r !== 0) return { cls: r > 0 ? "up" : "down", text: `${r > 0 ? "+" : "−"}${fmtEloRaw(Math.abs(r))}` };
+    if (r !== 0) return { cls: r > 0 ? "up frac" : "down frac", text: `${r > 0 ? "+" : "−"}${fmtEloRaw(Math.abs(r))}` };
   }
   return {
     cls: delta === 0 ? "zero" : delta > 0 ? "up" : "down",

@@ -3895,8 +3895,8 @@ test("recapEventPaneSpec — alleen tijdens een event, na een afgeronde daily en
 
 test("ratingDeltaBadge — ±0 op het hele getal toont de rauwe verschuiving met 2 decimalen; een echte nul en een onbekende rauwe stand blijven ±0", () => {
   T.setLang("nl");
-  assert.deepEqual(T.ratingDeltaBadge(0, 1712.82 - 1712.30), { cls: "up", text: "+0,52" });
-  assert.deepEqual(T.ratingDeltaBadge(0, 1712.05 - 1712.91), { cls: "down", text: "−0,86" });
+  assert.deepEqual(T.ratingDeltaBadge(0, 1712.82 - 1712.30), { cls: "up frac", text: "+0,52" });
+  assert.deepEqual(T.ratingDeltaBadge(0, 1712.05 - 1712.91), { cls: "down frac", text: "−0,86" });
   assert.deepEqual(T.ratingDeltaBadge(0, 0), { cls: "zero", text: "±0" });           // repeat <24u
   assert.deepEqual(T.ratingDeltaBadge(0, 0.004), { cls: "zero", text: "±0" });       // rondt af op 0,00
   assert.deepEqual(T.ratingDeltaBadge(0, null), { cls: "zero", text: "±0" });        // server zonder elo_raw
@@ -3904,6 +3904,6 @@ test("ratingDeltaBadge — ±0 op het hele getal toont de rauwe verschuiving met
   assert.deepEqual(T.ratingDeltaBadge(1, 0.3), { cls: "up", text: "+1" });
   assert.deepEqual(T.ratingDeltaBadge(-4, -3.6), { cls: "down", text: "−4" });
   T.setLang("en");
-  assert.deepEqual(T.ratingDeltaBadge(0, 0.52), { cls: "up", text: "+0.52" });
+  assert.deepEqual(T.ratingDeltaBadge(0, 0.52), { cls: "up frac", text: "+0.52" });
   T.setLang("nl");
 });
