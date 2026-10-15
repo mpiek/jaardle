@@ -49,7 +49,7 @@ src += `
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
-  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx,
+  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
@@ -553,6 +553,21 @@ test("winCelebrationFx — hoogtijdag gaat vóór het feit-effect, dat gaat vó�
   // dezelfde dag, ander jaar (niet-gepind feit): dan het feit-effect
   T.setState({ mode: "daily", puzzleDate: "2027-10-15", hashes: ["7dceb65bb4"], event: { year: 1990 } });
   assert.equal(T.winCelebrationFx(), "wall");
+});
+
+test("answerCelebrationFx — de viering van het antwoord speelt altijd: ook bij een first-try en over een kluis-viering heen", () => {
+  // hoort bij het antwoord: hoogtijdag (gepind jaar) of feit-effect
+  T.setState({ mode: "daily", puzzleDate: "2026-10-15", hashes: ["c1dac0d3d7"], event: { year: 1582 } });
+  assert.equal(T.answerCelebrationFx(), "gregorian");
+  T.setState({ mode: "free", hashes: ["7dceb65bb4"], event: { year: 1990 } });
+  assert.equal(T.answerCelebrationFx(), "wall");
+  T.setState({ mode: "free", hashes: ["zzzzzzzzzz"], event: { year: 1990 } });
+  assert.equal(T.answerCelebrationFx(), null, "een gewoon feit: geen viering van het antwoord (de feestdag blijft standaardpad)");
+  // de dispatch in finishGame: eerst het antwoord, pas daarna de uitsluitingen (kluis, first-try, event) voor de feestdag
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(g, /: answerCelebrationFx\(\) \|\| \(\(calOn \|\| goldYearsFxActive\(\) \|\| beerFxActive\(\) \|\| flairOn \|\| firstTry \|\| evOn\) \? null : winCelebrationFx\(\)\)/);
+  assert.match(g, /const vtPick = firstTry && !celebration \? voltrefferChoice\(\) : "fw";/, "In de roos/Eclips wijkt voor de viering van het antwoord");
+  assert.match(g, /else if \(celebration\) showHolidayFx\(celebration, \{ firstTry \}\)/, "first-try: het vuurwerk gaat mee");
 });
 
 test("loadEventFx — laadt event-fx.js één keer lui en probeert opnieuw na een fout", async () => {
