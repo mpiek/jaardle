@@ -3686,7 +3686,8 @@ async function showVoltreffer(id, preview) {
 // Spelregels: gaat sinds 15/10/2026 altijd voor. Ook bij een first-try (het vuurwerk
 // komt erbij, In de roos/Eclips wijken) en vóór verdiende kluis-effecten (flair-confetti,
 // bier, gouden jaartallen, kalender) en een event-viering (Spookfeest: op een
-// Halloween-dag de feestdag in jouw versie, met de vleermuizen).
+// Halloween-dag de feestdag in jouw versie, met de vleermuizen). Hoogtijdagen en
+// feit-animaties spelen ook bij verlies (zonder vuurwerk), feestdagen alleen bij winst.
 // Feestdagen triggeren op de echte lokale datum van het apparaat (niet de
 // puzzeldatum — een inhaalpot in januari krijgt geen kerstsneeuw); hoogtijdagen
 // juist op de PUZZELdatum + het antwoordjaar (de puzzel is datumgebonden, en het
@@ -3714,7 +3715,8 @@ const fxResolve = (id) => { const v = FX_ALIASES[id]; return v ? v[(Math.random(
 // spel, de geschiedenis en de inhaal-daily. Geen DB-wijziging, geen pins. De elf nieuwe lagen staan
 // in /event-fx.js (EVENT_FX_IDS, lui geladen); een hash mag ook naar een bestaande HolidayFx-laag
 // wijzen (zusterfeiten: Stonewall → pride, 1582 → gregorian, ...). Voorrang in winCelebrationFx:
-// hoogtijdag (gepind feit) → feit-effect → feestdag, en die gaan bij elke winst vóór (ook first-try en kluis).
+// hoogtijdag (gepind feit) → feit-effect → feestdag, en die gaan bij elke winst vóór (ook first-try en kluis). De eerste
+// twee (answerCelebrationFx) spelen ook bij verlies.
 const EVENT_FX_IDS = ["theses", "wall", "vesuvius", "edison", "curiosity", "railway", "penicillin", "einstein", "lumiere", "tapestry", "eiffel"];
 const EVENT_FX = {
   "07520fb099": "theses",     // 1517 Luthers 95 stellingen
@@ -3786,7 +3788,7 @@ let holidayFxUntil = 0;
 async function showHolidayFx(id, extra) {
   if (!fxKnown(id)) return;
   // Voorlopig al een einde afspreken: de recap wacht ook als het bestand nog geladen moet worden.
-  // (Het gebeurtenis-bestand wordt bewust pas bij de winst geladen, niet bij het begin van de pot:
+  // (Het gebeurtenis-bestand wordt bewust pas aan het eind geladen, niet bij het begin van de pot:
   // een netwerkverzoek vooraf zou verraden dat het antwoord een bekende gebeurtenis is.)
   holidayFxUntil = performance.now() + 4500;
   try {
@@ -3797,8 +3799,8 @@ async function showHolidayFx(id, extra) {
     holidayFxUntil = performance.now() + layers.reduce((m, l) => Math.max(m, l.end), 0) * 1000 + 250;
     runFx(layers);
   } catch (e) {
-    holidayFxUntil = 0;   // laden mislukt (offline?): gewoon de standaardconfetti
-    showConfetti();
+    holidayFxUntil = 0;   // laden mislukt (offline?): gewoon de standaardconfetti, maar niet bij verlies
+    if (!(extra && extra.lost)) showConfetti();
   }
 }
 
@@ -3880,17 +3882,20 @@ function historicFxFor(puzzleDate, year) {
 // ?fx=<id> in de URL = voorvertoning: die viering bij élke winst (test op je telefoon).
 const previewFx = (() => { try { return new URLSearchParams(location.search).get("fx"); } catch (e) { return null; } })();
 const previewObxRank = (() => { try { const v = new URLSearchParams(location.search).get("obxrank"); return v === null ? 1 : Number(v); } catch (e) { return 1; } })();   // ?fx=obsidian&obxrank=0: welk volgnummer de voorvertoning toont
-// De viering voor déze winst, of null (→ de gekozen viering of de gewone confetti). Gaat bij elke winst vóór, ook bij
-// een voltreffer en vóór een gekozen kluis-viering (15/10/2026: "je moet hoe dan ook die animatie krijgen", "feestdag
-// moet altijd voorgaan").
-function winCelebrationFx() {
+// De viering die bij het ANTWOORD hoort (hoogtijdag of feit-effect), of null. Speelt ook bij verlies (15/10/2026):
+// het antwoord staat dan toch al in beeld, en de animatie gaat over de gebeurtenis zelf.
+function answerCelebrationFx() {
   if (state.mode === "daily") {
     const h = historicFxFor(state.puzzleDate || todayKey(), state.event?.year);
     if (h) return h;
   }
-  const ev = eventFxFor(state.hashes?.[0]);   // het feit zelf heeft een animatie (elke modus)
-  if (ev) return ev;
-  return fxResolve(holidayFxFor(new Date()));
+  return eventFxFor(state.hashes?.[0]);   // het feit zelf heeft een animatie (elke modus)
+}
+// De viering voor déze winst, of null (→ de gekozen viering of de gewone confetti). Gaat bij elke winst vóór, ook bij
+// een voltreffer en vóór een gekozen kluis-viering (15/10/2026: "je moet hoe dan ook die animatie krijgen", "feestdag
+// moet altijd voorgaan").
+function winCelebrationFx() {
+  return answerCelebrationFx() || fxResolve(holidayFxFor(new Date()));
 }
 
 // ── Gouden-jaartallen-viering (capstone-goud) ────────────────────────────────
@@ -4425,6 +4430,11 @@ function finishGame(won, fresh = false) {
     else if (firstTry) { showFireworks(); if (bunting) addBunting(); }
     else if (bunting) showBuntingConfetti();
     else showConfetti();
+  } else if (fresh) {
+    // Verloren: de animatie van het antwoord (hoogtijdag, feit) speelt toch, zonder vuurwerk (15/10/2026: "ja bouw maar").
+    // Feestdag, confetti en kluis-vieringen blijven voor de winst.
+    const ans = answerCelebrationFx();
+    if (ans) showHolidayFx(ans, { lost: true });
   }
   if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
   if (fresh && state.mode === "daily") recordDailyResult(won);

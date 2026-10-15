@@ -49,7 +49,7 @@ src += `
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
-  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx,
+  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
@@ -579,6 +579,23 @@ test("winCelebrationFx — antwoord en feestdag gaan altijd voor: ook bij een fi
   assert.match(g, /evOpts = evR && evR\.layer === celebration \? evR\.fxOpts : null;/, "Spookfeest op een Halloween-dag: met de vleermuizen");
   assert.match(g, /const vtPick = firstTry && !celebration \? voltrefferChoice\(\) : "fw";/, "In de roos/Eclips wijken voor de feestdag");
   assert.match(g, /else if \(celebration\) showHolidayFx\(celebration, \{ \.\.\.evOpts, firstTry \}\)/, "first-try: het vuurwerk gaat mee");
+});
+
+test("answerCelebrationFx — bij verlies speelt alleen de animatie van het antwoord (hoogtijdag, feit), zonder vuurwerk en zonder confetti-terugval", () => {
+  const RealDate = Date;
+  try {
+    globalThis.Date = class extends RealDate { constructor(...a) { if (a.length) super(...a); else super(2026, 11, 25, 12); } };   // Kerst
+    T.setState({ mode: "daily", puzzleDate: "2026-10-15", hashes: ["c1dac0d3d7"], event: { year: 1582 } });
+    assert.equal(T.answerCelebrationFx(), "gregorian");
+    T.setState({ mode: "free", hashes: ["7dceb65bb4"], event: { year: 1990 } });
+    assert.equal(T.answerCelebrationFx(), "wall");
+    T.setState({ mode: "free", hashes: ["zzzzzzzzzz"], event: { year: 1990 } });
+    assert.equal(T.answerCelebrationFx(), null, "een feestdag hoort niet bij het antwoord: geen viering bij verlies");
+    assert.equal(T.winCelebrationFx(), "xmas", "bij winst wel");
+  } finally { globalThis.Date = RealDate; }
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(g, /\} else if \(fresh\) \{[\s\S]{0,300}?const ans = answerCelebrationFx\(\);\s*if \(ans\) showHolidayFx\(ans, \{ lost: true \}\);/, "verlies-tak in finishGame");
+  assert.match(g, /if \(!\(extra && extra\.lost\)\) showConfetti\(\);/, "laden mislukt bij verlies: geen confetti");
 });
 
 test("loadEventFx — laadt event-fx.js één keer lui en probeert opnieuw na een fout", async () => {
