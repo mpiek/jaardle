@@ -10856,9 +10856,10 @@ function renderHistoryList(body, rows) {
   });
 }
 
-// Drill-down: haalt het feit van die dag op (get_daily staat oude datums toe — geen
-// nieuwe blootstelling) en reconstrueert het afgeronde bord (reconstructDailyBoard,
-// hergebruikt van de daily-restore-logica hierboven).
+// Drill-down: haalt het feit van die dag op (get_daily geeft dagen ouder dan het
+// inhaalvenster alleen aan wie ze zelf speelde, db/101; anders null → terug naar de lijst)
+// en reconstrueert het afgeronde bord (reconstructDailyBoard, hergebruikt van de
+// daily-restore-logica hierboven).
 async function openHistoryDetail(body, date, row) {
   if (!row) return;
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
