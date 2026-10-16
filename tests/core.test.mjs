@@ -54,7 +54,7 @@ src += `
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   ACHV_SERIES, ACHV_TIER_KEYS, ACHV_YEARS, CAPSTONE_KEYS, CAPSTONE_MAX, FLAIR_OPTIONS, capstoneProgress, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
-  ratingDeltaBadge,
+  ratingDeltaBadge, toEvent,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
@@ -3906,4 +3906,19 @@ test("ratingDeltaBadge — ±0 op het hele getal toont de rauwe verschuiving met
   T.setLang("en");
   assert.deepEqual(T.ratingDeltaBadge(0, 0.52), { cls: "up frac", text: "+0.52" });
   T.setLang("nl");
+});
+
+test("toEvent — een extra met het humor-label (fun, db/99) houdt die vlag; zonder vlag (oude server) en bij het hoofdfeit blijft het een gewone 💡", () => {
+  const { toEvent, I18N } = globalThis.__T;
+  const ev = toEvent({
+    year: 1700,
+    facts: [{ hash: "aaaaaaaaaa", nl: "hoofd", en: "main", fun: true, source: "https://en.wikipedia.org/wiki/X" }],
+    extras: [{ hash: "bbbbbbbbbb", nl: "gewoon", en: "plain" }, { hash: "cccccccccc", nl: "gek", en: "weird", fun: true }],
+  });
+  assert.equal(ev.extras[0].fun, false);
+  assert.equal(ev.extras[1].fun, true);
+  assert.equal(ev.extras[1].nl, "gek");
+  assert.equal(ev.facts[0].fun, undefined);           // hoofdfeit: geen 🎭-kopje
+  assert.equal(ev.source, "https://en.wikipedia.org/wiki/X");
+  for (const code of Object.keys(I18N)) assert.ok(I18N[code].fun_label, `fun_label ontbreekt in ${code}`);
 });

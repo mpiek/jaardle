@@ -167,7 +167,7 @@ const I18N = {
     hint_later: "⏩ 100 jaar later", hint_later_n: (y) => `⏩ ${y} jaar later`, hint_digit: "🔢 Laatste cijfer",
     century_band: "🏛️ Tijdvak", bc: "v.Chr.",
     reveal: "Onthul",
-    main_label: "Dit jaar", extra_label: "Ook dit jaar",
+    main_label: "Dit jaar", extra_label: "Ook dit jaar", fun_label: "Gek maar waar",
     century_label: "Tijdvak",
     digit_label: "Laatste cijfer",
     score_label: "punten",
@@ -506,7 +506,7 @@ const I18N = {
     hint_later: "⏩ 100 years later", hint_later_n: (y) => `⏩ ${y} years later`, hint_digit: "🔢 Last digit",
     century_band: "🏛️ Era", bc: "BC",
     reveal: "Reveal",
-    main_label: "This year", extra_label: "Also this year",
+    main_label: "This year", extra_label: "Also this year", fun_label: "Weird but true",
     century_label: "Era",
     digit_label: "Last digit",
     score_label: "points",
@@ -848,7 +848,7 @@ const I18N = {
     hint_later: "⏩ 100 Jahre später", hint_later_n: (y) => `⏩ ${y} Jahre später`, hint_digit: "🔢 Letzte Ziffer",
     century_band: "🏛️ Epoche", bc: "v. Chr.",
     reveal: "Aufdecken",
-    main_label: "Dieses Jahr", extra_label: "Auch dieses Jahr",
+    main_label: "Dieses Jahr", extra_label: "Auch dieses Jahr", fun_label: "Kurios, aber wahr",
     century_label: "Epoche",
     digit_label: "Letzte Ziffer",
     score_label: "Punkte",
@@ -1184,7 +1184,7 @@ const I18N = {
     hint_later: "⏩ 100 años después", hint_later_n: (y) => `⏩ ${y} años después`, hint_digit: "🔢 Última cifra",
     century_band: "🏛️ Época", bc: "a. C.",
     reveal: "Revelar",
-    main_label: "Este año", extra_label: "También este año",
+    main_label: "Este año", extra_label: "También este año", fun_label: "Raro, pero cierto",
     century_label: "Época",
     digit_label: "Última cifra",
     score_label: "Puntos",
@@ -1525,7 +1525,7 @@ const I18N = {
     hint_later: "⏩ 100 anos depois", hint_later_n: (y) => `⏩ ${y} anos depois`, hint_digit: "🔢 Último algarismo",
     century_band: "🏛️ Era", bc: "a.C.",
     reveal: "Revelar",
-    main_label: "Este ano", extra_label: "Também neste ano",
+    main_label: "Este ano", extra_label: "Também neste ano", fun_label: "Estranho, mas verdade",
     century_label: "Era",
     digit_label: "Último algarismo",
     score_label: "Pontos",
@@ -2128,10 +2128,13 @@ function arraysEqual(a, b) {
 // state.hashes is het share-token (main eerst).
 function toEvent(puzzle) {
   const map = (f) => Object.fromEntries(LANG_CODES.map((c) => [c, f[c] || ""]));
+  // fun = feit met het humor-label (fact_humor, db/99): als extra krijgt het z'n eigen
+  // 🎭-kopje ("Gek maar waar"); oude servers sturen de vlag niet mee → gewone 💡.
+  const mapExtra = (f) => ({ ...map(f), fun: !!f.fun });
   return {
     year: puzzle.year,
     facts: (puzzle.facts || []).map(map),
-    extras: (puzzle.extras || []).map(map),
+    extras: (puzzle.extras || []).map(mapExtra),
     source: puzzle.facts?.[0]?.source || "",
   };
 }
@@ -2683,7 +2686,13 @@ function renderEvent() {
   slides.forEach((s) => {
     const slide = document.createElement("div");
     slide.className = "fact-slide";
-    if (s.kind === "extra") {
+    if (s.kind === "extra" && s.fun) {
+      // Zelfde-tijd-extra met het humor-label (db/99): 🎭 "Gek maar waar", roze.
+      // Telt verder gewoon als 💡-extra (gratis, ankerfeit, zelfde jaar).
+      slide.classList.add("slide-extra", "slide-fun");
+      slide.appendChild(buildSlideTag("extra-tag fun-tag", "extra-icon", "🎭", t("fun_label")));
+      slide.appendChild(factParagraph(s[lang] || s[DEFAULT_LANG], "fact-extra fact-fun"));
+    } else if (s.kind === "extra") {
       // Gele zelfde-tijd-extra: 💡 + label boven het feit.
       slide.classList.add("slide-extra");
       slide.appendChild(buildSlideTag("extra-tag", "extra-icon", "💡", t("extra_label")));
@@ -2737,8 +2746,8 @@ function renderEvent() {
     slides.forEach((s, i) => {
       const d = document.createElement("button");
       d.type = "button";
-      d.className = `fact-dot k-${s.kind}` + (i === factSlideIndex ? " active" : "");
-      d.textContent = DOT_EMOJI[s.kind] || "•";
+      d.className = `fact-dot k-${s.kind}` + (s.fun ? " k-fun" : "") + (i === factSlideIndex ? " active" : "");
+      d.textContent = s.fun ? "🎭" : (DOT_EMOJI[s.kind] || "•");
       d.setAttribute("aria-label", `${i + 1}/${slides.length}`);
       d.addEventListener("click", () => goToSlide(i));
       track.appendChild(d);
