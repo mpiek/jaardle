@@ -1396,6 +1396,23 @@ html[data-theme="light"], html[data-theme="parchment"] {
   color: var(--accent, #ffd54f);
   font-variant-numeric: tabular-nums;
 }
+/* Zeldzame vondsten (db/110). Het vakje van een eigen tekening die nog laadt (/vondsten.js): een zacht gouden stipje i.p.v. een gat. */
+.vf-ph { border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, #f4c430 40%, transparent) 0 34%, transparent 37%); }
+/* Zeldzaamheidskleur (nu alleen Legendarisch): goud op donker, dieper goud op licht en perkament; de pop-up-kaart is altijd donker. */
+.vd-r3 { --rar: #f5c04a; }
+html[data-theme="light"] .vd-r3, html[data-theme="parchment"] .vd-r3 { --rar: #9a6400; }
+.rw-card .vd-r3 { --rar: #f5c04a; }
+.vd-chip { display: inline-block; margin-top: 8px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rar); border: 1px solid color-mix(in srgb, var(--rar) 60%, transparent); background: color-mix(in srgb, var(--rar) 12%, transparent); border-radius: 999px; padding: 3px 10px; }
+/* Album (Prestaties): de jaarzegel-opzet; gevonden = de tekening op een zegel met een gloeiende ring, onbekend = het ?-zegel. */
+button.vd-stamp { appearance: none; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+button.vd-stamp:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+.vd-st { position: relative; display: inline-block; width: 76px; height: 76px; border-radius: 50%; }
+.vd-st .achv-art { display: block; }
+.vd-st-fl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; line-height: 1; }
+.vd-stamp:not(.locked) .vd-st { box-shadow: 0 0 0 2px var(--rar), 0 0 16px -2px color-mix(in srgb, var(--rar) 70%, transparent); }
+.vd-lock { box-shadow: 0 0 0 2px color-mix(in srgb, var(--rar) 75%, transparent); }
+.vd-rar { font-size: 0.7rem; font-weight: 800; color: var(--rar); white-space: nowrap; }
+
 /* Gedeelde of zelfgebouwde link (db/108): speelbaar, maar telt nergens voor. Eén rustige regel onder de score. */
 .shared-note {
   margin-top: 0.35rem;

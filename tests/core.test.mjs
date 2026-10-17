@@ -77,6 +77,7 @@ src += `
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
   resolveRecord, reconstructDailyBoard, stampParam,
+  VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -3987,4 +3988,98 @@ test("resolveRecord — een gedeelde link (?p=, niet uit de eigen cache) wordt e
     assert.ok(!rec.stamp);
     assert.deepEqual(T.stampParam({ mode: rec.mode, ...rec }), {}, "en dus stuurt record_play geen stempel mee");
   });
+});
+
+// --- db/110: zeldzame vondsten ---------------------------------------------------------------------------------------------
+const VLIB_SRC = readFileSync(join(dir, "..", "vondsten.js"), "utf8");
+function withVondstLib(fn) {
+  const saved = globalThis.VondstFlairs;
+  (0, eval)(VLIB_SRC);
+  try { return fn(globalThis.VondstFlairs); } finally { globalThis.VondstFlairs = saved; }
+}
+
+test("vondsten — 18 vondsten met unieke id's en flairs, namen in alle vijf de talen, 35 feiten die elk naar een bekende vondst wijzen", () => {
+  assert.equal(T.VONDSTEN.length, 18);
+  assert.equal(new Set(T.VONDSTEN.map((v) => v.id)).size, 18);
+  assert.equal(new Set(T.VONDSTEN.map((v) => v.flair)).size, 18);
+  for (const v of T.VONDSTEN) {
+    for (const l of ["nl", "en", "de", "es", "pt"]) assert.ok(v.names[l], `${v.id}: naam in ${l}`);
+    assert.ok(v.cls ? v.flair === "v:" + v.id : !v.flair.startsWith("v:"), `${v.id}: een eigen tekening heeft flair v:<id>, een gewone emoji niet`);
+  }
+  const ids = new Set(T.VONDSTEN.map((v) => v.id));
+  assert.equal(Object.keys(T.FIND_FACTS).length, 35);
+  for (const [h, id] of Object.entries(T.FIND_FACTS)) { assert.match(h, /^[0-9a-f]{10}$/); assert.ok(ids.has(id), h); }
+  for (const id of ids) assert.ok(Object.values(T.FIND_FACTS).includes(id), `${id} heeft minstens één feit`);
+  assert.ok(!T.FLAIR_OPTIONS.includes("🦄"), "🦄 is geen vrije flair meer (de eenhoorn is een vondst)");
+});
+
+test("vondsten.js — elke eigen tekening is er, id-vrij, met de eigen klasse; de CSS blijft binnen die klasse", () => {
+  withVondstLib((lib) => {
+    for (const v of T.VONDSTEN.filter((x) => x.cls)) {
+      const svg = lib.svg[v.id];
+      assert.ok(svg, v.id);
+      assert.ok(svg.includes(`class="emoji-anim ${v.cls}"`), `${v.id}: klasse ${v.cls}`);
+      for (const bad of [" id=", "<defs", "Gradient", "<filter", "<mask", "clipPath", "<use", "<text", "<image"]) assert.ok(!svg.includes(bad), `${v.id}: geen ${bad}`);
+    }
+    const css = lib.css.replace(/\/\*[\s\S]*?\*\//g, "");
+    const own = new Set(T.VONDSTEN.filter((x) => x.cls).map((x) => x.cls));
+    for (const m of css.matchAll(/(@?[^{}]+)\{/g)) {
+      const sel = m[1].trim();
+      if (sel.startsWith("@keyframes")) { assert.ok(own.has(sel.split(/\s+/)[1].split("-")[0]), sel); continue; }
+      if (sel.startsWith("@media") || /^(from|to|[\d.]+%)/.test(sel)) continue;
+      for (const part of sel.split(",").map((x) => x.trim()).filter(Boolean)) {
+        if (/^(from|to|[\d.%, ]+)$/.test(part)) continue;
+        assert.ok(own.has(part.slice(1).split(/[ .:[]/)[0]), `CSS buiten een eigen klasse: ${part}`);
+      }
+    }
+  });
+});
+
+test("vondst-flair — stil overal waar HTML mag, bewegend op rang 1 en in de pop-up; ✨ waar alleen tekst kan; effecten werken gewoon", () => {
+  withVondstLib(() => {
+    assert.ok(T.isDrawnFlair("v:ring") && !T.isDrawnFlair("🦄") && !T.isDrawnFlair("v:bestaatniet") && !T.isDrawnFlair(null));
+    assert.equal(T.flairTextGlyph("v:ring"), "✨");
+    assert.equal(T.flairTextGlyph("🔥"), "🔥");
+    assert.equal(T.flairGlyphHtml("🔥"), "🔥");
+    const still = T.flairStaticHtml("v:ring");
+    assert.ok(still.includes("rg rg-still vf-still"), "stil = de tekening zonder animatie");
+    const badge1 = T.flairBadgeHtml("v:ring", 1), badge4 = T.flairBadgeHtml("v:ring", 4);
+    assert.ok(badge1.includes('class="emoji-anim rg"') && !badge1.includes("rg-still"), "rang 1 beweegt");
+    assert.ok(badge4.includes("rg-still"), "de rest staat stil");
+    assert.ok(!badge4.includes("v:ring<") && !still.includes(">v:ring"), "nooit de id als tekst");
+    assert.ok(T.flairPreviewHtml("v:jackalope").includes('class="emoji-anim jk"'));
+    assert.deepEqual(T.parseFlair("v:ring~sparkle"), { emoji: "v:ring", fx: "sparkle" });
+    assert.equal(T.flairBadgeHtml("🦄", 4).includes("🦄"), true, "de eenhoorn blijft een gewone emoji");
+  });
+});
+
+test("vondsten — verdiende flairs en beloningen komen uit finds (compute_achievements); de pop-ups staan vóór de obsidiaan-finale", () => {
+  const wasUser = T.auth.user, wasLang = T.I18N ? null : null;
+  try {
+    T.auth.user = { uid: "u" };
+    T.setAchv({ ...mkAch([0, 0, 0, 0, 0]), finds: ["ring", "unicorn"] });
+    const flairs = T.achvEarnedFlairs();
+    assert.ok(flairs.includes("v:ring") && flairs.includes("🦄"));
+    const keys = T.earnedRewardKeys();
+    assert.ok(keys.includes("fv_ring") && keys.includes("fv_unicorn") && !keys.includes("fv_blobfish"));
+    assert.ok(T.REWARD_ORDER.indexOf("fv_ring") < T.REWARD_ORDER.indexOf("fl_obsidian"));
+    for (const v of T.VONDSTEN) assert.ok(T.REWARD_ORDER.includes("fv_" + v.id) && T.REWARDS["fv_" + v.id].sect === "flair", v.id);
+    T.setLang("nl"); assert.equal(T.rewardName("fv_ring"), "Ringdrager");
+    T.setLang("en"); assert.equal(T.rewardName("fv_penguin-knight"), "Sir Penguin");
+    assert.ok(T.findsRowHtml({ finds: ["ring", "unicorn"] }).includes("2/18"));
+    T.setAchv({ ...mkAch([0, 0, 0, 0, 0]) });
+    assert.ok(!T.earnedRewardKeys().some((k) => k.startsWith("fv_")), "zonder finds geen vondst-pop-up");
+  } finally { T.auth.user = wasUser; T.setAchv(null); T.setLang("nl"); }
+});
+
+test("anonFindOf — alleen een gewonnen, organisch (gestempeld) vrij potje met een vondst-feit (hoofdfeit of 💡) telt", () => {
+  const [h, id] = Object.entries(T.FIND_FACTS)[0];
+  const base = { mode: "free", won: true, stamp: "1760700000.a1b2c3d4.0123456789abcdef", shared: false };
+  assert.equal(T.anonFindOf({ ...base, hashes: [h, "1111111111", "2222222222"] }), id, "hoofdfeit");
+  assert.equal(T.anonFindOf({ ...base, hashes: ["1111111111", h, "2222222222"] }), id, "💡-extra");
+  assert.equal(T.anonFindOf({ ...base, hashes: ["1111111111"] }), null);
+  assert.equal(T.anonFindOf({ ...base, won: false, hashes: [h] }), null, "verloren");
+  assert.equal(T.anonFindOf({ ...base, stamp: null, hashes: [h] }), null, "zonder stempel");
+  assert.equal(T.anonFindOf({ ...base, shared: true, hashes: [h] }), null, "gedeeld");
+  assert.equal(T.anonFindOf({ ...base, mode: "daily", hashes: [h] }), null, "de daily heeft geen vondsten");
 });
