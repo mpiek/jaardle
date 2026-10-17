@@ -401,7 +401,7 @@ const I18N = {
     achv_t_nailbiter: "Nagelbijter", achv_t_nailbiter_sub: "win na 2× nog maar net mis (≤2 jaar)",
     achv_t_week: "Perfecte week", achv_t_week_sub: "win alle 7 dailies van één week (ma–zo)",
     achv_t_spicy: "Vuurproef", achv_t_spicy_sub: "win een 🌶️🌶️🌶️-dag (hoogste moeilijkheidsgraad)",
-    achv_t_fun: "Gek maar waar", achv_t_fun_sub: "speel een dag met een 🎭-feit",
+    achv_t_fun: "Gek maar waar", achv_t_fun_sub: "speel een potje met een 🎭-feit",
     achv_flair_note: (e, tier) => `bij ${tier} verdien je de ${e}-flair voor op het leaderboard`,
     achv_flair_note_multi: (list) => `flairs voor op het leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `hiermee verdien je de ${e}-flair voor op het leaderboard`,
@@ -744,7 +744,7 @@ const I18N = {
     achv_t_nailbiter: "Tightrope", achv_t_nailbiter_sub: "win after missing by ≤2 years, twice",
     achv_t_week: "Perfect week", achv_t_week_sub: "win all 7 dailies in one week (Mon–Sun)",
     achv_t_spicy: "Trial by fire", achv_t_spicy_sub: "win a 🌶️🌶️🌶️ day (hardest difficulty)",
-    achv_t_fun: "Weird but true", achv_t_fun_sub: "play a day with a 🎭 fact",
+    achv_t_fun: "Weird but true", achv_t_fun_sub: "play a game with a 🎭 fact",
     achv_flair_note: (e, tier) => `reach ${tier} to earn the ${e} flair for the leaderboard`,
     achv_flair_note_multi: (list) => `flairs for the leaderboard: ${list}`,
     achv_flair_note_flat: (e) => `earns you the ${e} flair for the leaderboard`,
@@ -1082,7 +1082,7 @@ const I18N = {
     achv_t_nailbiter: "Drahtseilakt", achv_t_nailbiter_sub: "gewinne, nachdem du 2× nur knapp (≤2 Jahre) danebenlagst",
     achv_t_week: "Perfekte Woche", achv_t_week_sub: "gewinne alle 7 Dailies einer Woche (Mo–So)",
     achv_t_spicy: "Feuerprobe", achv_t_spicy_sub: "gewinne einen 🌶️🌶️🌶️-Tag (höchster Schwierigkeitsgrad)",
-    achv_t_fun: "Kurios, aber wahr", achv_t_fun_sub: "spiele einen Tag mit einem 🎭-Fakt",
+    achv_t_fun: "Kurios, aber wahr", achv_t_fun_sub: "spiele eine Partie mit einem 🎭-Fakt",
     achv_flair_note: (e, tier) => `ab ${tier} verdienst du das ${e}-Flair für die Bestenliste`,
     achv_flair_note_multi: (list) => `Flairs für die Bestenliste: ${list}`,
     achv_flair_note_flat: (e) => `damit verdienst du das ${e}-Flair für die Bestenliste`,
@@ -1424,7 +1424,7 @@ const I18N = {
     achv_t_nailbiter: "Cuerda floja", achv_t_nailbiter_sub: "gana tras fallar por ≤2 años, dos veces",
     achv_t_week: "Semana perfecta", achv_t_week_sub: "gana los 7 retos diarios de una semana (lun–dom)",
     achv_t_spicy: "Prueba de fuego", achv_t_spicy_sub: "gana un día 🌶️🌶️🌶️ (dificultad máxima)",
-    achv_t_fun: "Raro, pero cierto", achv_t_fun_sub: "juega un día con un dato 🎭",
+    achv_t_fun: "Raro, pero cierto", achv_t_fun_sub: "juega una partida con un dato 🎭",
     achv_flair_note: (e, tier) => `al llegar a ${tier} ganas el distintivo ${e} para la clasificación`,
     achv_flair_note_multi: (list) => `distintivos para la clasificación: ${list}`,
     achv_flair_note_flat: (e) => `te hace ganar el distintivo ${e} para la clasificación`,
@@ -1766,7 +1766,7 @@ const I18N = {
     achv_t_nailbiter: "Corda bamba", achv_t_nailbiter_sub: "vença após errar por ≤2 anos, duas vezes",
     achv_t_week: "Semana perfeita", achv_t_week_sub: "vença os 7 desafios diários de uma semana (seg–dom)",
     achv_t_spicy: "Prova de fogo", achv_t_spicy_sub: "vença um dia 🌶️🌶️🌶️ (dificuldade máxima)",
-    achv_t_fun: "Estranho, mas verdade", achv_t_fun_sub: "jogue um dia com um fato 🎭",
+    achv_t_fun: "Estranho, mas verdade", achv_t_fun_sub: "jogue uma partida com um fato 🎭",
     achv_flair_note: (e, tier) => `ao chegar a ${tier} você ganha o emblema ${e} para o placar`,
     achv_flair_note_multi: (list) => `emblemas para o placar: ${list}`,
     achv_flair_note_flat: (e) => `faz você ganhar o emblema ${e} para o placar`,
@@ -8301,14 +8301,15 @@ const ACHV_TROPHIES = [
   { key: "last_gasp", i18n: "achv_t_last",     art: "chute",    repeatable: true, tiers: [1, 8, 25, 70, 175, 400], flairFx: "timer", flairFxAt: 2 },
   { key: "zigzag",    i18n: "achv_t_zigzag",   art: "pendulum", repeatable: true, tiers: [1, 6, 18, 45, 90, 180], flairFx: "pendulum", flairFxAt: 3 }, // win na zowel te vroege als te late gok
   { key: "nailbiter", i18n: "achv_t_nailbiter",art: "tightrope",repeatable: true, tiers: [1, 6, 18, 45, 90, 180], flairFx: "sweat", flairFxAt: 2 }, // win na ≥2 gokken die ≤2 jaar ("veryclose") ernaast zaten
+  // 🎭 Gek maar waar (17/10/2026): elk gespeeld potje (winst of verlies, daily één keer per dag) waarin een 💡-extra het humor-label
+  // had (db/99); de server zet plays.fun bij de insert (db/104). Een daily heeft ±42% kans, een vrij potje ±2%: diamant (120, de
+  // 🎭-flair; gate in set_my_flair) is ±9 maanden alleen de daily, met veel vrij spel ±3–5 maanden. Telt vanaf de lancering (16/10).
+  { key: "fun",       i18n: "achv_t_fun",      art: "masks",    repeatable: true, tiers: [1, 10, 25, 60, 120, 250], flair: { emoji: "🎭", at: 4 } },
   { key: "perfect_week", i18n: "achv_t_week",   art: "weekcheck", repeatable: true, daily: true, tiers: [1, 3, 8, 16, 30, 52] }, // win alle 7 dailies van een ma–zo week — daily-trofee, NIET retroactief (telt vanaf PERFECT_WEEK_SINCE, zie perfectWeeks); client-side afgeleid uit de daghistorie, geen server-teller
   // win een 🌶️🌶️🌶️-daily (hardste band). Treden sinds 12/10/2026 (db/93): band-3-dagen vallen ~1× per week, dus goud (10) is
   // ruim een seizoen winnen en obsidiaan (100) een paar jaar. Goud geeft de 🌶️-flair (eigen SVG, zie FLAIR_SVG; gate in
   // set_my_flair), platina (25) het Vonken-effect — hetzelfde getal als vóór de treden, dus de server-gate schoof niet.
   { key: "spicy",     i18n: "achv_t_spicy",    art: "pepper",   repeatable: true, daily: true, tiers: [1, 5, 10, 25, 50, 100], flair: { emoji: "🌶️", at: 2 }, flairFx: "ember", flairFxAt: 3 },
-  // 🎭 Gek maar waar (17/10/2026, db/103): elke gespeelde daily (winst of verlies) waarop een 💡-extra het humor-label heeft (db/99).
-  // ±42% van de dagen heeft er een, dus diamant (80, de 🎭-flair; gate in set_my_flair) is ±een half jaar elke dag spelen.
-  { key: "fun",       i18n: "achv_t_fun",      art: "masks",    repeatable: true, daily: true, tiers: [1, 5, 15, 40, 80, 150], flair: { emoji: "🎭", at: 4 } },
   { key: "flawless",  i18n: "achv_t_flawless", art: "shine", flairFx: "sparkle" },   // 5 perfecte 100's op rij → ✨ sprankel-effect (FLAIR_FX)
   { key: "saver",     i18n: "achv_t_saver",    art: "buoy", daily: true },
   { key: "eras",      i18n: "achv_t_eras",     art: "timering", flair: { emoji: "🦕" }, repeatable: true, tiers: [1, 5, 15, 35, 70, 130] },
@@ -8674,7 +8675,7 @@ function achvNormalize(a) {
     flawless: !!a.flawless,
     eras: a.eras || 0,   // aantal voltooide cycli door alle 6 tijdperken (v192+; was ooit-array)
     zigzag: a.zigzag || 0, nailbiter: a.nailbiter || 0, spicy: a.spicy || 0,
-    fun: a.fun || 0,   // 🎭 Gek maar waar (db/103): daily's met een 🎭-feit, winst of verlies
+    fun: a.fun || 0,   // 🎭 Gek maar waar (db/103+104): potjes met een 🎭-feit, winst of verlies
     perfect_week: a.perfect_week || 0,   // volledig client-side afgeleid uit de daghistorie (zie fetchAchievements) — geen server-veld
     obsidian: !!a.obsidian,   // gepinde titel JM uit player_titles (db/59), niet herberekend
     legend: !!a.legend,       // gepinde titel GM uit player_titles (db/59)
@@ -8746,8 +8747,8 @@ function recordAchvLocal() {
   // "Vlekkeloos": lopende reeks perfecte 100's; een niet-perfecte pot (of verlies) breekt 'm.
   l.perfectRun = perfect ? (l.perfectRun || 0) + 1 : 0;
   if (l.perfectRun >= FLAWLESS_RUN) l.flawless = true;
-  // "Gek maar waar": een daily met een 🎭-extra (fun-vlag uit _puzzle_json) telt, gewonnen of niet.
-  if (state.mode === "daily" && (state.event.extras || []).some((x) => x.fun)) l.fun = (l.fun || 0) + 1;
+  // "Gek maar waar": een potje met een 🎭-extra (fun-vlag uit _puzzle_json) telt, daily of vrij spel, gewonnen of niet.
+  if ((state.event.extras || []).some((x) => x.fun)) l.fun = (l.fun || 0) + 1;
   if (state.won) {
     if (perfect) l.perfect = (l.perfect || 0) + 1;
     if (state.laterCluesShown === 0 && state.directionsRevealed.length === 0 &&
@@ -9291,7 +9292,7 @@ const REWARDS = {
   fl_moai:      { emoji: "🗿", cat: "flair",  sect: "flair" },
   fl_dino:      { emoji: "🦕", cat: "flair",  sect: "flair" },
   fl_pepper:    { emoji: "🌶️", cat: "flair",  sect: "flair" },     // Vuurproef-goud (10 gewonnen 🌶️🌶️🌶️-dagen, db/93); eigen SVG-animatie (FLAIR_SVG)
-  fl_masks:     { emoji: "🎭", cat: "flair",  sect: "flair" },     // Gek maar waar-diamant (80 daily's met een 🎭-feit, db/103)
+  fl_masks:     { emoji: "🎭", cat: "flair",  sect: "flair" },     // Gek maar waar-diamant (120 potjes met een 🎭-feit, db/104)
   // 12/10/2026 (db/91): vier ladder-flairs die vrij waren + 💎 op capstone-diamant
   fl_glowstar:  { emoji: "🌟", cat: "flair",  sect: "flair" },     // dailies 60
   fl_fire:      { emoji: "🔥", cat: "flair",  sect: "flair" },     // streak 30
