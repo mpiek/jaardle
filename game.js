@@ -167,7 +167,7 @@ const I18N = {
     hint_later: "⏩ 100 jaar later", hint_later_n: (y) => `⏩ ${y} jaar later`, hint_digit: "🔢 Laatste cijfer",
     century_band: "🏛️ Tijdvak", bc: "v.Chr.",
     reveal: "Onthul",
-    main_label: "Dit jaar", extra_label: "Ook dit jaar", fun_label: "Gek maar waar",
+    main_label: "Dit jaar", extra_label: "Ook dit jaar", fun_label: "Gek maar waar", tag_wow: "Niet te geloven", tag_mys: "Onopgelost", tag_rec: "Record of primeur", tag_warm: "Hartverwarmend", tag_spook: "Griezelig",
     century_label: "Tijdvak",
     digit_label: "Laatste cijfer",
     score_label: "punten",
@@ -507,7 +507,7 @@ const I18N = {
     hint_later: "⏩ 100 years later", hint_later_n: (y) => `⏩ ${y} years later`, hint_digit: "🔢 Last digit",
     century_band: "🏛️ Era", bc: "BC",
     reveal: "Reveal",
-    main_label: "This year", extra_label: "Also this year", fun_label: "Weird but true",
+    main_label: "This year", extra_label: "Also this year", fun_label: "Weird but true", tag_wow: "Unbelievable but true", tag_mys: "Unsolved", tag_rec: "Record or first", tag_warm: "Heartwarming", tag_spook: "Spooky",
     century_label: "Era",
     digit_label: "Last digit",
     score_label: "points",
@@ -850,7 +850,7 @@ const I18N = {
     hint_later: "⏩ 100 Jahre später", hint_later_n: (y) => `⏩ ${y} Jahre später`, hint_digit: "🔢 Letzte Ziffer",
     century_band: "🏛️ Epoche", bc: "v. Chr.",
     reveal: "Aufdecken",
-    main_label: "Dieses Jahr", extra_label: "Auch dieses Jahr", fun_label: "Kurios, aber wahr",
+    main_label: "Dieses Jahr", extra_label: "Auch dieses Jahr", fun_label: "Kurios, aber wahr", tag_wow: "Kaum zu glauben", tag_mys: "Ungelöst", tag_rec: "Rekord oder Premiere", tag_warm: "Herzerwärmend", tag_spook: "Gruselig",
     century_label: "Epoche",
     digit_label: "Letzte Ziffer",
     score_label: "Punkte",
@@ -1187,7 +1187,7 @@ const I18N = {
     hint_later: "⏩ 100 años después", hint_later_n: (y) => `⏩ ${y} años después`, hint_digit: "🔢 Última cifra",
     century_band: "🏛️ Época", bc: "a. C.",
     reveal: "Revelar",
-    main_label: "Este año", extra_label: "También este año", fun_label: "Raro, pero cierto",
+    main_label: "Este año", extra_label: "También este año", fun_label: "Raro, pero cierto", tag_wow: "Increíble pero cierto", tag_mys: "Sin resolver", tag_rec: "Récord o primicia", tag_warm: "Conmovedor", tag_spook: "Escalofriante",
     century_label: "Época",
     digit_label: "Última cifra",
     score_label: "Puntos",
@@ -1529,7 +1529,7 @@ const I18N = {
     hint_later: "⏩ 100 anos depois", hint_later_n: (y) => `⏩ ${y} anos depois`, hint_digit: "🔢 Último algarismo",
     century_band: "🏛️ Era", bc: "a.C.",
     reveal: "Revelar",
-    main_label: "Este ano", extra_label: "Também neste ano", fun_label: "Estranho, mas verdade",
+    main_label: "Este ano", extra_label: "Também neste ano", fun_label: "Estranho, mas verdade", tag_wow: "Inacreditável, mas verdade", tag_mys: "Sem solução", tag_rec: "Recorde ou pioneirismo", tag_warm: "Comovente", tag_spook: "Arrepiante",
     century_label: "Era",
     digit_label: "Último algarismo",
     score_label: "Pontos",
@@ -2127,6 +2127,18 @@ function arraysEqual(a, b) {
     a.every((v, i) => v === b[i]);
 }
 
+// Kopjes voor een 💡-extra met een verhaal-label (db/99 humor, db/106 fact_traits sterkte ≥ 4): emoji, CSS-naam
+// (extra-tag <cls>-tag, fact-<cls>, kleur --h-<cls>) en de I18N-sleutel van het label. Telt verder als gewone 💡.
+const STORY_TAGS = {
+  fun: { emoji: "🎭", cls: "fun", label: "fun_label" },      // gek maar waar
+  a:   { emoji: "🤯", cls: "wow", label: "tag_wow" },        // niet te geloven
+  m:   { emoji: "🔍", cls: "mys", label: "tag_mys" },        // onopgelost
+  f:   { emoji: "🏆", cls: "rec", label: "tag_rec" },        // record of primeur
+  w:   { emoji: "❤️", cls: "warm", label: "tag_warm" },      // hartverwarmend
+  d:   { emoji: "👻", cls: "spook", label: "tag_spook" },    // griezelig
+};
+const storyTagOf = (s) => (s && s.kind === "extra" && STORY_TAGS[s.tag]) || null;
+
 // Een puzzle komt zo van de RPC's:
 //   { year, hashes:[main,...extras], facts:[{hash,nl,en,source}], extras:[...] }
 // state.event is de UI-vorm ({year, facts:[{nl,en}], extras:[{nl,en}], source});
@@ -2135,7 +2147,8 @@ function toEvent(puzzle) {
   const map = (f) => Object.fromEntries(LANG_CODES.map((c) => [c, f[c] || ""]));
   // fun = feit met het humor-label (fact_humor, db/99): als extra krijgt het z'n eigen
   // 🎭-kopje ("Gek maar waar"); oude servers sturen de vlag niet mee → gewone 💡.
-  const mapExtra = (f) => ({ ...map(f), fun: !!f.fun });
+  // tag (db/106): 'fun' of de toon van een sterk verhaal (a m f w d) → eigen kopje, zie STORY_TAGS.
+  const mapExtra = (f) => ({ ...map(f), fun: !!f.fun, tag: f.fun ? "fun" : (STORY_TAGS[f.tag] ? f.tag : null) });
   return {
     year: puzzle.year,
     facts: (puzzle.facts || []).map(map),
@@ -2691,12 +2704,13 @@ function renderEvent() {
   slides.forEach((s) => {
     const slide = document.createElement("div");
     slide.className = "fact-slide";
-    if (s.kind === "extra" && s.fun) {
-      // Zelfde-tijd-extra met het humor-label (db/99): 🎭 "Gek maar waar", roze.
-      // Telt verder gewoon als 💡-extra (gratis, ankerfeit, zelfde jaar).
-      slide.classList.add("slide-extra", "slide-fun");
-      slide.appendChild(buildSlideTag("extra-tag fun-tag", "extra-icon", "🎭", t("fun_label")));
-      slide.appendChild(factParagraph(s[lang] || s[DEFAULT_LANG], "fact-extra fact-fun"));
+    const tg = storyTagOf(s);
+    if (tg) {
+      // Zelfde-tijd-extra met een verhaal-label: 🎭 "Gek maar waar" (db/99) of 🤯 🔍 🏆 ❤️ 👻 (db/106),
+      // elk met een eigen kleur. Telt verder gewoon als 💡-extra (gratis, ankerfeit, zelfde jaar).
+      slide.classList.add("slide-extra", `slide-${tg.cls}`);
+      slide.appendChild(buildSlideTag(`extra-tag ${tg.cls}-tag`, "extra-icon", tg.emoji, t(tg.label)));
+      slide.appendChild(factParagraph(s[lang] || s[DEFAULT_LANG], `fact-extra fact-${tg.cls}`));
     } else if (s.kind === "extra") {
       // Gele zelfde-tijd-extra: 💡 + label boven het feit.
       slide.classList.add("slide-extra");
@@ -2751,8 +2765,9 @@ function renderEvent() {
     slides.forEach((s, i) => {
       const d = document.createElement("button");
       d.type = "button";
-      d.className = `fact-dot k-${s.kind}` + (s.fun ? " k-fun" : "") + (i === factSlideIndex ? " active" : "");
-      d.textContent = s.fun ? "🎭" : (DOT_EMOJI[s.kind] || "•");
+      const tg = storyTagOf(s);
+      d.className = `fact-dot k-${s.kind}` + (tg ? ` k-${tg.cls}` : "") + (i === factSlideIndex ? " active" : "");
+      d.textContent = tg ? tg.emoji : (DOT_EMOJI[s.kind] || "•");
       d.setAttribute("aria-label", `${i + 1}/${slides.length}`);
       d.addEventListener("click", () => goToSlide(i));
       track.appendChild(d);

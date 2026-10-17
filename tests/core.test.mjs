@@ -3938,3 +3938,14 @@ test("toEvent — een extra met het humor-label (fun, db/99) houdt die vlag; zon
   assert.equal(ev.source, "https://en.wikipedia.org/wiki/X");
   for (const code of Object.keys(I18N)) assert.ok(I18N[code].fun_label, `fun_label ontbreekt in ${code}`);
 });
+
+test("toEvent — verhaal-kopje (tag, db/106): bekende toon blijft, onbekende of ontbrekende tag → null, humor wint", () => {
+  const { toEvent, I18N } = globalThis.__T;
+  const ev = toEvent({
+    year: 1700, facts: [{ hash: "aaaaaaaaaa", nl: "hoofd", en: "main" }],
+    extras: [{ hash: "b", nl: "x", en: "x", tag: "d" }, { hash: "c", nl: "y", en: "y", tag: "zz" }, { hash: "e", nl: "z", en: "z" },
+             { hash: "g", nl: "q", en: "q", fun: true, tag: "fun" }],
+  });
+  assert.deepEqual(ev.extras.map((x) => x.tag), ["d", null, null, "fun"]);
+  for (const code of Object.keys(I18N)) for (const k of ["tag_wow", "tag_mys", "tag_rec", "tag_warm", "tag_spook"]) assert.ok(I18N[code][k], `${k} ontbreekt in ${code}`);
+});
