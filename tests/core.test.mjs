@@ -1287,6 +1287,22 @@ test("alle reeksen — 6 treden (obsidiaan = de oude diamant), brons/zilver bevr
   assert.equal(S("games").steps[T.BEER_FX.at], 1500);
 });
 
+test("🎭 Gek maar waar — daily-trofee, flair op diamant = de server-gate (80, db/103), plaatje + animatie + pop-up", () => {
+  const tr = T.ACHV_TROPHIES.find((x) => x.key === "fun");
+  assert.ok(tr && tr.daily && tr.repeatable && tr.art === "masks");
+  assert.equal(tr.tiers[tr.flair.at], 80, "de 🎭-flair hangt op de trede van set_my_flair (fun ≥ 80)");
+  assert.equal(tr.flair.at, 4, "diamant = trede 5");
+  assert.ok(!T.FLAIR_OPTIONS.includes("🎭"), "🎭 is geen vrije flair");
+  assert.equal(T.FLAIR_ANIM["🎭"], "flair-masks");
+  assert.ok(existsSync(join(dir, "..", "emoji", "flair-masks.webp")), "de animatie van de 🎭-flair");
+  assert.ok(T.REWARDS.fl_masks && T.REWARDS.fl_masks.emoji === "🎭" && T.REWARD_ORDER.includes("fl_masks"));
+  assert.match(readFileSync(join(dir, "..", "game.js"), "utf8"), /id=\\"achv-art-masks\\"/);
+  for (const l of Object.keys(T.I18N)) assert.ok(T.I18N[l].achv_t_fun && T.I18N[l].achv_t_fun_sub.includes("🎭"), `${l}: naam + uitleg`);
+  // verdiend pas vanaf diamant
+  assert.equal(T.trophyFlairEarned({ fun: 79 }, tr), false);
+  assert.equal(T.trophyFlairEarned({ fun: 80 }, tr), true);
+});
+
 test("capstoneTier — laagste trede over de 5 ladders, max 6", () => {
   const a = (games, dailies, streak, perfect, pure) => ({ games, dailies, streak, perfect, pure, years: [], rating: null });
   assert.equal(T.capstoneTier(null), 0);
