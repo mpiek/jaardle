@@ -321,6 +321,7 @@ const I18N = {
     streak_saved: (n) => `🔥 Streak gered — ${n} ${n === 1 ? "dag" : "dagen"} op rij!`,
     streak_makeup_lost: "💔 Helaas — de streak is niet gered.",
     makeup_tag: "inhaaldag",
+    shared_note: "Gedeeld potje: dit telt niet mee voor je prestaties of rating.",
     catchup_title_rescue: (streak) => `Red je streak van ${streak}!`,
     catchup_body_rescue: (n, streak) => `Haal álle ${n} gemiste dagen in om je streak van ${streak} te redden.`,
     catchup_title_plain: "Haal gemiste dagen in",
@@ -666,6 +667,7 @@ const I18N = {
     streak_saved: (n) => `🔥 Streak saved — ${n} ${n === 1 ? "day" : "days"} in a row!`,
     streak_makeup_lost: "💔 Sorry — the streak wasn't saved.",
     makeup_tag: "catch-up",
+    shared_note: "Shared game: this doesn't count towards your achievements or rating.",
     catchup_title_rescue: (streak) => `Save your ${streak}-day streak!`,
     catchup_body_rescue: (n, streak) => `Catch up all ${n} missed days to save your ${streak}-day streak.`,
     catchup_title_plain: "Catch up missed days",
@@ -1004,6 +1006,7 @@ const I18N = {
     streak_saved: (n) => `🔥 Serie gerettet — ${n} ${n === 1 ? "Tag" : "Tage"} in Folge!`,
     streak_makeup_lost: "💔 Schade — die Serie wurde nicht gerettet.",
     makeup_tag: "Nachhol-Tag",
+    shared_note: "Geteilte Runde: zählt nicht für deine Erfolge oder dein Rating.",
     catchup_title_rescue: (streak) => `Rette deine ${streak}-Tage-Serie!`,
     catchup_body_rescue: (n, streak) => `Hol alle ${n} verpassten Tage nach, um deine ${streak}-Tage-Serie zu retten.`,
     catchup_title_plain: "Verpasste Tage nachholen",
@@ -1346,6 +1349,7 @@ const I18N = {
     streak_saved: (n) => `🔥 Racha salvada — ¡${n} ${n === 1 ? "día" : "días"} seguidos!`,
     streak_makeup_lost: "💔 Vaya — no se salvó la racha.",
     makeup_tag: "recuperación",
+    shared_note: "Partida compartida: no cuenta para tus logros ni para tu rating.",
     catchup_title_rescue: (streak) => `¡Salva tu racha de ${streak}!`,
     catchup_body_rescue: (n, streak) => `Recupera los ${n} días que te perdiste para salvar tu racha de ${streak}.`,
     catchup_title_plain: "Recupera los días perdidos",
@@ -1688,6 +1692,7 @@ const I18N = {
     streak_saved: (n) => `🔥 Sequência salva — ${n} ${n === 1 ? "dia" : "dias"} seguidos!`,
     streak_makeup_lost: "💔 Que pena — a sequência não foi salva.",
     makeup_tag: "recuperação",
+    shared_note: "Partida compartilhada: não conta para suas conquistas nem para seu rating.",
     catchup_title_rescue: (streak) => `Salve sua sequência de ${streak}!`,
     catchup_body_rescue: (n, streak) => `Recupere todos os ${n} dias perdidos para salvar sua sequência de ${streak}.`,
     catchup_title_plain: "Recupere os dias perdidos",
@@ -4398,6 +4403,13 @@ function finishGame(won, fresh = false) {
     armEmojiFallbacks(scoreLine);
     els.resultText.append(scoreLine);
   }
+  // Gedeelde of zelfgebouwde link (db/108): gewoon speelbaar, maar het telt nergens voor; één rustige regel zegt dat.
+  if (state.shared) {
+    const note = document.createElement("div");
+    note.className = "shared-note";
+    note.textContent = t("shared_note");
+    els.resultText.append(note);
+  }
   els.source.innerHTML = ev.source
     ? `${t("source")} <a href="${ev.source}" target="_blank" rel="noopener">${displaySource(ev.source)}</a> · CC BY-SA`
     : "";
@@ -4465,7 +4477,7 @@ function finishGame(won, fresh = false) {
     const ans = answerCelebrationFx();
     if (ans) showHolidayFx(ans, { lost: true });
   }
-  if (fresh) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel)
+  if (fresh && !state.shared) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel); een gedeeld potje telt niet (db/108)
   if (fresh && state.mode === "daily") recordDailyResult(won);
   appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
   renderEventStrip(fresh);   // de event-stand onder de wereldstatistiek (alleen tijdens een event; na recordDailyResult, dus de pot telt mee)
@@ -4510,8 +4522,15 @@ function finishGame(won, fresh = false) {
   else startDailyCountdown();
 }
 
+// db/108: een vrij potje telt alleen met de stempel die get_random_fact meegaf. Alleen meesturen als we er een hebben:
+// een server van vóór db/108 kent p_stamp niet (dan mislukt de hele aanroep), en een gedeeld potje heeft er geen.
+function stampParam(s) {
+  return s && s.mode === "free" && s.stamp ? { p_stamp: s.stamp } : {};
+}
+
 // Eén rij per afgerond spel naar de DB (fire-and-forget). Idempotent per puzzel
 // zodat herladen/heropenen niet dubbel telt. Geen PII — anon of JWT (server-side).
+// Een gedeeld potje gaat ook naar de server (die beslist), maar zonder ⚡-regel: het telt niet voor je rating.
 function sendTelemetry() {
   const hash = state.hashes?.[0];
   if (!hash) return Promise.resolve();
@@ -4521,7 +4540,8 @@ function sendTelemetry() {
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
   const first = state.guesses[0];
   const prevRating = auth.rating, prevRaw = auth.ratingRaw;
-  const ratingLine = ratingLineStart(prevRating);   // ⚡-regel meteen in beeld met de oude stand
+  const shared = !!state.shared;
+  const ratingLine = shared ? null : ratingLineStart(prevRating);   // ⚡-regel meteen in beeld met de oude stand
   return rpc("record_play", {
     p_fact_hash: hash,
     p_attempts: Math.min(6, Math.max(1, state.guesses.length)),
@@ -4538,10 +4558,11 @@ function sendTelemetry() {
     p_anchor_hash: state.anchorHash || hash,   // feit dat open stond bij de gok (categorie-signaal)
     p_dir_hint_idx: state.directionsRevealed,  // bij wélke gokken 🧭 (db/64) — exact bord bij herstel
     p_client_id: clientId(),   // speler-id (db/72): komt deze speler terug?
+    ...stampParam(state),      // db/108: alleen een organisch vrij potje heeft een stempel
   })
     .then((id) => {
       invalidateHistory();  // verse stats bij volgende opening
-      showLiveRating(ratingLine, prevRating, prevRaw);   // ⚡-delta op het eindscherm (alleen ingelogd)
+      if (!shared) showLiveRating(ratingLine, prevRating, prevRaw);   // ⚡-delta op het eindscherm (alleen ingelogd)
       updateRepairAfterPlay();  // 🩹-voortgang/afronding + banners (alleen ingelogd)
       // Onthoud het rij-id zodat we de pot ná inloggen aan het account kunnen koppelen.
       try { if (id != null) localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); } catch (e) {}
@@ -12614,6 +12635,8 @@ function save() {
       event: state.event,
       band: state.band ?? null,
       potId: state.potId ?? null,
+      stamp: state.stamp ?? null,
+      shared: !!state.shared,
       board: {
         guesses: state.guesses,
         done: state.done,
@@ -12754,7 +12777,8 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
     if (cached && arraysEqual(cached.hashes, sharedHashes)) return { mode: "free", ...cached };
     const p = await rpc("get_facts_by_hashes", { hashes: sharedHashes });
     if (!p) return null;
-    return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId() };
+    // Gedeelde (of zelfgebouwde) link: geen stempel van get_random_fact, dus dit potje telt nergens voor (db/108).
+    return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId(), shared: true };
   }
   if (mode === "daily") {
     const d = targetDate || todayKey();   // targetDate = inhaalpot (gisteren); anders vandaag
@@ -12787,7 +12811,8 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
   try { p = await rpc("get_random_fact", { p_exclude: recentHashes() }); }
   catch (e) { p = await rpc("get_random_fact", {}); }
   if (!p) return null;
-  return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId() };
+  // stamp (db/108): het bewijs dat de server dit potje uitdeelde; record_play telt een vrij potje alleen daarmee.
+  return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId(), stamp: p.stamp || null };
 }
 
 async function startGame(mode, forceNew = false, sharedHashes = null, targetDate = null) {
@@ -12826,6 +12851,8 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
     // Per-pot dedup-slot (alleen vrij spel); oude records zonder potId krijgen er
     // hier alsnog een, zodat het legacy "free"-slot na deploy nergens meer opduikt.
     potId: record.potId || (record.mode !== "daily" ? newPotId() : null),
+    stamp: record.stamp || null,             // db/108: stempel van get_random_fact (alleen vrij spel)
+    shared: !!record.shared,                 // gedeelde/zelfgebouwde link: telt nergens voor
     band: record.band ?? null,               // moeilijkheids-band 1..3 (alleen daily, sinds db/29)
     hashes: record.hashes,
     event: record.event,

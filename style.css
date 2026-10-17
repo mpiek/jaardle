@@ -1396,6 +1396,13 @@ html[data-theme="light"], html[data-theme="parchment"] {
   color: var(--accent, #ffd54f);
   font-variant-numeric: tabular-nums;
 }
+/* Gedeelde of zelfgebouwde link (db/108): speelbaar, maar telt nergens voor. Eén rustige regel onder de score. */
+.shared-note {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
 
 /* Bijna-verlies ("Zo dichtbij!" / "Bijna!"): de toon in groot, daaronder hoeveel jaar je ernaast zat. De chip heeft de
    kleur van de gok-badge van die afstand (paars ≤2 jaar, geel ≤10). */

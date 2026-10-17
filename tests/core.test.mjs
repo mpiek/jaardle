@@ -76,7 +76,7 @@ src += `
   eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
-  resolveRecord, reconstructDailyBoard,
+  resolveRecord, reconstructDailyBoard, stampParam,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -3948,4 +3948,43 @@ test("toEvent — verhaal-kopje (tag, db/106): bekende toon blijft, onbekende of
   });
   assert.deepEqual(ev.extras.map((x) => x.tag), ["d", null, null, "fun"]);
   for (const code of Object.keys(I18N)) for (const k of ["tag_wow", "tag_mys", "tag_rec", "tag_warm", "tag_spook"]) assert.ok(I18N[code][k], `${k} ontbreekt in ${code}`);
+});
+
+// --- db/108: gedeelde potjes tellen niet ------------------------------------------------------------------------------------
+test("stampParam — alleen een vrij potje mét stempel stuurt p_stamp mee (een oude server kent de parameter niet; een gedeeld potje heeft er geen)", () => {
+  const st = "1760700000.a1b2c3d4.0123456789abcdef";
+  assert.deepEqual(T.stampParam({ mode: "free", stamp: st }), { p_stamp: st });
+  assert.deepEqual(T.stampParam({ mode: "free", stamp: null, shared: true }), {});
+  assert.deepEqual(T.stampParam({ mode: "free" }), {});
+  assert.deepEqual(T.stampParam({ mode: "daily", stamp: st }), {}, "de daily is altijd organisch: nooit een stempel");
+  assert.deepEqual(T.stampParam(null), {});
+});
+
+test("resolveRecord — vrij spel: de stempel van get_random_fact gaat mee in het record; zonder stempel (server van vóór db/108) blijft hij null", async () => {
+  await withRpc({}, async (d) => {
+    const p = T.resolveRecord("free", true, null, null);
+    assert.deepEqual(d.calls, ["get_random_fact"]);
+    d.waiting.get_random_fact.resolve({ ...DAILY_RPC, hashes: ["1234567890"], facts: [{ hash: "1234567890", nl: "feit", en: "fact", source: "" }], stamp: "1760700000.a1b2c3d4.0123456789abcdef" });
+    const rec = await p;
+    assert.equal(rec.stamp, "1760700000.a1b2c3d4.0123456789abcdef");
+    assert.ok(!rec.shared, "een organisch potje is niet gedeeld");
+  });
+  await withRpc({}, async (d) => {
+    const p = T.resolveRecord("free", true, null, null);
+    d.waiting.get_random_fact.resolve({ ...DAILY_RPC, hashes: ["1234567891"], facts: [{ hash: "1234567891", nl: "feit", en: "fact", source: "" }] });
+    const rec = await p;
+    assert.equal(rec.stamp, null);
+  });
+});
+
+test("resolveRecord — een gedeelde link (?p=, niet uit de eigen cache) wordt een gedeeld potje zonder stempel", async () => {
+  await withRpc({}, async (d) => {
+    const p = T.resolveRecord("free", false, ["fedcba9876"], null);
+    assert.deepEqual(d.calls, ["get_facts_by_hashes"]);
+    d.waiting.get_facts_by_hashes.resolve({ ...DAILY_RPC, hashes: ["fedcba9876"], facts: [{ hash: "fedcba9876", nl: "feit", en: "fact", source: "" }] });
+    const rec = await p;
+    assert.equal(rec.shared, true);
+    assert.ok(!rec.stamp);
+    assert.deepEqual(T.stampParam({ mode: rec.mode, ...rec }), {}, "en dus stuurt record_play geen stempel mee");
+  });
 });
