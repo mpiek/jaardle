@@ -999,7 +999,7 @@ kbd {
 
 #guesses {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));   /* niet 1fr 1fr: dat groeit mee met de breedste rij en stak op 360 px buiten beeld */
   gap: 0.35rem;
   margin-bottom: 0.6rem;
   min-height: 1px;
@@ -1111,6 +1111,27 @@ kbd {
   font-weight: 600;
   font-size: 0.9rem;
   margin-left: auto;
+}
+
+/* Telefoons: de breedste rij ("-1200 ↓ 201–599 −15", met 🧭-pijl) heeft ±192 px nodig, een kolom is bij
+   390 px maar ±176 en bij 360 px ±161 (de rechterkolom stak uit, op 360 px met horizontaal scrollen).
+   In drie stappen compacter: krappere tussenruimtes, iets kleinere badge en straf; het jaartal blijft even groot.
+   Gemeten met die rij: van 320 tot 441 px blijft er ≥ 5 px over (Noto Sans, ±zo breed als Roboto). */
+@media (max-width: 440px) {
+  #guesses .guess-row { gap: 0.35rem; padding-inline: 0.45rem; border-left-width: 5px; }
+  #guesses .delta-badge { min-width: 2.6rem; padding-inline: 0.38rem; font-size: 0.76rem; letter-spacing: 0; }
+  #guesses .penalty { min-width: 1.7rem; padding-inline: 0.22rem; font-size: 0.72rem; letter-spacing: 0; }
+}
+@media (max-width: 380px) {
+  #guesses .guess-row { gap: 0.25rem; padding-inline: 0.32rem; }
+  #guesses .delta-badge { min-width: 2.5rem; padding-inline: 0.3rem; font-size: 0.75rem; }
+  #guesses .penalty { min-width: 1.6rem; padding-inline: 0.18rem; font-size: 0.7rem; }
+}
+@media (max-width: 340px) {
+  #guesses { gap: 0.3rem; }
+  #guesses .guess-row { padding-inline: 0.25rem; border-left-width: 4px; font-size: 0.9rem; }
+  #guesses .delta-badge { padding-inline: 0.25rem; font-size: 0.68rem; }
+  #guesses .penalty { min-width: 1.4rem; font-size: 0.64rem; }
 }
 
 #input-row {
