@@ -1401,7 +1401,7 @@ html[data-theme="light"], html[data-theme="parchment"] {
 /* Zeldzaamheidskleur (nu alleen Legendarisch): goud op donker, dieper goud op licht en perkament; de pop-up-kaart is altijd donker. */
 .vd-r3 { --rar: #f5c04a; }
 html[data-theme="light"] .vd-r3, html[data-theme="parchment"] .vd-r3 { --rar: #9a6400; }
-.rw-card .vd-r3 { --rar: #f5c04a; }
+.rw-card .vd-chip.vd-r3 { --rar: #f5c04a; }   /* wint van html[data-theme=light] .vd-r3: de pop-up-kaart is altijd donker */
 .vd-chip { display: inline-block; margin-top: 8px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rar); border: 1px solid color-mix(in srgb, var(--rar) 60%, transparent); background: color-mix(in srgb, var(--rar) 12%, transparent); border-radius: 999px; padding: 3px 10px; }
 /* Album (Prestaties): de jaarzegel-opzet; gevonden = de tekening op een zegel met een gloeiende ring, onbekend = het ?-zegel. */
 button.vd-stamp { appearance: none; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }

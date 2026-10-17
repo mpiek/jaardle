@@ -3808,7 +3808,7 @@ function fxLoader(file, global) {
       const sc = document.createElement("script");
       sc.src = file + (GAME_V ? "?v=" + encodeURIComponent(GAME_V) : "");
       sc.onload = () => (window[global] ? resolve(window[global]) : reject(new Error(global + " ontbreekt")));
-      sc.onerror = () => { pending = null; reject(new Error(file + " laden mislukt")); };
+      sc.onerror = () => { pending = null; reject(new Error(file + " laden mislukt")); sc.remove?.(); };   // mislukte tag niet laten opstapelen
       document.head.appendChild(sc);
     });
     return pending;
@@ -4511,9 +4511,10 @@ function finishGame(won, fresh = false) {
   const statsHash = state.hashes?.[0];
   // Na het wegschrijven van de verse play: globale stats tonen, en bij de daily
   // het recap-scherm openen (verdeling pogingen + teamstand van vandaag).
+  const doneState = state;   // dít potje (de speler kan tijdens record_play al een nieuw potje beginnen)
   const afterSend = () => {
     showFactStats(statsHash);
-    if (fresh && won && !auth.user) maybeShowAnonFind();   // zeldzame vondst zonder account (met account: de beloning-pop-up)
+    if (fresh && won && !auth.user) maybeShowAnonFind(doneState);   // zeldzame vondst zonder account (met account: de beloning-pop-up)
     // Unlock-kaart op het eindscherm (ná record_play, dus de pot telt mee).
     const unlocked = checkAchievements().catch(() => false);
     // Recap (verdeling + teamstand van vandaag) hoort niet bij een inhaalpot —
@@ -4547,20 +4548,42 @@ function finishGame(won, fresh = false) {
 // FIND_FACTS. Alleen een organisch (gestempeld), gewonnen vrij potje; per vondst één keer per browser. Inloggen vanuit de
 // pop-up koppelt dit potje aan het account (claimPlayOnLogin), en daarmee de vondst.
 const ANON_FINDS_KEY = "jaardle:anonFinds";
+const FIND_CLAIM_KEY = "jaardle:findClaim";   // het potje van een anonieme vondst, voor claim_play na het inloggen (ook via Google/Discord)
 function anonFindOf(s) {
   if (!s || s.mode !== "free" || !s.won || !s.stamp || s.shared) return null;
   for (const h of s.hashes || []) if (FIND_FACTS[h]) return FIND_FACTS[h];
   return null;
 }
-function maybeShowAnonFind() {
+function maybeShowAnonFind(st) {
   if (auth.user) return;
-  const id = anonFindOf(state);
+  const id = anonFindOf(st);
   if (!id) return;
+  // Alleen als de server dit potje bewaarde (record_play gaf een id): een geweigerd potje (geen geldige stempel) is geen vondst.
+  let playId = null;
+  try { playId = localStorage.getItem(`jaardle:playid:${st.hashes[0]}:${st.potId || "free"}`); } catch (e) {}
+  if (!playId) return;
   let seen = [];
   try { seen = JSON.parse(localStorage.getItem(ANON_FINDS_KEY) || "[]"); } catch (e) {}
   if (!Array.isArray(seen) || seen.includes(id)) return;
-  try { localStorage.setItem(ANON_FINDS_KEY, JSON.stringify([...seen, id])); } catch (e) {}
   showReward("fv_" + id, { anon: true });
+  if (document.getElementById("modal-reward")?.dataset.key !== "fv_" + id) return;   // er stond al een andere kaart open: volgende keer
+  try {
+    localStorage.setItem(ANON_FINDS_KEY, JSON.stringify([...seen, id]));
+    localStorage.setItem(FIND_CLAIM_KEY, JSON.stringify({ id: Number(playId), at: Date.now() }));
+  } catch (e) {}
+}
+// Na het inloggen (ook na een Google/Discord-redirect, waar het potje niet meer in beeld staat): koppel het geparkeerde
+// vondst-potje aan het account. claim_play neemt alleen een anonieme rij van < 24 uur; daarna is de vondst van het account.
+async function claimParkedFind() {
+  if (!auth.user) return;
+  let c = null;
+  try { c = JSON.parse(localStorage.getItem(FIND_CLAIM_KEY) || "null"); } catch (e) {}
+  if (!c || !c.id) return;
+  try { localStorage.removeItem(FIND_CLAIM_KEY); } catch (e) {}
+  if (Date.now() - (c.at || 0) > 23 * 3600 * 1000) return;
+  let ok = false;
+  try { ok = await rpc("claim_play", { p_id: Number(c.id) }); } catch (e) { return; }
+  if (ok) { achvCache = null; invalidateHistory(); }   // de vondst staat nu op het account: prestaties/kluis vers ophalen
 }
 
 // db/108: een vrij potje telt alleen met de stempel die get_random_fact meegaf. Alleen meesturen als we er een hebben:
@@ -5338,8 +5361,9 @@ const VONDST_BY_FLAIR = Object.fromEntries(VONDSTEN.map((v) => [v.flair, v]));
 const vondstName = (v) => (v && v.names && (v.names[lang] || v.names.en)) || "";
 // Een eigen tekening ("v:<id>"). Waar alleen tekst kan (confetti, het gezichtje in de histogram, het speldje) staat er een ✨;
 // overal waar HTML mag, de tekening zelf (flairGlyphHtml stil, flairPreviewHtml bewegend).
-const isDrawnFlair = (f) => typeof f === "string" && f.startsWith("v:") && !!VONDST_BY_FLAIR[f];
-const flairTextGlyph = (f) => (isDrawnFlair(f) ? "✨" : f);
+const isVondstFlair = (f) => typeof f === "string" && f.startsWith("v:");   // ook een onbekende (uit een nieuwere ronde)
+const isDrawnFlair = (f) => isVondstFlair(f) && !!VONDST_BY_FLAIR[f];
+const flairTextGlyph = (f) => (isVondstFlair(f) ? "✨" : f);
 const loadVondsten = fxLoader("/vondsten.js", "VondstFlairs");
 let vondstCssOn = false;
 function vondstSvg(v, still) {
@@ -5351,12 +5375,13 @@ function vondstSvg(v, still) {
   return still ? svg.replace(`class="emoji-anim ${v.cls}"`, `class="emoji-anim ${v.cls} ${v.cls}-still vf-still"`) : svg;
 }
 // De tekening van een vondst-flair; is /vondsten.js er nog niet, dan een leeg vakje dat zichzelf vult zodra hij binnen is.
+let vondstLoadFailedAt = 0;   // mislukt laden (offline/404): 30 s niet opnieuw proberen bij elke render of hover
 function vondstHtml(flair, still) {
   const v = VONDST_BY_FLAIR[flair];
-  if (!v || !v.cls) return escHtml(flair);
+  if (!v || !v.cls) return isVondstFlair(flair) ? "✨" : escHtml(flair);
   const svg = vondstSvg(v, still);
   if (svg) return svg;
-  loadVondsten().then(hydrateVondsten, () => {});
+  if (Date.now() - vondstLoadFailedAt > 30000) loadVondsten().then(hydrateVondsten, () => { vondstLoadFailedAt = Date.now(); });
   return `<span class="emoji-anim vf-ph${still ? " vf-still" : ""}" data-vf="${v.id}"${still ? ' data-still="1"' : ""} role="img" aria-label="${escHtml(vondstName(v))}"></span>`;
 }
 function hydrateVondsten() {
@@ -5366,7 +5391,7 @@ function hydrateVondsten() {
   });
 }
 // Het stilstaande teken van een flair als HTML: een gewone emoji als tekst, een eigen tekening als stille SVG.
-const flairGlyphHtml = (f) => (isDrawnFlair(f) ? vondstHtml(f, true) : escHtml(f));
+const flairGlyphHtml = (f) => (isVondstFlair(f) ? vondstHtml(f, true) : escHtml(f));
 
 // ── Flair-effecten ("flair+") ─────────────────────────────────────────────────
 // Een flair kan een effect-laag dragen (sprankel, vonken, gloed, …). Opslag = één string
@@ -5520,7 +5545,7 @@ function flairBadgeHtml(flair, rank, live) {
 // De geanimeerde vorm van een flair: de Noto-webp, of de CSS-cheer voor de
 // flairs zonder webp (🐷/🎩); 🌶️/🦫 hebben een eigen SVG (FLAIR_SVG).
 function flairPreviewHtml(flair) {
-  if (isDrawnFlair(flair)) return vondstHtml(flair, false);   // zeldzame vondst: de eigen tekening (db/110)
+  if (isVondstFlair(flair)) return vondstHtml(flair, false);   // zeldzame vondst: de eigen tekening (db/110); onbekend → ✨
   if (FLAIR_SVG[flair]) return FLAIR_SVG[flair];
   const file = FLAIR_ANIM[flair];
   return file
@@ -8825,6 +8850,7 @@ function achvNormalize(a) {
     obsidian: !!a.obsidian,   // gepinde titel JM uit player_titles (db/59), niet herberekend
     legend: !!a.legend,       // gepinde titel GM uit player_titles (db/59)
     perfect_cur: a.perfect_cur ?? null,   // lopende reeks 100-punters (db/63); null = niet-ingelogd (geen serverbron)
+    finds: (Array.isArray(a.finds) ? a.finds : []).filter((id) => typeof id === "string"),   // zeldzame vondsten (db/110)
   };
 }
 
@@ -13318,7 +13344,7 @@ async function init() {
     // → eindscherm, ander apparaat verder → overnemen, lokaal verder → pushen.
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
-    if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin(); }
+    if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin(); claimParkedFind(); }
     if (pendingRecapAfterLogin && auth.user) { pendingRecapAfterLogin = false; pendingOpenRecap = true; }   // net ingelogd vanuit het eindscherm-kaartje
     maybeOpenRecapDeeplink();   // ?recap: wacht (ingelogd) op de reconcile hierboven, dan eindscherm of 'speel eerst'
     // Auth komt op een reload ná het herstellen van een afgerond dagbord binnen;

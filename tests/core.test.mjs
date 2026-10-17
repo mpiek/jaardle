@@ -77,7 +77,7 @@ src += `
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
   resolveRecord, reconstructDailyBoard, stampParam,
-  VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs,
+  VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
@@ -4082,4 +4082,32 @@ test("anonFindOf — alleen een gewonnen, organisch (gestempeld) vrij potje met 
   assert.equal(T.anonFindOf({ ...base, stamp: null, hashes: [h] }), null, "zonder stempel");
   assert.equal(T.anonFindOf({ ...base, shared: true, hashes: [h] }), null, "gedeeld");
   assert.equal(T.anonFindOf({ ...base, mode: "daily", hashes: [h] }), null, "de daily heeft geen vondsten");
+});
+
+test("achvNormalize — houdt finds van de server (zonder dit zag een ingelogde speler zijn vondst nooit); rommel valt eruit", () => {
+  assert.deepEqual(T.achvNormalize({ finds: ["ring", 5, null, "unicorn"] }).finds, ["ring", "unicorn"]);
+  assert.deepEqual(T.achvNormalize({}).finds, [], "oude server zonder finds → lege lijst");
+  const wasUser = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    T.setAchv(T.achvNormalize({ games: 3, finds: ["ring"] }));
+    assert.ok(T.earnedRewardKeys().includes("fv_ring"), "via de echte normalisatie: de vondst-pop-up komt");
+    assert.ok(T.findsRowHtml(T.achvNormalize({ finds: ["ring"] })).includes("1/18"));
+  } finally { T.auth.user = wasUser; T.setAchv(null); }
+});
+
+test("onbekende v:-flair (nieuwere ronde, oud tabblad) — ✨, nooit de id als tekst", () => {
+  assert.ok(T.isVondstFlair("v:bestaat-nog-niet") && !T.isDrawnFlair("v:bestaat-nog-niet"));
+  assert.equal(T.flairStaticHtml("v:bestaat-nog-niet"), "✨");
+  assert.equal(T.flairTextGlyph("v:bestaat-nog-niet"), "✨");
+  const badge = T.flairBadgeHtml("v:bestaat-nog-niet", 4), anim = T.flairPreviewHtml("v:bestaat-nog-niet");
+  assert.ok(badge.includes(">✨<") && !badge.includes(">v:"), badge);
+  assert.equal(anim, "✨");
+});
+
+test("vondsten.js — minder beweging zet élke tekening stil (één harde regel; de eigen regels verloren op specificiteit)", () => {
+  const m = VLIB_SRC.match(/@media \(prefers-reduced-motion: reduce\)\{([^{}]+)\{animation:none!important\}\}/);
+  assert.ok(m, "de regel staat in vondsten.js");
+  const sel = m[1].split(",");
+  for (const v of T.VONDSTEN.filter((x) => x.cls)) assert.ok(sel.includes("." + v.cls) && sel.includes(`.${v.cls} *`), v.id);
 });
