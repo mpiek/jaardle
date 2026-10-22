@@ -2143,21 +2143,10 @@ function noteAnchorSlide() {
   if (!state || !state.event) return;
   const factCount = state.event.facts.length + availableExtras();
   if (factSlideIndex < factCount) anchorFactSlot = factSlideIndex;   // hint-slides: anker ongemoeid
-  if (factSlideIndex > 0 && factSlideIndex < factCount) countSlide2();
-}
-
-// Meetpunt: ziet een speler dat het feit een carrousel is? Eén keer per daily-dag (ook na herladen), alleen tijdens
-// het spelen en alleen naar een feit-slide: de sprong naar een net gekochte hint-slide telt niet. Delen door
-// guess-1-daily(-new); plays.anchor_hash zag alleen de slide bij de laatste gok (±38% verder dan slide 1, 22/10).
-const SLIDE2_KEY = "jaardle:slide2";
-function countSlide2() {
-  if (state.mode !== "daily" || state.done || state.slide2Counted) return;
-  state.slide2Counted = true;
-  try {
-    if (localStorage.getItem(SLIDE2_KEY) === state.puzzleDate) return;
-    localStorage.setItem(SLIDE2_KEY, state.puzzleDate);
-  } catch (e) { return; }
-  gcCountNew("slide-2-daily", "Swiped to slide 2+");
+  // Meetpunt: ziet een speler dat het feit een carrousel is? Alleen tijdens het spelen en alleen naar een feit-slide:
+  // de sprong naar een net gekochte hint-slide telt niet. plays.anchor_hash zag alleen de slide bij de laatste gok
+  // (±38% verder dan slide 1, 22/10); dit telt ook wie las en terugbladerde.
+  if (factSlideIndex > 0 && factSlideIndex < factCount && !state.done) gcCountDaily("slide-2-daily", "Swiped to slide 2+");
 }
 
 // --- Supabase RPC-bridge (window.sb wordt in index.html gezet) ---------------
@@ -2327,12 +2316,27 @@ function gcCount(path, title) {
 
 // Meetpunt met een extra "-new" voor een nieuwkomer (nog geen eerdere daily-dag in de geschiedenis van dit apparaat),
 // om te zien hoe een nieuwe speler speelt: X telt iedereen, X-new alleen nieuwkomers, terugkerend = X − X-new.
+// Alleen in een daily-pot: in vrij spel telt alleen X.
 function isNewcomer() {
-  return !loadHistory().some((e) => e.date !== state?.puzzleDate);
+  return state?.mode === "daily" && !loadHistory().some((e) => e.date !== state.puzzleDate);
 }
 function gcCountNew(path, title) {
   gcCount(path, title);
   if (isNewcomer()) gcCount(path + "-new", title + " (new player)");
+}
+// Zelfde, maar hooguit één keer per daily-dag per pad, ook na herladen (localStorage: de dag + de al getelde paden).
+// Zo blijven de meetpunten deelbaar door guess-1-daily(-new), dat per potje maar één keer kan vallen.
+const GC_DAY_KEY = "jaardle:gcday";
+function gcCountDaily(path, title) {
+  if (state?.mode !== "daily" || !state.puzzleDate) return;
+  try {
+    let d = JSON.parse(localStorage.getItem(GC_DAY_KEY) || "null");
+    if (d?.date !== state.puzzleDate || !Array.isArray(d.paths)) d = { date: state.puzzleDate, paths: [] };
+    if (d.paths.includes(path)) return;
+    d.paths.push(path);
+    localStorage.setItem(GC_DAY_KEY, JSON.stringify(d));
+  } catch (e) { return; }
+  gcCountNew(path, title);
 }
 
 // Grove herkomst van dit apparaat, één keer bewaard bij het allereerste bezoek: 'direct' | 'listdle' | 'playlin' |
@@ -4414,6 +4418,9 @@ function stopWinFxPreview() {
 function finishGame(won, fresh = false) {
   state.done = true;
   state.won = won;
+  // Meetpunt: daily uitgespeeld (winst of verlies). Gedeeld door guess-1-daily(-new) = wie niet afhaakt, uit één bron
+  // (adblockers houden GoatCounter tegen, de DB niet). fresh = net uitgespeeld, niet bij herstel of taalwissel.
+  if (fresh) gcCountDaily("daily-done", "Daily finished");
   document.getElementById("hint-nudge")?.remove();   // duwtje is niet meer relevant
   save();
   setKeypadDisabled(true);
@@ -12757,6 +12764,7 @@ function submitGuess() {
   // De gok staat al zichtbaar in de lijst, dus de flash maakt 't duidelijk genoeg.
   if (state.guesses.some((g) => g.year === year)) {
     flashInput();
+    gcCountDaily("guess-dup-daily", "Guess refused: duplicate");   // meetpunt: raakt een nieuwkomer de draad kwijt?
     return;
   }
   // Kan deze gok logisch niet kloppen (buiten je eigen bereik, of buiten een al
@@ -12767,6 +12775,7 @@ function submitGuess() {
   if (blocked.length) {
     flashInput();
     showGuessBubble(blocked.join("\n"));
+    gcCountDaily("guess-blocked-daily", "Guess refused: outside own range");   // meetpunt: snapt een nieuwkomer de pijlen?
     return;
   }
   const diff = state.event.year - year;
@@ -13227,9 +13236,9 @@ async function init() {
       if (els.hintBtnDigit && !els.hintBtnDigit.hidden) { requestLastDigit(); e.preventDefault(); }
     }
   });
-  els.shareBtn.addEventListener("click", () => { gcCount("end-share", "End: share"); doShare(els.shareBtn); });
+  els.shareBtn.addEventListener("click", () => { gcCountNew("end-share", "End: share"); doShare(els.shareBtn); });
   els.nextBtn.addEventListener("click", () => {
-    gcCount("end-next", "End: next round");
+    gcCountNew("end-next", "End: next round");
     // Vanuit de daily wisselt het tabblad mee en loopt een onafgemaakt vrij spel
     // gewoon door; in vrij spel forceert de knop altijd een vers rondje.
     if (state?.mode === "daily") switchMode("free");
