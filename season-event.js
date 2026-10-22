@@ -203,7 +203,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 `;
 
   // ── teksten ──────────────────────────────────────────────────────────────────────────────────────────────────
-  // Gedeeld door elk event: wat een stempelkaart, een beloning en een inhaaldag heet. (ES/PT/DE zelf vertaald: graag laten nalezen.)
+  // Gedeeld door elk event: wat een stempelkaart, een beloning en een inhaaldag heet. (ES/PT/DE zelf vertaald, 22/10 nagelopen; graag nog laten nalezen.)
   const SHARED = {
     nl: {
       left: (n) => (n <= 1 ? "laatste dag" : `nog ${n} dagen`), over: "Het event is voorbij", catchupUntil: (d) => `Inhalen kan nog t/m ${d}`,
@@ -231,8 +231,8 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
     },
     de: {
       left: (n) => (n <= 1 ? "letzter Tag" : `noch ${n} Tage`), over: "Das Event ist vorbei", catchupUntil: (d) => `Nachholen ist noch bis ${d} möglich`,
-      keep: "Was du verdienst, bleibt dein – auch nach dem Event.", count: (n, tot) => `${n} von ${tot}`, gift: "Geschenk: dein erster Stempel ist schon drauf.",
-      todayDone: "Heute geschafft", todayOpen: "Das heutige Daily spielen", catchup: "Nachholen zählt auch.", rewardsH: "Belohnungen",
+      keep: "Was du verdienst, gehört dir – auch nach dem Event.", count: (n, tot) => `${n} von ${tot}`, gift: "Geschenk: dein erster Stempel ist schon drauf.",
+      todayDone: "Heute geschafft", todayOpen: "Spiel das heutige Daily", catchup: "Nachholen zählt auch.", rewardsH: "Belohnungen",
       at: (n) => `bei ${n}`, toGo: (n) => `noch ${n}`, wear: "Jetzt tragen", turnOn: "Einschalten", worn: "Getragen", on: "An",
       sealRow: "Siegel in den Erfolgen", sealFirst: (nm, at) => `${nm} bei ${at}`, sealNext: (have, nm, at) => `${have} · nächste: ${nm} bei ${at}`, sealTop: (have) => `${have} · die höchste Stufe`, sealOf: (nm) => `${nm}-Siegel`,
       archH: "Frühere Events", archLine: (n, tot) => `${n} von ${tot}`, lineNext: (k, nm) => `noch ${k} bis ${nm}`, lineDone: "Karte komplett", allIn: "Alle Belohnungen verdient",
@@ -242,21 +242,21 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
       lockedHint: "Das klappt noch nicht: deine früheren Tage sind noch nicht in deinem Konto. Spiele das heutige Daily und versuche es erneut.", countsAnyway: "zählt trotzdem", popGroupTitle: (n) => `${n} Belohnungen freigeschaltet`, barEvery: (i) => `Jedes Daily ist ein ${i}`,
     },
     es: {
-      left: (n) => (n <= 1 ? "último día" : `quedan ${n} días`), over: "El evento ha terminado", catchupUntil: (d) => `Aún puedes recuperar hasta el ${d}`,
-      keep: "Lo que ganes es tuyo para siempre, también después del evento.", count: (n, tot) => `${n} de ${tot}`, gift: "Regalo: tu primer sello ya está en la tarjeta.",
-      todayDone: "El de hoy ya está", todayOpen: "Juega el diario de hoy", catchup: "Recuperar también cuenta.", rewardsH: "Recompensas",
+      left: (n) => (n <= 1 ? "último día" : `quedan ${n} días`), over: "El evento ha terminado", catchupUntil: (d) => `Aún puedes recuperar días hasta el ${d}`,
+      keep: "Lo que ganes es tuyo para siempre, incluso después del evento.", count: (n, tot) => `${n} de ${tot}`, gift: "Regalo: tu primer sello ya está en la tarjeta.",
+      todayDone: "Sello de hoy conseguido", todayOpen: "Juega el diario de hoy", catchup: "Recuperar también cuenta.", rewardsH: "Recompensas",
       at: (n) => `con ${n}`, toGo: (n) => `faltan ${n}`, wear: "Usar ahora", turnOn: "Activar", worn: "En uso", on: "Activado",
       sealRow: "Sello en Logros", sealFirst: (nm, at) => `${nm} con ${at}`, sealNext: (have, nm, at) => `${have} · siguiente: ${nm} con ${at}`, sealTop: (have) => `${have} · el más alto`, sealOf: (nm) => `sello de ${nm}`,
       archH: "Eventos anteriores", archLine: (n, tot) => `${n} de ${tot}`, lineNext: (k, nm) => `faltan ${k} para ${nm}`, lineDone: "Tarjeta completa", allIn: "Todas las recompensas ganadas",
       anonLock: "Una cuenta gratuita guarda tus recompensas.", anonHook: "Guarda tus recompensas con una cuenta gratuita", google: "Continuar con Google", orMail: "o con correo electrónico",
-      turnAllOn: "Activar todo", needFlair: "Lleva primero un distintivo para ver tu efecto.",
+      turnAllOn: "Activar todo", needFlair: "Ponte primero un distintivo para ver tu efecto.",
       afterNote: "Este evento ha terminado; tus recompensas están en las pestañas Distintivo y Fiesta.", achH: "Eventos", achSub: (n, tot) => `${n} de ${tot}`,
       lockedHint: "Aún no: tus días anteriores todavía no están en tu cuenta. Juega el diario de hoy y vuelve a intentarlo.", countsAnyway: "cuenta igual", popGroupTitle: (n) => `${n} recompensas desbloqueadas`, barEvery: (i) => `Cada diario es una ${i}`,
     },
     pt: {
-      left: (n) => (n <= 1 ? "último dia" : `faltam ${n} dias`), over: "O evento acabou", catchupUntil: (d) => `Você ainda pode recuperar até ${d}`,
+      left: (n) => (n <= 1 ? "último dia" : `faltam ${n} dias`), over: "O evento acabou", catchupUntil: (d) => `Você ainda pode recuperar dias até ${d}`,
       keep: "O que você ganhar fica com você, mesmo depois do evento.", count: (n, tot) => `${n} de ${tot}`, gift: "Presente: seu primeiro carimbo já está no cartão.",
-      todayDone: "O de hoje já está feito", todayOpen: "Jogue o diário de hoje", catchup: "Recuperar também conta.", rewardsH: "Recompensas",
+      todayDone: "Carimbo de hoje garantido", todayOpen: "Jogue o diário de hoje", catchup: "Recuperar também conta.", rewardsH: "Recompensas",
       at: (n) => `com ${n}`, toGo: (n) => `faltam ${n}`, wear: "Usar agora", turnOn: "Ativar", worn: "Em uso", on: "Ativado",
       sealRow: "Selo em Conquistas", sealFirst: (nm, at) => `${nm} com ${at}`, sealNext: (have, nm, at) => `${have} · próximo: ${nm} com ${at}`, sealTop: (have) => `${have} · o mais alto`, sealOf: (nm) => `selo de ${nm}`,
       archH: "Eventos anteriores", archLine: (n, tot) => `${n} de ${tot}`, lineNext: (k, nm) => `faltam ${k} para ${nm}`, lineDone: "Cartão completo", allIn: "Todas as recompensas conquistadas",
@@ -288,26 +288,26 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
           hookLine: "You earned the pumpkin flair. A free account lets you wear it.",
         },
         de: {
-          name: "Spooktober", barLead: "Es ist Spooktober!", menu: "Spooktober", achName: "Spooktober 2026",
+          name: "Spuktober", barLead: "Es ist Spuktober!", menu: "Spuktober", achName: "Spuktober 2026",
           rewardName: { flair: "Kürbis-Flair", fx: "\u{1F578}️ Spinnennetz", feest: "\u{1F383} Gruselparty" },
-          popEyebrow: "Spooktober-Belohnung",
-          popSub: { flair: "Dein Kürbis für die Bestenliste. Bleibt dein, auch nach Spooktober.", fx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste. Bleibt dein.", feest: "Kürbisse, Geister und Fledermäuse bei jedem Sieg. Du schaltest es selbst ein oder aus." },
+          popEyebrow: "Spuktober-Belohnung",
+          popSub: { flair: "Dein Kürbis für die Bestenliste. Er gehört dir, auch nach dem Spuktober.", fx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste. Er gehört dir.", feest: "Kürbisse, Geister und Fledermäuse bei jedem Sieg. Du schaltest sie selbst ein oder aus." },
           popGroupSub: "Dein Kürbis und dein Effekt – trag beides zusammen.",
-          hookLine: "Dein Kürbis-Flair ist verdient. Mit einem kostenlosen Konto kannst du es tragen.",
+          hookLine: "Du hast dir das Kürbis-Flair verdient. Mit einem kostenlosen Konto kannst du es tragen.",
         },
         es: {
-          name: "Spooktober", barLead: "¡Es Spooktober!", menu: "Spooktober", achName: "Spooktober 2026",
+          name: "Octubre de miedo", barLead: "¡Llegó Octubre de miedo!", menu: "Octubre de miedo", achName: "Octubre de miedo 2026",
           rewardName: { flair: "Distintivo de calabaza", fx: "\u{1F578}️ Telaraña", feest: "\u{1F383} Fiesta de miedo" },
-          popEyebrow: "Recompensa de Spooktober",
-          popSub: { flair: "Tu calabaza para la clasificación. Es tuya para siempre, incluso después de Spooktober.", fx: "Un efecto alrededor de tu distintivo, visible en cada clasificación. Es tuyo.", feest: "Calabazas, fantasmas y murciélagos en cada victoria. Tú lo activas o lo apagas." },
-          popGroupSub: "Tu calabaza y tu efecto, para llevar juntos.",
-          hookLine: "Has ganado el distintivo de calabaza. Con una cuenta gratuita podrás usarlo.",
+          popEyebrow: "Recompensa de Halloween",
+          popSub: { flair: "Tu calabaza para la clasificación. Te la quedas para siempre.", fx: "Un efecto alrededor de tu distintivo, visible en todas las clasificaciones. Te lo quedas.", feest: "Calabazas, fantasmas y murciélagos en cada victoria. Tú decides si la activas." },
+          popGroupSub: "Tu calabaza y tu efecto, para lucirlos juntos.",
+          hookLine: "Has ganado el distintivo de calabaza. Con una cuenta gratuita puedes lucirlo.",
         },
         pt: {
-          name: "Spooktober", barLead: "É Spooktober!", menu: "Spooktober", achName: "Spooktober 2026",
+          name: "Outubro do Terror", barLead: "Chegou o Outubro do Terror!", menu: "Outubro do Terror", achName: "Outubro do Terror 2026",
           rewardName: { flair: "Distintivo de abóbora", fx: "\u{1F578}️ Teia de aranha", feest: "\u{1F383} Festa assombrada" },
-          popEyebrow: "Recompensa do Spooktober",
-          popSub: { flair: "Sua abóbora para o placar. Fica com você, mesmo depois do Spooktober.", fx: "Um efeito em volta do seu distintivo, visível em todo placar. Fica com você.", feest: "Abóboras, fantasmas e morcegos a cada vitória. Você liga ou desliga quando quiser." },
+          popEyebrow: "Recompensa de Halloween",
+          popSub: { flair: "Sua abóbora para o placar. É sua para sempre.", fx: "Um efeito em volta do seu distintivo, visível em todos os placares. É seu para sempre.", feest: "Abóboras, fantasmas e morcegos a cada vitória. Você liga ou desliga quando quiser." },
           popGroupSub: "Sua abóbora e seu efeito, para usar juntos.",
           hookLine: "Você ganhou o distintivo de abóbora. Com uma conta gratuita você pode usá-lo.",
         },
