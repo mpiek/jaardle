@@ -87,7 +87,8 @@ function buildCsp(template) {
 
   const supa = (template.match(/https:\/\/[a-z0-9]+\.supabase\.co/) || [])[0];
   const goat = (template.match(/data-goatcounter="(https:\/\/[^/"]+)/) || [])[1];
-  if (!supa || !goat) throw new Error("Supabase/GoatCounter-host niet gevonden voor CSP");
+  const goatEv = (template.match(/data-goatcounter-events="(https:\/\/[^/"]+)/) || [])[1];   // aparte site voor de meetpunten (gcCount)
+  if (!supa || !goat || !goatEv) throw new Error("Supabase/GoatCounter-host niet gevonden voor CSP");
   const supaWss = supa.replace(/^https:/, "wss:");
 
   return [
@@ -97,9 +98,9 @@ function buildCsp(template) {
     "form-action 'self'",
     `script-src 'self' https://gc.zgo.at ${hashes.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",                       // inline style-attrs via innerHTML
-    `img-src 'self' data: https://*.googleusercontent.com ${goat}`,  // Google-avatars + GoatCounter-pixel
+    `img-src 'self' data: https://*.googleusercontent.com ${goat} ${goatEv}`,  // Google-avatars + GoatCounter-pixel
     "font-src 'self'",
-    `connect-src 'self' ${supa} ${supaWss} ${goat}`,          // Supabase REST/auth + realtime (wss)
+    `connect-src 'self' ${supa} ${supaWss} ${goat} ${goatEv}`,  // Supabase REST/auth + realtime (wss), GoatCounter-beacons
   ].join("; ");
 }
 

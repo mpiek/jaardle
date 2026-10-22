@@ -79,6 +79,7 @@ src += `
   resolveRecord, reconstructDailyBoard, stampParam,
   VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
+  gcCount, hwCount,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4110,4 +4111,32 @@ test("vondsten.js — minder beweging zet élke tekening stil (één harde regel
   assert.ok(m, "de regel staat in vondsten.js");
   const sel = m[1].split(",");
   for (const v of T.VONDSTEN.filter((x) => x.cls)) assert.ok(sel.includes("." + v.cls) && sel.includes(`.${v.cls} *`), v.id);
+});
+
+test("meetpunten (gcCount, hwCount) gaan naar de events-site van GoatCounter, nooit naar de hoofdsite; bij het count.js-filter of zonder events-adres: niets", () => {
+  const save = { qs: document.querySelector, gc: globalThis.goatcounter, nav: globalThis.navigator };
+  const sent = [];
+  const tag = { dataset: { goatcounter: "https://jaardle.goatcounter.com/count", goatcounterEvents: "https://jaardle-events.goatcounter.com/count" } };
+  let filtered = false;
+  try {
+    document.querySelector = (q) => (q === "script[data-goatcounter-events]" ? tag : null);
+    setGlobal("navigator", { sendBeacon: (u) => { sent.push(u); return true; } });
+    globalThis.goatcounter = {
+      filter: () => filtered && "localhost",
+      url: (v) => `https://jaardle.goatcounter.com/count?p=${encodeURIComponent(v.path)}&t=${encodeURIComponent(v.title)}&e=${v.event}`,
+    };
+    T.gcCount("guess-1-daily", "First guess");
+    T.hwCount("howto-open", "How-to: opened");
+    assert.deepEqual(sent, [
+      "https://jaardle-events.goatcounter.com/count?p=guess-1-daily&t=First%20guess&e=true",
+      "https://jaardle-events.goatcounter.com/count?p=howto-open&t=How-to%3A%20opened&e=true",
+    ]);
+    filtered = true; T.gcCount("x", "x");
+    assert.equal(sent.length, 2, "het filter van count.js (localhost, #toggle-goatcounter) geldt ook voor meetpunten");
+    filtered = false; delete tag.dataset.goatcounterEvents; T.gcCount("x", "x");
+    assert.equal(sent.length, 2, "zonder events-adres tellen we niets, ook niet in de hoofdsite");
+  } finally {
+    document.querySelector = save.qs; setGlobal("navigator", save.nav);
+    if (save.gc === undefined) delete globalThis.goatcounter; else globalThis.goatcounter = save.gc;
+  }
 });

@@ -2283,9 +2283,21 @@ function clientId() {
   }
 }
 
-// Teller (GoatCounter-event, cookieloos): dezelfde mechaniek als hwCount, voor meetpunten buiten de uitleg.
+// Teller (GoatCounter-event, cookieloos) voor meetpunten; hwCount (uitleg) loopt hier ook doorheen.
+// Events gaan naar een eigen site (data-goatcounter-events op de count.js-tag): in de hoofdsite telden ze mee in de
+// verwijzerslijst, vooral als "(unknown)" (±500 events per week naast ±400 echte bezoeken), zodat de herkomst van
+// bezoekers onleesbaar werd. count.js bouwt de URL (filter, bot-check, rnd); wij wisselen alleen het adres.
+// Zonder events-adres tellen we niets, liever dan de hoofdsite weer te vervuilen.
 function gcCount(path, title) {
-  try { window.goatcounter?.count?.({ path, title, event: true }); } catch (e) {}
+  try {
+    const gc = window.goatcounter, tag = document.querySelector("script[data-goatcounter-events]");
+    const main = tag?.dataset.goatcounter, events = tag?.dataset.goatcounterEvents;
+    if (!gc?.url || !main || !events || gc.filter?.()) return;
+    const url = gc.url({ path, title, event: true });
+    if (!url?.startsWith(main)) return;
+    const to = events + url.slice(main.length);
+    if (!navigator.sendBeacon?.(to)) new Image().src = to;
+  } catch (e) {}
 }
 
 // Grove herkomst van dit apparaat, één keer bewaard bij het allereerste bezoek: 'direct' | 'listdle' | 'playlin' |
@@ -12102,7 +12114,7 @@ let hw = null;   // { lang, cur, run, root, screens, … } — null = (her)bouwe
 // openen (herspelen telt niet dubbel). Basis voor de beslissing of we de uitleg ooit
 // actiever aanbieden. Paden: howto-open · howto-card-1…4 · howto-done (kaart 4 uit).
 function hwCount(path, title) {
-  try { window.goatcounter?.count?.({ path, title, event: true }); } catch (e) {}
+  gcCount(path, title);
 }
 
 function hwText(key, ...a) {

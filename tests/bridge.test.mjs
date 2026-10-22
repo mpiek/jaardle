@@ -244,3 +244,17 @@ test("de bridge dispatcht geen sb-auth-changed vóórdat sbAuthState klopt, en g
   assert.match(g, /window\.addEventListener\("sb-auth-changed", onAuthChanged\)/);
   assert.match(g, /\(auth\.user \|\| window\.sbAuthState\?\.user\) \? rpc\("get_my_daily_state"/);
 });
+
+test("GoatCounter: meetpunten gaan naar een eigen events-site en de CSP laat dat adres toe (connect-src voor sendBeacon, img-src als terugval)", () => {
+  const main = (template.match(/data-goatcounter="(https:\/\/[^/"]+)\/count"/) || [])[1];
+  const ev = (template.match(/data-goatcounter-events="(https:\/\/[^/"]+)\/count"/) || [])[1];
+  assert.ok(main && ev && main !== ev, "de count.js-tag noemt de hoofdsite én een aparte events-site");
+  for (const f of MIRRORS) {
+    const csp = read(f).match(/<meta http-equiv="Content-Security-Policy" content="([^"]*)"/)[1];
+    const src = (name) => csp.split(";").map((s) => s.trim()).find((s) => s.startsWith(name + " ")).split(/\s+/);
+    for (const d of ["connect-src", "img-src"]) {
+      assert.ok(src(d).includes(main), `${f}: ${d} mist ${main}`);
+      assert.ok(src(d).includes(ev), `${f}: ${d} mist ${ev}`);
+    }
+  }
+});
