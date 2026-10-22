@@ -487,6 +487,7 @@ main {
   padding: 0.5rem 0.6rem;
   font-size: 0.92rem;
   text-align: left;
+  white-space: nowrap; /* #lang-pop hangt aan het smalle 🌐-knopje en krimpt anders tot 10rem: dan viel " ✓" onder "Nederlands" */
   cursor: pointer;
 }
 /* Eigen inline vlag-SVG's (FLAG_SVG in game.js) i.p.v. emoji: Windows toont
