@@ -79,7 +79,7 @@ src += `
   resolveRecord, reconstructDailyBoard, stampParam,
   VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
-  gcCount, hwCount,
+  gcCount, hwCount, gcCountNew, noteAnchorSlide, SLIDE2_KEY, setFactSlide: (i) => { factSlideIndex = i; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4111,6 +4111,44 @@ test("vondsten.js — minder beweging zet élke tekening stil (één harde regel
   assert.ok(m, "de regel staat in vondsten.js");
   const sel = m[1].split(",");
   for (const v of T.VONDSTEN.filter((x) => x.cls)) assert.ok(sel.includes("." + v.cls) && sel.includes(`.${v.cls} *`), v.id);
+});
+
+test("meetpunt slide-2-daily: één keer per daily-dag bij de eerste feit-slide voorbij de eerste, tijdens het spelen; -new alleen voor een nieuwkomer", () => {
+  const save = { qs: document.querySelector, gc: globalThis.goatcounter, nav: globalThis.navigator, hist: localStorage.getItem("jaardle:history") };
+  const sent = [];
+  const tag = { dataset: { goatcounter: "https://jaardle.goatcounter.com/count", goatcounterEvents: "https://jaardle-events.goatcounter.com/count" } };
+  const pot = (o) => ({ mode: "daily", puzzleDate: "2026-10-22", done: false, event: { facts: [{}], extras: [{}, {}] }, ...o });
+  const at = (i) => { T.setFactSlide(i); T.noteAnchorSlide(); };
+  const paths = () => sent.map((u) => new URL(u).searchParams.get("p"));
+  try {
+    document.querySelector = (q) => (q === "script[data-goatcounter-events]" ? tag : null);
+    setGlobal("navigator", { sendBeacon: (u) => { sent.push(u); return true; } });
+    globalThis.goatcounter = { filter: () => false, url: (v) => `https://jaardle.goatcounter.com/count?p=${encodeURIComponent(v.path)}&e=${v.event}` };
+    localStorage.removeItem(T.SLIDE2_KEY);
+    T.setLocalHistory([]);
+    T.setState(pot()); at(0);
+    assert.deepEqual(paths(), [], "op het hoofdfeit telt niets");
+    at(3);
+    assert.deepEqual(paths(), [], "de sprong naar een gekochte hint-slide telt niet");
+    at(1); at(2); at(1);
+    assert.deepEqual(paths(), ["slide-2-daily", "slide-2-daily-new"], "nieuwkomer: totaal + -new, één keer");
+    T.setState(pot()); at(2);
+    assert.equal(sent.length, 2, "na herladen (nieuwe state, zelfde dag) niet nog eens");
+    T.setLocalHistory([{ date: "2026-10-22", won: true }]);
+    T.setState(pot({ puzzleDate: "2026-10-23" })); at(1);
+    assert.deepEqual(paths().slice(2), ["slide-2-daily"], "terugkerend (eerdere daily-dag op dit apparaat): alleen het totaal");
+    T.setState(pot({ puzzleDate: "2026-10-24", done: true })); at(1);
+    T.setState(pot({ puzzleDate: "2026-10-25", mode: "free" })); at(1);
+    assert.equal(sent.length, 3, "na afloop (alles staat open om na te lezen) en in vrij spel: niets");
+    T.setLocalHistory([{ date: "2026-10-26", won: false }]);
+    T.setState(pot({ puzzleDate: "2026-10-26" })); T.gcCountNew("guess-1-daily", "First guess");
+    assert.deepEqual(paths().slice(3), ["guess-1-daily", "guess-1-daily-new"], "alleen de lopende dag in de geschiedenis = nog steeds nieuw");
+  } finally {
+    document.querySelector = save.qs; setGlobal("navigator", save.nav); T.setState(null);
+    localStorage.removeItem(T.SLIDE2_KEY);
+    if (save.hist == null) localStorage.removeItem("jaardle:history"); else localStorage.setItem("jaardle:history", save.hist);
+    if (save.gc === undefined) delete globalThis.goatcounter; else globalThis.goatcounter = save.gc;
+  }
 });
 
 test("meetpunten (gcCount, hwCount) gaan naar de events-site van GoatCounter, nooit naar de hoofdsite; bij het count.js-filter of zonder events-adres: niets", () => {

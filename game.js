@@ -2143,6 +2143,21 @@ function noteAnchorSlide() {
   if (!state || !state.event) return;
   const factCount = state.event.facts.length + availableExtras();
   if (factSlideIndex < factCount) anchorFactSlot = factSlideIndex;   // hint-slides: anker ongemoeid
+  if (factSlideIndex > 0 && factSlideIndex < factCount) countSlide2();
+}
+
+// Meetpunt: ziet een speler dat het feit een carrousel is? Eén keer per daily-dag (ook na herladen), alleen tijdens
+// het spelen en alleen naar een feit-slide: de sprong naar een net gekochte hint-slide telt niet. Delen door
+// guess-1-daily(-new); plays.anchor_hash zag alleen de slide bij de laatste gok (±38% verder dan slide 1, 22/10).
+const SLIDE2_KEY = "jaardle:slide2";
+function countSlide2() {
+  if (state.mode !== "daily" || state.done || state.slide2Counted) return;
+  state.slide2Counted = true;
+  try {
+    if (localStorage.getItem(SLIDE2_KEY) === state.puzzleDate) return;
+    localStorage.setItem(SLIDE2_KEY, state.puzzleDate);
+  } catch (e) { return; }
+  gcCountNew("slide-2-daily", "Swiped to slide 2+");
 }
 
 // --- Supabase RPC-bridge (window.sb wordt in index.html gezet) ---------------
@@ -2308,6 +2323,16 @@ function gcCount(path, title) {
     const to = events + url.slice(main.length);
     if (!navigator.sendBeacon?.(to)) new Image().src = to;
   } catch (e) {}
+}
+
+// Meetpunt met een extra "-new" voor een nieuwkomer (nog geen eerdere daily-dag in de geschiedenis van dit apparaat),
+// om te zien hoe een nieuwe speler speelt: X telt iedereen, X-new alleen nieuwkomers, terugkerend = X − X-new.
+function isNewcomer() {
+  return !loadHistory().some((e) => e.date !== state?.puzzleDate);
+}
+function gcCountNew(path, title) {
+  gcCount(path, title);
+  if (isNewcomer()) gcCount(path + "-new", title + " (new player)");
 }
 
 // Grove herkomst van dit apparaat, één keer bewaard bij het allereerste bezoek: 'direct' | 'listdle' | 'playlin' |
@@ -12747,7 +12772,9 @@ function submitGuess() {
   const diff = state.event.year - year;
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });
-  if (state.guesses.length === 1) gcCount(state.mode === "daily" ? "guess-1-daily" : "guess-1-free", "First guess");   // meetpunt: wie begint echt aan een potje?
+  if (state.guesses.length === 1) {   // meetpunt: wie begint echt aan een potje?
+    if (state.mode === "daily") gcCountNew("guess-1-daily", "First guess"); else gcCount("guess-1-free", "First guess");
+  }
   // Snapshot het anker op het gok-moment. Elke gok overschrijft, dus na afloop houdt
   // dit de laatste (bij winst: winnende) gok vast — "welk feit stond open toen ik gokte".
   state.anchorHash = state.hashes?.[anchorFactSlot] || state.hashes?.[0] || null;
