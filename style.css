@@ -489,13 +489,15 @@ main {
   text-align: left;
   cursor: pointer;
 }
-/* Vlag-SVG's (Kenney Flag Pack) i.p.v. emoji: Windows toont vlag-emoji's als
-   kale letterparen. Bron-art is vierkant; we rekken naar 4:3 (preserveAspect-
-   Ratio="none" in de SVG's) zodat het als vlag leest. */
+/* Eigen inline vlag-SVG's (FLAG_SVG in game.js) i.p.v. emoji: Windows toont
+   vlag-emoji's als kale letterparen. Het randje houdt wit (NL, GB) los van de
+   lichte achtergrond; in het donker valt het weg. */
 .lang-item .lang-flag {
   width: 1.5em;
   height: 1.125em;
   border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
   flex: none;
 }
 .lang-item:hover { background: var(--card-soft); }

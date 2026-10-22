@@ -4,7 +4,7 @@
 // verdwijnt. Draaien:  node --test tests/
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -38,9 +38,9 @@ setGlobal("localStorage", {
 const dir = dirname(fileURLToPath(import.meta.url));
 let src = readFileSync(join(dir, "..", "game.js"), "utf8");
 src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");
-src += `\n;globalThis.__T = { I18N, LANGS, LANG_CODES, DEFAULT_LANG };`;
+src += `\n;globalThis.__T = { I18N, LANGS, LANG_CODES, DEFAULT_LANG, FLAG_SVG };`;
 (0, eval)(src);
-const { I18N, LANGS, LANG_CODES, DEFAULT_LANG } = globalThis.__T;
+const { I18N, LANGS, LANG_CODES, DEFAULT_LANG, FLAG_SVG } = globalThis.__T;
 
 // shape: hoe we een waarde vergelijken qua "vorm" tussen talen
 const shape = (v) =>
@@ -66,10 +66,12 @@ test("LANGS-entries hebben alle vereiste velden", () => {
   }
 });
 
-test("elke taal heeft een vlag-SVG in flags/", () => {
+test("elke taal heeft een eigen inline vlag in FLAG_SVG", () => {
   for (const code of LANG_CODES) {
-    const file = join(dir, "..", "flags", `${LANGS[code].flag}.svg`);
-    assert.ok(existsSync(file), `flags/${LANGS[code].flag}.svg ontbreekt (LANGS["${code}"])`);
+    const svg = FLAG_SVG[LANGS[code].flag];
+    assert.ok(svg, `FLAG_SVG.${LANGS[code].flag} ontbreekt (LANGS["${code}"])`);
+    // geen ids (meerdere vlaggen tegelijk in de DOM) en geen externe verwijzingen
+    assert.ok(!/\bid=|url\(|href/.test(svg), `FLAG_SVG.${LANGS[code].flag} gebruikt een id of verwijzing`);
   }
 });
 

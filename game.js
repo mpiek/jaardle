@@ -20,8 +20,8 @@ const MAX_YEAR = new Date().getFullYear();
 // De volledigheidstest (tests/i18n.test.mjs) faalt als een taal een key mist.
 // Zie tools/build-html.mjs voor het build-script.
 //
-// Velden per taal: label (menu), flag (SVG in /flags, Kenney Flag Pack — geen
-// emoji: Windows rendert vlag-emoji's als letterparen), html (<html lang>),
+// Velden per taal: label (menu), flag (sleutel in FLAG_SVG — geen emoji: Windows
+// rendert vlag-emoji's als letterparen), html (<html lang>),
 // intl (Intl + ld+json), og (og:locale), path (URL-segment; "" = root-taal).
 const LANGS = {
   nl: { label: "Nederlands", flag: "NL", html: "nl", intl: "nl-NL", og: "nl_NL", path: "nl" },
@@ -31,6 +31,16 @@ const LANGS = {
   pt: { label: "Português",  flag: "BR", html: "pt", intl: "pt-BR", og: "pt_BR", path: "pt" },
 };
 const LANG_CODES = Object.keys(LANGS);
+// Eigen vlaggetjes voor het taalmenu (4:3, viewBox 24×18), inline zodat er geen
+// losse afbeeldingen geladen worden. Bewust vereenvoudigd: een eenvoudig wapen
+// op de Spaanse, geen sterren of tekst op de Braziliaanse globe.
+const FLAG_SVG = {
+  NL: '<rect width="24" height="18" fill="#21468B"/><rect width="24" height="12" fill="#fff"/><rect width="24" height="6" fill="#AE1C28"/>',
+  GB: '<rect width="24" height="18" fill="#012169"/><path d="M0 0L24 18M24 0L0 18" stroke="#fff" stroke-width="3.6"/><path fill="#C8102E" d="M0 0 12 9 10 9 0 1.5zM24 0 12 9 12 7.5 22 0zM24 18 12 9 14 9 24 16.5zM0 18 12 9 12 10.5 2 18z"/><path d="M12 0V18M0 9H24" stroke="#fff" stroke-width="6"/><path d="M12 0V18M0 9H24" stroke="#C8102E" stroke-width="3.6"/>',
+  DE: '<rect width="24" height="18" fill="#FFCE00"/><rect width="24" height="12" fill="#D00"/><rect width="24" height="6" fill="#000"/>',
+  ES: '<rect width="24" height="18" fill="#AA151B"/><rect y="4.5" width="24" height="9" fill="#F1BF00"/><path fill="#AD1519" d="M6.4 6.9V5.9Q8 4.6 9.6 5.9V6.9z"/><path fill="#E8B000" stroke="#7A5200" stroke-width=".3" d="M6.1 7.3H9.9L10.2 5.7L9.05 6.4L8 5.1L6.95 6.4L5.8 5.7z"/><path fill="#AD1519" d="M5.8 7.4H10.2V10.4C10.2 12.2 8.6 12.6 8 12.6C7.4 12.6 5.8 12.2 5.8 10.4z"/><path fill="#EDEDED" d="M8 7.4H10.2V9.3H8z"/><path fill="#E8B000" d="M5.8 9.3H8V12.6C7.4 12.6 5.8 12.2 5.8 10.4z"/><path stroke="#AD1519" stroke-width=".45" d="M6.55 9.3V11.7M7.4 9.3V12.4"/><path fill="none" stroke="#7A5200" stroke-width=".35" d="M5.8 7.4H10.2V10.4C10.2 12.2 8.6 12.6 8 12.6C7.4 12.6 5.8 12.2 5.8 10.4z"/>',
+  BR: '<rect width="24" height="18" fill="#009C3B"/><path fill="#FFDF00" d="M2 9L12 1.6L22 9L12 16.4z"/><circle cx="12" cy="9" r="4.2" fill="#002776"/><path fill="#fff" d="M7.82 8.62A12 12 0 0 1 15.96 10.39A4.2 4.2 0 0 1 15.52 11.29A11 11 0 0 0 7.85 9.62A4.2 4.2 0 0 1 7.82 8.62z"/>',
+};
 // Brontaal: hieruit lenen we een string/feit als de huidige taal die mist (het
 // meest complete blok). Los van de browser-detectie-fallback hieronder.
 const DEFAULT_LANG = "en";
@@ -199,7 +209,7 @@ const I18N = {
     login_note: `Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.`,
     footer_note: `Gebeurtenissen van <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contact</a>`,
     credits_title: "Colofon",
-    credits_note: `Gebeurtenissen: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaties <a href="https://creativecommons.org/licenses/by/4.0/deed.nl" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Vlaggen: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
+    credits_note: `Gebeurtenissen: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaties <a href="https://creativecommons.org/licenses/by/4.0/deed.nl" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
     day: "Dag", loading: "Laden…",
     err_load: "Kon de gebeurtenis niet laden.", err_share: "Deze gedeelde puzzel bestaat niet meer.",
     err_none: "Geen puzzel beschikbaar.", retry: "Opnieuw proberen",
@@ -544,7 +554,7 @@ const I18N = {
     login_note: `Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.`,
     footer_note: `Events from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contact</a>`,
     credits_title: "Credits",
-    credits_note: `Events: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animations <a href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Flags: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
+    credits_note: `Events: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animations <a href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
     day: "Day", loading: "Loading…",
     err_load: "Couldn't load the event.", err_share: "This shared puzzle no longer exists.",
     err_none: "No puzzle available.", retry: "Try again",
@@ -892,7 +902,7 @@ const I18N = {
     login_note: `Die Anmeldung läuft über <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwörter werden gehasht gespeichert (bcrypt), nie als Klartext, und nur deine E-Mail und Spielergebnisse werden gespeichert — nicht an Dritte weitergegeben.`,
     footer_note: `Ereignisse von <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Kontakt</a>`,
     credits_title: "Credits",
-    credits_note: `Ereignisse: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — Animationen <a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">Webfont</a> (Subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Flaggen: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
+    credits_note: `Ereignisse: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — Animationen <a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">Webfont</a> (Subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
     day: "Tag", loading: "Lädt…",
     err_load: "Ereignis konnte nicht geladen werden.", err_share: "Dieses geteilte Rätsel existiert nicht mehr.",
     err_none: "Kein Rätsel verfügbar.", retry: "Erneut versuchen",
@@ -1234,7 +1244,7 @@ const I18N = {
     login_note: `El inicio de sesión funciona a través de <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Las contraseñas se guardan cifradas (bcrypt), nunca en texto plano, y solo se almacenan tu correo y tus resultados de juego — no se comparten con terceros.`,
     footer_note: `Acontecimientos de <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contacto</a>`,
     credits_title: "Créditos",
-    credits_note: `Acontecimientos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaciones <a href="https://creativecommons.org/licenses/by/4.0/deed.es" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fuente web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Banderas: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
+    credits_note: `Acontecimientos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaciones <a href="https://creativecommons.org/licenses/by/4.0/deed.es" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fuente web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
     day: "Día", loading: "Cargando…",
     err_load: "No se pudo cargar el acontecimiento.", err_share: "Este puzle compartido ya no existe.",
     err_none: "No hay ningún puzle disponible.", retry: "Reintentar",
@@ -1581,7 +1591,7 @@ const I18N = {
     login_note: `O login é feito através do <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). As senhas são armazenadas com hash (bcrypt), nunca em texto puro, e apenas o seu e-mail e os resultados de jogo são guardados — não compartilhados com terceiros.`,
     footer_note: `Acontecimentos da <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contato</a>`,
     credits_title: "Créditos",
-    credits_note: `Acontecimentos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animações <a href="https://creativecommons.org/licenses/by/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fonte web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a><br>Bandeiras: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> · CC0`,
+    credits_note: `Acontecimentos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animações <a href="https://creativecommons.org/licenses/by/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fonte web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
     day: "Dia", loading: "Carregando…",
     err_load: "Não foi possível carregar o acontecimento.", err_share: "Este quebra-cabeça compartilhado não existe mais.",
     err_none: "Nenhum quebra-cabeça disponível.", retry: "Tentar de novo",
@@ -1938,7 +1948,7 @@ function renderLangMenu() {
   if (!pop) return;
   pop.innerHTML = LANG_CODES.map((c) =>
     `<button class="lang-item${c === lang ? " active" : ""}" role="menuitem" data-lang="${c}">` +
-    `<img class="lang-flag" src="/flags/${LANGS[c].flag}.svg" alt="" width="64" height="64">` +
+    `<svg class="lang-flag" viewBox="0 0 24 18" aria-hidden="true">${FLAG_SVG[LANGS[c].flag]}</svg>` +
     `${LANGS[c].label}${c === lang ? " ✓" : ""}</button>`).join("");
 }
 
