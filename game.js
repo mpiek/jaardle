@@ -3230,7 +3230,8 @@ const RANGE_LABELS = {
 // ⬛ 600+ 23 → 15 (2026-10-24), gelijk aan ⬜: een verre eerste gok betaalt dubbel, want
 // ook goed zoeken loopt daarna nog door de verre banden (daily-winsten, 60 dagen: na een
 // 600+-start kostten de latere gokken gemiddeld nog 31 punten, 54% eindigde onder 40).
-// Raakt ±2% van de winsten; de rating telt deze straffen niet (graded_score).
+// Raakt ±2% van de winsten. De rating volgt deze tabel niet: graded_score (db/135) telt de
+// afstand van elke gok met een eigen, voor verre gokken steilere tabel (guess_cost).
 // Alles wat de straf toont (❓-uitleg, demo-legenda) leest deze tabel.
 const GUESS_PENALTIES = {
   correct: 0,
@@ -3253,7 +3254,7 @@ const DIRECTION_HINT_PENALTY = 3;
 // naar ~+0.4/pot, gelijk aan 🔢/🧭. Loopt in de pas met graded_score (db/35).
 const CENTURY_HINT_PENALTY = 20;
 const LATER_CLUE_PENALTY = 3;   // per opgevraagde "100 jaar later"-clue (⏩-knop)
-const LAST_DIGIT_PENALTY = 10;  // 🔢 laatste cijfer van het jaartal onthullen
+const LAST_DIGIT_PENALTY = 10;  // 🔢 laatste cijfer van het jaartal onthullen (rating: 0.08, db/135)
 
 // Verlies = geen harde 0, maar een lage band op basis van je dichtste gok.
 // Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
