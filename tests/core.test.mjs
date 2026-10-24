@@ -147,7 +147,11 @@ test("computeScore — penalties per gok + hints, niet onder 0", () => {
   T.setState({ won: true, guesses: [{ cls: "close" }, { cls: "correct" }], directionsRevealed: [0], laterCluesShown: 2 });
   assert.equal(T.computeScore(), 100 - 5 - 3 - 2 * 3);     // close(5) + dir(3) + 2×later(3) = 86
 
-  T.setState({ won: true, guesses: Array(6).fill({ cls: "farthest" }), directionsRevealed: [0, 1], laterCluesShown: 0 });
+  // ⬛ 600+ kost sinds 2026-10-24 evenveel als ⬜ 201–599.
+  T.setState({ won: true, guesses: [{ cls: "farthest" }, { cls: "distant" }, { cls: "correct" }], directionsRevealed: [], laterCluesShown: 0 });
+  assert.equal(T.computeScore(), 100 - 15 - 15);
+
+  T.setState({ won: true, guesses: Array(6).fill({ cls: "farthest" }), directionsRevealed: [0, 1], laterCluesShown: 0, centuryRevealed: true });
   assert.equal(T.computeScore(), 0);                       // clamp op 0, niet negatief
 });
 

@@ -3227,6 +3227,11 @@ const RANGE_LABELS = {
 };
 
 // Score: 100 - sum(penalty per wrong guess) - hint penalties.
+// ⬛ 600+ 23 → 15 (2026-10-24), gelijk aan ⬜: een verre eerste gok betaalt dubbel, want
+// ook goed zoeken loopt daarna nog door de verre banden (daily-winsten, 60 dagen: na een
+// 600+-start kostten de latere gokken gemiddeld nog 31 punten, 54% eindigde onder 40).
+// Raakt ±2% van de winsten; de rating telt deze straffen niet (graded_score).
+// Alles wat de straf toont (❓-uitleg, demo-legenda) leest deze tabel.
 const GUESS_PENALTIES = {
   correct: 0,
   veryclose: 2,
@@ -3235,7 +3240,7 @@ const GUESS_PENALTIES = {
   cool: 11,
   far: 13,
   distant: 15,
-  farthest: 23,
+  farthest: 15,
 };
 // 5 → 3 (2026-07-14): audit liet zien dat 🧭 per punt het minst opleverde —
 // gebruikers eindigden in rating én score structureel onder hintloze spelers.
