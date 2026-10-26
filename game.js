@@ -4894,6 +4894,12 @@ function remindTzSync() {
 // het eigen venster van de browser. Zonder dat event: op een iPhone de drie stappen in Safari, op Android de weg via het
 // browsermenu (remind.js, lui); op een computer zonder event geen item. Al als app geopend = geen item.
 let installPrompt = null;
+// Chrome op Android biedt het eigen installeervenster (beforeinstallprompt) alleen aan als er een service worker draait.
+// sw.js doet alleen push/notificationclick (geen fetch, geen cache), dus registreren kost niets aan laadsnelheid of
+// verouderde versies; pas na het laden, als de browser niets te doen heeft. Al geïnstalleerd: overslaan.
+if (typeof navigator !== "undefined" && navigator.serviceWorker && !isStandaloneApp()) {
+  window.addEventListener?.("load", () => (window.requestIdleCallback || setTimeout)(() => navigator.serviceWorker.register("/sw.js").catch(() => {})));
+}
 window.addEventListener?.("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; syncInstallUi(); });
 window.addEventListener?.("appinstalled", () => { installPrompt = null; gcCount("install-done", "Install: installed"); syncInstallUi(); });
 function installMode() {
