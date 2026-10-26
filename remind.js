@@ -20,7 +20,11 @@ window.Remind = (() => {
       today: ["vanochtend", "vanmiddag", "vanavond"], tomorrow: ["morgenochtend", "morgenmiddag", "morgenavond"],
       blocked: "Te kort vóór de nieuwe daily", mark: "nieuwe daily", pick: "Tijd van je seintje",
       enable: "Zet seintje aan", busy: "Even wachten…", on: "Seintje staat aan", done: "Klaar", off: "Zet uit",
-      denied: "Meldingen voor jaardle.com staan uit in je browser. Zet ze aan via het slotje naast het webadres en probeer het opnieuw.",
+      dismissed: "Je klikte de vraag weg. Tik nog eens op ‘Zet seintje aan’ en kies Toestaan.",
+      deniedWeb: "Meldingen voor jaardle.com staan uit; je browser vraagt het niet nog eens. Tik op het slotje naast het webadres, zet Meldingen aan en kom hier terug.",
+      deniedIos: "Meldingen voor Jaardle staan uit; je iPhone vraagt het niet nog eens. Zet ze aan in Instellingen → Meldingen → Jaardle en kom hier terug.",
+      deniedApp: "Meldingen voor Jaardle staan uit; je telefoon vraagt het niet nog eens. Houd het Jaardle-icoon ingedrukt → App-info → Meldingen, zet ze aan en kom hier terug.",
+      retry: "Opnieuw proberen",
       error: "Het seintje aanzetten lukte niet. Probeer het later nog eens.",
       ios: "Op een iPhone kan Jaardle alleen een seintje sturen vanaf je beginscherm. Eenmalig, zo:",
       ios1: (i) => `Tik onderin op ${i} <b>Deel</b>`, ios2: (i) => `Kies ${i} <b>Zet op beginscherm</b>`,
@@ -37,7 +41,11 @@ window.Remind = (() => {
       today: ["this morning", "this afternoon", "this evening"], tomorrow: ["tomorrow morning", "tomorrow afternoon", "tomorrow evening"],
       blocked: "Too close to the new daily", mark: "new daily", pick: "Reminder time",
       enable: "Turn on reminder", busy: "One moment…", on: "Reminder is on", done: "Done", off: "Turn off",
-      denied: "Notifications for jaardle.com are blocked in your browser. Allow them via the lock next to the address, then try again.",
+      dismissed: "You closed the question. Tap ‘Turn on reminder’ again and choose Allow.",
+      deniedWeb: "Notifications for jaardle.com are blocked and your browser won't ask again. Tap the lock next to the address, allow Notifications and come back here.",
+      deniedIos: "Notifications for Jaardle are off and your iPhone won't ask again. Turn them on in Settings → Notifications → Jaardle and come back here.",
+      deniedApp: "Notifications for Jaardle are off and your phone won't ask again. Long-press the Jaardle icon → App info → Notifications, turn them on and come back here.",
+      retry: "Try again",
       error: "Couldn't turn on the reminder. Please try again later.",
       ios: "On iPhone, Jaardle can only send reminders from your home screen. One-time setup:",
       ios1: (i) => `Tap ${i} <b>Share</b> at the bottom`, ios2: (i) => `Choose ${i} <b>Add to Home Screen</b>`,
@@ -54,7 +62,11 @@ window.Remind = (() => {
       today: ["heute Morgen", "heute Nachmittag", "heute Abend"], tomorrow: ["morgen früh", "morgen Nachmittag", "morgen Abend"],
       blocked: "Zu kurz vor dem neuen Daily", mark: "neues Daily", pick: "Uhrzeit der Erinnerung",
       enable: "Erinnerung einschalten", busy: "Einen Moment…", on: "Erinnerung ist an", done: "Fertig", off: "Ausschalten",
-      denied: "Mitteilungen für jaardle.com sind in deinem Browser blockiert. Erlaube sie über das Schloss neben der Adresse und versuche es erneut.",
+      dismissed: "Du hast die Frage weggeklickt. Tippe noch einmal auf ‘Erinnerung einschalten’ und wähle Zulassen.",
+      deniedWeb: "Mitteilungen für jaardle.com sind blockiert und dein Browser fragt nicht noch einmal. Tippe auf das Schloss neben der Adresse, erlaube Mitteilungen und komm hierher zurück.",
+      deniedIos: "Mitteilungen für Jaardle sind aus und dein iPhone fragt nicht noch einmal. Schalte sie ein unter Einstellungen → Mitteilungen → Jaardle und komm hierher zurück.",
+      deniedApp: "Mitteilungen für Jaardle sind aus und dein Handy fragt nicht noch einmal. Halte das Jaardle-Symbol gedrückt → App-Info → Benachrichtigungen, schalte sie ein und komm hierher zurück.",
+      retry: "Erneut versuchen",
       error: "Das Einschalten hat nicht geklappt. Versuche es später noch einmal.",
       ios: "Auf dem iPhone kann Jaardle nur vom Home-Bildschirm aus erinnern. Einmalig so:",
       ios1: (i) => `Tippe unten auf ${i} <b>Teilen</b>`, ios2: (i) => `Wähle ${i} <b>Zum Home-Bildschirm</b>`,
@@ -71,7 +83,11 @@ window.Remind = (() => {
       today: ["esta mañana", "esta tarde", "esta noche"], tomorrow: ["mañana por la mañana", "mañana por la tarde", "mañana por la noche"],
       blocked: "Muy poco antes del nuevo diario", mark: "nuevo diario", pick: "Hora del recordatorio",
       enable: "Activar recordatorio", busy: "Un momento…", on: "Recordatorio activado", done: "Listo", off: "Desactivar",
-      denied: "Las notificaciones de jaardle.com están bloqueadas en tu navegador. Permítelas con el candado junto a la dirección y vuelve a intentarlo.",
+      dismissed: "Cerraste la pregunta. Toca otra vez ‘Activar recordatorio’ y elige Permitir.",
+      deniedWeb: "Las notificaciones de jaardle.com están bloqueadas y tu navegador no volverá a preguntar. Toca el candado junto a la dirección, permite las notificaciones y vuelve aquí.",
+      deniedIos: "Las notificaciones de Jaardle están desactivadas y tu iPhone no volverá a preguntar. Actívalas en Ajustes → Notificaciones → Jaardle y vuelve aquí.",
+      deniedApp: "Las notificaciones de Jaardle están desactivadas y tu móvil no volverá a preguntar. Mantén pulsado el icono de Jaardle → Info. de la aplicación → Notificaciones, actívalas y vuelve aquí.",
+      retry: "Intentar de nuevo",
       error: "No se pudo activar el recordatorio. Inténtalo más tarde.",
       ios: "En iPhone, Jaardle solo puede enviarte recordatorios desde tu pantalla de inicio. Se hace una vez:",
       ios1: (i) => `Toca ${i} <b>Compartir</b> abajo`, ios2: (i) => `Elige ${i} <b>Añadir a pantalla de inicio</b>`,
@@ -88,7 +104,11 @@ window.Remind = (() => {
       today: ["hoje de manhã", "hoje à tarde", "hoje à noite"], tomorrow: ["amanhã de manhã", "amanhã à tarde", "amanhã à noite"],
       blocked: "Muito perto do novo diário", mark: "novo diário", pick: "Hora do lembrete",
       enable: "Ativar lembrete", busy: "Um momento…", on: "Lembrete ativado", done: "Pronto", off: "Desativar",
-      denied: "As notificações de jaardle.com estão bloqueadas no seu navegador. Permita-as pelo cadeado ao lado do endereço e tente de novo.",
+      dismissed: "Você fechou a pergunta. Toque de novo em ‘Ativar lembrete’ e escolha Permitir.",
+      deniedWeb: "As notificações de jaardle.com estão bloqueadas e seu navegador não vai perguntar de novo. Toque no cadeado ao lado do endereço, permita as notificações e volte aqui.",
+      deniedIos: "As notificações do Jaardle estão desativadas e seu iPhone não vai perguntar de novo. Ative em Ajustes → Notificações → Jaardle e volte aqui.",
+      deniedApp: "As notificações do Jaardle estão desativadas e seu celular não vai perguntar de novo. Mantenha o ícone do Jaardle pressionado → Informações do app → Notificações, ative e volte aqui.",
+      retry: "Tentar de novo",
       error: "Não foi possível ativar o lembrete. Tente mais tarde.",
       ios: "No iPhone, o Jaardle só pode enviar lembretes a partir da tela de início. É só uma vez:",
       ios1: (i) => `Toque em ${i} <b>Compartilhar</b> embaixo`, ios2: (i) => `Escolha ${i} <b>Adicionar à Tela de Início</b>`,
@@ -290,7 +310,16 @@ html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remi
     }
     document.body.appendChild(el);
     el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => host.closeModal("modal-remind")));
-    if (mode !== "ios") wire();
+    if (mode !== "ios") {
+      wire();
+      if (isDenied() && !st.on) message(deniedText(t));
+      // Terug uit de instellingen (tab weer zichtbaar): staat het nu aan, dan de uitleg weg en de gewone knop terug.
+      const onVis = () => {
+        if (!document.getElementById("modal-remind")) return document.removeEventListener("visibilitychange", onVis);
+        if (document.visibilityState === "visible" && !isDenied() && !st.on) { message(""); show(); }
+      };
+      document.addEventListener("visibilitychange", onVis);
+    }
     host.openModal("modal-remind");
     host.gc?.("remind-open", "Reminder: opened");
   }
@@ -330,7 +359,7 @@ html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remi
         : st.on ? `${t.on} · ${t.first(t[firstDay(Date.now(), host.secsToReset(), h)][pod(h)])}`
         : t.first(t[firstDay(Date.now(), host.secsToReset(), h)][pod(h)]);
       go.disabled = !ok && !st.on;
-      go.textContent = st.on ? t.done : t.enable;
+      go.textContent = st.on ? t.done : isDenied() ? t.retry : t.enable;
       off.hidden = !st.on;
       el.classList.toggle("is-on", !!st.on);
       range.setAttribute("aria-valuetext", fmtHour(h));
@@ -347,6 +376,16 @@ html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remi
     show();
   }
 
+  // Geblokkeerd: de browser vraagt het nooit nog eens, dus de weg terug per situatie: een iPhone-app (Instellingen), een app
+  // op het Android-beginscherm (geen adresbalk: via het icoon) of een gewone browser (het slotje naast het adres).
+  function deniedText(t) {
+    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    if (standalone && /iP(hone|ad|od)|Macintosh/.test(navigator.userAgent)) return t.deniedIos;
+    if (standalone) return t.deniedApp;
+    return t.deniedWeb;
+  }
+  const isDenied = () => typeof Notification !== "undefined" && Notification.permission === "denied";
+
   function message(txt) {
     const m = el.querySelector(".rm-msg");
     m.textContent = txt || ""; m.hidden = !txt;
@@ -361,7 +400,11 @@ html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remi
     if (!quiet) { go.disabled = true; go.textContent = t.busy; }
     try {
       const perm = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
-      if (perm !== "granted") { host.gc?.("remind-denied", "Reminder: permission denied"); message(t.denied); show(); return; }
+      if (perm !== "granted") {
+        const blocked = perm === "denied";
+        host.gc?.(blocked ? "remind-denied" : "remind-dismissed", blocked ? "Reminder: permission denied" : "Reminder: question dismissed");
+        message(blocked ? deniedText(t) : t.dismissed); show(); return;
+      }
       const reg = await navigator.serviceWorker.register("/sw.js");
       await navigator.serviceWorker.ready;
       let sub = await reg.pushManager.getSubscription();

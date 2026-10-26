@@ -51,3 +51,10 @@ test("seintje: dagdeel bij de tijd (zon/maan + woord): 7–11 ochtend, 12–17 m
   assert.equal(R.TXT.nl.tomorrow[R.pod(19)], "morgenavond");
   assert.equal(R.TXT.en.today[R.pod(19)], "this evening");
 });
+
+test("seintje: weggeklikt en geblokkeerd hebben elk hun eigen tekst, in elke taal (browser, iPhone-app, Android-app)", () => {
+  for (const [l, t] of Object.entries(R.TXT)) {
+    for (const k of ["dismissed", "deniedWeb", "deniedIos", "deniedApp", "retry"]) assert.ok(t[k] && t[k].length > 5, `${l}.${k}`);
+    assert.notEqual(t.dismissed, t.deniedWeb, l);
+  }
+});
