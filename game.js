@@ -4665,6 +4665,7 @@ function sendTelemetry() {
   const first = state.guesses[0];
   const prevRating = auth.rating, prevRaw = auth.ratingRaw;
   const shared = !!state.shared;
+  const anon = !auth.user;
   const ratingLine = shared ? null : ratingLineStart(prevRating);   // ⚡-regel meteen in beeld met de oude stand
   return rpc("record_play", {
     p_fact_hash: hash,
@@ -4690,6 +4691,8 @@ function sendTelemetry() {
       updateRepairAfterPlay();  // 🩹-voortgang/afronding + banners (alleen ingelogd)
       // Onthoud het rij-id zodat we de pot ná inloggen aan het account kunnen koppelen.
       try { if (id != null) localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); } catch (e) {}
+      try { if (id != null && anon) localStorage.setItem(ANON_PLAYED_KEY, "1"); } catch (e) {}   // claimDevicePlays mag weer
+
     })
     .catch(() => { ratingLine?.remove(); try { localStorage.removeItem(sentKey); } catch (e) {} });
 }
@@ -4712,6 +4715,49 @@ async function claimPlayOnLogin() {
     invalidateHistory();
     if (!document.getElementById("modal-recap").hidden) renderRecap();  // pitch -> teamstand
   }
+}
+
+// Alle óudere anonieme potjes van dít toestel naar het account (db/136: claim_device_plays op het speler-id van
+// clientId()). claim_play hierboven pakt alleen de pot van vandaag; zonder dit begonnen trofeeën, album, rating en (op
+// een ander toestel of in de iPhone-beginschermapp) de streak na inloggen opnieuw. Eén keer per account per toestel, en
+// opnieuw zodra hier weer anoniem gespeeld is. De server laat een daily liggen als het account die dag al speelde of als
+// de poolweek al gesloten is. Kwam er iets bij, dan de prestaties stil opnieuw baseline'en: wat je anoniem al zag, is
+// niet "nieuw".
+const DEVCLAIM_KEY = "jaardle:devclaim";        // uid's (max. 5) waarvoor dit toestel al alles overzette
+const ANON_PLAYED_KEY = "jaardle:anonPlayed";   // "1" = sindsdien weer anoniem gespeeld (sendTelemetry)
+function devClaimDue(uid) {
+  try {
+    if (!localStorage.getItem("jaardle:cid")) return false;   // nooit een pot afgerond op dit toestel: niets te halen
+    const done = JSON.parse(localStorage.getItem(DEVCLAIM_KEY) || "[]");
+    return !Array.isArray(done) || !done.includes(uid) || localStorage.getItem(ANON_PLAYED_KEY) === "1";
+  } catch (e) { return false; }
+}
+function devClaimDone(uid) {
+  try {
+    let done = JSON.parse(localStorage.getItem(DEVCLAIM_KEY) || "[]");
+    if (!Array.isArray(done)) done = [];
+    localStorage.setItem(DEVCLAIM_KEY, JSON.stringify(done.filter((u) => u !== uid).concat(uid).slice(-5)));
+    localStorage.removeItem(ANON_PLAYED_KEY);
+  } catch (e) {}
+}
+async function claimDevicePlays() {
+  if (!auth.user) return;
+  const uid = auth.user.uid;
+  if (!devClaimDue(uid)) return;
+  let n;
+  try { n = await rpc("claim_device_plays", { p_client_id: localStorage.getItem("jaardle:cid") }); }
+  catch (e) { return; }   // netwerk of een server van vóór db/136: volgende sessie opnieuw
+  if (!auth.user || auth.user.uid !== uid) return;
+  devClaimDone(uid);
+  if (!(Number(n) > 0)) return;
+  invalidateHistory(); invalidateStreakExtras(); achvCache = null;
+  await achvRefreshBaseline();
+  refreshMyRating();
+  if (!document.getElementById("modal-recap").hidden) renderRecap();
+  const sm = document.getElementById("modal-stats");
+  if (sm && !sm.hidden) renderStats();
+  if (state?.done && state.mode === "daily") appendStreakLine(state.won);
+  refreshStreakBanners();
 }
 
 // Aftelklok tot de volgende dagpuzzel, onder de globale stats. Alleen in
@@ -13408,7 +13454,7 @@ async function init() {
     // → eindscherm, ander apparaat verder → overnemen, lokaal verder → pushen.
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
-    if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin(); claimParkedFind(); }
+    if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin().finally(claimDevicePlays); claimParkedFind(); }
     if (pendingRecapAfterLogin && auth.user) { pendingRecapAfterLogin = false; pendingOpenRecap = true; }   // net ingelogd vanuit het eindscherm-kaartje
     maybeOpenRecapDeeplink();   // ?recap: wacht (ingelogd) op de reconcile hierboven, dan eindscherm of 'speel eerst'
     // Auth komt op een reload ná het herstellen van een afgerond dagbord binnen;

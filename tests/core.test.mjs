@@ -80,6 +80,7 @@ src += `
   VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
   gcCount, hwCount, gcCountNew, gcCountDaily, noteAnchorSlide, GC_DAY_KEY, setFactSlide: (i) => { factSlideIndex = i; },
+  devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4185,4 +4186,53 @@ test("meetpunten (gcCount, hwCount) gaan naar de events-site van GoatCounter, no
     document.querySelector = save.qs; setGlobal("navigator", save.nav);
     if (save.gc === undefined) delete globalThis.goatcounter; else globalThis.goatcounter = save.gc;
   }
+});
+
+test("inloggen zet álle anonieme potjes van dit toestel over (claim_device_plays): één keer per account per toestel, opnieuw na anoniem spelen, niets zonder speler-id; bij iets erbij een stille nieuwe baseline", async () => {
+  const ls = globalThis.localStorage, wasUser = T.auth.user, wasSb = globalThis.sb;
+  const keys = ["jaardle:cid", T.DEVCLAIM_KEY, T.ANON_PLAYED_KEY, "jaardle:achvSeen:u1"];
+  const calls = [];
+  let answer = 0, fail = false;
+  const clear = () => keys.forEach((k) => ls.removeItem(k));
+  try {
+    clear();
+    globalThis.sb = { rpc: async (fn, a) => {
+      calls.push([fn, a]);
+      if (fn === "claim_device_plays") { if (fail) throw new Error("boem"); return answer; }
+      if (fn === "get_my_achievements") return { games: 12 };
+      return null;
+    } };
+    T.auth.user = { uid: "u1" };
+    const claims = () => calls.filter((c) => c[0] === "claim_device_plays");
+
+    assert.equal(T.devClaimDue("u1"), false, "zonder speler-id (nooit een pot afgerond) valt er niets te halen");
+    await T.claimDevicePlays();
+    assert.equal(claims().length, 0);
+
+    ls.setItem("jaardle:cid", "11111111-2222-4333-8444-555555555555");
+    assert.equal(T.devClaimDue("u1"), true, "bestaande accounts: één keer op elk toestel");
+    await T.claimDevicePlays();
+    assert.deepEqual(claims().at(-1), ["claim_device_plays", { p_client_id: "11111111-2222-4333-8444-555555555555" }]);
+    assert.equal(calls.some((c) => c[0] === "get_my_achievements"), false, "niets overgezet → geen herberekening");
+    assert.equal(T.devClaimDue("u1"), false, "daarna niet bij elke pagina opnieuw");
+    await T.claimDevicePlays();
+    assert.equal(claims().length, 1);
+
+    ls.setItem(T.ANON_PLAYED_KEY, "1");   // uitgelogd gespeeld
+    assert.equal(T.devClaimDue("u1"), true);
+    answer = 3;
+    await T.claimDevicePlays();
+    assert.equal(claims().length, 2);
+    assert.equal(ls.getItem(T.ANON_PLAYED_KEY), null);
+    assert.ok(calls.some((c) => c[0] === "get_my_achievements"), "iets overgezet → prestaties opnieuw ophalen");
+    assert.ok(ls.getItem("jaardle:achvSeen:u1"), "en stil baseline'en: wat je anoniem al zag is niet nieuw");
+
+    assert.equal(T.devClaimDue("u2"), true, "een ander account op hetzelfde toestel krijgt zijn eigen keer");
+    fail = true; T.auth.user = { uid: "u2" };
+    await T.claimDevicePlays();
+    assert.equal(T.devClaimDue("u2"), true, "mislukt (netwerk, server van vóór db/136) → volgende sessie opnieuw");
+
+    for (const u of ["a", "b", "c", "d", "e"]) T.devClaimDone(u);
+    assert.deepEqual(JSON.parse(ls.getItem(T.DEVCLAIM_KEY)), ["a", "b", "c", "d", "e"], "hooguit 5 accounts onthouden");
+  } finally { clear(); T.auth.user = wasUser; if (wasSb === undefined) delete globalThis.sb; else globalThis.sb = wasSb; }
 });
