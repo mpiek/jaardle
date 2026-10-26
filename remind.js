@@ -15,7 +15,8 @@ window.Remind = (() => {
     nl: {
       title: "Dagelijks seintje",
       lead: "Eén berichtje per dag, alleen als je de daily nog niet gespeeld hebt. Een week niet gespeeld? Dan stoppen ze vanzelf.",
-      first: (d) => `Eerste seintje: ${d}`, today: "vandaag", tomorrow: "morgen",
+      first: (d) => `Eerste seintje: ${d}`,
+      today: ["vanochtend", "vanmiddag", "vanavond"], tomorrow: ["morgenochtend", "morgenmiddag", "morgenavond"],
       blocked: "Te kort vóór de nieuwe daily", mark: "nieuwe daily", pick: "Tijd van je seintje",
       enable: "Zet seintje aan", busy: "Even wachten…", on: "Seintje staat aan", done: "Klaar", off: "Zet uit",
       denied: "Meldingen voor jaardle.com staan uit in je browser. Zet ze aan via het slotje naast het webadres en probeer het opnieuw.",
@@ -28,7 +29,8 @@ window.Remind = (() => {
     en: {
       title: "Daily reminder",
       lead: "One message a day, only if you haven't played the daily yet. Skip a week and they stop by themselves.",
-      first: (d) => `First reminder: ${d}`, today: "today", tomorrow: "tomorrow",
+      first: (d) => `First reminder: ${d}`,
+      today: ["this morning", "this afternoon", "this evening"], tomorrow: ["tomorrow morning", "tomorrow afternoon", "tomorrow evening"],
       blocked: "Too close to the new daily", mark: "new daily", pick: "Reminder time",
       enable: "Turn on reminder", busy: "One moment…", on: "Reminder is on", done: "Done", off: "Turn off",
       denied: "Notifications for jaardle.com are blocked in your browser. Allow them via the lock next to the address, then try again.",
@@ -41,7 +43,8 @@ window.Remind = (() => {
     de: {
       title: "Tägliche Erinnerung",
       lead: "Eine Nachricht pro Tag, nur wenn du das Daily noch nicht gespielt hast. Eine Woche Pause? Dann hören sie von selbst auf.",
-      first: (d) => `Erste Erinnerung: ${d}`, today: "heute", tomorrow: "morgen",
+      first: (d) => `Erste Erinnerung: ${d}`,
+      today: ["heute Morgen", "heute Nachmittag", "heute Abend"], tomorrow: ["morgen früh", "morgen Nachmittag", "morgen Abend"],
       blocked: "Zu kurz vor dem neuen Daily", mark: "neues Daily", pick: "Uhrzeit der Erinnerung",
       enable: "Erinnerung einschalten", busy: "Einen Moment…", on: "Erinnerung ist an", done: "Fertig", off: "Ausschalten",
       denied: "Mitteilungen für jaardle.com sind in deinem Browser blockiert. Erlaube sie über das Schloss neben der Adresse und versuche es erneut.",
@@ -54,7 +57,8 @@ window.Remind = (() => {
     es: {
       title: "Recordatorio diario",
       lead: "Un mensaje al día, solo si aún no has jugado el diario. ¿Una semana sin jugar? Dejan de llegar solos.",
-      first: (d) => `Primer recordatorio: ${d}`, today: "hoy", tomorrow: "mañana",
+      first: (d) => `Primer recordatorio: ${d}`,
+      today: ["esta mañana", "esta tarde", "esta noche"], tomorrow: ["mañana por la mañana", "mañana por la tarde", "mañana por la noche"],
       blocked: "Muy poco antes del nuevo diario", mark: "nuevo diario", pick: "Hora del recordatorio",
       enable: "Activar recordatorio", busy: "Un momento…", on: "Recordatorio activado", done: "Listo", off: "Desactivar",
       denied: "Las notificaciones de jaardle.com están bloqueadas en tu navegador. Permítelas con el candado junto a la dirección y vuelve a intentarlo.",
@@ -67,7 +71,8 @@ window.Remind = (() => {
     pt: {
       title: "Lembrete diário",
       lead: "Uma mensagem por dia, só se você ainda não jogou o diário. Uma semana sem jogar? Eles param sozinhos.",
-      first: (d) => `Primeiro lembrete: ${d}`, today: "hoje", tomorrow: "amanhã",
+      first: (d) => `Primeiro lembrete: ${d}`,
+      today: ["hoje de manhã", "hoje à tarde", "hoje à noite"], tomorrow: ["amanhã de manhã", "amanhã à tarde", "amanhã à noite"],
       blocked: "Muito perto do novo diário", mark: "novo diário", pick: "Hora do lembrete",
       enable: "Ativar lembrete", busy: "Um momento…", on: "Lembrete ativado", done: "Pronto", off: "Desativar",
       denied: "As notificações de jaardle.com estão bloqueadas no seu navegador. Permita-as pelo cadeado ao lado do endereço e tente de novo.",
@@ -80,6 +85,14 @@ window.Remind = (() => {
   };
 
   const BELL = `<svg class="rm-bell" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g class="rm-bell-sw"><path d="M12 2.6a1.4 1.4 0 0 1 1.4 1.4v.55A6.2 6.2 0 0 1 18.2 10.6v3.9l1.55 2.3a.9.9 0 0 1-.75 1.4H5a.9.9 0 0 1-.75-1.4l1.55-2.3v-3.9a6.2 6.2 0 0 1 4.8-6.05V4A1.4 1.4 0 0 1 12 2.6Z" fill="currentColor"/><path d="M9.6 19.4h4.8a2.4 2.4 0 0 1-4.8 0Z" fill="currentColor"/></g></svg>`;
+  // Dagdeel naast de grote tijd ("amerikanen snappen 24u tijd niet", 26/10): in één oogopslag ochtend, middag of avond,
+  // ook voor wie 19:00 moet omrekenen. Zelfde indeling als de woorden in TXT (today/tomorrow).
+  const POD = [
+    `<svg class="rm-pod rm-pod-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 17a5.5 5.5 0 0 1 11 0"/><path d="M3 20h18M12 4.5v3M4.9 9.4l1.8 1.8M19.1 9.4l-1.8 1.8M2.5 15.5h2M19.5 15.5h2"/></svg>`,
+    `<svg class="rm-pod rm-pod-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.3" fill="currentColor" fill-opacity=".25"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>`,
+    `<svg class="rm-pod rm-pod-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1Z" fill="currentColor" fill-opacity=".25"/><path d="M17 3.5v2M16 4.5h2M20.5 8v1.4M19.8 8.7h1.4" stroke-linecap="round"/></svg>`,
+  ];
+  const pod = (h) => (h < 12 ? 0 : h < 18 ? 1 : 2);
   const SHARE = `<svg class="rm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M8 7l4-4 4 4M7 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg>`;
   const PLUS = `<svg class="rm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M12 8v8M8 12h8"/></svg>`;
   // De duim van de tijdlijn: een witte knop met de bel erin (CSP: img-src staat data: toe).
@@ -100,8 +113,12 @@ window.Remind = (() => {
 @keyframes rm-ring { 0%,100% { transform: none; } 12% { transform: rotate(16deg); } 26% { transform: rotate(-13deg); } 40% { transform: rotate(9deg); } 54% { transform: rotate(-6deg); } 68% { transform: rotate(3deg); } 82% { transform: rotate(-1deg); } }
 .rm-lead { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.45; }
 .rm-dial { margin: 0.35rem 0 0; text-align: center; }
-.rm-time { display: block; font-size: 2.75rem; font-weight: 750; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--fg); transition: opacity 0.15s; }
+#modal-remind { --rm-rise: #f2a46e; --rm-sun: #f4c430; --rm-moon: #b8a8f2; }
+html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remind { --rm-rise: #a65a00; --rm-sun: #8a6a00; --rm-moon: #5d4fa3; }
+.rm-time { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: 2.75rem; font-weight: 750; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--fg); transition: opacity 0.15s; }
 .rm-first { display: block; min-height: 1.35em; margin-top: 0.2rem; font-size: 0.86rem; color: var(--muted); }
+.rm-pod { width: 0.62em; height: 0.62em; flex: none; }
+.rm-pod-0 { color: var(--rm-rise); } .rm-pod-1 { color: var(--rm-sun); } .rm-pod-2 { color: var(--rm-moon); }
 .rm-dial.is-blocked .rm-time { opacity: 0.38; }
 .rm-dial.is-blocked .rm-first { color: var(--loss-soft); }
 #modal-remind.is-on .rm-first { color: var(--green-text); }
@@ -270,10 +287,10 @@ window.Remind = (() => {
     show = () => {
       const h = Number(range.value), ok = isOk(info, h);
       dial.classList.toggle("is-blocked", !ok);
-      el.querySelector(".rm-time").textContent = fmtHour(h);
+      el.querySelector(".rm-time").innerHTML = `${POD[pod(h)]}<span>${esc(fmtHour(h))}</span>`;
       el.querySelector(".rm-first").textContent = !ok ? t.blocked
-        : st.on ? `${t.on} · ${t.first(t[firstDay(Date.now(), host.secsToReset(), h)])}`
-        : t.first(t[firstDay(Date.now(), host.secsToReset(), h)]);
+        : st.on ? `${t.on} · ${t.first(t[firstDay(Date.now(), host.secsToReset(), h)][pod(h)])}`
+        : t.first(t[firstDay(Date.now(), host.secsToReset(), h)][pod(h)]);
       go.disabled = !ok && !st.on;
       go.textContent = st.on ? t.done : t.enable;
       off.hidden = !st.on;
@@ -348,5 +365,5 @@ window.Remind = (() => {
     show();
   }
 
-  return { open, support, hoursInfo, firstDay, nearestOk, KEY };
+  return { open, support, hoursInfo, firstDay, nearestOk, pod, TXT, KEY };
 })();

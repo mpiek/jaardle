@@ -42,3 +42,12 @@ test("seintje: het eerste bericht komt pas bij de volgende daily, niet bij die v
   assert.equal(R.firstDay(now, until(now, 18), 8), "tomorrow");
   assert.equal(R.firstDay(at(23), until(at(23), 24), 7), "tomorrow");
 });
+
+test("seintje: dagdeel bij de tijd (zon/maan + woord): 7–11 ochtend, 12–17 middag, 18–22 avond, in elke taal drie woorden voor vandaag en morgen", () => {
+  assert.deepEqual([7, 11, 12, 17, 18, 22].map(R.pod), [0, 0, 1, 1, 2, 2]);
+  for (const [l, t] of Object.entries(R.TXT)) {
+    assert.equal(t.today.length, 3, l); assert.equal(t.tomorrow.length, 3, l);
+  }
+  assert.equal(R.TXT.nl.tomorrow[R.pod(19)], "morgenavond");
+  assert.equal(R.TXT.en.today[R.pod(19)], "this evening");
+});
