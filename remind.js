@@ -5,7 +5,8 @@
    logische tijden kunnen kiezen", 26/10); valt de nieuwe daily binnen het venster, dan staat er een streepje. De server
    (db/137, functie daily-reminder) stuurt hooguit één bericht per dag, alleen als je de daily van dat moment nog niet speelde,
    en een week niet gespeeld = stil. Op een iPhone kan push alleen vanaf het beginscherm: dan dezelfde kaart met de drie stappen.
-   game.js levert host (taal, rpc, speler-id, aftelklok) en leest jaardle:remind zelf voor de bel; dit bestand schrijft hem. */
+   game.js levert host (taal, rpc, speler-id, aftelklok) en leest jaardle:remind zelf voor de bel; dit bestand schrijft hem.
+   Ook hier: het kaartje "Zet op beginscherm" uit het ⋮-menu (openInstall) voor browsers zonder eigen installeervenster. */
 window.Remind = (() => {
   const VAPID = "BMIGkZBV67ptymA1ihwGL9YfCdT_XfIEXHfhR6n7_5Quim-OqEqMW1MkxK8PPNpuhk1u4mFUdwUm2SK9XvNyyUc";
   const KEY = "jaardle:remind";   // { on, hour, tz, ep }
@@ -25,6 +26,9 @@ window.Remind = (() => {
       ios1: (i) => `Tik onderin op ${i} <b>Deel</b>`, ios2: (i) => `Kies ${i} <b>Zet op beginscherm</b>`,
       ios3: (i) => `Open Jaardle vanaf je beginscherm en tik op ${i}`,
       iosNote: "Je streak staat nu in Safari. Log in (ook in de app), dan gaat hij mee.", ok: "Begrepen", close: "Sluiten",
+      inTitle: "Zet Jaardle op je beginscherm", inLead: "Dan open je Jaardle met één tik, zonder adresbalk. Zo doe je dat:",
+      in3: "Open Jaardle voortaan vanaf je beginscherm", inAnd1: "Tik in je browser rechtsboven op <b>⋮</b>",
+      inAnd2: "Kies <b>Toevoegen aan startscherm</b> of <b>App installeren</b>",
     },
     en: {
       title: "Daily reminder",
@@ -39,6 +43,9 @@ window.Remind = (() => {
       ios1: (i) => `Tap ${i} <b>Share</b> at the bottom`, ios2: (i) => `Choose ${i} <b>Add to Home Screen</b>`,
       ios3: (i) => `Open Jaardle from your home screen and tap ${i}`,
       iosNote: "Your streak lives in Safari right now. Log in (in the app too) and it comes along.", ok: "Got it", close: "Close",
+      inTitle: "Add Jaardle to your home screen", inLead: "Then Jaardle opens with one tap, without the address bar. Here's how:",
+      in3: "From now on, open Jaardle from your home screen", inAnd1: "Tap <b>⋮</b> at the top right of your browser",
+      inAnd2: "Choose <b>Add to Home screen</b> or <b>Install app</b>",
     },
     de: {
       title: "Tägliche Erinnerung",
@@ -53,6 +60,9 @@ window.Remind = (() => {
       ios1: (i) => `Tippe unten auf ${i} <b>Teilen</b>`, ios2: (i) => `Wähle ${i} <b>Zum Home-Bildschirm</b>`,
       ios3: (i) => `Öffne Jaardle vom Home-Bildschirm und tippe auf ${i}`,
       iosNote: "Deine Serie liegt gerade in Safari. Melde dich an (auch in der App), dann kommt sie mit.", ok: "Verstanden", close: "Schließen",
+      inTitle: "Jaardle auf den Home-Bildschirm", inLead: "Dann öffnest du Jaardle mit einem Tipp, ohne Adressleiste. So geht's:",
+      in3: "Öffne Jaardle ab jetzt vom Home-Bildschirm", inAnd1: "Tippe in deinem Browser oben rechts auf <b>⋮</b>",
+      inAnd2: "Wähle <b>Zum Startbildschirm hinzufügen</b> oder <b>App installieren</b>",
     },
     es: {
       title: "Recordatorio diario",
@@ -67,6 +77,9 @@ window.Remind = (() => {
       ios1: (i) => `Toca ${i} <b>Compartir</b> abajo`, ios2: (i) => `Elige ${i} <b>Añadir a pantalla de inicio</b>`,
       ios3: (i) => `Abre Jaardle desde tu pantalla de inicio y toca ${i}`,
       iosNote: "Tu racha está ahora en Safari. Inicia sesión (también en la app) y vendrá contigo.", ok: "Entendido", close: "Cerrar",
+      inTitle: "Añade Jaardle a tu pantalla de inicio", inLead: "Así abres Jaardle con un toque, sin barra de direcciones. Se hace así:",
+      in3: "A partir de ahora, abre Jaardle desde tu pantalla de inicio", inAnd1: "Toca <b>⋮</b> arriba a la derecha en tu navegador",
+      inAnd2: "Elige <b>Añadir a pantalla de inicio</b> o <b>Instalar aplicación</b>",
     },
     pt: {
       title: "Lembrete diário",
@@ -81,6 +94,9 @@ window.Remind = (() => {
       ios1: (i) => `Toque em ${i} <b>Compartilhar</b> embaixo`, ios2: (i) => `Escolha ${i} <b>Adicionar à Tela de Início</b>`,
       ios3: (i) => `Abra o Jaardle pela tela de início e toque em ${i}`,
       iosNote: "Sua sequência está no Safari agora. Entre (também no app) e ela vem junto.", ok: "Entendi", close: "Fechar",
+      inTitle: "Coloque o Jaardle na tela de início", inLead: "Assim você abre o Jaardle com um toque, sem barra de endereço. É assim:",
+      in3: "A partir de agora, abra o Jaardle pela tela de início", inAnd1: "Toque em <b>⋮</b> no canto superior direito do navegador",
+      inAnd2: "Escolha <b>Adicionar à tela inicial</b> ou <b>Instalar app</b>",
     },
   };
 
@@ -94,6 +110,7 @@ window.Remind = (() => {
   ];
   const pod = (h) => (h < 12 ? 0 : h < 18 ? 1 : 2);
   const SHARE = `<svg class="rm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M8 7l4-4 4 4M7 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg>`;
+  const PHONE = `<svg class="rm-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3M12 7.5v5.5M9.6 10.6 12 13l2.4-2.4"/></svg>`;
   const PLUS = `<svg class="rm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M12 8v8M8 12h8"/></svg>`;
   // De duim van de tijdlijn: een witte knop met de bel erin (CSP: img-src staat data: toe).
   const THUMB = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.6a1.4 1.4 0 0 1 1.4 1.4v.55A6.2 6.2 0 0 1 18.2 10.6v3.9l1.55 2.3a.9.9 0 0 1-.75 1.4H5a.9.9 0 0 1-.75-1.4l1.55-2.3v-3.9a6.2 6.2 0 0 1 4.8-6.05V4A1.4 1.4 0 0 1 12 2.6Z M9.6 19.4h4.8a2.4 2.4 0 0 1-4.8 0Z" fill="#2a3550"/></svg>`);
@@ -104,8 +121,8 @@ window.Remind = (() => {
   const skyCss = () => `linear-gradient(90deg, ${SKY.map(([h, c]) => `${c} ${pct(h).toFixed(1)}%`).join(", ")})`;
 
   const CSS = `
-#modal-remind .modal-card { max-width: 22rem; }
-#modal-remind .modal-header h2 { display: flex; align-items: center; gap: 0.5rem; }
+#modal-remind .modal-card, #modal-install .modal-card { max-width: 22rem; }
+#modal-remind .modal-header h2, #modal-install .modal-header h2 { display: flex; align-items: center; gap: 0.5rem; }
 .rm-bell { width: 1.15em; height: 1.15em; flex: none; color: var(--muted); overflow: visible; }
 .rm-bell-sw { transform-origin: 12px 3.2px; transform-box: view-box; }
 #modal-remind.is-on .modal-header .rm-bell { color: var(--gold-text); }
@@ -277,6 +294,27 @@ html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remi
     host.openModal("modal-remind");
     host.gc?.("remind-open", "Reminder: opened");
   }
+  // "Zet op beginscherm" uit het ⋮-menu, voor browsers zonder eigen installeervenster (dat roept game.js zelf aan).
+  // api.mode: 'ios' (Safari: Deel → Zet op beginscherm) of 'android' (browsermenu ⋮). Op een iPhone heeft de beginscherm-app
+  // eigen opslag, dus anoniem de inlog-tip (na db/136 gaat dan alles mee).
+  function openInstall(api) {
+    host = api;
+    ensureCss();
+    document.getElementById("modal-install")?.remove();
+    const t = T(), ios = api.mode === "ios";
+    const m = document.createElement("div");
+    m.id = "modal-install"; m.className = "modal"; m.hidden = true;
+    m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-labelledby", "install-title");
+    const steps = ios ? [t.ios1(SHARE), t.ios2(PLUS), esc(t.in3)] : [t.inAnd1, t.inAnd2, esc(t.in3)];
+    m.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card"><header class="modal-header"><h2 id="install-title">${PHONE}${esc(t.inTitle)}</h2>` +
+      `<button type="button" class="modal-close" data-close aria-label="${esc(t.close)}">✕</button></header><div class="modal-body">` +
+      `<p class="rm-lead">${esc(t.inLead)}</p><ol class="rm-steps">${steps.map((x) => `<li><span>${x}</span></li>`).join("")}</ol>` +
+      (ios && !api.loggedIn ? `<p class="rm-note">${esc(t.iosNote)}</p>` : "") +
+      `<div class="rm-act"><button type="button" class="rm-go" data-close>${esc(t.ok)}</button></div></div></div>`;
+    document.body.appendChild(m);
+    m.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => host.closeModal("modal-install")));
+    host.openModal("modal-install");
+  }
   // De duim loopt van 15 px tot (breedte − 15 px): posities rekenen met dezelfde inzet, anders staat het streepje naast het uur.
   const xCss = (h) => `calc(15px + (100% - 30px) * ${((h - FIRST) / (LAST - FIRST)).toFixed(4)})`;
   const posCss = (a, b) => `left:${xCss(a)};width:calc((100% - 30px) * ${((b - a) / (LAST - FIRST)).toFixed(4)})`;
@@ -365,5 +403,5 @@ html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remi
     show();
   }
 
-  return { open, support, hoursInfo, firstDay, nearestOk, pod, TXT, KEY };
+  return { open, openInstall, support, hoursInfo, firstDay, nearestOk, pod, TXT, KEY };
 })();

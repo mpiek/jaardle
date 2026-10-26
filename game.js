@@ -228,7 +228,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
-    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_remind: "\u{1F514} Dagelijks seintje",
+    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
@@ -579,7 +579,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
-    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_remind: "\u{1F514} Daily reminder",
+    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
@@ -923,7 +923,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
-    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_remind: "\u{1F514} Tägliche Erinnerung",
+    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
@@ -1271,7 +1271,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
-    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_remind: "\u{1F514} Recordatorio diario",
+    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
@@ -1619,7 +1619,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
-    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_remind: "\u{1F514} Lembrete diário",
+    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
@@ -4806,13 +4806,18 @@ const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft
 const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
 const REMIND_LABEL_DAYS = 5;
 const REMIND_BELL = `<svg class="rm-chip-bell" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.6a1.4 1.4 0 0 1 1.4 1.4v.55A6.2 6.2 0 0 1 18.2 10.6v3.9l1.55 2.3a.9.9 0 0 1-.75 1.4H5a.9.9 0 0 1-.75-1.4l1.55-2.3v-3.9a6.2 6.2 0 0 1 4.8-6.05V4A1.4 1.4 0 0 1 12 2.6Z" fill="currentColor"/><path d="M9.6 19.4h4.8a2.4 2.4 0 0 1-4.8 0Z" fill="currentColor"/></svg>`;
+// Draait Jaardle als app vanaf het beginscherm, en is dit een iPhone/iPad (ook een iPad die zich als Mac voordoet)?
+function isStandaloneApp() {
+  try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; }
+}
+function isIosDevice() {
+  return /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+}
 // Zelfde regel als Remind.support() (dat bestand laden we pas bij een tik): 'push', 'ios' (iPhone in de browser) of null.
 function remindSupport() {
   try {
     if ("serviceWorker" in navigator && "PushManager" in window && "Notification" in window) return "push";
-    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-    const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
-    return ios && !standalone ? "ios" : null;
+    return isIosDevice() && !isStandaloneApp() ? "ios" : null;
   } catch (e) { return null; }
 }
 function remindState() {
@@ -4881,6 +4886,50 @@ function remindTzSync() {
   rpc("set_push_tz", { p_endpoint: st.ep, p_tz: tz })
     .then((ok) => { if (ok) try { localStorage.setItem(REMIND_KEY, JSON.stringify({ ...st, tz })); } catch (e) {} })
     .catch(() => {});
+}
+
+// ── Zet op beginscherm (⋮-menu) ──────────────────────────────────────────────
+// Een stil menu-item, nooit een nudge ("het moet clean openen"). Chrome/Edge/Samsung geven een installeer-event: dat
+// vangen we af (zo toont Chrome ook zijn eigen "toevoegen aan startscherm"-balk niet bij het openen) en het item opent
+// het eigen venster van de browser. Zonder dat event: op een iPhone de drie stappen in Safari, op Android de weg via het
+// browsermenu (remind.js, lui); op een computer zonder event geen item. Al als app geopend = geen item.
+let installPrompt = null;
+window.addEventListener?.("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; syncInstallUi(); });
+window.addEventListener?.("appinstalled", () => { installPrompt = null; gcCount("install-done", "Install: installed"); syncInstallUi(); });
+function installMode() {
+  if (isStandaloneApp()) return null;
+  if (installPrompt) return "prompt";
+  if (isIosDevice()) return "ios";
+  if (/Android/.test(navigator.userAgent)) return "android";
+  return null;
+}
+function syncInstallUi() {
+  const item = document.querySelector('#menu-pop [data-action="install"]');
+  if (!item) return;
+  const mode = installMode();
+  item.hidden = !mode;
+  // Op een computer (event zonder aanraakscherm) heet het "Installeer als app", elders "Zet op beginscherm".
+  let coarse = true;
+  try { coarse = matchMedia("(pointer: coarse)").matches; } catch (e) {}
+  item.textContent = t(mode === "prompt" && !coarse ? "menu_install_app" : "menu_install");
+}
+async function openInstall() {
+  toggleMenu?.(false);
+  const mode = installMode();
+  if (!mode) return;
+  gcCount(`install-open-${mode}`, "Install: opened");
+  if (mode === "prompt") {
+    const p = installPrompt;
+    installPrompt = null;   // een event kun je maar één keer gebruiken; Chrome geeft later eventueel een nieuw
+    try {
+      await p.prompt();
+      const c = await p.userChoice;
+      gcCount(`install-${c && c.outcome === "accepted" ? "accepted" : "dismissed"}`, "Install: choice");
+    } catch (e) {}
+    syncInstallUi();
+    return;
+  }
+  loadRemind().then((R) => R.openInstall({ lang, mode, loggedIn: !!auth.user, openModal, closeModal })).catch(() => {});
 }
 
 // ── Duimpje na een potje ("Leuk potje?") ─────────────────────────────────────
@@ -12197,6 +12246,7 @@ function renderMenu() {
   const rwBtn = items.querySelector('[data-action="rewards"]');
   if (rwBtn) rwBtn.hidden = !auth.user;  // 🪎 alleen-ingelogd: alles in de kluis is login-gated (flair/effecten/thema)
   syncRemindUi();   // 🔔 Dagelijks seintje: alleen als deze browser kan pushen (of een iPhone is), ✓ als het aanstaat
+  syncInstallUi();  // 📲 Zet op beginscherm: alleen als het kan en Jaardle nog niet als app draait
   // Verwijder dynamische account-knoppen (action=login|logout) maar laat
   // statische knoppen (stats) staan.
   items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
@@ -13453,6 +13503,7 @@ async function init() {
     else if (action === "events") openEventScreen("menu");
     else if (action === "leaderboard") openModal("modal-leaderboard");
     else if (action === "remind") openRemind("menu");
+    else if (action === "install") openInstall();
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
   });
