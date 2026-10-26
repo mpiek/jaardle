@@ -228,6 +228,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
+    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_remind: "\u{1F514} Dagelijks seintje",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
@@ -578,6 +579,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
+    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_remind: "\u{1F514} Daily reminder",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
@@ -921,6 +923,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
+    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_remind: "\u{1F514} Tägliche Erinnerung",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
@@ -1268,6 +1271,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
+    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_remind: "\u{1F514} Recordatorio diario",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
@@ -1615,6 +1619,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
+    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_remind: "\u{1F514} Lembrete diário",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
@@ -4772,21 +4777,110 @@ function startDailyCountdown() {
   if (state.mode !== "daily") return;
   const el = document.createElement("p");
   el.className = "daily-countdown";
+  el.innerHTML = `<span class="dc-txt"></span>`;
+  const txt = el.firstChild;
   // Onder de Wikipedia-bron (#event-source). Valt terug op de actieknoppen/tekst
   // als de bron-regel onverhoopt ontbreekt.
   (els.source || document.getElementById("result-actions") || els.resultText).after(el);
+  mountRemindChip(el);   // 🔔 ernaast (de tekst hieronder tikt in z'n eigen span, de knop blijft staan)
   const tick = () => {
     const left = secsToNextDaily();
     if (left <= 0) {
-      el.innerHTML = withAnimEmoji(t("daily_ready"));   // ✨ mag even fonkelen
-      armEmojiFallbacks(el);
+      txt.innerHTML = withAnimEmoji(t("daily_ready"));   // ✨ mag even fonkelen
+      armEmojiFallbacks(txt);
       stopDailyCountdown();
       return;
     }
-    el.textContent = `${t("next_daily")} ${fmtCountdown(left)}`;
+    txt.textContent = `${t("next_daily")} ${fmtCountdown(left)}`;
   };
   tick();
   dailyCountdownTimer = setInterval(tick, 1000);
+}
+
+// ── Dagelijks seintje (web push) ─────────────────────────────────────────────
+// Een stille bel naast de aftelklok en een item in het ⋮-menu; nooit een vraag bij het openen ("het moet clean openen",
+// 25/10/2026). Tik = remind.js laden (de kaart met de tijdlijn, de toestemming, het abonnement, de teksten); hier alleen
+// wat altijd zichtbaar is. Aan = gouden bel met de tijd. Het label "Herinner me" dooft na 5 daily-dagen tot alleen de bel.
+const loadRemind = fxLoader("/remind.js", "Remind");
+const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft remind.js
+const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
+const REMIND_LABEL_DAYS = 5;
+const REMIND_BELL = `<svg class="rm-chip-bell" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.6a1.4 1.4 0 0 1 1.4 1.4v.55A6.2 6.2 0 0 1 18.2 10.6v3.9l1.55 2.3a.9.9 0 0 1-.75 1.4H5a.9.9 0 0 1-.75-1.4l1.55-2.3v-3.9a6.2 6.2 0 0 1 4.8-6.05V4A1.4 1.4 0 0 1 12 2.6Z" fill="currentColor"/><path d="M9.6 19.4h4.8a2.4 2.4 0 0 1-4.8 0Z" fill="currentColor"/></svg>`;
+// Zelfde regel als Remind.support() (dat bestand laden we pas bij een tik): 'push', 'ios' (iPhone in de browser) of null.
+function remindSupport() {
+  try {
+    if ("serviceWorker" in navigator && "PushManager" in window && "Notification" in window) return "push";
+    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+    return ios && !standalone ? "ios" : null;
+  } catch (e) { return null; }
+}
+function remindState() {
+  try { return { on: false, ...JSON.parse(localStorage.getItem(REMIND_KEY) || "{}") }; } catch (e) { return { on: false }; }
+}
+function remindTime(h) {
+  const n = navigator.language || "", loc = n.toLowerCase().startsWith(lang) ? n : lang;   // zoals remind.js: taal van het spel, regio van de browser
+  try { return new Intl.DateTimeFormat(loc, { hour: "numeric", minute: "2-digit" }).format(new Date(2026, 0, 1, h)); }
+  catch (e) { return `${h}:00`; }
+}
+function remindChipHtml() {
+  const st = remindState();
+  if (st.on && st.hour != null) {
+    return `<button type="button" class="remind-chip on" aria-label="${escHtml(t("remind_on")(remindTime(st.hour)))}">${REMIND_BELL}<span>${escHtml(remindTime(st.hour))}</span></button>`;
+  }
+  let seen = {};
+  try { seen = JSON.parse(localStorage.getItem(REMIND_SEEN_KEY) || "{}") || {}; } catch (e) {}
+  const label = (seen.n || 0) <= REMIND_LABEL_DAYS;
+  return `<button type="button" class="remind-chip${label ? "" : " bare"}" aria-label="${escHtml(t("remind_chip"))}">${REMIND_BELL}${label ? `<span>${escHtml(t("remind_chip"))}</span>` : ""}</button>`;
+}
+function mountRemindChip(row) {
+  if (!remindSupport()) return;
+  row.classList.add("has-remind");
+  row.insertAdjacentHTML("beforeend", remindChipHtml());
+  row.lastElementChild.addEventListener("click", () => openRemind("end"));
+  try {   // een daily-dag met de bel in beeld telt één keer
+    const seen = JSON.parse(localStorage.getItem(REMIND_SEEN_KEY) || "{}") || {};
+    const day = todayKey();
+    if (seen.d !== day) localStorage.setItem(REMIND_SEEN_KEY, JSON.stringify({ d: day, n: (seen.n || 0) + 1 }));
+  } catch (e) {}
+}
+// Bel en menu-item bijwerken (na aan/uit in remind.js, na het tekenen van het menu). Heeft de speler de toestemming
+// intussen zelf in de browser ingetrokken, dan staat het seintje hier ook uit (de server ruimt het abonnement op bij de
+// eerstvolgende 410).
+function syncRemindUi() {
+  const st = remindState();
+  if (st.on && typeof Notification !== "undefined" && Notification.permission === "denied") {
+    try { localStorage.setItem(REMIND_KEY, JSON.stringify({ on: false, hour: st.hour })); } catch (e) {}
+  }
+  const item = document.querySelector('#menu-pop [data-action="remind"]');
+  if (item) { item.hidden = !remindSupport(); item.setAttribute("aria-checked", String(!!remindState().on)); }
+  document.querySelectorAll(".daily-countdown .remind-chip").forEach((b) => {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = remindChipHtml();
+    const fresh = tmp.firstElementChild;
+    fresh.addEventListener("click", () => openRemind("end"));
+    b.replaceWith(fresh);
+  });
+}
+function openRemind(from) {
+  toggleMenu?.(false);
+  loadRemind().then((R) => R.open({
+    lang, rpc, clientId, loggedIn: !!auth.user, secsToReset: secsToNextDaily,
+    openModal, closeModal, onChange: syncRemindUi,
+    gc: (path, title) => gcCount(`${path}-${from}`, title),
+  })).catch(() => {});
+}
+// Reisde je naar een andere tijdzone? Eén schrijfactie, alleen als die echt veranderde (nooit per pagina).
+let remindTzChecked = false;
+function remindTzSync() {
+  const st = remindState();
+  if (!st.on || !st.ep) return;
+  let tz;
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return; }
+  if (!tz || tz === st.tz) return;
+  rpc("set_push_tz", { p_endpoint: st.ep, p_tz: tz })
+    .then((ok) => { if (ok) try { localStorage.setItem(REMIND_KEY, JSON.stringify({ ...st, tz })); } catch (e) {} })
+    .catch(() => {});
 }
 
 // ── Duimpje na een potje ("Leuk potje?") ─────────────────────────────────────
@@ -12102,6 +12196,7 @@ function renderMenu() {
   if (lbBtn) lbBtn.hidden = !auth.user;  // 🏆 zichtbaar zodra ingelogd (pool maken/joinen kan iedereen)
   const rwBtn = items.querySelector('[data-action="rewards"]');
   if (rwBtn) rwBtn.hidden = !auth.user;  // 🪎 alleen-ingelogd: alles in de kluis is login-gated (flair/effecten/thema)
+  syncRemindUi();   // 🔔 Dagelijks seintje: alleen als deze browser kan pushen (of een iPhone is), ✓ als het aanstaat
   // Verwijder dynamische account-knoppen (action=login|logout) maar laat
   // statische knoppen (stats) staan.
   items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
@@ -13357,6 +13452,7 @@ async function init() {
     else if (action === "rewards") openModal("modal-rewards");
     else if (action === "events") openEventScreen("menu");
     else if (action === "leaderboard") openModal("modal-leaderboard");
+    else if (action === "remind") openRemind("menu");
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
   });
@@ -13455,6 +13551,7 @@ async function init() {
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
     if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin().finally(claimDevicePlays); claimParkedFind(); }
+    if (!remindTzChecked) { remindTzChecked = true; remindTzSync(); }   // seintje aan en naar een andere tijdzone gereisd? (één keer per sessie, meestal niets)
     if (pendingRecapAfterLogin && auth.user) { pendingRecapAfterLogin = false; pendingOpenRecap = true; }   // net ingelogd vanuit het eindscherm-kaartje
     maybeOpenRecapDeeplink();   // ?recap: wacht (ingelogd) op de reconcile hierboven, dan eindscherm of 'speel eerst'
     // Auth komt op een reload ná het herstellen van een afgerond dagbord binnen;
