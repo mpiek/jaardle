@@ -300,7 +300,7 @@ const I18N = {
     lb_err_pool_limit: "Je zit al in het maximale aantal pools (5).",
     recap_btn: "Verdeling & team",
     rate_listdle: "Beoordeel op Listdle",
-    recap_title: "📊 Klaar voor vandaag", recap_vs_title: "🌍 Jij versus iedereen",
+    recap_title: "📊 Klaar voor vandaag", rc_full_board: "Hele teamstand", recap_vs_title: "🌍 Jij versus iedereen",
     recap_dist_empty: "Nog niemand heeft deze daily opgelost.",
     recap_better: (pct) => `🎯 beter dan ${pct}%`, recap_avg_short: "gem.", recap_avg: "gemiddeld", recap_players: (n) => `🌍 ${n} spelers vandaag`,
     recap_firstguess: (c) => `📏 1e gok ${c} jr mis`, recap_bin_players: (n) => n === 1 ? "1 speler" : `${n} spelers`, recap_lost_word: "verloren", recap_lost_short: "verl.", recap_you: "jij",
@@ -650,7 +650,7 @@ const I18N = {
     lb_err_pool_limit: "You're already in the maximum number of pools (5).",
     recap_btn: "Distribution & team",
     rate_listdle: "Rate on Listdle",
-    recap_title: "📊 Done for today", recap_vs_title: "🌍 You versus everyone",
+    recap_title: "📊 Done for today", rc_full_board: "Full team standings", recap_vs_title: "🌍 You versus everyone",
     recap_dist_empty: "Nobody has solved this daily yet.",
     recap_better: (pct) => `🎯 better than ${pct}%`, recap_avg_short: "avg.", recap_avg: "average", recap_players: (n) => `🌍 ${n} players today`,
     recap_firstguess: (c) => `📏 1st guess ${c} yrs off`, recap_bin_players: (n) => n === 1 ? "1 player" : `${n} players`, recap_lost_word: "lost", recap_lost_short: "lost", recap_you: "you",
@@ -993,7 +993,7 @@ const I18N = {
     lb_err_pool_limit: "Du bist schon in der maximalen Anzahl an Pools (5).",
     recap_btn: "Verteilung & Team",
     rate_listdle: "Auf Listdle bewerten",
-    recap_title: "📊 Fertig für heute", recap_vs_title: "🌍 Du gegen alle",
+    recap_title: "📊 Fertig für heute", rc_full_board: "Ganze Teamwertung", recap_vs_title: "🌍 Du gegen alle",
     recap_dist_empty: "Noch niemand hat dieses Daily gelöst.",
     recap_better: (pct) => `🎯 besser als ${pct}%`, recap_avg_short: "Ø", recap_avg: "Durchschnitt", recap_players: (n) => `🌍 ${n} Spieler heute`,
     recap_firstguess: (c) => `📏 1. Tipp ${c} J. daneben`, recap_bin_players: (n) => n === 1 ? "1 Spieler" : `${n} Spieler`, recap_lost_word: "verloren", recap_lost_short: "verl.", recap_you: "du",
@@ -1340,7 +1340,7 @@ const I18N = {
     lb_err_pool_limit: "Ya estás en el número máximo de grupos (5).",
     recap_btn: "Distribución y equipo",
     rate_listdle: "Valorar en Listdle",
-    recap_title: "📊 Listo por hoy", recap_vs_title: "🌍 Tú contra todos",
+    recap_title: "📊 Listo por hoy", rc_full_board: "Clasificación completa del equipo", recap_vs_title: "🌍 Tú contra todos",
     recap_dist_empty: "Nadie ha resuelto todavía este diario.",
     recap_better: (pct) => `🎯 mejor que el ${pct}%`, recap_avg_short: "prom.", recap_avg: "promedio", recap_players: (n) => `🌍 ${n} jugadores hoy`,
     recap_firstguess: (c) => `📏 1.er intento: ${c} años`, recap_bin_players: (n) => n === 1 ? "1 jugador" : `${n} jugadores`, recap_lost_word: "perdido", recap_lost_short: "perd.", recap_you: "tú",
@@ -1687,7 +1687,7 @@ const I18N = {
     lb_err_pool_limit: "Você já está no número máximo de grupos (5).",
     recap_btn: "Distribuição e equipe",
     rate_listdle: "Avaliar no Listdle",
-    recap_title: "📊 Pronto por hoje", recap_vs_title: "🌍 Você contra todos",
+    recap_title: "📊 Pronto por hoje", rc_full_board: "Classificação completa da equipe", recap_vs_title: "🌍 Você contra todos",
     recap_dist_empty: "Ninguém resolveu este diário ainda.",
     recap_better: (pct) => `🎯 melhor que ${pct}%`, recap_avg_short: "méd.", recap_avg: "média", recap_players: (n) => `🌍 ${n} jogadores hoje`,
     recap_firstguess: (c) => `📏 1º palpite: ${c} anos`, recap_bin_players: (n) => n === 1 ? "1 jogador" : `${n} jogadores`, recap_lost_word: "perdido", recap_lost_short: "perd.", recap_you: "você",
@@ -8622,6 +8622,70 @@ function renderTeamNudge(wrap) {
   if (stage === 0) mountRecapCarousel(wrap.querySelector(".rc"), null);
 }
 
+// ── Tikken op de teamstand in het eindscherm (27/10) ──
+// "dat als je bij today op je eigen band klikt dat je dan naar leaderboard gaat … en wat verwacht je als je op je eigen
+// poppetje klikt": de stand is een voorproefje van het 🏆-bord, dus een tik op een rij (van wie dan ook) opent dat bord op
+// dezelfde tab (Vandaag → Daily, Week → Weekpodium van deze week); je eigen flair opent de 🪎-kluis (terug naar het
+// eindscherm), die van een ander speelt één keer zijn animatie (wat de muis al deed, nu ook op een telefoon). 🔮 Kans en de
+// 🎃-tab blijven af. Alleen een échte tik telt ("zorg dat mensen op phone niet per ongeluk daar naartoe gaan ipv swipen"):
+// ≤ TAP_SLOP px bewogen, ≤ TAP_MAX_MS lang, het spoor stond al TAP_SETTLE_MS stil (een tik om het snappen te stoppen is
+// geen keuze) en schoof ook daarna niet (ook niet heen en terug: scroll-snap zet het soms precies op dezelfde plek terug).
+// Een swipe of scroll laat de browser zelf al geen click geven; dit vangt de randgevallen.
+const TAP_SLOP = 8, TAP_MAX_MS = 450, TAP_SETTLE_MS = 300;
+function isRealTap(down, e, track, lastScroll = 0) {
+  return !!down && down.quiet && lastScroll <= down.t && performance.now() - down.t <= TAP_MAX_MS &&
+    Math.hypot(e.clientX - down.x, e.clientY - down.y) <= TAP_SLOP && (!track || Math.abs(track.scrollLeft - down.sl) <= 2);
+}
+function openBoardFromRecap(k) {
+  if (k === "week") { pendingLbTab = "podium"; pendingLbWeek = currentWeekStart(); }   // de race van deze week, niet de vorige uitslag
+  else pendingLbTab = "daily";
+  closeAllModals(); openModal("modal-leaderboard");
+}
+// Een flair van een ander: één keer de animatie (zelfde wissel als bij hover), daarna weer stil.
+function flairPeek(b) {
+  if (b.dataset.preview || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  b.dataset.preview = "1";
+  onFlairAnimReady(b.dataset.flair, () => {
+    if (!b.dataset.preview) return;
+    b.innerHTML = flairPreviewHtml(b.dataset.flair); b.classList.remove("fl-still");
+    setTimeout(() => {
+      if (!b.dataset.preview) return;
+      delete b.dataset.preview;
+      b.innerHTML = flairGlyphHtml(b.dataset.flair);
+      if (b.hasAttribute("data-fxstill")) b.classList.add("fl-still");
+    }, 2600);
+  });
+}
+function wireRecapBoardTaps(board) {
+  const track = board.querySelector(".rc-track");
+  let down = null, lastScroll = 0;
+  if (track) track.addEventListener("scroll", () => { lastScroll = performance.now(); }, { passive: true });
+  board.addEventListener("pointerdown", (e) => {
+    const now = performance.now();
+    down = { x: e.clientX, y: e.clientY, t: now, sl: track ? track.scrollLeft : 0, quiet: now - lastScroll > TAP_SETTLE_MS };
+  }, { passive: true });
+  board.addEventListener("click", (e) => {
+    const more = e.target.closest(".rc-more");
+    const row = !more && e.target.closest(".lb-row");
+    if (!more && (!row || row.matches(".lb-ghost, .race-ghost"))) return;
+    const k = (more ? board.querySelector('.rc-tab[aria-selected="true"]') : row.closest(".rc-slide"))?.dataset.k || "day";
+    if (more) { openBoardFromRecap(k); return; }   // een knop: ook met het toetsenbord
+    if (k !== "day" && k !== "week") return;
+    const d = down; down = null;
+    if (!isRealTap(d, e, track, lastScroll)) return;
+    const badge = e.target.closest(".lb-flair-badge[data-flair]");
+    if (badge && row.classList.contains("lb-me")) { closeAllModals(); openModal("modal-rewards", { returnTo: "modal-recap" }); return; }
+    if (badge && !badge.querySelector(".emoji-anim:not(.vf-still), .flair-fake-anim")) { flairPeek(badge); return; }
+    openBoardFromRecap(k);
+  });
+}
+// De 🏆-knop rechts in de tabrij: zichtbaar dat het voorproefje een ingang is (een kale › leek op "volgende tab").
+function addRecapBoardBtn(board) {
+  const tabs = board.querySelector(".rc-tabs");
+  if (tabs && !tabs.querySelector(".rc-more")) tabs.insertAdjacentHTML("beforeend",
+    `<button type="button" class="rc-more" aria-label="${escHtml(t("rc_full_board"))}" title="${escHtml(t("rc_full_board"))}">🏆<span aria-hidden="true">›</span></button>`);
+}
+
 // ── 🎲 Willekeurig team (db/140, mockup "Willekeurig team" 27/10) ──
 // Opt-in, alleen met een account: één tik zet je in het kleinste open willekeurige team (join_random_pool), of begint er een
 // met een naam uit de geschiedenis. Wie nog geen spelersnaam of flair heeft, krijgt die van de server (alleen wat leeg was).
@@ -8880,7 +8944,7 @@ async function loadRecapTeam() {
   const rtLine = myPool.is_random ? rtLineFor(myPool) : null;   // 🎲: één slanke regel boven de tabs (welkom / er is iemand bij)
   const rtHtml = rtLine ? rtLineHtml(myPool, rtLine) : "";
   const rtAlone = myPool.is_random && (myPool.members || 1) <= 1;   // eerste lid: de volgende speler als stippelrij
-  if (!weekRows.length && !evPane) { setBoard(board, rtHtml + dailyTableHtml(dailyRows)); wireRtLine(board, poolId); if (rtAlone) rtAddGhost(board); return; }
+  if (!weekRows.length && !evPane) { setBoard(board, rtHtml + dailyTableHtml(dailyRows)); wireRtLine(board, poolId); if (rtAlone) rtAddGhost(board); wireRecapBoardTaps(board); return; }
   let oddsItems = null;
   if (weekRows.length) try {
     oddsItems = oddsBuild(fc, dailyRows, weekRows, {
@@ -8890,6 +8954,8 @@ async function loadRecapTeam() {
   setBoard(board, rtHtml + recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards, evPane));
   wireRtLine(board, poolId);
   if (rtAlone) rtAddGhost(board);
+  addRecapBoardBtn(board);
+  wireRecapBoardTaps(board);
   mountRecapCarousel(board.querySelector(".rc"), oddsItems);
 }
 
@@ -12611,7 +12677,7 @@ const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewar
 // spel. Vanaf het menu blijft dit null → geen terugknop, geen auto-terug (er is niks
 // om naar terug te keren).
 let rewardsReturnTo = null;
-const REWARDS_BACK_LABEL = { "modal-leaderboard": "lb_title", "modal-achv": "menu_achv" };
+const REWARDS_BACK_LABEL = { "modal-leaderboard": "lb_title", "modal-achv": "menu_achv", "modal-recap": "recap_title" };
 function rewardsReturn() {
   const target = rewardsReturnTo || "modal-leaderboard";
   rewardsReturnTo = null;

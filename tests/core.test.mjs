@@ -83,6 +83,7 @@ src += `
   devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY,
   RANDOM_TEAM_SIZE, RT_LINE_KEY, RT_SEEN_KEY, RT_GIVEN_KEY, RT_GIVEN_MS, PENDING_RT_KEY, rtDotsHtml, rtLineFor, rtLineHtml, rtGivenHintHtml,
   rtIntentPark, rtIntentFresh, rtErrorText, resetRtSession: () => { rtSessionLine = null; },
+  isRealTap, TAP_SLOP, TAP_MAX_MS,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4446,4 +4447,20 @@ test("🎲 rtIntentPark — 🎲 vóór het inloggen overleeft de OAuth-redirect
   T.rtIntentPark(false);
   assert.ok(!T.rtIntentFresh());
   assert.equal(localStorage.getItem(T.PENDING_RT_KEY), null);
+});
+
+test("isRealTap — een tik op de teamstand telt alleen zonder swipe, scroll, lang drukken of een spoor dat nog bewoog", () => {
+  const now = performance.now();
+  const down = (o = {}) => ({ x: 100, y: 200, t: now, sl: 0, quiet: true, ...o });
+  const at = (x, y) => ({ clientX: x, clientY: y });
+  const track = (sl) => ({ scrollLeft: sl });
+  assert.ok(T.isRealTap(down(), at(103, 204), track(0)), "korte tik met een beetje trillen");
+  assert.ok(!T.isRealTap(null, at(100, 200), track(0)), "geen pointerdown (toetsenbord-click op een rij)");
+  assert.ok(!T.isRealTap(down(), at(100 + T.TAP_SLOP + 1, 200), track(0)), "net te ver bewogen");
+  assert.ok(!T.isRealTap(down(), at(100, 200), track(30)), "het spoor schoof (swipe)");
+  assert.ok(!T.isRealTap(down({ quiet: false }), at(100, 200), track(0)), "tik om een snappend spoor te stoppen");
+  assert.ok(!T.isRealTap(down({ t: now - T.TAP_MAX_MS - 50 }), at(100, 200), track(0)), "lang ingedrukt");
+  assert.ok(T.isRealTap(down(), at(100, 200), null), "zonder carrousel (alleen de dagtabel)");
+  assert.ok(!T.isRealTap(down(), at(100, 200), track(0), now + 20), "het spoor schoof heen en terug ná het neerzetten (scroll-snap)");
+  assert.ok(T.isRealTap(down(), at(100, 200), track(0), now - 500), "de laatste scroll was ruim ervoor");
 });

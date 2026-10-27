@@ -2959,6 +2959,16 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 .rc-track::-webkit-scrollbar { display: none; }
 .rc-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 .rc-track.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+/* Tik op een rij (Vandaag/Week) → het 🏆-bord op dezelfde tab; rechts in de tabrij een kleine 🏆-knop als zichtbare ingang.
+   Geen grijze tik-flits: die zou ook bij het begin van een swipe oplichten. */
+#recap-team .rc-slide[data-k="day"] .lb-row:not(.lb-ghost), #recap-team .rc-slide[data-k="week"] .race-lane:not(.race-ghost) { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+@media (hover: hover) {
+  #recap-team .rc-slide[data-k="day"] .lb-row:not(.lb-ghost):hover, #recap-team .rc-slide[data-k="week"] .race-lane:not(.race-ghost):hover { filter: brightness(1.07); }
+}
+.rc-more { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 0.1rem; padding: 0.15rem 0.45rem; border: 0; border-radius: 999px; background: none; color: var(--muted); font: inherit; font-size: 0.85rem; line-height: 1.4; cursor: pointer; }
+.rc-more span { font-size: 1.05rem; line-height: 1; }
+.rc-more:hover { background: var(--card-soft); color: var(--fg); }
+.rc-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .rc-slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
 .rc .lb-wk-note { margin: 0.35rem 0 0; }
 
