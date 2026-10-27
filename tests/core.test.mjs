@@ -76,7 +76,7 @@ src += `
   eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
-  resolveRecord, reconstructDailyBoard, stampParam,
+  resolveRecord, reconstructDailyBoard, stampParam, boardIsMine, localHistoryForMe, adoptLocalDays, loadHistory, storageKey, dailyBoardForeign, boardOwnerForSave,
   VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
   gcCount, hwCount, gcCountNew, gcCountDaily, noteAnchorSlide, GC_DAY_KEY, setFactSlide: (i) => { factSlideIndex = i; },
@@ -3688,6 +3688,118 @@ test("reconstructDailyBoard — preRow: null/rij wordt gebruikt zonder nieuwe aa
   await withRpc({}, async (d) => {
     assert.equal(await T.reconstructDailyBoard(1815, "2026-09-30", MY_DAILY_STATE), null); assert.deepEqual(d.calls, []);
   });
+});
+
+// ── Accountwissel op één toestel (27/10): het lokale bord en de lokale historie horen bij het account dat ze maakte ─────────
+const CACHED_DAILY = (owner) => ({ hashes: ["abcdef0123"], event: { year: 1815, facts: [], extras: [], source: "" }, band: 2,
+  ...(owner === undefined ? {} : { owner }), board: { guesses: [{ year: 1815, diff: 0, cls: "exact" }], done: true, won: true } });
+async function withCachedDaily(rec, fn) {
+  const k = T.storageKey("daily", "2026-09-30");
+  localStorage.setItem(k, JSON.stringify(rec));
+  try { await fn(); } finally { localStorage.removeItem(k); }
+}
+
+test("resolveRecord — het lokale bord van een ánder account wordt niet getoond: puzzel uit de cache, jouw bord uit de DB (geen get_daily)", async () => {
+  await withCachedDaily(CACHED_DAILY("u-ander"), () => withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    await flushMicrotasks();
+    assert.deepEqual(d.calls, ["get_my_daily_state"], "de puzzel staat er al; alleen jouw stand ophalen");
+    d.waiting.get_my_daily_state.resolve(null);   // jij speelde die dag niet
+    const rec = await p;
+    assert.equal(rec.board, null, "vers bord, niet de winst van de ander");
+    assert.equal(rec.owner, "u1"); assert.equal(rec.synced, true); assert.equal(rec.hashes[0], "abcdef0123");
+  }));
+  await withCachedDaily(CACHED_DAILY("u-ander"), () => withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    await flushMicrotasks();
+    d.waiting.get_my_daily_state.resolve(MY_DAILY_STATE);
+    assert.deepEqual((await p).board.guesses.map((g) => g.year), [1900, 1800], "jouw eigen halve pot van een ander toestel");
+  }));
+  // Van vóór de eigenaar-regel (geen owner): ingelogd weet je niet van wie het is, dus ook de DB.
+  await withCachedDaily(CACHED_DAILY(undefined), () => withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    await flushMicrotasks();
+    assert.deepEqual(d.calls, ["get_my_daily_state"]);
+    d.waiting.get_my_daily_state.resolve(null);
+    assert.equal((await p).board, null);
+  }));
+});
+
+test("resolveRecord — je eigen bord, een anoniem bord (gaat mee bij inloggen) en alles voor een anonieme speler komen meteen uit de cache", async () => {
+  for (const [owner, known] of [["u1", { auth: true }], [null, { auth: true }], ["u-ander", {}], [undefined, {}], ["u1", { bridge: true }]]) {
+    await withCachedDaily(CACHED_DAILY(owner), () => withRpc(known, async (d) => {
+      const rec = await T.resolveRecord("daily", false, null, "2026-09-30");
+      assert.deepEqual(d.calls, [], `geen RPC (owner ${owner}, ${JSON.stringify(known)})`);
+      assert.equal(rec.board.won, true); assert.equal(rec.owner, owner);
+    }));
+  }
+  await withCachedDaily(CACHED_DAILY("u-ander"), () => withRpc({ bridge: true }, async (d) => {
+    T.resolveRecord("daily", false, null, "2026-09-30");
+    await flushMicrotasks();
+    assert.deepEqual(d.calls, [], "de bridge kent u1 al: het bord van u-ander niet tonen (auth.user volgt nog, dan haalt de reconcile het op)");
+  }));
+});
+
+test("resolveRecord — een vers opgehaald bord krijgt de ingelogde speler als eigenaar, anoniem null", async () => {
+  await withRpc({ auth: true }, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    d.waiting.get_my_daily_state.resolve(null); d.waiting.get_daily.resolve(DAILY_RPC);
+    assert.equal((await p).owner, "u1");
+  });
+  await withRpc({}, async (d) => {
+    const p = T.resolveRecord("daily", false, null, "2026-09-30");
+    d.waiting.get_daily.resolve(DAILY_RPC);
+    assert.equal((await p).owner, null);
+  });
+});
+
+test("boardIsMine — eigen en anoniem ja, ander account en onbekende eigenaar nee; anoniem ziet alles", () => {
+  assert.equal(T.boardIsMine({ owner: "u1" }, "u1"), true);
+  assert.equal(T.boardIsMine({ owner: null }, "u1"), true);
+  assert.equal(T.boardIsMine({ owner: "u2" }, "u1"), false);
+  assert.equal(T.boardIsMine({}, "u1"), false);
+  assert.equal(T.boardIsMine({ owner: "u2" }, undefined), true);
+});
+
+test("inloggen op een ander account met diens bord op het scherm: vreemd (dus opnieuw openen, niet reconcilen); bij opslaan blijft de eigenaar staan", () => {
+  const oldUser = T.auth.user;
+  try {
+    T.auth.user = { uid: "u1" };
+    T.setState({ mode: "daily", puzzleDate: "2026-10-26", owner: "u-ander" });
+    assert.equal(T.dailyBoardForeign(), true);
+    assert.equal(T.boardOwnerForSave(), "u-ander", "nooit omgeschreven naar wie er nu kijkt");
+    T.setState({ mode: "daily", puzzleDate: "2026-10-26" });
+    assert.equal(T.dailyBoardForeign(), true, "oud formaat: ingelogd niet vertrouwen");
+    assert.equal(T.boardOwnerForSave(), undefined, "oud formaat blijft oud formaat (JSON laat het weg)");
+    T.setState({ mode: "daily", puzzleDate: "2026-10-26", owner: null });
+    assert.equal(T.dailyBoardForeign(), false, "anoniem bord gaat mee bij inloggen");
+    assert.equal(T.boardOwnerForSave(), "u1", "en wordt bij opslaan van dit account");
+    T.setState({ mode: "free", owner: "u-ander" });
+    assert.equal(T.dailyBoardForeign(), false, "vrij spel: geen eigenaar-regel");
+    T.auth.user = null;
+    T.setState({ mode: "daily", puzzleDate: "2026-10-26", owner: "u-ander" });
+    assert.equal(T.dailyBoardForeign(), false, "uitgelogd: niets vreemds, zoals vanouds");
+    assert.equal(T.boardOwnerForSave(), "u-ander");
+  } finally { T.auth.user = oldUser; T.setState(null); }
+});
+
+test("lokale historie — een ingelogd account telt de dagen van een ander account op dit toestel niet mee; dagen die het in de DB heeft worden van hem", () => {
+  const old = localStorage.getItem("jaardle:history");
+  try {
+    T.setLocalHistory([
+      { date: "2026-10-20", won: true, score: 90 },                // van vóór de uid-regel
+      { date: "2026-10-21", won: true, score: 80, uid: null },     // anoniem gespeeld
+      { date: "2026-10-22", won: true, score: 70, uid: "u-ander" },
+      { date: "2026-10-23", won: false, score: 0, uid: "u1" },
+    ]);
+    assert.deepEqual(T.localHistoryForMe("u1").map((e) => e.date), ["2026-10-20", "2026-10-21", "2026-10-23"]);
+    assert.equal(T.localHistoryForMe(undefined).length, 4, "anoniem: alles, zoals vanouds");
+    T.adoptLocalDays("u-ander", [{ date: "2026-10-20" }, { date: "2026-10-22" }]);
+    assert.deepEqual(T.localHistoryForMe("u1").map((e) => e.date), ["2026-10-21", "2026-10-23"], "10-20 staat in de DB van u-ander: van hem");
+    assert.deepEqual(T.loadHistory().map((e) => e.uid), ["u-ander", null, "u-ander", "u1"], "een dag met een eigenaar wordt nooit overgeschreven");
+  } finally {
+    if (old === null) localStorage.removeItem("jaardle:history"); else localStorage.setItem("jaardle:history", old);
+  }
 });
 
 // De dag-sleutel van de vroege puzzel (head-script in de template) en todayKey() in game.js zijn twee kopieën van dezelfde regel.

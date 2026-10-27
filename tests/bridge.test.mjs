@@ -242,7 +242,8 @@ test("de bridge dispatcht geen sb-auth-changed vóórdat sbAuthState klopt, en g
   assert.ok(b.indexOf("window.sbAuthState = { user };") < b.indexOf('new CustomEvent("sb-auth-changed"'));
   assert.match(g, /if \(window\.sbAuthState\) queueMicrotask\(\(\) => onAuthChanged\(\{ detail: window\.sbAuthState\.user \}\)\)/);
   assert.match(g, /window\.addEventListener\("sb-auth-changed", onAuthChanged\)/);
-  assert.match(g, /\(auth\.user \|\| window\.sbAuthState\?\.user\) \? rpc\("get_my_daily_state"/);
+  assert.match(g, /const me = auth\.user \|\| window\.sbAuthState\?\.user;/);
+  assert.match(g, /me \? rpc\("get_my_daily_state"/);
 });
 
 test("GoatCounter: meetpunten gaan naar een eigen events-site en de CSP laat dat adres toe (connect-src voor sendBeacon, img-src als terugval)", () => {

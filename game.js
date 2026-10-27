@@ -4335,7 +4335,7 @@ function perfectWeekJustCompleted() {
   if (!state || state.mode !== "daily" || !state.won) return false;   // vrij spel kent geen weken
   const date = state.puzzleDate || todayKey(), byDate = new Map();
   for (const e of auth.user ? myHistoryCache || [] : []) byDate.set(e.date, e);
-  for (const e of loadHistory()) if (!byDate.has(e.date)) byDate.set(e.date, e);
+  for (const e of localHistoryForMe()) if (!byDate.has(e.date)) byDate.set(e.date, e);
   byDate.set(date, { date, won: true });
   return perfectWeekKeys([...byDate.values()]).has(weekMondayKey(date));
 }
@@ -4374,7 +4374,7 @@ function warmRewardFx() {
   if (!need && auth.user) {
     const today = todayKey(), byDate = new Map();
     for (const e of myHistoryCache || []) byDate.set(e.date, e);
-    for (const e of loadHistory()) if (!byDate.has(e.date)) byDate.set(e.date, e);
+    for (const e of localHistoryForMe()) if (!byDate.has(e.date)) byDate.set(e.date, e);
     byDate.set(today, { date: today, won: true });
     need = perfectWeekKeys([...byDate.values()]).has(weekMondayKey(today));
   }
@@ -5734,7 +5734,7 @@ function eventStamps(ev, hist) {
 }
 // Dezelfde daghistorie als stats/streak (zie dailyHistoryForDisplay), maar synchroon: de server-historie uit de cache, lokale dagen vullen aan.
 function eventHistorySync() {
-  const local = loadHistory();
+  const local = localHistoryForMe();
   if (!auth.user) return local;
   const map = new Map();
   for (const e of myHistoryCache || []) map.set(e.date, e);
@@ -6794,7 +6794,7 @@ let soloPendingReq = null;
 async function maybeShowSoloWeek(lastDone) {
   if (soloPendingReq === lastDone || soloSeenWeek() >= lastDone) return;
   soloPendingReq = lastDone;
-  const history = loadHistory();
+  const history = localHistoryForMe();
   const me = soloWeekStats(history, lastDone);
   if (!me || me.n < SOLO_MIN) return;
   const vs = buildSoloVs(history, lastDone, await fetchWorldWeek(lastDone));
@@ -10934,8 +10934,9 @@ function renderAchvBoard(body, a) {
 // één voorwaarde is simpeler dan een login-uitzondering en de kosten (album even
 // jaartal-loos) zijn puur cosmetisch.
 function dailyDoneToday() {
-  if (state && state.mode === "daily" && !isMakeup() && state.done) return true;
-  return !!loadRecord("daily", todayKey())?.board?.done;
+  if (state && state.mode === "daily" && !isMakeup() && state.done && !dailyBoardForeign()) return true;
+  const r = loadRecord("daily", todayKey());
+  return !!r?.board?.done && boardIsMine(r, auth.user?.uid);
 }
 
 // ── Zeldzame vondsten in Prestaties (db/110) ──────────────────────────────────
@@ -11112,9 +11113,11 @@ function invalidateStreakExtras() {
 // vullen aan — dekt de race waarin record_play nog onderweg is terwijl het
 // eindscherm de streak al wil tonen, en werkt door in stats vlak na een pot.
 async function dailyHistoryForDisplay() {
-  const local = loadHistory();
-  if (!auth.user) return local;
+  if (!auth.user) return loadHistory();
+  const uid = auth.user.uid;
   const db = await getMyHistory();
+  adoptLocalDays(uid, db);
+  const local = localHistoryForMe(uid);
   const map = new Map();
   for (const e of db) map.set(e.date, e);
   for (const e of local) if (!map.has(e.date)) map.set(e.date, e);
@@ -11235,6 +11238,18 @@ function syncDailyProgress() {
   }).catch(() => { /* offline / oude DB: lokaal blijft leidend */ });
 }
 
+// Het daily-bord op het scherm is van een ander account dan wie nu ingelogd is (zie boardIsMine).
+function dailyBoardForeign() {
+  return !!auth.user && state?.mode === "daily" && !boardIsMine(state, auth.user.uid);
+}
+// Zelfde dag opnieuw openen; resolveRecord slaat het vreemde bord dan over. sb-auth-changed vuurt 2-3× bij het laden: één keer is genoeg.
+let dailyReopening = false;
+function reopenDailyForMe() {
+  if (dailyReopening) return;
+  dailyReopening = true;
+  startGame("daily", false, null, state.puzzleDate).finally(() => { dailyReopening = false; });
+}
+
 // Ingelogd + dagpuzzel onafgerond op het scherm: leg de lokale stand naast de DB.
 //   • DB afgerond (ander apparaat, of logout→login) → toon het eindscherm. Sluit
 //     ook dubbel uitspelen af: dit apparaat kan geen tweede record_play meer doen.
@@ -11251,7 +11266,7 @@ function reconcileDailyProgress() {
   return reconcileRun;
 }
 async function reconcileDailyProgressRun() {
-  if (!auth.user || !state || state.mode !== "daily" || state.done) return;
+  if (!auth.user || !state || state.mode !== "daily" || state.done || dailyBoardForeign()) return;
   const answerYear = state.event?.year;
   if (answerYear == null) return;
   const hash = state.hashes?.[0];
@@ -11423,11 +11438,28 @@ function saveHistory(arr) {
   try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); } catch (e) {}
 }
 
+// De lokale daghistorie die een ingelogd account mag meetellen: zijn eigen dagen en dagen zonder eigenaar (anoniem gespeeld,
+// die gaan bij inloggen mee, db/136; of van vóór de uid-regel), niet die van een ander account op dit toestel (zie boardIsMine).
+// Anoniem: alles, zoals vanouds.
+function localHistoryForMe(uid = auth.user?.uid) {
+  const hist = loadHistory();
+  return uid ? hist.filter((e) => e.uid == null || e.uid === uid) : hist;
+}
+// Lokale dagen zonder eigenaar die het account ook in de DB heeft, zijn van dat account: leg dat vast, dan telt een ander
+// account dat hier later inlogt ze niet meer mee. Zo raakt ook de historie van vóór de uid-regel vanzelf toegewezen.
+function adoptLocalDays(uid, db) {
+  const dates = new Set(db.map((e) => e.date)), hist = loadHistory();
+  let changed = false;
+  for (const e of hist) if (e.uid == null && dates.has(e.date)) { e.uid = uid; changed = true; }
+  if (changed) saveHistory(hist);
+}
+
 function recordDailyResult(won) {
   const date = (state && state.puzzleDate) || todayKey();
   const score = computeScore();
   const entry = {
     date,
+    uid: auth.user?.uid ?? null,   // van wie deze dag is (localHistoryForMe)
     won,
     score,
     guesses: state.guesses.length,
@@ -13086,6 +13118,7 @@ function save() {
       potId: state.potId ?? null,
       stamp: state.stamp ?? null,
       shared: !!state.shared,
+      owner: boardOwnerForSave(),
       board: {
         guesses: state.guesses,
         done: state.done,
@@ -13099,6 +13132,21 @@ function save() {
       },
     }));
   } catch (e) { /* storage may be unavailable */ }
+}
+
+// Van wie is een lokaal bewaard daily-bord? `owner` = uid van het account dat erop speelde, null = anoniem gespeeld (gaat mee
+// naar wie hier inlogt, zoals de potjes zelf, db/136), ontbreekt = bewaard vóór deze regel. Wie op één toestel van account
+// wisselde, kreeg het bord van de ander te zien ("als ik op test account inlog zie ik resultaten van mijn andere account", 27/10).
+// Ingelogd tellen dus alleen je eigen en anonieme borden; anoniem ziet alles, zoals vanouds.
+function boardIsMine(rec, uid) {
+  return !uid || rec.owner === null || rec.owner === uid;
+}
+// Bij het wegschrijven wordt een anoniem bord van het account dat er ingelogd op verder speelt. Een bord van een account blijft
+// van dat account, ook als het na uitloggen nog op het scherm staat; ontbrekend blijft ontbrekend (JSON laat undefined weg),
+// anders maakte één blik na uitloggen een oud bord anoniem en dus van de volgende die inlogt.
+function boardOwnerForSave() {
+  if (state.owner === null && auth.user) state.owner = auth.user.uid;
+  return state.owner;
 }
 
 function loadRecord(mode, date) {
@@ -13232,7 +13280,12 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
   if (mode === "daily") {
     const d = targetDate || todayKey();   // targetDate = inhaalpot (gisteren); anders vandaag
     const cached = loadRecord("daily", d);   // bevat de puzzel (offline/instant) + bord
-    if (cached) return { mode: "daily", puzzleDate: d, ...cached };
+    const me = auth.user || window.sbAuthState?.user;
+    if (cached && boardIsMine(cached, me?.uid)) return { mode: "daily", puzzleDate: d, ...cached };
+    // Het bord in de cache is van een ander account op dit toestel (of van vóór de eigenaar-regel): de puzzel
+    // mag eruit, het bord niet. Jouw eigen stand komt uit de DB; is auth.user er nog niet, dan haalt de reconcile
+    // in de auth-handler 'm alsnog op.
+    if (cached) return { mode: "daily", puzzleDate: d, ...cached, board: await reconstructDailyBoard(cached.event.year, d), owner: me.uid, synced: true };
     // Geen lokale cache (ander apparaat / cache gewist), maar ingelogd? Herstel het
     // bord uit de DB: afgerond (niet opnieuw speelbaar) óf halverwege (db/64: de
     // gokken/hints van je andere apparaat). synced=true: startGame hoeft daarna
@@ -13242,11 +13295,11 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
     // heeft gezien; is hij nog onbekend, dan haalt reconstructDailyBoard het bord achteraf zelf op.
     const [p, row] = await Promise.all([
       rpc("get_daily", { d }),
-      (auth.user || window.sbAuthState?.user) ? rpc("get_my_daily_state", { d }).catch(() => null) : undefined,
+      me ? rpc("get_my_daily_state", { d }).catch(() => null) : undefined,
     ]);
     if (!p) return null;
     const board = await reconstructDailyBoard(p.year, d, row);
-    return { mode: "daily", puzzleDate: d, hashes: p.hashes, band: p.band ?? null, event: toEvent(p), board, synced: true };
+    return { mode: "daily", puzzleDate: d, hashes: p.hashes, band: p.band ?? null, event: toEvent(p), board, owner: me?.uid ?? null, synced: true };
   }
   // free
   if (!forceNew) {
@@ -13303,6 +13356,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
     stamp: record.stamp || null,             // db/108: stempel van get_random_fact (alleen vrij spel)
     shared: !!record.shared,                 // gedeelde/zelfgebouwde link: telt nergens voor
     band: record.band ?? null,               // moeilijkheids-band 1..3 (alleen daily, sinds db/29)
+    owner: record.owner,                     // daily: van wie het bord is (zie boardIsMine)
     hashes: record.hashes,
     event: record.event,
     guesses: b?.guesses || [],
@@ -13607,7 +13661,10 @@ async function init() {
     // → eindscherm, ander apparaat verder → overnemen, lokaal verder → pushen.
     // En: koppel een zojuist (anoniem) afgeronde pot aan dit account.
     refreshMyRating();  // rating-cache voor de ⚡-delta op het eindscherm
-    if (auth.user) { reconcileDailyProgress(); claimPlayOnLogin().finally(claimDevicePlays); claimParkedFind(); }
+    // Staat er het daily-bord van een ander account (wissel op dit toestel, of auth kwam pas ná het lokale bord binnen)?
+    // Dan niet reconcilen (dat zou zijn stand naar jouw daily_progress duwen) maar dezelfde dag opnieuw openen: jouw stand uit de DB.
+    const foreign = dailyBoardForeign();
+    if (auth.user) { if (foreign) reopenDailyForMe(); else reconcileDailyProgress(); claimPlayOnLogin().finally(claimDevicePlays); claimParkedFind(); }
     if (!remindTzChecked) { remindTzChecked = true; remindTzSync(); }   // seintje aan en naar een andere tijdzone gereisd? (één keer per sessie, meestal niets)
     if (pendingRecapAfterLogin && auth.user) { pendingRecapAfterLogin = false; pendingOpenRecap = true; }   // net ingelogd vanuit het eindscherm-kaartje
     maybeOpenRecapDeeplink();   // ?recap: wacht (ingelogd) op de reconcile hierboven, dan eindscherm of 'speel eerst'
@@ -13615,7 +13672,7 @@ async function init() {
     // de streakregel is dan met local-only historie getekend (vaak "streak 1").
     // reconcileDailyProgress stopt bij state.done, dus herteken 'm hier met
     // de nu-gezaghebbende DB-historie (werkt ook bij uitloggen → terug naar local).
-    if (state?.done && state.mode === "daily") appendStreakLine(state.won);
+    if (state?.done && state.mode === "daily" && !foreign) appendStreakLine(state.won);
     // Historie-bron wisselde (login/logout) → herbeoordeel inhaal + reparatie.
     refreshStreakBanners();
   };
