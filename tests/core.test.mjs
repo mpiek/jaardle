@@ -81,6 +81,8 @@ src += `
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
   gcCount, hwCount, gcCountNew, gcCountDaily, noteAnchorSlide, GC_DAY_KEY, setFactSlide: (i) => { factSlideIndex = i; },
   devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY,
+  RANDOM_TEAM_SIZE, RT_LINE_KEY, RT_SEEN_KEY, RT_GIVEN_KEY, RT_GIVEN_MS, PENDING_RT_KEY, rtDotsHtml, rtLineFor, rtLineHtml, rtGivenHintHtml,
+  rtIntentPark, rtIntentFresh, rtErrorText, resetRtSession: () => { rtSessionLine = null; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4347,4 +4349,101 @@ test("inloggen zet álle anonieme potjes van dit toestel over (claim_device_play
     for (const u of ["a", "b", "c", "d", "e"]) T.devClaimDone(u);
     assert.deepEqual(JSON.parse(ls.getItem(T.DEVCLAIM_KEY)), ["a", "b", "c", "d", "e"], "hooguit 5 accounts onthouden");
   } finally { clear(); T.auth.user = wasUser; if (wasSb === undefined) delete globalThis.sb; else globalThis.sb = wasSb; }
+});
+
+test("🎲 rtDotsHtml — acht plekken, bezet = .on, de nieuwste licht één keer op, nooit meer dan acht", () => {
+  const dots = (h) => [...h.matchAll(/<i class="rt-dot([^"]*)">/g)].map((m) => m[1].trim());
+  assert.equal(T.RANDOM_TEAM_SIZE, 8);
+  assert.deepEqual(dots(T.rtDotsHtml(3, true)), ["on", "on", "on pop", "", "", "", "", ""]);
+  assert.deepEqual(dots(T.rtDotsHtml(1, false)), ["on", "", "", "", "", "", "", ""]);
+  assert.equal(dots(T.rtDotsHtml(12, false)).filter((c) => c === "on").length, 8, "meer leden (via een oude uitnodiging) = gewoon vol");
+  T.setLang("nl");
+  assert.match(T.rtDotsHtml(3, false), /aria-label="3 van 8 plekken bezet"/);
+});
+
+test("🎲 rtLineFor — welkom één keer (ook bij opnieuw tekenen in dezelfde sessie), daarna alleen als er iemand bij kwam", () => {
+  localStorage.removeItem(T.RT_SEEN_KEY); T.resetRtSession();
+  const p = { id: "pA", name: "Team Sputnik", members: 1, is_random: true };
+  localStorage.setItem(T.RT_LINE_KEY, JSON.stringify({ pool: "pA", kind: "first" }));
+  assert.deepEqual(T.rtLineFor(p), { kind: "first" });
+  assert.equal(localStorage.getItem(T.RT_LINE_KEY), null, "de geparkeerde regel is verbruikt");
+  assert.deepEqual(T.rtLineFor(p), { kind: "first" }, "tweede keer tekenen in dezelfde sessie: dezelfde regel");
+  T.resetRtSession();   // nieuwe sessie
+  assert.equal(T.rtLineFor(p), null, "zelfde ledental: geen regel");
+  T.resetRtSession();
+  assert.deepEqual(T.rtLineFor({ ...p, members: 3 }), { kind: "new", n: 2 });
+  T.resetRtSession();
+  assert.equal(T.rtLineFor({ ...p, members: 3 }), null, "gezien");
+  T.resetRtSession();
+  assert.equal(T.rtLineFor({ ...p, members: 2 }), null, "iemand vertrok: stil bijwerken");
+  T.resetRtSession();
+  assert.deepEqual(T.rtLineFor({ ...p, members: 3 }), { kind: "new", n: 1 });
+  T.resetRtSession();
+  localStorage.setItem(T.RT_LINE_KEY, JSON.stringify({ pool: "pOther", kind: "welcome" }));
+  assert.equal(T.rtLineFor({ id: "pB", name: "Team Enigma", members: 4 }), null, "eerste keer een team zien (zonder welkom): geen regel");
+  assert.notEqual(localStorage.getItem(T.RT_LINE_KEY), null, "de regel van een ander team blijft staan");
+  T.resetRtSession(); localStorage.removeItem(T.RT_LINE_KEY);
+});
+
+test("🎲 rtLineHtml — teamnaam vet en ge-escaped, ledental als stipjes, tik naar het 🏆-scherm", () => {
+  T.setLang("nl");
+  const h = T.rtLineHtml({ id: "x", name: "Team <Sputnik>", members: 4 }, { kind: "welcome" });
+  assert.match(h, /^<button type="button" class="rt-line" aria-label=/);
+  assert.match(h, /<span class="rt-line-verb">Welkom in <\/span><b>Team &lt;Sputnik&gt;<\/b>/);
+  assert.match(h, /aria-label="Welkom in Team &lt;Sputnik&gt;"/);
+  assert.equal((h.match(/rt-dot on/g) || []).length, 4);
+  assert.match(T.rtLineHtml({ id: "x", name: "Team Rosetta", members: 1 }, { kind: "first" }), /Je begint <\/span><b>Team Rosetta<\/b>/);
+  const act = T.rtLineHtml({ id: "x", name: "Team Sputnik", members: 9, active: 5 }, { kind: "welcome" });
+  assert.equal((act.match(/rt-dot on/g) || []).length, 5, "plekken = actieve leden (db/140), niet het ledental");
+  assert.match(T.rtLineHtml({ id: "x", name: "Team Rosetta", members: 3 }, { kind: "new", n: 2 }), /<b>Nieuwe teamgenoten<\/b><\/span><span class="rt-line-plus">\+2<\/span>/);
+  T.setLang("en");
+  assert.match(T.rtLineHtml({ id: "x", name: "Team Rosetta", members: 2 }, { kind: "new", n: 1 }), /aria-label="New teammate · Team Rosetta".*<b>New teammate<\/b><\/span><span class="rt-line-plus">\+1/);
+  T.setLang("nl");
+});
+
+test("🎲 rtGivenHintHtml — alleen wat de server invulde en de speler nog niet veranderde, een week lang", () => {
+  T.setLang("nl");
+  T.auth.user = { uid: "u-1" };
+  const give = (g) => localStorage.setItem(T.RT_GIVEN_KEY, JSON.stringify({ at: Date.now(), uid: "u-1", ...g }));
+  give({ name: "Hypatia", flair: "🦊" });
+  T.setPlayer("Hypatia", "🦊", null);
+  assert.match(T.rtGivenHintHtml(), /Naam en flair kreeg je/);
+  T.setPlayer("Hypatia", "🐙", null);
+  assert.match(T.rtGivenHintHtml(), /Deze naam kreeg je/, "flair al veranderd");
+  T.setPlayer("Sanne", "🦊~sparkle", null);
+  assert.match(T.rtGivenHintHtml(), /Deze flair kreeg je/, "met een effect erop is het nog steeds de gekregen flair");
+  T.setPlayer("Sanne", "🐙", null);
+  assert.equal(T.rtGivenHintHtml(), "", "allebei veranderd");
+  T.setPlayer("Hypatia", "🦊", null);
+  T.auth.user = { uid: "u-2" };
+  assert.equal(T.rtGivenHintHtml(), "", "ander account op hetzelfde toestel");
+  T.auth.user = { uid: "u-1" };
+  give({ name: "Hypatia", flair: null, at: Date.now() - T.RT_GIVEN_MS - 1000 });
+  T.setPlayer("Hypatia", null, null);
+  assert.equal(T.rtGivenHintHtml(), "", "na een week weg");
+  localStorage.removeItem(T.RT_GIVEN_KEY);
+  assert.equal(T.rtGivenHintHtml(), "");
+  T.setPlayer(null, null, null); T.auth.user = null;
+});
+
+test("🎲 voorproefje en account-kaartje: de 🎲-knoppen staan erin, de oude 🏆-voordeelregel niet meer", () => {
+  T.setLang("nl");
+  T.setState({ won: true, guesses: [], laterCluesShown: 0, directionsRevealed: [], puzzleDate: T.todayKey() });
+  const teaser = T.teamTeaserHtml();
+  assert.match(teaser, /id="recap-pool-btn"/);
+  assert.match(teaser, /<button type="button" id="recap-rt-btn" class="rt-dice-btn">🎲 Willekeurig team<\/button>/);
+  const acct = T.recapAccountHtml();
+  assert.match(acct, /class="rt-perk js-rt-btn">🎲 Speel mee in een team/);
+  assert.doesNotMatch(acct, /Vergelijk je daily met vrienden/);
+  assert.equal(T.rtErrorText("too_many_pools"), T.t("lb_err_pool_limit"));
+  assert.equal(T.rtErrorText("err"), T.t("lb_err_generic"));
+});
+
+test("🎲 rtIntentPark — 🎲 vóór het inloggen overleeft de OAuth-redirect (localStorage) en vervalt bij sluiten", () => {
+  T.rtIntentPark(true);
+  assert.ok(T.rtIntentFresh());
+  assert.ok(Number(localStorage.getItem(T.PENDING_RT_KEY)) > 0);
+  T.rtIntentPark(false);
+  assert.ok(!T.rtIntentFresh());
+  assert.equal(localStorage.getItem(T.PENDING_RT_KEY), null);
 });

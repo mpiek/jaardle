@@ -320,12 +320,11 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 sluit ma 12:00 · nog ${d > 0 ? d + " d" : h + " u"}`,
     recap_play_first: "Speel eerst de daily — daarna zie je de stand van je team.",
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
-    recap_team_ghost: "Je eerste teamgenoot", recap_team_cap: "Zo ziet je team eruit zodra er vrienden meedoen.", recap_team_make: "🏆 Maak je team",
+    recap_team_ghost: "Je eerste teamgenoot", recap_team_cap: "Zo ziet je team eruit. Speel met vrienden, of schuif aan bij spelers zonder team.", recap_team_make: "🏆 Maak je team",
     recap_team_slim: "Met vrienden?", recap_team_slim_btn: "🏆 Team maken ›",
     recap_acct_title: "Met een gratis account",
     recap_acct_1: "📊 Je statistieken & streak blijven bewaard",
     recap_acct_2: "☁️ Speel verder op al je apparaten",
-    recap_acct_3: "🏆 Vergelijk je daily met vrienden in een pool",
     recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
     streak_won: (n) => n === 1 ? "🔥 Streak gestart — kom morgen terug!" : `🔥 ${n} dagen op rij!`,
     streak_lost: (n) => `💔 Streak van ${n} ${n === 1 ? "dag" : "dagen"} gebroken — morgen nieuwe kans!`,
@@ -671,12 +670,11 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 closes Mon 12:00 · ${d > 0 ? d + " d" : h + " h"} left`,
     recap_play_first: "Play today's daily first — then you'll see your team's standings.",
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
-    recap_team_ghost: "Your first teammate", recap_team_cap: "This is what your team looks like once friends join.", recap_team_make: "🏆 Create your team",
+    recap_team_ghost: "Your first teammate", recap_team_cap: "This is what your team looks like. Play with friends, or join players without a team.", recap_team_make: "🏆 Create your team",
     recap_team_slim: "With friends?", recap_team_slim_btn: "🏆 Create a team ›",
     recap_acct_title: "With a free account",
     recap_acct_1: "📊 Your stats & streak are saved",
     recap_acct_2: "☁️ Keep playing across all your devices",
-    recap_acct_3: "🏆 Compare your daily with friends in a pool",
     recap_acct_free: "Always 100% free — no paid tier, no ads.",
     streak_won: (n) => n === 1 ? "🔥 Streak started — come back tomorrow!" : `🔥 ${n} days in a row!`,
     streak_lost: (n) => `💔 ${n}-day streak broken — new chance tomorrow!`,
@@ -1015,12 +1013,11 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 schließt Mo 12:00 · noch ${d > 0 ? d + " d" : h + " Std."}`,
     recap_play_first: "Spiel zuerst das Daily — dann siehst du den Teamstand.",
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
-    recap_team_ghost: "Dein erstes Teammitglied", recap_team_cap: "So sieht dein Team aus, sobald Freunde mitspielen.", recap_team_make: "🏆 Team erstellen",
+    recap_team_ghost: "Dein erstes Teammitglied", recap_team_cap: "So sieht dein Team aus. Spiel mit Freunden oder schließ dich Spielern ohne Team an.", recap_team_make: "🏆 Team erstellen",
     recap_team_slim: "Mit Freunden?", recap_team_slim_btn: "🏆 Team gründen ›",
     recap_acct_title: "Mit einem kostenlosen Konto",
     recap_acct_1: "📊 Deine Statistiken & Serie bleiben erhalten",
     recap_acct_2: "☁️ Spiele auf all deinen Geräten weiter",
-    recap_acct_3: "🏆 Vergleiche dein Daily mit Freunden in einem Pool",
     recap_acct_free: "Immer 100% kostenlos — keine Bezahlversion, keine Werbung.",
     streak_won: (n) => n === 1 ? "🔥 Serie gestartet — komm morgen wieder!" : `🔥 ${n} Tage in Folge!`,
     streak_lost: (n) => `💔 Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gerissen — morgen neue Chance!`,
@@ -1363,12 +1360,11 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 cierra lun 12:00 · faltan ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Juega primero el diario — luego verás la clasificación de tu equipo.",
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
-    recap_team_ghost: "Tu primer compañero", recap_team_cap: "Así se verá tu equipo cuando se unan tus amigos.", recap_team_make: "🏆 Crea tu equipo",
+    recap_team_ghost: "Tu primer compañero", recap_team_cap: "Así se ve tu equipo. Juega con amigos o únete a jugadores sin equipo.", recap_team_make: "🏆 Crea tu equipo",
     recap_team_slim: "¿Con amigos?", recap_team_slim_btn: "🏆 Crear equipo ›",
     recap_acct_title: "Con una cuenta gratuita",
     recap_acct_1: "📊 Tus estadísticas y tu racha se conservan",
     recap_acct_2: "☁️ Sigue jugando en todos tus dispositivos",
-    recap_acct_3: "🏆 Compara tu diario con tus amigos en un grupo",
     recap_acct_free: "Siempre 100% gratis — sin versión de pago, sin anuncios.",
     streak_won: (n) => n === 1 ? "🔥 ¡Racha iniciada — vuelve mañana!" : `🔥 ¡${n} días seguidos!`,
     streak_lost: (n) => `💔 Racha de ${n} ${n === 1 ? "día" : "días"} perdida — ¡mañana, otra oportunidad!`,
@@ -1711,12 +1707,11 @@ const I18N = {
     recap_week_note: (d, h) => `🏁 fecha seg 12:00 · faltam ${d > 0 ? d + " d" : h + " h"}`,
     recap_play_first: "Jogue primeiro o daily — depois você verá o placar da equipe.",
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
-    recap_team_ghost: "Seu primeiro colega", recap_team_cap: "Assim ficará sua equipe quando seus amigos entrarem.", recap_team_make: "🏆 Crie sua equipe",
+    recap_team_ghost: "Seu primeiro colega", recap_team_cap: "Assim fica sua equipe. Jogue com amigos ou entre com jogadores sem equipe.", recap_team_make: "🏆 Crie sua equipe",
     recap_team_slim: "Com amigos?", recap_team_slim_btn: "🏆 Criar equipe ›",
     recap_acct_title: "Com uma conta gratuita",
     recap_acct_1: "📊 Suas estatísticas e sua sequência são preservadas",
     recap_acct_2: "☁️ Continue jogando em todos os seus dispositivos",
-    recap_acct_3: "🏆 Compare seu diário com seus amigos em um grupo",
     recap_acct_free: "Sempre 100% grátis — sem versão paga, sem anúncios.",
     streak_won: (n) => n === 1 ? "🔥 Sequência iniciada — volte amanhã!" : `🔥 ${n} dias seguidos!`,
     streak_lost: (n) => `💔 Sequência de ${n} ${n === 1 ? "dia" : "dias"} perdida — amanhã tem outra chance!`,
@@ -5461,14 +5456,27 @@ function poolPickerHtml() {
 // klapt naar boven als het onderaan niet past. Zonder Popover-API: absolute onder de knop.
 function wirePoolPicker(root, onSwitch) {
   const btn = root.querySelector(".lb-poolpick");
-  const menu = root.querySelector(".lb-poolmenu");
+  const menu = btn?.parentElement.querySelector(".lb-poolmenu");   // het menu naast de kiezer (het ⋯-menu heeft dezelfde stijl)
   if (!btn || !menu) return;
+  const close = wirePopMenu(btn, menu);
+  menu.querySelectorAll(".lb-poolitem[data-pool]").forEach((b) => {
+    b.onclick = () => {
+      close();
+      if (myPool && b.dataset.pool === myPool.id) return;   // al actief
+      setActivePool(b.dataset.pool);
+      onSwitch();
+    };
+  });
+}
+// Open/dicht van een knop met een menu (teamkiezer, ⋯ bij de pool): zie hierboven. align "right" zet de rechterrand van het
+// menu onder die van de knop (het ⋯ staat rechts in de kop). Geeft close() terug.
+function wirePopMenu(btn, menu, align = "left") {
   const pop = typeof menu.showPopover === "function";
   if (pop) menu.hidden = false;   // zichtbaarheid loopt dan via de popover-staat
   const isOpen = () => pop ? menu.matches(":popover-open") : !menu.hidden;
   const place = () => {
     const r = btn.getBoundingClientRect(), w = menu.offsetWidth, h = menu.offsetHeight;
-    const left = Math.max(8, Math.min(r.left + 3, window.innerWidth - w - 8));
+    const left = Math.max(8, Math.min(align === "right" ? r.right - w : r.left + 3, window.innerWidth - w - 8));
     const below = r.bottom + 4, top = below + h <= window.innerHeight - 8 ? below : Math.max(8, r.top - 4 - h);
     menu.style.left = `${Math.round(left)}px`; menu.style.top = `${Math.round(top)}px`;
   };
@@ -5490,14 +5498,6 @@ function wirePoolPicker(root, onSwitch) {
     document.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", close);
   };
-  menu.querySelectorAll(".lb-poolitem[data-pool]").forEach((b) => {
-    b.onclick = () => {
-      close();
-      if (myPool && b.dataset.pool === myPool.id) return;   // al actief
-      setActivePool(b.dataset.pool);
-      onSwitch();
-    };
-  });
   btn.parentElement.addEventListener("keydown", (e) => {
     if (!isOpen()) return;
     if (e.key === "Escape") { e.stopPropagation(); close(); btn.focus(); return; }
@@ -5507,6 +5507,7 @@ function wirePoolPicker(root, onSwitch) {
     const i = items.indexOf(document.activeElement);
     items[(i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus();
   });
+  return close;
 }
 
 // Handelt de ?leaderboard-, ?join-, ?rating-, ?achievements- en ?history-deeplinks af
@@ -6815,7 +6816,7 @@ function teamAfterLoginPark(on) {
   try { if (on) localStorage.setItem(PENDING_TEAM_KEY, String(Date.now())); else localStorage.removeItem(PENDING_TEAM_KEY); } catch (e) {}
 }
 // Sluit je het inlogscherm zelf (✕, achtergrond of Escape), dan vergeet het spel de bedoeling om een team te maken.
-function dropTeamIntent() { if (pendingTeamAfterLogin) teamAfterLoginPark(false); }
+function dropTeamIntent() { if (pendingTeamAfterLogin) teamAfterLoginPark(false); if (pendingRtAt) rtIntentPark(false); }
 function soloMakeTeam() {
   closeAllModals();   // pop-up dicht = gezien
   if (auth.user) { openModal("modal-leaderboard"); return; }
@@ -6997,18 +6998,31 @@ async function renderLeaderboard() {
   overall = Array.isArray(overall) ? overall : [];
 
   const inviteUrl = `https://jaardle.com/?join=${myPool.invite_code}`;
-  const renameBtnHtml = myPool.is_owner ? `<button id="lb-rename-btn" class="lb-pillbtn">${t("lb_rename")}</button>` : "";
+  // Pool-kop (27/10): naam + ⋯ op één regel, daaronder het ledental (bij 🎲 de plekken) met 📢 Nodig uit als link.
+  // De rij met drie pillen wikkelde op een telefoon en zette Verlaten los klaar ("ui technisch is dit echt slecht die 3
+  // knoppen"); Pool erbij, Hernoem en Verlaten (onderaan, rood) staan nu achter ⋯, in de menu-stijl van de teamkiezer.
   // "Pool erbij" alleen onder de cap; bij 2+ pools wordt de naam in de kop de teamkiezer (poolPickerHtml).
-  const addBtnHtml = myPools.length < LB_MAX_POOLS ? `<button id="lb-add-btn" class="lb-pillbtn">${t("lb_pool_add")}</button>` : "";
-  let html = nameEditorHtml() + `<div class="lb-poolhead">
-      <div class="lb-poolname">${poolPickerHtml()}${myPool.is_owner ? ` <span class="lb-tag">${t("lb_owner_tag")}</span>` : ""}</div>
-      <div class="lb-poolsub">${t("lb_members_n")(myPool.members)}</div>
-      <div class="lb-poolactions">
-        <button id="lb-invite-btn" class="lb-pillbtn">${t("lb_invite")}</button>
-        ${renameBtnHtml}
-        ${addBtnHtml}
-        <button id="lb-leave-btn" class="lb-pillbtn danger">${t("lb_leave")}</button>
+  // Een willekeurig team heeft geen beheerder die hernoemt: de naam komt uit de lijst (rename_pool weigert, db/140).
+  const rnd = !!myPool.is_random, members = myPool.members || 1, seats = rnd ? rtSeats(myPool) : members;
+  const menuItem = (id, label, cls = "") => `<button type="button" id="${id}" class="lb-poolitem${cls}" role="menuitem">${label}</button>`;
+  const menuHtml = (myPools.length < LB_MAX_POOLS ? menuItem("lb-add-btn", t("lb_pool_add")) : "") +
+    (myPool.is_owner && !rnd ? menuItem("lb-rename-btn", t("lb_rename")) : "") +
+    menuItem("lb-leave-btn", t("lb_leave"), " lb-danger");
+  const subHtml = rnd
+    ? `${rtDotsHtml(seats, false)}<span>${escHtml(t("rt_n_of")(Math.min(seats, RANDOM_TEAM_SIZE), RANDOM_TEAM_SIZE))}` +
+      `${seats >= RANDOM_TEAM_SIZE ? ` · ${escHtml(t("rt_full"))}` : ""}</span>`
+    : `<span>${t("lb_members_n")(members)}</span>`;
+  const rtNote = !rnd || seats >= RANDOM_TEAM_SIZE ? ""
+    : `<p class="rt-poolnote">${escHtml(t(members <= 1 ? "rt_note_first" : "rt_note_open"))}</p>`;
+  const tagHtml = rnd ? ` <span class="lb-tag">${escHtml(t("rt_tag"))}</span>` : myPool.is_owner ? ` <span class="lb-tag">${t("lb_owner_tag")}</span>` : "";
+  let html = nameEditorHtml() + rtGivenHintHtml() + `<div class="lb-poolhead">
+      <div class="lb-poolhead-top">
+        <div class="lb-poolname">${poolPickerHtml()}${tagHtml}</div>
+        <span class="lb-more-wrap"><button type="button" class="lb-more" aria-haspopup="menu" aria-expanded="false" aria-label="${escHtml(t("lb_more"))}" title="${escHtml(t("lb_more"))}">⋯</button>` +
+        `<div class="lb-poolmenu lb-moremenu" role="menu" aria-label="${escHtml(t("lb_more"))}" popover="manual" hidden>${menuHtml}</div></span>
       </div>
+      <div class="lb-poolsub">${subHtml}<span aria-hidden="true">·</span><button type="button" id="lb-invite-btn" class="lb-invite-link">${t("lb_invite")}</button></div>
+      ${rtNote}
     </div>`;
   // Segmented toggle: dag → week → all-time. Eén bord tegelijk zichtbaar (ruimt de
   // voorheen-gestapelde modal op). Panes starten hidden; lbSelectTab toont de actieve.
@@ -7043,13 +7057,18 @@ async function renderLeaderboard() {
     </section>`;
   // Onder het leaderboard: de recap van de laatst afgeronde week, dezelfde pop-up als op maandag.
   const lastDoneWk = shiftDateKey(currentWeekStart(), -7);
-  if (lastDoneWk >= PODIUM_EPOCH && weekIsFinal(lastDoneWk)) {
+  if (lastDoneWk >= PODIUM_EPOCH && weekIsFinal(lastDoneWk) && !(myPool.since >= currentWeekStart())) {   // een team van deze week heeft nog geen vorige week
     html += `<div class="lb-wk-recap"><button type="button" id="lb-recap-last" class="lb-pillbtn">▶ ${escHtml(t("lb_wk_recap"))}</button></div>`;
   }
   body.innerHTML = html;
   document.getElementById("lb-recap-last")?.addEventListener("click", () => replayWeekRecap(lastDoneWk));
   wireNameEditor();
   wirePoolPicker(body, renderLeaderboard);
+  const moreBtn = body.querySelector(".lb-more");
+  if (moreBtn) {
+    const closeMore = wirePopMenu(moreBtn, moreBtn.parentElement.querySelector(".lb-moremenu"), "right");
+    moreBtn.parentElement.querySelector(".lb-moremenu").addEventListener("click", (e) => { if (e.target.closest(".lb-poolitem")) closeMore(); }, true);   // eerst dicht, dan de actie
+  }
   const addBtn = document.getElementById("lb-add-btn");
   if (addBtn) addBtn.onclick = () => renderPoolEmptyState(body);
 
@@ -7117,7 +7136,12 @@ function renderPoolEmptyState(body) {
   const headHtml = adding
     ? `<button id="lb-add-back" class="lb-pillbtn">${t("lb_add_back")}</button>`
     : `<p class="lb-empty">${t("lb_pool_none")}</p>`;
-  body.innerHTML = (adding ? "" : nameEditorHtml()) + headHtml + `
+  // 🎲 als eerste keuze, zolang je nog geen willekeurig team hebt (één per speler, db/140)
+  const rtHtml = myRandomPool() ? "" : `
+    <div class="lb-form"><span class="lb-form-label">${escHtml(t("rt_pick_label"))}</span>
+      <div class="rt-pick-row"><p>${escHtml(t("rt_pick_txt")(RANDOM_TEAM_SIZE))}</p><button type="button" id="lb-rt-btn" class="rt-pick-go">${escHtml(t("rt_pick_go"))}</button></div>
+    </div>`;
+  body.innerHTML = (adding ? "" : nameEditorHtml()) + headHtml + rtHtml + `
     <form class="lb-form" id="lb-create-form">
       <label class="lb-form-label">${t("lb_create_label")}</label>
       <div class="lb-form-row">
@@ -7137,6 +7161,12 @@ function renderPoolEmptyState(body) {
   const status = document.getElementById("lb-pool-status");
   const backBtn = document.getElementById("lb-add-back");
   if (backBtn) backBtn.onclick = () => renderLeaderboard();
+  const rtBtn = document.getElementById("lb-rt-btn");
+  if (rtBtn) rtBtn.onclick = async () => {
+    if (await joinRandomTeam(rtBtn)) { renderLeaderboard(); return; }
+    status.textContent = rtErrorText(rtLastError);
+    status.className = "lb-name-status err"; status.hidden = false;
+  };
   document.getElementById("lb-create-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     let r = "err";
@@ -7785,8 +7815,8 @@ function recapAccountHtml() {
     <ul class="recap-perks">
       <li>${t("recap_acct_1")}</li>
       <li>${t("recap_acct_2")}</li>
-      <li>${t("recap_acct_3")}</li>
     </ul>
+    <button type="button" class="rt-perk js-rt-btn">${escHtml(t("rt_perk"))}<span class="rt-perk-chev" aria-hidden="true">›</span></button>
     <div class="recap-signin">
       <button type="button" class="google-btn js-google-btn">${googleIcon}<span>${t("login_google")}</span></button>
       <button type="button" class="link-btn js-acct-btn">${t("login_or")}</button>
@@ -7912,6 +7942,7 @@ function wireRecapEventPane(el) {
   if (g) g.onclick = () => { try { localStorage.setItem(RECAP_EV_KEY, String(Date.now())); } catch (e) {} doGoogleSignIn(g, "recap"); };
   const m = el.querySelector(".js-acct-btn");
   if (m) m.onclick = () => { closeAllModals(); openModal("modal-login"); };
+  wireRtPerk(el);
 }
 // Het tabbalkje bovenaan voor wie geen team-carrousel heeft: Vandaag = de recap zoals hij was, de tweede tab = het blok. Geen swipen:
 // de twee delen verschillen te veel in hoogte voor een spoor (dat is zo hoog als de langste slide).
@@ -8556,7 +8587,8 @@ function teamTeaserHtml() {
   const week = `<div class="lb-table race-table">${raceLaneHtml(lane, 0, RACE_LEAD_POS)}${ghostLane(2, 1, false)}${ghostLane(3, 2, true)}</div>`;
   return recapCarouselHtml(null, null, null, { day, week }, undefined, recapEventPaneSpec()) +
     `<p class="lb-wk-note recap-team-cap">${escHtml(t("recap_team_cap"))}</p>` +
-    `<div class="recap-cta"><button id="recap-pool-btn">${escHtml(t("recap_team_make"))}</button></div>`;
+    `<div class="recap-cta rt-two"><button id="recap-pool-btn">${escHtml(t("recap_team_make"))}</button>` +
+    `<button type="button" id="recap-rt-btn" class="rt-dice-btn">${escHtml(t("rt_btn"))}</button></div>`;
 }
 function teamNudgeSlimHtml() {
   return `<div class="recap-slim"><button type="button" id="recap-pool-btn" class="recap-slim-go"><span>${escHtml(t("recap_team_slim"))}</span><b>${escHtml(t("recap_team_slim_btn"))}</b></button>` +
@@ -8573,6 +8605,13 @@ function renderTeamNudge(wrap) {
   armEmojiFallbacks(wrap);
   const go = document.getElementById("recap-pool-btn");
   if (go) go.onclick = () => { closeAllModals(); openModal("modal-leaderboard"); };
+  const rt = document.getElementById("recap-rt-btn");
+  if (rt) rt.onclick = async () => {
+    const r = await joinRandomTeam(rt);
+    if (r) { loadRecapTeam(); return; }
+    const cap = wrap.querySelector(".recap-team-cap");
+    if (cap) cap.textContent = rtErrorText(rtLastError);
+  };
   const x = document.getElementById("recap-slim-x");
   if (x) x.onclick = () => {
     let s = null;
@@ -8581,6 +8620,206 @@ function renderTeamNudge(wrap) {
     if (section) section.hidden = true;
   };
   if (stage === 0) mountRecapCarousel(wrap.querySelector(".rc"), null);
+}
+
+// ── 🎲 Willekeurig team (db/140, mockup "Willekeurig team" 27/10) ──
+// Opt-in, alleen met een account: één tik zet je in het kleinste open willekeurige team (join_random_pool), of begint er een
+// met een naam uit de geschiedenis. Wie nog geen spelersnaam of flair heeft, krijgt die van de server (alleen wat leeg was).
+// Daarna is het een gewone pool. Eén keer staat er een slanke regel boven de tabs van het eindscherm (welkom / je begint /
+// er is iemand bij, met de plekken als stipjes); een tik opent het 🏆-scherm, waar de uitleg staat ("die welkom in team
+// sputnik wordt best groot … kan die regel niet klein gehouden worden"). Geen extra RPC bij het openen: "er is iemand bij"
+// vergelijkt het ledental uit my_pools met wat dit toestel al zag. Namen noemen we daar bewust niet: wie vandaag voor het
+// eerst op het bord staat, kan ook een oud lid zijn dat eerder niet speelde.
+// De teksten van 🎲 in vijf talen, hier bij elkaar en bij het laden in I18N gezet. Niet in de taalblokken zelf: die liggen
+// ±31 KB uit elkaar, en gzip kijkt maar 32 KB terug; met deze regels erbij vond hij de herhaalde sleutels van de vorige
+// taal niet meer (game.js +13 KB gzip in plaats van +6). Zo blijven de blokken even ver uit elkaar als voorheen.
+const RT_I18N = {
+  nl: {
+    rt_btn: "🎲 Willekeurig team", rt_busy: "🎲 Team zoeken…", rt_pick_label: "Willekeurig team",
+    rt_pick_txt: (n) => `Je komt bij spelers die ook nog geen team hebben, tot ${n} per team.`, rt_pick_go: "🎲 Doe mee",
+    rt_welcome: "Welkom in", rt_first: "Je begint",
+    rt_new: (n) => n === 1 ? "Nieuwe teamgenoot" : "Nieuwe teamgenoten",
+    rt_seats: (n, m) => `${n} van ${m} plekken bezet`, rt_n_of: (n, m) => `${n} van ${m}`, rt_full: "vol", rt_tag: "🎲 willekeurig",
+    rt_note_first: "Wie hierna op 🎲 tikt, komt bij jou. Nieuwe spelers gaan altijd eerst naar het kleinste team.",
+    rt_note_open: "Nieuwe spelers met 🎲 kunnen erbij tot het team vol is.",
+    rt_given_both: "🎲 Naam en flair kreeg je bij het meedoen. Tik erop om ze te wijzigen.",
+    rt_given_name: "🎲 Deze naam kreeg je bij het meedoen. Tik erop om hem te wijzigen.",
+    rt_given_flair: "🎲 Deze flair kreeg je bij het meedoen. Tik erop om hem te wijzigen.",
+    rt_perk: "🎲 Speel mee in een team", rt_login_why: "🎲 Na het inloggen zit je meteen in een team.",
+    lb_more: "Meer",
+    rt_ghost_next: "Volgende speler met 🎲",
+  },
+  en: {
+    rt_btn: "🎲 Random team", rt_busy: "🎲 Finding a team…", rt_pick_label: "Random team",
+    rt_pick_txt: (n) => `You'll join players who don't have a team yet, up to ${n} per team.`, rt_pick_go: "🎲 Join",
+    rt_welcome: "Welcome to", rt_first: "You're starting",
+    rt_new: (n) => n === 1 ? "New teammate" : "New teammates",
+    rt_seats: (n, m) => `${n} of ${m} spots taken`, rt_n_of: (n, m) => `${n} of ${m}`, rt_full: "full", rt_tag: "🎲 random",
+    rt_note_first: "Whoever taps 🎲 next joins you. New players always go to the smallest team first.",
+    rt_note_open: "New players with 🎲 can join until the team is full.",
+    rt_given_both: "🎲 You got this name and flair when you joined. Tap them to change.",
+    rt_given_name: "🎲 You got this name when you joined. Tap it to change.",
+    rt_given_flair: "🎲 You got this flair when you joined. Tap it to change.",
+    rt_perk: "🎲 Play in a team", rt_login_why: "🎲 After signing in, you're straight into a team.",
+    lb_more: "More",
+    rt_ghost_next: "Next player with 🎲",
+  },
+  de: {
+    rt_btn: "🎲 Zufallsteam", rt_busy: "🎲 Team wird gesucht…", rt_pick_label: "Zufallsteam",
+    rt_pick_txt: (n) => `Du kommst zu Spielern, die noch kein Team haben, bis zu ${n} pro Team.`, rt_pick_go: "🎲 Mitmachen",
+    rt_welcome: "Willkommen bei", rt_first: "Du gründest",
+    rt_new: (n) => n === 1 ? "Neues Teammitglied" : "Neue Teammitglieder",
+    rt_seats: (n, m) => `${n} von ${m} Plätzen belegt`, rt_n_of: (n, m) => `${n} von ${m}`, rt_full: "voll", rt_tag: "🎲 Zufall",
+    rt_note_first: "Wer als Nächstes auf 🎲 tippt, kommt zu dir. Neue Spieler kommen immer zuerst ins kleinste Team.",
+    rt_note_open: "Neue Spieler mit 🎲 können dazukommen, bis das Team voll ist.",
+    rt_given_both: "🎲 Namen und Flair hast du beim Mitmachen bekommen. Tippe darauf, um sie zu ändern.",
+    rt_given_name: "🎲 Diesen Namen hast du beim Mitmachen bekommen. Tippe darauf, um ihn zu ändern.",
+    rt_given_flair: "🎲 Dieses Flair hast du beim Mitmachen bekommen. Tippe darauf, um es zu ändern.",
+    rt_perk: "🎲 Spiel in einem Team mit", rt_login_why: "🎲 Nach dem Anmelden bist du sofort in einem Team.",
+    lb_more: "Mehr",
+    rt_ghost_next: "Nächster Spieler mit 🎲",
+  },
+  es: {
+    rt_btn: "🎲 Equipo al azar", rt_busy: "🎲 Buscando equipo…", rt_pick_label: "Equipo al azar",
+    rt_pick_txt: (n) => `Te unirás a jugadores que aún no tienen equipo, hasta ${n} por equipo.`, rt_pick_go: "🎲 Unirme",
+    rt_welcome: "Ya estás en", rt_first: "Has creado",
+    rt_new: (n) => n === 1 ? "Nuevo compañero" : "Nuevos compañeros",
+    rt_seats: (n, m) => `${n} de ${m} plazas ocupadas`, rt_n_of: (n, m) => `${n} de ${m}`, rt_full: "completo", rt_tag: "🎲 al azar",
+    rt_note_first: "Quien toque 🎲 a continuación se unirá a ti. Los jugadores nuevos siempre van primero al equipo más pequeño.",
+    rt_note_open: "Los jugadores nuevos con 🎲 pueden unirse hasta que el equipo esté completo.",
+    rt_given_both: "🎲 Recibiste este nombre y este flair al unirte. Tócalos para cambiarlos.",
+    rt_given_name: "🎲 Recibiste este nombre al unirte. Tócalo para cambiarlo.",
+    rt_given_flair: "🎲 Recibiste este flair al unirte. Tócalo para cambiarlo.",
+    rt_perk: "🎲 Juega en un equipo", rt_login_why: "🎲 Al iniciar sesión, entras directamente en un equipo.",
+    lb_more: "Más",
+    rt_ghost_next: "Siguiente jugador con 🎲",
+  },
+  pt: {
+    rt_btn: "🎲 Equipe aleatória", rt_busy: "🎲 Procurando equipe…", rt_pick_label: "Equipe aleatória",
+    rt_pick_txt: (n) => `Você entra com jogadores que ainda não têm equipe, até ${n} por equipe.`, rt_pick_go: "🎲 Entrar",
+    rt_welcome: "Você entrou em", rt_first: "Você criou",
+    rt_new: (n) => n === 1 ? "Novo colega" : "Novos colegas",
+    rt_seats: (n, m) => `${n} de ${m} vagas ocupadas`, rt_n_of: (n, m) => `${n} de ${m}`, rt_full: "completa", rt_tag: "🎲 aleatória",
+    rt_note_first: "Quem tocar em 🎲 em seguida entra com você. Jogadores novos sempre vão primeiro para a menor equipe.",
+    rt_note_open: "Jogadores novos com 🎲 podem entrar até a equipe ficar completa.",
+    rt_given_both: "🎲 Você recebeu este nome e este flair ao entrar. Toque neles para mudar.",
+    rt_given_name: "🎲 Você recebeu este nome ao entrar. Toque nele para mudar.",
+    rt_given_flair: "🎲 Você recebeu este flair ao entrar. Toque nele para mudar.",
+    rt_perk: "🎲 Jogue em uma equipe", rt_login_why: "🎲 Depois de entrar, você já fica em uma equipe.",
+    lb_more: "Mais",
+    rt_ghost_next: "Próximo jogador com 🎲",
+  },
+};
+for (const c in RT_I18N) Object.assign(I18N[c], RT_I18N[c]);
+const RANDOM_TEAM_SIZE = 8;                  // = c_cap in join_random_pool (db/140)
+const RT_LINE_KEY = "jaardle:rt-line";       // {pool, kind: "welcome" | "first"}: de welkomstregel, één keer
+const RT_SEEN_KEY = "jaardle:rt-seen";       // {[poolId]: ledental dat dit toestel al zag}
+const RT_GIVEN_KEY = "jaardle:rt-given";     // {uid, name, flair, at}: wat de server invulde, voor de hint in het 🏆-scherm
+const RT_GIVEN_MS = 7 * 86400 * 1000;        // die hint dooft na een week uit (ux-no-friction-for-experts)
+let rtJoining = false, rtLastError = null;
+let rtSessionLine = null;                    // {pool, line}: de regel van deze sessie (het eindscherm tekent soms twee keer)
+function rtRead(key) { try { const v = JSON.parse(localStorage.getItem(key)); return v && typeof v === "object" ? v : null; } catch (e) { return null; } }
+function rtWrite(key, v) { try { if (v == null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+const myRandomPool = () => myPools.find((p) => p.is_random) || null;
+// Bezette plekken = actieve leden (de afgelopen 7 dagen een daily of lid geworden, db/140): wie stopt, maakt plek. Via een
+// uitnodiging kan een team groter worden dan 8; de stipjes staan dan gewoon vol.
+const rtSeats = (p) => (p.active ?? p.members) || 1;
+const rtErrorText = (st) => t(st === "too_many_pools" ? "lb_err_pool_limit" : "lb_err_generic");
+function rtMarkSeen(p) {
+  if (!p) return;
+  const seen = rtRead(RT_SEEN_KEY) || {};
+  seen[p.id] = p.members || 1;
+  rtWrite(RT_SEEN_KEY, seen);
+}
+// Eén tik → join_random_pool; daarna is het nieuwe (of al bestaande) team de actieve pool. Geeft het serverantwoord terug,
+// of null (rtLastError zegt dan waarom: too_many_pools, not_logged_in, err).
+async function joinRandomTeam(btn) {
+  if (rtJoining) return null;
+  rtJoining = true; rtLastError = null;
+  const label = btn ? btn.textContent : "";
+  if (btn) { btn.disabled = true; btn.textContent = t("rt_busy"); }
+  let r = null;
+  try { r = await rpc("join_random_pool", {}); } catch (e) {}
+  rtJoining = false;
+  if (btn) { btn.disabled = false; btn.textContent = label; }
+  if (!r || (r.status !== "ok" && r.status !== "already")) { rtLastError = r?.status || "err"; return null; }
+  if (r.status === "ok") {
+    rtWrite(RT_LINE_KEY, { pool: r.pool_id, kind: r.created ? "first" : "welcome" });
+    if (r.gave_name || r.gave_flair) rtWrite(RT_GIVEN_KEY, { uid: auth.user?.uid || null, name: r.gave_name || null, flair: r.gave_flair || null, at: Date.now() });
+    if (r.gave_name) myUsername = r.gave_name;
+    if (r.gave_flair) myFlair = r.gave_flair;
+  }
+  await refreshPoolState();
+  setActivePool(r.pool_id);
+  rtMarkSeen(myRandomPool());
+  return r;
+}
+// De regel boven de tabs voor willekeurig team p, of null. Verbruikt de welkomstregel en werkt het geziene ledental bij.
+function rtLineFor(p) {
+  if (rtSessionLine && rtSessionLine.pool === p.id) return rtSessionLine.line;
+  const seen = rtRead(RT_SEEN_KEY) || {}, prev = seen[p.id], n = p.members || 1;
+  const parked = rtRead(RT_LINE_KEY);
+  let line = null;
+  if (parked && parked.pool === p.id) { line = { kind: parked.kind }; rtWrite(RT_LINE_KEY, null); }
+  else if (typeof prev === "number" && n > prev) line = { kind: "new", n: n - prev };
+  if (prev !== n) { seen[p.id] = n; rtWrite(RT_SEEN_KEY, seen); }
+  if (line) rtSessionLine = { pool: p.id, line };
+  return line;
+}
+// De plekken als stipjes: bezet = accent, vrij = een open rondje; `pop` laat de nieuwste één keer oplichten.
+function rtDotsHtml(n, pop) {
+  const k = Math.max(0, Math.min(n, RANDOM_TEAM_SIZE));
+  let dots = "";
+  for (let i = 0; i < RANDOM_TEAM_SIZE; i++) dots += `<i class="rt-dot${i < k ? " on" : ""}${pop && i === k - 1 ? " pop" : ""}"></i>`;
+  return `<span class="rt-dots" role="img" aria-label="${escHtml(t("rt_seats")(k, RANDOM_TEAM_SIZE))}">${dots}</span>`;
+}
+// Welkom/eerste lid: "Welkom in" / "Je begint" + teamnaam; dat werkwoord valt op een smal scherm weg (container query in de
+// CSS), dan blijven teamnaam en stipjes over. Iemand erbij: "Nieuwe teamgenoot" + "+1" (buiten het afkapbare stuk). De knop
+// houdt de hele zin als naam.
+function rtLineHtml(p, line) {
+  const isNew = line.kind === "new";
+  const verb = isNew ? t("rt_new")(line.n) : t(line.kind === "first" ? "rt_first" : "rt_welcome");
+  const txt = isNew ? `<b>${escHtml(verb)}</b>` : `<span class="rt-line-verb">${escHtml(verb)} </span><b>${escHtml(p.name)}</b>`;
+  return `<button type="button" class="rt-line" aria-label="${escHtml(isNew ? `${verb} · ${p.name}` : `${verb} ${p.name}`)}">${animEmojiHtml("🎲")}` +
+    `<span class="rt-line-txt">${txt}</span>${isNew ? `<span class="rt-line-plus">+${line.n}</span>` : ""}` +
+    `${rtDotsHtml(rtSeats(p), true)}<span class="rt-line-chev" aria-hidden="true">›</span></button>`;
+}
+// Alleen in een willekeurig team: één stippelrij onder je eigen rij, zodat je ziet dat er iemand bij komt.
+function rtAddGhost(board) {
+  const table = board.querySelector('.rc-slide[data-k="day"] .lb-table') || board.querySelector(".lb-table");
+  if (table) table.insertAdjacentHTML("beforeend",
+    `<div class="lb-row lb-ghost rt-next"><span class="lb-rank">2</span><span class="lb-name">${escHtml(t("rt_ghost_next"))}</span><span class="lb-val">–</span></div>`);
+}
+function wireRtLine(root, poolId) {
+  const b = root.querySelector(".rt-line");
+  if (b) b.onclick = () => { setActivePool(poolId); closeAllModals(); openModal("modal-leaderboard"); };
+}
+// Wat de server bij het meedoen invulde en de speler nog niet veranderde: een korte hint onder de naam-regel (7 dagen).
+function rtGivenHintHtml() {
+  const g = rtRead(RT_GIVEN_KEY);
+  if (!g || !(Date.now() - (g.at || 0) < RT_GIVEN_MS) || g.uid !== (auth.user?.uid || null)) return "";   // per account (accountwissel op één toestel)
+  const name = !!g.name && g.name === myUsername, flair = !!g.flair && parseFlair(myFlair).emoji === g.flair;
+  if (!name && !flair) return "";
+  return `<p class="rt-namehint">${escHtml(t(name && flair ? "rt_given_both" : name ? "rt_given_name" : "rt_given_flair"))}</p>`;
+}
+// Niet ingelogd: 🎲 in het account-kaartje → inloggen, en daarna meteen in een team (ook na de Google/Discord-redirect).
+// Zelfde parkeer-patroon als "🏆 Maak je team" (jaardle:pendingTeam).
+const PENDING_RT_KEY = "jaardle:pendingRandomTeam";
+let pendingRtAt = 0;
+const rtIntentFresh = () => !!pendingRtAt && Date.now() - pendingRtAt < PENDING_TEAM_MS;
+function rtIntentPark(on) {
+  pendingRtAt = on ? Date.now() : 0;
+  try { if (on) localStorage.setItem(PENDING_RT_KEY, String(pendingRtAt)); else localStorage.removeItem(PENDING_RT_KEY); } catch (e) {}
+}
+function wireRtPerk(container) {
+  const b = container.querySelector(".js-rt-btn");
+  if (b) b.onclick = () => { rtIntentPark(true); closeAllModals(); openModal("modal-login"); };
+}
+// Net ingelogd met een geparkeerde 🎲: meedoen, dan het eindscherm (daily af: daar staat de welkomstregel) of het 🏆-scherm.
+async function rtJoinAfterLogin() {
+  const r = await joinRandomTeam(null);
+  if (r && state?.done && state.mode === "daily") { pendingOpenRecap = true; return; }
+  closeAllModals(); openModal("modal-leaderboard");
 }
 
 // Teamstand van vandaag in het recap-scherm: zelfde rijen als het daily-bord van
@@ -8638,14 +8877,19 @@ async function loadRecapTeam() {
   const head = document.getElementById("recap-team-head");
   const evPane = recapEventPaneSpec();   // tijdens een event: de 🎃-tab als laatste (ook zonder weekrijen)
   if (head) head.hidden = weekRows.length > 0 || !!evPane;
-  if (!weekRows.length && !evPane) { setBoard(board, dailyTableHtml(dailyRows)); return; }
+  const rtLine = myPool.is_random ? rtLineFor(myPool) : null;   // 🎲: één slanke regel boven de tabs (welkom / er is iemand bij)
+  const rtHtml = rtLine ? rtLineHtml(myPool, rtLine) : "";
+  const rtAlone = myPool.is_random && (myPool.members || 1) <= 1;   // eerste lid: de volgende speler als stippelrij
+  if (!weekRows.length && !evPane) { setBoard(board, rtHtml + dailyTableHtml(dailyRows)); wireRtLine(board, poolId); if (rtAlone) rtAddGhost(board); return; }
   let oddsItems = null;
   if (weekRows.length) try {
     oddsItems = oddsBuild(fc, dailyRows, weekRows, {
       poolId, weekStart: currentWeekStart(), todayKey: todayKey(), secsSinceMidnight: 86400 - secsToNextDaily(),
     });
   } catch (e) { console.error(e); oddsItems = null; }   // een rekenfout mag de recap nooit breken: dan gewoon geen derde tab
-  setBoard(board, recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards, evPane));
+  setBoard(board, rtHtml + recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards, evPane));
+  wireRtLine(board, poolId);
+  if (rtAlone) rtAddGhost(board);
   mountRecapCarousel(board.querySelector(".rc"), oddsItems);
 }
 
@@ -11635,6 +11879,7 @@ function wireAcctPitch(container, from) {
   if (mail) mail.onclick = () => { closeAllModals(); openModal("modal-login"); };
   const google = container.querySelector(".js-google-btn");
   if (google) google.onclick = () => doGoogleSignIn(google, from);
+  wireRtPerk(container);
 }
 
 // ⚡ Rating-tab: grafiek (of leegmelding zolang er nog geen lijn te tekenen is),
@@ -12771,7 +13016,12 @@ function openModal(id, opts) {
     const err = document.getElementById("login-error");
     if (err) err.hidden = true;
     const why = document.getElementById("login-why");
-    if (why) why.hidden = !teamIntentFresh();
+    if (why) {
+      const rt = rtIntentFresh();   // via 🎲 in het account-kaartje: dezelfde omlijning als die knop
+      why.hidden = !rt && !teamIntentFresh();
+      why.classList.toggle("rt-why", rt);
+      why.textContent = t(rt ? "rt_login_why" : "login_why");
+    }
     document.querySelector('#login-form input[name="email"]')?.focus();
     setModalUrl("auth=login");
   }
@@ -13651,6 +13901,7 @@ async function init() {
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
     if (pendingTeamAfterLogin && auth.user) { const fresh = teamIntentFresh(); teamAfterLoginPark(false); if (fresh) { closeAllModals(); openModal("modal-leaderboard"); } }   // net ingelogd vanuit "🏆 Maak je team" in de solo-pop-up
+    if (pendingRtAt && auth.user) { const fresh = rtIntentFresh(); rtIntentPark(false); if (fresh) await rtJoinAfterLogin(); }   // net ingelogd via 🎲 in het account-kaartje
     await maybeShowCoronation();  // gemiste titel-mijlpaal? kroon (self-gated, één lichte RPC). Beloningen niet hier: die hebben achvCache nodig (komt na een pot), geen recompute bij het openen.
     refreshWeekPodiumResult(); // verse-weekuitslag: pop-up + stip (fire-and-forget; nul kosten vóór de 1e afgeronde week / ma-ochtend)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
@@ -13782,6 +14033,8 @@ async function init() {
     const parkedTeam = Number(localStorage.getItem(PENDING_TEAM_KEY));
     if (parkedTeam && Date.now() - parkedTeam < PENDING_TEAM_MS) { pendingTeamAfterLogin = true; pendingTeamAt = parkedTeam; const id = setTimeout(() => { pendingTeamAfterLogin = false; }, PENDING_TEAM_MS - (Date.now() - parkedTeam)); id?.unref?.(); }
     else localStorage.removeItem(PENDING_TEAM_KEY);
+    const parkedRt = Number(localStorage.getItem(PENDING_RT_KEY));   // idem na 🎲 in het account-kaartje
+    if (parkedRt && Date.now() - parkedRt < PENDING_TEAM_MS) pendingRtAt = parkedRt; else localStorage.removeItem(PENDING_RT_KEY);
   } catch (e) {}
   try {
     const parked = Number(localStorage.getItem(PENDING_RECAP_KEY));

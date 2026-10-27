@@ -3004,6 +3004,40 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 .recap-slim-x { flex: none; padding: 0.45rem 0.6rem; color: var(--muted); border-radius: 6px; }
 .recap-slim-x:hover { color: var(--fg); }
 .recap-slim button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; }
+/* 🎲 Willekeurig team (db/140). Tweede knop naast "🏆 Maak je team": omlijnd zoals ⭐ Listdle naast Delen, de rand gaat van de
+   padding af zodat beide even hoog zijn; naast elkaar even breed, gewikkeld een nette kolom. */
+.recap-cta.rt-two { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+.recap-cta.rt-two > button { flex: 1 1 11rem; max-width: 16rem; }
+.recap-cta .rt-dice-btn { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); padding: calc(0.5rem - 1.5px) calc(1.1rem - 1.5px); }
+.recap-cta .rt-dice-btn:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); filter: none; }
+.recap-cta button:disabled { opacity: 0.7; cursor: progress; }
+/* Eén slanke regel boven de tabs, alleen bij die ene opening (welkom / je begint / er is iemand bij): geen kaart, want de recap
+   heeft erboven al streak, Delen en Listdle. Tik → het 🏆-scherm. De plekken als stipjes; de nieuwste licht één keer op. */
+.rt-line { display: flex; align-items: center; gap: 0.45rem; width: 100%; margin: 0 0 0.6rem; padding: 0.45rem 0.55rem 0.45rem 0.6rem; border: 0; border-radius: 8px; background: var(--card-soft); font: inherit; font-size: 0.86rem; color: var(--muted); text-align: left; cursor: pointer; }
+.rt-line:hover .rt-line-chev { color: var(--fg); }
+.rt-line:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rt-line .emoji-anim { flex: none; }
+.rt-line-txt { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rt-line .rt-dots { margin-left: auto; }   /* tekst (+1) links, stipjes en › rechts */
+.rt-line b { color: var(--fg); font-weight: 600; }
+.rt-line-plus { flex: none; color: var(--accent); font-weight: 700; margin-left: -0.1rem; }
+.rt-line { container-type: inline-size; }
+@container (max-width: 19rem) { .rt-line-verb { display: none; } }   /* 360 px: alleen teamnaam + stipjes */
+.rt-line-chev { flex: none; font-size: 1.15rem; line-height: 1; margin-left: 0.1rem; }
+.lb-row.lb-ghost.rt-next { outline-color: color-mix(in srgb, var(--accent) 60%, var(--border)); color: var(--fg); }   /* "de volgende speler komt hier" */
+.rt-dots { flex: none; display: flex; gap: 3px; }
+.rt-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--muted) 55%, transparent); }
+.rt-dot.on { background: var(--accent); box-shadow: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .rt-dot.on.pop { animation: rt-pop 0.5s cubic-bezier(.3, 1.6, .5, 1) 0.9s both; }
+}
+@keyframes rt-pop { from { transform: scale(0.2); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Account-kaartje (niet ingelogd): 🎲 op de plek van de derde voordeel-regel, als knop naar inloggen; het inlogvenster
+   herhaalt de belofte in dezelfde omlijning (.login-why.rt-why). */
+.rt-perk { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%; max-width: 17rem; margin: 0.15rem auto 0; padding: 0.5rem 0.75rem; border: 1.5px solid var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--accent); font: inherit; font-size: 0.9rem; font-weight: 600; text-align: left; cursor: pointer; }
+.rt-perk:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.rt-perk:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rt-perk-chev { font-size: 1.15rem; line-height: 1; }
 @media (prefers-reduced-motion: reduce) {
   .race-streak, .race-runner { transition: none !important; }
 }
@@ -3465,8 +3499,32 @@ html[data-theme="light"], html[data-theme="parchment"] {
 /* pool-header + acties */
 .lb-poolhead { margin: 0 0 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); }
 .lb-poolname { font-size: 1.05rem; font-weight: 700; }
-.lb-poolsub { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
-.lb-poolactions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }   /* 4 knoppen sinds "➕ Pool erbij" → wrap op smal */
+.lb-poolsub { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem 0.45rem; }
+/* Kop sinds 27/10: naam + ⋯ op één regel, daaronder ledental · 📢 Nodig uit (link). Pool erbij, Hernoem en Verlaten zitten
+   achter ⋯ (menu-stijl van de teamkiezer); de oude rij pillen (.lb-poolactions) wikkelde op een telefoon. */
+.lb-poolhead-top { display: flex; align-items: flex-start; gap: 0.5rem; }
+.lb-poolhead-top .lb-poolname { flex: 1; min-width: 0; }
+.lb-poolname .lb-tag { white-space: nowrap; }   /* "🎲 willekeurig" breekt niet tussen de dobbelsteen en het woord */
+.lb-more-wrap { position: relative; flex: none; }
+.lb-more { width: 2rem; height: 2rem; margin: -0.25rem -0.3rem 0 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); font: inherit; font-size: 1.15rem; font-weight: 700; line-height: 1; cursor: pointer; }
+.lb-more:hover, .lb-more[aria-expanded="true"] { background: var(--card-soft); color: var(--fg); }
+.lb-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.lb-invite-link { appearance: none; border: 0; background: none; padding: 0.3rem 0.1rem; margin: -0.3rem 0; font: inherit; font-weight: 600; color: var(--accent); cursor: pointer; }
+.lb-invite-link:hover { text-decoration: underline; }
+.lb-invite-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
+.lb-poolmenu.lb-moremenu { min-width: 11rem; left: auto; right: 0; }   /* zonder Popover-API: rechts onder de ⋯ (.lb-poolmenu staat verderop) */
+.lb-moremenu .lb-poolitem { grid-template-columns: minmax(0, 1fr); }
+.lb-moremenu .lb-poolitem.lb-danger { color: var(--danger); }
+.lb-moremenu .lb-poolitem + .lb-poolitem.lb-danger { margin-top: 0.25rem; box-shadow: 0 -1px 0 var(--border); border-radius: 0 0 7px 7px; }   /* onomkeerbaar: onderaan, met een streep erboven */
+/* 🎲 in de kop: de plekken + één zin uitleg; bij een gekregen naam/flair een hint onder de naam-regel (7 dagen). */
+.rt-poolnote { margin: 0.3rem 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+.rt-namehint { margin: -0.45rem 0 0.9rem; font-size: 0.78rem; color: var(--muted); }
+/* 🏆 zonder team: 🎲 als eerste keuze, in dezelfde vorm als maken en joinen. */
+.rt-pick-row { display: flex; align-items: center; gap: 0.65rem; padding: 0.6rem 0.6rem 0.6rem 0.75rem; border-radius: 10px; background: var(--card-soft); }
+.rt-pick-row p { margin: 0; flex: 1; min-width: 0; font-size: 0.84rem; color: var(--muted); line-height: 1.35; }
+.rt-pick-go { flex: none; appearance: none; border: 0; border-radius: 8px; padding: 0.55rem 0.85rem; background: var(--accent); color: var(--on-accent); font: inherit; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.rt-pick-go:hover { filter: brightness(1.08); }
+.rt-pick-go:disabled { opacity: 0.7; cursor: progress; }
 .lb-pillbtn {
   padding: 0.4rem 0.85rem;
   border: 1px solid var(--border);
@@ -4356,6 +4414,7 @@ html[data-theme="light"] .achv-card::after {
 .podpop.night-b .lb-pod-ghost .lb-pod-n { color: var(--muted); }
 .lb-pod-ghost.dim { opacity: 0.5; }
 .login-why { margin: 0 0 0.8rem; font-size: 0.88rem; color: var(--muted); }
+.login-why.rt-why { padding: 0.55rem 0.75rem; border: 1.5px solid var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--accent); font-size: 0.92rem; font-weight: 600; text-align: center; }
 .login-why[hidden] { display: none; }
 .lb-pod-ghost .lb-pod-name { white-space: normal; overflow: visible; text-overflow: clip; text-align: center; line-height: 1.15; max-width: 100%; }
 .podpop-card:focus { outline: none; }
