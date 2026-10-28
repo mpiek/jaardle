@@ -6035,7 +6035,7 @@ const lbTieCmp = (a, b) => {
 };
 
 function lbRow(rankCell, r, valCell, extraCls, rank) {
-  return `<div class="lb-row${r.is_me ? " lb-me" : ""}${lbPodiumCls(rank)}${extraCls || ""}">` +
+  return `<div class="lb-row${r.is_me ? " lb-me" : ""}${lbPodiumCls(rank)}${extraCls || ""}" data-pn="${escHtml(r.display_name)}">` +
     `<span class="lb-rank">${rankCell}</span>` +
     `<span class="lb-name">${lbNameCell(r, rank)}</span>` +
     `<span class="lb-val">${valCell}</span></div>`;
@@ -6397,7 +6397,7 @@ function lbGuessBlocks(d) {
 // zonder rangnummer en gedimd — zelfde `.lb-prov`-behandeling als de
 // onder-de-drempel-rijen op het all-time statistiekbord.
 function dailyRowHtml(r, i) {
-  return `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}"${i == null ? "" : ` data-i="${i}"`}>` +
+  return `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}"${i == null ? "" : ` data-i="${i}"`} data-pn="${escHtml(r.display_name)}">` +
     `<span class="lb-rank">${r.late ? "·" : lbMedal(r.rank)}</span>` +
     `<span class="lb-name">${lbNameCell(r, r.late ? null : r.rank)}${r.late ? ` <span class="lb-tag">${escHtml(t("makeup_tag"))}</span>` : ""}</span>` +
     `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`;
@@ -6408,6 +6408,56 @@ function dailyTableHtml(rows) {
   }
   return `<div class="lb-table">` + rows.map(dailyRowHtml).join("") + `</div>`;
 }
+
+// ── Spelerskaartje (db/145 get_player_card, mockup "Spelerskaartje" v4 28/10) ──
+// Tik op een naam in het 🏆-bord (Daily, Weekpodium, Stats): de rij klapt open met een klein kaartje (✨ Vitrine · 🏟️ Team ·
+// 🪎 Verzameld). Een andere naam = die speler, op dezelfde tab; nog een tik of ✕ = dicht. Code, CSS en teksten komen lui uit
+// /player-card.js (pas bij de eerste tik); de gegevens uit get_player_card: één verzoek per speler, vijf minuten bewaard.
+// De sleutel is de naam zoals het bord hem toont (data-pn): de bord-RPC's geven geen user_id mee.
+const loadPlayerCard = fxLoader("/player-card.js", "PlayerCard");
+const pcCache = new Map();   // "<pool>|<naam>" → { at, p }
+let pcTab = 0;               // laatst bekeken tab: de volgende speler opent daarop
+function pcFetch(poolId, name) {
+  const key = poolId + "|" + name, hit = pcCache.get(key);
+  if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit.p;
+  const p = rpc("get_player_card", { p_pool_id: poolId, p_name: name });
+  pcCache.set(key, { at: Date.now(), p });
+  p.catch(() => pcCache.delete(key));   // fout → volgende tik probeert het opnieuw
+  return p;
+}
+function pcCloseIn(pane) {
+  pane.querySelectorAll(".pc-inline").forEach((c) => c.remove());
+  pane.querySelectorAll(".pf-open").forEach((el) => { el.classList.remove("pf-open"); el.setAttribute("aria-expanded", "false"); });
+}
+async function togglePlayerCard(el) {
+  const name = el.dataset.pn, pane = el.closest(".lb-tabpane"), poolId = myPool?.id;
+  if (!name || !pane || !poolId) return;
+  const wasOpen = el.classList.contains("pf-open");
+  pcCloseIn(pane);
+  if (wasOpen) return;
+  el.classList.add("pf-open");
+  el.setAttribute("aria-expanded", "true");
+  const data = pcFetch(poolId, name);   // vast starten, parallel aan het laden van de code
+  let lib;
+  try { lib = await loadPlayerCard(); } catch (e) { el.classList.remove("pf-open"); return; }   // offline: gewoon niets
+  if (!el.isConnected || !el.classList.contains("pf-open")) return;   // intussen dicht, of het bord ververste
+  lib.ensureCss();
+  const pod = el.matches(".lb-pod-spot");
+  const card = document.createElement("div");
+  card.className = "pc pc-inline" + (pod ? " pc-noarrow" : "");
+  card.innerHTML = `<p class="pc-wait" role="status"></p>`;
+  (pod ? el.closest(".lb-pod-stage") || el : el).after(card);
+  let d = null;
+  try { d = await data; } catch (e) {}
+  if (!card.isConnected) return;
+  lib.render(card, d, { tab: pcTab, onTab: (i) => { pcTab = i; }, close: () => pcCloseIn(pane) });
+}
+document.addEventListener("click", (e) => {
+  if (!(e.target instanceof Element)) return;
+  const el = e.target.closest("#lb-body .lb-tabpane [data-pn]");
+  if (!el || e.target.closest(".lb-title, .pc, a, button")) return;   // een titel-pil heeft z'n eigen uitleg
+  togglePlayerCard(el);
+});
 
 // Vroegste browsbare daily-dag: de startdag van de actieve pool (my_pools geeft
 // `since` mee sinds db/23 — vóór die dag bestond de pool niet en is het bord per
@@ -6990,7 +7040,7 @@ function podiumParts(rows, isLive, awards, noFormula, ghosts) {
     const winsHtml = trophies
       ? `<div class="lb-pod-wins" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</div>`
       : "";
-    return `<div class="lb-pod-spot lb-pod-${tier}${r.is_me ? " lb-me" : ""}" data-rank="${r.rank}">` +
+    return `<div class="lb-pod-spot lb-pod-${tier}${r.is_me ? " lb-me" : ""}" data-rank="${r.rank}" data-pn="${escHtml(r.display_name)}">` +
       `<div class="lb-pod-name">${titleBadgeHtml(r.title)}${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</div>` +
       `<div class="lb-pod-flair">${flairDance(r.flair)}</div>` +
       `<div class="lb-pod-block"><div class="lb-pod-medal">${medal}</div>` +
@@ -7007,7 +7057,7 @@ function podiumParts(rows, isLive, awards, noFormula, ghosts) {
   const restStat = (r) => `${r.week_score} ${escHtml(t("lb_wk_punten"))} · ${escHtml(t("lb_games_short")(r.played))}` +
     (r.daily_wins > 0 ? ` · <span title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${wkWinTrophies(r.daily_wins)}</span>` : "");
   const restHtml = rest.length ? `<div class="lb-wk-rest">` + rest.map((r) =>
-    `<div class="lb-wk-restrow${r.is_me ? " lb-me" : ""}">` +
+    `<div class="lb-wk-restrow${r.is_me ? " lb-me" : ""}" data-pn="${escHtml(r.display_name)}">` +
     `<span class="lb-wk-rk">${r.rank}</span>` +
     `<span class="lb-wk-rf">${flairStaticHtml(r.flair)}</span>` +
     `<span class="lb-wk-rn">${escHtml(r.display_name)}${isLive ? wkDeltaHtml(r) : ""}</span>` +
@@ -9633,6 +9683,10 @@ const perfectWeeks = (hist) => perfectWeekKeys(hist).size;
 function achvEarnedFlairs() {
   const a = achvCache;
   if (!a || !auth.user) return [];
+  return earnedFlairsOf(a, (ev) => eventState(ev).n);
+}
+// Hetzelfde voor elk prestaties-object; evStamps(ev) = de event-stempels (eigen: uit de daghistorie, een teamgenoot: van de server).
+function earnedFlairsOf(a, evStamps) {
   const out = [];
   for (const s of ACHV_SERIES) {
     const tier = achvTier(achvValue(a, s), s.steps);
@@ -9643,7 +9697,7 @@ function achvEarnedFlairs() {
   }
   const ct = capstoneTier(a);
   for (const cf of CAPSTONE_FLAIRS) if (ct >= cf.tier) out.push(cf.emoji);
-  for (const ev of EVENTS) { const st = eventState(ev); ev.rewards.forEach((r) => { if (r.kind === "flair" && st.n >= r.at) out.push(r.emoji); }); }   // event-flairs (bv. 🎃)
+  for (const ev of EVENTS) { const n = evStamps(ev); ev.rewards.forEach((r) => { if (r.kind === "flair" && n >= r.at) out.push(r.emoji); }); }   // event-flairs (bv. 🎃)
   for (const id of a.finds || []) if (VONDST_BY_ID[id]) out.push(VONDST_BY_ID[id].flair);   // zeldzame vondsten (db/110)
   return out;
 }

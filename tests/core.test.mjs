@@ -42,6 +42,8 @@ setGlobal("localStorage", {
 const dir = dirname(fileURLToPath(import.meta.url));
 let src = readFileSync(join(dir, "..", "game.js"), "utf8");
 src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aanroep + alles erna
+// Het spelerskaartje (lui geladen in de browser) gebruikt de consts van game.js: in dezelfde eval-scope inladen.
+src += "\n" + readFileSync(join(dir, "..", "player-card.js"), "utf8") + "\n";
 src += `
 ;globalThis.__T = {
   classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
@@ -85,6 +87,7 @@ src += `
   RANDOM_TEAM_SIZE, RT_LINE_KEY, RT_SEEN_KEY, RT_GIVEN_KEY, RT_GIVEN_MS, PENDING_RT_KEY, rtDotsHtml, rtLineFor, rtLineHtml, rtGivenHintHtml,
   rtIntentPark, rtIntentFresh, rtErrorText, resetRtSession: () => { rtSessionLine = null; },
   isRealTap, TAP_SLOP, TAP_MAX_MS,
+  earnedFlairsOf, dailyRowHtml, lbRow, pcFetch, pcCache,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4597,4 +4600,69 @@ test("isRealTap — een tik op de teamstand telt alleen zonder swipe, scroll, la
   assert.ok(T.isRealTap(down(), at(100, 200), null), "zonder carrousel (alleen de dagtabel)");
   assert.ok(!T.isRealTap(down(), at(100, 200), track(0), now + 20), "het spoor schoof heen en terug ná het neerzetten (scroll-snap)");
   assert.ok(T.isRealTap(down(), at(100, 200), track(0), now - 500), "de laatste scroll was ruim ervoor");
+});
+
+// ── Spelerskaartje (player-card.js + db/145) ──
+test("spelerskaartje: teksten in alle vijf de talen, zelfde sleutels en vorm, geen lege waarden", () => {
+  const PC = globalThis.PlayerCard, langs = Object.keys(T.LANGS), ref = PC.T.en;
+  assert.deepEqual(Object.keys(PC.T).sort(), [...langs].sort());
+  for (const l of langs) {
+    assert.deepEqual(Object.keys(PC.T[l]).sort(), Object.keys(ref).sort(), l);
+    for (const [k, v] of Object.entries(PC.T[l])) {
+      assert.equal(typeof v, typeof ref[k], `${l}.${k}`);
+      if (typeof v === "string") assert.ok(v.trim(), `${l}.${k} is leeg`);
+      else assert.equal(v.length, ref[k].length, `${l}.${k}: ander aantal argumenten`);
+    }
+  }
+});
+
+test("spelerskaartje: vitrine = zeldzaamste eerst, hooguit zes, geen perfecte week of titel-trofee; jaren komen alleen als aantal", () => {
+  const PC = globalThis.PlayerCard;
+  const c = PC.prep({ a: { games: 2317, dailies: 88, streak: 61, perfect: 64, pure: 312, rating: 1931, first_try: 84, zigzag: 52, fun: 41,
+    flawless: true, obsidian: true, perfect_week: 9, finds: ["platypus"] }, years_n: 29, ev: {}, podium: {}, dz: 0, aw: {} });
+  assert.equal(c.a.years.length, 29);
+  const v = PC.vitrine(c);
+  assert.equal(v.length, 6);
+  for (let i = 1; i < v.length; i++) assert.ok(v[i - 1].score >= v[i].score, "op volgorde van zeldzaamheid");
+  assert.deepEqual(v.map((x) => x.key), ["rating", "v:platypus", "pure", "years", "games", "perfect"]);   // 29 jaren = diamant, telt mee
+  assert.ok(!v.some((x) => x.key === "obsidian" || x.key === "perfect_week"));
+  // weinig verdiend: alleen wat er is, geen lege plekken; zonder rating (nog geen 25 potjes) geen rating-munt
+  const few = PC.vitrine(PC.prep({ a: { games: 19, first_try: 1 }, years_n: 0 }));
+  assert.deepEqual(few.map((x) => x.key).sort(), ["first_try", "games"]);
+  assert.deepEqual(PC.vitrine(PC.prep({ a: {}, years_n: 0 })), []);
+});
+
+test("spelerskaartje: verdiende flairs tellen voor elk prestaties-object, met de event-stempels van de server", () => {
+  const a = T.achvNormalize({ games: 250, streak: 30, finds: ["platypus"] });
+  const none = T.earnedFlairsOf(a, () => 0), spook = T.earnedFlairsOf(a, (ev) => (ev.id === "spook" ? 10 : 0));
+  assert.ok(none.includes("🎲") && none.includes("🔥"));
+  assert.ok(none.includes("v:platypus"), "een vondst is een flair");
+  assert.ok(!none.includes("🎃") && spook.includes("🎃"), "event-flair via de stempels van de server");
+});
+
+test("spelerskaartje: elke spelersrij in het bord draagt de naam als sleutel (data-pn), ge-escaped", () => {
+  const nm = `Ab"<c>&`;
+  const row = T.dailyRowHtml({ display_name: nm, rank: 1, won: true, score: 90, guess_blocks: [0] }, 0);
+  assert.match(row, /data-pn="Ab&quot;&lt;c&gt;&amp;"/);
+  assert.match(T.lbRow("1", { display_name: nm }, "1700", "", 1), /data-pn="Ab&quot;&lt;c&gt;&amp;"/);
+  const pod = T.podiumParts([{ rank: 1, display_name: nm, week_score: 300, daily_wins: 2, played: 5 }, { rank: 2, display_name: "B", week_score: 200, daily_wins: 1, played: 5 },
+    { rank: 3, display_name: "C", week_score: 100, daily_wins: 0, played: 5 }, { rank: 4, display_name: "D", week_score: 50, daily_wins: 0, played: 3 }], false, [], true);
+  assert.match(pod.stage, /lb-pod-spot[^>]*data-pn="Ab&quot;&lt;c&gt;&amp;"/);
+  assert.match(pod.rest, /lb-wk-restrow[^>]*data-pn="D"/);
+});
+
+test("spelerskaartje: één verzoek per speler per team, bewaard; een fout wordt niet bewaard", async () => {
+  const calls = [], saved = window.sb;
+  window.sb = { rpc: (fn, args) => { calls.push([fn, args]); return args.p_name === "kapot" ? Promise.reject(new Error("x")) : Promise.resolve({ a: {} }); } };
+  try {
+    T.pcCache.clear();
+    await T.pcFetch("pool1", "Noor"); await T.pcFetch("pool1", "Noor");
+    assert.equal(calls.length, 1);
+    assert.deepEqual(calls[0], ["get_player_card", { p_pool_id: "pool1", p_name: "Noor" }]);
+    await T.pcFetch("pool2", "Noor");
+    assert.equal(calls.length, 2, "ander team = ander kaartje");
+    await T.pcFetch("pool1", "kapot").catch(() => {});
+    await new Promise((r) => setTimeout(r, 0));
+    assert.ok(!T.pcCache.has("pool1|kapot"), "een fout probeert de volgende tik opnieuw");
+  } finally { window.sb = saved; T.pcCache.clear(); }
 });

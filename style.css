@@ -3406,6 +3406,8 @@ html[data-theme="light"], html[data-theme="parchment"] {
 /* Tik op een histogram-staaf in de recap: de teamgenoten daarin lichten even op (highlightTeamRows). */
 .lb-row.hl { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 45%, transparent); }
 .lb-row.lb-me { background: color-mix(in srgb, var(--accent) 22%, var(--card-soft)); }
+/* Een speler in het 🏆-bord is een ingang naar zijn kaartje (player-card.js; de rest van de CSS komt daar lui mee). */
+#lb-body .lb-tabpane [data-pn] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .lb-row.lb-me .lb-val { color: var(--accent); }
 /* Podium: goud/zilver/koper voor de top-3 (na .lb-me, zodat de tint wint —
    je eigen rij blijft herkenbaar aan de JIJ-tag). */
