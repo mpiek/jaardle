@@ -76,8 +76,8 @@ const HELP_NL = `
     <details>
       <summary>Details en scoring</summary>
       <ul>
-        <li>Kleuren bij elke gok: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
-        <li>Strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> per stuk · 🧭 <span data-penalty="dir-hint"></span> per stuk · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, op basis van je dichtste gok.</li>
+        <li>Kleuren bij elke gok: 🟩 0 &nbsp; 🟪 1–2 &nbsp; <span data-band="near">🟦 3–5 &nbsp; </span>🟨 <span data-band-range="close">6–10</span> &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · <span data-band="near">🟦 <span data-penalty="near"></span> · </span>🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> per stuk · 🧭 <span data-penalty="dir-hint"></span> per stuk · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, op basis van je dichtste gok.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
         <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok buiten je bekende bereik (of buiten een gekochte eeuw/cijfer) wordt geweigerd zonder een poging te kosten. Die controle is soepel tot je één gok doet die je eigen bord al uitsloot; daarna gaat hij op scherp en noemt hij de jaartallen die nog kunnen.</li>
         <li>Toetsen: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>↑</kbd> haalt je laatste gok terug, <kbd>←</kbd>/<kbd>→</kbd> door de carrousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> voor de hints, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>
@@ -94,8 +94,8 @@ const HELP_EN = `
     <details>
       <summary>Details &amp; scoring</summary>
       <ul>
-        <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
-        <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
+        <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; <span data-band="near">🟦 3–5 &nbsp; </span>🟨 <span data-band-range="close">6–10</span> &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · <span data-band="near">🟦 <span data-penalty="near"></span> · </span>🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
         <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess. That check stays lenient until you make one guess your own board already ruled out; after that it tightens up and names the years still possible.</li>
         <li>Keys: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>↑</kbd> recalls your last guess, <kbd>←</kbd>/<kbd>→</kbd> through the carousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> for the hints, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>
@@ -112,8 +112,8 @@ const HELP_DE = `
     <details>
       <summary>Details &amp; Wertung</summary>
       <ul>
-        <li>Farben pro Versuch: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
-        <li>Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hinweise: ⏩ <span data-penalty="later-clue"></span> je Stück · 🧭 <span data-penalty="dir-hint"></span> je Stück · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
+        <li>Farben pro Versuch: 🟩 0 &nbsp; 🟪 1–2 &nbsp; <span data-band="near">🟦 3–5 &nbsp; </span>🟨 <span data-band-range="close">6–10</span> &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · <span data-band="near">🟦 <span data-penalty="near"></span> · </span>🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hinweise: ⏩ <span data-penalty="later-clue"></span> je Stück · 🧭 <span data-penalty="dir-hint"></span> je Stück · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
         <li>Stufen: <span data-help="tiers"></span></li>
         <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch außerhalb deines bekannten Bereichs (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer) wird abgelehnt, ohne einen Versuch zu kosten. Diese Prüfung bleibt nachsichtig, bis du einen Versuch machst, den dein eigenes Feld schon ausgeschlossen hat; danach wird sie streng und nennt die noch möglichen Jahre.</li>
         <li>Tasten: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>↑</kbd> holt deinen letzten Versuch zurück, <kbd>←</kbd>/<kbd>→</kbd> durchs Karussell, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> für die Hinweise, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>
@@ -130,8 +130,8 @@ const HELP_ES = `
     <details>
       <summary>Detalles y puntuación</summary>
       <ul>
-        <li>Colores por intento: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
-        <li>Penalización por fallo: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Pistas: ⏩ <span data-penalty="later-clue"></span> cada una · 🧭 <span data-penalty="dir-hint"></span> cada una · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdida = 0–10, según tu intento más cercano.</li>
+        <li>Colores por intento: 🟩 0 &nbsp; 🟪 1–2 &nbsp; <span data-band="near">🟦 3–5 &nbsp; </span>🟨 <span data-band-range="close">6–10</span> &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalización por fallo: 🟪 <span data-penalty="veryclose"></span> · <span data-band="near">🟦 <span data-penalty="near"></span> · </span>🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Pistas: ⏩ <span data-penalty="later-clue"></span> cada una · 🧭 <span data-penalty="dir-hint"></span> cada una · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdida = 0–10, según tu intento más cercano.</li>
         <li>Niveles: <span data-help="tiers"></span></li>
         <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento fuera de tu rango conocido (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento. Esa comprobación es indulgente hasta que haces un intento que tu propio tablero ya descartaba; a partir de ahí se vuelve estricta y nombra los años aún posibles.</li>
         <li>Teclas: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>↑</kbd> recupera tu último intento, <kbd>←</kbd>/<kbd>→</kbd> por el carrusel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para las pistas, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>
@@ -148,8 +148,8 @@ const HELP_PT = `
     <details>
       <summary>Detalhes e pontuação</summary>
       <ul>
-        <li>Cores por tentativa: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟨 3–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
-        <li>Penalidade por erro: 🟪 <span data-penalty="veryclose"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Dicas: ⏩ <span data-penalty="later-clue"></span> cada · 🧭 <span data-penalty="dir-hint"></span> cada · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
+        <li>Cores por tentativa: 🟩 0 &nbsp; 🟪 1–2 &nbsp; <span data-band="near">🟦 3–5 &nbsp; </span>🟨 <span data-band-range="close">6–10</span> &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalidade por erro: 🟪 <span data-penalty="veryclose"></span> · <span data-band="near">🟦 <span data-penalty="near"></span> · </span>🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Dicas: ⏩ <span data-penalty="later-clue"></span> cada · 🧭 <span data-penalty="dir-hint"></span> cada · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
         <li>Níveis: <span data-help="tiers"></span></li>
         <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa fora do seu intervalo conhecido (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa. Essa verificação é tolerante até você fazer uma tentativa que seu próprio tabuleiro já descartava; depois disso ela fica rigorosa e indica os anos ainda possíveis.</li>
         <li>Teclas: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>↑</kbd> recupera sua última tentativa, <kbd>←</kbd>/<kbd>→</kbd> pelo carrossel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para as dicas, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li>
@@ -2458,10 +2458,25 @@ function updateDayLabel() {
   } catch (e) { /* private browsing etc. */ }
 })();
 
-function classify(diff) {
+// 🟦 3–5 jaar ("near", 28/10/2026), waardoor 🟨 6–10 wordt: verliezen eindigden steeds vaker op ≤5 jaar (sep–okt
+// 70–77%), en een ideale zoeker wint met deze grens het meest bij (+3,9 pt, ≈ −24% verliezen; dump + scripts:
+// jaardle-tools/backups/2026-10-27_blauwe_band/). 🟦 was de enige nog vrije vierkant-emoji. Vrij spel meteen, de daily
+// vanaf puzzeldag BLUE_DAILY_FROM: de eerste dag van een podiumweek, dus elke week (en elke dag) telt met één regel.
+// De regel hoort bij het potje (state.blue): een vrij potje dat vóór de wissel begon, speelt met de oude banden uit.
+// Server: get_pool_daily_leaderboard geeft 🟦 als bordcode 8 vanaf dezelfde dag (db/143).
+const BLUE_DAILY_FROM = "2026-11-02";
+function blueFor(mode, date) {
+  return mode !== "daily" || (date || todayKey()) >= BLUE_DAILY_FROM;
+}
+function bandBlue(st = state) {
+  return st?.blue ?? true;
+}
+
+function classify(diff, blue = bandBlue()) {
   const abs = Math.abs(diff);
   if (abs === 0) return "correct";
   if (abs <= 2) return "veryclose";
+  if (blue && abs <= 5) return "near";
   if (abs <= 10) return "close";
   if (abs <= 25) return "warm";
   if (abs <= 50) return "cool";
@@ -2479,7 +2494,7 @@ function distChip(n) {
 // Bovengrens van het bereik dat elke gok-badge toont (zie RANGE_LABELS): hoe ver
 // het antwoord maximaal van die gok kan liggen. "farthest" (600+) is onbegrensd.
 const BAND_OUTER = {
-  veryclose: 2, close: 10, warm: 25, cool: 50, far: 200, distant: 599,
+  veryclose: 2, near: 5, close: 10, warm: 25, cool: 50, far: 200, distant: 599,
 };
 
 // Speelruimte bovenop de band-bovengrens: pas waarschuwen als de gok er duidelijk
@@ -2504,17 +2519,22 @@ function outOfBand(guesses, year) {
 }
 
 // Ondergrens van elke band; samen met BAND_OUTER het venster dat één gok toelaat.
+// 🟨 begint op 6 als het potje 🟦 kent, anders op 3 (zie bandLabel).
 const BAND_INNER = {
-  veryclose: 1, close: 3, warm: 11, cool: 26, far: 51, distant: 201, farthest: 600,
+  veryclose: 1, near: 3, close: 6, warm: 11, cool: 26, far: 51, distant: 201, farthest: 600,
 };
 
 // De jaartallen die één gok nog toelaat: een venster links én rechts van die gok
 // (de badge zegt hoe VER het antwoord ligt, niet welke kant op), geknipt op de
 // speelbare jaren. Is bij deze rij een 🧭-pijl gekocht, dan valt één kant weg.
-function guessRanges(g, dirKnown) {
-  const inner = BAND_INNER[g.cls];
+// Het venster omvat altijd de echte afstand: klopte de regel van het potje ooit niet met de kleur van een rij, dan
+// weigert de guard hooguit te weinig, nooit het antwoord zelf (daarbuiten doen de min/max niets).
+function guessRanges(g, dirKnown, blue = bandBlue()) {
+  let inner = BAND_INNER[g.cls];
   if (inner === undefined) return [];            // correct → niets meer te kiezen
-  const outer = BAND_OUTER[g.cls] ?? Infinity;   // farthest → open einde
+  if (g.cls === "close" && !blue) inner = 3;
+  inner = Math.min(inner, Math.abs(g.diff));
+  const outer = Math.max(BAND_OUTER[g.cls] ?? Infinity, Math.abs(g.diff));   // farthest → open einde
   const out = [];
   const lo = [Math.max(MIN_YEAR, g.year - outer), g.year - inner];
   const hi = [g.year + inner, Math.min(MAX_YEAR, g.year + outer)];
@@ -2647,6 +2667,7 @@ function emojiFor(cls) {
   return {
     correct: "🟩",
     veryclose: "🟪",
+    near: "🟦",
     close: "🟨",
     warm: "🟧",
     cool: "🟥",
@@ -3227,13 +3248,18 @@ function updateDigitGlow() {
 
 const RANGE_LABELS = {
   veryclose: "1–2",
-  close: "3–10",
+  near: "3–5",
+  close: "6–10",
   warm: "11–25",
   cool: "26–50",
   far: "51–200",
   distant: "201–599",
   farthest: "600+",
 };
+// Het bereik op een badge: 🟨 is 3–10 in een potje zonder 🟦 (zie classify).
+function bandLabel(cls, blue = bandBlue()) {
+  return cls === "close" && !blue ? "3–10" : RANGE_LABELS[cls];
+}
 
 // Score: 100 - sum(penalty per wrong guess) - hint penalties.
 // ⬛ 600+ 23 → 15 (2026-10-24), gelijk aan ⬜: een verre eerste gok betaalt dubbel, want
@@ -3242,9 +3268,11 @@ const RANGE_LABELS = {
 // Raakt ±2% van de winsten. De rating volgt deze tabel niet: graded_score (db/135) telt de
 // afstand van elke gok met een eigen, voor verre gokken steilere tabel (guess_cost).
 // Alles wat de straf toont (❓-uitleg, demo-legenda) leest deze tabel.
+// 🟦 3 (28/10/2026): 2-3-5-8, Fibonacci tot 🟨/🟧.
 const GUESS_PENALTIES = {
   correct: 0,
   veryclose: 2,
+  near: 3,
   close: 5,
   warm: 8,
   cool: 11,
@@ -3269,7 +3297,7 @@ const LAST_DIGIT_PENALTY = 10;  // 🔢 laatste cijfer van het jaartal onthullen
 // Zo krijgt de pechvogel die steeds vlak zat krediet (max 10), terwijl de
 // verdwaalde speler op 0 blijft. Altijd onder een winst.
 const LOSS_SCORES = {
-  correct: 0, veryclose: 10, close: 6, warm: 4, cool: 2, far: 0, distant: 0, farthest: 0,
+  correct: 0, veryclose: 10, near: 6, close: 6, warm: 4, cool: 2, far: 0, distant: 0, farthest: 0,
 };
 
 // Live "potentiële" score: 100 minus alle tot nu toe verdiende strafpunten
@@ -3343,11 +3371,12 @@ const LOST_TIER = SCORE_TIERS.find((t) => t.key === "lost");
 
 // Verlies met een dichtste gok binnen 10 jaar: de toon volgt hoe dichtbij je zat, in plaats van altijd 💀.
 // Alleen weergave — de troostscore (LOSS_SCORES) en de rating blijven zoals ze waren. De grenzen zijn die
-// van de badges: veryclose (≤2 jaar) en close (≤10 jaar).
+// van de badges: veryclose (≤2 jaar) en close (≤10 jaar); 🟦 near (3–5) is ook "Bijna!".
 const NEAR_TIERS = {
   veryclose: { key: "near2",  label: "Zo dichtbij!", emoji: "😭", near: true },
   close:     { key: "near10", label: "Bijna!",       emoji: "😬", near: true },
 };
+NEAR_TIERS.near = NEAR_TIERS.close;
 
 // Afstand (jaren) van je dichtste gok; null zonder gokken.
 function closestMiss(guesses = state?.guesses) {
@@ -3363,10 +3392,15 @@ function scoreTier(score, won = true, miss = null) {
 }
 
 // Vul de uitleg-tekst met de actuele constanten (zo hoef je bij tweaks niks
-// in de HTML te wijzigen).
+// in de HTML te wijzigen). De banden volgen het potje op het scherm: zonder 🟦 (een daily van vóór
+// BLUE_DAILY_FROM) valt die weg en is 🟨 weer 3–10. Daarom ook bij elke opening van ❓.
 function renderHelpConstants() {
+  const blue = bandBlue();
+  document.querySelectorAll('[data-band="near"]').forEach((el) => { el.hidden = !blue; });
+  document.querySelectorAll("[data-band-range]").forEach((el) => { el.textContent = bandLabel(el.dataset.bandRange, blue); });
   const map = {
     veryclose: GUESS_PENALTIES.veryclose,
+    near:      GUESS_PENALTIES.near,
     close:     GUESS_PENALTIES.close,
     warm:      GUESS_PENALTIES.warm,
     cool:      GUESS_PENALTIES.cool,
@@ -3399,7 +3433,7 @@ function renderHelpConstants() {
   }
 }
 
-function renderDeltaBadge(badge, diff, cls, showDirection) {
+function renderDeltaBadge(badge, diff, cls, showDirection, blue = bandBlue()) {
   badge.textContent = "";
   if (cls === "correct") { badge.textContent = "✓"; return; }
   if (showDirection) {
@@ -3407,9 +3441,9 @@ function renderDeltaBadge(badge, diff, cls, showDirection) {
     arrow.className = "arrow";
     arrow.textContent = diff > 0 ? "↑" : "↓";
     badge.appendChild(arrow);
-    badge.appendChild(document.createTextNode(` ${RANGE_LABELS[cls]}`));
+    badge.appendChild(document.createTextNode(` ${bandLabel(cls, blue)}`));
   } else {
-    badge.textContent = RANGE_LABELS[cls];
+    badge.textContent = bandLabel(cls, blue);
   }
 }
 
@@ -5972,9 +6006,9 @@ const LB_STATS = [
   // gewonnen potje in 1 gok zou anders bovenaan staan.
   { key: "avg_guesses", label: () => t("stat_avgtries"),     val: (r) => `${Number(r.avg_guesses || 0).toFixed(1)}`, gate: true, asc: true, note: () => t("lb_scope_all") },
   { key: "streak",      label: () => t("lb_stat_streak"),    val: (r) => `${r.streak}` },
-  // Dagzeges tellen alleen dagen sinds je pool-lidmaatschap én gewonnen, met ≥2 deelnemers
-  // die dag (db/23) — sinds db/74+76 geldt vanaf 2026-10-04 ook de eerste/enige van de dag
-  // (DAGZEGE_ALONE_FROM, spiegel in de winkans-simulatie). Vandaar het bijschrift "sinds deelname".
+  // Dagzeges tellen alleen dagen sinds je pool-lidmaatschap (sinds db/144: vanaf de maandag van je instapweek)
+  // én gewonnen, met ≥2 deelnemers die dag (db/23) — sinds db/74+76 geldt vanaf 2026-10-04 ook de eerste/enige
+  // van de dag (DAGZEGE_ALONE_FROM, spiegel in de winkans-simulatie). Vandaar het bijschrift "sinds deelname".
   { key: "daily_wins",  label: () => t("lb_stat_dailywins"), val: (r) => `${r.daily_wins ?? 0}`, note: () => t("lb_scope_pool") },
   { key: "games",       label: () => t("stat_played"),       val: (r) => `${r.games}`, note: () => t("lb_scope_all") },
   // Perfect-rate: als rauwe teller was dit vrijwel een kloon van "Gespeeld"
@@ -6343,8 +6377,9 @@ function lbHintIcons(d) {
   return `<span class="lb-hints lb-hints-grid">${icons.map((e) => `<i>${e}</i>`).join("")}</span>`;
 }
 
-// Afstand-code (0..7 uit de RPC) → kleur-klasse, in dezelfde volgorde als emojiFor/classify.
-const LB_BLOCK_CLS = ["correct", "veryclose", "close", "warm", "cool", "far", "distant", "farthest"];
+// Afstand-code (0..8 uit de RPC) → kleur-klasse, in dezelfde volgorde als emojiFor/classify; 🟦 kwam er als 8 achteraan
+// bij (db/143), zodat de oude codes bleven wat ze waren.
+const LB_BLOCK_CLS = ["correct", "veryclose", "close", "warm", "cool", "far", "distant", "farthest", "near"];
 
 // De gokken als mini-blokjes (spoilervrij: alleen kleuren, net als de deel-blokjes).
 // guess_blocks komt uit de RPC; leeg/null als de play geen opgeslagen gokken heeft.
@@ -8229,6 +8264,9 @@ function forecastPlaces(inp, runs, seed) {
 // Is dat verschil < 0, dan eindigt i zéker vóór j. Daaruit volgt per speler de beste en slechtste plek die nog kan;
 // een plek daarbuiten heeft kans 0, en kan er op een plek nog maar één speler eindigen, dan is dat zeker (1).
 // Bewust ruim (bovengrenzen): de controle snoeit alleen wat écht onmogelijk is en vertekent een open week niet.
+// Bekende grens (db/144, 28/10): wie midden in de week instapt, telt vanaf maandag en neemt zijn eerdere dagen van die week
+// mee, ook dagzeges. Spelers die er nog niet zijn kent deze rekensom niet, dus een "zeker" kan dan alsnog omvallen.
+// Zeldzaam (een 🎲-team met een nieuwe sterke instapper), en daarom niet ingeprijsd.
 function oddsLimits(inp) {
   const P = inp.players, n = P.length, F = inp.futureKeys.length;
   let top = Infinity, heads = 0;
@@ -8559,9 +8597,9 @@ function mountOdds(root, items) {
 
 // ── Voorproefje voor ingelogd-zonder-team (grill 4/10, mockup "Team-nudge eindscherm", variant A) ──
 // In plaats van een zin + knop zie je wat je mist: dezelfde Vandaag/Week-tabs en banen als een echt team, met
-// jouw eigen rij (uit de lokale spelstand, zoals de server 'm na het maken zou tonen: een nieuw team telt
-// vanaf joined_at, dus alleen de daily van vandaag, mét dagzege +25 als je won) en gestippelde spookrijen
-// voor wie er nog niet is. De knop opent het 🏆-bord, waar je maakt of joint.
+// jouw eigen rij (uit de lokale spelstand, zoals de server 'm na het maken zou tonen: sinds db/144 telt een nieuw
+// team vanaf de maandag van deze week, dus de week-baan telt al je daily's van deze week, met +25 per gewonnen dag)
+// en gestippelde spookrijen voor wie er nog niet is. De knop opent het 🏆-bord, waar je maakt of joint.
 // Dooft zelf uit (ux-no-friction-for-experts): de eerste TEAM_NUDGE_FULL dagen het hele voorproefje, tot en
 // met dag TEAM_NUDGE_SLIM één slanke regel met ✕, daarna niets; ✕ is direct en voorgoed. Per apparaat
 // (localStorage), geteld in dágen — heropenen van de recap op dezelfde dag telt niet mee.
@@ -8577,7 +8615,9 @@ function teamNudgeStage() {   // 0 = voorproefje · 1 = slanke regel · 2 = weg
   if (s.x || s.n > TEAM_NUDGE_SLIM) return 2;
   return s.n > TEAM_NUDGE_FULL ? 1 : 0;
 }
-function teamTeaserHtml() {
+// `history`/`ws`: de daghistorie en de maandag van de week (tests geven ze mee). Een inhaalpot geeft op het echte bord geen
+// dagzege; de historie weet niet welke dagen dat waren, alleen dit potje weet het van zichzelf.
+function teamTeaserHtml(history = eventHistorySync(), ws = currentWeekStart()) {
   const won = !!state.won, score = computeScore();
   const me = {
     rank: 1, is_me: true, display_name: myUsername || t("lb_you"), flair: myFlair, title: myTitle, won, score,
@@ -8585,8 +8625,12 @@ function teamTeaserHtml() {
     text_hints: state.laterCluesShown, dir_hints: state.directionsRevealed.length,
     century_hint: !!state.centuryRevealed, last_digit: !!state.lastDigitRevealed,
   };
-  const wins = dagzegeApplies(1, won, state.puzzleDate || todayKey()) ? 1 : 0;
-  const lane = { ...me, daily_wins: wins, week_score: score + wins * 25 };
+  const day0 = state.puzzleDate || todayKey(), we = shiftDateKey(ws, 6);
+  const days = (Array.isArray(history) ? history : []).filter((e) => e && e.date >= ws && e.date <= we && e.date !== day0)
+    .map((e) => ({ date: e.date, won: !!e.won, score: Number(e.score) || 0, late: false }));
+  if (day0 >= ws && day0 <= we) days.push({ date: day0, won, score, late: isMakeup(state) });
+  const wins = days.filter((d) => !d.late && dagzegeApplies(1, d.won, d.date)).length;
+  const lane = { ...me, daily_wins: wins, week_score: days.reduce((s, d) => s + d.score, 0) + wins * 25 };
   const ghostRow = (rank, label, dim) =>
     `<div class="lb-row lb-ghost${dim ? " dim" : ""}"><span class="lb-rank">${rank}</span><span class="lb-name">${label}</span><span class="lb-val">–</span></div>`;
   const ghostLane = (rank, k, dim) =>
@@ -11505,9 +11549,10 @@ async function reconstructDailyBoard(answerYear, d = todayKey(), preRow) {
     try { row = await rpc("get_my_daily_state", { d }); } catch (e) { return null; }
   }
   if (!row || !Array.isArray(row.guesses)) return null;
+  const blue = blueFor("daily", d);   // de banden van die dag, niet van het potje dat nu open staat
   const guesses = row.guesses.map((year) => {
     const diff = answerYear - year;
-    return { year, diff, cls: classify(diff) };
+    return { year, diff, cls: classify(diff, blue) };
   });
   const dir = Math.max(0, Math.min(MAX_DIRECTION_HINTS, row.dir_hints_used || 0));
   // Exacte 🧭-rijen (dir_hint_idx, sinds db/64). Oude rijen kennen alleen het
@@ -11518,6 +11563,7 @@ async function reconstructDailyBoard(answerYear, d = todayKey(), preRow) {
     : null;
   const board = {
     guesses,
+    blue,
     done: !!row.done,
     won: !!row.won,
     laterCluesShown: Math.max(0, Math.min(LATER_CLUE_SLOTS, row.text_hints_used || 0)),
@@ -11729,7 +11775,7 @@ function renderHistoryBoardInto(container, board) {
     yr.textContent = g.year;
     const badge = document.createElement("span");
     badge.className = `delta-badge ${g.cls}`;
-    renderDeltaBadge(badge, g.diff, g.cls, revealedSet.has(idx));
+    renderDeltaBadge(badge, g.diff, g.cls, revealedSet.has(idx), board.blue);
     row.append(yr, badge);
     const penalty = GUESS_PENALTIES[g.cls] || 0;
     if (penalty > 0) {
@@ -12761,8 +12807,10 @@ function hwPadHtml() {
 }
 function hwLegendHtml() {
   let h = `<div class="hw-legend"><p class="hw-legend-t">${hwText("legend")}</p><div class="hw-legend-g">`;
-  ["correct", "cool", "veryclose", "far", "close", "distant", "warm", "farthest"].forEach((c) => {
-    h += `<div class="hw-lr" data-c="${c}"><span class="delta-badge ${c}">${c === "correct" ? "✓" : RANGE_LABELS[c]}</span>` +
+  // Twee kolommen, rij voor rij gevuld: links van dichtbij naar warm, rechts de rest (🟦 alleen in een potje dat 'm kent).
+  (bandBlue() ? ["correct", "cool", "veryclose", "far", "near", "distant", "close", "farthest", "warm"]
+    : ["correct", "cool", "veryclose", "far", "close", "distant", "warm", "farthest"]).forEach((c) => {
+    h += `<div class="hw-lr" data-c="${c}"><span class="delta-badge ${c}">${c === "correct" ? "✓" : bandLabel(c)}</span>` +
       `<span class="hw-lp">${GUESS_PENALTIES[c] ? "−" + GUESS_PENALTIES[c] : "0"}</span></div>`;
   });
   return h + "</div></div>";
@@ -12890,7 +12938,7 @@ const HW_SEQ = [
       const c = hwCls(G[g]), p = GUESS_PENALTIES[c] || 0;
       hwLegendOn(scr, c);
       if (p) { score -= p; hwTween(sc, score, 450, "−" + p); }
-      const e = emojiFor(c), range = RANGE_LABELS[c];
+      const e = emojiFor(c), range = bandLabel(c);
       hwCap(g === 0 ? hwText("c2b", e, range) : g === 1 ? hwText("c2c", e, range) : g === 2 ? hwText("c2d", e, range) : hwText("c2e", e, score));
       await hwWait(r, g === G.length - 1 ? 600 : 2300);
     }
@@ -13014,7 +13062,7 @@ function hwBuild() {
     [1, 2, 3, 4].map(() => `<div class="hw-slide"><div class="hw-screen" aria-hidden="true"></div></div>`).join("") + `</div></div>` +
     `<div class="hw-cap-row"><p class="hw-cap" aria-live="polite"></p><button type="button" class="hw-replay" hidden>${hwText("replay")}</button></div>` +
     `<div class="hw-nav"><button type="button" class="hw-nb hw-prev">${hwText("prev")}</button><button type="button" class="hw-nb hw-next hw-pri">${hwText("next")}</button></div>`;
-  hw = { lang, cur: 0, run: null, root, screens: hwQa(".hw-screen", root), counted: new Set() };
+  hw = { lang, blue: bandBlue(), cur: 0, run: null, root, screens: hwQa(".hw-screen", root), counted: new Set() };
   hw.screens.forEach((s, i) => { s.innerHTML = hwScreenHtml(i); hwPrep(i, s); });   // rustbeeld: elke kaart staat er in z'n beginstand
 
   const steps = hwQa(".hw-step", root);
@@ -13044,11 +13092,11 @@ function hwBuild() {
   vp.addEventListener("click", () => { if (moved) { moved = false; return; } hwStart(hw.cur); });
 }
 
-// Aanroep vanuit openModal("modal-help"): bouwen (of opnieuw bij een andere taal) en
-// kaart 1 afspelen, met een korte adempauze zodat de modal eerst tot rust komt.
+// Aanroep vanuit openModal("modal-help"): bouwen (of opnieuw bij een andere taal, of als het potje op het scherm
+// andere banden heeft) en kaart 1 afspelen, met een korte adempauze zodat de modal eerst tot rust komt.
 function hwOpen() {
   if (!document.getElementById("howto")) return;
-  if (!hw || hw.lang !== lang) hwBuild();
+  if (!hw || hw.lang !== lang || hw.blue !== bandBlue()) hwBuild();
   if (!hw) return;
   hw.counted = new Set();   // elke keer openen = een nieuwe sessie voor de tellers
   hwCount("howto-open", "How-to: opened");
@@ -13066,7 +13114,7 @@ function openModal(id, opts) {
   }
   document.getElementById(id).hidden = false;
   lockBodyScroll();
-  if (id === "modal-help") hwOpen();
+  if (id === "modal-help") { renderHelpConstants(); hwOpen(); }   // banden van het potje op het scherm (🟦 of niet)
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-history") { renderHistory(opts && opts.date); setModalUrl("history"); }
   if (id === "modal-achv") { renderAchievements(); setModalUrl("achievements"); }
@@ -13440,6 +13488,7 @@ function save() {
       hashes: state.hashes,
       event: state.event,
       band: state.band ?? null,
+      blue: state.blue,
       potId: state.potId ?? null,
       stamp: state.stamp ?? null,
       shared: !!state.shared,
@@ -13672,6 +13721,10 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   }
 
   const b = record.board;
+  // 🟦 3–5 in dit potje (zie classify): de daily per puzzeldag, een vrij potje houdt de regel waarmee het begon
+  // (bewaard zonder vlag maar al met gokken = van vóór 🟦). De kleuren volgen daaruit opnieuw: een bewaarde kleur van de
+  // andere regel (een tab die de daily nog met een oude game.js speelde) zou anders een verkeerd bereik tonen.
+  const blue = record.mode === "daily" ? blueFor("daily", record.puzzleDate) : (record.blue ?? !b?.guesses?.length);
   state = {
     mode: record.mode,
     puzzleDate: record.puzzleDate || null,   // welke daily-dag (null bij vrij spel)
@@ -13681,10 +13734,11 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
     stamp: record.stamp || null,             // db/108: stempel van get_random_fact (alleen vrij spel)
     shared: !!record.shared,                 // gedeelde/zelfgebouwde link: telt nergens voor
     band: record.band ?? null,               // moeilijkheids-band 1..3 (alleen daily, sinds db/29)
+    blue,
     owner: record.owner,                     // daily: van wie het bord is (zie boardIsMine)
     hashes: record.hashes,
     event: record.event,
-    guesses: b?.guesses || [],
+    guesses: (b?.guesses || []).map((g) => (Number.isFinite(g?.diff) ? { ...g, cls: classify(g.diff, blue) } : g)),
     done: !!b?.done,
     won: !!b?.won,
     laterCluesShown: Math.max(0, Math.min(LATER_CLUE_SLOTS, b?.laterCluesShown || 0)),

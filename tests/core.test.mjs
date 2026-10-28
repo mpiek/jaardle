@@ -47,6 +47,7 @@ src += `
   classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
+  BLUE_DAILY_FROM, blueFor, bandBlue, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
@@ -323,7 +324,7 @@ test("parseShareToken — N×10 hex of null", () => {
 });
 
 test("emojiFor — elke bucket heeft een emoji", () => {
-  for (const cls of ["correct", "veryclose", "close", "warm", "cool", "far", "distant"]) {
+  for (const cls of ["correct", "veryclose", "near", "close", "warm", "cool", "far", "distant", "farthest"]) {
     assert.match(T.emojiFor(cls), /\p{Emoji}/u);
   }
 });
@@ -923,6 +924,99 @@ test("rangeLabel — v.Chr. telt aflopend en één jaar blijft één jaartal", (
   assert.equal(T.rangeLabel(1501, 1501), "1501");
   T.setLang("en");
   assert.equal(T.rangeLabel(-753, -200), "753–200 BC");
+});
+
+// ── 🟦 3–5 (28/10/2026): vrij spel meteen, de daily vanaf BLUE_DAILY_FROM ─────
+test("🟦 classify — 3–5 is blauw in een potje met 🟦, anders blijft 🟨 3–10", () => {
+  assert.equal(T.classify(2, true), "veryclose");
+  assert.equal(T.classify(3, true), "near");
+  assert.equal(T.classify(-5, true), "near");
+  assert.equal(T.classify(6, true), "close");
+  assert.equal(T.classify(10, true), "close");
+  assert.equal(T.classify(11, true), "warm");
+  assert.equal(T.classify(3, false), "close");
+  assert.equal(T.classify(5, false), "close");
+  assert.equal(T.classify(2, false), "veryclose");
+});
+
+test("🟦 blueFor/bandBlue — vrij spel altijd, de daily per puzzeldag, het potje houdt zijn eigen regel", () => {
+  assert.equal(T.BLUE_DAILY_FROM, "2026-11-02");   // maandag: een podiumweek telt met één regel
+  assert.equal(new Date(T.BLUE_DAILY_FROM + "T12:00:00Z").getUTCDay(), 1);
+  assert.equal(T.blueFor("free", null), true);
+  assert.equal(T.blueFor("daily", "2026-11-01"), false);
+  assert.equal(T.blueFor("daily", "2026-11-02"), true);
+  assert.equal(T.bandBlue({ blue: false }), false);
+  assert.equal(T.bandBlue({ blue: true }), true);
+  T.setState(null);
+  assert.equal(T.bandBlue(), true);                  // geen potje: de huidige regels
+  T.setState({ mode: "free", blue: false, guesses: [] });
+  assert.equal(T.classify(4), "close");              // zonder vlag volgt classify het potje op het scherm
+  T.setState(null);
+});
+
+test("🟦 labels, straf en verliesscore", () => {
+  assert.equal(T.bandLabel("near", true), "3–5");
+  assert.equal(T.bandLabel("close", true), "6–10");
+  assert.equal(T.bandLabel("close", false), "3–10");
+  assert.equal(T.bandLabel("warm", false), "11–25");
+  assert.equal(T.emojiFor("near"), "🟦");
+  assert.equal(T.GUESS_PENALTIES.near, 3);           // 2-3-5-8
+  assert.ok(T.GUESS_PENALTIES.veryclose < T.GUESS_PENALTIES.near && T.GUESS_PENALTIES.near < T.GUESS_PENALTIES.close);
+  assert.equal(T.LOSS_SCORES.near, T.LOSS_SCORES.close);
+  assert.equal(T.scoreTier(6, false, 4).key, "near10");   // ook 🟦 is "Bijna!"
+  for (const c of Object.keys(T.GUESS_PENALTIES)) if (c !== "correct") assert.ok(T.RANGE_LABELS[c], c);
+});
+
+test("elke band heeft een kleur op de badge, de gokrij, de afstand-chip en het teambord-blokje", () => {
+  const css = readFileSync(join(dir, "..", "style.css"), "utf8");
+  for (const c of Object.keys(T.GUESS_PENALTIES)) {
+    for (const sel of ["delta-badge", "guess-row", "dist-chip", "lb-blk"]) {
+      assert.match(css, new RegExp(`\\.${sel}\\.${c}\\s*\\{`), `.${sel}.${c} ontbreekt in style.css`);
+    }
+  }
+});
+
+test("🟦 bordcodes van het teambord: de oude codes blijven, 🟦 is 8 (db/143)", () => {
+  assert.deepEqual(T.LB_BLOCK_CLS, ["correct", "veryclose", "close", "warm", "cool", "far", "distant", "farthest", "near"]);
+});
+
+test("🟦 guessRanges — 🟦 laat 3–5 toe, 🟨 6–10 (of 3–10 zonder 🟦), en nooit zonder het echte antwoord", () => {
+  assert.deepEqual(T.guessRanges({ year: 1500, diff: 4, cls: "near" }, false, true), [[1495, 1497], [1503, 1505]]);
+  assert.deepEqual(T.guessRanges({ year: 1500, diff: 8, cls: "close" }, false, true), [[1490, 1494], [1506, 1510]]);
+  assert.deepEqual(T.guessRanges({ year: 1500, diff: 8, cls: "close" }, false, false), [[1490, 1497], [1503, 1510]]);
+  // Vangnet: een 🟨 van 4 jaar (potje van vóór 🟦) in een potje met 🟦 sluit 1504 niet uit.
+  assert.ok(T.guessRanges({ year: 1500, diff: 4, cls: "close" }, true, true).some(([a, b]) => 1504 >= a && 1504 <= b));
+});
+
+test("🟦 strenge guard blokkeert NOOIT het juiste antwoord, met én zonder 🟦", () => {
+  const rev = new Set();
+  for (const blue of [true, false]) {
+    T.setState({ mode: "free", blue, guesses: [] });
+    for (let answer = -753; answer <= 2026; answer += 11) {
+      const gs = [];
+      for (const g of [answer + 9, answer - 6, answer + 5, answer - 3, answer + 2, answer - 1]) {
+        const year = Math.max(T.MIN_YEAR, Math.min(T.MAX_YEAR, g));
+        if (year === answer) continue;
+        gs.push({ year, diff: answer - year, cls: T.classify(answer - year) });
+        assert.equal(T.guessImpossibleAt(gs, answer, rev), -1, `antwoord ${answer} uitgesloten na gok ${year} (blue=${blue})`);
+      }
+    }
+  }
+  T.setState(null);
+});
+
+test("🟦 reconstructDailyBoard — een dagbord krijgt de banden van zijn eigen dag", async () => {
+  const wasUser = T.auth.user;
+  T.auth.user = { uid: "u1" };
+  try {
+    const row = { guesses: [1900, 1811], done: true, won: false, dir_hints_used: 0, text_hints_used: 0, century_hint_used: false, last_digit_used: false };
+    const oud = await T.reconstructDailyBoard(1815, "2026-11-01", row);
+    const nieuw = await T.reconstructDailyBoard(1815, "2026-11-02", row);
+    assert.equal(oud.guesses[1].cls, "close");
+    assert.equal(oud.blue, false);
+    assert.equal(nieuw.guesses[1].cls, "near");
+    assert.equal(nieuw.blue, true);
+  } finally { T.auth.user = wasUser; }
 });
 
 test("digitGlowOn — puls vanaf gok 4, uit bij 🟪, gekochte 🔢 of einde", () => {
@@ -2205,7 +2299,7 @@ test("teamTeaserHtml — jouw rij + baan zoals de server ze na het maken zou ton
     T.setState({ won: true, puzzleDate: "2026-10-05", guesses: [{ cls: "close" }, { cls: "warm" }, { cls: "correct" }],
       directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false });
     const score = T.computeScore();
-    const h = T.teamTeaserHtml();
+    const h = T.teamTeaserHtml([], "2026-10-05");
     // Dezelfde tabs en spoor als een echt team
     assert.match(h, /class="rc-tab"[^>]*data-i="0"/);
     assert.match(h, /class="rc-tab"[^>]*data-i="1"/);
@@ -2232,10 +2326,31 @@ test("teamTeaserHtml — verlies: 💀 op de dag-rij, geen dagzege in de week", 
   T.setPlayer(null, null, null);
   T.setState({ won: false, puzzleDate: "2026-10-05", guesses: [{ cls: "far" }, { cls: "farthest" }],
     directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false });
-  const h = T.teamTeaserHtml();
+  const h = T.teamTeaserHtml([], "2026-10-05");
   assert.ok(h.includes("💀"));
   assert.ok(!h.includes("race-tro"), "geen dagzege-trofee bij verlies");
   assert.ok(h.includes(T.t("lb_you")), "zonder profielnaam staat er 'jij'");
+});
+
+test("teamTeaserHtml — de week-baan telt al je daily's van deze week (db/144: een nieuw team telt vanaf maandag)", () => {
+  T.setPlayer(null, null, null);
+  T.setState({ won: true, puzzleDate: "2026-10-07", guesses: [{ cls: "correct" }],
+    directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false });
+  const score = T.computeScore();
+  const hist = [
+    { date: "2026-10-04", won: true, score: 90 },    // vorige week: telt niet
+    { date: "2026-10-05", won: true, score: 70 },    // maandag: +70 +25
+    { date: "2026-10-06", won: false, score: 6 },    // verloren: +6, geen dagzege
+    { date: "2026-10-07", won: false, score: 0 },    // vandaag: het potje op het scherm wint
+  ];
+  const h = T.teamTeaserHtml(hist, "2026-10-05");
+  assert.ok(h.includes(`data-v="${70 + 6 + score + 2 * 25}"`), "weekscore = som van de week + 25 per gewonnen dag");
+  // Een inhaalpot (daily van een eerdere dag) geeft geen dagzege, wel zijn score
+  T.setState({ mode: "daily", won: true, puzzleDate: "2026-10-06", guesses: [{ cls: "correct" }],
+    directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false });
+  const h2 = T.teamTeaserHtml(hist.filter((e) => e.date !== "2026-10-07"), "2026-10-05");
+  assert.ok(h2.includes(`data-v="${70 + score + 25}"`), "inhaalpot: score telt, dagzege niet");
+  T.setState(null);
 });
 
 // ── Pitch-kaartje voor uitgelogde spelers: Google direct, e-mail als link ─────────────────────────────

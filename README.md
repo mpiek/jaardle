@@ -7,7 +7,7 @@ Elke dag krijg je één historische gebeurtenis en raad je in 6 pogingen in welk
 **Spelen:** <https://jaardle.nl/> · **English:** <https://jaardle.nl/en>
 
 ```
-🟩 0 jaar  🟪 1-2  🟨 3-10  🟧 11-25  🟥 26-50  🟫 51-200  ⬜ 200+
+🟩 0 jaar  🟪 1-2  🟦 3-5  🟨 6-10  🟧 11-25  🟥 26-50  🟫 51-200  ⬜ 201-599  ⬛ 600+
 ```
 
 ## Tech
