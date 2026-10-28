@@ -6415,8 +6415,9 @@ function dailyTableHtml(rows) {
 }
 
 // ── Spelerskaartje (db/145 get_player_card, mockup "Spelerskaartje" v4 28/10) ──
-// Tik op een naam in het 🏆-bord (Daily, Weekpodium, Stats): de rij klapt open met een klein kaartje (✨ Vitrine · 🏟️ Team ·
-// 🪎 Verzameld). Een andere naam = die speler, op dezelfde tab; nog een tik of ✕ = dicht. Code, CSS en teksten komen lui uit
+// Tik op een naam in het 🏆-bord (Daily, Weekpodium, Stats) of in de teamstand van het eindscherm: een klein kaartje (✨ Vitrine ·
+// 🏟️ Team · 🪎 Verzameld). In het bord klapt de rij open; in het eindscherm komt het onder de carrousel (een swipe-carrousel in een
+// swipe-carrousel werkt niet). Een andere naam = die speler, op dezelfde tab; nog een tik of ✕ = dicht. Code, CSS en teksten komen lui uit
 // /player-card.js (pas bij de eerste tik); de gegevens uit get_player_card: één verzoek per speler, vijf minuten bewaard.
 // De sleutel is de naam zoals het bord hem toont (data-pn): de bord-RPC's geven geen user_id mee.
 const loadPlayerCard = fxLoader("/player-card.js", "PlayerCard");
@@ -6435,7 +6436,8 @@ function pcCloseIn(pane) {
   pane.querySelectorAll(".pf-open").forEach((el) => { el.classList.remove("pf-open"); el.setAttribute("aria-expanded", "false"); });
 }
 async function togglePlayerCard(el) {
-  const name = el.dataset.pn, pane = el.closest(".lb-tabpane"), poolId = myPool?.id;
+  const recap = el.closest("#recap-team-board");
+  const name = el.dataset.pn, pane = recap || el.closest(".lb-tabpane"), poolId = myPool?.id;
   if (!name || !pane || !poolId) return;
   const wasOpen = el.classList.contains("pf-open");
   pcCloseIn(pane);
@@ -6447,11 +6449,11 @@ async function togglePlayerCard(el) {
   try { lib = await loadPlayerCard(); } catch (e) { el.classList.remove("pf-open"); return; }   // offline: gewoon niets
   if (!el.isConnected || !el.classList.contains("pf-open")) return;   // intussen dicht, of het bord ververste
   lib.ensureCss();
-  const pod = el.matches(".lb-pod-spot");
+  const below = el.matches(".lb-pod-spot") ? el.closest(".lb-pod-stage") : recap ? recap.querySelector(".rc") : null;   // onder het podium / de carrousel
   const card = document.createElement("div");
-  card.className = "pc pc-inline" + (pod ? " pc-noarrow" : "");
+  card.className = "pc pc-inline" + (below ? " pc-noarrow" : "");
   card.innerHTML = `<p class="pc-wait" role="status"></p>`;
-  (pod ? el.closest(".lb-pod-stage") || el : el).after(card);
+  (below || el).after(card);
   let d = null;
   try { d = await data; } catch (e) {}
   if (!card.isConnected) return;
@@ -7952,7 +7954,7 @@ function raceLaneHtml(r, k, pos) {
     ? `<span class="race-tro" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</span>` : "";
   const runner = r.flair ? flairBadgeHtml(r.flair, r.rank).trim() : "🏃";
   const youTag = r.is_me && r.rank <= 3 ? ` <span class="lb-tag">${t("lb_you")}</span>` : "";   // top-3-tint overschrijft de .lb-me-tint → tag houdt "jij" leesbaar
-  return `<div class="${lbRowCls(r.is_me)} race-lane${lbPodiumCls(r.rank)}" style="--p:${pos.toFixed(3)};--i:${k}">` +
+  return `<div class="${lbRowCls(r.is_me)} race-lane${lbPodiumCls(r.rank)}" style="--p:${pos.toFixed(3)};--i:${k}" data-pn="${escHtml(r.display_name)}">` +
     `<span class="lb-rank">${lbMedal(r.rank)}</span>` +
     `<span class="lb-name race-name">${titleBadgeHtml(r.title)}<span class="nm">${escHtml(r.display_name)}</span>${youTag}${wkDeltaHtml(r)}</span>` +
     `<span class="race-track"><i class="race-streak"></i><span class="race-runner">${runner}</span></span>` +
@@ -8732,9 +8734,9 @@ function renderTeamNudge(wrap) {
 
 // ── Tikken op de teamstand in het eindscherm (27/10) ──
 // "dat als je bij today op je eigen band klikt dat je dan naar leaderboard gaat … en wat verwacht je als je op je eigen
-// poppetje klikt": een tik op een rij opende eerst het 🏆-bord; sinds het spelerskaartje (28/10) niet meer ("bij eerste klik ga
-// ik naar leaderboard, die clicks mogen eruit"): naar het bord ga je met de 🏆 ›-knop in de tabrij, die op dezelfde tab opent
-// (Vandaag → Daily, Week → Weekpodium van deze week). Wat bleef: je eigen flair opent de 🪎-kluis (terug naar het
+// poppetje klikt": een tik op een rij opende eerst het 🏆-bord; sinds het spelerskaartje (28/10) opent hij het kaartje van die
+// speler onder de carrousel ("bij eerste klik ga ik naar leaderboard, die clicks mogen eruit"). Naar het bord ga je met de
+// 🏆 ›-knop in de tabrij (Vandaag → Daily, Week → Weekpodium van deze week). Je eigen flair opent de 🪎-kluis (terug naar het
 // eindscherm), die van een ander speelt één keer zijn animatie (wat de muis al deed, nu ook op een telefoon). 🔮 Kans en de
 // 🎃-tab blijven af. Alleen een échte tik telt ("zorg dat mensen op phone niet per ongeluk daar naartoe gaan ipv swipen"):
 // ≤ TAP_SLOP px bewogen, ≤ TAP_MAX_MS lang, het spoor stond al TAP_SETTLE_MS stil (een tik om het snappen te stoppen is
@@ -8784,7 +8786,8 @@ function wireRecapBoardTaps(board) {
     if (!isRealTap(d, e, track, lastScroll)) return;
     const badge = e.target.closest(".lb-flair-badge[data-flair]");
     if (badge && row.classList.contains("lb-me")) { closeAllModals(); openModal("modal-rewards", { returnTo: "modal-recap" }); return; }
-    if (badge && !badge.querySelector(".emoji-anim:not(.vf-still), .flair-fake-anim")) flairPeek(badge);
+    if (badge) { if (!badge.querySelector(".emoji-anim:not(.vf-still), .flair-fake-anim")) flairPeek(badge); return; }
+    if (row.dataset.pn) togglePlayerCard(row);   // het spelerskaartje, onder de carrousel
   });
 }
 // De 🏆-knop rechts in de tabrij: zichtbaar dat het voorproefje een ingang is (een kale › leek op "volgende tab").

@@ -87,7 +87,7 @@ src += `
   RANDOM_TEAM_SIZE, RT_LINE_KEY, RT_SEEN_KEY, RT_GIVEN_KEY, RT_GIVEN_MS, PENDING_RT_KEY, rtDotsHtml, rtLineFor, rtLineHtml, rtGivenHintHtml,
   rtIntentPark, rtIntentFresh, rtErrorText, resetRtSession: () => { rtSessionLine = null; },
   isRealTap, TAP_SLOP, TAP_MAX_MS,
-  earnedFlairsOf, dailyRowHtml, lbRow, pcFetch, pcCache,
+  earnedFlairsOf, dailyRowHtml, lbRow, pcFetch, pcCache, raceLaneHtml,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4674,6 +4674,8 @@ test("spelerskaartje: elke spelersrij in het bord draagt de naam als sleutel (da
     { rank: 3, display_name: "C", week_score: 100, daily_wins: 0, played: 5 }, { rank: 4, display_name: "D", week_score: 50, daily_wins: 0, played: 3 }], false, [], true);
   assert.match(pod.stage, /lb-pod-spot[^>]*data-pn="Ab&quot;&lt;c&gt;&amp;"/);
   assert.match(pod.rest, /lb-wk-restrow[^>]*data-pn="D"/);
+  // eindscherm: de week-banen ook (de dag-rijen zijn dailyRowHtml)
+  assert.match(T.raceLaneHtml({ display_name: nm, rank: 1, week_score: 300, daily_wins: 1, flair: null, title: null }, 0, 0.9), /race-lane[^>]*data-pn="Ab&quot;&lt;c&gt;&amp;"/);
 });
 
 test("spelerskaartje: één verzoek per speler per team, bewaard; een fout wordt niet bewaard", async () => {
