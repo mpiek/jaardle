@@ -8727,8 +8727,9 @@ function renderTeamNudge(wrap) {
 
 // ── Tikken op de teamstand in het eindscherm (27/10) ──
 // "dat als je bij today op je eigen band klikt dat je dan naar leaderboard gaat … en wat verwacht je als je op je eigen
-// poppetje klikt": de stand is een voorproefje van het 🏆-bord, dus een tik op een rij (van wie dan ook) opent dat bord op
-// dezelfde tab (Vandaag → Daily, Week → Weekpodium van deze week); je eigen flair opent de 🪎-kluis (terug naar het
+// poppetje klikt": een tik op een rij opende eerst het 🏆-bord; sinds het spelerskaartje (28/10) niet meer ("bij eerste klik ga
+// ik naar leaderboard, die clicks mogen eruit"): naar het bord ga je met de 🏆 ›-knop in de tabrij, die op dezelfde tab opent
+// (Vandaag → Daily, Week → Weekpodium van deze week). Wat bleef: je eigen flair opent de 🪎-kluis (terug naar het
 // eindscherm), die van een ander speelt één keer zijn animatie (wat de muis al deed, nu ook op een telefoon). 🔮 Kans en de
 // 🎃-tab blijven af. Alleen een échte tik telt ("zorg dat mensen op phone niet per ongeluk daar naartoe gaan ipv swipen"):
 // ≤ TAP_SLOP px bewogen, ≤ TAP_MAX_MS lang, het spoor stond al TAP_SETTLE_MS stil (een tik om het snappen te stoppen is
@@ -8778,8 +8779,7 @@ function wireRecapBoardTaps(board) {
     if (!isRealTap(d, e, track, lastScroll)) return;
     const badge = e.target.closest(".lb-flair-badge[data-flair]");
     if (badge && row.classList.contains("lb-me")) { closeAllModals(); openModal("modal-rewards", { returnTo: "modal-recap" }); return; }
-    if (badge && !badge.querySelector(".emoji-anim:not(.vf-still), .flair-fake-anim")) { flairPeek(badge); return; }
-    openBoardFromRecap(k);
+    if (badge && !badge.querySelector(".emoji-anim:not(.vf-still), .flair-fake-anim")) flairPeek(badge);
   });
 }
 // De 🏆-knop rechts in de tabrij: zichtbaar dat het voorproefje een ingang is (een kale › leek op "volgende tab").
