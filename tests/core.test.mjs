@@ -80,7 +80,7 @@ src += `
   VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
   gcCount, hwCount, gcCountNew, gcCountDaily, noteAnchorSlide, GC_DAY_KEY, setFactSlide: (i) => { factSlideIndex = i; },
-  devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY,
+  devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY, sentSlot, potSlot,
   RANDOM_TEAM_SIZE, RT_LINE_KEY, RT_SEEN_KEY, RT_GIVEN_KEY, RT_GIVEN_MS, PENDING_RT_KEY, rtDotsHtml, rtLineFor, rtLineHtml, rtGivenHintHtml,
   rtIntentPark, rtIntentFresh, rtErrorText, resetRtSession: () => { rtSessionLine = null; },
   isRealTap, TAP_SLOP, TAP_MAX_MS,
@@ -4350,6 +4350,25 @@ test("inloggen zet álle anonieme potjes van dit toestel over (claim_device_play
     for (const u of ["a", "b", "c", "d", "e"]) T.devClaimDone(u);
     assert.deepEqual(JSON.parse(ls.getItem(T.DEVCLAIM_KEY)), ["a", "b", "c", "d", "e"], "hooguit 5 accounts onthouden");
   } finally { clear(); T.auth.user = wasUser; if (wasSb === undefined) delete globalThis.sb; else globalThis.sb = wasSb; }
+});
+
+test("dedup-slot van record_play: de daily per account (twee accounts op één toestel spelen elk hun eigen daily), anoniem de kale datum (claim na inloggen), vrij spel per pot", () => {
+  const wasUser = T.auth.user;
+  try {
+    T.setState({ mode: "daily", puzzleDate: "2026-10-28", hashes: ["abcdef0123"] });
+    T.auth.user = null;
+    assert.equal(T.sentSlot(), "2026-10-28", "anoniem: kale datum");
+    assert.equal(T.sentSlot(), T.potSlot(), "claimPlayOnLogin zoekt de anonieme pot op potSlot()");
+    T.auth.user = { uid: "aaaa" };
+    const a = T.sentSlot();
+    T.auth.user = { uid: "bbbb" };
+    const b = T.sentSlot();
+    assert.notEqual(a, b, "het tweede account vindt de sleutel van het eerste niet en stuurt zijn pot wél");
+    assert.notEqual(a, "2026-10-28", "en ook niet die van een anonieme pot op dit toestel");
+    assert.ok(!/^(free|t)/.test(a.slice(a.lastIndexOf(":") + 1)), "pruneFreeSentKeys laat een daily-sleutel staan");
+    T.setState({ mode: "free", potId: "tabc", hashes: ["abcdef0123"] });
+    assert.equal(T.sentSlot(), "tabc", "vrij spel: per pot, ingelogd of niet");
+  } finally { T.auth.user = wasUser; T.setState(null); }
 });
 
 test("🎲 rtDotsHtml — acht plekken, bezet = .on, de nieuwste licht één keer op, nooit meer dan acht", () => {

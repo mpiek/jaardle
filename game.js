@@ -2269,6 +2269,15 @@ function storageKey(mode, date) {
 function potSlot() {
   return state.mode === "daily" ? (state.puzzleDate || todayKey()) : (state.potId || "free");
 }
+// Dedup-slot van record_play (sendTelemetry): de pot, en bij de daily ook het account. Sinds elk account op één toestel z'n
+// eigen dagbord heeft (0d2be05) kan een tweede account dezelfde daily uitspelen; met alleen de datum vond die de sleutel van
+// het eerste account, ging zijn pot nooit naar de server en kwam na opnieuw inloggen de halve stand uit daily_progress terug
+// ("ik log opnieuw in en dan blijft hij bij deze reeks hangen", 28/10). Anoniem blijft het de kale datum: daar zoekt
+// claimPlayOnLogin de pot na het inloggen.
+function sentSlot() {
+  const slot = potSlot();
+  return state.mode === "daily" && auth.user ? `${slot}@${auth.user.uid}` : slot;
+}
 
 // Speler-id (db/72): één willekeurige uuid per browser, meegestuurd bij elk
 // afgerond potje. Géén account en geen persoonsgegeven op zichzelf — het bestaat
@@ -4658,7 +4667,7 @@ function stampParam(s) {
 function sendTelemetry() {
   const hash = state.hashes?.[0];
   if (!hash) return Promise.resolve();
-  const slot = potSlot();
+  const slot = sentSlot();
   const sentKey = `jaardle:sent:${hash}:${slot}`;
   if (localStorage.getItem(sentKey)) return Promise.resolve();
   try { localStorage.setItem(sentKey, "1"); } catch (e) {}
