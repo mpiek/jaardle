@@ -163,12 +163,13 @@ const MAIL_ICON = `<svg viewBox="0 0 512 512" aria-hidden="true" style="width:.9
 const I18N = {
   nl: {
     tab_daily: "Daily", tab_free: "Nieuw spel",
-    menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen", menu_loggedin: "Ingelogd",
+    menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen",
     menu_login_short: "Inloggen",
     menu_theme: "☀️ Licht thema",
     menu_season_halloween: "\u{1F383} Halloween-look",   // aan/uit-regel voor de seizoens-skin in het ⋮-menu, alleen tijdens het event (emoji als \u-escape: geen glyph erbij in het emoji-font)
     menu_season_sinterklaas: "\u{1F381} Sinterklaas-look",
     menu_history: "📅 Geschiedenis",
+    menu_settings: "⚙️ Instellingen", menu_settings_back: "‹ Instellingen",   // ⋮-menu: de tweede laag (thema, seintje, beginscherm, skin)
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
     aria_bc: "Voor Christus aan/uit", aria_backspace: "Wis laatste cijfer", aria_close: "Sluiten", aria_discord: "Doe mee op Discord",
     hint_nudge: (p) => `Tip: 🔢 verklapt het laatste cijfer (−${p} punten)`,
@@ -508,12 +509,13 @@ const I18N = {
   },
   en: {
     tab_daily: "Daily", tab_free: "New game",
-    menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out", menu_loggedin: "Signed in",
+    menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out",
     menu_login_short: "Sign in",
     menu_theme: "☀️ Light theme",
     menu_season_halloween: "\u{1F383} Halloween look",
     menu_season_sinterklaas: "\u{1F381} Sinterklaas look",
     menu_history: "📅 History",
+    menu_settings: "⚙️ Settings", menu_settings_back: "‹ Settings",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
     aria_bc: "BC toggle", aria_backspace: "Delete last digit", aria_close: "Close", aria_discord: "Join us on Discord",
     hint_nudge: (p) => `Tip: 🔢 reveals the last digit (−${p} points)`,
@@ -856,12 +858,13 @@ const I18N = {
   },
   de: {
     tab_daily: "Täglich", tab_free: "Neues Spiel",
-    menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden", menu_loggedin: "Angemeldet",
+    menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden",
     menu_login_short: "Anmelden",
     menu_theme: "☀️ Helles Design",
     menu_season_halloween: "\u{1F383} Halloween-Look",
     menu_season_sinterklaas: "\u{1F381} Sinterklaas-Look",
     menu_history: "📅 Verlauf",
+    menu_settings: "⚙️ Einstellungen", menu_settings_back: "‹ Einstellungen",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
     aria_bc: "Vor Christus umschalten", aria_backspace: "Letzte Ziffer löschen", aria_close: "Schließen", aria_discord: "Tritt uns auf Discord bei",
     hint_nudge: (p) => `Tipp: 🔢 verrät die letzte Ziffer (−${p} Punkte)`,
@@ -1198,12 +1201,13 @@ const I18N = {
   },
   es: {
     tab_daily: "Diario", tab_free: "Partida nueva",
-    menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión", menu_loggedin: "Sesión iniciada",
+    menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
     menu_season_halloween: "\u{1F383} Aspecto de Halloween",
     menu_season_sinterklaas: "\u{1F381} Aspecto de Sinterklaas",
     menu_history: "📅 Historial",
+    menu_settings: "⚙️ Ajustes", menu_settings_back: "‹ Ajustes",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo sí/no", aria_backspace: "Borrar último dígito", aria_close: "Cerrar", aria_discord: "Únete a nuestro Discord",
     hint_nudge: (p) => `Consejo: 🔢 revela el último dígito (−${p} puntos)`,
@@ -1545,12 +1549,13 @@ const I18N = {
   },
   pt: {
     tab_daily: "Diário", tab_free: "Jogo novo",
-    menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair", menu_loggedin: "Conectado",
+    menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair",
     menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
     menu_season_halloween: "\u{1F383} Visual de Halloween",
     menu_season_sinterklaas: "\u{1F381} Visual de Sinterklaas",
     menu_history: "📅 Histórico",
+    menu_settings: "⚙️ Configurações", menu_settings_back: "‹ Configurações",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
     aria_bc: "Antes de Cristo liga/desliga", aria_backspace: "Apagar último dígito", aria_close: "Fechar", aria_discord: "Entre no nosso Discord",
     hint_nudge: (p) => `Dica: 🔢 revela o último dígito (−${p} pontos)`,
@@ -12694,39 +12699,44 @@ function renderMenuButton() {
   }
 }
 
+// Bovenin het menu: je naam met flair (e-mail klein eronder) en Uitloggen ernaast. Naam en flair komen uit wat al
+// binnen is (eindscherm, bord, kluis); nog niets → je e-mail, en toggleMenu haalt ze bij het openen één keer op.
+function renderMenuAccount() {
+  const section = document.getElementById("menu-account");
+  if (!section) return;
+  if (!auth.user) { section.innerHTML = ""; return; }
+  const email = escHtml(auth.user.email || "");
+  const who = myUsername
+    ? `<b>${myFlair ? flairStaticHtml(myFlair) + " " : ""}${escHtml(myUsername)}</b><small>${email}</small>`
+    : `<b>${email}</b>`;
+  section.innerHTML = `<span class="menu-who">${who}</span>` +
+    `<button type="button" class="menu-out" role="menuitem" data-action="logout">${escHtml(t("menu_logout"))}</button>`;
+}
+
 function renderMenu() {
   renderMenuButton();
-  const section = document.getElementById("menu-account");
   const items = document.getElementById("menu-pop");
   const statsBtn = items.querySelector('[data-action="stats"]');
   const lbBtn = items.querySelector('[data-action="leaderboard"]');
   if (lbBtn) lbBtn.hidden = !auth.user;  // 🏆 zichtbaar zodra ingelogd (pool maken/joinen kan iedereen)
   const rwBtn = items.querySelector('[data-action="rewards"]');
   if (rwBtn) rwBtn.hidden = !auth.user;  // 🪎 alleen-ingelogd: alles in de kluis is login-gated (flair/effecten/thema)
-  syncRemindUi();   // 🔔 Dagelijks seintje: alleen als deze browser kan pushen (of een iPhone is), ✓ als het aanstaat
+  syncRemindUi();   // 🔔 Dagelijks seintje: alleen als deze browser kan pushen (of een iPhone is), schakelaar aan als het aanstaat
   syncInstallUi();  // 📲 Zet op beginscherm: alleen als het kan en Jaardle nog niet als app draait
-  // Verwijder dynamische account-knoppen (action=login|logout) maar laat
-  // statische knoppen (stats) staan.
-  items.querySelectorAll('[data-action="login"], [data-action="logout"]').forEach((b) => b.remove());
-
-  if (auth.user) {
-    section.innerHTML = `<span class="email">${auth.user.email}</span>${t("menu_loggedin")}`;
-    if (statsBtn) statsBtn.hidden = false;
-    const out = document.createElement("button");
-    out.className = "menu-item danger";
-    out.role = "menuitem";
-    out.dataset.action = "logout";
-    out.textContent = t("menu_logout");
-    items.appendChild(out);
-  } else {
-    section.innerHTML = "";
-    if (statsBtn) statsBtn.hidden = false;  // anon ziet de lokale stats van dit apparaat + bewaar-CTA
+  // Verwijder de dynamische Inloggen-regel maar laat statische knoppen (stats) staan;
+  // Uitloggen zit in de kop (renderMenuAccount).
+  items.querySelectorAll('.menu-item[data-action="login"]').forEach((b) => b.remove());
+  renderMenuAccount();
+  if (statsBtn) statsBtn.hidden = false;  // anon ziet de lokale stats van dit apparaat + bewaar-CTA
+  if (!auth.user) {
+    // De enige gekleurde regel: de weg naar inloggen en teams moet opvallen (zie renderMenuButton).
     const inBtn = document.createElement("button");
-    inBtn.className = "menu-item";
+    inBtn.className = "menu-item menu-login";
     inBtn.role = "menuitem";
     inBtn.dataset.action = "login";
     inBtn.textContent = t("menu_login");
-    items.insertBefore(inBtn, items.firstChild);
+    const main = document.getElementById("menu-main");
+    main.insertBefore(inBtn, main.firstChild);
   }
   // Ook de plek waar het stipje van identiteit wisselt: de achvNew-lijst hangt
   // aan uid/anon, en renderMenu loopt bij elke auth-wijziging.
@@ -12739,6 +12749,20 @@ function toggleMenu(force) {
   const open = force !== undefined ? force : pop.hidden;
   pop.hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
+  showMenuPane("main");   // openen en sluiten begint altijd weer bij de schermen
+  if (open && auth.user) {
+    renderMenuAccount();   // naam/flair kunnen sinds het tekenen binnengekomen of veranderd zijn
+    if (!myIdentityLoaded) ensureMyIdentity().then(() => { if (!pop.hidden) renderMenuAccount(); }).catch(() => {});
+  }
+}
+// De twee lagen van het menu: "main" (schermen) of "settings" (schakelaars). Met focus: de toetsenbordfocus gaat mee
+// naar de terug-knop of terug naar de ⚙️-regel.
+function showMenuPane(which, focus) {
+  const main = document.getElementById("menu-main"), set = document.getElementById("menu-settings");
+  if (!main || !set) return;
+  main.hidden = which !== "main";
+  set.hidden = which === "main";
+  if (focus) (which === "main" ? main.querySelector('[data-action="settings"]') : set.querySelector(".menu-back"))?.focus();
 }
 
 // Laat de URL het open scherm weerspiegelen (deelbaar/bookmarkbaar). null =
@@ -13975,6 +13999,11 @@ async function init() {
     const btn = e.target.closest("[data-action]");
     if (!btn) return;
     const action = btn.dataset.action;
+    // ⚙️ Instellingen en ‹ terug wisselen van laag; het menu blijft open.
+    if (action === "settings" || action === "settings-back") {
+      showMenuPane(action === "settings" ? "settings" : "main", true);
+      return;
+    }
     // Thema wisselt in-place; het menu blijft open zodat je het effect ziet
     // en zo weer terug kunt.
     if (action === "theme") {
@@ -14026,8 +14055,8 @@ async function init() {
     }
   });
   renderMenu();
-  syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → vinkje bijzetten
-  syncSeasonCheck();   // idem voor de seizoens-skin: regel alleen tijdens het event, vinkje = aan, label van de juiste skin
+  syncThemeCheck();   // head-script kan het lichte thema al gezet hebben → schakelaar aanzetten
+  syncSeasonCheck();   // idem voor de seizoens-skin: regel alleen tijdens het event, schakelaar = aan, label van de juiste skin
   syncSeasonCat();   // en het Halloween-katje, als de skin aanstaat
   syncEventUi();     // en de event-balk/menu-regel/stip als er een event loopt
   document.getElementById("event-bar")?.addEventListener("click", () => openEventScreen("bar"));

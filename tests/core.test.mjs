@@ -61,7 +61,7 @@ src += `
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
-  setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; },
+  setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; }, renderMenuAccount,
   setState: (s) => { state = s; },
   refreshWeekPodiumResult, soloPathOk, fetchMyPools, popupSteps, withTimeout, teamAfterLoginPark, getPendingTeam: () => pendingTeamAfterLogin, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
   fmtDailyDate, fmtHistoryDate,
@@ -2628,6 +2628,31 @@ test("menu-regel voor de skins: in de template, per skin vertaald in alle talen,
     assert.ok(v.toLowerCase().includes(id), `${code}: ${id}: naam van de skin in het label`);
   }
   for (const f of ["favicon-halloween.svg", "favicon-halloween-96.png", "favicon-halloween-192.png"]) assert.ok(existsSync(join(dir, "..", f)), f);
+});
+
+test("⋮-menu in twee lagen: schermen + ⚙️ Instellingen, daarachter de schakelaars; kop = naam (geëscaped) met Uitloggen", () => {
+  const tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+  const main = tpl.match(/<div id="menu-main"[\s\S]*?<div id="menu-settings"/)[0];
+  const set = tpl.match(/<div id="menu-settings"[\s\S]*?<\/div>/)[0];
+  const has = (html, a) => html.includes(`data-action="${a}"`);
+  for (const a of ["stats", "history", "achievements", "rewards", "events", "leaderboard", "settings"]) assert.ok(has(main, a) && !has(set, a), `${a} hoort bij de schermen`);
+  for (const a of ["settings-back", "theme", "remind", "season", "install"]) assert.ok(has(set, a) && !has(main, a), `${a} hoort achter ⚙️`);
+  for (const code of Object.keys(T.I18N)) {
+    assert.match(T.I18N[code].menu_settings, /^\u2699\uFE0F \S/u, `${code}: ⚙️ vooraan`);
+    assert.match(T.I18N[code].menu_settings_back, /^‹ \S/, `${code}: ‹ vooraan`);
+  }
+  const el = { innerHTML: "x" }, realGet = document.getElementById, wasUser = T.auth.user;
+  document.getElementById = (id) => (id === "menu-account" ? el : realGet(id));
+  try {
+    T.auth.user = { uid: "u", email: "a<b>@x.nl" };
+    T.setPlayer(null, null, null); T.renderMenuAccount();
+    assert.match(el.innerHTML, /<b>a&lt;b&gt;@x\.nl<\/b>/, "nog geen naam: de e-mail, geëscaped");
+    assert.match(el.innerHTML, /class="menu-out"[^>]*data-action="logout"/, "Uitloggen naast je naam");
+    T.setPlayer("<Sanne>", "🦊", null); T.renderMenuAccount();
+    assert.match(el.innerHTML, /<b>🦊 &lt;Sanne&gt;<\/b><small>a&lt;b&gt;@x\.nl<\/small>/u, "naam met flair, e-mail klein eronder");
+    T.auth.user = null; T.renderMenuAccount();
+    assert.equal(el.innerHTML, "", "uitgelogd: geen kop (Inloggen staat als regel in het menu)");
+  } finally { T.auth.user = wasUser; T.setPlayer(null, null, null); document.getElementById = realGet; }
 });
 
 test("setSeason/syncSeasonCheck: aan/uit per skin, juiste sleutel, label en vinkje volgen de skin", () => {

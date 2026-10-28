@@ -153,7 +153,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=223">
+<link rel="stylesheet" href="/style.css?v=224">
 </head>
 <body>
   <main>
@@ -164,19 +164,27 @@
     <nav id="mode-tabs" role="tablist">
       <div id="menu-wrap">
         <button id="menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu">⋮</button>
+        <!-- Twee lagen (28/10): de schermen + "⚙️ Instellingen", daarachter de schakelaars. Uitloggen staat naast je naam
+             (#menu-account, game.js vult). Openen en sluiten begint altijd weer bij de schermen. -->
         <div id="menu-pop" role="menu" hidden>
-          <div id="menu-account" class="menu-section"></div>
-          <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">{{i18n:menu_stats}}</button>
-          <button class="menu-item" role="menuitem" data-action="history" data-i18n="menu_history">{{i18n:menu_history}}</button>
-          <button class="menu-item" role="menuitem" data-action="achievements" data-i18n="menu_achv">{{i18n:menu_achv}}</button>
-          <button class="menu-item" role="menuitem" data-action="rewards" data-i18n="menu_rewards" hidden>{{i18n:menu_rewards}}</button>
-          <!-- Tijdelijk (alleen tijdens een event, alleen zonder account; ingelogd heeft de Events-tab in 🪎): game.js vult en toont. -->
-          <button class="menu-item" role="menuitem" data-action="events" hidden></button>
-          <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>{{i18n:menu_leaderboard}}</button>
-          <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">{{i18n:menu_theme}}</button>
-          <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="remind" data-i18n="menu_remind" hidden>{{i18n:menu_remind}}</button>
-          <button class="menu-item" role="menuitem" data-action="install" data-i18n="menu_install" hidden>{{i18n:menu_install}}</button>
-          <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>{{i18n:menu_season_halloween}}</button>
+          <div id="menu-main" class="menu-pane">
+            <div id="menu-account" class="menu-section"></div>
+            <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">{{i18n:menu_stats}}</button>
+            <button class="menu-item" role="menuitem" data-action="history" data-i18n="menu_history">{{i18n:menu_history}}</button>
+            <button class="menu-item" role="menuitem" data-action="achievements" data-i18n="menu_achv">{{i18n:menu_achv}}</button>
+            <button class="menu-item" role="menuitem" data-action="rewards" data-i18n="menu_rewards" hidden>{{i18n:menu_rewards}}</button>
+            <!-- Tijdelijk (alleen tijdens een event, alleen zonder account; ingelogd heeft de Events-tab in 🪎): game.js vult en toont. -->
+            <button class="menu-item" role="menuitem" data-action="events" hidden></button>
+            <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>{{i18n:menu_leaderboard}}</button>
+            <button class="menu-item menu-more" role="menuitem" aria-haspopup="menu" data-action="settings" data-i18n="menu_settings">{{i18n:menu_settings}}</button>
+          </div>
+          <div id="menu-settings" class="menu-pane" hidden>
+            <button class="menu-back" type="button" data-action="settings-back" data-i18n="menu_settings_back">{{i18n:menu_settings_back}}</button>
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">{{i18n:menu_theme}}</button>
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="remind" data-i18n="menu_remind" hidden>{{i18n:menu_remind}}</button>
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>{{i18n:menu_season_halloween}}</button>
+            <button class="menu-item" role="menuitem" data-action="install" data-i18n="menu_install" hidden>{{i18n:menu_install}}</button>
+          </div>
         </div>
       </div>
       <div id="lang-wrap">
@@ -509,7 +517,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=389"></script>
+  <script src="/game.js?v=390"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
