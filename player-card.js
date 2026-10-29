@@ -57,6 +57,7 @@
 .pc.pc-inline::before { content: ""; position: absolute; top: -7px; left: 4.4rem; width: 12px; height: 12px; background: var(--card);
   border-left: 1px solid var(--border); border-top: 1px solid var(--border); transform: rotate(45deg); }
 .pc.pc-noarrow::before { display: none; }
+#recap-team-board .pc.pc-inline { box-shadow: none; }   /* de carrousel van het eindscherm knipt de zijkanten af: geen halve schaduw */
 .pc-wait { margin: 0; min-height: 2.4rem; display: grid; place-items: center; color: var(--muted); font-size: 0.8rem; }
 .pc-wait::after { content: ""; width: 1.1rem; height: 1.1rem; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: pc-spin 0.8s linear infinite; }
 @keyframes pc-spin { to { transform: rotate(360deg); } }

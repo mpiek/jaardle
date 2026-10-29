@@ -3038,7 +3038,7 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 .rc-track::-webkit-scrollbar { display: none; }
 .rc-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 .rc-track.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
-/* Een tik op een rij opent het spelerskaartje van die speler onder de carrousel (player-card.js); de flairs hebben hun eigen tik
+/* Een tik op een rij klapt die rij open met het spelerskaartje (player-card.js); de flairs hebben hun eigen tik
    (eigen → kluis, van een ander → animatie). Naar het 🏆-bord gaat het met de kleine 🏆-knop rechts in de tabrij.
    Geen grijze tik-flits: die zou ook bij het begin van een swipe oplichten. */
 #recap-team .rc-slide[data-k="day"] .lb-row[data-pn], #recap-team .rc-slide[data-k="week"] .race-lane[data-pn],
