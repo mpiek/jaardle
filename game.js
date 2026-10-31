@@ -5634,7 +5634,7 @@ const FLAIR_SVG = {
 // gate't het dragen (set_my_flair); de client toont. Eigen tekeningen hebben geen emoji-teken: hun flair is "v:<id>" en de
 // tekening komt lui uit /vondsten.js (±30 KB gzip, alleen als er ergens een vondst-flair in beeld is).
 // @@VONDSTEN-START (gegenereerd door build_vondsten.py in jaardle-tools; niet met de hand bewerken)
-// Zeldzame vondsten, ronde 1: de 18 met een icoon. id = vondst (find_topics.id, db/110), flair = wat er in profiles.flair
+// Zeldzame vondsten: ronde 1 (18) + de abt (db/146), 19 met een icoon. id = vondst (find_topics.id, db/110), flair = wat er in profiles.flair
 // komt (eigen tekening: "v:<id>", lui uit /vondsten.js; de eenhoorn is gewoon 🦄), cls = de CSS-klasse van de tekening.
 const VONDSTEN = [
   { id: "ring", flair: "v:ring", cls: "rg", names: { nl: "Ringdrager", en: "Ring-bearer", de: "Ringträger", es: "Portador del anillo", pt: "Portador do anel" } },
@@ -5655,10 +5655,11 @@ const VONDSTEN = [
   { id: "blobfish", flair: "v:blobfish", cls: "bf", names: { nl: "Blobvis", en: "Blobfish", de: "Blobfisch", es: "Pez borrón", pt: "Peixe-bolha" } },
   { id: "nebra-disc", flair: "v:nebra-disc", cls: "nb", names: { nl: "Hemelschijf", en: "Sky disc", de: "Himmelsscheibe", es: "Disco celeste", pt: "Disco celeste" } },
   { id: "taped-banana", flair: "v:taped-banana", cls: "bn", names: { nl: "Ducttape-banaan", en: "Taped banana", de: "Klebeband-Banane", es: "Plátano con cinta", pt: "Banana com fita" } },
+  { id: "abbot", flair: "v:abbot", cls: "ab", names: { nl: "Abt", en: "Abbot", de: "Abt", es: "Abad", pt: "Abade" } },
 ];
 // Feit → vondst (hoofdfeit of 💡-extra). Dezelfde lijst staat in find_facts (db/110); de server beslist, dit is alleen voor
 // de pop-up bij anonieme spelers (zij hebben geen prestaties op de server).
-const FIND_FACTS = { "047ffe45fb": "nebra-disc", "0492da7dd0": "penguin-knight", "0662537dfa": "mammoth", "07fe111784": "blobfish", "0b293a50fa": "jewelled-egg", "0f77183299": "taped-banana", "0fc9e02c0a": "tardigrade", "1e65e2c3a2": "taped-banana", "28aa5591b8": "garden-gnome", "2d7f444e31": "unicorn", "44b19e0852": "ring", "48b4323245": "martian-tripod", "4a8a4e839a": "paul-octopus", "4cf40663e1": "tardigrade", "4e45ac89d9": "melting-clock", "62bf45af99": "lawn-chair", "6ab6bd2eb1": "paul-octopus", "70b581008e": "martian-tripod", "7350077e94": "garden-gnome", "8100325cb6": "nebra-disc", "834ea3b8dd": "lawn-chair", "92daa5bd21": "ring", "9400e14613": "jackalope", "9c519041f7": "taped-banana", "a075de7559": "twisty-cube", "a239cce4fe": "melting-clock", "bba9f3bf91": "platypus", "c4f3e009fa": "nebra-disc", "d504258085": "tardigrade", "d6851e132d": "mammoth", "da88ffa8d9": "jackalope", "de5a141653": "blobfish", "efe4e53606": "schrodinger-cat", "f122c2c1f2": "garden-gnome", "f75992688a": "platypus" };
+const FIND_FACTS = { "047ffe45fb": "nebra-disc", "0492da7dd0": "penguin-knight", "0662537dfa": "mammoth", "07fe111784": "blobfish", "0b293a50fa": "jewelled-egg", "0f77183299": "taped-banana", "0fc9e02c0a": "tardigrade", "17f43e1e75": "abbot", "1e65e2c3a2": "taped-banana", "28aa5591b8": "garden-gnome", "2d7f444e31": "unicorn", "44b19e0852": "ring", "48b4323245": "martian-tripod", "4a8a4e839a": "paul-octopus", "4cf40663e1": "tardigrade", "4e45ac89d9": "melting-clock", "62bf45af99": "lawn-chair", "6ab6bd2eb1": "paul-octopus", "70b581008e": "martian-tripod", "7350077e94": "garden-gnome", "8100325cb6": "nebra-disc", "834ea3b8dd": "lawn-chair", "92daa5bd21": "ring", "9400e14613": "jackalope", "9c519041f7": "taped-banana", "a075de7559": "twisty-cube", "a239cce4fe": "melting-clock", "bba9f3bf91": "platypus", "c4f3e009fa": "nebra-disc", "d504258085": "tardigrade", "d6851e132d": "mammoth", "da88ffa8d9": "jackalope", "de5a141653": "blobfish", "efe4e53606": "schrodinger-cat", "f0dd829532": "abbot", "f122c2c1f2": "garden-gnome", "f75992688a": "platypus" };
 // @@VONDSTEN-END
 const VONDST_BY_ID = Object.fromEntries(VONDSTEN.map((v) => [v.id, v]));
 const VONDST_BY_FLAIR = Object.fromEntries(VONDSTEN.map((v) => [v.flair, v]));

@@ -4262,16 +4262,16 @@ function withVondstLib(fn) {
   try { return fn(globalThis.VondstFlairs); } finally { globalThis.VondstFlairs = saved; }
 }
 
-test("vondsten — 18 vondsten met unieke id's en flairs, namen in alle vijf de talen, 35 feiten die elk naar een bekende vondst wijzen", () => {
-  assert.equal(T.VONDSTEN.length, 18);
-  assert.equal(new Set(T.VONDSTEN.map((v) => v.id)).size, 18);
-  assert.equal(new Set(T.VONDSTEN.map((v) => v.flair)).size, 18);
+test("vondsten — 19 vondsten (ronde 1 + de abt, db/146) met unieke id's en flairs, namen in alle vijf de talen, 37 feiten die elk naar een bekende vondst wijzen", () => {
+  assert.equal(T.VONDSTEN.length, 19);
+  assert.equal(new Set(T.VONDSTEN.map((v) => v.id)).size, 19);
+  assert.equal(new Set(T.VONDSTEN.map((v) => v.flair)).size, 19);
   for (const v of T.VONDSTEN) {
     for (const l of ["nl", "en", "de", "es", "pt"]) assert.ok(v.names[l], `${v.id}: naam in ${l}`);
     assert.ok(v.cls ? v.flair === "v:" + v.id : !v.flair.startsWith("v:"), `${v.id}: een eigen tekening heeft flair v:<id>, een gewone emoji niet`);
   }
   const ids = new Set(T.VONDSTEN.map((v) => v.id));
-  assert.equal(Object.keys(T.FIND_FACTS).length, 35);
+  assert.equal(Object.keys(T.FIND_FACTS).length, 37);
   for (const [h, id] of Object.entries(T.FIND_FACTS)) { assert.match(h, /^[0-9a-f]{10}$/); assert.ok(ids.has(id), h); }
   for (const id of ids) assert.ok(Object.values(T.FIND_FACTS).includes(id), `${id} heeft minstens één feit`);
   assert.ok(!T.FLAIR_OPTIONS.includes("🦄"), "🦄 is geen vrije flair meer (de eenhoorn is een vondst)");
@@ -4330,7 +4330,7 @@ test("vondsten — verdiende flairs en beloningen komen uit finds (compute_achie
     for (const v of T.VONDSTEN) assert.ok(T.REWARD_ORDER.includes("fv_" + v.id) && T.REWARDS["fv_" + v.id].sect === "flair", v.id);
     T.setLang("nl"); assert.equal(T.rewardName("fv_ring"), "Ringdrager");
     T.setLang("en"); assert.equal(T.rewardName("fv_penguin-knight"), "Sir Penguin");
-    assert.ok(T.findsRowHtml({ finds: ["ring", "unicorn"] }).includes("2/18"));
+    assert.ok(T.findsRowHtml({ finds: ["ring", "unicorn"] }).includes("2/19"));
     T.setAchv({ ...mkAch([0, 0, 0, 0, 0]) });
     assert.ok(!T.earnedRewardKeys().some((k) => k.startsWith("fv_")), "zonder finds geen vondst-pop-up");
   } finally { T.auth.user = wasUser; T.setAchv(null); T.setLang("nl"); }
@@ -4356,7 +4356,7 @@ test("achvNormalize — houdt finds van de server (zonder dit zag een ingelogde 
     T.auth.user = { uid: "u" };
     T.setAchv(T.achvNormalize({ games: 3, finds: ["ring"] }));
     assert.ok(T.earnedRewardKeys().includes("fv_ring"), "via de echte normalisatie: de vondst-pop-up komt");
-    assert.ok(T.findsRowHtml(T.achvNormalize({ finds: ["ring"] })).includes("1/18"));
+    assert.ok(T.findsRowHtml(T.achvNormalize({ finds: ["ring"] })).includes("1/19"));
   } finally { T.auth.user = wasUser; T.setAchv(null); }
 });
 
