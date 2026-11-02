@@ -49,7 +49,7 @@ src += `
   classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
-  BLUE_DAILY_FROM, blueFor, bandBlue, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
+  BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
@@ -929,37 +929,29 @@ test("rangeLabel — v.Chr. telt aflopend en één jaar blijft één jaartal", (
   assert.equal(T.rangeLabel(-753, -200), "753–200 BC");
 });
 
-// ── 🟦 3–5 (28/10/2026): vrij spel meteen, de daily vanaf BLUE_DAILY_FROM ─────
-test("🟦 classify — 3–5 is blauw in een potje met 🟦, anders blijft 🟨 3–10", () => {
-  assert.equal(T.classify(2, true), "veryclose");
-  assert.equal(T.classify(3, true), "near");
-  assert.equal(T.classify(-5, true), "near");
-  assert.equal(T.classify(6, true), "close");
-  assert.equal(T.classify(10, true), "close");
-  assert.equal(T.classify(11, true), "warm");
+// ── 🟦 3–5: vrij spel sinds 28/10/2026, de daily vanaf BLUE_DAILY_FROM; alleen de 📅-geschiedenis kent de oude banden ──
+test("🟦 classify — 3–5 is blauw; blue=false (dagbord van vóór 🟦) houdt 🟨 3–10", () => {
+  assert.equal(T.classify(2), "veryclose");
+  assert.equal(T.classify(3), "near");
+  assert.equal(T.classify(-5), "near");
+  assert.equal(T.classify(6), "close");
+  assert.equal(T.classify(10), "close");
+  assert.equal(T.classify(11), "warm");
   assert.equal(T.classify(3, false), "close");
   assert.equal(T.classify(5, false), "close");
   assert.equal(T.classify(2, false), "veryclose");
 });
 
-test("🟦 blueFor/bandBlue — vrij spel altijd, de daily per puzzeldag, het potje houdt zijn eigen regel", () => {
+test("🟦 blueOnDay — de banden van een dagbord volgen zijn puzzeldag", () => {
   assert.equal(T.BLUE_DAILY_FROM, "2026-11-02");   // maandag: een podiumweek telt met één regel
   assert.equal(new Date(T.BLUE_DAILY_FROM + "T12:00:00Z").getUTCDay(), 1);
-  assert.equal(T.blueFor("free", null), true);
-  assert.equal(T.blueFor("daily", "2026-11-01"), false);
-  assert.equal(T.blueFor("daily", "2026-11-02"), true);
-  assert.equal(T.bandBlue({ blue: false }), false);
-  assert.equal(T.bandBlue({ blue: true }), true);
-  T.setState(null);
-  assert.equal(T.bandBlue(), true);                  // geen potje: de huidige regels
-  T.setState({ mode: "free", blue: false, guesses: [] });
-  assert.equal(T.classify(4), "close");              // zonder vlag volgt classify het potje op het scherm
-  T.setState(null);
+  assert.equal(T.blueOnDay("2026-11-01"), false);
+  assert.equal(T.blueOnDay("2026-11-02"), true);
 });
 
 test("🟦 labels, straf en verliesscore", () => {
-  assert.equal(T.bandLabel("near", true), "3–5");
-  assert.equal(T.bandLabel("close", true), "6–10");
+  assert.equal(T.bandLabel("near"), "3–5");
+  assert.equal(T.bandLabel("close"), "6–10");
   assert.equal(T.bandLabel("close", false), "3–10");
   assert.equal(T.bandLabel("warm", false), "11–25");
   assert.equal(T.emojiFor("near"), "🟦");
@@ -983,29 +975,26 @@ test("🟦 bordcodes van het teambord: de oude codes blijven, 🟦 is 8 (db/143)
   assert.deepEqual(T.LB_BLOCK_CLS, ["correct", "veryclose", "close", "warm", "cool", "far", "distant", "farthest", "near"]);
 });
 
-test("🟦 guessRanges — 🟦 laat 3–5 toe, 🟨 6–10 (of 3–10 zonder 🟦), en nooit zonder het echte antwoord", () => {
-  assert.deepEqual(T.guessRanges({ year: 1500, diff: 4, cls: "near" }, false, true), [[1495, 1497], [1503, 1505]]);
-  assert.deepEqual(T.guessRanges({ year: 1500, diff: 8, cls: "close" }, false, true), [[1490, 1494], [1506, 1510]]);
-  assert.deepEqual(T.guessRanges({ year: 1500, diff: 8, cls: "close" }, false, false), [[1490, 1497], [1503, 1510]]);
-  // Vangnet: een 🟨 van 4 jaar (potje van vóór 🟦) in een potje met 🟦 sluit 1504 niet uit.
-  assert.ok(T.guessRanges({ year: 1500, diff: 4, cls: "close" }, true, true).some(([a, b]) => 1504 >= a && 1504 <= b));
+test("🟦 guessRanges — 🟦 laat 3–5 toe, 🟨 6–10, en nooit zonder het echte antwoord", () => {
+  assert.deepEqual(T.guessRanges({ year: 1500, diff: 4, cls: "near" }, false), [[1495, 1497], [1503, 1505]]);
+  assert.deepEqual(T.guessRanges({ year: 1500, diff: 8, cls: "close" }, false), [[1490, 1494], [1506, 1510]]);
+  // Vangnet: een 🟨 van 4 jaar (dagbord met de oude banden uit de DB) sluit 1504 niet uit.
+  assert.ok(T.guessRanges({ year: 1500, diff: 4, cls: "close" }, true).some(([a, b]) => 1504 >= a && 1504 <= b));
 });
 
-test("🟦 strenge guard blokkeert NOOIT het juiste antwoord, met én zonder 🟦", () => {
+test("🟦 strenge guard blokkeert NOOIT het juiste antwoord, ook niet op een bord met de oude banden", () => {
   const rev = new Set();
   for (const blue of [true, false]) {
-    T.setState({ mode: "free", blue, guesses: [] });
     for (let answer = -753; answer <= 2026; answer += 11) {
       const gs = [];
       for (const g of [answer + 9, answer - 6, answer + 5, answer - 3, answer + 2, answer - 1]) {
         const year = Math.max(T.MIN_YEAR, Math.min(T.MAX_YEAR, g));
         if (year === answer) continue;
-        gs.push({ year, diff: answer - year, cls: T.classify(answer - year) });
+        gs.push({ year, diff: answer - year, cls: T.classify(answer - year, blue) });
         assert.equal(T.guessImpossibleAt(gs, answer, rev), -1, `antwoord ${answer} uitgesloten na gok ${year} (blue=${blue})`);
       }
     }
   }
-  T.setState(null);
 });
 
 test("🟦 reconstructDailyBoard — een dagbord krijgt de banden van zijn eigen dag", async () => {
