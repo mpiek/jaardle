@@ -88,6 +88,7 @@ src += `
   rtIntentPark, rtIntentFresh, rtErrorText, resetRtSession: () => { rtSessionLine = null; },
   isRealTap, TAP_SLOP, TAP_MAX_MS,
   earnedFlairsOf, dailyRowHtml, lbRow, pcFetch, pcCache, raceLaneHtml,
+  boardVeilFor, historyVeilFor, dailyTableHtml, esLockHtml, setLbDailyDate: (d) => { lbDailyDate = d; },
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -4682,3 +4683,45 @@ test("spelerskaartje: één verzoek per speler per team, bewaard; een fout wordt
     assert.ok(!T.pcCache.has("pool1|kapot"), "een fout probeert de volgende tik opnieuw");
   } finally { window.sb = saved; T.pcCache.clear(); }
 });
+
+test("eerst spelen, dan kijken: wanneer is het dagbord dicht", () => {
+  const today = "2026-11-06", other = [{ display_name: "Bram", rank: 1, won: true, score: 97, text_hints: 1 }];
+  const me = [...other, { display_name: "Ik", rank: 2, won: true, score: 80, is_me: true }];
+  const o = (doneToday, missed = []) => ({ today, doneToday, missed });
+  assert.equal(T.boardVeilFor(today, other, o(false)), true, "vandaag nog niet gespeeld = dicht");
+  assert.equal(T.boardVeilFor(today, other, o(true)), false, "vandaag af = open");
+  assert.equal(T.boardVeilFor(today, me, o(false)), false, "eigen rij (bv. op een ander apparaat gespeeld) = open");
+  assert.equal(T.boardVeilFor(today, [], o(false)), false, "leeg bord: niets te verbergen, geen slot-regel");
+  assert.equal(T.boardVeilFor("2026-11-05", other, o(false, ["2026-11-05"])), true, "inhaaldag die je nog kunt spelen = dicht");
+  assert.equal(T.boardVeilFor("2026-11-05", other, o(false, [])), false, "gespeelde of niet in te halen dag = open");
+  assert.equal(T.boardVeilFor("2026-11-05", [...other, { display_name: "Ik", rank: null, late: true, is_me: true }], o(false, ["2026-11-05"])), false,
+    "je eigen inhaalpot staat erop = open");
+  assert.equal(T.boardVeilFor("2026-10-01", other, o(false, [])), false, "oude dag = open");
+});
+
+test("eerst spelen, dan kijken: geschiedenis dicht tot de daily van vandaag af is (ook elders gespeeld telt)", () => {
+  const today = "2026-11-06";
+  assert.equal(T.historyVeilFor(false, [{ date: "2026-11-05" }], today), true);
+  assert.equal(T.historyVeilFor(true, [], today), false);
+  assert.equal(T.historyVeilFor(false, [{ date: today }], today), false, "vandaag staat al in de server-historie");
+  assert.equal(T.historyVeilFor(false, null, today), true, "historie nog niet geladen: dicht");
+});
+
+test("eerst spelen, dan kijken: een dicht dagbord heeft plaatshouders, nooit de echte gokken, hints of score", () => {
+  const rows = [
+    { display_name: "Bram", rank: 1, won: true, score: 97, text_hints: 1, guess_blocks: [0] },
+    { display_name: "Lotte", rank: 2, won: false, score: 0, guess_blocks: [5, 4, 3] },
+  ];
+  T.setLbDailyDate(T.todayKey());
+  const open = T.dailyTableHtml(rows), shut = T.dailyTableHtml(rows, true);
+  assert.match(open, /97/); assert.match(open, /⏩/); assert.match(open, /💀/); assert.doesNotMatch(open, /es-lock|es-veil/);
+  assert.doesNotMatch(shut, /97|⏩|💀|lb-blk correct|lb-blk far/, "geen echte waarden in de DOM");
+  assert.equal((shut.match(/lb-val es-veil/g) || []).length, 2);
+  assert.match(shut, /class="es-lock" data-date="\d{4}-\d\d-\d\d"/, "de slot-regel weet welke dag hij opent");
+  assert.match(shut, /data-pn="Bram"/, "naam blijft (en het spelerskaartje dus ook)");
+  assert.match(shut, /🥇/, "plek blijft");
+  const mine = T.dailyRowHtml({ display_name: "Ik", rank: 1, won: true, score: 88, is_me: true, guess_blocks: [0] }, 0, true);
+  assert.doesNotMatch(mine, /es-veil/, "je eigen rij nooit verborgen");
+  assert.match(T.esLockHtml("A<b>"), /A&lt;b&gt;/, "tekst ge-escaped");
+});
+

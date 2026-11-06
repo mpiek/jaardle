@@ -3537,6 +3537,33 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .history-board { display: flex; flex-direction: column; gap: 0.35rem; }
 .history-source { margin: 0; font-size: 0.85rem; color: var(--muted); }
 .history-source a { color: var(--accent); }
+/* Eerst spelen, dan kijken (6/11/2026): zolang de daily van vandaag niet af is, staan in 📅 Geschiedenis (jaartallen, bron)
+   en op het 🏆-dagbord (gokblokjes, hints, score van anderen) plaatshouders onder een waas. De echte waarden staan niet in
+   de DOM. Eén slot-regel zegt waarom en brengt je naar de daily; een tik op een waas laat die regel één keer oplichten. */
+.es-veil { filter: blur(5px); opacity: 0.9; user-select: none; -webkit-user-select: none; cursor: help; }
+.guess-row .year.es-veil { color: var(--fg); }
+.lb-val.es-veil { filter: blur(3.5px); }
+.lb-blk.es-ph { background: var(--muted); opacity: 0.9; }
+.es-src { color: var(--accent); }
+.es-lock {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%;
+  margin: 0; padding: 0.5rem 0.75rem;
+  border: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent);
+  border-radius: 10px; background: transparent;
+  font: inherit; font-size: 0.85rem; line-height: 1.3; color: var(--muted); text-align: left;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.es-lock:hover, .es-lock:focus-visible { color: var(--fg); border-color: var(--accent); }
+.es-lock:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.es-lock-txt { flex: 1; min-width: 0; }
+.es-lock-chev { font-size: 1.1rem; line-height: 1; color: var(--accent); }
+.lb-tabpane .es-lock { margin: 0.1rem 0 0.6rem; }
+.es-lock.es-nudge { animation: es-nudge 0.7s ease-out 1; }
+@keyframes es-nudge {
+  0% { border-color: var(--accent); color: var(--fg); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  100% { background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .es-lock.es-nudge { animation: none; border-color: var(--accent); color: var(--fg); } }
 /* Titel-pil vóór de naam (db/43), lichess-model: eigen kleur per titel, altijd
    een apart element — nooit onderdeel van de naam-string, want set_my_username
    laat "OBS Matthijs" gewoon toe. Obsidiaan houdt in beide thema's dezelfde

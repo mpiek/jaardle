@@ -445,6 +445,8 @@ const I18N = {
     achv_flairfx_note: (n, at) => `bij ${at} verdien je het ${n}-effect voor je flair`,
     achv_back: "‹ Prestaties",
     history_back: "‹ Geschiedenis",
+    veil_history: "Jaartallen na je daily van vandaag",   // eerst spelen, dan kijken (6/11/2026)
+    veil_board: "Scores en hints na je eigen potje",
     achv_events: {
       "-509": "Romeinse Republiek gesticht", "-336": "Alexander de Grote", "-221": "China verenigd (Qin)",
       "-44": "Moord op Julius Caesar", "79": "Uitbarsting van de Vesuvius", "476": "Val van Rome",
@@ -794,6 +796,8 @@ const I18N = {
     achv_flairfx_note: (n, at) => `reach ${at} to earn the ${n} effect for your flair`,
     achv_back: "‹ Achievements",
     history_back: "‹ History",
+    veil_history: "Years appear after today's daily",
+    veil_board: "Scores and hints appear after your own game",
     achv_events: {
       "-509": "Roman Republic founded", "-336": "Alexander the Great", "-221": "China unified (Qin)",
       "-44": "Assassination of Julius Caesar", "79": "Eruption of Vesuvius", "476": "Fall of Rome",
@@ -1138,6 +1142,8 @@ const I18N = {
     achv_flairfx_note: (n, at) => `ab ${at} verdienst du den ${n}-Effekt für dein Flair`,
     achv_back: "‹ Erfolge",
     history_back: "‹ Verlauf",
+    veil_history: "Jahreszahlen nach dem heutigen Daily",
+    veil_board: "Punkte und Hinweise nach deiner eigenen Runde",
     achv_events: {
       "-509": "Gründung der Römischen Republik", "-336": "Alexander der Große", "-221": "Einigung Chinas (Qin)",
       "-44": "Ermordung Julius Caesars", "79": "Ausbruch des Vesuvs", "476": "Untergang Roms",
@@ -1486,6 +1492,8 @@ const I18N = {
     achv_flairfx_note: (n, at) => `al llegar a ${at} ganas el efecto ${n} para tu distintivo`,
     achv_back: "‹ Logros",
     history_back: "‹ Historial",
+    veil_history: "Los años aparecen después del diario de hoy",
+    veil_board: "Puntuaciones y pistas después de tu propia partida",
     achv_events: {
       "-509": "Fundación de la República romana", "-336": "Alejandro Magno", "-221": "Unificación de China (Qin)",
       "-44": "Asesinato de Julio César", "79": "Erupción del Vesubio", "476": "Caída de Roma",
@@ -1834,6 +1842,8 @@ const I18N = {
     achv_flairfx_note: (n, at) => `ao chegar a ${at} você ganha o efeito ${n} para o seu distintivo`,
     achv_back: "‹ Conquistas",
     history_back: "‹ Histórico",
+    veil_history: "Os anos aparecem depois do daily de hoje",
+    veil_board: "Pontuações e dicas depois da sua própria partida",
     achv_events: {
       "-509": "Fundação da República Romana", "-336": "Alexandre, o Grande", "-221": "Unificação da China (Qin)",
       "-44": "Assassinato de Júlio César", "79": "Erupção do Vesúvio", "476": "Queda de Roma",
@@ -6393,18 +6403,73 @@ function lbGuessBlocks(d) {
 // Inhaalpotten (r.late, db/53) staan altijd onderaan (server sorteert al zo),
 // zonder rangnummer en gedimd — zelfde `.lb-prov`-behandeling als de
 // onder-de-drempel-rijen op het all-time statistiekbord.
-function dailyRowHtml(r, i) {
+// veil = "eerst spelen, dan kijken" (boardVeilFor): de rij van een ander toont dan een plaatshouder onder een waas in plaats van
+// zijn gokblokjes, hints en score. Naam, flair en plek blijven. De echte waarden komen dan niet in de DOM.
+function dailyRowHtml(r, i, veil = false) {
+  const val = veil && !r.is_me
+    ? `<span class="lb-val es-veil" aria-hidden="true"><span class="lb-blocks">${'<i class="lb-blk es-ph"></i>'.repeat(3)}</span><span class="lb-score">88</span></span>`
+    : `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span>`;
   return `<div class="${lbRowCls(r.is_me)}${r.late ? " lb-prov" : lbPodiumCls(r.rank)}"${i == null ? "" : ` data-i="${i}"`} data-pn="${escHtml(r.display_name)}">` +
     `<span class="lb-rank">${r.late ? "·" : lbMedal(r.rank)}</span>` +
     `<span class="lb-name">${lbNameCell(r, r.late ? null : r.rank)}${r.late ? ` <span class="lb-tag">${escHtml(t("makeup_tag"))}</span>` : ""}</span>` +
-    `<span class="lb-val">${lbGuessBlocks(r)}<span class="lb-score">${r.won ? lbHintIcons(r) + r.score : "💀"}</span></span></div>`;
+    `${val}</div>`;
 }
-function dailyTableHtml(rows) {
+function dailyTableHtml(rows, veil = false) {
   if (!rows.length) {
     return `<p class="lb-empty">${t(lbDailyDate === todayKey() ? "lb_empty_daily" : "lb_empty_daily_past")}</p>`;
   }
-  return `<div class="lb-table">` + rows.map(dailyRowHtml).join("") + `</div>`;
+  return (veil ? esLockHtml(t("veil_board"), lbDailyDate) : "") +
+    `<div class="lb-table">` + rows.map((r, i) => dailyRowHtml(r, i, veil)).join("") + `</div>`;
 }
+
+// ── Eerst spelen, dan kijken (6/11/2026) ── "veel mensen valspelen door naar vorige history dailies te kijken" (⏩ +100 van 6/11
+// = hoofdfeit van 6/10, met jaartal in 📅) en "als iemand +100 doet en 97 dan doen ze dat ook". Zolang de daily van vandaag niet af
+// is (dailyDoneToday, zoals het iconische-jaren-album): 📅 zonder jaartallen en bronlink, 🏆-dagbord zonder gokken/hints/scores van
+// anderen; een inhaaldag die je nog kunt spelen (makeupRepairInfo) ook. Geen extra verzoek aan de server.
+// Puur: is het dagbord van `date` dicht? Een eigen rij (ook een inhaalpot, of op een ander apparaat gespeeld) = open.
+function boardVeilFor(date, rows, { today, doneToday, missed }) {
+  if (!Array.isArray(rows) || !rows.length || rows.some((r) => r.is_me)) return false;
+  if (date === today) return !doneToday;
+  return Array.isArray(missed) && missed.includes(date);
+}
+async function boardVeiled(date, rows) {
+  const today = todayKey();
+  let missed = [];
+  if (date !== today && date >= shiftDay(today, -CATCHUP_WINDOW) && date < today) {
+    try { missed = (await makeupRepairInfo()).days || []; } catch (e) { missed = []; }
+  }
+  return boardVeilFor(date, rows, { today, doneToday: dailyDoneToday(), missed });
+}
+// 📅 Geschiedenis: dicht zolang de daily van vandaag niet af is. Staat vandaag al in je (server-)historie, dan speelde je hem
+// elders: open, ook als dit apparaat het bord nog niet binnen heeft.
+function historyVeilFor(doneToday, hist, today) {
+  return !doneToday && !(hist || []).some((r) => r.date === today);
+}
+// De ene regel die zegt waarom: een knop naar die daily (vandaag, of de inhaaldag van dat bord). Geen pop-up.
+function esLockHtml(text, date) {
+  return `<button type="button" class="es-lock"${date ? ` data-date="${date}"` : ""}><span aria-hidden="true">🔒</span>` +
+    `<span class="es-lock-txt">${escHtml(text)}</span><span class="es-lock-chev" aria-hidden="true">›</span></button>`;
+}
+document.addEventListener("click", (e) => {
+  if (!(e.target instanceof Element)) return;
+  const lock = e.target.closest(".es-lock");
+  if (lock) {
+    const d = lock.dataset.date;
+    closeAllModals();
+    if (d && d < todayKey()) { startMakeup(d); return; }
+    if (state && state.mode === "daily" && !isMakeup(state)) return;   // de daily van vandaag staat er al
+    switchMode("daily");
+    return;
+  }
+  const veiled = e.target.closest(".es-veil");
+  if (!veiled) return;
+  const box = veiled.closest(".lb-tabpane, .modal-body");
+  const line = box && box.querySelector(".es-lock");
+  if (!line) return;
+  line.classList.remove("es-nudge");
+  void line.offsetWidth;   // de animatie opnieuw laten starten
+  line.classList.add("es-nudge");
+});
 
 // ── Spelerskaartje (db/145 get_player_card, mockup "Spelerskaartje" v4 28/10) ──
 // Tik op een naam in het 🏆-bord (Daily, Weekpodium, Stats) of in de teamstand van het eindscherm: de rij klapt open met een klein
@@ -6466,7 +6531,7 @@ async function togglePlayerCard(el) {
 document.addEventListener("click", (e) => {
   if (!(e.target instanceof Element)) return;
   const el = e.target.closest("#lb-body .lb-tabpane [data-pn]");
-  if (!el || e.target.closest(".lb-title, .pc, a, button")) return;   // een titel-pil heeft z'n eigen uitleg
+  if (!el || e.target.closest(".lb-title, .pc, a, button, .es-veil")) return;   // een titel-pil heeft z'n eigen uitleg; een verborgen waarde laat de slot-regel oplichten
   togglePlayerCard(el);
 });
 
@@ -6495,7 +6560,10 @@ async function loadDailyBoard() {
   let rows = [];
   try { rows = await rpc("get_pool_daily_leaderboard", { p_pool_id: myPool.id, p_date: lbDailyDate }); } catch (e) {}
   if (req !== lbDailyReq || document.getElementById("modal-leaderboard").hidden) return;
-  setBoard(content, dailyTableHtml(Array.isArray(rows) ? rows : []));
+  rows = Array.isArray(rows) ? rows : [];
+  const veil = await boardVeiled(lbDailyDate, rows);   // eerst spelen, dan kijken
+  if (req !== lbDailyReq || document.getElementById("modal-leaderboard").hidden) return;
+  setBoard(content, dailyTableHtml(rows, veil));
 }
 
 // Wisselt het zichtbare bord-tabblad (daily / podium / stats) en laadt het lui bij
@@ -11814,14 +11882,20 @@ async function openHistoryDetail(body, date, row) {
   const event = toEvent(p);
   const factText = event.facts[0]?.[lang] || event.facts[0]?.[DEFAULT_LANG] || "";
   const tier = scoreTier(row.score, row.won, !row.won && board ? closestMiss(board.guesses) : null);
+  // Eerst spelen, dan kijken: geen jaartallen en geen bronlink (de URL heeft het jaartal soms) zolang vandaag niet af is.
+  const veil = historyVeilFor(dailyDoneToday(), myHistoryCache, todayKey());
+  const source = !event.source ? ""
+    : veil ? `${escHtml(t("source"))} <span class="es-veil es-src" aria-hidden="true">wikipedia.org/wiki/0000</span> · CC BY-SA`
+    : `${escHtml(t("source"))} <a href="${event.source}" target="_blank" rel="noopener">${displaySource(event.source)}</a> · CC BY-SA`;
   body.innerHTML = `
     <button type="button" class="history-back lb-pillbtn">${escHtml(t("history_back"))}</button>
     <p class="history-daylabel">${escHtml(t("day"))} #${dayNumForKey(date)} · ${escHtml(fmtHistoryDate(date))}</p>
     <p class="fact">${escHtml(factText)}</p>
     <p class="history-score">${tier.emoji} ${escHtml(tierLabel(tier))} · ${row.score}/100</p>
+    ${veil && board ? esLockHtml(t("veil_history")) : ""}
     <div class="history-board"></div>
-    <p class="history-source">${event.source ? `${escHtml(t("source"))} <a href="${event.source}" target="_blank" rel="noopener">${displaySource(event.source)}</a> · CC BY-SA` : ""}</p>`;
-  if (board) renderHistoryBoardInto(body.querySelector(".history-board"), board);
+    <p class="history-source">${source}</p>`;
+  if (board) renderHistoryBoardInto(body.querySelector(".history-board"), board, veil);
   body.querySelector(".history-back").onclick = () => { setModalUrl("history"); renderHistory(); };
   setModalUrl(`history=${date}`);
 }
@@ -11830,7 +11904,7 @@ async function openHistoryDetail(body, date, row) {
 // te hergebruiken): dat schrijft naar het vaste #guesses-element en de levende
 // `state`, wat hier niet past — dit bord toont een AFGESLOTEN dag, los van de
 // huidige puzzel. Alleen de werkelijk gebruikte rijen (geen lege slots tot 6).
-function renderHistoryBoardInto(container, board) {
+function renderHistoryBoardInto(container, board, veil = false) {
   container.innerHTML = "";
   const revealedSet = new Set(board.directionsRevealed);
   board.guesses.forEach((g, idx) => {
@@ -11838,7 +11912,13 @@ function renderHistoryBoardInto(container, board) {
     row.className = `guess-row ${g.cls}`;
     const yr = document.createElement("span");
     yr.className = "year";
-    yr.textContent = g.year;
+    if (veil) {   // eerst spelen, dan kijken: een plaatshouder onder een waas, nooit het echte jaartal in de DOM
+      yr.classList.add("es-veil");
+      yr.setAttribute("aria-hidden", "true");
+      yr.textContent = "0000";
+    } else {
+      yr.textContent = g.year;
+    }
     const badge = document.createElement("span");
     badge.className = `delta-badge ${g.cls}`;
     renderDeltaBadge(badge, g.diff, g.cls, revealedSet.has(idx), board.blue);
