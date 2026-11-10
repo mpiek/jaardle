@@ -54,7 +54,7 @@ src += `
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
-  dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
+  dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, oddsVfSvg, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   ACHV_SERIES, ACHV_TIER_KEYS, ACHV_YEARS, CAPSTONE_KEYS, CAPSTONE_MAX, FLAIR_OPTIONS, capstoneProgress, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   ratingDeltaBadge, toEvent,
@@ -1177,6 +1177,30 @@ test("oddsBuild — drempels, kansen tellen op tot 1, stabiel per stand", () => 
   assert.equal(T.oddsBuild({ ...fc, players: fc.players.slice(0, T.ODDS_MIN_PLAYERS - 1) }, daily, week, ctx), null);
   assert.equal(T.oddsBuild(fc, daily, week.slice(0, T.ODDS_MIN_WEEK_ROWS - 1), ctx), null);
   assert.equal(T.oddsBuild(null, daily, week, ctx), null);   // RPC faalde/bestaat nog niet
+});
+
+test("oddsBuild / oddsVfSvg — een vondst-flair staat als tekening in de donut, niet als ✨", () => {
+  const fc = { day_mean: 76, day_sd: 6, hour_share: new Array(24).fill(1 / 24), players: [
+    { display_name: "A", flair: "v:martian-tripod~sparkle", title: null, is_me: true, q: 0.9, lost_p: 0.05, mu: 0, sd: 11 },
+    { display_name: "B", flair: "🦄", title: null, is_me: false, q: 0.9, lost_p: 0.05, mu: 0, sd: 11 },
+    { display_name: "C", flair: "v:onbekend", title: null, is_me: false, q: 0.9, lost_p: 0.05, mu: 0, sd: 11 }] };
+  const week = ["A", "B", "C"].map((n, i) => ({ rank: i + 1, display_name: n, week_score: 200 - i, daily_wins: 0, played: 3 }));
+  const items = T.oddsBuild(fc, [], week, { poolId: "p", weekStart: "2026-09-28", todayKey: "2026-10-01", secsSinceMidnight: 14 * 3600 });
+  const by = Object.fromEntries(items.map((x) => [x.name, x]));
+  assert.equal(by.A.vf, "v:martian-tripod");   // het effect (~sparkle) hoort niet bij de tekening
+  assert.equal(by.A.flair, "✨");               // tekst-terugval zolang /vondsten.js er niet is
+  assert.equal(by.B.vf, "");
+  assert.equal(by.B.flair, "🦄");
+  assert.equal(by.C.vf, "");                    // onbekende vondst (nieuwere ronde): blijft ✨
+  assert.equal(T.oddsVfSvg(by.A, 100, 50, 20, "od-lab"), "");   // /vondsten.js nog niet binnen → tekst
+  const had = Object.prototype.hasOwnProperty.call(globalThis, "VondstFlairs");
+  globalThis.VondstFlairs = { css: "", svg: { "martian-tripod": '<svg class="emoji-anim ww" viewBox="0 0 128 128" aria-hidden="true"><g class="ww-a"></g></svg>' } };
+  try {
+    const svg = T.oddsVfSvg(by.A, 100, 50, 20, "od-lab", 'data-odl="p0" ');
+    assert.match(svg, /^<svg x="90" y="40" width="20" height="20" data-odl="p0" class="od-vf od-lab ww ww-still vf-still" viewBox/);
+    assert.equal((svg.match(/class=/g) || []).length, 2);   // één class op de <svg> (de tweede is die van de <g>)
+    assert.equal(T.oddsVfSvg(by.B, 100, 50, 20), "");
+  } finally { if (!had) delete globalThis.VondstFlairs; }
 });
 
 test("oddsPct — nooit 100% of 0% beweren; een duel (2 spelers) is een geldige donut", () => {

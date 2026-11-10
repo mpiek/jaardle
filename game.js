@@ -8487,7 +8487,7 @@ function oddsBuild(fc, dailyRows, weekRows, ctx) {
   const pl = forecastPlaces(inp, ODDS_RUNS, seed), lim = oddsLimits(inp);
   // prob = kans op de weekzege (1e plek); probs = [1e, 2e, 3e] voor de plek-schakelaar;
   // sures = per plek of die uitkomst volgens de regels vaststaat (exact 100% of 0% — geen schatting meer)
-  return all.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: flairTextGlyph(parseFlair(p.flair).emoji), title: p.title || "", me: !!p.is_me,
+  return all.map((p, i) => ({ id: "p" + i, idx: i, name: p.display_name, flair: flairTextGlyph(parseFlair(p.flair).emoji), vf: oddsVf(p.flair), title: p.title || "", me: !!p.is_me,
     prob: pl[0][i], probs: [pl[0][i], pl[1][i], pl[2][i]], sures: [0, 1, 2].map((k) => lim.sure[k][i] || !lim.can[k][i]) }));
 }
 
@@ -8535,6 +8535,17 @@ function oddsOnColor(slot) {   // wit of zwart, wat het meeste contrast geeft op
   return 1.05 / (L + 0.05) >= (L + 0.05) / 0.05 ? "#fff" : "#111";
 }
 const oddsFlair = (it) => it.flair || "🏃";
+// Een eigen tekening (vondst, "v:<id>") toont de donut als tekening, niet als ✨: in de legenda als HTML (flairGlyphHtml), op de
+// ring en in het midden als geneste, stille <svg> op de plek van de emoji-tekst. Is /vondsten.js er nog niet, dan staat er
+// even ✨ en tekent mountOdds de donut opnieuw zodra hij binnen is.
+const oddsVf = (raw) => { const f = parseFlair(raw).emoji; return isDrawnFlair(f) ? f : ""; };
+function oddsVfSvg(it, x, y, size, cls = "", attrs = "") {
+  const v = it.vf && VONDST_BY_FLAIR[it.vf], svg = v && window.VondstFlairs && vondstSvg(v, true);
+  if (!svg) return "";
+  const r = oddsR1;   // zonder .emoji-anim: die zet width/height in em, wat de attributen hier zou overschrijven
+  return svg.replace('class="emoji-anim ', `class="od-vf${cls ? " " + cls : ""} `)
+    .replace("<svg ", `<svg x="${r(x - size / 2)}" y="${r(y - size / 2)}" width="${r(size)}" height="${r(size)}" ${attrs}`);
+}
 function oddsPct(view, id) {
   const it = id === "other" ? view.other : view.byId[id], p = it.prob;
   if (it.sure) return p >= 0.5 ? "100%" : "0%";   // staat volgens de regels vast (oddsLimits): geen schatting meer
@@ -8555,7 +8566,7 @@ function oddsLayout(view) {
 const oddsColorVar = (it) => (it.other ? "var(--s-other)" : `var(--s${oddsSlot(it.idx)})`);
 const oddsFill = (it) => (it.other ? "url(#odds-hp-o)" : it.idx >= 8 ? `url(#odds-hp-${oddsSlot(it.idx)})` : `var(--s${oddsSlot(it.idx)})`);
 function oddsTokenHtml(it, cls) {
-  return `<span class="od-tk${it.idx >= 8 ? " hatch" : ""}${cls ? " " + cls : ""}" style="--c:var(--s${oddsSlot(it.idx)})">${escHtml(oddsFlair(it))}</span>`;
+  return `<span class="od-tk${it.idx >= 8 ? " hatch" : ""}${cls ? " " + cls : ""}" style="--c:var(--s${oddsSlot(it.idx)})">${it.vf ? flairGlyphHtml(it.vf) : escHtml(oddsFlair(it))}</span>`;
 }
 function oddsDonutHtml(view) {
   const { cx, cy, r, sw } = ODDS_GEO, C = 2 * Math.PI * r, gapDeg = ((2.6 / r) * 180) / Math.PI, rad = (d) => (d * Math.PI) / 180;
@@ -8573,7 +8584,9 @@ function oddsDonutHtml(view) {
     const mid = rad(a.start + a.sweep / 2), x = cx + r * Math.sin(mid), y = cy - r * Math.cos(mid), arcLen = rad(a.sweep) * r;
     if (arcLen >= 22) {
       const big = a.sweep >= 52, col = it.other ? "var(--fg)" : oddsOnColor(oddsSlot(it.idx));
-      labs += `<text class="od-lab" data-odl="${it.id}" x="${oddsR1(x)}" y="${oddsR1(big ? y - 6 : y)}" style="font-size:${arcLen >= 32 ? 17 : 14}px">${it.other ? "👥" : escHtml(oddsFlair(it))}</text>`;
+      const fs = arcLen >= 32 ? 17 : 14, ly = big ? y - 6 : y;
+      labs += (!it.other && oddsVfSvg(it, x, ly, fs * 1.25, "od-lab", `data-odl="${it.id}" `)) ||
+        `<text class="od-lab" data-odl="${it.id}" x="${oddsR1(x)}" y="${oddsR1(ly)}" style="font-size:${fs}px">${it.other ? "👥" : escHtml(oddsFlair(it))}</text>`;
       if (big) labs += `<text class="od-labp" data-odl="${it.id}" x="${oddsR1(x)}" y="${oddsR1(y + 11)}" style="fill:${col}">${escHtml(oddsPct(view, it.id))}</text>`;
     }
   });
@@ -8586,7 +8599,7 @@ function oddsDonutHtml(view) {
   });
   return `<svg viewBox="0 0 324 200" role="group" aria-label="${escHtml(t("odds_chart_aria"))}"><defs>${defs}</defs>` +
     `<g transform="rotate(-90 ${cx} ${cy})">${arcs}</g><g class="od-labs">${labs}</g>` +
-    `<g class="od-ctr" aria-hidden="true"><text class="od-ctr-e" x="${cx}" y="${cy - 21}" style="font-size:22px"></text>` +
+    `<g class="od-ctr" aria-hidden="true"><text class="od-ctr-e" x="${cx}" y="${cy - 21}" style="font-size:22px"></text><g class="od-ctr-v"></g>` +
     `<text class="od-ctr-p" x="${cx}" y="${cy + 10}" style="font-size:29px"></text>` +
     `<text class="od-ctr-n" x="${cx}" y="${cy + 26}"></text><text class="od-ctr-c" x="${cx}" y="${cy + 38}"></text></g>` +
     // tik op het midden = volgende plek (🥇 → 🥈 → 🥉 → 🥇), een snelkoppeling naast de chips in de kop
@@ -8633,12 +8646,13 @@ function mountOdds(root, items) {
   const views = [0, 1, 2].map((k) => oddsView(items, k));
   const minRows = oddsLegendRows(views);
   const body = root.querySelector(".odds-body");
-  let place = 0, view = views[0], sel = null, raf = 0, els = [];
+  let place = 0, view = views[0], sel = null, raf = 0, els = [], drawn = 1;
   const folded = (id) => !!(view.other && view.other.members.some((m) => m.id === id));
   const bind = () => {
     els = oddsLayout(view).map((a) => ({ a, arc: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-arc`), me: root.querySelector(`.od-it[data-od="${a.it.id}"] .od-me`), labs: [...root.querySelectorAll(`[data-odl="${a.it.id}"]`)] }));
   };
   const draw = (t) => {
+    drawn = t;
     const th = t * 360;
     els.forEach(({ a, arc, me, labs }) => {
       const vis = Math.max(0, Math.min(a.sweep, th - a.start)), full = Math.max(0.5, ((a.sweep - (a.sweep >= 359.5 ? 0 : gapDeg)) / 360) * C);
@@ -8672,7 +8686,9 @@ function mountOdds(root, items) {
     else { const it = view.byId[id]; e = oddsFlair(it); p = oddsPct(view, id); n = it.name; c = folded(id) ? t("odds_in_other") : cap; }
     const me = !!id && id !== "other" && view.byId[id].me;
     const q = (s) => root.querySelector(s);
-    q(".od-ctr-e").textContent = e;
+    const vf = id && id !== "other" ? oddsVfSvg(view.byId[id], geo.cx, geo.cy - 21, 24) : "";
+    q(".od-ctr-v").innerHTML = vf;
+    q(".od-ctr-e").textContent = vf ? "" : e;
     q(".od-ctr-p").textContent = p;
     const nEl = q(".od-ctr-n");
     nEl.textContent = n;
@@ -8717,6 +8733,11 @@ function mountOdds(root, items) {
     if (g.matches && g.matches("[role=button]") && !g.matches("button")) { e.preventDefault(); g.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
   });
   bind(); apply(); draw(1);
+  if (items.some((x) => x.vf) && !window.VondstFlairs) loadVondsten().then(() => {
+    if (!body.isConnected) return;
+    body.innerHTML = oddsBodyHtml(view, minRows);
+    bind(); apply(); draw(drawn);   // loopt de instap nog, dan pakt het volgende frame de nieuwe plakken
+  }, () => {});
   return {
     play: () => play(900),
     reset() { cancelAnimationFrame(raf); draw(0); },
