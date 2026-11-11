@@ -5665,8 +5665,9 @@ const FIND_FACTS = { "047ffe45fb": "nebra-disc", "0492da7dd0": "penguin-knight",
 const VONDST_BY_ID = Object.fromEntries(VONDSTEN.map((v) => [v.id, v]));
 const VONDST_BY_FLAIR = Object.fromEntries(VONDSTEN.map((v) => [v.flair, v]));
 const vondstName = (v) => (v && v.names && (v.names[lang] || v.names.en)) || "";
-// Een eigen tekening ("v:<id>"). Waar alleen tekst kan (confetti, het gezichtje in de histogram, het speldje) staat er een ✨;
-// overal waar HTML mag, de tekening zelf (flairGlyphHtml stil, flairPreviewHtml bewegend).
+// Een eigen tekening ("v:<id>"). Waar alleen tekst kan (confetti, season-event.js) staat er een ✨; overal waar HTML mag,
+// de tekening zelf (flairGlyphHtml stil, flairPreviewHtml bewegend), ook het gezichtje en de pin in het eindscherm-histogram;
+// in de SVG van de 🔮-donut als geneste <svg> (oddsVfSvg).
 const isVondstFlair = (f) => typeof f === "string" && f.startsWith("v:");   // ook een onbekende (uit een nieuwere ronde)
 const isDrawnFlair = (f) => isVondstFlair(f) && !!VONDST_BY_FLAIR[f];
 const flairTextGlyph = (f) => (isVondstFlair(f) ? "✨" : f);
@@ -7785,10 +7786,10 @@ function histBinOfFroms(froms, score, won) {
   return at;
 }
 function histFaceHtml(r) {
-  const emoji = flairTextGlyph(parseFlair(r.flair).emoji);
+  const emoji = parseFlair(r.flair).emoji;   // een eigen tekening (vondst) als stille tekening, net als op het bord
   const letter = [...String(r.display_name || "")][0];
-  const glyph = emoji || (letter ? letter.toUpperCase() : "?");
-  return `<i class="hist-face${emoji ? "" : " hist-face-l"}" style="--h:${faceHue(r.display_name)}">${escHtml(glyph)}</i>`;
+  const glyph = emoji ? flairGlyphHtml(emoji) : escHtml(letter ? letter.toUpperCase() : "?");
+  return `<i class="hist-face${emoji ? "" : " hist-face-l"}" style="--h:${faceHue(r.display_name)}">${glyph}</i>`;
 }
 let histTeamBins = [];   // per histogram-kolom: indexen in de dagbord-rijen van de teamgenoten die daarin staan
 let teamHlTimer = null;
@@ -7902,8 +7903,8 @@ function recapDistHtml(buckets, stats, scoreRank, room) {
   const avgLine = avgX != null ? `<span class="hist-avg-line" style="left:${avgX}%"></span>` : "";
   const avgLabel = avgX != null ? `<span class="hist-avg-label" style="left:${avgX}%">${t("recap_avg_short")}</span>` : "";
   // Pin: jouw flair + score (de medaille staat al in de tegel erboven); zonder flair (of anoniem) de tekst "jij".
-  const myEmoji = auth.user ? flairTextGlyph(parseFlair(myFlair).emoji) : "";
-  const pinLabel = myEmoji ? `${escHtml(myEmoji)} ${score}` : `${t("recap_you")} · ${score}`;
+  const myEmoji = auth.user ? parseFlair(myFlair).emoji : "";   // een eigen tekening (vondst) als stille tekening
+  const pinLabel = myEmoji ? `${flairGlyphHtml(myEmoji)} ${score}` : `${t("recap_you")} · ${score}`;
   const pin = `<div class="hist-pinrow">${avgLabel}<span class="${pinCls}"${pinStyle}>${pinLabel}</span></div>`;
   // Detailregel: standaard jouw eigen staaf.
   const detail = `<p class="hist-detail" aria-live="polite">${rangeOf(bars[mine])} · ${t("recap_bin_players")(bars[mine].count)}</p>`;

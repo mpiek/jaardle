@@ -47,7 +47,7 @@ src += "\n" + readFileSync(join(dir, "..", "player-card.js"), "utf8") + "\n";
 src += `
 ;globalThis.__T = {
   classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
-  BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES,
+  BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
   intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
@@ -4372,6 +4372,18 @@ test("achvNormalize — houdt finds van de server (zonder dit zag een ingelogde 
     assert.ok(T.earnedRewardKeys().includes("fv_ring"), "via de echte normalisatie: de vondst-pop-up komt");
     assert.ok(T.findsRowHtml(T.achvNormalize({ finds: ["ring"] })).includes("1/20"));
   } finally { T.auth.user = wasUser; T.setAchv(null); }
+});
+
+test("histFaceHtml — het teamgezichtje in het eindscherm-histogram toont een vondst-flair als stille tekening, niet als ✨", () => {
+  withVondstLib(() => {
+    const face = T.histFaceHtml({ display_name: "Anna", flair: "v:martian-tripod~sparkle" });
+    assert.ok(face.includes("ww ww-still vf-still") && !face.includes("✨") && !face.includes("v:martian"), face);
+    assert.ok(!face.includes("hist-face-l"), "geen letter-gezichtje");
+    assert.match(T.histFaceHtml({ display_name: "Bram", flair: "🦄" }), />🦄<\/i>$/);
+    assert.match(T.histFaceHtml({ display_name: "cees", flair: null }), /hist-face hist-face-l.*>C<\/i>$/);
+    assert.match(T.histFaceHtml({ display_name: "Daan", flair: "v:bestaat-nog-niet" }), />✨<\/i>$/);   // onbekende vondst
+    assert.match(T.histFaceHtml({ display_name: "<b>", flair: "" }), />&lt;<\/i>$/);
+  });
 });
 
 test("onbekende v:-flair (nieuwere ronde, oud tabblad) — ✨, nooit de id als tekst", () => {
