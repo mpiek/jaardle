@@ -168,9 +168,10 @@ window.RewardFx = (() => {
 
   // ── Canvas-confetti ───────────────────────────────────────────────────────────
   // Dezelfde confetti als de CSS-versie (80 stukjes van 8×14 px, 2,5-4,5 s vallen, 720° draaien), maar op het canvas,
-  // zodat de wimpels ervoor op dezelfde lus kunnen. Met `emoji` regent je flair (zilver-capstone), zoals in de CSS-versie.
+  // zodat de wimpels ervoor op dezelfde lus kunnen. Met `emoji` regent je flair (zilver-capstone), zoals in de CSS-versie;
+  // een eigen tekening (vondst) komt als geladen plaatje in `img` (vondstImage in game.js) en gaat dan voor.
   function confettiLayers({ opts }) {
-    const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"], emoji = opts.emoji || null;
+    const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"], img = opts.img || null, emoji = img ? null : opts.emoji || null;
     const pieces = Array.from({ length: 80 }, () => ({
       x: Math.random(), delay: Math.random() * 0.6, dur: 2.5 + Math.random() * 2, col: colors[(Math.random() * colors.length) | 0],
     }));
@@ -180,7 +181,7 @@ window.RewardFx = (() => {
         const u = (t - p.delay) / p.dur; if (u <= 0 || u >= 1) continue;
         ctx.globalAlpha = u > 0.9 ? clamp((1 - u) / 0.1) : 1;
         ctx.save(); ctx.translate(p.x * W, -20 + 1.05 * H * u); ctx.rotate(u * 4 * Math.PI);
-        if (emoji) ctx.fillText(emoji, 0, 0); else { ctx.fillStyle = p.col; ctx.fillRect(-4, -7, 8, 14); }
+        if (img) ctx.drawImage(img, -13, -13, 26, 26); else if (emoji) ctx.fillText(emoji, 0, 0); else { ctx.fillStyle = p.col; ctx.fillRect(-4, -7, 8, 14); }
         ctx.restore();
       }
       ctx.globalAlpha = 1;

@@ -2089,6 +2089,8 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
   font-size: 22px;
   line-height: 1;
 }
+/* Een eigen tekening (vondst) als confetti: één plaatje (data-URL uit vondstImgUrl, op de container als --vf) voor alle stukjes. */
+.confetti-flair.confetti-vf .confetti-piece { width: 26px; height: 26px; background: var(--vf) center / contain no-repeat !important; }
 @keyframes confetti-fall {
   0%   { transform: translateY(0) rotate(0deg);     opacity: 1; }
   90%  { opacity: 1; }

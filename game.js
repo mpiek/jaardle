@@ -3492,7 +3492,7 @@ function renderGuesses() {
 }
 
 // De flair die als confetti regent (zilver-capstone, aan), of null voor de gewone confetti.
-const flairConfettiEmoji = () => (auth.user && parseFlair(myFlair).emoji && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? flairTextGlyph(parseFlair(myFlair).emoji) : null);
+const flairConfettiEmoji = () => (auth.user && parseFlair(myFlair).emoji && capstoneTier(achvCache) >= 2 && flairConfettiEnabled() ? parseFlair(myFlair).emoji : null);   // een vondst blijft "v:<id>": de confetti maakt er een plaatje van (vondstImgUrl)
 
 function showConfetti(opts) {
   const colors = ["#4caf50", "#ab47bc", "#f4c430", "#ff9800", "#e53935", "#8b5a2b", "#6ea8ff"];
@@ -3500,14 +3500,27 @@ function showConfetti(opts) {
   // confetti — self-facing beloning, alleen-ingelogd. Geen flair → gewone confetti.
   // De kluis-preview (opts.emoji) forceert de soort: een teken = flair-confetti, null = gewone confetti.
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const flairFx = reduced ? null : opts ? (opts.emoji || null) : flairConfettiEmoji();
+  let flairFx = reduced ? null : opts ? (opts.emoji || null) : flairConfettiEmoji();
+  // Een eigen tekening (vondst) regent als plaatje: één data-URL voor alle 80 stukjes (geen 80 inline-SVG's). Is
+  // /vondsten.js er nog niet, dan eerst dat laden en dán pas regenen; lukt het laden niet, dan ✨.
+  let img = null;
+  if (isVondstFlair(flairFx)) {
+    if (isDrawnFlair(flairFx) && !window.VondstFlairs) {
+      const f = flairFx;
+      loadVondsten().then(() => showConfetti({ emoji: window.VondstFlairs ? f : "✨" }), () => showConfetti({ emoji: "✨" }));   // nooit een lus
+      return;
+    }
+    img = vondstImgUrl(flairFx);
+    if (!img) flairFx = "✨";
+  }
   const container = document.createElement("div");
-  container.className = "confetti-container" + (flairFx ? " confetti-flair" : "");
+  container.className = "confetti-container" + (flairFx ? " confetti-flair" : "") + (img ? " confetti-vf" : "");
+  if (img) container.style.setProperty("--vf", `url("${img}")`);
   for (let i = 0; i < 80; i++) {
     const piece = document.createElement("div");
     piece.className = "confetti-piece";
     piece.style.left = Math.random() * 100 + "vw";
-    if (flairFx) piece.textContent = flairFx;
+    if (flairFx && !img) piece.textContent = flairFx;
     else piece.style.background = colors[Math.floor(Math.random() * colors.length)];
     piece.style.animationDelay = Math.random() * 0.6 + "s";
     piece.style.animationDuration = 2.5 + Math.random() * 2 + "s";
@@ -4406,7 +4419,8 @@ async function showBuntingConfetti() {
   const W = innerWidth, H = innerHeight;
   try {
     const fx = await loadRewardFx();
-    runFx([...fx.build("confetti", W, H, { emoji: flairConfettiEmoji() }), ...fx.build("bunting", W, H, { letters: weekLetters() })]);
+    const emoji = flairConfettiEmoji(), img = await vondstImage(emoji);   // een eigen tekening: als plaatje op het canvas
+    runFx([...fx.build("confetti", W, H, { emoji: flairTextGlyph(emoji), img }), ...fx.build("bunting", W, H, { letters: weekLetters() })]);
   } catch (e) { showConfetti(); }
 }
 // Het bestand vooraf ophalen in een rustig moment, maar alleen voor wie het kan gaan gebruiken: een gekozen kalender, of
@@ -4440,7 +4454,7 @@ function playWinFxPreview(kind) {
   stopFx();
   document.querySelectorAll(".confetti-container").forEach((c) => c.remove());
   if (kind === "none") showConfetti({ emoji: null });
-  else if (kind === "flair") showConfetti({ emoji: flairTextGlyph(parseFlair(myFlair).emoji) || "🎉" });
+  else if (kind === "flair") showConfetti({ emoji: parseFlair(myFlair).emoji || "🎉" });
   else if (kind === "beer") runFx([clinkLayer(0, 0.40)]);
   else if (kind === "gold") runFx([goldYearsLayer(1815, false)]);
   else if (kind === "cal") {
@@ -5665,9 +5679,9 @@ const FIND_FACTS = { "047ffe45fb": "nebra-disc", "0492da7dd0": "penguin-knight",
 const VONDST_BY_ID = Object.fromEntries(VONDSTEN.map((v) => [v.id, v]));
 const VONDST_BY_FLAIR = Object.fromEntries(VONDSTEN.map((v) => [v.flair, v]));
 const vondstName = (v) => (v && v.names && (v.names[lang] || v.names.en)) || "";
-// Een eigen tekening ("v:<id>"). Waar alleen tekst kan (confetti, season-event.js) staat er een ✨; overal waar HTML mag,
-// de tekening zelf (flairGlyphHtml stil, flairPreviewHtml bewegend), ook het gezichtje en de pin in het eindscherm-histogram;
-// in de SVG van de 🔮-donut als geneste <svg> (oddsVfSvg).
+// Een eigen tekening ("v:<id>"). Overal waar HTML mag de tekening zelf (flairGlyphHtml stil, flairPreviewHtml bewegend), ook
+// het gezichtje en de pin in het eindscherm-histogram; in de SVG van de 🔮-donut als geneste <svg> (oddsVfSvg); in de
+// confetti als plaatje (vondstImgUrl/vondstImage). Alleen season-event.js (alleen tekst) toont nog een ✨.
 const isVondstFlair = (f) => typeof f === "string" && f.startsWith("v:");   // ook een onbekende (uit een nieuwere ronde)
 const isDrawnFlair = (f) => isVondstFlair(f) && !!VONDST_BY_FLAIR[f];
 const flairTextGlyph = (f) => (isVondstFlair(f) ? "✨" : f);
@@ -5699,6 +5713,33 @@ function hydrateVondsten() {
 }
 // Het stilstaande teken van een flair als HTML: een gewone emoji als tekst, een eigen tekening als stille SVG.
 const flairGlyphHtml = (f) => (isVondstFlair(f) ? vondstHtml(f, true) : escHtml(f));
+// Een eigen tekening als plaatje (data-URL), voor waar geen HTML kan: de confetti (CSS-achtergrond en canvas). De stille vorm,
+// mét de eigen CSS van de tekening erin (sommige onderdelen staan pas via die CSS op hun plek of onzichtbaar); per vondst
+// één keer gebouwd. null zolang /vondsten.js er niet is of bij een onbekende vondst.
+const vondstImgCache = {};
+function vondstImgUrl(flair) {
+  const v = VONDST_BY_FLAIR[flair], lib = window.VondstFlairs, svg = v && v.cls && lib && lib.svg && lib.svg[v.id];
+  if (!svg) return null;
+  if (vondstImgCache[v.id]) return vondstImgCache[v.id];
+  const own = (sel) => sel.split(",").every((p) => { const q = p.trim(); return q[0] === "." && q.slice(1).split(/[ .:[]/)[0] === v.cls; });
+  const css = (lib.css.replace(/\/\*[\s\S]*?\*\//g, "").match(/[^{}]+\{[^{}]*\}/g) || []).filter((r) => own(r.slice(0, r.indexOf("{")))).join("");
+  const doc = svg.replace(`class="emoji-anim ${v.cls}"`, `xmlns="http://www.w3.org/2000/svg" width="128" height="128" class="${v.cls} ${v.cls}-still"`)
+    .replace(">", () => `><style>${css}</style>`);   // als functie: een $ in de CSS is dan geen vervangpatroon
+  return (vondstImgCache[v.id] = "data:image/svg+xml," + encodeURIComponent(doc));
+}
+// Hetzelfde als een geladen <img> (voor drawImage op het canvas); null bij een gewone emoji of als laden mislukt.
+async function vondstImage(flair) {
+  if (!isDrawnFlair(flair)) return null;
+  try {
+    await loadVondsten();
+    const url = vondstImgUrl(flair);
+    if (!url) return null;
+    const im = new Image();
+    im.src = url;
+    await im.decode();
+    return im;
+  } catch (e) { return null; }
+}
 
 // ── Flair-effecten ("flair+") ─────────────────────────────────────────────────
 // Een flair kan een effect-laag dragen (sprankel, vonken, gloed, …). Opslag = één string
@@ -11157,10 +11198,10 @@ function rwRnd(i, lo, hi) { const x = Math.sin(i * 12.9898 + 4.1) * 43758.5453; 
 function winFxPreviewHtml(k) {
   let h = "";
   if (k === "none" || k === "flair") {
-    const cols = ["#f4c430", "#4caf50", "#6ea8ff", "#e53935", "#ab47bc", "#ff9800"], worn = flairTextGlyph(parseFlair(myFlair).emoji) || "🎉";
+    const cols = ["#f4c430", "#4caf50", "#6ea8ff", "#e53935", "#ab47bc", "#ff9800"], worn = flairGlyphHtml(parseFlair(myFlair).emoji || "🎉");   // een vondst: de stille tekening
     for (let i = 0; i < 12; i++) {
       const st = `left:${rwRnd(i, 4, 94).toFixed(0)}%;animation-delay:-${rwRnd(i + 9, 0, 2.4).toFixed(2)}s;animation-duration:${rwRnd(i + 3, 1.9, 2.8).toFixed(2)}s`;
-      h += k === "none" ? `<i style="${st};background:${cols[i % cols.length]}"></i>` : `<b style="${st}">${escHtml(worn)}</b>`;
+      h += k === "none" ? `<i style="${st};background:${cols[i % cols.length]}"></i>` : `<b style="${st}">${worn}</b>`;
     }
   } else if (k === "cal") {
     // twee bladen: het voorste kruld op en waait weg, het blad van morgen ligt eronder (CSS, geen canvas)

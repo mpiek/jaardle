@@ -80,7 +80,7 @@ src += `
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; },
   resolveRecord, reconstructDailyBoard, stampParam, boardIsMine, localHistoryForMe, adoptLocalDays, loadHistory, storageKey, dailyBoardForeign, boardOwnerForSave,
-  VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
+  VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, vondstImgUrl, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
   gcCount, hwCount, gcCountNew, gcCountDaily, noteAnchorSlide, GC_DAY_KEY, setFactSlide: (i) => { factSlideIndex = i; },
   devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY, sentSlot, potSlot,
@@ -4383,6 +4383,31 @@ test("histFaceHtml — het teamgezichtje in het eindscherm-histogram toont een v
     assert.match(T.histFaceHtml({ display_name: "cees", flair: null }), /hist-face hist-face-l.*>C<\/i>$/);
     assert.match(T.histFaceHtml({ display_name: "Daan", flair: "v:bestaat-nog-niet" }), />✨<\/i>$/);   // onbekende vondst
     assert.match(T.histFaceHtml({ display_name: "<b>", flair: "" }), />&lt;<\/i>$/);
+  });
+});
+
+test("vondstImgUrl — een vondst als confetti-plaatje: de stille tekening met alleen zijn eigen CSS, als losse SVG; het kluis-voorbeeld toont de tekening", () => {
+  assert.equal(T.vondstImgUrl("🦄"), null);
+  assert.equal(T.vondstImgUrl("v:bestaat-nog-niet"), null);
+  withVondstLib((lib) => {
+    for (const v of T.VONDSTEN.filter((x) => x.cls)) {
+      const url = T.vondstImgUrl(v.flair);
+      assert.ok(url.startsWith("data:image/svg+xml,") && !/["\\\s]/.test(url.slice(19)), `${v.id}: veilig in url("…")`);
+      const doc = decodeURIComponent(url.slice(19));
+      assert.ok(doc.startsWith(`<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" class="${v.cls} ${v.cls}-still"`), v.id);
+      assert.ok(!doc.includes("emoji-anim"), v.id);
+      const css = doc.match(/<style>([\s\S]*)<\/style>/)[1];
+      assert.ok(css.includes(`.${v.cls}-still`), `${v.id}: de stil-regel zit erin`);
+      for (const m of css.matchAll(/([^{}]+)\{/g)) for (const part of m[1].split(",")) assert.equal(part.trim().slice(1).split(/[ .:[]/)[0], v.cls, `${v.id}: alleen eigen regels (${part})`);
+      assert.equal(T.vondstImgUrl(v.flair), url, "per vondst één keer gebouwd");
+    }
+    try {
+      T.setPlayer("Anna", "v:capybara~sparkle", null);
+      const h = T.winFxPreviewHtml("flair");
+      assert.ok(h.includes("cb cb-still vf-still") && !h.includes("✨") && !h.includes("v:capy"), "kluis-voorbeeld: de tekening");
+      T.setPlayer("Anna", "🦄", null);
+      assert.ok(T.winFxPreviewHtml("flair").includes(">🦄</b>"));
+    } finally { T.setPlayer(null, null, null); }
   });
 });
 
