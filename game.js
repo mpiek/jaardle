@@ -2546,18 +2546,21 @@ function guessImpossibleAt(guesses, year, revealedSet) {
   return idx;
 }
 
-// "1250–1399", "753–200 v.Chr.", "50 v.Chr.–120", of één jaartal als het bereik tot
+// "1250–1399", "1925–39", "753–200 v.Chr.", "50 v.Chr.–120", of één jaartal als het bereik tot
 // één jaar gekrompen is. BC telt aflopend, net als bij de eeuw-band (eraName()).
+// Binnen dezelfde eeuw krijgt het eind alleen zijn laatste twee cijfers ("1925–39", "1900–05"): korter en zo leest men het.
+// Over een eeuwgrens ("1995–2005") en onder 1000 ("850–870", anders lees je "850 tot 70") blijft het voluit.
 function rangeLabel(lo, hi) {
   const bc = t("bc");
   if (lo === hi) return lo < 0 ? `${-lo} ${bc}` : String(lo);
   if (hi < 0) return `${-lo}–${-hi} ${bc}`;
   if (lo < 0) return `${-lo} ${bc}–${hi}`;
+  if (lo >= 1000 && Math.floor(lo / 100) === Math.floor(hi / 100)) return `${lo}–${String(hi % 100).padStart(2, "0")}`;
   return `${lo}–${hi}`;
 }
 
-// Tik op een gok-rij: de jaartallen die die ene badge toelaat, als bubble-tekst ("📏 1950 ± 6–10 jaar", regel 2 "1940–1944 of
-// 1956–1960"; met een gekochte 🧭 alleen de kant van de pijl). Rekent bewust alleen die rij om, niet de doorsnede van
+// Tik op een gok-rij: de jaartallen die die ene badge toelaat, als bubble-tekst ("📏 1950 ± 6–10 jaar", regel 2 "1940–44 of
+// 1956–60"; met een gekochte 🧭 alleen de kant van de pijl). Rekent bewust alleen die rij om, niet de doorsnede van
 // alle rijen: het kruisen blijft het spel. Een geweigerde gok toont dezelfde tekst voor de rij die hem uitsluit. Leeg bij ✓.
 function rowRangeText(g, dirKnown) {
   const rs = guessRanges(g, dirKnown);

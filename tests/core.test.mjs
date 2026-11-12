@@ -848,14 +848,14 @@ test("guessRanges — knipt op de speelbare jaren en houdt 600+ open", () => {
 test("rowRangeText — een aangetikte rij noemt alleen zijn eigen jaartallen, 🧭 alleen één kant", () => {
   T.setLang("nl");
   try {
-    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, false), "📏 1950 ± 6–10 jaar\n1940–1944 of 1956–1960");
-    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, true), "📏 1950 ↑ 6–10 jaar\n1956–1960");
-    assert.equal(T.rowRangeText({ year: 1950, diff: -30, cls: "cool" }, true), "📏 1950 ↓ 26–50 jaar\n1900–1924");
+    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, false), "📏 1950 ± 6–10 jaar\n1940–44 of 1956–60");
+    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, true), "📏 1950 ↑ 6–10 jaar\n1956–60");
+    assert.equal(T.rowRangeText({ year: 1950, diff: -30, cls: "cool" }, true), "📏 1950 ↓ 26–50 jaar\n1900–24");
     assert.equal(T.rowRangeText({ year: -50, diff: 4, cls: "near" }, false), "📏 50 v.Chr. ± 3–5 jaar\n55–53 v.Chr. of 47–45 v.Chr.");
     assert.equal(T.rowRangeText({ year: 1950, diff: -700, cls: "farthest" }, false), "📏 1950 ± 600+ jaar\n753 v.Chr.–1350");   // de rechterkant ligt na nu
     assert.equal(T.rowRangeText({ year: 1950, diff: 0, cls: "correct" }, false), "");
     T.setLang("en");
-    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, false), "📏 1950 ± 6–10 years\n1940–1944 or 1956–1960");
+    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, false), "📏 1950 ± 6–10 years\n1940–44 or 1956–60");
   } finally { T.setLang("nl"); }
 });
 
@@ -942,10 +942,10 @@ test("guessBlockReason — ook de eerste onmogelijke gok wordt geweigerd, met de
   assert.deepEqual(T.guessBlockReason(1600), { lines: [], row: -1 });
   // twee rijen: alleen de uitsluitende rij, nooit de doorsnede van het hele bord
   T.setState({ guesses: [g1450, g1520], directionsRevealed: [], event: { year: 1528 } });
-  assert.deepEqual(T.guessBlockReason(1600), { lines: ["📏 1520 ± 6–10 jaar", "1510–1514 of 1526–1530"], row: 1 });
+  assert.deepEqual(T.guessBlockReason(1600), { lines: ["📏 1520 ± 6–10 jaar", "1510–14 of 1526–30"], row: 1 });
   // 🧭 op rij 2: één kant
   T.setState({ guesses: [g1450, g1520], directionsRevealed: [1], event: { year: 1528 } });
-  assert.deepEqual(T.guessBlockReason(1512).lines, ["📏 1520 ↑ 6–10 jaar", "1526–1530"]);
+  assert.deepEqual(T.guessBlockReason(1512).lines, ["📏 1520 ↑ 6–10 jaar", "1526–30"]);
   // 🔢 komt er als losse regel bij; 🏛️ alleen als er verder niets is
   T.setState({ guesses: [g1450, g1520], directionsRevealed: [], event: { year: 1528 }, lastDigitRevealed: true, centuryRevealed: true });
   assert.equal(T.guessBlockReason(1600).lines.length, 3);
@@ -974,6 +974,13 @@ test("rangeLabel — v.Chr. telt aflopend en één jaar blijft één jaartal", (
   assert.equal(T.rangeLabel(-753, -200), "753–200 v.Chr.");
   assert.equal(T.rangeLabel(-50, 120), "50 v.Chr.–120");
   assert.equal(T.rangeLabel(1501, 1501), "1501");
+  // binnen één eeuw alleen de laatste twee cijfers van het eind; over een eeuwgrens en onder 1000 voluit
+  assert.equal(T.rangeLabel(1925, 1939), "1925–39");
+  assert.equal(T.rangeLabel(1900, 1905), "1900–05");
+  assert.equal(T.rangeLabel(1066, 1071), "1066–71");
+  assert.equal(T.rangeLabel(1995, 2005), "1995–2005");
+  assert.equal(T.rangeLabel(1899, 1900), "1899–1900");
+  assert.equal(T.rangeLabel(850, 870), "850–870");
   T.setLang("en");
   assert.equal(T.rangeLabel(-753, -200), "753–200 BC");
 });
