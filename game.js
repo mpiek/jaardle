@@ -79,7 +79,7 @@ const HELP_NL = `
         <li>Kleuren bij elke gok: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> per stuk · 🧭 <span data-penalty="dir-hint"></span> per stuk · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, op basis van je dichtste gok.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
-        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok buiten je bekende bereik (of buiten een gekochte eeuw/cijfer) wordt geweigerd zonder een poging te kosten. Die controle is soepel tot je één gok doet die je eigen bord al uitsloot; daarna gaat hij op scherp en noemt hij de jaartallen die nog kunnen.</li>
+        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok die je eigen eerdere gokken al uitsluiten (of die buiten een gekochte eeuw/cijfer valt) wordt geweigerd zonder een poging te kosten. Je ziet dan welke gok hem uitsluit en welke jaartallen die toelaat; tik op een gok om dat altijd te zien.</li>
         <li>Toetsen: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>↑</kbd> haalt je laatste gok terug, <kbd>←</kbd>/<kbd>→</kbd> door de carrousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> voor de hints, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>
       </ul>
     </details>
@@ -97,7 +97,7 @@ const HELP_EN = `
         <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
-        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess. That check stays lenient until you make one guess your own board already ruled out; after that it tightens up and names the years still possible.</li>
+        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess your own earlier guesses already rule out (or outside a purchased century/digit) is rejected without costing a guess. You then see which guess rules it out and which years that one allows; tap a guess to see this any time.</li>
         <li>Keys: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>↑</kbd> recalls your last guess, <kbd>←</kbd>/<kbd>→</kbd> through the carousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> for the hints, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>
       </ul>
     </details>
@@ -115,7 +115,7 @@ const HELP_DE = `
         <li>Farben pro Versuch: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hinweise: ⏩ <span data-penalty="later-clue"></span> je Stück · 🧭 <span data-penalty="dir-hint"></span> je Stück · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
         <li>Stufen: <span data-help="tiers"></span></li>
-        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch außerhalb deines bekannten Bereichs (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer) wird abgelehnt, ohne einen Versuch zu kosten. Diese Prüfung bleibt nachsichtig, bis du einen Versuch machst, den dein eigenes Feld schon ausgeschlossen hat; danach wird sie streng und nennt die noch möglichen Jahre.</li>
+        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch, den deine eigenen früheren Versuche schon ausschließen (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer), wird abgelehnt, ohne einen Versuch zu kosten. Du siehst dann, welcher Versuch ihn ausschließt und welche Jahre dieser zulässt; tippe auf einen Versuch, um das jederzeit zu sehen.</li>
         <li>Tasten: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>↑</kbd> holt deinen letzten Versuch zurück, <kbd>←</kbd>/<kbd>→</kbd> durchs Karussell, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> für die Hinweise, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>
       </ul>
     </details>
@@ -133,7 +133,7 @@ const HELP_ES = `
         <li>Colores por intento: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalización por fallo: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Pistas: ⏩ <span data-penalty="later-clue"></span> cada una · 🧭 <span data-penalty="dir-hint"></span> cada una · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdida = 0–10, según tu intento más cercano.</li>
         <li>Niveles: <span data-help="tiers"></span></li>
-        <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento fuera de tu rango conocido (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento. Esa comprobación es indulgente hasta que haces un intento que tu propio tablero ya descartaba; a partir de ahí se vuelve estricta y nombra los años aún posibles.</li>
+        <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento que tus propios intentos anteriores ya descartan (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento. Verás qué intento lo descarta y qué años permite ese; toca un intento para verlo cuando quieras.</li>
         <li>Teclas: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>↑</kbd> recupera tu último intento, <kbd>←</kbd>/<kbd>→</kbd> por el carrusel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para las pistas, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>
       </ul>
     </details>
@@ -151,7 +151,7 @@ const HELP_PT = `
         <li>Cores por tentativa: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalidade por erro: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Dicas: ⏩ <span data-penalty="later-clue"></span> cada · 🧭 <span data-penalty="dir-hint"></span> cada · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
         <li>Níveis: <span data-help="tiers"></span></li>
-        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa fora do seu intervalo conhecido (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa. Essa verificação é tolerante até você fazer uma tentativa que seu próprio tabuleiro já descartava; depois disso ela fica rigorosa e indica os anos ainda possíveis.</li>
+        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa que suas próprias tentativas anteriores já descartam (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa. Você vê qual tentativa a descarta e quais anos ela permite; toque numa tentativa para ver isso a qualquer momento.</li>
         <li>Teclas: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>↑</kbd> recupera sua última tentativa, <kbd>←</kbd>/<kbd>→</kbd> pelo carrossel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para as dicas, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li>
       </ul>
     </details>
@@ -356,8 +356,6 @@ const I18N = {
     avg_word: "gem.",
     copy_prompt: "Kopieer dit:",
     cal_solved: (g, max) => `opgelost (${g}/${max})`,
-    band_warn: (jaren) => `🎯 ${jaren} jaar buiten het bereik van je gokken`,
-    range_warn: (bereiken) => `🎯 Je eigen gokken laten alleen ${bereiken} nog toe`,
     range_or: " of ",
     row_ranges: (gok, band, bereiken) => `📏 ${gok} ${band} jaar\n${bereiken}`,
     century_warn: (band) => `🏛️ Buiten het tijdvak (${band})`,
@@ -710,8 +708,6 @@ const I18N = {
     avg_word: "avg.",
     copy_prompt: "Copy this:",
     cal_solved: (g, max) => `solved (${g}/${max})`,
-    band_warn: (years) => `🎯 ${years} years outside your guess range`,
-    range_warn: (ranges) => `🎯 Your own guesses leave only ${ranges}`,
     range_or: " or ",
     row_ranges: (guess, band, ranges) => `📏 ${guess} ${band} years\n${ranges}`,
     century_warn: (band) => `🏛️ Outside the era (${band})`,
@@ -1057,8 +1053,6 @@ const I18N = {
     avg_word: "Ø",
     copy_prompt: "Kopiere das:",
     cal_solved: (g, max) => `gelöst (${g}/${max})`,
-    band_warn: (jahre) => `🎯 ${jahre} Jahre außerhalb deiner Spanne`,
-    range_warn: (spannen) => `🎯 Deine eigenen Versuche lassen nur noch ${spannen} zu`,
     range_or: " oder ",
     row_ranges: (versuch, band, spannen) => `📏 ${versuch} ${band} Jahre\n${spannen}`,
     century_warn: (band) => `🏛️ Außerhalb der Epoche (${band})`,
@@ -1408,8 +1402,6 @@ const I18N = {
     avg_word: "med.",
     copy_prompt: "Copia esto:",
     cal_solved: (g, max) => `resuelto (${g}/${max})`,
-    band_warn: (anos) => `🎯 ${anos} años fuera de tu margen`,
-    range_warn: (rangos) => `🎯 Tus propios intentos solo dejan ${rangos}`,
     range_or: " o ",
     row_ranges: (intento, band, rangos) => `📏 ${intento} ${band} años\n${rangos}`,
     century_warn: (band) => `🏛️ Fuera de la época (${band})`,
@@ -1759,8 +1751,6 @@ const I18N = {
     avg_word: "méd.",
     copy_prompt: "Copie isto:",
     cal_solved: (g, max) => `resolvido (${g}/${max})`,
-    band_warn: (anos) => `🎯 ${anos} anos fora da sua faixa`,
-    range_warn: (faixas) => `🎯 Seus próprios palpites deixam apenas ${faixas}`,
     range_or: " ou ",
     row_ranges: (palpite, band, faixas) => `📏 ${palpite} ${band} anos\n${faixas}`,
     century_warn: (band) => `🏛️ Fora da era (${band})`,
@@ -2514,27 +2504,6 @@ const BAND_OUTER = {
   veryclose: 2, near: 5, close: 10, warm: 25, cool: 50, far: 200, distant: 599,
 };
 
-// Speelruimte bovenop de band-bovengrens: pas waarschuwen als de gok er duidelijk
-// buiten valt, niet bij elke gok die net over de grens kruipt. Houdt de guard een
-// failsafe tegen typefouten i.p.v. een betweter.
-const BAND_SLACK = 30;
-
-// Buiten-bereik-guard: je dichtste eerdere gok geeft via z'n badge het smalste
-// bereik waarin het antwoord moet liggen. Ligt `year` daar duidelijk verder vandaan
-// dan die bovengrens (+ speelruimte), dan kan het logisch gezien niet het antwoord
-// zijn → waarschijnlijk een typefout. Geeft die afstand (jaren) TERUG, anders 0.
-// Kijkt alleen naar eigen gokken (afstand is bekend uit eerdere feedback), niet naar
-// het antwoord — verklapt dus niets.
-function outOfBand(guesses, year) {
-  const closest = (guesses || []).reduce(
-    (b, g) => (b === null || Math.abs(g.diff) < Math.abs(b.diff)) ? g : b, null);
-  if (!closest) return 0;
-  const outer = BAND_OUTER[closest.cls];
-  if (outer === undefined) return 0;   // farthest → geen bovengrens, geen guard
-  const jump = Math.abs(year - closest.year);
-  return jump > outer + BAND_SLACK ? jump : 0;
-}
-
 // Ondergrens van elke band; samen met BAND_OUTER het venster dat één gok toelaat.
 const BAND_INNER = {
   veryclose: 1, near: 3, close: 6, warm: 11, cool: 26, far: 51, distant: 201, farthest: 600,
@@ -2559,66 +2528,22 @@ function guessRanges(g, dirKnown) {
   return out;
 }
 
-// Doorsnede van twee lijsten intervallen; beide oplopend en niet-overlappend.
-function intersectRanges(a, b) {
-  const out = [];
-  for (const [al, ah] of a) {
-    for (const [bl, bh] of b) {
-      const lo = Math.max(al, bl), hi = Math.min(ah, bh);
-      if (lo <= hi) out.push([lo, hi]);
-    }
-  }
-  return out.sort((x, y) => x[0] - y[0]);
-}
-
-// Wat er na alle gokken nog overblijft: de vensters van elke rij over elkaar heen,
-// plus een gekochte 🏛️-eeuw. Puur informatie die de speler zelf al op het bord
-// heeft staan — alleen uitgerekend. (🔢 is geen aaneengesloten bereik en houdt
-// daarom z'n eigen regel in de waarschuwing.)
-function remainingRanges(guesses, revealedSet, century) {
-  let acc = [[MIN_YEAR, MAX_YEAR]];
-  (guesses || []).forEach((g, i) => {
-    const rs = guessRanges(g, revealedSet.has(i));
-    if (rs.length) acc = intersectRanges(acc, rs);
-  });
-  if (century != null) {
-    const start = Math.floor(century / 100) * 100;
-    acc = intersectRanges(acc, [[Math.max(MIN_YEAR, start), Math.min(MAX_YEAR, start + 99)]]);
-  }
-  return acc;
-}
-
-// Ligt `year` buiten wat een eerdere rij al toeliet? Geeft de laatste rij-index
-// terug die 'm uitsluit, anders -1. Een 🧭 wordt altijd op de op dat moment laatste
-// rij gekocht, dus voor elke eerdere rij j < i was die pijl toen al bekend.
+// Ligt `year` buiten wat een eerdere rij al toeliet? Geeft de rij-index terug die 'm uitsluit, anders -1. Sluiten meerdere
+// rijen hem uit, dan de rij met het smalste venster (die zegt het meest; bij gelijkspel de laatste). Een 🧭 wordt altijd op
+// de op dat moment laatste rij gekocht, dus voor elke eerdere rij j < i was die pijl toen al bekend.
+//
+// Elke gok die zo'n rij uitsluit wordt geweigerd, ook de eerste (tot 12/11 mocht die ene nog: in 48% van de daily's kostte
+// hij een beurt, en 91% van de verliezen had hem). Wie foutloos kruist merkt hier niets van. Afgeleid uit het bord,
+// geen opslag, dus na F5 of op een tweede apparaat gelijk.
 function guessImpossibleAt(guesses, year, revealedSet) {
-  let idx = -1;
+  let idx = -1, best = Infinity;
   (guesses || []).forEach((g, i) => {
     const rs = guessRanges(g, revealedSet.has(i));
-    if (rs.length && !rs.some(([a, b]) => year >= a && year <= b)) idx = i;
+    if (!rs.length || rs.some(([a, b]) => year >= a && year <= b)) return;
+    const width = rs.reduce((n, [a, b]) => n + b - a + 1, 0);
+    if (width <= best) { best = width; idx = i; }
   });
   return idx;
-}
-
-// Strenge modus. De guard hierboven (outOfBand) is met opzet flauw: hij kijkt alleen
-// naar je dichtste gok, alleen naar de bovengrens en laat 30 jaar speelruimte — een
-// vangnet tegen typefouten, geen betweter. Die flauwheid laat één hele klasse fouten
-// door: een gok die te DICHT bij een eerdere gok ligt. Uit de verliesanalyse van
-// 2026-09 is dat 63% van de misgokken van verliezers, en 93% van de verloren potjes
-// bevat er minstens één.
-//
-// Daarom: zodra de speler dit potje één keer een gok deed die zijn eigen bord al
-// uitsloot, gaat de guard voor de rest van dat potje op scherp — elke volgende gok
-// moet in de doorsnede van álle vensters liggen, zonder speelruimte. Je eerste fout
-// kost dus nog een beurt, daarna kun je er geen meer maken. Wie foutloos kruist merkt
-// hier nooit iets van, dus het rekenwerk blijft het spel voor wie dat leuk vindt.
-// Afgeleid uit het bord — geen opslag, dus ook na F5 of op een tweede apparaat gelijk.
-function strictGuardOn(guesses, revealedSet) {
-  const gs = guesses || [];
-  for (let i = 1; i < gs.length; i++) {
-    if (guessImpossibleAt(gs.slice(0, i), gs[i].year, revealedSet) >= 0) return true;
-  }
-  return false;
 }
 
 // "1250–1399", "753–200 v.Chr.", "50 v.Chr.–120", of één jaartal als het bereik tot
@@ -2633,7 +2558,7 @@ function rangeLabel(lo, hi) {
 
 // Tik op een gok-rij: de jaartallen die die ene badge toelaat, als bubble-tekst ("📏 1950 ± 6–10 jaar", regel 2 "1940–1944 of
 // 1956–1960"; met een gekochte 🧭 alleen de kant van de pijl). Rekent bewust alleen die rij om, niet de doorsnede van
-// alle rijen: het kruisen blijft het spel (zie strictGuardOn). Leeg bij ✓.
+// alle rijen: het kruisen blijft het spel. Een geweigerde gok toont dezelfde tekst voor de rij die hem uitsluit. Leeg bij ✓.
 function rowRangeText(g, dirKnown) {
   const rs = guessRanges(g, dirKnown);
   if (!rs.length) return "";
@@ -2643,41 +2568,30 @@ function rowRangeText(g, dirKnown) {
 }
 
 // Redenen waarom een gok logisch niet kan kloppen — puur uit info die de speler
-// zélf al heeft, dus verklapt niets. Drie vangnetten, in oplopende zekerheid:
-//   🎯 verder van je dichtste gok dan die kleur toelaat (outOfBand),
+// zélf al heeft, dus verklapt niets. Drie vangnetten:
+//   📏 een eerdere rij sluit hem uit (guessImpossibleAt): de bubble noemt de jaartallen van alleen DIE rij, net als een
+//      tik op de rij, en die rij licht op. Bewust niet wat alle rijen samen nog toelaten: dan zou een onzinjaar intikken
+//      het kruisen voor je doen.
 //   🏛️ buiten het betaalde eeuw-tijdvak,
 //   🔢 eindigt niet op het betaalde laatste cijfer.
 // Is er één, dan weigeren we de gok (rood + bubble) i.p.v. een poging +
-// strafpunten te verspillen. Geeft de reden-regels terug (leeg = gok mag).
+// strafpunten te verspillen. Geeft { lines, row } terug (lines leeg = gok mag; row = de uitsluitende rij of -1).
 function guessBlockReason(year) {
-  const reasons = [];
+  const lines = [];
   const revealed = new Set(state.directionsRevealed || []);
-  if (strictGuardOn(state.guesses, revealed)) {
-    // Op scherp: geen speelruimte meer, en de waarschuwing noemt meteen wat er nog
-    // wél kan. Dat moet ook — we blokkeren hier op de doorsnede, dus die stilhouden
-    // zou de speler dwingen 'm af te tasten met gokken die tóch geweigerd worden.
-    if (guessImpossibleAt(state.guesses, year, revealed) >= 0) {
-      const left = remainingRanges(state.guesses, revealed,
-        state.centuryRevealed && state.event ? state.event.year : null);
-      reasons.push(left.length
-        ? t("range_warn")(left.map(([a, b]) => rangeLabel(a, b)).join(t("range_or")))
-        : t("band_warn")(Math.abs(year - state.guesses[state.guesses.length - 1].year)));
-    }
-  } else {
-    const oob = outOfBand(state.guesses, year);
-    if (oob) reasons.push(t("band_warn")(oob));
-  }
+  const row = guessImpossibleAt(state.guesses, year, revealed);
+  if (row >= 0) lines.push(...rowRangeText(state.guesses[row], revealed.has(row)).split("\n"));
   if (state && state.event) {
     const answer = state.event.year;
-    if (state.centuryRevealed && !reasons.length) {
+    if (state.centuryRevealed && !lines.length) {
       const start = Math.floor(answer / 100) * 100;
-      if (year < start || year > start + 99) reasons.push(t("century_warn")(centuryBand(answer)));
+      if (year < start || year > start + 99) lines.push(t("century_warn")(centuryBand(answer)));
     }
     if (state.lastDigitRevealed && Math.abs(year) % 10 !== Math.abs(answer) % 10) {
-      reasons.push(t("digit_warn")(Math.abs(answer) % 10));
+      lines.push(t("digit_warn")(Math.abs(answer) % 10));
     }
   }
-  return reasons;
+  return { lines, row };
 }
 
 function displaySource(url) {
@@ -13776,14 +13690,14 @@ function submitGuess() {
     gcCountDaily("guess-dup-daily", "Guess refused: duplicate");   // meetpunt: raakt een nieuwkomer de draad kwijt?
     return;
   }
-  // Kan deze gok logisch niet kloppen (buiten je eigen bereik, of buiten een al
+  // Kan deze gok logisch niet kloppen (een eerdere rij sluit hem uit, of buiten een al
   // betaalde 🏛️/🔢-hint)? Dan weigeren we 'm — invoer licht rood op + een bubble
-  // met de reden, net als bij een dubbele gok. Geen verspilde poging/strafpunten;
+  // met de reden (bij een rij: de jaartallen van die rij, en de rij licht op). Geen verspilde poging/strafpunten;
   // de invoer blijft staan om te corrigeren. Verklapt niets: puur je eigen info.
   const blocked = guessBlockReason(year);
-  if (blocked.length) {
+  if (blocked.lines.length) {
     flashInput();
-    showGuessBubble(blocked.join("\n"));
+    showGuessBubble(blocked.lines.join("\n"), blocked.row >= 0 ? blocked.row : null, true);
     gcCountDaily("guess-blocked-daily", "Guess refused: outside own range");   // meetpunt: snapt een nieuwkomer de pijlen?
     return;
   }
@@ -13856,32 +13770,40 @@ function flashInput() {
 // hint-conflict). Dooft vanzelf uit; verdwijnt zodra je de invoer aanpast. Eén
 // bubble tegelijk. Meerdere redenen = meerdere regeltjes.
 let guessBubbleTimer = null;
-function showGuessBubble(text, rowIdx) {
+function showGuessBubble(text, rowIdx, refused) {
   clearGuessBubble();
   const row = document.getElementById("input-row");
   if (!row) return;
   const b = document.createElement("div");
   b.id = "guess-bubble";
   b.setAttribute("role", "status");
-  if (rowIdx != null) {   // jaartallen van een aangetikte gok-rij: uitleg, geen afwijzing (accent-rand), en die rij licht op
-    b.className = "info";
+  if (rowIdx != null) {   // jaartallen van een gok-rij, en die rij licht op; aangetikt = uitleg (accent-rand), geweigerd = rood
+    if (!refused) b.className = "info";
     b.dataset.row = rowIdx;
     els.guesses.children[rowIdx]?.classList.add("ranged");
   }
-  text.split("\n").forEach((line) => {
+  const g = rowIdx != null ? state?.guesses?.[rowIdx] : null;
+  text.split("\n").forEach((line, i) => {
     const p = document.createElement("span");
     p.className = "gb-line";
-    p.textContent = line;
+    // Het jaartal van de rij in de kleur van zijn badge ("📏 [1965] ± 3–5 jaar"): veel spelers lezen het bord op kleur.
+    const yr = g && i === 0 ? rangeLabel(g.year, g.year) : "";
+    const at = yr ? line.indexOf(yr) : -1;
+    if (at >= 0) {
+      const chip = document.createElement("span");
+      chip.className = `dist-chip ${g.cls}`;
+      chip.textContent = yr;
+      p.append(line.slice(0, at), chip, line.slice(at + yr.length));
+    } else {
+      p.textContent = line;
+    }
     b.appendChild(p);
   });
   row.appendChild(b);
   requestAnimationFrame(() => requestAnimationFrame(() => b.classList.add("show")));
-  // Blijft staan tot de speler weer een cijfer intikt (zie clearGuessBubble-aanroepen
-  // in appendDigit/backspaceYear/toggleSign/recallLastGuess). Was een vaste 3,2 s,
-  // maar sinds de strenge guard noemt de bubble jaartallen die je moet ONTHOUDEN om
-  // je volgende gok te tikken — dan is hij weg precies wanneer je 'm nodig hebt. De
-  // lange timer is nog maar een vangnet voor wie 'm laat staan: hij dekt een stukje
-  // van het bord af, dus eeuwig mag hij ook niet blijven.
+  // Een reden zonder rij (🏛️/🔢) blijft staan tot de speler de invoer aanpast (setYearString). Rij-jaartallen blijven
+  // ook dan staan: die heb je nodig om je volgende gok te tikken (een geweigerde wordt dan neutraal, zie clearGuessBubble).
+  // De lange timer is een vangnet: hij dekt een stukje van het bord af, dus eeuwig mag hij niet blijven.
   guessBubbleTimer = setTimeout(clearGuessBubble, rowIdx != null ? 60000 : 30000);
 }
 
@@ -13899,11 +13821,12 @@ function tapGuessRow(e) {
   gcCountDaily("row-range-daily", "Tapped guess row: years");   // meetpunt: wordt het gebruikt?
 }
 
-// fromInput: de invoer veranderde. Dat wist een reden-bubble, maar niet de jaartallen van een aangetikte rij: die heb je
-// juist nodig terwijl je je volgende gok intikt (weg bij een nieuwe gok, nog eens tikken op de rij of een tik ernaast).
+// fromInput: de invoer veranderde. Dat wist een reden-bubble, maar niet de jaartallen van een rij: die heb je juist nodig
+// terwijl je je volgende gok intikt (weg bij een nieuwe gok, nog eens tikken op de rij of een tik ernaast). Was het een
+// weigering, dan verdwijnt het rood: je bent aan het verbeteren.
 function clearGuessBubble(fromInput) {
   const b = document.getElementById("guess-bubble");
-  if (fromInput === true && b?.dataset.row != null) return;
+  if (fromInput === true && b?.dataset.row != null) { b.classList.add("info"); return; }
   if (guessBubbleTimer) { clearTimeout(guessBubbleTimer); guessBubbleTimer = null; }
   els.guesses.querySelector(".guess-row.ranged")?.classList.remove("ranged");
   if (!b) return;

@@ -1267,6 +1267,8 @@ kbd {
 /* width: met left: 50% krijgt een absolute bubble maar de halve breedte en brak "1968–1970" bij het streepje af. */
 #guess-bubble[data-row] { pointer-events: auto; cursor: pointer; width: max-content; }
 #guess-bubble[data-row] .gb-line:first-child { color: var(--muted); font-size: 0.85em; font-weight: 500; }
+/* Het jaartal van de rij als pil in de kleur van zijn badge (rond, zoals de badge op de rij). */
+#guess-bubble .dist-chip { border-radius: 999px; padding: 0 0.5em; }
 
 #guess-bubble::after {
   content: "";

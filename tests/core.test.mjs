@@ -46,11 +46,11 @@ src = src.replace(/\ninit\(\)\.catch\([\s\S]*$/, "\n");   // strip de init()-aan
 src += "\n" + readFileSync(join(dir, "..", "player-card.js"), "utf8") + "\n";
 src += `
 ;globalThis.__T = {
-  classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, outOfBand,
-  BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
-  BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
+  classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, guessBlockReason,
+  BAND_OUTER, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
+  BAND_INNER, guessRanges, guessImpossibleAt,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
-  intersectRanges, rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
+  rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
@@ -343,29 +343,6 @@ test("i18n — t() wisselt NL/EN en dicts dekken dezelfde keys", () => {
   const nlKeys = Object.keys(T.I18N.nl).sort();
   const enKeys = Object.keys(T.I18N.en).sort();
   assert.deepEqual(enKeys, nlKeys, "NL en EN dictionaries moeten dezelfde keys hebben");
-});
-
-test("outOfBand — waarschuwt als de gok duidelijk buiten het bereik van je dichtste gok valt", () => {
-  const close = { year: 1850, diff: 5, cls: "close" };   // bovengrens 10 (+ slack 30 = 40)
-  // geen eerdere gokken → nooit
-  assert.equal(T.outOfBand([], 1800), 0);
-  // close → bovengrens 10 + speelruimte 30 = 40; pas verder dan 40 jaar weg → afstand terug
-  assert.equal(T.outOfBand([close], 1800), 50);   // |1800-1850| = 50 > 40
-  assert.equal(T.outOfBand([close], 1915), 65);
-  // binnen bovengrens + speelruimte → geen waarschuwing (zou v66 wél hebben gewaarschuwd)
-  assert.equal(T.outOfBand([close], 1858), 0);    // |1858-1850| = 8
-  assert.equal(T.outOfBand([close], 1885), 0);    // |1885-1850| = 35 ≤ 40
-  // grens: precies op bovengrens + speelruimte telt niet, één jaar erbuiten wél
-  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + T.BAND_SLACK), 0);
-  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + T.BAND_SLACK + 1), 41);
-  // bredere band (warm, bovengrens 25 + 30 = 55) → grotere sprong toegestaan
-  const warm = { year: 1850, diff: 20, cls: "warm" };
-  assert.equal(T.outOfBand([warm], 1900), 0);     // |1900-1850| = 50 ≤ 55
-  assert.equal(T.outOfBand([warm], 1910), 60);    // |1910-1850| = 60 > 55
-  // farthest (600+) is onbegrensd → nooit een waarschuwing
-  assert.equal(T.outOfBand([{ year: 1850, diff: 700, cls: "farthest" }], 0), 0);
-  // pakt de DICHTSTE gok (smalste band), niet de meest recente
-  assert.equal(T.outOfBand([close, { year: 1700, diff: 150, cls: "far" }], 1790), 60); // |1790-1850|
 });
 
 test("easterSunday — Meeus/Jones/Butcher, 2026–2032", () => {
@@ -942,40 +919,40 @@ test("achvTrophyHtml — elke trofee-tegel draagt zijn sleutel (tik = munt draai
   for (const tr of T.ACHV_TROPHIES) assert.match(T.achvTrophyHtml({}, tr), new RegExp(`data-tkey="${tr.key}"`), tr.key);
 });
 
-test("guessImpossibleAt — vangt 'te dicht bij de vorige gok', anders dan outOfBand", () => {
+test("guessImpossibleAt — vangt 'te dicht bij de vorige gok' en kiest de rij met het smalste venster", () => {
   const rev = new Set();
   const g1450 = { year: 1450, diff: 51, cls: "far" };         // 1250–1399 of 1501–1650
   assert.equal(T.guessImpossibleAt([g1450], 1500, rev), 0);   // 50 weg, band zei ≥51
-  assert.equal(T.outOfBand([g1450], 1500), 0);                // flauwe guard laat 'm door
   assert.equal(T.guessImpossibleAt([g1450], 1501, rev), -1);
   assert.equal(T.guessImpossibleAt([g1450], 1650, rev), -1);
   assert.equal(T.guessImpossibleAt([g1450], 1651, rev), 0);
   assert.equal(T.guessImpossibleAt([g1450], 1300, new Set([0])), 0);   // 🧭 sluit links uit
+  // 1700 valt buiten beide rijen: de 🟨 (2 × 5 jaar) zegt meer dan de 🟫 (2 × 150 jaar), ook al is hij niet de laatste
+  const g1520 = { year: 1520, diff: 8, cls: "close" };         // 1510–1514 of 1526–1530
+  assert.equal(T.guessImpossibleAt([g1520, g1450], 1700, rev), 0);
+  assert.equal(T.guessImpossibleAt([g1450, g1520], 1700, rev), 1);
 });
 
-test("strictGuardOn — pas na een gok die de speler zelf al uitsloot", () => {
-  const rev = new Set();
+test("guessBlockReason — ook de eerste onmogelijke gok wordt geweigerd, met de jaartallen van alleen die rij", () => {
+  T.setLang("nl");
   const g1450 = { year: 1450, diff: 51, cls: "far" };
-  const g1550 = { year: 1550, diff: -49, cls: "cool" };
-  assert.equal(T.strictGuardOn([], rev), false);
-  assert.equal(T.strictGuardOn([g1450], rev), false);         // gok 1 kan nooit fout zijn
-  assert.equal(T.strictGuardOn([g1450, g1550], rev), false);  // 1550 mocht (1501–1650)
-  assert.equal(T.strictGuardOn([g1450, { year: 1500, diff: 1, cls: "veryclose" }], rev), true);
+  const g1520 = { year: 1520, diff: 8, cls: "close" };
+  T.setState({ guesses: [g1450], directionsRevealed: [], event: { year: 1501 } });
+  assert.deepEqual(T.guessBlockReason(1500), { lines: ["📏 1450 ± 51–200 jaar", "1250–1399 of 1501–1650"], row: 0 });
+  assert.deepEqual(T.guessBlockReason(1600), { lines: [], row: -1 });
+  // twee rijen: alleen de uitsluitende rij, nooit de doorsnede van het hele bord
+  T.setState({ guesses: [g1450, g1520], directionsRevealed: [], event: { year: 1528 } });
+  assert.deepEqual(T.guessBlockReason(1600), { lines: ["📏 1520 ± 6–10 jaar", "1510–1514 of 1526–1530"], row: 1 });
+  // 🧭 op rij 2: één kant
+  T.setState({ guesses: [g1450, g1520], directionsRevealed: [1], event: { year: 1528 } });
+  assert.deepEqual(T.guessBlockReason(1512).lines, ["📏 1520 ↑ 6–10 jaar", "1526–1530"]);
+  // 🔢 komt er als losse regel bij; 🏛️ alleen als er verder niets is
+  T.setState({ guesses: [g1450, g1520], directionsRevealed: [], event: { year: 1528 }, lastDigitRevealed: true, centuryRevealed: true });
+  assert.equal(T.guessBlockReason(1600).lines.length, 3);
+  assert.deepEqual(T.guessBlockReason(1527), { lines: [T.t("digit_warn")(8)], row: -1 });
 });
 
-test("remainingRanges — doorsnede van alle vensters, met de 🏛️-eeuw erbij", () => {
-  const rev = new Set();
-  const gs = [{ year: 1450, diff: 51, cls: "far" }, { year: 1555, diff: -54, cls: "far" }];
-  // 1450 laat 1250–1399 / 1501–1650 toe, 1555 laat 1355–1504 / 1606–1755 toe:
-  // drie stukken overlappen, waaronder het venster 1606–1650 rechtsboven.
-  assert.deepEqual(T.remainingRanges(gs, rev, null),
-    [[1355, 1399], [1501, 1504], [1606, 1650]]);
-  assert.deepEqual(T.remainingRanges(gs, rev, 1501), [[1501, 1504]]);   // 1500–1599
-  assert.deepEqual(T.remainingRanges([], rev, null), [[T.MIN_YEAR, T.MAX_YEAR]]);
-  assert.deepEqual(T.intersectRanges([[1, 10]], [[20, 30]]), []);
-});
-
-test("strenge guard blokkeert NOOIT het juiste antwoord", () => {
+test("guard blokkeert NOOIT het juiste antwoord", () => {
   // De garantie waar alles op staat: wat de speler ook gokt, het echte jaartal moet
   // altijd in elk venster blijven vallen — anders kan een potje onwinbaar worden.
   const rev = new Set();
@@ -987,9 +964,6 @@ test("strenge guard blokkeert NOOIT het juiste antwoord", () => {
       gs.push({ year, diff: answer - year, cls: T.classify(answer - year) });
       assert.equal(T.guessImpossibleAt(gs, answer, rev), -1,
         `antwoord ${answer} uitgesloten na gok ${year}`);
-      const left = T.remainingRanges(gs, rev, answer);
-      assert.ok(left.some(([a, b]) => answer >= a && answer <= b),
-        `antwoord ${answer} valt buiten de resterende bereiken`);
     }
   }
 });
@@ -1057,7 +1031,7 @@ test("🟦 guessRanges — 🟦 laat 3–5 toe, 🟨 6–10, en nooit zonder het
   assert.ok(T.guessRanges({ year: 1500, diff: 4, cls: "close" }, true).some(([a, b]) => 1504 >= a && 1504 <= b));
 });
 
-test("🟦 strenge guard blokkeert NOOIT het juiste antwoord, ook niet op een bord met de oude banden", () => {
+test("🟦 guard blokkeert NOOIT het juiste antwoord, ook niet op een bord met de oude banden", () => {
   const rev = new Set();
   for (const blue of [true, false]) {
     for (let answer = -753; answer <= 2026; answer += 11) {
