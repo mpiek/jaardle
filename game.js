@@ -13174,8 +13174,14 @@ function hwPrep(i, scr) {
 }
 
 // ── animatiehulpjes ──
+// Tempo van de hele demo: alle pauzes in HW_SEQ × deze factor. 0,7 sinds 12/11: van de opens keek maar 2% kaart 4 uit, en
+// "denk dus sowieso bij die ?-demo ze allemaal wat sneller mogen".
+const HW_PACE = 0.7;
+// Na een kaart even uitlezen en dan vanzelf naar de volgende: wie de knoppen niet ziet, zag eerder alleen kaart 1
+// ("je ziet gewoon dat hij niet goed zag dat er een 2e deel was"). Niet bij minder beweging (dan staat alles meteen stil).
+const HW_AUTO_NEXT_MS = 1800;
 function hwWait(run, ms) {
-  return new Promise((res, rej) => setTimeout(() => (run.dead ? rej(run) : res()), hwReduced() ? 0 : ms));
+  return new Promise((res, rej) => setTimeout(() => (run.dead ? rej(run) : res()), hwReduced() ? 0 : ms * HW_PACE));
 }
 function hwCap(text) {
   const el = hwq(".hw-cap", hw.root);
@@ -13349,6 +13355,10 @@ function hwStart(i) {
   HW_SEQ[i](run, scr)
     .then(() => {
       if (run.dead) return;
+      if (i < HW_CARDS - 1 && !hwReduced()) {   // doorlopen; sluiten of zelf bladeren maakt run.dead
+        setTimeout(() => { if (!run.dead && hw && hw.cur === i) hwGoTo(i + 1); }, HW_AUTO_NEXT_MS);
+        return;
+      }
       hwq(".hw-replay", hw.root).hidden = false;
       if (i === HW_CARDS - 1 && !hw.counted.has("done")) { hw.counted.add("done"); hwCount("howto-done", "How-to: finished"); }
     })
@@ -13715,9 +13725,14 @@ function submitGuess() {
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });
   syncPrefs("day");   // één keer per dag: je vieringen staan klaar voordat je wint (db/180)
-  if (state.guesses.length === 1) {   // meetpunt: wie begint echt aan een potje?
+  const nGuess = state.guesses.length;
+  if (nGuess === 1) {   // meetpunt: wie begint echt aan een potje?
     if (state.mode === "daily") gcCountNew("guess-1-daily", "First guess"); else gcCount("guess-1-free", "First guess");
+  } else {
+    gcCountDaily(`guess-${nGuess}-daily`, `Guess ${nGuess}`);   // meetpunt: waar haken nieuwkomers af? (zie miss-N hieronder)
   }
+  // Meetpunt: fout bij gok N en het potje loopt nog. Afhakers na N fouten = miss-N − guess-(N+1) (beide per daily-dag, ook -new).
+  if (cls !== "correct" && nGuess < MAX_GUESSES) gcCountDaily(`miss-${nGuess}-daily`, `Miss ${nGuess}`);
   // Snapshot het anker op het gok-moment. Elke gok overschrijft, dus na afloop houdt
   // dit de laatste (bij winst: winnende) gok vast — "welk feit stond open toen ik gokte".
   state.anchorHash = state.hashes?.[anchorFactSlot] || state.hashes?.[0] || null;
