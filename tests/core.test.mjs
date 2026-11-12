@@ -50,7 +50,7 @@ src += `
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
-  intersectRanges, rangeLabel, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
+  intersectRanges, rangeLabel, rowRangeText, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
@@ -866,6 +866,20 @@ test("guessRanges — knipt op de speelbare jaren en houdt 600+ open", () => {
   const edge = T.guessRanges({ year: T.MIN_YEAR + 5, diff: 300, cls: "distant" }, false);
   assert.equal(edge.length, 1);                              // linkerhelft valt weg
   assert.equal(edge[0][0], T.MIN_YEAR + 206);
+});
+
+test("rowRangeText — een aangetikte rij noemt alleen zijn eigen jaartallen, 🧭 alleen één kant", () => {
+  T.setLang("nl");
+  try {
+    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, false), "📏 1950 ± 6–10 jaar\n1940–1944 of 1956–1960");
+    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, true), "📏 1950 ↑ 6–10 jaar\n1956–1960");
+    assert.equal(T.rowRangeText({ year: 1950, diff: -30, cls: "cool" }, true), "📏 1950 ↓ 26–50 jaar\n1900–1924");
+    assert.equal(T.rowRangeText({ year: -50, diff: 4, cls: "near" }, false), "📏 50 v.Chr. ± 3–5 jaar\n55–53 v.Chr. of 47–45 v.Chr.");
+    assert.equal(T.rowRangeText({ year: 1950, diff: -700, cls: "farthest" }, false), "📏 1950 ± 600+ jaar\n753 v.Chr.–1350");   // de rechterkant ligt na nu
+    assert.equal(T.rowRangeText({ year: 1950, diff: 0, cls: "correct" }, false), "");
+    T.setLang("en");
+    assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, false), "📏 1950 ± 6–10 years\n1940–1944 or 1956–1960");
+  } finally { T.setLang("nl"); }
 });
 
 test("guessImpossibleAt — vangt 'te dicht bij de vorige gok', anders dan outOfBand", () => {

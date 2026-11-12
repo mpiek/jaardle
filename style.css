@@ -1194,6 +1194,15 @@ kbd {
   margin-left: auto;
 }
 
+/* Tik op een gok-rij tijdens het spelen = de jaartallen van die rij in de bubble boven de invoer (tapGuessRow). */
+#guesses.tappable .guess-row:not(.empty):not(.correct) {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+#guesses .guess-row.ranged { outline: 2px solid var(--accent); outline-offset: -1px; }
+
 /* Telefoons: de breedste rij ("-1200 ↓ 201–599 −15", met 🧭-pijl) heeft ±192 px nodig, een kolom is bij
    390 px maar ±176 en bij 360 px ±161 (de rechterkolom stak uit, op 360 px met horizontaal scrollen).
    In drie stappen compacter: krappere tussenruimtes, iets kleinere badge en straf; het jaartal blijft even groot.
@@ -1254,6 +1263,10 @@ kbd {
 }
 /* Neutrale variant (geen afwijzing): accent-rand i.p.v. rood — bv. de ?recap-uitleg "speel eerst de daily". */
 #guess-bubble.info { border-left-color: var(--accent); }
+/* Rij-jaartallen vangen zelf de tik (die sluit ze), zodat hij niet doorvalt op de gok-rij eronder. */
+/* width: met left: 50% krijgt een absolute bubble maar de halve breedte en brak "1968–1970" bij het streepje af. */
+#guess-bubble[data-row] { pointer-events: auto; cursor: pointer; width: max-content; }
+#guess-bubble[data-row] .gb-line:first-child { color: var(--muted); font-size: 0.85em; font-weight: 500; }
 
 #guess-bubble::after {
   content: "";

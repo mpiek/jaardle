@@ -359,6 +359,7 @@ const I18N = {
     band_warn: (jaren) => `🎯 ${jaren} jaar buiten het bereik van je gokken`,
     range_warn: (bereiken) => `🎯 Je eigen gokken laten alleen ${bereiken} nog toe`,
     range_or: " of ",
+    row_ranges: (gok, band, bereiken) => `📏 ${gok} ${band} jaar\n${bereiken}`,
     century_warn: (band) => `🏛️ Buiten het tijdvak (${band})`,
     digit_warn: (d) => `🔢 Eindigt niet op ${d}`,
     fact_stats: (s, hasScore) =>
@@ -712,6 +713,7 @@ const I18N = {
     band_warn: (years) => `🎯 ${years} years outside your guess range`,
     range_warn: (ranges) => `🎯 Your own guesses leave only ${ranges}`,
     range_or: " or ",
+    row_ranges: (guess, band, ranges) => `📏 ${guess} ${band} years\n${ranges}`,
     century_warn: (band) => `🏛️ Outside the era (${band})`,
     digit_warn: (d) => `🔢 Doesn't end in ${d}`,
     fact_stats: (s, hasScore) =>
@@ -1058,6 +1060,7 @@ const I18N = {
     band_warn: (jahre) => `🎯 ${jahre} Jahre außerhalb deiner Spanne`,
     range_warn: (spannen) => `🎯 Deine eigenen Versuche lassen nur noch ${spannen} zu`,
     range_or: " oder ",
+    row_ranges: (versuch, band, spannen) => `📏 ${versuch} ${band} Jahre\n${spannen}`,
     century_warn: (band) => `🏛️ Außerhalb der Epoche (${band})`,
     digit_warn: (d) => `🔢 Endet nicht auf ${d}`,
     fact_stats: (s, hasScore) =>
@@ -1408,6 +1411,7 @@ const I18N = {
     band_warn: (anos) => `🎯 ${anos} años fuera de tu margen`,
     range_warn: (rangos) => `🎯 Tus propios intentos solo dejan ${rangos}`,
     range_or: " o ",
+    row_ranges: (intento, band, rangos) => `📏 ${intento} ${band} años\n${rangos}`,
     century_warn: (band) => `🏛️ Fuera de la época (${band})`,
     digit_warn: (d) => `🔢 No termina en ${d}`,
     fact_stats: (s, hasScore) =>
@@ -1758,6 +1762,7 @@ const I18N = {
     band_warn: (anos) => `🎯 ${anos} anos fora da sua faixa`,
     range_warn: (faixas) => `🎯 Seus próprios palpites deixam apenas ${faixas}`,
     range_or: " ou ",
+    row_ranges: (palpite, band, faixas) => `📏 ${palpite} ${band} anos\n${faixas}`,
     century_warn: (band) => `🏛️ Fora da era (${band})`,
     digit_warn: (d) => `🔢 Não termina em ${d}`,
     fact_stats: (s, hasScore) =>
@@ -2048,7 +2053,7 @@ function getYearString() {
 function setYearString(s) {
   els.input.textContent = s;
   updateSignBtn();
-  clearGuessBubble();   // invoer gewijzigd → reden-bubble is niet meer relevant
+  clearGuessBubble(true);   // invoer gewijzigd → reden-bubble is niet meer relevant (de jaartallen van een aangetikte rij wel)
 }
 
 function clearYear() {
@@ -2623,6 +2628,17 @@ function rangeLabel(lo, hi) {
   if (hi < 0) return `${-lo}–${-hi} ${bc}`;
   if (lo < 0) return `${-lo} ${bc}–${hi}`;
   return `${lo}–${hi}`;
+}
+
+// Tik op een gok-rij: de jaartallen die die ene badge toelaat, als bubble-tekst ("📏 1950 ± 6–10 jaar", regel 2 "1940–1944 of
+// 1956–1960"; met een gekochte 🧭 alleen de kant van de pijl). Rekent bewust alleen die rij om, niet de doorsnede van
+// alle rijen: het kruisen blijft het spel (zie strictGuardOn). Leeg bij ✓.
+function rowRangeText(g, dirKnown) {
+  const rs = guessRanges(g, dirKnown);
+  if (!rs.length) return "";
+  const sign = dirKnown ? (g.diff > 0 ? "↑" : "↓") : "±";
+  return t("row_ranges")(rangeLabel(g.year, g.year), `${sign} ${bandLabel(g.cls)}`,
+    rs.map(([a, b]) => rangeLabel(a, b)).join(t("range_or")));
 }
 
 // Redenen waarom een gok logisch niet kan kloppen — puur uit info die de speler
@@ -3453,7 +3469,9 @@ function renderDeltaBadge(badge, diff, cls, showDirection, blue = true) {
 }
 
 function renderGuesses() {
+  if (document.getElementById("guess-bubble")?.dataset.row != null) clearGuessBubble();   // rij-jaartallen horen bij het oude bord (bv. net een 🧭 erbij)
   els.guesses.innerHTML = "";
+  els.guesses.classList.toggle("tappable", !state.done);
   const revealedSet = new Set(state.directionsRevealed);
   for (let idx = 0; idx < MAX_GUESSES; idx++) {
     const g = state.guesses[idx];
@@ -4490,6 +4508,8 @@ function finishGame(won, fresh = false) {
   // (adblockers houden GoatCounter tegen, de DB niet). fresh = net uitgespeeld, niet bij herstel of taalwissel.
   if (fresh) gcCountDaily("daily-done", "Daily finished");
   document.getElementById("hint-nudge")?.remove();   // duwtje is niet meer relevant
+  els.guesses.classList.remove("tappable");   // rij-jaartallen alleen tijdens het spelen (de invoer klapt in)
+  if (document.getElementById("guess-bubble")?.dataset.row != null) clearGuessBubble();
   save();
   setKeypadDisabled(true);
   setPlayBarCollapsed(true, fresh);   // dood keypad weg, uitslag schuift omhoog (#21)
@@ -13674,13 +13694,18 @@ function flashInput() {
 // hint-conflict). Dooft vanzelf uit; verdwijnt zodra je de invoer aanpast. Eén
 // bubble tegelijk. Meerdere redenen = meerdere regeltjes.
 let guessBubbleTimer = null;
-function showGuessBubble(text) {
+function showGuessBubble(text, rowIdx) {
   clearGuessBubble();
   const row = document.getElementById("input-row");
   if (!row) return;
   const b = document.createElement("div");
   b.id = "guess-bubble";
   b.setAttribute("role", "status");
+  if (rowIdx != null) {   // jaartallen van een aangetikte gok-rij: uitleg, geen afwijzing (accent-rand), en die rij licht op
+    b.className = "info";
+    b.dataset.row = rowIdx;
+    els.guesses.children[rowIdx]?.classList.add("ranged");
+  }
   text.split("\n").forEach((line) => {
     const p = document.createElement("span");
     p.className = "gb-line";
@@ -13695,12 +13720,30 @@ function showGuessBubble(text) {
   // je volgende gok te tikken — dan is hij weg precies wanneer je 'm nodig hebt. De
   // lange timer is nog maar een vangnet voor wie 'm laat staan: hij dekt een stukje
   // van het bord af, dus eeuwig mag hij ook niet blijven.
-  guessBubbleTimer = setTimeout(clearGuessBubble, 30000);
+  guessBubbleTimer = setTimeout(clearGuessBubble, rowIdx != null ? 60000 : 30000);
 }
 
-function clearGuessBubble() {
-  if (guessBubbleTimer) { clearTimeout(guessBubbleTimer); guessBubbleTimer = null; }
+// Tik op een gok-rij (de afstands-badge of de hele rij) = de jaartallen die die rij toelaat, in de bubble boven de invoer.
+// Nog eens tikken op dezelfde rij (of op een leeg vak) sluit hem. Alleen tijdens het spelen.
+function tapGuessRow(e) {
+  if (!state || state.done) return;
+  const row = e.target.closest(".guess-row");
+  const idx = row ? [...els.guesses.children].indexOf(row) : -1;
+  const open = document.getElementById("guess-bubble")?.dataset.row;
+  const g = state.guesses[idx];
+  const text = g ? rowRangeText(g, (state.directionsRevealed || []).includes(idx)) : "";
+  if (!text || open === String(idx)) { if (open != null) clearGuessBubble(); return; }
+  showGuessBubble(text, idx);
+  gcCountDaily("row-range-daily", "Tapped guess row: years");   // meetpunt: wordt het gebruikt?
+}
+
+// fromInput: de invoer veranderde. Dat wist een reden-bubble, maar niet de jaartallen van een aangetikte rij: die heb je
+// juist nodig terwijl je je volgende gok intikt (weg bij een nieuwe gok, nog eens tikken op de rij of een tik ernaast).
+function clearGuessBubble(fromInput) {
   const b = document.getElementById("guess-bubble");
+  if (fromInput === true && b?.dataset.row != null) return;
+  if (guessBubbleTimer) { clearTimeout(guessBubbleTimer); guessBubbleTimer = null; }
+  els.guesses.querySelector(".guess-row.ranged")?.classList.remove("ranged");
   if (!b) return;
   b.classList.remove("show");
   const el = b;
@@ -14132,6 +14175,13 @@ async function init() {
   // de periodenaam).
   if (els.hintChipCentury) els.hintChipCentury.addEventListener("click", () => goToHintSlide("century"));
   if (els.hintChipDigit) els.hintChipDigit.addEventListener("click", () => goToHintSlide("digit"));
+  els.guesses.addEventListener("click", tapGuessRow);
+  // Een tik naast bord en toetsenbord sluit de rij-jaartallen; tikken en wissen laat ze staan (daar heb je ze voor).
+  document.addEventListener("pointerdown", (e) => {
+    if (document.getElementById("guess-bubble")?.dataset.row == null) return;
+    if (e.target.closest?.("#guesses, #keypad, #year-input")) return;
+    clearGuessBubble();
+  }, true);
 
   // Menu (⋮): toggle, items, en click-outside om te sluiten.
   // ⋮-menu (Statistieken + Inloggen) is voor iedereen zichtbaar.
