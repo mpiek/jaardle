@@ -50,7 +50,7 @@ src += `
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
-  intersectRanges, rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
+  intersectRanges, rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
@@ -902,6 +902,40 @@ test("⏩ Check — schakelaar per account (lokale cache alleen voor hetzelfde a
     const tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
     assert.match(tpl, /data-action="later-check" data-i18n="menu_later_check" hidden/);
   } finally { T.auth.user = prev; localStorage.removeItem(T.PREFS_KEY); }
+});
+
+test("instellingen die meereizen (db/180) — één win-keuze uit vijf sleutels, en alles wat de client stuurt komt door de server-controle", () => {
+  const LS = ["jaardle:calfx", "jaardle:goldyears", "jaardle:beerfx", "jaardle:flairconfetti", "jaardle:evfx"];
+  const clear = () => LS.forEach((k) => localStorage.removeItem(k));
+  const prev = T.auth.user;
+  try {
+    T.auth.user = null;   // anoniem: setters sturen niets door
+    clear();
+    assert.equal(T.explicitWinFx(), undefined);   // nooit gekozen → de standaard blijft (niets naar de server)
+    for (const c of ["beer", "gold", "cal", "flair", "none"]) { T.setWinFx(c); assert.equal(T.explicitWinFx(), c, c); }
+    const ev = T.EVENTS[0].id;
+    T.setWinFx("ev:" + ev);
+    assert.equal(T.explicitWinFx(), "ev:" + ev);
+    T.setWinFx("beer");
+    assert.equal(T.explicitWinFx(), "beer");   // een andere keuze wist de event-viering weer
+    // server: korte tekst [a-z0-9:_-] van hooguit 24 tekens (db/180 set_my_prefs); booleans voor de schakelaars
+    const SERVER = /^[a-z0-9:_-]{1,24}$/;
+    const values = {
+      winfx: ["none", "flair", "beer", "gold", "cal", ...T.EVENTS.map((e) => "ev:" + e.id)],
+      vtfx: ["fw", ...T.VOLTREFFER_FX.map((v) => v.id)],
+      frame: ["off", ...T.FRAME_STYLES],
+      theme: Object.keys(T.THEME_COLORS),
+    };
+    for (const [k, vs] of Object.entries(values)) for (const v of vs) assert.match(v, SERVER, `${k}=${v}`);
+    for (const v of values.winfx) assert.match(v, T.WINFX_RE, v);
+    assert.deepEqual(Object.keys(T.SYNCED_PREFS).sort(), ["frame", "obxsound", "theme", "vtfx", "winfx"]);
+    T.SYNCED_PREFS.winfx.set("<script>");   // onzin van buiten: genegeerd
+    assert.equal(T.explicitWinFx(), "beer");
+    localStorage.removeItem("jaardle:obxsound");
+    assert.equal(T.SYNCED_PREFS.obxsound.get(), undefined);
+    T.SYNCED_PREFS.obxsound.set(true);
+    assert.equal(T.SYNCED_PREFS.obxsound.get(), true);
+  } finally { T.auth.user = prev; clear(); localStorage.removeItem("jaardle:obxsound"); }
 });
 
 test("guessImpossibleAt — vangt 'te dicht bij de vorige gok', anders dan outOfBand", () => {

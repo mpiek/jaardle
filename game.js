@@ -3133,7 +3133,7 @@ function requestLaterClue() {
   if (!canBuyLaterClue()) return;
   state.laterCluesShown += 1;
   if (!laterSlotFuture(state.laterCluesShown - 1)) laterAsk = laterWindow(state.laterCluesShown - 1);
-  ensureMyPrefs();   // ⏩ Check aan? Meestal al lokaal bekend; anders is hij binnen voordat je het feit gelezen hebt
+  syncPrefs("day");   // ⏩ Check aan? Meestal al lokaal bekend; anders is hij binnen voordat je het feit gelezen hebt
   markPaidHintUsed();
   renderEvent();
   renderHintStatus();
@@ -9588,7 +9588,11 @@ function voltrefferChoice() {   // "fw" | "roos" | "eclips"
   const avail = voltrefferAvailable(achvCache);
   return avail.includes(v) ? v : avail[0] || "fw";
 }
-function setVoltrefferFx(v) { try { localStorage.setItem(VTFX_KEY, VOLTREFFER_FX.some((x) => x.id === v) ? v : "fw"); } catch (e) {} }
+function setVoltrefferFx(v) {
+  const id = VOLTREFFER_FX.some((x) => x.id === v) ? v : "fw";
+  try { localStorage.setItem(VTFX_KEY, id); } catch (e) {}
+  prefChanged("vtfx", id);
+}
 
 // Event-viering (opt-in, zoals de Scheurkalender): de "feest"-beloning van een event (EVENTS), één keuze per apparaat (jaardle:evfx = event-id,
 // "" = geen). Hij speelt de laag van het event (bv. Halloween + vleermuizen) bij elke winst zolang je 'm aanhebt, ook ná het event.
@@ -9632,7 +9636,9 @@ function resultFrameStyle() {   // "a" | "b" | "d" | "" (uit)
   return old === "0" ? "" : "a";   // eerste keer: de oude aan/uit-schakelaar bepaalt, standaard Certificaat
 }
 function setResultFrame(style) {
-  try { localStorage.setItem(FRAME_KEY, FRAME_STYLES.includes(style) ? style : "off"); } catch (e) {}
+  const v = FRAME_STYLES.includes(style) ? style : "off";
+  try { localStorage.setItem(FRAME_KEY, v); } catch (e) {}
+  prefChanged("frame", v);
   refreshResultFrame();
 }
 function platinaFrameActive() {   // de actieve stijl of "" (niet verdiend / uit)
@@ -10522,7 +10528,7 @@ async function showObsidianReveal(mode) {
       rewardIcons: CAP_REWARD_ICONS.slice(0, 5), ladders: CAPSTONE_KEYS.map((k) => ({ key: k, steps: capstoneSeries(k).steps })),
       name: myUsername || t("lb_you"), claim, wearable: !preview, requireClaim: !preview,
       sound: localStorage.getItem("jaardle:obxsound") === "1",
-      onSound: (on) => { try { localStorage.setItem("jaardle:obxsound", on ? "1" : "0"); } catch (e) {} },
+      onSound: (on) => { try { localStorage.setItem("jaardle:obxsound", on ? "1" : "0"); } catch (e) {} prefChanged("obxsound", !!on); },
       reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
       fontUrl: "/fonts/syncopate-obx.woff2" + (GAME_V ? "?v=" + encodeURIComponent(GAME_V) : ""),
       onAction: (a) => { obxAction = a; closeAllModals(); },
@@ -11122,42 +11128,100 @@ async function ensureMyTitle() {
 }
 
 // ── Voorkeuren per account (db/180: profiles.prefs) ─────────────────────────
-// Alleen ingelogd, en op de server: zo staat een schakelaar op elk toestel goed, en kunnen wij hem voor iemand aanzetten.
-// Lui: pas bij een ⏩ of het ⚙️-paneel opgehaald (geen extra verzoek bij het laden), en per account lokaal onthouden
-// zodat hij op dit toestel meteen klopt. Eerste sleutel: later_check (⏩ Check, zie laterAsk).
-const PREFS_KEY = "jaardle:prefs";
-let myPrefs = null, myPrefsUid = null, myPrefsPromise = null;
-function prefOn(k) {
+// Alleen ingelogd. Op de server, zodat je keuzes op elk toestel gelden (en wij een schakelaar voor iemand kunnen
+// aanzetten). Eerst lokaal: alle code leest de lokale opslag zoals altijd, dus niets wordt trager; een sync zet de
+// serverwaarden daar neer (de server wint), een keuze gaat naar beide. Sync: als dit toestel dit account nog niet kent
+// (inloggen op een nieuw toestel), één keer per dag bij je eerste gok of ⏩, en één keer per bezoek bij het openen van
+// ⚙️ of de 🪎-kluis. Nooit gewoon bij het laden. Mislukt een keuze naar de server, dan blijft hij "dirty" en gaat hij
+// bij de volgende sync alsnog mee (anders zou die sync je keuze terugdraaien).
+const PREFS_KEY = "jaardle:prefs";   // { uid, p: {serverwaarden}, d: dag van de laatste sync, dirty: {nog te versturen} }
+let prefsMem = null, prefsPromise = null, prefsSyncedUid = null, prefsApplying = false;   // prefsSyncedUid: al gesynct dit bezoek (per account)
+function prefsCache() {
   const uid = auth.user?.uid;
-  if (!uid) return false;
-  if (myPrefsUid === uid && myPrefs) return !!myPrefs[k];
-  try { const c = JSON.parse(localStorage.getItem(PREFS_KEY) || "null"); return !!(c && c.uid === uid && c.p?.[k]); } catch (e) { return false; }
+  if (!uid) return null;
+  let c = null;
+  try { c = JSON.parse(localStorage.getItem(PREFS_KEY) || "null"); } catch (e) {}
+  if (!c && prefsMem) c = prefsMem;   // geen lokale opslag (privévenster): dan alleen dit bezoek
+  return c && c.uid === uid ? c : null;
 }
-function storePrefs(uid, p) {
-  myPrefs = p; myPrefsUid = uid;
-  try { localStorage.setItem(PREFS_KEY, JSON.stringify({ uid, p })); } catch (e) {}
+function savePrefsCache(c) {
+  prefsMem = c;
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(c)); } catch (e) {}
 }
-function ensureMyPrefs() {
-  const uid = auth.user?.uid;
-  if (!uid) return Promise.resolve(null);
-  if (myPrefsUid === uid && myPrefs) return Promise.resolve(myPrefs);
-  if (!myPrefsPromise) {
-    myPrefsPromise = rpc("get_my_prefs", {}).then((p) => {
-      if (auth.user?.uid === uid) { storePrefs(uid, p && typeof p === "object" && !Array.isArray(p) ? p : {}); syncLaterCheckUi(); }
-      return myPrefs;
-    }).catch(() => null).finally(() => { myPrefsPromise = null; });
-  }
-  return myPrefsPromise;
+function prefOn(k) { return !!prefsCache()?.p?.[k]; }
+
+// Instellingen die meereizen: serversleutel → get (de expliciete keuze op dit toestel, of undefined = nooit gekozen)
+// en set (zet hem hier, zonder hem terug te sturen). De setters sturen een échte keuze zelf door (prefChanged).
+const lsGet = (k) => { try { const v = localStorage.getItem(k); return v == null ? undefined : v; } catch (e) { return undefined; } };
+const WINFX_RE = /^(none|flair|beer|gold|cal|ev:[a-z0-9_-]{1,20})$/;
+function explicitWinFx() {   // de laatste keuze in de kluis (setWinFx), uit de vijf sleutels die elkaar uitsluiten
+  const ev = lsGet(EVFX_KEY);
+  if (ev) return "ev:" + ev;
+  const keys = { cal: "jaardle:calfx", gold: "jaardle:goldyears", beer: "jaardle:beerfx", flair: "jaardle:flairconfetti" };
+  let any = ev != null;
+  for (const [id, k] of Object.entries(keys)) { const v = lsGet(k); if (v === "1") return id; if (v != null) any = true; }
+  return any ? "none" : undefined;
 }
-// Optimistisch, net als de flair: de schakelaar verspringt meteen; weigert de server, dan terug.
-async function setMyPref(k, on) {
+const SYNCED_PREFS = {
+  winfx: { get: explicitWinFx, set: (v) => { if (WINFX_RE.test(v)) setWinFx(v); } },
+  vtfx: { get: () => lsGet(VTFX_KEY), set: (v) => setVoltrefferFx(v) },
+  frame: { get: () => lsGet(FRAME_KEY), set: (v) => setResultFrame(v) },
+  theme: { get: () => lsGet("jaardle:theme"), set: (v) => { if (Object.prototype.hasOwnProperty.call(THEME_COLORS, v)) applyTheme(v); } },
+  obxsound: { get: () => { const v = lsGet("jaardle:obxsound"); return v == null ? undefined : v === "1"; },
+              set: (v) => { try { localStorage.setItem("jaardle:obxsound", v ? "1" : "0"); } catch (e) {} } },
+};
+// Een setter meldt een keuze van de speler; tijdens het neerzetten van serverwaarden niet (dat zou rondpompen).
+function prefChanged(k, v) {
+  if (!prefsApplying && auth.user) setMyPref(k, v);
+}
+function setMyPref(k, v) {
   const uid = auth.user?.uid;
   if (!uid) return;
-  const before = myPrefsUid === uid && myPrefs ? myPrefs : {};
-  storePrefs(uid, { ...before, [k]: on });
+  const c = prefsCache() || { uid, p: {}, d: null };
+  c.p = { ...c.p, [k]: v };
+  c.dirty = { ...(c.dirty || {}), [k]: v };
+  savePrefsCache(c);
   syncLaterCheckUi();
-  try { if ((await rpc("set_my_pref", { p_key: k, p_on: on })) !== "ok") throw new Error("set_my_pref"); }
-  catch (e) { if (auth.user?.uid === uid) { storePrefs(uid, before); syncLaterCheckUi(); } }
+  rpc("set_my_prefs", { p_prefs: { [k]: v } }).then((r) => {
+    const cur = prefsCache();
+    if (r === "ok" && cur?.dirty && cur.dirty[k] === v) { delete cur.dirty[k]; savePrefsCache(cur); }
+  }).catch(() => {});
+}
+function applySyncedPrefs(p) {
+  prefsApplying = true;
+  try { for (const [k, s] of Object.entries(SYNCED_PREFS)) if (k in p && p[k] !== s.get()) s.set(p[k]); }
+  finally { prefsApplying = false; }
+  if (!document.getElementById("modal-rewards")?.hidden) renderRewards();
+}
+// mode "new": alleen als dit toestel dit account nog nooit sprak · "day": één keer per dag · "visit": één keer per bezoek
+function syncPrefs(mode) {
+  const uid = auth.user?.uid;
+  if (!uid) return Promise.resolve();
+  if (prefsPromise) return prefsPromise;
+  const c = prefsCache();
+  if (mode === "new" ? !!c : (prefsSyncedUid === uid || (mode === "day" && c?.d === todayKey()))) return Promise.resolve();
+  prefsPromise = (async () => {
+    let dirty = c?.dirty && Object.keys(c.dirty).length ? { ...c.dirty } : null;
+    if (dirty && (await rpc("set_my_prefs", { p_prefs: dirty }).catch(() => null)) === "ok") dirty = null;
+    let p = await rpc("get_my_prefs", {});
+    if (auth.user?.uid !== uid) return;
+    p = p && typeof p === "object" && !Array.isArray(p) ? p : {};
+    // Eerste sync na de invoering: wat dit toestel al gekozen had en de server nog niet kent, gaat erheen. Alleen voor het
+    // eerste account dat hier synct: de lokale keuzes zijn van het toestel, niet van een tweede account op een gedeeld toestel.
+    const seed = {};
+    const seeder = lsGet("jaardle:prefsSeed");
+    if (!seeder || seeder === uid) {
+      for (const [k, s] of Object.entries(SYNCED_PREFS)) { const v = s.get(); if (!(k in p) && v !== undefined) seed[k] = v; }
+      try { localStorage.setItem("jaardle:prefsSeed", uid); } catch (e) {}
+    }
+    if (Object.keys(seed).length && (await rpc("set_my_prefs", { p_prefs: seed }).catch(() => null)) === "ok") Object.assign(p, seed);
+    if (dirty) Object.assign(p, dirty);   // niet verstuurd: jouw keuze hier wint, volgende keer opnieuw
+    applySyncedPrefs(p);
+    savePrefsCache({ uid, p, d: todayKey(), dirty: dirty || {} });
+    prefsSyncedUid = uid;
+    syncLaterCheckUi();
+  })().catch(() => {}).finally(() => { prefsPromise = null; });
+  return prefsPromise;
 }
 function syncLaterCheckUi() {
   const item = document.querySelector('#menu-pop [data-action="later-check"]');
@@ -11201,6 +11265,7 @@ function setWinFx(choice) {
   else if (choice === "cal") setCalendarFx(true);
   else if (typeof choice === "string" && choice.startsWith("ev:")) setEventFx(choice.slice(3));
   else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); setCalendarFx(false); clearEventFx(); }
+  prefChanged("winfx", WINFX_RE.test(choice) ? choice : "none");   // reist mee naar je andere toestellen (db/180)
 }
 // Flair-rooster: verdiende prestatie-flairs vooraan (gouden randje), dan de
 // gesnoeide gratis-set. Altijd open (de kluis draait om kiezen — geen inklap).
@@ -12588,6 +12653,7 @@ function applyTheme(theme) {
   if (theme && theme !== "dark") document.documentElement.dataset.theme = theme;
   else delete document.documentElement.dataset.theme;
   try { localStorage.setItem("jaardle:theme", theme); } catch (e) {}
+  prefChanged("theme", Object.prototype.hasOwnProperty.call(THEME_COLORS, theme) ? theme : "dark");
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = themeBarColor(theme);
   syncThemeCheck();
@@ -13445,6 +13511,7 @@ function openModal(id, opts) {
       }
     }
     renderRewards(); setModalUrl("rewards");
+    syncPrefs("visit");   // kiezen gebeurt hier: laat zien wat er op je andere toestellen gekozen is
   }
   if (id === "modal-events") renderEventsModal();
   if (id === "modal-recap") { renderRecap(); setModalUrl("recap"); }
@@ -13710,6 +13777,7 @@ function submitGuess() {
   const diff = state.event.year - year;
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });
+  syncPrefs("day");   // één keer per dag: je vieringen staan klaar voordat je wint (db/180)
   if (state.guesses.length === 1) {   // meetpunt: wie begint echt aan een potje?
     if (state.mode === "daily") gcCountNew("guess-1-daily", "First guess"); else gcCount("guess-1-free", "First guess");
   }
@@ -14271,7 +14339,7 @@ async function init() {
     // ⚙️ Instellingen en ‹ terug wisselen van laag; het menu blijft open.
     if (action === "settings" || action === "settings-back") {
       showMenuPane(action === "settings" ? "settings" : "main", true);
-      if (action === "settings" && auth.user) ensureMyPrefs();   // de ⏩ Check-schakelaar klopt zodra hij binnen is
+      if (action === "settings") syncPrefs("visit");   // de schakelaars kloppen zodra de server antwoordt
       return;
     }
     if (action === "later-check") {   // in-place, het menu blijft open (zoals het thema)
@@ -14384,6 +14452,7 @@ async function init() {
     myFlair = null; myUsername = null; myIdentityLoaded = false;   // naam+flair horen bij de identiteit (kluis herlaadt ze)
     myRewardsSeen = undefined;                                     // beloning-gezien-lijst hoort bij de identiteit (herlaadt na de eerste pot)
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
+    syncPrefs("new");      // nieuw toestel voor dit account: je keuzes (thema, vieringen …) ophalen; anders niets
     renderMenu();
     await refreshPoolState();  // toont/verbergt de 🏆-knop + laadt je pool
     if (pendingTeamAfterLogin && auth.user) { const fresh = teamIntentFresh(); teamAfterLoginPark(false); if (fresh) { closeAllModals(); openModal("modal-leaderboard"); } }   // net ingelogd vanuit "🏆 Maak je team" in de solo-pop-up
