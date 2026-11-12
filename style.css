@@ -1386,6 +1386,11 @@ kbd {
 /* .key:hover (hierboven) zet de achtergrond op --card-soft en won daardoor van .key-wide: bij hover werd de Gok-knop
    donkergrijs met donkere tekst. Hij houdt zijn accentkleur en wordt alleen iets lichter. */
 .key-wide:hover { background: var(--accent); filter: brightness(1.1); }
+/* ⏩ Check (schakelaar in ⚙️, db/180): de eerste Gok na een nieuwe ⏩ wordt één keer oranje "⏩ −100?" (de kleur van ⏩);
+   nog een tik = gokken. Zelfde maat als de gewone knop, dus er verspringt niets. */
+.key-wide.later-ask, .key-wide.later-ask:hover { background: var(--h-later); border-color: var(--h-later); color: var(--bg); filter: none; animation: later-ask-in 0.3s ease; }
+@keyframes later-ask-in { 0% { transform: scale(0.97); } 60% { transform: scale(1.02); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .key-wide.later-ask { animation: none; } }
 
 button {
   background: var(--accent);

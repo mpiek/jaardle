@@ -153,7 +153,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=229">
+<link rel="stylesheet" href="/style.css?v=230">
 </head>
 <body>
   <main>
@@ -182,6 +182,8 @@
             <button class="menu-back" type="button" data-action="settings-back" data-i18n="menu_settings_back">{{i18n:menu_settings_back}}</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">{{i18n:menu_theme}}</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="remind" data-i18n="menu_remind" hidden>{{i18n:menu_remind}}</button>
+            <!-- ⏩ Check (db/180): staat per account op de server, dus alleen ingelogd; game.js (syncLaterCheckUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="later-check" data-i18n="menu_later_check" hidden>{{i18n:menu_later_check}}</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>{{i18n:menu_season_halloween}}</button>
             <button class="menu-item" role="menuitem" data-action="install" data-i18n="menu_install" hidden>{{i18n:menu_install}}</button>
           </div>
@@ -517,7 +519,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=400"></script>
+  <script src="/game.js?v=401"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

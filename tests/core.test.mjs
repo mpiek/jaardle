@@ -50,7 +50,7 @@ src += `
   BAND_OUTER, BAND_SLACK, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
   BAND_INNER, guessRanges, guessImpossibleAt, strictGuardOn, remainingRanges,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
-  intersectRanges, rangeLabel, rowRangeText, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
+  intersectRanges, rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
@@ -880,6 +880,28 @@ test("rowRangeText — een aangetikte rij noemt alleen zijn eigen jaartallen, �
     T.setLang("en");
     assert.equal(T.rowRangeText({ year: 1950, diff: 8, cls: "close" }, false), "📏 1950 ± 6–10 years\n1940–1944 or 1956–1960");
   } finally { T.setLang("nl"); }
+});
+
+test("⏩ Check — schakelaar per account (lokale cache alleen voor hetzelfde account), korte knoptekst, menu-regel in alle talen", () => {
+  const prev = T.auth.user;
+  try {
+    T.auth.user = null;
+    assert.equal(T.prefOn("later_check"), false);   // anoniem: nooit
+    localStorage.setItem(T.PREFS_KEY, JSON.stringify({ uid: "u1", p: { later_check: true } }));
+    T.auth.user = { uid: "u1" };
+    assert.equal(T.prefOn("later_check"), true);
+    assert.equal(T.prefOn("iets_anders"), false);
+    T.auth.user = { uid: "u2" };
+    assert.equal(T.prefOn("later_check"), false);   // de cache van een ander account op dit toestel telt niet
+    assert.equal(T.laterAskLabel(100), "⏩ −100?");
+    assert.equal(T.laterAskLabel(250), "⏩ −250?");
+    for (const lang of Object.keys(T.I18N)) {
+      assert.ok(T.I18N[lang].menu_later_check?.startsWith("⏩ "), lang);
+      assert.match(T.I18N[lang].later_check_aria(250), /250/, lang);
+    }
+    const tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+    assert.match(tpl, /data-action="later-check" data-i18n="menu_later_check" hidden/);
+  } finally { T.auth.user = prev; localStorage.removeItem(T.PREFS_KEY); }
 });
 
 test("guessImpossibleAt — vangt 'te dicht bij de vorige gok', anders dan outOfBand", () => {

@@ -229,7 +229,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
-    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
+    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_later_check: "⏩ Check", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
@@ -583,7 +583,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
-    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
+    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_later_check: "⏩ Check", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
@@ -930,7 +930,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
-    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
+    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_later_check: "⏩ Check", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
@@ -1281,7 +1281,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
-    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_later_check: "⏩ Comprobar", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
@@ -1632,7 +1632,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
-    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_later_check: "⏩ Conferir", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
@@ -2052,6 +2052,7 @@ function getYearString() {
 
 function setYearString(s) {
   els.input.textContent = s;
+  if (laterAsking) resetLaterAsk();   // ⏩ Check: je past je getal aan, dus de vraag is beantwoord
   updateSignBtn();
   clearGuessBubble(true);   // invoer gewijzigd → reden-bubble is niet meer relevant (de jaartallen van een aangetikte rij wel)
 }
@@ -3106,11 +3107,33 @@ function laterSlotText(i) {
   return t("later_none")(y);
 }
 
+// ⏩ Check (schakelaar in ⚙️, db/180): de eerste Gok na een nieuwe ⏩ wordt één keer oranje "⏩ −100?"; nog een tik =
+// gokken, een cijfer of ⌫ = de vraag is gesteld en de volgende Gok gaat meteen. Tegen "het jaar van het ⏩-feit
+// ingetypt en de 100 vergeten" (een vaste speler: 7 van zijn 33 ⏩-potjes). Kijkt alleen naar het venster van die
+// ⏩, nooit naar je getal of het antwoord (dan zou het een eerlijke eeuw-vergissing verraden), en niet na een
+// "nog niet geweest"-⏩ (daar valt niets in te typen). Geldt ongeacht welk feit er open staat.
+let laterAsk = 0;          // venster van de laatst gekochte ⏩ met een feit, sinds je vorige gok (0 = niets te vragen)
+let laterAsking = false;   // de Gok-knop staat nu op "⏩ −100?"
+function laterAskLabel(w) { return `⏩ −${w}?`; }
+function renderGuessBtn() {
+  const b = els.guessBtn;
+  if (!b) return;
+  b.classList.toggle("later-ask", laterAsking);
+  b.textContent = laterAsking ? laterAskLabel(laterAsk) : t("guess");
+  if (laterAsking) b.setAttribute("aria-label", t("later_check_aria")(laterAsk)); else b.removeAttribute?.("aria-label");
+}
+function resetLaterAsk() {
+  laterAsk = 0;
+  if (laterAsking) { laterAsking = false; renderGuessBtn(); }
+}
+
 // Onthul de volgende ⏩-clue (kost punten): voeg 'm als nieuwe oranje slide toe en
 // schuif erheen.
 function requestLaterClue() {
   if (!canBuyLaterClue()) return;
   state.laterCluesShown += 1;
+  if (!laterSlotFuture(state.laterCluesShown - 1)) laterAsk = laterWindow(state.laterCluesShown - 1);
+  ensureMyPrefs();   // ⏩ Check aan? Meestal al lokaal bekend; anders is hij binnen voordat je het feit gelezen hebt
   markPaidHintUsed();
   renderEvent();
   renderHintStatus();
@@ -11098,6 +11121,49 @@ async function ensureMyTitle() {
   try { myTitle = (await rpc("get_my_title", {})) || null; myTitleLoaded = true; } catch (e) {}
 }
 
+// ── Voorkeuren per account (db/180: profiles.prefs) ─────────────────────────
+// Alleen ingelogd, en op de server: zo staat een schakelaar op elk toestel goed, en kunnen wij hem voor iemand aanzetten.
+// Lui: pas bij een ⏩ of het ⚙️-paneel opgehaald (geen extra verzoek bij het laden), en per account lokaal onthouden
+// zodat hij op dit toestel meteen klopt. Eerste sleutel: later_check (⏩ Check, zie laterAsk).
+const PREFS_KEY = "jaardle:prefs";
+let myPrefs = null, myPrefsUid = null, myPrefsPromise = null;
+function prefOn(k) {
+  const uid = auth.user?.uid;
+  if (!uid) return false;
+  if (myPrefsUid === uid && myPrefs) return !!myPrefs[k];
+  try { const c = JSON.parse(localStorage.getItem(PREFS_KEY) || "null"); return !!(c && c.uid === uid && c.p?.[k]); } catch (e) { return false; }
+}
+function storePrefs(uid, p) {
+  myPrefs = p; myPrefsUid = uid;
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify({ uid, p })); } catch (e) {}
+}
+function ensureMyPrefs() {
+  const uid = auth.user?.uid;
+  if (!uid) return Promise.resolve(null);
+  if (myPrefsUid === uid && myPrefs) return Promise.resolve(myPrefs);
+  if (!myPrefsPromise) {
+    myPrefsPromise = rpc("get_my_prefs", {}).then((p) => {
+      if (auth.user?.uid === uid) { storePrefs(uid, p && typeof p === "object" && !Array.isArray(p) ? p : {}); syncLaterCheckUi(); }
+      return myPrefs;
+    }).catch(() => null).finally(() => { myPrefsPromise = null; });
+  }
+  return myPrefsPromise;
+}
+// Optimistisch, net als de flair: de schakelaar verspringt meteen; weigert de server, dan terug.
+async function setMyPref(k, on) {
+  const uid = auth.user?.uid;
+  if (!uid) return;
+  const before = myPrefsUid === uid && myPrefs ? myPrefs : {};
+  storePrefs(uid, { ...before, [k]: on });
+  syncLaterCheckUi();
+  try { if ((await rpc("set_my_pref", { p_key: k, p_on: on })) !== "ok") throw new Error("set_my_pref"); }
+  catch (e) { if (auth.user?.uid === uid) { storePrefs(uid, before); syncLaterCheckUi(); } }
+}
+function syncLaterCheckUi() {
+  const item = document.querySelector('#menu-pop [data-action="later-check"]');
+  if (item) { item.hidden = !auth.user; item.setAttribute("aria-checked", String(prefOn("later_check"))); }
+}
+
 // ── 🪎 Beloningen (de kluis) ─────────────────────────────────────────────────
 // Garderobe: één plek om te dragen/aanzetten wat je verdiend hebt. Voortgang
 // ("nog X tot goud") blijft bij 🏅 Prestaties; hier alleen equip-bediening. Login-
@@ -12893,6 +12959,7 @@ function renderMenu() {
   if (rwBtn) rwBtn.hidden = !auth.user;  // 🪎 alleen-ingelogd: alles in de kluis is login-gated (flair/effecten/thema)
   syncRemindUi();   // 🔔 Dagelijks seintje: alleen als deze browser kan pushen (of een iPhone is), schakelaar aan als het aanstaat
   syncInstallUi();  // 📲 Zet op beginscherm: alleen als het kan en Jaardle nog niet als app draait
+  syncLaterCheckUi();   // ⏩ Check: alleen ingelogd (staat op de server)
   // Verwijder de dynamische Inloggen-regel maar laat statische knoppen (stats) staan;
   // Uitloggen zit in de kop (renderMenuAccount).
   items.querySelectorAll('.menu-item[data-action="login"]').forEach((b) => b.remove());
@@ -13633,6 +13700,13 @@ function submitGuess() {
     gcCountDaily("guess-blocked-daily", "Guess refused: outside own range");   // meetpunt: snapt een nieuwkomer de pijlen?
     return;
   }
+  // ⏩ Check (zie laterAsk): één keer per ⏩, alleen met de schakelaar aan.
+  if (laterAsk && !laterAsking && prefOn("later_check")) {
+    laterAsking = true;
+    renderGuessBtn();
+    return;
+  }
+  resetLaterAsk();
   const diff = state.event.year - year;
   const cls = classify(diff);
   state.guesses.push({ year, diff, cls });
@@ -14015,6 +14089,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   };
 
   setKeypadDisabled(false);
+  resetLaterAsk();
   clearYear();
   if (inputFlashOff) inputFlashOff();   // geen rode flits van de vorige pot bij het uitklappen
   factSlideIndex = 0;   // start altijd bij het hoofdfeit
@@ -14196,6 +14271,11 @@ async function init() {
     // ⚙️ Instellingen en ‹ terug wisselen van laag; het menu blijft open.
     if (action === "settings" || action === "settings-back") {
       showMenuPane(action === "settings" ? "settings" : "main", true);
+      if (action === "settings" && auth.user) ensureMyPrefs();   // de ⏩ Check-schakelaar klopt zodra hij binnen is
+      return;
+    }
+    if (action === "later-check") {   // in-place, het menu blijft open (zoals het thema)
+      setMyPref("later_check", !prefOn("later_check"));
       return;
     }
     // Thema wisselt in-place; het menu blijft open zodat je het effect ziet
