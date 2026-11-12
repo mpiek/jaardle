@@ -11046,6 +11046,24 @@ function achvNewMark(prefix) {
 function achvNewDot(prefix) {
   return achvNewHits(prefix).length ? `<span class="achv-newdot" aria-hidden="true"></span>` : "";
 }
+// Tik op een prestatie: de munt draait één keer om (op slot: een klein "nee"-schudje), en een NIEUW-label erop is
+// meteen gezien: het springt eraf in plaats van te wachten tot je het scherm sluit. Elke tik speelt opnieuw af.
+// "kan klein zijn een spin of iets anders" (12/11): een omdraaiende munt, want de badges zijn munten.
+function achvTap(tile, prefix) {
+  const art = tile.querySelector(".achv-tring > .achv-art, .achv-ring > .achv-art");
+  if (art) {
+    art.classList.remove("achv-flip", "achv-nope");
+    void art.getBoundingClientRect();   // animatie opnieuw starten
+    art.classList.add(tile.classList.contains("locked") ? "achv-nope" : "achv-flip");
+  }
+  const nw = tile.querySelector(".achv-new:not(.gone)");
+  if (!nw) return;
+  nw.classList.add("gone");
+  setTimeout(() => nw.remove(), 400);
+  const ids = new Set(achvNewHits(prefix));
+  ids.forEach((id) => achvNewShown.delete(id));
+  achvNewDrop(ids);
+}
 // Bord dicht (of paneel dicht): wis wat we als NIEUW getoond hebben. De
 // zegel-ids blijven staan tot het album zelf open is geweest.
 function achvPanelClosed() {
@@ -11100,7 +11118,7 @@ function achvTrophyHtml(a, tr) {
   // schaakmeester). Geen draag-schakelaar meer — gewoon een tegel (v239).
   const art = !done && tr.lockedArt ? tr.lockedArt : tr.art;
   const tierCls = tier > 0 ? ` achv-t${tier}` : "";   // zet --tc voor ring + chip
-  return `<div class="achv-trophy${done ? "" : " locked"}${tierCls}"${titleAttr}>
+  return `<div class="achv-trophy${done ? "" : " locked"}${tierCls}" data-tkey="${escHtml(tr.key)}"${titleAttr}>
       <span class="achv-tring${tier > 0 ? " tiered" : ""}">${achvBadgeHtml(art)}${badge}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
       <span class="achv-tname">${escHtml(t(tr.i18n))}${tierChip}</span>
       <span class="achv-tsub">${escHtml(t(`${tr.i18n}_sub`))}</span>
@@ -11624,11 +11642,13 @@ function renderAchvBoard(body, a) {
     ${eventAchvHtml()}
     ${achvAnonNoteHtml()}`;
   wireCapPips(body);
+  body.querySelectorAll(".achv-trophy[data-tkey]").forEach((el) => { el.onclick = () => achvTap(el, `t:${el.dataset.tkey}`); });
   body.querySelectorAll(".achv-rowbtn").forEach((btn) => {
     btn.onclick = () => {
       const row = btn.closest(".achv-row");
       if (row.dataset.key === "years") { renderAchvAlbum(body, a); return; }
       if (row.dataset.key === "finds") { renderFindsAlbum(body, a); return; }
+      achvTap(row, `s:${row.dataset.key}:`);
       const detail = row.querySelector(".achv-detail");
       if (!detail) return;
       const open = detail.hidden;

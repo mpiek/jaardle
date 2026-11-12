@@ -4473,6 +4473,23 @@ html[data-theme="light"] .achv-card::after {
 .achv-tring .achv-new { position: absolute; top: -0.15rem; right: -0.6rem; margin: 0; }
 .achv-stamp { position: relative; }
 .achv-stamp .achv-new { position: absolute; top: -0.1rem; right: 0.15rem; margin: 0; }
+/* Tik op een prestatie (achvTap): de munt draait één keer om, op slot een klein "nee"-schudje; NIEUW springt eraf. */
+.achv-trophy[data-tkey] { cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.achv-art.achv-flip { animation: achv-flip 0.7s cubic-bezier(.3, .7, .25, 1); }
+@keyframes achv-flip {
+  0%   { transform: perspective(240px) rotateY(0) scale(1); }
+  50%  { transform: perspective(240px) rotateY(180deg) scale(1.12); }
+  100% { transform: perspective(240px) rotateY(360deg) scale(1); }
+}
+.achv-art.achv-nope { animation: achv-nope 0.42s ease; }
+@keyframes achv-nope { 0%, 100% { transform: none; } 25% { transform: rotate(-9deg); } 60% { transform: rotate(7deg); } }
+.achv-new.gone { animation: achv-new-out 0.32s ease-in forwards; pointer-events: none; }
+@keyframes achv-new-out { 0% { transform: scale(1); opacity: 1; } 35% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .achv-art.achv-flip, .achv-art.achv-nope { animation: none; }
+  .achv-new.gone { animation: achv-new-fade 0.2s ease forwards; }
+}
+@keyframes achv-new-fade { to { opacity: 0; } }
 
 /* ×N-badge op herhaalbare trofeeën (first_try/last_gasp/eras) — onderaan de
    ring, tegenover .achv-new (bovenaan), zodat een verse herhaling van beide

@@ -938,6 +938,10 @@ test("instellingen die meereizen (db/180) — één win-keuze uit vijf sleutels,
   } finally { T.auth.user = prev; clear(); localStorage.removeItem("jaardle:obxsound"); }
 });
 
+test("achvTrophyHtml — elke trofee-tegel draagt zijn sleutel (tik = munt draait om, NIEUW gezien)", () => {
+  for (const tr of T.ACHV_TROPHIES) assert.match(T.achvTrophyHtml({}, tr), new RegExp(`data-tkey="${tr.key}"`), tr.key);
+});
+
 test("guessImpossibleAt — vangt 'te dicht bij de vorige gok', anders dan outOfBand", () => {
   const rev = new Set();
   const g1450 = { year: 1450, diff: 51, cls: "far" };         // 1250–1399 of 1501–1650
