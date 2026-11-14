@@ -234,6 +234,7 @@ const I18N = {
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
+    menu_duels: "⚔️ Duels",
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord", lb_pool_switch: "Wissel van team",
     lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week", lb_wk_recap: "Recap van vorige week",
@@ -586,6 +587,7 @@ const I18N = {
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
+    menu_duels: "⚔️ Duels",
     lb_daily: "Daily", lb_overall: "All-time",
     lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board", lb_pool_switch: "Switch team",
     lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week", lb_wk_recap: "Last week's recap",
@@ -931,6 +933,7 @@ const I18N = {
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
+    menu_duels: "⚔️ Duelle",
     lb_daily: "Daily", lb_overall: "Allzeit",
     lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen", lb_pool_switch: "Team wechseln",
     lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche", lb_wk_recap: "Rückblick auf die letzte Woche",
@@ -1280,6 +1283,7 @@ const I18N = {
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
+    menu_duels: "⚔️ Duelos",
     lb_daily: "Diario", lb_overall: "Histórico",
     lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla", lb_pool_switch: "Cambiar de equipo",
     lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente", lb_wk_recap: "Resumen de la semana pasada",
@@ -1629,6 +1633,7 @@ const I18N = {
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
+    menu_duels: "⚔️ Duelos",
     lb_daily: "Diário", lb_overall: "Geral",
     lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela", lb_pool_switch: "Trocar de equipe",
     lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana", lb_wk_recap: "Resumo da semana passada",
@@ -4513,7 +4518,8 @@ function finishGame(won, fresh = false) {
     els.resultText.append(scoreLine);
   }
   // Gedeelde of zelfgebouwde link (db/108): gewoon speelbaar, maar het telt nergens voor; één rustige regel zegt dat.
-  if (state.shared) {
+  // Een duelronde niet: daar staat de duelkaart (/duel.js).
+  if (state.shared && !state.duel) {
     const note = document.createElement("div");
     note.className = "shared-note";
     note.textContent = t("shared_note");
@@ -4525,6 +4531,10 @@ function finishGame(won, fresh = false) {
   // Verder-spelen-knop: in vrij spel het volgende rondje; na de daily de brug
   // naar vrij spel (na verlies als revanche geframed — hét "nog één potje"-moment).
   els.nextBtn.hidden = false;
+  // Na een duelronde terug naar de gewone knoppen (/duel.js zet ze in een duelronde zelf, na het insturen).
+  els.nextBtn.classList.remove("duel-btn");
+  els.shareBtn.hidden = false;
+  { const sl = els.shareBtn.querySelector(".share-label"); if (sl) sl.textContent = t("share"); }
   if (state.mode === "free") {
     els.nextBtn.textContent = t("next");
   } else if (isMakeup(state)) {
@@ -4597,8 +4607,8 @@ function finishGame(won, fresh = false) {
   renderEventStrip(fresh);   // de event-stand onder de wereldstatistiek (alleen tijdens een event; na recordDailyResult, dus de pot telt mee)
   renderMiniEventStrip(fresh && !state.shared);   // de stand van een potjes-event (elke modus); een gedeeld potje telt niet, dus dan zonder plopje
   syncEventUi();             // en de balk boven de kaart weg (de strook neemt het over)
-  els.result.querySelectorAll(".fun-prompt").forEach((e) => e.remove());   // nooit een stem van een vorig potje laten staan
-  if (fresh) renderFunPrompt();   // duimpje: alleen direct na een echt afgerond potje, niet bij herstel na herladen
+  els.result.querySelectorAll(".fun-prompt, .duel-card").forEach((e) => e.remove());   // nooit een stem (of duelkaart) van een vorig potje laten staan
+  if (fresh && !state.duel) renderFunPrompt();   // duimpje: alleen direct na een echt afgerond potje, niet bij herstel na herladen, niet in een duel
   refreshCatchupBar();     // de oranje balk wijst nu de volgende gemiste dag aan
   // Bij een verse pot: eerst de play wegschrijven, DAARNA de globale stats ophalen,
   // zodat je eigen zojuist gespeelde pot meetelt (en bij een fact zonder eerdere
@@ -4633,7 +4643,9 @@ function finishGame(won, fresh = false) {
       });
     }
   };
-  if (fresh) sendTelemetry().then(afterSend, afterSend);
+  // Een duelronde: score naar duel_submit, de duelkaart en de knoppen (ook bij herstel: een ronde die nog niet aankwam gaat alsnog).
+  if (state.duel) loadDuel().then((D) => D.roundDone(duelHost(), doneState, fresh)).catch(() => {});
+  else if (fresh) sendTelemetry().then(afterSend, afterSend);
   else showFactStats(statsHash);
   if (isMakeup(state)) refreshStreakBanners();   // gisteren nu gespeeld → banner weg
   else startDailyCountdown();
@@ -4692,7 +4704,7 @@ function stampParam(s) {
 // Een gedeeld potje gaat ook naar de server (die beslist), maar zonder ⚡-regel: het telt niet voor je rating.
 function sendTelemetry() {
   const hash = state.hashes?.[0];
-  if (!hash) return Promise.resolve();
+  if (!hash || state.duel) return Promise.resolve();   // een duelronde gaat naar duel_submit (/duel.js), niet naar plays
   const slot = sentSlot();
   const sentKey = `jaardle:sent:${hash}:${slot}`;
   if (localStorage.getItem(sentKey)) return Promise.resolve();
@@ -4832,6 +4844,38 @@ function startDailyCountdown() {
 // 25/10/2026). Tik = remind.js laden (de kaart met de tijdlijn, de toestemming, het abonnement, de teksten); hier alleen
 // wat altijd zichtbaar is. Aan = gouden bel met de tijd. Het label "Herinner me" dooft na 5 daily-dagen tot alleen de bel.
 const loadRemind = fxLoader("/remind.js", "Remind");
+
+// ── ⚔️ Duels (lui: /duel.js, server db/185) ──────────────────────────────────
+// Wie nooit duelleert laadt niets: het bestand komt pas bij ⋮ → Duels, een ?duel=-link, een lopende duelronde, of (alleen wie
+// op dit toestel duels heeft: jaardle:duels) voor de check van het rode stipje. Een duelronde is een gewoon vrij potje met
+// state.duel = { code, round, opp, deadline }: gedeeld (telt nergens voor), niet naar record_play maar naar duel_submit, en het
+// bord staat ook apart (jaardle:duelboard:…), zodat "Nieuw spel" een halve ronde niet kan wissen om hem opnieuw te beginnen.
+const loadDuel = fxLoader("/duel.js", "Duel");
+const DUEL_BOARD_KEY = (code, r) => `jaardle:duelboard:${code}:${r}`;
+function duelHost() {
+  return {
+    lang, intl: LANGS[lang]?.intl, rpc, clientId, loggedIn: !!auth.user, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
+    openModal, closeModal, renderMenuDot, isMobile: isMobileDevice, showConfetti, toEvent, t, els,
+    state: () => state, score: computeScore,
+    startRound: (rec) => {   // een duelronde is een vrij potje: het tabblad gaat mee (zoals bij een gedeelde link)
+      els.tabs.forEach((tb) => tb.setAttribute("aria-selected", String(tb.dataset.mode === "free")));
+      return startGame("free", false, null, null, rec);
+    },
+    newFree: () => startGame("free", true),
+    switchMode, dailyDone: () => !!loadRecord("daily", todayKey())?.board?.done, ready: whenSbReady,
+    duelBoard: (code, r) => { try { return JSON.parse(localStorage.getItem(DUEL_BOARD_KEY(code, r)) || "null"); } catch (e) { return null; } },
+    dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
+  };
+}
+function openDuels() { loadDuel().then((D) => D.openList(duelHost(), {})).catch(() => {}); }
+function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-news")) || 0; } catch (e) { return 0; } }
+function duelKnown() {
+  try { const a = JSON.parse(localStorage.getItem("jaardle:duels") || "[]"); return Array.isArray(a) && a.length > 0; } catch (e) { return false; }
+}
+function syncDuelUi() {
+  if (state?.duel) loadDuel().then((D) => D.sync(duelHost())).catch(() => {});
+  else document.getElementById("duel-bar")?.remove();
+}
 const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft remind.js
 const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
 const REMIND_LABEL_DAYS = 5;
@@ -9940,8 +9984,10 @@ function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith
 // Stipje als CSS-klasse i.p.v. een element: de menuknop (renderMenuButton) en de
 // menu-items (data-i18n) worden elders volledig herschreven — een class met
 // ::after overleeft dat, een kind-element niet.
-function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties óf weekpodium)
-  const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew();
+function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties, weekpodium, event of een duel)
+  const duel = duelNews() > 0;   // jouw beurt of een uitslag die je nog niet zag (bijgehouden door /duel.js)
+  document.querySelector('.menu-item[data-action="duels"]')?.classList?.toggle("has-new", duel);
+  const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew() || duel;
   document.getElementById("menu-btn")?.classList.toggle("has-new", has);
 }
 function renderAchvDot() {
@@ -13213,7 +13259,7 @@ function unlockBodyScroll() {
 // De navigeerbare panelen (géén pop-ups: kroning/podium/beloning blokkeren de UI
 // zelf en beheren hun eigen sluiten). Eén tegelijk zichtbaar.
 const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards", "modal-events",
-  "modal-leaderboard", "modal-recap", "modal-login"];
+  "modal-leaderboard", "modal-recap", "modal-login", "modal-duels"];
 
 // Kwam je via de flair-chip op het bord of via een capstone-pip in Prestaties in de
 // 🪎-kluis? Dan onthouden we waarheen je terug moet: de '‹ Leaderboard' / '‹ Prestaties'-
@@ -14028,6 +14074,17 @@ function clearGuessBubble(fromInput) {
 // dagpuzzel niet opnieuw opgehaald hoeft te worden.
 function save() {
   try {
+    const board = {
+      guesses: state.guesses,
+      done: state.done,
+      won: state.won,
+      laterCluesShown: state.laterCluesShown,
+      directionsRevealed: state.directionsRevealed,
+      centuryRevealed: state.centuryRevealed,
+      lastDigitRevealed: state.lastDigitRevealed,
+      laterClues: state.laterClues,
+      laterPick: state.laterPick,
+    };
     localStorage.setItem(storageKey(state.mode, state.puzzleDate), JSON.stringify({
       hashes: state.hashes,
       event: state.event,
@@ -14035,19 +14092,12 @@ function save() {
       potId: state.potId ?? null,
       stamp: state.stamp ?? null,
       shared: !!state.shared,
+      duel: state.duel || null,
       owner: boardOwnerForSave(),
-      board: {
-        guesses: state.guesses,
-        done: state.done,
-        won: state.won,
-        laterCluesShown: state.laterCluesShown,
-        directionsRevealed: state.directionsRevealed,
-        centuryRevealed: state.centuryRevealed,
-        lastDigitRevealed: state.lastDigitRevealed,
-        laterClues: state.laterClues,
-        laterPick: state.laterPick,
-      },
+      board,
     }));
+    // Een duelronde ook apart: zo begint "Nieuw spel" (wist het vrije-spelslot) geen halve ronde opnieuw (zie duelHost).
+    if (state.duel) localStorage.setItem(DUEL_BOARD_KEY(state.duel.code, state.duel.round), JSON.stringify(board));
   } catch (e) { /* storage may be unavailable */ }
 }
 
@@ -14185,7 +14235,8 @@ async function doShare(btnEl) {
 
 // Bepaal de puzzel (uit lokale cache of via RPC). Geeft { mode, hashes, event, board }
 // of null (niet gevonden). Kan throwen bij netwerk/RPC-fout.
-async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
+async function resolveRecord(mode, forceNew, sharedHashes, targetDate, preset) {
+  if (preset) return preset;   // een duelronde: /duel.js levert de puzzel (en een half bord) zelf aan
   if (sharedHashes) {
     const cached = loadRecord("free");
     if (cached && arraysEqual(cached.hashes, sharedHashes)) return { mode: "free", ...cached };
@@ -14234,7 +14285,7 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate) {
   return { mode: "free", hashes: p.hashes, event: toEvent(p), board: null, potId: newPotId(), stamp: p.stamp || null };
 }
 
-async function startGame(mode, forceNew = false, sharedHashes = null, targetDate = null) {
+async function startGame(mode, forceNew = false, sharedHashes = null, targetDate = null, preset = null) {
   if (forceNew) {
     try { localStorage.removeItem(storageKey(mode, targetDate)); } catch (e) {}
   }
@@ -14251,10 +14302,10 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
 
   let record;
   try {
-    record = await resolveRecord(mode, forceNew, sharedHashes, targetDate);
+    record = await resolveRecord(mode, forceNew, sharedHashes, targetDate, preset);
   } catch (e) {
     console.error(e);
-    setCardStatus(t("err_load"), () => startGame(mode, forceNew, sharedHashes, targetDate));
+    setCardStatus(t("err_load"), () => startGame(mode, forceNew, sharedHashes, targetDate, preset));
     return;
   }
   if (!record) {
@@ -14272,7 +14323,8 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
     potId: record.potId || (record.mode !== "daily" ? newPotId() : null),
     stamp: record.stamp || null,             // db/108: stempel van get_random_fact (alleen vrij spel)
     shared: !!record.shared,                 // gedeelde/zelfgebouwde link: telt nergens voor
-    band: record.band ?? null,               // moeilijkheids-band 1..3 (alleen daily, sinds db/29)
+    duel: record.duel || null,               // duelronde (/duel.js): { code, round, opp, deadline }
+    band: record.band ?? null,             // moeilijkheids-band 1..3 (alleen daily, sinds db/29)
     owner: record.owner,                     // daily: van wie het bord is (zie boardIsMine)
     hashes: record.hashes,
     event: record.event,
@@ -14303,6 +14355,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
   save();
   syncUrl();
   syncCatProp();   // het voorwerpje van deze pot bij het katje (alleen met de Halloween-skin)
+  syncDuelUi();    // de duelbalk boven de kaart (alleen in een duelronde; anders weg)
   loadLaterClues();   // async: vult/herrendert de clues zodra binnen
 
   if (state.done) finishGame(state.won);
@@ -14320,7 +14373,7 @@ function syncUrl() {
   try {
     const target = modalUrlParam
       ? `${window.location.pathname}?${modalUrlParam}`
-      : state.mode === "free"
+      : state.mode === "free" && !state.duel   // een duelronde krijgt geen ?p=: die puzzel hoort niet als gewone deellink rond te gaan
         ? `${window.location.pathname}?p=${buildShareToken()}`
         : window.location.pathname;
     history.replaceState(null, "", target);
@@ -14412,8 +14465,12 @@ async function init() {
       if (els.hintBtnDigit && !els.hintBtnDigit.hidden) { requestLastDigit(); e.preventDefault(); }
     }
   });
-  els.shareBtn.addEventListener("click", () => { gcCountNew("end-share", "End: share"); doShare(els.shareBtn); });
+  els.shareBtn.addEventListener("click", () => {
+    if (state?.duel && window.Duel) { window.Duel.share(duelHost(), els.shareBtn); return; }   // "Laat … het weten" / "Deel uitslag"
+    gcCountNew("end-share", "End: share"); doShare(els.shareBtn);
+  });
   els.nextBtn.addEventListener("click", () => {
+    if (state?.duel && state.done && window.Duel) { window.Duel.next(duelHost()); return; }   // volgende ronde, revanche, volgend duel of de daily
     gcCountNew("end-next", "End: next round");
     // Vanuit de daily wisselt het tabblad mee en loopt een onafgemaakt vrij spel
     // gewoon door; in vrij spel forceert de knop altijd een vers rondje.
@@ -14503,6 +14560,7 @@ async function init() {
     else if (action === "rewards") openModal("modal-rewards");
     else if (action === "events") openEventScreen("menu");
     else if (action === "leaderboard") openModal("modal-leaderboard");
+    else if (action === "duels") openDuels();
     else if (action === "remind") openRemind("menu");
     else if (action === "install") openInstall();
     else if (action === "login") openModal("modal-login");
@@ -14733,7 +14791,10 @@ async function init() {
     localStorage.removeItem(PENDING_RECAP_KEY);
     if (parked && Date.now() - parked < 15 * 60 * 1000) pendingRecapAfterLogin = true;
   } catch (e) {}
-  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap) {
+  // ?duel=CODE: een duel-uitnodiging (of je eigen duel). De daily laadt gewoon; /duel.js zet de pop-up erboven, of start je ronde.
+  const duelCode = (lbParams.get("duel") || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+  if (lbParams.has("duel")) lbParams.delete("duel");
+  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap || duelCode) {
     const qs = lbParams.toString();
     history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);
   }
@@ -14748,6 +14809,9 @@ async function init() {
   } else {
     switchMode("daily");
   }
+  if (duelCode) loadDuel().then((D) => D.openInvite(duelHost(), duelCode)).catch(() => {});
+  // Rode stip voor duels (jouw beurt, een nieuwe uitslag): alleen wie op dit toestel duels heeft vraagt het na, in een rustig moment.
+  else if (duelKnown()) setTimeout(() => loadDuel().then((D) => D.checkNews(duelHost())).catch(() => {}), 2500);
 
   // Open de login-modal als /login of /register is bezocht (tenzij al ingelogd).
   // Login en registreren zitten in dezelfde modal.

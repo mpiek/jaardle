@@ -28,9 +28,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-f7JR0ZsOd9h8/+b27nVEnlZPa0nRTbmyMu1fj2EemHM=' 'sha256-dYHMkplblj1zdfOsKZUrFZrZX7AQARTYisHolunoNn4=' 'sha256-BeA3R4ljLDMmpT4rj5E+kAtwkEMqb8P3bP9lRv7OFmE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
-     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=406 = de src van de game.js-tag onderaan (build). -->
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=407 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
-<link rel="preload" as="script" href="/game.js?v=406">
+<link rel="preload" as="script" href="/game.js?v=407">
 <script>
   // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
   window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -181,6 +181,8 @@
             <!-- Tijdelijk (alleen tijdens een event, alleen zonder account; ingelogd heeft de Events-tab in 🪎): game.js vult en toont. -->
             <button class="menu-item" role="menuitem" data-action="events" hidden></button>
             <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Classificação</button>
+            <!-- ⚔️ Duels (db/185): voor iedereen, ook zonder account; /duel.js laadt pas bij een tik. Rood stipje = jouw beurt of een nieuwe uitslag. -->
+            <button class="menu-item" role="menuitem" data-action="duels" data-i18n="menu_duels">⚔️ Duelos</button>
             <button class="menu-item menu-more" role="menuitem" aria-haspopup="menu" data-action="settings" data-i18n="menu_settings">⚙️ Configurações</button>
           </div>
           <div id="menu-settings" class="menu-pane" hidden>
@@ -543,7 +545,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=406"></script>
+  <script src="/game.js?v=407"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
