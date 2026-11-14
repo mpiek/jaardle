@@ -2788,7 +2788,11 @@ test("head-script van de skins ≡ seasonFor(): elke dag van het jaar, ?skin=-vo
     assert.equal(on.links[0].href, T.SEASONS[id].css, `${id}: het head-script en SEASONS in game.js moeten dezelfde CSS-versie laden`);
   }
   assert.deepEqual(runSeasonHead({ date: hal }).icons, ["/favicon-halloween.svg?v=2", "/favicon-halloween-96.png?v=2", "/favicon-halloween-192.png?v=2"], "pompoen-favicons");
-  assert.deepEqual(runSeasonHead({ date: sint }).icons, ["/favicon.svg?v=2", "/favicon-96.png?v=2", "/favicon-192.png?v=2"], "Sinterklaas houdt het gewone icoon");
+  assert.deepEqual(runSeasonHead({ date: sint }).icons, ["/favicon-sinterklaas.svg?v=2", "/favicon-sinterklaas-96.png?v=2", "/favicon-sinterklaas-192.png?v=2"], "Sint-favicons");
+  assert.deepEqual(runSeasonHead({ date: buiten }).icons, ["/favicon.svg?v=2", "/favicon-96.png?v=2", "/favicon-192.png?v=2"], "buiten het event het gewone icoon");
+  assert.deepEqual(runSeasonHead({ date: sint, store: { "jaardle:season:sinterklaas": "off" } }).icons, ["/favicon.svg?v=2", "/favicon-96.png?v=2", "/favicon-192.png?v=2"], "skin uitgezet: het gewone icoon");
+  // het head-script en game.js wijzen per skin naar hetzelfde icoon
+  for (const [id, date] of [["halloween", hal], ["sinterklaas", sint]]) assert.equal(runSeasonHead({ date }).icons[0], T.SEASONS[id].icon + ".svg?v=2", id);
   assert.equal(runSeasonHead({ date: buiten }).links.length, 0, "buiten het event wordt de versiering niet opgehaald");
 });
 
@@ -2854,7 +2858,13 @@ test("menu-regel voor de skins: in de template, per skin vertaald in alle talen,
     assert.match(v, emoji[id], `${code}: ${id}: emoji vooraan`);
     assert.ok(v.toLowerCase().includes(id), `${code}: ${id}: naam van de skin in het label`);
   }
-  for (const f of ["favicon-halloween.svg", "favicon-halloween-96.png", "favicon-halloween-192.png"]) assert.ok(existsSync(join(dir, "..", f)), f);
+  // elk skin-icoon bestaat in de drie vormen waar de <link rel="icon">-regels naar wijzen
+  for (const id of Object.keys(T.SEASONS)) for (const ext of [".svg", "-96.png", "-192.png"]) {
+    const f = T.SEASONS[id].icon.slice(1) + ext;
+    assert.ok(existsSync(join(dir, "..", f)), f);
+  }
+  // de SVG's zijn getraceerd uit een aangeleverde afbeelding: klein houden (een favicon mag de pagina niet zwaarder maken)
+  for (const id of Object.keys(T.SEASONS)) assert.ok(readFileSync(join(dir, "..", T.SEASONS[id].icon.slice(1) + ".svg")).length < 24000, `${id}: favicon-SVG < 24 KB`);
 });
 
 test("⋮-menu in twee lagen: schermen + ⚙️ Instellingen, daarachter de schakelaars; kop = naam (geëscaped) met Uitloggen", () => {
@@ -2906,7 +2916,7 @@ test("setSeason/syncSeasonCheck: aan/uit per skin, juiste sleutel, label en vink
     T.syncSeasonCheck();
     assert.equal(btn.hidden, false); assert.equal(btn.dataset.i18n, "menu_season_sinterklaas"); assert.equal(btn.aria, "true");
     assert.equal(btn.textContent, T.t("menu_season_sinterklaas"));
-    // uitzetten: sleutel per skin, balkkleur terug, favicon blijft het gewone; Halloween-sleutel onaangeroerd
+    // uitzetten: sleutel per skin, balkkleur terug, het gewone favicon; Halloween-sleutel onaangeroerd
     T.setSeason(false);
     assert.equal(localStorage.getItem(T.seasonKey("sinterklaas")), "off");
     assert.equal(localStorage.getItem(T.SEASON_KEY), null);
@@ -2920,7 +2930,12 @@ test("setSeason/syncSeasonCheck: aan/uit per skin, juiste sleutel, label en vink
     assert.equal(document.documentElement.dataset.season, "sinterklaas");
     assert.equal(links.length, 1); assert.equal(links[0].href, T.SEASONS.sinterklaas.css);
     assert.equal(meta.content, T.SEASONS.sinterklaas.bar.dark);
-    T.setSeason(false); T.setSeason(true);
+    assert.deepEqual(icons.map((i) => i._h), ["/favicon-sinterklaas.svg?v=2", "/favicon-sinterklaas-96.png?v=2"], "aan: het Sint-icoon");
+    T.setSeason(true);
+    assert.deepEqual(icons.map((i) => i._h), ["/favicon-sinterklaas.svg?v=2", "/favicon-sinterklaas-96.png?v=2"], "twee keer aan verdubbelt de naam niet");
+    T.setSeason(false);
+    assert.deepEqual(icons.map((i) => i._h), ["/favicon.svg?v=2", "/favicon-96.png?v=2"], "uit: terug naar het gewone icoon");
+    T.setSeason(true);
     assert.equal(links.length, 1, "de stylesheet wordt maar één keer toegevoegd, ook na uit en weer aan");
   } finally {
     globalThis.Date = RealDate;

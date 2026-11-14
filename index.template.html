@@ -118,18 +118,18 @@
     } catch (e) { /* geen CSS.supports → geen preload, font-display: swap vangt het op */ }
   })();
 </script>
-<!-- Seizoens-skins (Halloween 19 okt t/m 1 nov, Sinterklaas 5 dec): data-season vóór de stylesheet zetten, net als het thema,
+<!-- Seizoens-skins (Halloween 19 okt t/m 1 nov, Sinterklaas 5 en 6 dec): data-season vóór de stylesheet zetten, net als het thema,
      zodat er niets flitst. Actief op de apparaatdatum (elk jaar), tenzij de speler 'm uitzette (jaardle:season:<id>=off;
      "jaardle:season"=off is de oude Halloween-sleutel); ?skin=<id> toont 'm altijd (voorvertoning). Alleen dan haalt dit
-     ook de versiering (/season-<id>.css) en een andere kleur voor de browserbalk op, bij Halloween ook de pompoen-favicon.
-     Houd de datumregels, de CSS-versies en de balkkleuren gelijk aan SEASONS in game.js (een test bewaakt dat). -->
+     ook de versiering (/season-<id>.css), een andere kleur voor de browserbalk en het favicon van de skin op.
+     Houd de datumregels, de CSS-versies, de balkkleuren en de iconen gelijk aan SEASONS in game.js (een test bewaakt dat). -->
 <script>
   (function () {
     try {
       var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
       var S = {
         halloween: { on: (m === 10 && day >= 19) || (m === 11 && day === 1), css: "/season-halloween.css?v=1", bar: ["#120a1e", "#f3edf8"], icon: "/favicon-halloween" },
-        sinterklaas: { on: m === 12 && (day === 5 || day === 6), css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"] }
+        sinterklaas: { on: m === 12 && (day === 5 || day === 6), css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"], icon: "/favicon-sinterklaas" }
       };
       var q = /[?&]skin=([a-z]+)(&|$)/.exec(location.search), id = q && S.hasOwnProperty(q[1]) ? q[1] : "";
       if (!id) {
@@ -521,7 +521,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=405"></script>
+  <script src="/game.js?v=406"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

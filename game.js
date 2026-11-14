@@ -12681,9 +12681,9 @@ function applyTheme(theme) {
   syncThemePicker();
 }
 
-// --- Seizoens-skins (Halloween 19 okt t/m 1 nov, Sinterklaas 5 dec) -----------------------------------------
+// --- Seizoens-skins (Halloween 19 okt t/m 1 nov, Sinterklaas 5 en 6 dec) -----------------------------------------
 // Het head-script in de template zet data-season="<id>" op de apparaatdatum (of met ?skin=<id>) en haalt dan de
-// versiering (SEASONS[id].css) en een andere balkkleur op, bij Halloween ook de pompoen-favicon. Hier dezelfde
+// versiering (SEASONS[id].css), een andere balkkleur en het favicon van de skin (SEASONS[id].icon) op. Hier dezelfde
 // datumregels (een test houdt de twee gelijk), de aan/uit-regel in het ⋮-menu en de balkkleur bij een themawissel.
 // Uitzetten = localStorage jaardle:season:<id>=off (per skin: wie Halloween uitzette, krijgt Sinterklaas gewoon);
 // de oude sleutel jaardle:season=off telt nog als "Halloween uit". Het palet staat in style.css, de versiering in css.
@@ -12692,14 +12692,14 @@ const SEASONS = {
   halloween: {
     css: "/season-halloween.css?v=1",                          // zelfde versie als in het head-script
     bar: { dark: "#120a1e", light: "#f3edf8" },                 // sync met --bg van het palet in style.css + head-script
-    icon: "/favicon-halloween",                                 // pompoen-favicon (Sinterklaas houdt het gewone icoon)
+    icon: "/favicon-halloween",                                 // JAAR-logo met spinnenweb en pompoen (.svg, -96.png, -192.png)
     label: "menu_season_halloween",
     on: (m, d) => (m === 10 && d >= 19) || (m === 11 && d === 1),
   },
   sinterklaas: {
     css: "/season-sinterklaas.css?v=1",
     bar: { dark: "#0b1230", light: "#eaf0fa" },
-    icon: null,
+    icon: "/favicon-sinterklaas",                               // JAAR-logo met mijter, staf, cadeau en zak
     label: "menu_season_sinterklaas",
     on: (m, d) => m === 12 && (d === 5 || d === 6),   // pakjesavond + Sint-Nicolaasdag: de twee dagen van het Sinterklaas-event (EVENTS)
   },
