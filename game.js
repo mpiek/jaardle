@@ -4856,6 +4856,7 @@ function duelHost() {
   return {
     lang, intl: LANGS[lang]?.intl, rpc, clientId, loggedIn: !!auth.user, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
     openModal, closeModal, renderMenuDot, isMobile: isMobileDevice, showConfetti, toEvent, t, els,
+    flairHtml: flairStaticHtml, myFlair: () => myFlair, openLogin: () => openModal("modal-login"),
     state: () => state, score: computeScore,
     startRound: (rec) => {   // een duelronde is een vrij potje: het tabblad gaat mee (zoals bij een gedeelde link)
       els.tabs.forEach((tb) => tb.setAttribute("aria-selected", String(tb.dataset.mode === "free")));
@@ -4872,9 +4873,18 @@ function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-new
 function duelKnown() {
   try { const a = JSON.parse(localStorage.getItem("jaardle:duels") || "[]"); return Array.isArray(a) && a.length > 0; } catch (e) { return false; }
 }
-function syncDuelUi() {
-  if (state?.duel) loadDuel().then((D) => D.sync(duelHost())).catch(() => {});
-  else document.getElementById("duel-bar")?.remove();
+function syncDuelUi() {   // het duelscherm aan (in een duelronde) of weer uit; zonder duel.js geladen is er niets op te ruimen
+  if (state?.duel || window.Duel) loadDuel().then((D) => D.sync(duelHost())).catch(() => {});
+}
+// Na inloggen: je anonieme duels van dit toestel naar je account (db/186 duel_claim), en een uitnodiging die je openliet om eerst
+// in te loggen komt terug (ook na een Google-redirect: jaardle:pendingDuel, 30 minuten geldig).
+const DUEL_PENDING_KEY = "jaardle:pendingDuel";
+function duelsAfterLogin() {
+  if (!auth.user) return;
+  if (duelKnown()) rpc("duel_claim", { p_client: clientId() }).catch(() => {});
+  let p = null;
+  try { p = JSON.parse(localStorage.getItem(DUEL_PENDING_KEY) || "null"); localStorage.removeItem(DUEL_PENDING_KEY); } catch (e) {}
+  if (p && p.code && Date.now() - (p.at || 0) < 30 * 60 * 1000) loadDuel().then((D) => D.openInvite(duelHost(), p.code)).catch(() => {});
 }
 const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft remind.js
 const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
@@ -14373,7 +14383,9 @@ function syncUrl() {
   try {
     const target = modalUrlParam
       ? `${window.location.pathname}?${modalUrlParam}`
-      : state.mode === "free" && !state.duel   // een duelronde krijgt geen ?p=: die puzzel hoort niet als gewone deellink rond te gaan
+      : state.duel   // het duelscherm: de duellink blijft staan (herladen = terug in je duel); geen ?p= met de puzzel
+        ? `${window.location.pathname}?duel=${state.duel.code}`
+      : state.mode === "free"
         ? `${window.location.pathname}?p=${buildShareToken()}`
         : window.location.pathname;
     history.replaceState(null, "", target);
@@ -14655,6 +14667,7 @@ async function init() {
     await maybeShowCoronation();  // gemiste titel-mijlpaal? kroon (self-gated, één lichte RPC). Beloningen niet hier: die hebben achvCache nodig (komt na een pot), geen recompute bij het openen.
     refreshWeekPodiumResult(); // verse-weekuitslag: pop-up + stip (fire-and-forget; nul kosten vóór de 1e afgeronde week / ma-ochtend)
     maybeOpenLeaderboardDeeplink();  // ?leaderboard / ?join afhandelen nu auth bekend is
+    duelsAfterLogin();               // anonieme duels naar je account + een geparkeerde duel-uitnodiging terug
     // Stats-modal open terwijl auth wisselt? Herteken met de juiste bron.
     const sm = document.getElementById("modal-stats");
     if (sm && !sm.hidden) renderStats();

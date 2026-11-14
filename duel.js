@@ -3,27 +3,26 @@
    De afspraken uit de grill-sessie: de link draagt een code; wie hem als eerste aanneemt is de tegenstander (een revanche: alleen
    de vorige tegenstander). Pas bij aannemen kiest de server 5 puzzels, van makkelijk naar moeilijk; daarna hebben allebei 24 uur.
    Per ronde wint de hoogste score, de meeste rondes wint (gelijk → totaal), een ronde die je niet speelde verlies je. De score van
-   de ander zie je pas na je eigen ronde. Duelrondes tellen nergens voor (rating, prestaties, streak). Server: db/185 (duel_*).
-   game.js geeft een host mee (taal, rpc, speler-id, naam, modals, een ronde starten, delen, confetti); dit bestand brengt zijn
-   eigen CSS (één <style>) en teksten in vijf talen mee, en bewaart lokaal alleen jaardle:duels (welke duels nog nieuws kunnen
-   brengen), jaardle:duel-news (voor het stipje) en jaardle:duel-name (je naam zonder account). */
+   de ander zie je pas na je eigen ronde. Duelrondes tellen nergens voor (rating, prestaties, streak). Server: db/185 + db/186 (flair, claim).
+   Versie 2 (na live kijken, mockup v4, 14/11): een eigen duelscherm (body[data-duelpage]: duelkop ‹ Jaardle · ⚔️ DUEL · ronde in plaats
+   van de tabbladen, VS-kop, de duelkleur via body[data-arena]; ?duel=CODE blijft in de adresbalk), een eindstand-pop-up na je vijfde
+   ronde (en voor een uitslag die je nog niet zag, met de rondes die omdraaien), een Duels-scherm met je stand en uitleg (leeg: Jij vs ?
+   en drie stappen; daarna achter "Hoe werkt het?"), de link zelf zichtbaar met Kopieer, je eigen scores bij een duel dat op de ander
+   wacht, flair in de rondjes (met account), en een licht account-moment (uitnodiging: "Al een account? Log in", eindstand zonder account).
+   game.js geeft een host mee (taal, rpc, speler-id, naam, flair, modals, een ronde starten, delen, confetti, inloggen); dit bestand
+   brengt zijn eigen CSS (één <style>) en teksten in vijf talen mee, en bewaart lokaal alleen jaardle:duels (welke duels nog nieuws
+   kunnen brengen), jaardle:duel-news (voor het stipje), jaardle:duel-name (je naam zonder account) en jaardle:pendingDuel (een
+   uitnodiging die na het inloggen terugkomt). */
 window.Duel = (() => {
   const ICON = "⚔️";
-  const LIST_KEY = "jaardle:duels", NEWS_KEY = "jaardle:duel-news", NAME_KEY = "jaardle:duel-name";
+  const LIST_KEY = "jaardle:duels", NEWS_KEY = "jaardle:duel-news", NAME_KEY = "jaardle:duel-name", PENDING_KEY = "jaardle:pendingDuel";
   const LINK = (code) => `https://jaardle.com/?duel=${code}`;
   const FLIP_MS = 500 + 5 * 650 + 500;   // zo lang duurt de onthulling (zie .flip in de CSS)
 
   const CSS = String.raw`/* ═══ Duels (/duel.js) ═══ */
 :root { --duel-me: var(--accent); --duel-op: #f0a35e; --duel-win: var(--green); --duel-loss: #e5735f; }
 html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
-/* de balk boven de feitenkaart tijdens je rondes (hoogte van de dunne event-balk) */
-.duel-bar { display: flex; align-items: center; gap: 0.5rem; box-sizing: border-box; width: 100%; min-height: 1.93rem; margin: 0 0 0.5rem; padding: 0.1rem 0.6rem;
-  font-size: 0.8rem; font-weight: 500; line-height: 1.25; color: var(--muted); background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
 .duel-ico { flex: none; font-size: 1.2rem; line-height: 1; }
-.duel-bar .duel-ico { font-size: 0.95rem; }
-.duel-bt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.duel-bt b { color: var(--fg); }
-.duel-stand { flex: none; font-variant-numeric: tabular-nums; font-weight: 800; color: var(--fg); }
 .duel-cells { flex: none; display: flex; gap: 0.2rem; }
 .duel-cell { width: 0.95rem; height: 0.95rem; border-radius: 4px; box-sizing: border-box; border: 1.5px dashed color-mix(in srgb, var(--muted) 55%, transparent); }
 .duel-cell.p { border: 0; background: var(--duel-me); }
@@ -145,11 +144,121 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .dl-form i.l { background: var(--duel-loss); }
 .dl-moreb { appearance: none; align-self: center; min-height: 2.75rem; padding: 0.3rem 0.9rem; font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--accent); background: transparent; border: 0; cursor: pointer; }
 .dl-moreb:hover { filter: none; text-decoration: underline; }
+:root { --duel-arena: #e8794a; --duel-arena-on: #1d0f05; }
+html[data-theme="light"] { --duel-arena: #b5531c; --duel-arena-on: #fff; }
+
+/* kop van het Duels-scherm: "Hoe werkt het?" naast het kruisje */
+.dl-help-btn { appearance: none; margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; min-height: 2.5rem; padding: 0.2rem 0.75rem;
+  font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
+.dl-help-btn[aria-expanded="true"] { color: var(--fg); border-color: var(--duel-arena); }
+.dl-help-btn:hover { filter: none; color: var(--fg); }
+.modal-header .dl-help-btn + .modal-close { margin-left: 0.35rem; }
+
+/* de uitleg: drie stappen (in de lege staat altijd, daarna achter "Hoe werkt het?") */
+.dl-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; counter-reset: dl; }
+.dl-steps li { display: grid; grid-template-columns: 1.7rem 1fr; gap: 0.65rem; align-items: start; font-size: 0.88rem; line-height: 1.35; color: var(--fg); text-align: left; }
+.dl-steps li::before { counter-increment: dl; content: counter(dl); display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  font-weight: 800; font-size: 0.85rem; color: var(--duel-arena-on); background: var(--duel-arena); }
+.dl-steps li small { display: block; margin-top: 0.1rem; font-size: 0.76rem; color: var(--muted); }
+.dl-help { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.8rem 0.85rem; background: var(--card-soft); border: 1px solid var(--border); border-radius: 12px; }
+.dl-fine { margin: 0; text-align: center; font-size: 0.72rem; color: var(--muted); }
+
+/* lege staat: Jij vs ?, de uitleg, de knop */
+.dl-hero { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; padding: 0.5rem 0 0.1rem; text-align: center; }
+.dl-vs { display: flex; align-items: center; gap: 0.65rem; }
+.dl-vs .dl-av { width: 2.9rem; height: 2.9rem; font-size: 1.15rem; color: #fff; }
+.dl-vs .dl-av.me { background: var(--duel-me); }
+.dl-vs .dl-av.op { background: color-mix(in srgb, var(--duel-op) 30%, var(--card)); color: var(--duel-op); border: 2px dashed var(--duel-op); box-sizing: border-box; }
+.dl-vs b { font-size: 0.95rem; font-weight: 900; letter-spacing: 0.1em; color: var(--duel-arena); }
+.dl-hero h3 { margin: 0; font-size: 1.15rem; line-height: 1.25; text-wrap: balance; }
+.dl-hero .dl-steps { align-self: stretch; }
+.dl-hero .dl-new { margin-top: 0.15rem; }
+
+/* je stand over alle duels */
+.dl-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+.dl-stat { display: flex; flex-direction: column; align-items: center; padding: 0.45rem 0.2rem 0.4rem; background: var(--card-soft); border-radius: 10px; }
+.dl-stat b { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.dl-stat small { font-size: 0.66rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+.dl-stat.w b { color: var(--green-text); }
+.dl-stat.l b { color: var(--duel-loss); }
+
+/* de link zelf: te selecteren, met een eigen kopieerknop */
+.dl-link { display: flex; gap: 0.35rem; align-self: stretch; margin-top: 0.4rem; }
+.dl-link input { flex: 1; min-width: 0; font: inherit; font-size: 0.85rem; padding: 0.45rem 0.6rem; color: var(--fg); background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+.dl-link .dl-mini { min-height: 2.5rem; }
+
+/* een duel dat op de ander wacht klapt ook open: jouw scores, en die van de ander voor rondes die jullie allebei speelden */
+.dl-detail .dl-wait-note { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--muted); }
+.dl-detail .dl-wait-note b { color: var(--fg); }
+
+
+/* look B/C: een VS-kop in plaats van de dunne balk */
+.duel-vs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.2rem 0.5rem; box-sizing: border-box; width: 100%;
+  margin: 0 0 0.5rem; padding: 0.45rem 0.65rem 0.5rem; background: var(--card); border: 1px solid color-mix(in srgb, var(--duel-arena) 50%, var(--border)); border-radius: 12px; }
+.duel-vs .side { display: flex; align-items: center; gap: 0.45rem; min-width: 0; }
+.duel-vs .side.op { flex-direction: row-reverse; text-align: right; }
+.duel-vs .side span { min-width: 0; }
+.duel-vs .side b { display: block; font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.duel-vs .side small { display: block; font-size: 0.68rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.duel-vs .dl-av { width: 1.9rem; height: 1.9rem; font-size: 0.9rem; color: #fff; }
+.duel-vs .side.me .dl-av { background: var(--duel-me); }
+.duel-vs .side.op .dl-av { background: var(--duel-op); }
+.duel-vs .mid { display: flex; flex-direction: column; align-items: center; }
+.duel-vs .mid b { font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; line-height: 1.05; }
+.duel-vs .mid small { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.duel-vs .duel-cells { grid-column: 1 / -1; justify-content: center; margin-top: 0.2rem; }
+
+/* look C: arena — tijdens een duel neemt de duelkleur het accent over (tabblad, knoppen, Gok), met een rand om de kaart */
+[data-arena] { --accent: var(--duel-arena); --on-accent: var(--duel-arena-on); --duel-me: #6ea8ff; }
+html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
+[data-arena] #event-card { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--duel-arena) 60%, transparent); }
+
+/* look D: een eigen duelscherm (deeplink ?duel=CODE blijft in de adresbalk): geen Daily/Nieuw spel maar een duelkop met terug,
+   ⚔️ DUEL en de ronde; daaronder de VS-kop, en alles in de duelkleur (zoals de arena) */
+[data-duelpage] #mode-tabs { display: none; }
+.duel-top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.5rem; min-height: 2.75rem; margin-bottom: 0.6rem; }
+.duel-exit { justify-self: start; appearance: none; display: inline-flex; align-items: center; gap: 0.3rem; min-height: 2.75rem; padding: 0.2rem 0.85rem 0.2rem 0.6rem;
+  font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--fg); background: var(--card); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
+.duel-exit:hover { filter: none; border-color: var(--duel-arena); }
+.duel-title { font-size: 1rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; color: var(--duel-arena); white-space: nowrap; }
+.duel-round { justify-self: end; font-size: 0.8rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* eindstand-pop-up: na je vijfde ronde (ook als de ander nog moet), en bij een uitslag die je nog niet zag (dan draaien de rondes om) */
+.ep { max-width: 23rem; }
+.ep .ep-body { margin: 0; padding: 1.25rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.6rem; text-align: center; background: transparent; border: 0; }
+.ep .ep-eyebrow { margin: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--duel-arena); }
+.ep h2 { margin: 0; font-size: 1.35rem; line-height: 1.2; text-wrap: balance; }
+.ep .duel-vs { margin: 0; text-align: left; }
+.ep .duel-rds { margin-top: 0; }
+.ep-note { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.ep-note b { color: var(--fg); }
+.ep-btns { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.2rem; }
+.ep-btns button { width: 100%; }
+.ep-ghost { background: transparent; color: var(--fg); border: 1px solid var(--border); }
+.ep-ghost:hover { filter: none; border-color: var(--duel-arena); }
+
+/* in het duelscherm: geen nudges van de daily boven het feit */
+[data-duelpage] #catchup-bar, [data-duelpage] #repair-banner, [data-duelpage] #event-bar { display: none !important; }
+/* flair in een rondje (met account) */
+.dl-av.fl { background: var(--card-soft); font-size: 1.15em; }
+.duel-vs .dl-av.fl, .dl-vs .dl-av.fl { background: var(--card-soft); }
+/* afgelopen-rij: de onderregel mag afbreken (op 360 px paste "Gisteren: gewonnen 3–2" niet naast de stand) */
+.dl-item .dl-main > small { white-space: normal; }
+/* bij een openstaande link: de link zelf op een eigen regel */
+.dl-row.wrap .dl-acts + .dl-acts { padding-top: 0; }
+.dl-row.wrap .dl-acts .dl-link { flex: 1; margin-top: 0; }
+/* uitnodiging zonder account: "Al een account? Log in" */
+.duel-login { font-size: 0.8rem; margin-top: -0.3rem; text-decoration: underline; text-underline-offset: 2px; }
+/* eindstand-pop-up zonder account: bewaar je duels */
+.ep-keep { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.3rem 0.6rem; margin-top: 0.15rem; padding-top: 0.6rem;
+  border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--muted); }
+.ep .after { animation: duel-in 0.4s ease-out 3.75s both; }
+@media (prefers-reduced-motion: reduce) { .ep .after { animation: none; } }
 `;
 
-  // Teksten. Alle talen dezelfde sleutels (de test controleert het). Namen komen er altijd ge-escaped in.
   const TXT = {
     nl: {
+      help: "Hoe werkt het?", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", statW: "Gewonnen", statL: "Verloren", statO: "Lopend", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
       title: "Duels", close: "Sluiten", newBtn: "Daag een vriend uit", nameLabel: "Je naam (die ziet je tegenstander)", namePh: "Naam", go: "Daag uit",
       ready: "Je uitdaging staat klaar", sent: "Link verstuurd", copied: "Link gekopieerd", sentSub: "Wie hem als eerste aanneemt, speelt tegen je.", onlyFor: (n) => `Alleen ${n} kan hem aannemen.`, rematchFor: (n) => `Revanche voor ${n}`,  sendLink: "Stuur de link",
       copyPrompt: "Kopieer de link:", empty: "Nog geen duels. Daag iemand uit: jullie spelen dezelfde 5 rondes en per ronde wint de hoogste score.",
@@ -182,6 +291,7 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
       shResult: (n, a, b, r) => `${ICON} Jaardle-duel tegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "gelijk"}, ${a}–${b}`, shTotals: (a, b) => `${a} tegen ${b}`,
     },
     en: {
+      help: "How does it work?", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
       title: "Duels", close: "Close", newBtn: "Challenge a friend", nameLabel: "Your name (your opponent sees it)", namePh: "Name", go: "Challenge",
       ready: "Your challenge is ready", sent: "Link sent", copied: "Link copied", sentSub: "Whoever accepts it first plays against you.", onlyFor: (n) => `Only ${n} can accept it.`, rematchFor: (n) => `Rematch for ${n}`,  sendLink: "Send the link",
       copyPrompt: "Copy the link:", empty: "No duels yet. Challenge someone: you both play the same 5 rounds and the highest score wins each round.",
@@ -214,6 +324,7 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
       shResult: (n, a, b, r) => `${ICON} Jaardle duel vs ${n}: ${r === "w" ? "won" : r === "l" ? "lost" : "tied"} ${a}–${b}`, shTotals: (a, b) => `${a} vs ${b}`,
     },
     de: {
+      help: "Wie funktioniert das?", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", duelTitle: "Duell", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
       title: "Duelle", close: "Schließen", newBtn: "Fordere jemanden heraus", nameLabel: "Dein Name (sieht dein Gegenüber)", namePh: "Name", go: "Herausfordern",
       ready: "Deine Herausforderung ist bereit", sent: "Link verschickt", copied: "Link kopiert", sentSub: "Wer ihn zuerst annimmt, spielt gegen dich.", onlyFor: (n) => `Nur ${n} kann sie annehmen.`, rematchFor: (n) => `Revanche für ${n}`,  sendLink: "Link senden",
       copyPrompt: "Kopiere den Link:", empty: "Noch keine Duelle. Fordere jemanden heraus: Ihr spielt dieselben 5 Runden, und pro Runde gewinnt die höchste Punktzahl.",
@@ -247,6 +358,7 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
       shResult: (n, a, b, r) => `${ICON} Jaardle-Duell gegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "unentschieden"}, ${a}–${b}`, shTotals: (a, b) => `${a} zu ${b}`,
     },
     es: {
+      help: "¿Cómo funciona?", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
       title: "Duelos", close: "Cerrar", newBtn: "Reta a un amigo", nameLabel: "Tu nombre (lo verá tu rival)", namePh: "Nombre", go: "Retar",
       ready: "Tu reto está listo", sent: "Enlace enviado", copied: "Enlace copiado", sentSub: "Quien lo acepte primero juega contra ti.", onlyFor: (n) => `Solo ${n} puede aceptarlo.`, rematchFor: (n) => `Revancha para ${n}`,  sendLink: "Enviar el enlace",
       copyPrompt: "Copia el enlace:", empty: "Aún no hay duelos. Reta a alguien: jugáis las mismas 5 rondas y en cada ronda gana la puntuación más alta.",
@@ -279,6 +391,7 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
       shResult: (n, a, b, r) => `${ICON} Duelo de Jaardle contra ${n}: ${r === "w" ? "ganado" : r === "l" ? "perdido" : "empate"}, ${a}–${b}`, shTotals: (a, b) => `${a} contra ${b}`,
     },
     pt: {
+      help: "Como funciona?", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
       title: "Duelos", close: "Fechar", newBtn: "Desafie um amigo", nameLabel: "Seu nome (seu adversário vai ver)", namePh: "Nome", go: "Desafiar",
       ready: "Seu desafio está pronto", sent: "Link enviado", copied: "Link copiado", sentSub: "Quem aceitar primeiro joga contra você.", onlyFor: (n) => `Só ${n} pode aceitar.`, rematchFor: (n) => `Revanche para ${n}`,  sendLink: "Enviar o link",
       copyPrompt: "Copie o link:", empty: "Ainda não há duelos. Desafie alguém: vocês jogam as mesmas 5 rodadas e em cada rodada vence a maior pontuação.",
@@ -317,12 +430,14 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
   const sum = (a) => (a || []).reduce((x, y) => x + (y || 0), 0);
   const icoHtml = (ch = ICON) => `<span class="duel-ico" aria-hidden="true">${ch}</span>`;
   const oppName = (d) => ((d && (d.me === "c" ? d.o_name : d.c_name)) || "?");
+  const oppFlair = (d) => (d && (d.me === "c" ? d.o_flair : d.c_flair)) || null;
+  const initial = (n) => ((n || "?").trim().charAt(0) || "?").toUpperCase();
 
   let H = null;            // host van de laatste aanroep (game.js)
   const cache = {};        // code → laatste antwoord van de server (met de puzzels, als we die kregen)
-  let endNext = null, endShare = null;   // wat de knoppen op het eindscherm van een duelronde doen
-  let listItems = null, listTop = "", openGrp = null, showAll = false;
-  const selInGrp = {};     // groep → gekozen duel in de uitklap
+  let endNext = null, endShare = null;   // wat de knoppen op het eindscherm (en in de eindstand-pop-up) doen
+  let listItems = null, listTop = "", openGrp = null, showAll = false, helpOpen = false;
+  const selInGrp = {}, openWait = new Set();
 
   function ensureCss() {
     if (document.getElementById("duel-css")) return;
@@ -353,6 +468,7 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
   function storedName() { try { return (localStorage.getItem(NAME_KEY) || "").trim() || null; } catch (e) { return null; } }
   function myName() { return (H.loggedIn && H.myName && H.myName()) || storedName(); }
   function saveName(n) { try { localStorage.setItem(NAME_KEY, n); } catch (e) {} }
+  const cleanName = (s) => String(s || "").replace(/\s+/g, " ").trim().slice(0, 20);
 
   // ── tijd ──
   function leftText(T, iso, now = Date.now()) {
@@ -401,6 +517,24 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
   }
   const resText = (T, o) => (o.res === "w" ? T.won : o.res === "l" ? T.lost : T.drawn)(o.w, o.l);
   const squares = (o) => o.per.map((r) => (r === "w" ? "🟩" : r === "l" ? "🟥" : "⬜")).join("");
+  const verdict = (T, o, n) => (o.res === "w" ? T.vWin(o.w, o.l, n) : o.res === "l" ? T.vLoss(o.w, o.l, n) : T.vDraw(o.w, o.l));
+  // Je stand tegen één tegenstander over alle afgelopen duels (in de lijst van de server: 90 dagen, max 100).
+  function h2hOf(items, k) {
+    let a = 0, b = 0;
+    for (const d of items || []) {
+      if (d.status !== "done" || (d.opp || oppName(d)) !== k) continue;
+      const o = outcome(d.mine, d.theirs);
+      if (o.res === "w") a++; else if (o.res === "l") b++;
+    }
+    return [a, b];
+  }
+
+  // ── rondjes: je flair (met een account) of de beginletter ──
+  function avHtml(flair, name, cls = "") {
+    const f = flair && H?.flairHtml ? H.flairHtml(flair) : "";
+    return `<span class="dl-av${cls}${f ? " fl" : ""}" aria-hidden="true">${f || esc(initial(name))}</span>`;
+  }
+  const meAv = (T, cls = " me") => avHtml(H?.loggedIn ? H.myFlair?.() : null, myName() || T.you, cls);
 
   // Vijf tegels. fresh = index van de net gespeelde ronde (plopt); flip = onthulling (alles bekend, per ronde omdraaien).
   function tilesHtml(d, { fresh = -1, flip = false } = {}) {
@@ -418,12 +552,22 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
       } else if (x == null) {
         h += `<div class="duel-rd todo">${lab}<b>–</b><span>${i < their ? "?" : "–"}</span></div>`;
       } else if (y == null) {
-        h += `<div class="duel-rd mine${nw}">${lab}<b>${x}</b><span>–</span></div>`;
+        h += `<div class="duel-rd mine${nw}">${lab}<b>${x}</b><span>${i < their ? "?" : "–"}</span></div>`;
       } else {
         h += `<div class="duel-rd ${x > y ? "w" : x < y ? "l" : "d"}${nw}">${lab}<b>${x}</b><span>${y}</span></div>`;
       }
     }
     return h + `</div>`;
+  }
+
+  // De VS-kop: jij links, de ander rechts, in het midden de stand. big/small = het midden; cells = een vakje per ronde.
+  function vsInner(T, d, { big, small, cells }) {
+    const mine = d.mine || [], theirs = d.theirs || [], n = oppName(d);
+    const opSub = d.status === "done" || theirs.length ? T.pts(sum(theirs)) : T.played5(d.their_done || 0);
+    return `<span class="side me">${meAv(T, "")}<span><b>${esc(T.you)}</b><small>${esc(T.pts(sum(mine)))}</small></span></span>` +
+      `<span class="mid"><b>${esc(big)}</b><small>${esc(small)}</small></span>` +
+      `<span class="side op">${avHtml(oppFlair(d), n)}<span><b>${esc(n)}</b><small>${esc(opSub)}</small></span></span>` +
+      (cells ? `<span class="duel-cells" aria-hidden="true">${cells.map((c) => `<i class="duel-cell${c ? " " + c : ""}"></i>`).join("")}</span>` : "");
   }
 
   // ── delen (zoals doShare in game.js: deelvenster op een telefoon, anders klembord) ──
@@ -435,22 +579,34 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     }
     try {
       await navigator.clipboard.writeText(full);
-      const lab = btn && (btn.querySelector(".share-label") || btn);
-      if (lab) { const was = lab.textContent; lab.textContent = T.copied; setTimeout(() => { lab.textContent = was; }, 1500); }
+      flash(btn, T.copied);
       return "copied";
     } catch (e) {
       try { window.prompt(T.copyPrompt, full); } catch (e2) {}
       return "prompt";
     }
   }
+  function flash(btn, text) {
+    const lab = btn && (btn.querySelector(".share-label") || btn);
+    if (!lab) return;
+    const was = lab.textContent;
+    lab.textContent = text;
+    setTimeout(() => { lab.textContent = was; }, 1500);
+  }
+  // Alleen de link (Kopieer-knop naast het linkveld). Lukt kopiëren niet, dan staat hij geselecteerd in het veld.
+  async function copyLink(T, code, btn) {
+    try { await navigator.clipboard.writeText(LINK(code)); flash(btn, T.copied); }
+    catch (e) { const inp = btn?.closest(".dl-link")?.querySelector("input"); if (inp) { inp.focus(); inp.select(); } }
+  }
+  const linkField = (T, code) => `<div class="dl-link"><input type="text" readonly value="${esc(LINK(code).replace(/^https:\/\//, ""))}" aria-label="${esc(T.linkAria)}">` +
+    `<button type="button" class="dl-mini" data-act="copy" data-code="${code}">${esc(T.copy)}</button></div>`;
 
   // ── rpc met nette fouten ──
   async function call(fn, args) {
     try {
       if (H.ready) await H.ready();   // bij een link of het stipje vlak na het laden: wacht tot de verbinding met de server er is
       return { ok: true, v: await H.rpc(fn, { p_client: H.clientId(), ...args }) };
-    }
-    catch (e) { return { ok: false, e: String(e?.message || e) }; }
+    } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
 
   // ════ een ronde spelen ════
@@ -466,38 +622,55 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     const r = (d.mine || []).length;
     if (d.status !== "active" || r >= 5 || !d.rounds || !d.rounds[r]) return openList(H, { focus: d.code });
     const p = d.rounds[r];
-    ["modal-duels", "modal-duel-pop"].forEach((id) => { if (document.getElementById(id) && !document.getElementById(id).hidden) H.closeModal(id); });
+    ["modal-duels", "modal-duel-pop", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
     await H.startRound({
       mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(d.code, r) || null, potId: `d${d.code}${r}`, shared: true,
       duel: { code: d.code, round: r, opp: oppName(d), deadline: d.deadline },
     });
   }
 
-  // De balk boven de feitenkaart: tegen wie, hoe lang nog, de tussenstand en een cel per ronde. Zonder duel: weg.
-  let barFetching = null;
+  // Het duelscherm (zolang state.duel): de duelkop in plaats van de tabbladen (‹ Jaardle · ⚔️ DUEL · ronde), de VS-kop boven
+  // het feit, en de duelkleur (body[data-arena]). Zonder duel: alles weer weg.
+  let vsFetching = null;
   function sync(host) {
     H = host || H;
-    const st = H.state();
-    let el = document.getElementById("duel-bar");
-    if (!st || !st.duel) { el?.remove(); return; }
+    const st = H.state(), body = document.body;
+    if (!st || !st.duel) {
+      document.querySelectorAll("#duel-top, #duel-vs, #duel-bar").forEach((e) => e.remove());
+      body.removeAttribute("data-duelpage");
+      body.removeAttribute("data-arena");
+      return;
+    }
     ensureCss();
-    const card = document.getElementById("event-card");
-    if (!card) return;
-    if (!el) { el = document.createElement("div"); el.id = "duel-bar"; el.className = "duel-bar"; el.setAttribute("role", "status"); card.before(el); }
-    const T = tx(H.lang), dl = st.duel, d = cache[dl.code];
-    const mine = (d?.mine || []).slice(0, st.done ? 5 : dl.round), theirs = d?.theirs || [];
+    const T = tx(H.lang), dl = st.duel;
+    const d = cache[dl.code] || { code: dl.code, status: "active", me: null, c_name: dl.opp, o_name: dl.opp, mine: [], theirs: [], deadline: dl.deadline };
+    body.setAttribute("data-duelpage", "");
+    body.setAttribute("data-arena", "");
+    const tabs = document.getElementById("mode-tabs"), card = document.getElementById("event-card");
+    let top = document.getElementById("duel-top");
+    if (!top && tabs) {
+      top = document.createElement("div");
+      top.id = "duel-top"; top.className = "duel-top";
+      tabs.before(top);
+      top.addEventListener("click", (e) => { if (e.target.closest(".duel-exit")) H.switchMode("daily"); });
+    }
+    const mine = (d.mine || []).slice(0, st.done ? 5 : dl.round), theirs = d.theirs || [];
+    const shown = st.done ? Math.max(1, mine.length) : dl.round + 1;
+    if (top) top.innerHTML = `<button type="button" class="duel-exit">‹ ${esc(T.exit)}</button><span class="duel-title">${ICON} ${esc(T.duelTitle)}</span>` +
+      `<span class="duel-round">${esc(T.roundN(Math.min(5, shown)))}</span>`;
+    let vs = document.getElementById("duel-vs");
+    if (!vs && card) { vs = document.createElement("div"); vs.id = "duel-vs"; vs.className = "duel-vs"; vs.setAttribute("role", "status"); card.before(vs); }
     const s = stand(mine, theirs), cur = st.done ? -1 : dl.round;
     const cells = [0, 1, 2, 3, 4].map((i) => (i < s.n ? (mine[i] > theirs[i] ? "w" : mine[i] < theirs[i] ? "l" : "d") : i < mine.length ? "p" : i === cur ? "cur" : ""));
-    const left = d?.status === "done" ? "" : leftText(T, d?.deadline || dl.deadline);
-    el.innerHTML = `${icoHtml()}<span class="duel-bt"><b>${esc(dl.opp)}</b>${left ? " · " + esc(left) : ""}</span>` +
-      (s.n ? `<span class="duel-stand">${s.w}–${s.l}</span>` : "") +
-      `<span class="duel-cells" aria-hidden="true">${cells.map((c) => `<i class="duel-cell${c ? " " + c : ""}"></i>`).join("")}</span>`;
-    if (!d && !barFetching) {   // na herladen: de stand nog niet in het geheugen
-      barFetching = call("duel_get", { p_code: dl.code }).then((r) => { barFetching = null; if (r.ok && r.v) { keep(r.v); sync(); } });
+    const dd = { ...d, mine, theirs: theirs.slice(0, Math.max(s.n, d.status === "done" ? 5 : 0)) };
+    if (vs) vs.innerHTML = vsInner(T, dd, { big: `${s.w}–${s.l}`, small: d.status === "done" ? T.final : leftText(T, d.deadline || dl.deadline), cells });
+    if (!cache[dl.code] && !vsFetching) {   // na herladen: de stand nog niet in het geheugen
+      vsFetching = call("duel_get", { p_code: dl.code }).then((r) => { vsFetching = null; if (r.ok && r.v) { keep(r.v); sync(); } });
     }
   }
 
-  // Na een duelronde (fresh = net gespeeld; anders herstel na herladen of een taalwissel): score insturen, kaart en knoppen.
+  // Na een duelronde (fresh = net gespeeld; anders herstel na herladen of een taalwissel): score insturen, kaart en knoppen;
+  // na je vijfde ronde ook de eindstand-pop-up.
   async function roundDone(host, st, fresh) {
     H = host;
     ensureCss();
@@ -547,11 +720,9 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     let head, note;
     if (d.status === "done") {
       const o = outcome(mine, theirs);
-      head = `${icoHtml(o.res === "w" ? "🏆" : ICON)}<span class="duel-verdict">${esc(o.res === "w" ? T.vWin(o.w, o.l, opp) : o.res === "l" ? T.vLoss(o.w, o.l, opp) : T.vDraw(o.w, o.l))}</span>`;
+      head = `${icoHtml(o.res === "w" ? "🏆" : ICON)}<span class="duel-verdict">${esc(verdict(T, o, opp))}</span>`;
       note = (late ? esc(T.late) + " " : "") + esc(T.totalNote(o.a, o.b));
       setButtons({ kind: "rematch", code: d.code, html: `${icoHtml()} ${esc(T.revenge)}`, icon: true }, { kind: "result", d, label: T.shareRes });
-      if (!d.seen) markSeen(d.code);
-      if (fresh && o.res === "w" && !st.won) H.showConfetti();   // de laatste ronde verloren maar het duel gewonnen: toch feest
     } else if (mine.length < 5) {
       const s = stand(mine, theirs);
       head = `${icoHtml()}<b>${esc(T.duelWith(opp))}</b>` + (s.n ? `<span class="duel-big">${s.w}–${s.l}</span>` : `<span class="duel-r">${esc(T.roundOf(mine.length))}</span>`);
@@ -565,15 +736,79 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
       note = esc(T.waitNote(opp, leftText(T, d.deadline)));
       const after = H.dailyDone() ? { kind: "free", html: esc(H.t("next")) } : { kind: "daily", html: esc(T.toDaily) };
       setButtons(after, { kind: "turn", d, label: T.tell(opp) });
-      // Wacht er nog een duel op jou? Dan gaat de knop daarheen.
+    }
+    placeCard(`<div class="duel-head">${head}</div>` + tilesHtml(d, { fresh: late ? -1 : r }) + `<p class="duel-note">${note}</p>`);
+    // Na je vijfde ronde: de eindstand als eigen pop-up (alleen direct na het spelen, niet bij herladen).
+    if (fresh && mine.length >= 5) showEndPop(T, d, { fresh: true, wonLast: st.won });
+    // Wacht er nog een duel op jou? Dan gaat de knop daarheen (en in de pop-up ook). De lijst geeft ook je stand tegen deze tegenstander.
+    if (mine.length >= 5 && d.status !== "done") {
       call("duel_list", {}).then((res) => {
         if (!res.ok || H.state() !== st) return;
         applyList(res.v);
         const other = (res.v?.items || []).find((x) => x.code !== d.code && x.status === "active" && (x.mine || []).length < 5);
         if (other) setButtons({ kind: "duel", code: other.code, html: esc(T.nextDuel(oppName(other))) }, endShare);
+        const pop = document.querySelector("#modal-duel-end [data-act='end-next']");
+        if (pop && endNext) pop.innerHTML = endNext.html;
       });
     }
-    placeCard(`<div class="duel-head">${head}</div>` + tilesHtml(d, { fresh: late ? -1 : r }) + `<p class="duel-note">${note}</p>`);
+  }
+
+  // ════ de eindstand-pop-up ════
+  // Na je vijfde ronde (de ander nog bezig of al klaar), en voor een uitslag die je nog niet zag (flip: de rondes draaien om).
+  function showEndPop(T, d, { flip = false, fresh = false, wonLast = false } = {}) {
+    ensureCss();
+    document.getElementById("modal-duel-end")?.remove();
+    const opp = oppName(d), mine = d.mine || [], theirs = d.theirs || [], done = d.status === "done";
+    const o = outcome(mine, theirs), s = stand(mine, theirs), af = flip ? " after" : "";
+    let inner = `<p class="ep-eyebrow">${ICON} ${esc(T.duelWith(opp))}</p>`;
+    if (done) {
+      const h = verdict(T, o, opp);
+      inner += `<h2 class="${af.trim()}">${o.res === "w" ? "🏆 " : ""}${esc(h)}</h2>` +
+        `<div class="duel-vs">${vsInner(T, d, { big: flip ? "?–?" : `${o.w}–${o.l}`, small: T.final })}</div>` +
+        tilesHtml(d, { flip }) +
+        `<p class="ep-note${af}">${esc(T.totalNote(o.a, o.b))}<span class="ep-h2h"></span></p>` +
+        `<div class="ep-btns${af}"><button type="button" class="duel-btn" data-act="rematch" data-code="${d.code}">${icoHtml()} ${esc(T.revenge)}</button>` +
+        `<button type="button" class="duel-btn ep-ghost" data-act="share-result">${esc(T.shareRes)}</button></div>`;
+    } else {
+      inner += `<h2>${esc(T.youDone(opp))}</h2>` +
+        `<div class="duel-vs">${vsInner(T, d, { big: `${s.w}–${s.l}`, small: T.busy })}</div>` + tilesHtml(d) +
+        `<p class="ep-note">${esc(T.waitNote(opp, leftText(T, d.deadline)))}</p>` +
+        `<div class="ep-btns"><button type="button" class="duel-btn" data-act="share-turn">${esc(T.tell(opp))}</button>` +
+        `<button type="button" class="ep-ghost" data-act="end-next">${endNext ? endNext.html : esc(T.toDaily)}</button></div>`;
+    }
+    if (!H.loggedIn) inner += `<div class="ep-keep${af}"><span>${esc(T.keepTitle)}</span><button type="button" class="dl-mini" data-act="login">${esc(T.keepBtn)}</button></div>`;
+    const el = document.createElement("div");
+    el.id = "modal-duel-end";
+    el.className = "modal";
+    el.hidden = true;
+    el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "duel-end-title");
+    el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card duel-pop ep">` +
+      `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button><section class="ep-body duel-card">${inner}</section></div>`;
+    el.querySelector("h2")?.setAttribute("id", "duel-end-title");
+    document.body.appendChild(el);
+    const close = () => H.closeModal("modal-duel-end");
+    el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", close));
+    el.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-act]");
+      if (!b) return;
+      const act = b.dataset.act;
+      if (act === "rematch") { close(); return create(H, { rematch: b.dataset.code }); }
+      if (act === "share-result") return share(H, b, { kind: "result", d });
+      if (act === "share-turn") return share(H, b, { kind: "turn", d });
+      if (act === "end-next") { close(); return next(H); }
+      if (act === "login") { close(); return H.openLogin?.(); }
+    });
+    H.openModal("modal-duel-end");
+    // je stand tegen deze tegenstander, als de lijst er al is
+    const [ha, hb] = h2hOf((listItems || []).filter((x) => x.code !== d.code).concat(done ? [d] : []), d.opp || opp);   // dit duel telt al mee
+    if (done && (ha || hb) && ha + hb > 1) { const x = el.querySelector(".ep-h2h"); if (x) x.textContent = ` · ${T.h2hNow(ha, hb)}`; }   // pas vanaf je tweede duel tegen deze speler
+    if (!done) return;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(() => {
+      if (flip) { const big = el.querySelector(".duel-vs .mid b"); if (big) big.textContent = `${o.w}–${o.l}`; }
+      if (o.res === "w" && !(fresh && wonLast)) H.showConfetti();   // gewonnen: feest (had de laatste ronde al confetti, dan niet nog eens)
+      if (!d.seen) markSeen(d.code);
+    }, flip && !reduced ? FLIP_MS : 0);
   }
 
   function next(host) {
@@ -586,9 +821,9 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     return H.newFree();
   }
 
-  function share(host, btn) {
+  function share(host, btn, what) {
     H = host;
-    const T = tx(H.lang), s = endShare;
+    const T = tx(H.lang), s = what || endShare;
     if (!s) return;
     if (s.kind === "turn") return shareText(T, T.shTurn(oppName(s.d)), LINK(s.d.code), btn);
     if (s.kind === "result") {
@@ -599,12 +834,15 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 
   async function markSeen(code) {
     if (cache[code]) cache[code].seen = true;
+    const li = (listItems || []).find((x) => x.code === code);
+    if (li) li.seen = true;
     await call("duel_seen", { p_code: code });
     checkNews(H);
+    if (!document.getElementById("modal-duels")?.hidden) renderList(tx(H.lang), null);   // stipje op de rij weg
   }
 
   // ════ het Duels-scherm (⋮ → Duels) ════
-  function ensureListModal(T) {
+  function ensureListModal() {
     let el = document.getElementById("modal-duels");
     if (el) return el;
     el = document.createElement("div");
@@ -613,13 +851,14 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     el.hidden = true;
     el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "duels-title");
     el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card"><header class="modal-header"><h2 id="duels-title"></h2>` +
-      `<button type="button" class="modal-close" data-close></button></header><div class="modal-body dl"></div></div>`;
+      `<button type="button" class="dl-help-btn" data-act="help" aria-expanded="false" hidden></button>` +
+      `<button type="button" class="modal-close" data-close>✕</button></header><div class="modal-body dl"></div></div>`;
     document.body.appendChild(el);
     el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => H.closeModal("modal-duels")));
     el.addEventListener("click", onListClick);
     el.addEventListener("submit", onListSubmit);
     el.addEventListener("keydown", (e) => {
-      if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-grp]")) { e.preventDefault(); e.target.click(); }
+      if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-grp], [data-wait]")) { e.preventDefault(); e.target.click(); }
     });
     return el;
   }
@@ -627,22 +866,25 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
   async function openList(host, opts = {}) {
     H = host;
     ensureCss();
-    const T = tx(H.lang), el = ensureListModal(T);
+    const T = tx(H.lang), el = ensureListModal();
     el.querySelector("#duels-title").textContent = `${ICON} ${T.title}`;
     el.querySelector(".modal-close").setAttribute("aria-label", T.close);
+    el.querySelector(".dl-help-btn").textContent = T.help;
     if (!opts.keepTop) listTop = "";
-    if (opts.focus) openGrp = null;
     H.openModal("modal-duels");
     if (H.loggedIn) await H.ensureIdentity?.().catch?.(() => {});
     if (!listItems) renderList(T, null);
     const r = await call("duel_list", {});
     if (!r.ok) { listItems = listItems || []; renderList(T, T.err); return; }
     applyList(r.v);
+    let pop = null;
     if (opts.focus) {
       const d = listItems.find((x) => x.code === opts.focus);
-      if (d && d.status === "done") { openGrp = d.opp || oppName(d); selInGrp[openGrp] = d.code; }
+      if (d && d.status === "done") { openGrp = d.opp || oppName(d); selInGrp[openGrp] = d.code; if (!d.seen) pop = d; }
+      else if (d && d.status === "active") openWait.add(d.code);
     }
     renderList(T, null);
+    if (pop) showEndPop(T, pop, { flip: true });
   }
 
   function applyList(v) {
@@ -655,10 +897,10 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
   }
 
   function rowHtml({ av, name, h2h, sub, right, cls = "", attrs = "" }) {
-    return `<div class="dl-row${cls}"${attrs}><span class="dl-av" aria-hidden="true">${esc(av)}</span>` +
+    return `<div class="dl-row${cls}"${attrs}>${av}` +
       `<span class="dl-main"><b>${esc(name)}${h2h ? ` <small>· ${esc(h2h)}</small>` : ""}</b><small>${sub}</small></span>${right || ""}</div>`;
   }
-  const initial = (n) => ((n || "?").trim().charAt(0) || "?").toUpperCase();
+  const qAv = `<span class="dl-av" aria-hidden="true">?</span>`;
 
   function groupsOf(items) {
     const m = new Map();
@@ -672,45 +914,54 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     return [...m.entries()].map(([k, ds]) => ({ k, ds: ds.sort((a, b) => t(b) - t(a)) })).sort((a, b) => t(b.ds[0]) - t(a.ds[0]));
   }
 
+  const stepsHtml = (T) => `<ol class="dl-steps"><li><span>${esc(T.st1)}<small>${esc(T.st1s)}</small></span></li>` +
+    `<li><span>${esc(T.st2)}<small>${esc(T.st2s)}</small></span></li><li><span>${esc(T.st3)}<small>${esc(T.st3s)}</small></span></li></ol>`;
+
   function renderList(T, msg) {
     const el = document.getElementById("modal-duels");
     if (!el) return;
-    const body = el.querySelector(".modal-body");
+    const body = el.querySelector(".modal-body"), helpBtn = el.querySelector(".dl-help-btn");
     const items = listItems || [];
     const newBtn = `<button type="button" class="dl-new" data-act="new">${icoHtml()} ${esc(T.newBtn)}</button>`;
-    let h = listTop.startsWith("<form") ? listTop : newBtn + listTop;
-    if (msg) h += `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>`;
-    if (!listItems) { body.innerHTML = h + `<p class="dl-msg">${esc(T.loading)}</p>`; return; }
+    const err = msg ? `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>` : "";
+    if (!listItems) { helpBtn.hidden = true; body.innerHTML = `<p class="dl-msg">${esc(T.loading)}</p>`; return; }
+    const empty = !items.length && !listTop;
+    helpBtn.hidden = empty;
+    helpBtn.setAttribute("aria-expanded", String(helpOpen));
+    if (empty) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
+      body.innerHTML = err + `<div class="dl-hero"><div class="dl-vs">${meAv(T)}<b>VS</b><span class="dl-av op" aria-hidden="true">?</span></div>` +
+        `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${newBtn}</div>`;
+      return;
+    }
+    let h = helpOpen ? `<div class="dl-help">${stepsHtml(T)}</div>` : "";
+    const groups = groupsOf(items);
+    if (groups.length) {   // je stand: gewonnen, verloren, lopend (zodra er een duel afgelopen is)
+      let w = 0, l = 0;
+      for (const g of groups) for (const d of g.ds) { const o = outcome(d.mine, d.theirs); if (o.res === "w") w++; else if (o.res === "l") l++; }
+      const run = items.filter((d) => d.status === "active" || (d.status === "open" && d.me === "c")).length;
+      h += `<div class="dl-stats"><div class="dl-stat w"><b>${w}</b><small>${esc(T.statW)}</small></div><div class="dl-stat l"><b>${l}</b><small>${esc(T.statL)}</small></div>` +
+        `<div class="dl-stat"><b>${run}</b><small>${esc(T.statO)}</small></div></div>`;
+    }
+    h += listTop.startsWith("<form") ? listTop : newBtn + listTop;
+    h += err;
     const turn = items.filter((d) => d.status === "active" && (d.mine || []).length < 5)
       .sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
     const wait = items.filter((d) => (d.status === "open" && d.me === "c") || (d.status === "active" && (d.mine || []).length >= 5));
     const recent = (d) => Date.now() - Date.parse(d.created_at) < 3 * 864e5;
     const gone = items.filter((d) => d.me === "c" && ["expired", "withdrawn", "declined"].includes(d.status) && recent(d)).slice(0, 3);
-    const groups = groupsOf(items);
-    const h2hOf = (k) => { const g = groups.find((x) => x.k === k); if (!g) return ""; let a = 0, b = 0; for (const d of g.ds) { const o = outcome(d.mine, d.theirs); if (o.res === "w") a++; else if (o.res === "l") b++; } return T.h2h(a, b); };
-    if (!items.length && !listTop.includes("dl-sent")) h += `<p class="dl-empty">${esc(T.empty)}</p>`;
+    const h2hTxt = (d) => { const [a, b] = h2hOf(items, d.opp || oppName(d)); return a || b ? T.h2h(a, b) : ""; };
     if (turn.length) {
       h += `<h3 class="dl-h">${esc(T.secTurn)}${turn.length > 1 ? ` · ${turn.length}` : ""}</h3>`;
       for (const d of turn) {
         const n = oppName(d), k = d.their_done || 0;
         const who = k >= 5 ? T.oppDone(n) : k > 0 ? T.oppPlays(n, k) : d.me === "c" ? T.accepted(n) : T.oppNotYet(n);   // "nam aan" alleen als jij uitdaagde
-        h += rowHtml({ av: initial(n), name: n, h2h: h2hOf(d.opp), sub: `${esc(who)} · <em>${esc(leftText(T, d.deadline))}</em>`, cls: " turn",
+        h += rowHtml({ av: avHtml(oppFlair(d), n), name: n, h2h: h2hTxt(d), sub: `${esc(who)} · <em>${esc(leftText(T, d.deadline))}</em>`, cls: " turn",
           right: `<button type="button" class="dl-go" data-act="play" data-code="${d.code}">${esc(T.play)}</button>` });
       }
     }
     if (wait.length) {
       h += `<h3 class="dl-h">${esc(T.secWait)}${wait.length > 1 ? ` · ${wait.length}` : ""}</h3>`;
-      for (const d of wait) {
-        if (d.status === "open") {
-          h += rowHtml({ av: d.for_name ? initial(d.for_name) : "?", name: d.for_name ? T.rematchFor(d.for_name) : T.yourLink, sub: esc(cap(T.linkLeft(leftText(T, d.deadline)))), cls: " wrap",
-            right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.resend)}</button>` +
-              `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` });
-        } else {
-          const n = oppName(d), k = d.their_done || 0, s = stand(d.mine, d.theirs);
-          h += rowHtml({ av: initial(n), name: n, h2h: h2hOf(d.opp), sub: `${esc(k > 0 ? T.oppPlays(n, k) : T.oppNotYet(n))} · ${esc(leftText(T, d.deadline))}`,
-            right: s.n ? `<span class="dl-stand">${s.w}–${s.l}</span>` : "" });
-        }
-      }
+      for (const d of wait) h += d.status === "open" ? openLinkHtml(T, d) : waitItemHtml(T, d, h2hTxt(d));
     }
     if (groups.length || gone.length) {
       h += `<h3 class="dl-h">${esc(T.secDone)}</h3>`;
@@ -719,69 +970,86 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
       if (!showAll && groups.length > 3) h += `<button type="button" class="dl-moreb" data-act="more">${esc(T.moreOpp(groups.length - 3))}</button>`;
       for (const d of gone) {
         const sub = d.status === "declined" ? T.declined(d.o_name || "?") : d.status === "withdrawn" ? T.withdrawn : T.nobody;
-        h += rowHtml({ av: "?", name: T.yourLink, sub: esc(sub), cls: " dim", right: `<span class="dl-res">${esc(T.gone)}</span>` });
+        h += rowHtml({ av: qAv, name: T.yourLink, sub: esc(sub), cls: " dim", right: `<span class="dl-res">${esc(T.gone)}</span>` });
       }
     }
     body.innerHTML = h;
-    const fresh = body.querySelector(".dl-item.open .flip");
-    if (fresh) revealSoon(fresh.closest(".dl-item").dataset.sel);
+  }
+
+  // Je openstaande link: opnieuw sturen, intrekken, en de link zelf (te selecteren, Kopieer).
+  function openLinkHtml(T, d) {
+    return rowHtml({ av: d.for_name ? avHtml(null, d.for_name) : qAv, name: d.for_name ? T.rematchFor(d.for_name) : T.yourLink,
+      sub: esc(cap(T.linkLeft(leftText(T, d.deadline)))), cls: " wrap",
+      right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.resend)}</button>` +
+        `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` +
+        (listTop.includes(d.code) ? "" : `<span class="dl-acts">${linkField(T, d.code)}</span>`) });   // net verstuurd: de link staat al in het groene vak
+  }
+
+  // Een duel dat op de ander wacht: tik = je eigen vijf scores, en die van de ander voor de rondes die jullie allebei speelden.
+  function waitItemHtml(T, d, h2h) {
+    const n = oppName(d), k = d.their_done || 0, s = stand(d.mine, d.theirs), open = openWait.has(d.code);
+    const row = rowHtml({ av: avHtml(oppFlair(d), n), name: n, h2h, sub: `${esc(k > 0 ? T.oppPlays(n, k) : T.oppNotYet(n))} · ${esc(leftText(T, d.deadline))}`,
+      right: (s.n ? `<span class="dl-stand">${s.w}–${s.l}</span>` : "") + `<span class="dl-chev" aria-hidden="true">▾</span>`,
+      attrs: ` data-wait="${d.code}" role="button" tabindex="0" aria-expanded="${open}"` });
+    const det = open ? `<div class="dl-detail"><div class="duel-card"><div class="duel-head"><b>${esc(T.yourRounds)}</b><span class="duel-r">${esc(T.pts(sum(d.mine)))}</span></div>` +
+      tilesHtml(d) + `<p class="dl-wait-note">${esc(T.waitDetail(n, k))}</p></div>` +
+      `<button type="button" class="dl-mini dl-rev" data-act="turn" data-code="${d.code}">${esc(T.tell(n))}</button></div>` : "";
+    return `<div class="dl-item${open ? " open" : ""}">${row}${det}</div>`;
   }
 
   function groupHtml(T, g) {
     const latest = g.ds[0], n = oppName(latest), isOpen = openGrp === g.k;
     let a = 0, b = 0;
-    const form = g.ds.slice(0, 8).reverse().map((d) => { const o = outcome(d.mine, d.theirs); if (o.res === "w") a++; else if (o.res === "l") b++; return o.res; });
-    for (const d of g.ds.slice(8)) { const o = outcome(d.mine, d.theirs); if (o.res === "w") a++; else if (o.res === "l") b++; }
+    const form = g.ds.slice(0, 8).reverse().map((d) => outcome(d.mine, d.theirs).res);
+    for (const d of g.ds) { const o = outcome(d.mine, d.theirs); if (o.res === "w") a++; else if (o.res === "l") b++; }
     const lo = outcome(latest.mine, latest.theirs);
     const sel = g.ds.find((d) => d.code === selInGrp[g.k]) || latest;
     const news = g.ds.some((d) => !d.seen);
     const row = `<div class="dl-row${news ? " has-new" : ""}" data-grp="${esc(g.k)}" role="button" tabindex="0" aria-expanded="${isOpen}">` +
-      `<span class="dl-av" aria-hidden="true">${esc(initial(n))}</span><span class="dl-main"><b>${esc(n)}</b><small>${esc(cap(whenText(T, latest.finished_at)))}: ${esc(resText(T, lo))}</small></span>` +
+      `${avHtml(oppFlair(latest), n)}<span class="dl-main"><b>${esc(n)}</b><small>${esc(cap(whenText(T, latest.finished_at)))}: ${esc(resText(T, lo))}</small></span>` +
       `<span class="dl-rec"><span class="dl-form" aria-hidden="true">${form.map((r) => `<i class="${r}"></i>`).join("")}</span><b>${a}–${b}</b></span><span class="dl-chev" aria-hidden="true">▾</span></div>`;
     let det = "";
     if (isOpen) {
-      const so = outcome(sel.mine, sel.theirs), flip = !sel.seen;
+      const so = outcome(sel.mine, sel.theirs);
       det = `<div class="dl-detail"><div class="duel-card"><div class="duel-head"><b>${esc(cap(whenText(T, sel.finished_at)))}, ${esc(clockText(sel.finished_at))}</b>` +
-        `<span class="duel-r${flip ? " after" : ""}">${esc(T.total(so.a, so.b))}</span></div>` + tilesHtml(sel, { flip }) +
-        `<span class="duel-verdict${flip ? " after" : ""}">${esc(so.res === "w" ? T.vWin(so.w, so.l, n) : so.res === "l" ? T.vLoss(so.w, so.l, n) : T.vDraw(so.w, so.l))}</span></div>` +
+        `<span class="duel-r">${esc(T.total(so.a, so.b))}</span></div>` + tilesHtml(sel) +
+        `<span class="duel-verdict">${esc(verdict(T, so, n))}</span></div>` +
         (g.ds.length > 1 ? `<div class="dl-past">${g.ds.slice(0, 6).map((d) => { const o = outcome(d.mine, d.theirs);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${o.res}">${esc(resText(T, o))}</span></button>`; }).join("")}</div>` : "") +
-        `<button type="button" class="dl-mini dl-rev${flip ? " after" : ""}" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button></div>`;
+        `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button></div>`;
     }
     return `<div class="dl-item${isOpen ? " open" : ""}" data-sel="${sel.code}">${row}${det}</div>`;
   }
 
-  // De onthulling speelt één keer: daarna gezien (server), bij winst confetti.
-  const revealing = new Set();
-  function revealSoon(code) {
-    if (!code || revealing.has(code)) return;
-    revealing.add(code);
-    const d = (listItems || []).find((x) => x.code === code);
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setTimeout(() => {
-      if (d) d.seen = true;
-      if (d && outcome(d.mine, d.theirs).res === "w") H.showConfetti();
-      call("duel_seen", { p_code: code }).then(() => checkNews(H));
-      if (!document.getElementById("modal-duels")?.hidden) renderList(tx(H.lang), null);   // stipje op de rij weg (de eindstand blijft gelijk)
-    }, reduced ? 0 : FLIP_MS);
-  }
-
   function onListClick(e) {
     const T = tx(H.lang);
-    const b = e.target.closest("[data-act], [data-grp], [data-sel][data-grp-of]");
+    const b = e.target.closest("[data-act], [data-grp], [data-wait], [data-sel][data-grp-of]");
     if (!b) return;
     if (b.dataset.grpOf) { selInGrp[b.dataset.grpOf] = b.dataset.sel; renderList(T, null); return; }
-    if (b.dataset.grp != null && !b.dataset.act) {
-      openGrp = openGrp === b.dataset.grp ? null : b.dataset.grp;
+    if (b.dataset.wait && !b.dataset.act) {
+      if (openWait.has(b.dataset.wait)) openWait.delete(b.dataset.wait); else openWait.add(b.dataset.wait);
       renderList(T, null);
+      return;
+    }
+    if (b.dataset.grp != null && !b.dataset.act) {
+      const k = b.dataset.grp, wasOpen = openGrp === k;
+      openGrp = wasOpen ? null : k;
+      renderList(T, null);
+      // Een uitslag die je nog niet zag: de eindstand-pop-up, met de rondes die omdraaien.
+      const g = !wasOpen && groupsOf(listItems || []).find((x) => x.k === k);
+      const unseen = g && g.ds.find((d) => !d.seen);
+      if (unseen) showEndPop(T, unseen, { flip: true });
       return;
     }
     const act = b.dataset.act, code = b.dataset.code;
     if (act === "new") return create(H, {});
+    if (act === "help") { helpOpen = !helpOpen; return renderList(T, null); }
     if (act === "reload") return openList(H, { keepTop: true });
     if (act === "more") { showAll = true; return renderList(T, null); }
     if (act === "play") return play(H, code);
     if (act === "rematch") return create(H, { rematch: code });
+    if (act === "copy") return copyLink(T, code, b);
+    if (act === "turn") { const d = (listItems || []).find((x) => x.code === code); if (d) share(H, b, { kind: "turn", d }); return; }
     if (act === "resend" || act === "send") {
       const d = (listItems || []).find((x) => x.code === code) || cache[code];
       if (d) shareText(T, (d.rematch ? T.shRematch : T.shInvite)(d.c_name), LINK(code), b);
@@ -801,9 +1069,8 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     saveName(n);
     create(H, { rematch: f.dataset.rematch || null });
   }
-  const cleanName = (s) => String(s || "").replace(/\s+/g, " ").trim().slice(0, 20);
 
-  // Nieuwe uitdaging of revanche: naam (zonder account één keer vragen), aanmaken, dan meteen delen.
+  // Nieuwe uitdaging of revanche: naam (zonder account één keer vragen), aanmaken, dan meteen delen; de link blijft zichtbaar.
   async function create(host, { rematch = null } = {}) {
     H = host;
     const T = tx(H.lang);
@@ -830,7 +1097,7 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     const how = await shareText(T, (rematch ? T.shRematch : T.shInvite)(d.c_name), LINK(d.code), null);
     const head = how === "shared" ? T.sent : how === "copied" ? T.copied : T.ready;
     const sub = d.for_name ? T.onlyFor(d.for_name) : T.sentSub;
-    listTop = `<div class="dl-sent"><b>✓ ${esc(head)}</b><span>${esc(sub)}</span>` +
+    listTop = `<div class="dl-sent"><b>✓ ${esc(head)}</b><span>${esc(sub)}</span>${linkField(T, d.code)}` +
       (how === "shared" || how === "copied" ? "" : `<button type="button" class="dl-mini" data-act="send" data-code="${d.code}">${esc(T.sendLink)}</button>`) + `</div>`;
     await opened;
     openList(H, { keepTop: true });
@@ -863,11 +1130,13 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     }
     if (d.can_accept) {
       const needName = !(H.loggedIn && H.myName && H.myName());
-      return `${icoHtml()}<h2>${esc((d.rematch ? T.invRematch : T.invTitle)(c))}</h2><ul><li>${T.inv1}</li><li>${T.inv2}</li><li>${T.inv3}</li></ul>` +
+      const fl = d.c_flair && H.flairHtml ? H.flairHtml(d.c_flair) : "";
+      return `${icoHtml()}<h2>${fl ? fl + " " : ""}${esc((d.rematch ? T.invRematch : T.invTitle)(c))}</h2><ul><li>${T.inv1}</li><li>${T.inv2}</li><li>${T.inv3}</li></ul>` +
         (needName ? `<label for="duel-name-acc">${esc(T.invName(c))}<input id="duel-name-acc" maxlength="20" autocomplete="nickname" placeholder="${esc(T.namePh)}" value="${esc(storedName() || "")}"></label>` : "") +
         `<button type="button" class="duel-go" data-act="accept" data-code="${d.code}">${esc(T.accept)}</button>` +
         `<button type="button" class="duel-no" data-act="decline" data-code="${d.code}">${esc(T.decline)}</button>` +
-        `<p class="duel-fine">${esc(cap(T.invFine(leftText(T, d.deadline))))}</p>`;
+        `<p class="duel-fine">${esc(cap(T.invFine(leftText(T, d.deadline))))}</p>` +
+        (H.loggedIn ? "" : `<button type="button" class="duel-no duel-login" data-act="login" data-code="${d.code}">${esc(T.login)}</button>`);
     }
     if (d.status === "open") return `${icoHtml()}<h2>${esc(T.notForYou)}</h2>${anyBtn}`;
     if (d.status === "active" || d.status === "done") return `${icoHtml()}<h2>${esc(T.taken(d.o_name || "?"))}</h2>${anyBtn}`;
@@ -899,6 +1168,11 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
     const act = b.dataset.act, code = b.dataset.code;
     if (act === "new") { H.closeModal("modal-duel-pop"); return create(H, {}); }
     if (act === "send") return shareText(T, (d?.rematch ? T.shRematch : T.shInvite)(d?.c_name || ""), LINK(code), b);
+    if (act === "login") {   // na het inloggen (ook na Google) komt deze uitnodiging terug: zie duelsAfterLogin in game.js
+      writeJson(PENDING_KEY, { code, at: Date.now() });
+      H.closeModal("modal-duel-pop");
+      return H.openLogin?.();
+    }
     const inp = document.getElementById("duel-name-acc");
     const name = inp ? cleanName(inp.value) : myName();
     if (act === "decline") {
@@ -935,6 +1209,6 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
   return {
     openList, openInvite, play, sync, roundDone, next, share, checkNews,
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
-    _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, setHost: (h) => { H = h; } },   // voor de tests
+    _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();
