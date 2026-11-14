@@ -19,8 +19,9 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
 .evm-bar.slim .evm-ico { width: 1.25rem; height: 1.25rem; }
 .evm-ico svg { width: 100%; height: 100%; display: block; }
 .evm-bt { flex: 1; min-width: 0; }
-.evm-bt small { display: block; color: var(--muted); font-size: 0.75rem; font-weight: 400; }
-.evm-bar.slim .evm-bt { flex: none; }
+.evm-bt b, .evm-bt small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* twee regels, nooit meer: de balk is even hoog als de plek die game.js vrijhoudt */
+.evm-bt small { color: var(--muted); font-size: 0.75rem; font-weight: 400; }
+.evm-bar.slim .evm-bt { flex: none; white-space: nowrap; }
 .evm-n { flex: none; margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--fg); }
 .evm-bar.slim .evm-n { font-size: 0.78rem; }
 .evm-pips { display: flex; align-items: center; gap: 0.2rem; }
@@ -64,7 +65,7 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
         nl: {
           name: "Strooigoed", rewardName: { feest: "Strooigoed" }, popEyebrow: "Sinterklaas-beloning",
           popSub: { feest: "Verdiend met 10 potjes op 5 en 6 december. Speelt bij elke winst en blijft van jou." },
-          lead: (total) => `Speel ${total} potjes, verdien Strooigoed`, sub: (last) => `Een viering bij elke winst · ${last ? "alleen vandaag nog" : "vandaag en morgen"}`,
+          lead: (total) => `Speel ${total} potjes, verdien Strooigoed`, sub: (last) => `Viering bij elke winst · ${last ? "alleen vandaag nog" : "vandaag en morgen"}`,
           toGo: (n) => (n === 1 ? "Nog 1 potje voor de viering Strooigoed" : `Nog ${n} potjes voor de viering Strooigoed`),
           earnedOff: "Verdiend! Zet Strooigoed aan: dan speelt het bij elke winst.", earnedOn: "Strooigoed staat aan en speelt bij elke winst.",
           turnOn: "Zet aan", turnOff: "Zet uit", menu: "Strooigoed-viering", aria: (n, total) => `Strooigoed: ${n} van ${total} potjes`,
@@ -72,7 +73,7 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
         en: {
           name: "Candy Shower", rewardName: { feest: "Candy Shower" }, popEyebrow: "Sinterklaas reward",
           popSub: { feest: "Earned with 10 rounds on 5 and 6 December. Plays after every win and is yours to keep." },
-          lead: (total) => `Play ${total} rounds, earn Candy Shower`, sub: (last) => `A celebration after every win · ${last ? "today only" : "today and tomorrow"}`,
+          lead: (total) => `Play ${total} rounds, earn Candy Shower`, sub: (last) => `Plays after every win · ${last ? "today only" : "today and tomorrow"}`,
           toGo: (n) => (n === 1 ? "1 more round for the Candy Shower celebration" : `${n} more rounds for the Candy Shower celebration`),
           earnedOff: "Earned! Turn Candy Shower on to see it after every win.", earnedOn: "Candy Shower is on and plays after every win.",
           turnOn: "Turn on", turnOff: "Turn off", menu: "Candy Shower celebration", aria: (n, total) => `Candy Shower: ${n} of ${total} rounds`,
@@ -80,7 +81,7 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
         de: {
           name: "Bonbonregen", rewardName: { feest: "Bonbonregen" }, popEyebrow: "Sinterklaas-Belohnung",
           popSub: { feest: "Verdient mit 10 Runden am 5. und 6. Dezember. Läuft bei jedem Sieg und bleibt dir erhalten." },
-          lead: (total) => `Spiel ${total} Runden und hol dir den Bonbonregen`, sub: (last) => `Eine Feier bei jedem Sieg · ${last ? "nur noch heute" : "heute und morgen"}`,
+          lead: (total) => `${total} Runden spielen, Bonbonregen holen`, sub: (last) => `Feier bei jedem Sieg · ${last ? "nur noch heute" : "heute und morgen"}`,
           toGo: (n) => (n === 1 ? "Noch 1 Runde bis zur Feier Bonbonregen" : `Noch ${n} Runden bis zur Feier Bonbonregen`),
           earnedOff: "Geschafft! Schalte den Bonbonregen ein: dann läuft er bei jedem Sieg.", earnedOn: "Der Bonbonregen ist an und läuft bei jedem Sieg.",
           turnOn: "Einschalten", turnOff: "Ausschalten", menu: "Bonbonregen-Feier", aria: (n, total) => `Bonbonregen: ${n} von ${total} Runden`,
@@ -88,7 +89,7 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
         es: {
           name: "Lluvia de dulces", rewardName: { feest: "Lluvia de dulces" }, popEyebrow: "Recompensa de Sinterklaas",
           popSub: { feest: "Conseguida con 10 partidas el 5 y el 6 de diciembre. Aparece en cada victoria y es tuya para siempre." },
-          lead: (total) => `Juega ${total} partidas y gana la Lluvia de dulces`, sub: (last) => `Una celebración en cada victoria · ${last ? "solo hoy" : "hoy y mañana"}`,
+          lead: (total) => `Juega ${total} partidas: Lluvia de dulces`, sub: (last) => `Celebración en cada victoria · ${last ? "solo hoy" : "hoy y mañana"}`,
           toGo: (n) => (n === 1 ? "Falta 1 partida para la celebración Lluvia de dulces" : `Faltan ${n} partidas para la celebración Lluvia de dulces`),
           earnedOff: "¡Conseguida! Activa la Lluvia de dulces y la verás en cada victoria.", earnedOn: "La Lluvia de dulces está activada: la verás en cada victoria.",
           turnOn: "Activar", turnOff: "Desactivar", menu: "Celebración Lluvia de dulces", aria: (n, total) => `Lluvia de dulces: ${n} de ${total} partidas`,
@@ -96,7 +97,7 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
         pt: {
           name: "Chuva de doces", rewardName: { feest: "Chuva de doces" }, popEyebrow: "Recompensa de Sinterklaas",
           popSub: { feest: "Conquistada com 10 partidas em 5 e 6 de dezembro. Aparece a cada vitória e é sua para sempre." },
-          lead: (total) => `Jogue ${total} partidas e ganhe a Chuva de doces`, sub: (last) => `Uma comemoração a cada vitória · ${last ? "só hoje" : "hoje e amanhã"}`,
+          lead: (total) => `Jogue ${total} partidas: Chuva de doces`, sub: (last) => `Comemoração a cada vitória · ${last ? "só hoje" : "hoje e amanhã"}`,
           toGo: (n) => (n === 1 ? "Falta 1 partida para a comemoração Chuva de doces" : `Faltam ${n} partidas para a comemoração Chuva de doces`),
           earnedOff: "Conquistada! Ative a Chuva de doces para vê-la a cada vitória.", earnedOn: "A Chuva de doces está ativada: aparece a cada vitória.",
           turnOn: "Ativar", turnOff: "Desativar", menu: "Comemoração Chuva de doces", aria: (n, total) => `Chuva de doces: ${n} de ${total} partidas`,
@@ -122,11 +123,12 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
   }
   // view (uit game.js): { id, lang, n, total, earned, on, lastDay }; n loopt niet verder dan total.
   // De balk: tot je eerste potje twee regels (wat het is), daarna één dunne regel met de nootjes. Wie de beloning heeft krijgt geen balk meer.
+  // De twee regels zijn kort gehouden: ze passen op 360 px in alle talen (smaller: een beletselteken, de balk wordt nooit hoger).
   function bar(v, o) {
     const c = copy(v.id, v.lang);
     if (!c) return "";
     const intro = !!(o && o.intro), count = `<span class="evm-n">${v.n}/${v.total}</span>`;
-    const body = intro ? `<span class="evm-bt"><b>${esc(c.lead(v.total))}</b><small>${esc(c.sub(v.lastDay))}</small></span>${count}`
+    const body = intro ? `<span class="evm-bt"><b>${esc(c.lead(v.total))}</b><small>${esc(c.sub(v.lastDay))}</small></span>`   // nog geen teller: die komt met je eerste nootje
       : `<span class="evm-bt">${esc(c.name)}</span>${pips(v, false)}${count}`;
     return `<div class="evm-bar${intro ? "" : " slim"}" data-evm="${esc(v.id)}" role="status" aria-label="${esc(c.aria(v.n, v.total))}">${ico(v)}${body}</div>`;
   }

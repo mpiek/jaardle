@@ -4046,7 +4046,9 @@ test("event-mini.js — teksten in vijf talen met dezelfde sleutels, de tekening
   // de balk: tot je eerste potje twee regels, daarna dun met tien nootjes
   const v = (n, o) => ({ id: "sint", lang: "nl", n, total: 10, earned: false, on: false, lastDay: false, ...o });
   const intro = EM.bar(v(0), { intro: true });
-  assert.match(intro, /^<div class="evm-bar" data-evm="sint" role="status"/); assert.match(intro, /<b>Speel 10 potjes, verdien Strooigoed<\/b><small>[^<]*vandaag en morgen<\/small>/); assert.match(intro, />0\/10</);
+  assert.match(intro, /^<div class="evm-bar" data-evm="sint" role="status"/); assert.match(intro, /<b>Speel 10 potjes, verdien Strooigoed<\/b><small>[^<]*vandaag en morgen<\/small>/); assert.ok(!intro.includes("evm-n"), "nog geen teller in de uitleg: de balk blijft twee regels");
+  for (const l of langs) { const c = EM.copy("sint", l); assert.ok(c.lead(10).length <= 36 && c.sub(false).length <= 44 && c.sub(true).length <= 44, `${l}: de uitleg past op een smal scherm (${c.lead(10).length}/${c.sub(false).length}/${c.sub(true).length})`); }
+  assert.match(EM.css, /\.evm-bt b, \.evm-bt small \{[^}]*white-space: nowrap[^}]*text-overflow: ellipsis/);
   assert.ok(!intro.includes("evm-pip")); assert.match(EM.bar(v(0, { lastDay: true }), { intro: true }), /alleen vandaag nog/);
   const slim = EM.bar(v(4), {});
   assert.match(slim, /class="evm-bar slim"/); assert.equal((slim.match(/class="evm-pip[ "]/g) || []).length, 10); assert.equal((slim.match(/class="evm-pip on"/g) || []).length, 4); assert.match(slim, />4\/10</);

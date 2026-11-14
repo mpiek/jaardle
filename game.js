@@ -11283,6 +11283,7 @@ function setWinFx(choice) {
   else if (typeof choice === "string" && choice.startsWith("ev:")) setEventFx(choice.slice(3));
   else { setFlairConfetti(false); setBeerFx(false); setGoldYearsFx(false); setCalendarFx(false); clearEventFx(); }
   prefChanged("winfx", WINFX_RE.test(choice) ? choice : "none");   // reist mee naar je andere toestellen (db/180)
+  syncEventFxUi();   // de knop op het eindscherm en de schakelaar in ⚙️ volgen de keuze, ook als die uit de kluis, de pop-up of een ander toestel komt
 }
 // Flair-rooster: verdiende prestatie-flairs vooraan (gouden randje), dan de
 // gesnoeide gratis-set. Altijd open (de kluis draait om kiezen — geen inklap).
@@ -13003,9 +13004,13 @@ function toggleEventFx(ev) {
   const on = eventFxActive()?.id === ev.id;
   setWinFx(on ? "none" : "ev:" + ev.id);
   gcCount(`event-fx-${ev.id}-${on ? "off" : "on"}`, `Event ${ev.id}: celebration turned ${on ? "off" : "on"}`);
-  if (state && state.done) renderMiniEventStrip(false);
-  renderEventFxToggle();
   if (!on) playWinFxPreview("ev:" + ev.id);
+}
+// De knop in de strook en de schakelaar in ⚙️ opnieuw tekenen na een keuze (setWinFx roept dit aan, waar de keuze ook vandaan komt).
+function syncEventFxUi() {
+  if (!PLAYS_EVENTS.length) return;
+  if (state && state.done && miniEventNow()) renderMiniEventStrip(false);
+  renderEventFxToggle();
 }
 // Zonder account is er geen 🪎-kluis: wie de viering van een potjes-event verdiende, zet hem in ⚙️ aan of uit (ook na het event).
 function renderEventFxToggle() {
