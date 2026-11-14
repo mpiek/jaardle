@@ -52,7 +52,7 @@ src += `
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
   rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
-  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx,
+  EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx, STROOIGOED_FX_IDS, loadStrooigoedFx, loadFxOf,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, oddsVfSvg, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
@@ -75,10 +75,11 @@ src += `
   awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
   seasonFor, SEASONS, SEASON_KEY, seasonKey, THEME_COLORS, themeBarColor, setSeason, seasonActive, seasonCurrent, seasonMenuShown, syncSeasonCheck,
-  EVENTS, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventTier, eventSealTiers, eventDayCounts, rewardsBaselineKeys, EVENT_MASCOTS, ensureEventUi, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
+  EVENTS, STAMP_EVENTS, PLAYS_EVENTS, isPlaysEvent, EVPLAYS_KEY, eventPlaysCount, eventPlaysBump, eventPlaysSynced, eventPlaysState, eventState, eventEarnedAt, eventsInView, eventsArchived,
+  miniEventNow, miniEventView, renderMiniEventBar, loadEventMini, eventUiOf, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventTier, eventSealTiers, eventDayCounts, rewardsBaselineKeys, EVENT_MASCOTS, ensureEventUi, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
   eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
-  setLang:  (l) => { lang = l; },
+  setLang:  (l) => { lang = l; }, getLang: () => lang,
   resolveRecord, reconstructDailyBoard, stampParam, boardIsMine, localHistoryForMe, adoptLocalDays, loadHistory, storageKey, dailyBoardForeign, boardOwnerForSave,
   VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, vondstImgUrl, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
@@ -96,6 +97,7 @@ src += `
 (0, eval)(readFileSync(join(dir, "..", "event-fx.js"), "utf8"));
 (0, eval)(readFileSync(join(dir, "..", "reward-fx.js"), "utf8"));
 (0, eval)(readFileSync(join(dir, "..", "voltreffer-fx.js"), "utf8"));
+(0, eval)(readFileSync(join(dir, "..", "strooigoed-fx.js"), "utf8"));
 const T = globalThis.__T;
 
 test("classify — afstand → bucket", () => {
@@ -517,6 +519,16 @@ function strictCtx() {
   });
 }
 
+// Strikte nep-Path2D (Node kent Path2D niet): alleen geldige SVG-padtekens, en arc/ellipse met eindige, niet-negatieve maten.
+class StrictPath2D {
+  constructor(d) {
+    if (d === undefined) return;
+    if (typeof d !== "string" || !/^[Mm][MmLlHhVvCcSsQqTtAaZz0-9\s,.\-]+$/.test(d)) throw new Error("ongeldig SVG-pad: " + d);
+  }
+  arc(...a) { if (a.some((v) => typeof v !== "number" || !Number.isFinite(v)) || a[2] < 0) throw new Error("arc(" + a.join(",") + ")"); }
+  ellipse(...a) { if (a.some((v) => typeof v !== "number" || !Number.isFinite(v)) || a[2] < 0 || a[3] < 0) throw new Error("ellipse(" + a.join(",") + ")"); }
+}
+
 test("EventFx — EVENT_FX_IDS is precies wat event-fx.js bouwt en elke feit-hash wijst naar een bestaande laag", () => {
   const EF = globalThis.EventFx, HF = globalThis.HolidayFx;
   assert.deepEqual([...EF.ids].sort(), [...T.EVENT_FX_IDS].sort());
@@ -630,20 +642,166 @@ test("HolidayFx aprilup — het echte jaartal-pilletje draait op zijn kop, hangt
   } finally { document.querySelector = saveQ; document.createElement = saveCreate; document.documentElement.dataset = saveDs; }
 });
 
-test("HolidayFx + EventFx — elke laag tekent zonder fouten (strikte nep-canvas, donker en licht, drie formaten)", () => {
-  const HF = globalThis.HolidayFx, saveCreate = document.createElement, saveTheme = document.documentElement.dataset;
+test("HolidayFx + EventFx + StrooigoedFx — elke laag tekent zonder fouten (strikte nep-canvas, donker en licht, drie formaten)", () => {
+  const HF = globalThis.HolidayFx, saveCreate = document.createElement, saveTheme = document.documentElement.dataset, savePath = globalThis.Path2D;
   document.createElement = () => ({ width: 0, height: 0, __sprite: true, getContext: () => strictCtx() });
+  globalThis.Path2D = StrictPath2D;   // de Strooigoed-sprites worden uit SVG-paden getekend
   globalThis.innerWidth = 390; globalThis.innerHeight = 844;
   try {
     for (const theme of ["dark", "light"]) {
       document.documentElement.dataset = theme === "light" ? { theme: "light" } : {};
-      for (const [W, H] of [[390, 844], [320, 568], [1200, 800]]) for (const id of [...T.HOLIDAY_FX_IDS, ...T.EVENT_FX_IDS]) {
-        const layers = (T.EVENT_FX_IDS.includes(id) ? globalThis.EventFx : HF).build(id, W, H), ctx = strictCtx(), end = Math.max(...layers.map((l) => l.end));
+      for (const [W, H] of [[390, 844], [320, 568], [1200, 800]]) for (const id of [...T.HOLIDAY_FX_IDS, ...T.EVENT_FX_IDS, ...T.STROOIGOED_FX_IDS]) {
+        const layers = (T.EVENT_FX_IDS.includes(id) ? globalThis.EventFx : T.STROOIGOED_FX_IDS.includes(id) ? globalThis.StrooigoedFx : HF).build(id, W, H), ctx = strictCtx(), end = Math.max(...layers.map((l) => l.end));
         assert.ok(end > 1 && end < 6, `${id}: einde ${end}`);
         for (let t = 0; t <= end + 0.2; t += 1 / 30) for (const l of layers) { l.draw(ctx, t, W, H); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; }
       }
     }
-  } finally { document.createElement = saveCreate; document.documentElement.dataset = saveTheme; }
+  } finally { document.createElement = saveCreate; document.documentElement.dataset = saveTheme; globalThis.Path2D = savePath; }
+});
+
+// ── Strooigoed (StrooigoedFx): de viering van het Sinterklaas-event, in een eigen lui bestand ──
+test("StrooigoedFx — STROOIGOED_FX_IDS is precies wat strooigoed-fx.js bouwt; fxKnown kent hem en loadFxOf kiest per viering het juiste bestand", async () => {
+  const SF = globalThis.StrooigoedFx, g = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.deepEqual([...SF.ids].sort(), [...T.STROOIGOED_FX_IDS].sort());
+  for (const id of T.STROOIGOED_FX_IDS) {
+    assert.ok(SF.has(id) && T.fxKnown(id), id);
+    assert.ok(!T.HOLIDAY_FX_IDS.includes(id) && !T.EVENT_FX_IDS.includes(id), `${id} staat in twee lijsten`);
+    assert.equal(globalThis.HolidayFx.has(id), false, "niet in holiday-fx.js: dat haalt iedereen op een feestdag op");
+  }
+  assert.equal(SF.has("toString"), false);                         // geen prototype-lek
+  assert.equal(T.fxKnown("toString"), false);
+  // elk id naar zijn eigen bestand (alle drie zijn in de test al ingeladen, dus de lader geeft meteen het object)
+  assert.equal(await T.loadFxOf("strooigoed"), SF);
+  assert.equal(await T.loadFxOf("xmas"), globalThis.HolidayFx);
+  assert.equal(await T.loadFxOf("wall"), globalThis.EventFx);
+  // de drie plekken die een viering-bestand ophalen gaan via loadFxOf: de voorvertoning (?fx=), de winst en de kluis-preview
+  assert.match(g, /const go = \(\) => loadFxOf\(previewFx\)\.catch/);
+  assert.match(g, /const fx = await loadFxOf\(id\);/);
+  assert.match(g, /loadFxOf\(r\.layer\)\.then\(\(fx\) => \{/);
+  assert.ok(!/loadEventFx\(\) : loadHolidayFx\(\)\)\./.test(g), "nergens meer een losse keuze tussen twee bestanden");
+  // op een gewone dag (en ook op 5 december zelf) haalt het laden van de pagina niets op: geen feestdag, geen ?fx=
+  assert.equal(T.holidayFxFor(new Date(2026, 11, 5, 12)), null);
+  assert.equal(T.holidayFxFor(new Date(2026, 11, 6, 12)), null);
+});
+
+test("loadStrooigoedFx — laadt strooigoed-fx.js één keer lui en probeert opnieuw na een fout", async () => {
+  const src = readFileSync(join(dir, "..", "strooigoed-fx.js"), "utf8"), saved = globalThis.StrooigoedFx, saveCreate = document.createElement, saveHead = document.head;
+  assert.match(readFileSync(join(dir, "..", "game.js"), "utf8"), /const loadStrooigoedFx = fxLoader\("\/strooigoed-fx\.js", "StrooigoedFx"\)/);
+  const loaded = []; let mode = "ok";
+  document.createElement = () => ({});
+  document.head = { appendChild(sc) { loaded.push(sc.src); queueMicrotask(() => { if (mode === "ok") { (0, eval)(src); sc.onload(); } else sc.onerror(); }); } };
+  try {
+    delete globalThis.StrooigoedFx;
+    mode = "fail";
+    await assert.rejects(T.loadFxOf("strooigoed"));                // bestand niet te laden (offline): showHolidayFx valt dan terug op confetti
+    mode = "ok";
+    const [a, b] = await Promise.all([T.loadStrooigoedFx(), T.loadFxOf("strooigoed")]);
+    assert.equal(a, b);
+    assert.ok(a.has("strooigoed"));
+    assert.equal(loaded.length, 2, "één mislukte + één geslaagde poging");
+    assert.ok(loaded.every((u) => u.startsWith("/strooigoed-fx.js")));
+  } finally { globalThis.StrooigoedFx = saved; document.createElement = saveCreate; document.head = saveHead; }
+});
+
+test("StrooigoedFx.ICONS — vijf snoepjes als compacte inline-SVG die het canvas zelf ook kan tekenen (alleen path/circle/ellipse)", () => {
+  const I = globalThis.StrooigoedFx.ICONS;
+  assert.deepEqual(Object.keys(I), ["kruidnoot", "munt", "schuimpje", "marsepein", "letter"]);
+  const KNOWN = ["d", "cx", "cy", "r", "rx", "ry", "fill", "stroke", "stroke-width", "stroke-linecap", "opacity"];
+  for (const [k, svg] of Object.entries(I)) {
+    assert.ok(svg.length <= 1200, `${k}: ${svg.length} bytes`);
+    assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 24 24" aria-hidden="true">.+<\/svg>$/, `${k}: vierkante viewBox, bruikbaar als inline-SVG en als data-URI`);
+    assert.ok(!/[^\x20-\x7e]/.test(svg), `${k}: geen emoji of andere tekens`);
+    let shapes = 0;
+    const rest = svg.replace(/^<svg [^>]*>|<\/svg>$/g, "").replace(/<(path|circle|ellipse)\b([^<>]*)\/>/g, (_, tag, attrs) => {
+      shapes++;
+      const a = Object.fromEntries([...attrs.matchAll(/([\w-]+)="([^"]*)"/g)].map((m) => [m[1], m[2]]));
+      assert.equal(attrs.replace(/\s*[\w-]+="[^"]*"/g, "").trim(), "", `${k}: rommel in <${tag}>`);
+      for (const n of Object.keys(a)) assert.ok(KNOWN.includes(n), `${k}: paint kent het attribuut ${n} niet`);
+      assert.ok("fill" in a, `${k}: een <${tag}> zonder fill is in SVG zwart en op het canvas leeg`);
+      for (const c of [a.fill, a.stroke]) if (c !== undefined) assert.match(c, /^(none|#[0-9a-f]{3}|#[0-9a-f]{6})$/, `${k}: kleur ${c}`);
+      if (tag === "path") new StrictPath2D(a.d);
+      else for (const n of tag === "circle" ? ["cx", "cy", "r"] : ["cx", "cy", "rx", "ry"]) assert.ok(Number.isFinite(+a[n]) && a[n] !== "", `${k}: ${tag} ${n}`);
+      return "";
+    });
+    assert.equal(rest, "", `${k}: alleen path, circle en ellipse`);
+    assert.ok(shapes >= 3 && shapes <= 8, `${k}: ${shapes} vormen`);
+  }
+});
+
+test("StrooigoedFx — strooit onder de uitslag door (ook terwijl het toetsenbord inklapt), blijft op de vloer liggen en ruimt zichzelf op", () => {
+  const SF = globalThis.StrooigoedFx, saveCreate = document.createElement, saveQ = document.querySelector, saveDs = document.documentElement.dataset, savePath = globalThis.Path2D;
+  document.documentElement.dataset = {};
+  document.createElement = () => ({ width: 0, height: 0, __sprite: true, getContext: () => strictCtx() });
+  globalThis.Path2D = StrictPath2D;
+  // De echte CSS-"ease" (cubic-bezier .25,.1,.25,1) van #play-bar.collapsing, los van de code uitgerekend.
+  const cssEase = (x) => {
+    x = Math.max(0, Math.min(1, x));
+    const bz = (t, p1, p2) => 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t;
+    let lo = 0, hi = 1; for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (bz(m, 0.25, 0.25) < x) lo = m; else hi = m; }
+    return bz((lo + hi) / 2, 0.1, 1);
+  };
+  // Eén frame tekenen en teruggeven waar elk snoepje staat (translate vóór drawImage) en wat er verder getekend is.
+  const frame = (layers, t, W, H) => {
+    const base = strictCtx(), pieces = []; let tr = null, images = 0, text = 0;
+    const ctx = new Proxy(base, {
+      get(o, k) {
+        const v = o[k];
+        if (typeof v !== "function") return v;
+        return (...a) => {
+          if (k === "translate") tr = a;
+          if (k === "restore") tr = null;
+          if (k === "fillText" || k === "strokeText") text++;
+          if (k === "drawImage") { images++; if (tr) pieces.push({ x: tr[0], y: tr[1], r: Math.max(a[3], a[4]) / 2 }); }
+          return v(...a);
+        };
+      },
+      set(o, k, v) { o[k] = v; return true; },
+    });
+    for (const l of layers) { l.draw(ctx, t, W, H); ctx.globalAlpha = 1; }
+    return { pieces, images, text };
+  };
+  try {
+    for (const [W, H, END_BOTTOM, DROP] of [[390, 844, 413, 334], [360, 640, 413, 334], [360, 780, 430, 300]]) {
+      // verse winst: de score-regel staat bij het bouwen nog DROP lager (het toetsenbord is nog open) en schuift 1,5 s omhoog
+      document.querySelector = (q) => (q === "#result-text .score-line" ? { getBoundingClientRect: () => ({ bottom: END_BOTTOM + DROP, height: 24 }) } : q === "#play-bar.collapsing" ? { offsetHeight: DROP } : null);
+      for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+        const layers = SF.build("strooigoed", W, H, { seed }), end = Math.max(...layers.map((l) => l.end));
+        assert.equal(layers.length, 1);
+        assert.ok(end > 3.5 && end < 5.2, `${W}×${H} seed ${seed}: einde ${end}`);
+        let most = 0, seen = 0;
+        const frames = [];
+        for (let t = 0; t <= end; t += 1 / 60) {
+          const f = frame(layers, t, W, H), textBottom = END_BOTTOM + DROP * (1 - cssEase(t / 1.5));
+          assert.equal(f.text, 0, "geen tekst of emoji-tekens, alleen tekeningen");
+          for (const c of f.pieces) assert.ok(c.y - c.r >= textBottom, `${W}×${H} seed ${seed} t=${t.toFixed(2)}: snoepje op y=${c.y.toFixed(0)} (straal ${c.r.toFixed(0)}) komt boven de uitslag uit (${textBottom.toFixed(0)})`);
+          most = Math.max(most, f.images); seen = Math.max(seen, f.pieces.length);
+          frames.push(f.pieces);
+        }
+        assert.ok(seen >= 24 && seen <= 40, `${seen} snoepjes op een telefoon`);
+        assert.ok(most <= 2 * seen, `hooguit een plaatje + een schaduw per snoepje per frame (${most})`);
+        // "even blijven liggen": een tijdje ligt alles er en beweegt er niets, op de vloer (de onderste strook) en helemaal binnen beeld
+        const still = frames.filter((f, i) => i > 0 && f.length === seen && JSON.stringify(f) === JSON.stringify(frames[i - 1]));
+        assert.ok(still.length / 60 >= 0.35, `alles ligt ${(still.length / 60).toFixed(2)} s stil`);
+        for (const c of still[0]) assert.ok(c.y > H * 0.78 && c.y + c.r * 0.8 < H && c.x - c.r * 0.8 > 0 && c.x + c.r * 0.8 < W, `ligt op de vloer, binnen beeld: ${c.x.toFixed(0)},${c.y.toFixed(0)}`);
+        // daarna wordt het weggegrist: aan het eind is het canvas leeg
+        assert.equal(frame(layers, end, W, H).images, 0);
+        assert.equal(frame(layers, end + 0.2, W, H).images, 0);
+        assert.ok(frame(layers, end - 0.2, W, H).images > 0, "en het einde komt meteen na het laatste snoepje (de recap wacht op de viering)");
+      }
+    }
+    // dezelfde seed = dezelfde worp; een andere seed = een andere
+    const at = (seed) => frame(SF.build("strooigoed", 390, 844, { seed }), 1.3, 390, 844).pieces;
+    assert.deepEqual(at(42), at(42));
+    assert.notDeepEqual(at(42), at(43));
+    // geen uitslag in beeld (voorvertoning in de kluis): alles blijft in de onderste helft
+    document.querySelector = () => null;
+    const layers = SF.build("strooigoed", 390, 844, { seed: 9 });
+    for (let t = 0; t <= layers[0].end; t += 1 / 30) for (const c of frame(layers, t, 390, 844).pieces) assert.ok(c.y - c.r >= 422, `t=${t.toFixed(2)}: y=${c.y.toFixed(0)}`);
+    // breed scherm: meer snoepgoed, maar binnen het teken-budget van de canvas-lus
+    const wide = SF.build("strooigoed", 1200, 800, { seed: 9 });
+    let most = 0; for (let t = 0; t <= wide[0].end; t += 1 / 30) most = Math.max(most, frame(wide, t, 1200, 800).images);
+    assert.ok(most > 80 && most <= 160, `breed scherm: ${most} plaatjes per frame`);
+  } finally { document.createElement = saveCreate; document.querySelector = saveQ; document.documentElement.dataset = saveDs; globalThis.Path2D = savePath; }
 });
 
 // ── Scheurkalender en Wimpels (RewardFx) ──
@@ -2586,16 +2744,16 @@ function runSeasonHead({ date, search = "", store = {}, theme } = {}) {
 }
 const seasonDay = (y, m, dd) => new Date(y, m - 1, dd, 12);
 
-test("seasonFor — Halloween 19 okt t/m 1 nov, Sinterklaas alleen 5 december, elk jaar; daarbuiten niets", () => {
+test("seasonFor — Halloween 19 okt t/m 1 nov, Sinterklaas 5 en 6 december, elk jaar; daarbuiten niets", () => {
   for (const [y, m, dd, want] of [
     [2026, 10, 18, null], [2026, 10, 19, "halloween"], [2026, 10, 20, "halloween"], [2026, 10, 21, "halloween"], [2026, 10, 25, "halloween"], [2026, 10, 31, "halloween"], [2026, 11, 1, "halloween"], [2026, 11, 2, null],
     [2027, 10, 25, "halloween"], [2027, 11, 1, "halloween"], [2026, 10, 1, null], [2026, 1, 1, null], [2026, 6, 15, null],
-    [2026, 12, 4, null], [2026, 12, 5, "sinterklaas"], [2026, 12, 6, null], [2027, 12, 5, "sinterklaas"], [2030, 12, 5, "sinterklaas"],
+    [2026, 12, 4, null], [2026, 12, 5, "sinterklaas"], [2026, 12, 6, "sinterklaas"], [2026, 12, 7, null], [2027, 12, 5, "sinterklaas"], [2030, 12, 5, "sinterklaas"],
     [2026, 12, 24, null], [2026, 5, 12, null], [2026, 11, 5, null],
   ]) assert.equal(T.seasonFor(seasonDay(y, m, dd)), want, `${y}-${m}-${dd}`);
   const days = new Set();
   for (let m = 1; m <= 12; m++) for (let dd = 1; dd <= new Date(2026, m, 0).getDate(); dd++) if (T.seasonFor(seasonDay(2026, m, dd))) days.add(`${m}/${dd}`);
-  assert.equal(days.size, 14 + 1, "14 dagen Halloween (19 okt t/m 1 nov) + 1 dag Sinterklaas");
+  assert.equal(days.size, 14 + 2, "14 dagen Halloween (19 okt t/m 1 nov) + 2 dagen Sinterklaas (pakjesavond en Sint-Nicolaasdag: het Sinterklaas-event)");
 });
 
 test("head-script van de skins ≡ seasonFor(): elke dag van het jaar, ?skin=-voorvertoning, uitzetten per skin, versie van de CSS", () => {
@@ -2732,7 +2890,7 @@ test("setSeason/syncSeasonCheck: aan/uit per skin, juiste sleutel, label en vink
   const icons = [icon("/favicon.svg?v=2"), icon("/favicon-96.png?v=2")];
   const at = (y, m, dd) => { globalThis.Date = class extends RealDate { constructor(...a) { if (a.length) super(...a); else super(y, m - 1, dd, 12); } }; };
   try {
-    document.querySelector = (sel) => (sel.includes("theme-color") ? meta : sel.includes("data-action") ? btn
+    document.querySelector = (sel) => (sel.includes("theme-color") ? meta : sel.includes('data-action="evfx"') ? null : sel.includes("data-action") ? btn
       : sel.startsWith("link[href^=") ? links.find((l) => sel.includes(String(l.href).split("?")[0])) || null : null);
     document.querySelectorAll = (sel) => (sel.includes('rel="icon"') ? icons : []);
     document.createElement = () => ({});
@@ -3368,7 +3526,8 @@ test("EVENTS — elke rij is sluitend: datums, drempels, beloningen, effect, ski
     assert.ok(!ids.has(ev.id), `${ev.id}: dubbel id`); ids.add(ev.id);
     assert.match(ev.start, /^\d{4}-\d{2}-\d{2}$/); assert.match(ev.end, /^\d{4}-\d{2}-\d{2}$/);
     assert.ok(ev.start <= ev.end);
-    const total = T.eventTotal(ev);
+    const total = T.isPlaysEvent(ev) ? Infinity : T.eventTotal(ev);   // een potjes-event telt potjes, geen dagen: geen bovengrens uit het venster
+    assert.ok(ev.unit === undefined || ev.unit === "plays", `${ev.id}: onbekende eenheid`);
     assert.equal(ev.thresholds.length, ev.rewards.length, `${ev.id}: één drempel per beloning`);
     assert.deepEqual([...ev.thresholds].sort((a, b) => a - b), ev.thresholds, `${ev.id}: drempels oplopend`);
     assert.ok(ev.thresholds.every((x, i, a) => x >= 1 && x <= total && (i === 0 || x > a[i - 1])), `${ev.id}: drempels binnen 1..${total} en strikt oplopend`);
@@ -3382,7 +3541,7 @@ test("EVENTS — elke rij is sluitend: datums, drempels, beloningen, effect, ski
       assert.ok(T.REWARD_ORDER.includes(r.key), `${r.key}: staat in REWARD_ORDER`);
       assert.ok(T.RW_SECT_TAB[T.REWARDS[r.key].sect]);
       if (r.kind === "fx") { const f = T.FLAIR_FX[r.fx]; assert.ok(f && f.reward === r.key && f.min === r.at && f.event === ev.id && f.key === "event", `${r.fx}: FLAIR_FX-rij`); assert.equal(T.REWARDS[r.key].cat, "flairfx"); }
-      if (r.kind === "feest") assert.ok(T.HOLIDAY_FX_IDS.includes(r.layer), `${r.key}: laag ${r.layer} bestaat in HolidayFx`);
+      if (r.kind === "feest") assert.ok(T.HOLIDAY_FX_IDS.includes(r.layer) || T.STROOIGOED_FX_IDS.includes(r.layer), `${r.key}: laag ${r.layer} bestaat in HolidayFx of StrooigoedFx`);
     }
     assert.equal(new Set(ev.rewards.map((r) => r.key)).size, ev.rewards.length, `${ev.id}: reward-sleutels uniek`);
   }
@@ -3559,9 +3718,10 @@ test("nieuwe-stip — er staat een stempel op de kaart die je nog niet zag; weg 
 test("season-event.js — teksten in alle vijf de talen, zelfde sleutels, geen lege waarden; elk EVENTS-id heeft een UI-blok", () => {
   const { SE } = loadSeasonEvent();
   const langs = Object.keys(T.I18N);
-  for (const ev of T.EVENTS) assert.ok(SE.ids().includes(ev.id), `${ev.id}: geen blok in EVENT_UI`);
+  for (const ev of T.STAMP_EVENTS) assert.ok(SE.ids().includes(ev.id), `${ev.id}: geen blok in EVENT_UI`);
+  for (const ev of T.PLAYS_EVENTS) assert.ok(!SE.ids().includes(ev.id), `${ev.id}: een potjes-event hoort in /event-mini.js`);
   const shape = (o) => JSON.stringify(Object.keys(o).sort().map((k) => [k, typeof o[k] === "object" ? Object.keys(o[k]).sort() : typeof o[k]]));
-  for (const ev of T.EVENTS) {
+  for (const ev of T.STAMP_EVENTS) {
     const base = SE.copy(ev.id, "nl");
     for (const l of langs) {
       const c = SE.copy(ev.id, l);
@@ -3667,7 +3827,7 @@ test("season-event.js — het zegel als vierde rij (ring, tiernaam, volgende tie
 test("season-event.js — de CSS: tokens per event, geen fixed, geen onbekende variabelen, reduced-motion; het bestand injecteert één <style>", () => {
   const { SE, head } = loadSeasonEvent();
   const css = SE.css;
-  for (const ev of T.EVENTS) assert.ok(css.includes(`[data-ev="${ev.id}"] {`), `${ev.id}: geen tokens-blok`);
+  for (const ev of T.STAMP_EVENTS) assert.ok(css.includes(`[data-ev="${ev.id}"] {`), `${ev.id}: geen tokens-blok`);
   for (const tok of ["--ev-pk", "--ev-pk-soft", "--ev-stamp", "--ev-gift", "--ev-ok"]) assert.ok(new RegExp(`${tok}\\s*:`).test(css), `${tok} niet gedefinieerd`);
   const inline = new Set(["--n", "--cols"]);   // het aantal puntjes van de strook en de kolommen van de stempelkaart: staan inline op het element
   const used = new Set([...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]).filter((u) => !inline.has(u))), defined = new Set([...css.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
@@ -3768,7 +3928,7 @@ test("ensureEventUi — het kattenbestand (mascotte) is optioneel: een mislukte 
   try {
     window.SeasonEvent = { ids: () => [], art: () => "" };          // het event-bestand is er al
     T.EVENT_MASCOTS.cat.load = () => Promise.reject(new Error("404"));
-    await T.ensureEventUi(T.EVENTS);                                 // mag niet rejecten
+    await T.ensureEventUi(T.STAMP_EVENTS);                           // mag niet rejecten
     assert.ok(typeof T.EVENT_MASCOTS.cat.head() === "string");       // zonder kat: lege string → de UI valt terug op het icoon
   } finally { T.EVENT_MASCOTS.cat.load = load; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; }
 });
@@ -3778,6 +3938,166 @@ test("eventDayCounts — alleen een pot binnen het venster is een stempel (geen 
   assert.equal(T.eventDayCounts(sp, "2026-10-18"), false); assert.equal(T.eventDayCounts(sp, "2026-10-19"), true);
   assert.equal(T.eventDayCounts(sp, "2026-11-01"), true); assert.equal(T.eventDayCounts(sp, "2026-11-02"), false, "vandaag (2 nov) is geen eventdag, ook al staat het event nog in beeld");
   assert.equal(T.eventDayCounts(sp, "2026-10-30"), true, "een ingehaalde eventdag telt wel (de datum van de pot, niet van vandaag)");
+});
+
+// ── Potjes-event (Sinterklaas 2026): de teller, de beloning zonder account, het UI-bestand /event-mini.js ───────────────────────
+const loadEventMiniFile = () => {
+  const head = { kids: [], appendChild(e) { this.kids.push(e); } };
+  const doc = { head, querySelector: () => null, createElement: () => ({ setAttribute() {}, textContent: "" }) };
+  const win = {};
+  vm.runInContext(readFileSync(join(dir, "..", "event-mini.js"), "utf8"), vm.createContext({ window: win, document: doc, String, Object, Array, Math, encodeURIComponent }));
+  return { EM: win.EventMini, head };
+};
+// "{}" i.p.v. wissen: zonder opslag valt de teller terug op zijn geheugen van dit bezoek (privévenster), en dat zou een vorige test laten doorlekken
+const sintClean = () => { for (const ev of T.PLAYS_EVENTS) localStorage.setItem(T.EVPLAYS_KEY(ev.id), "{}"); localStorage.removeItem(T.EVFX_KEY); T.setEventToday("2025-01-01"); };
+
+test("potjes-event — de rij: eigen soort, één viering bij 10 potjes, ook zonder account; het venster = de dagen van de skin; geen inhaaldagen", () => {
+  const sint = T.eventById("sint");
+  assert.ok(sint && T.isPlaysEvent(sint) && T.PLAYS_EVENTS.includes(sint) && !T.STAMP_EVENTS.includes(sint));
+  assert.ok(T.STAMP_EVENTS.includes(T.eventById("spook")) && !T.isPlaysEvent(T.eventById("spook")), "Spooktober blijft een stempel-event");
+  assert.deepEqual([...T.STAMP_EVENTS, ...T.PLAYS_EVENTS].map((e) => e.id).sort(), T.EVENTS.map((e) => e.id).sort());
+  assert.equal(sint.anon, true); assert.deepEqual(sint.thresholds, [10]); assert.equal(sint.gift, 0);
+  const r = T.eventFxReward(sint);
+  assert.equal(sint.rewards.length, 1); assert.equal(r.key, "ev_sint_feest"); assert.equal(r.at, 10);
+  assert.ok(T.STROOIGOED_FX_IDS.includes(r.layer) && T.fxKnown(r.layer), "de laag is de Strooigoed-viering");
+  assert.equal(T.REWARDS[r.key].cat, "effect");
+  // de skin staat precies op de dagen van het event aan
+  for (const day of ["2026-12-04", "2026-12-05", "2026-12-06", "2026-12-07"]) {
+    const [y, m, dd] = day.split("-").map(Number), inEvent = day >= sint.start && day <= sint.end;
+    assert.equal(T.seasonFor(new Date(y, m - 1, dd, 12)), inEvent ? sint.skin : null, day);
+  }
+  assert.equal(T.eventPhase(sint, "2026-12-04"), "soon"); assert.equal(T.eventPhase(sint, "2026-12-05"), "run"); assert.equal(T.eventPhase(sint, "2026-12-06"), "run");
+  assert.equal(T.eventPhase(sint, "2026-12-07"), "past", "geen inhaaldagen: daarna is het voorbij");
+  assert.equal(T.eventPhase(T.eventById("spook"), "2026-11-02"), "catch", "een stempel-event houdt zijn inhaaldagen");
+});
+
+test("potjes-event — de teller: elk potje in het venster telt, daarbuiten niets; bij het tiende verdien je hem (ook anoniem) en dat blijft zo", () => {
+  const sint = T.eventById("sint"), wasUser = T.auth.user;
+  try {
+    T.auth.user = null; sintClean();
+    T.setEventToday("2026-12-04"); assert.equal(T.eventPlaysBump(), null); assert.equal(T.eventPlaysCount(sint), 0, "de dag ervoor telt niet");
+    T.setEventToday("2026-12-05");
+    assert.equal(T.miniEventNow(), sint);
+    for (let i = 1; i <= 9; i++) { if (i === 6) T.setEventToday("2026-12-06"); assert.equal(T.eventPlaysBump(), null, `potje ${i}`); assert.equal(T.eventPlaysCount(sint), i); }
+    assert.deepEqual(T.eventState(sint), { n: 9, played: 9, total: 10, days: [], earned: [false] });
+    assert.equal(T.eventEarnedAt(sint, 10), false); assert.equal(T.eventFxUnlocked(sint), false);
+    assert.equal(T.eventPlaysBump(), sint, "het tiende potje: nu verdiend (finishGame speelt de viering meteen)");
+    assert.equal(T.eventEarnedAt(sint, 10), true, "zonder account"); assert.equal(T.eventFxUnlocked(sint), true); assert.deepEqual(T.eventFxUnlockedList(), [sint]);
+    assert.equal(T.eventPlaysBump(), null, "het elfde: je had hem al");
+    assert.deepEqual(T.eventState(sint), { n: 10, played: 11, total: 10, days: [], earned: [true] }, "n loopt niet verder dan het doel");
+    T.setEventToday("2026-12-07"); assert.equal(T.miniEventNow(), null);
+    assert.equal(T.eventPlaysBump(), null); assert.equal(T.eventPlaysCount(sint), 11, "na het event telt er niets meer bij");
+    assert.equal(T.eventFxUnlocked(sint), true, "en de beloning blijft van jou");
+    T.setEventFx("sint"); assert.equal(T.eventFxActive(), sint, "aangezet: hij speelt bij elke winst, ook zonder account");
+    // een stempel-event verdien je nog steeds alleen met een account
+    assert.equal(T.eventEarnedAt(T.eventById("spook"), 1), false);
+    // en het potjes-event staat nooit in de stempel-UI (balk, strook, Events-scherm, archief, zegel)
+    T.setEventToday("2026-12-05"); assert.deepEqual(T.eventsInView(), []);
+    T.setEventToday("2027-01-01"); assert.deepEqual(T.eventsArchived(), []);
+  } finally { T.auth.user = wasUser; sintClean(); }
+});
+
+test("potjes-event — ingelogd reist de stand mee (get_my_prefs → ev): server + wat je hier sindsdien speelde, nooit lager dan je al had", () => {
+  const sint = T.eventById("sint"), wasUser = T.auth.user;
+  try {
+    T.auth.user = null; sintClean(); T.setEventToday("2026-12-05");
+    for (let i = 0; i < 4; i++) T.eventPlaysBump();
+    T.auth.user = { uid: "u1" };
+    assert.equal(T.eventPlaysCount(sint), 4, "nog geen sync: wat dit toestel telde");
+    T.eventPlaysSynced({ sint: 7 }); assert.equal(T.eventPlaysCount(sint), 7, "3 potjes op een ander toestel");
+    T.eventPlaysBump(); assert.equal(T.eventPlaysCount(sint), 8, "server + het potje van zojuist");
+    T.eventPlaysSynced({ sint: 7 }); assert.equal(T.eventPlaysCount(sint), 8, "een sync die dat potje nog mist, zet de stand niet terug");
+    T.eventPlaysSynced({ sint: 9 }); assert.equal(T.eventPlaysCount(sint), 9);
+    assert.equal(T.eventPlaysBump(), sint, "9 → 10: verdiend"); assert.equal(T.eventPlaysBump(), null);
+    T.eventPlaysSynced(null); T.eventPlaysSynced({ spook: 3 }); T.eventPlaysSynced({ sint: "x" }); T.eventPlaysSynced({ sint: -1 });
+    assert.equal(T.eventPlaysCount(sint), 11, "onzin van de server verandert niets");
+    T.auth.user = { uid: "u2" }; assert.equal(T.eventPlaysCount(sint), 7, "een ander account op dit toestel: alleen wat het toestel zelf telde (4 + 3 potjes hier)");
+    T.auth.user = null; assert.equal(T.eventPlaysCount(sint), 7);
+    // een nieuw toestel na het event: de server weet het
+    sintClean(); T.setEventToday("2027-03-01"); T.auth.user = { uid: "u1" };
+    assert.equal(T.eventFxUnlocked(sint), false);
+    T.eventPlaysSynced({ sint: 12 });
+    assert.deepEqual(T.eventState(sint), { n: 10, played: 12, total: 10, days: [], earned: [true] }); assert.equal(T.eventFxUnlocked(sint), true);
+  } finally { T.auth.user = wasUser; sintClean(); }
+});
+
+test("event-mini.js — teksten in vijf talen met dezelfde sleutels, de tekeningen gelijk aan de viering, balk en strook, de CSS", () => {
+  const { EM, head } = loadEventMiniFile();
+  const langs = Object.keys(T.I18N);
+  assert.deepEqual([...EM.ids()].sort(), T.PLAYS_EVENTS.map((e) => e.id).sort(), "precies de potjes-events hebben hier een blok");
+  const shape = (o) => JSON.stringify(Object.keys(o).sort().map((k) => [k, typeof o[k] === "object" ? Object.keys(o[k]).sort() : typeof o[k]]));
+  for (const ev of T.PLAYS_EVENTS) {
+    const base = EM.copy(ev.id, "nl");
+    for (const l of langs) {
+      const c = EM.copy(ev.id, l);
+      assert.equal(shape(c), shape(base), `${ev.id}/${l}: zelfde sleutels als nl`);
+      const flat = [c.name, c.popEyebrow, c.earnedOff, c.earnedOn, c.turnOn, c.turnOff, c.menu, ...Object.values(c.rewardName), ...Object.values(c.popSub),
+        c.lead(10), c.sub(false), c.sub(true), c.toGo(1), c.toGo(6), c.aria(4, 10)];
+      for (const x of flat) assert.ok(typeof x === "string" && x.trim() && !/undefined|NaN|\[object/.test(x), `${ev.id}/${l}: lege of kapotte tekst (${x})`);
+      assert.notEqual(c.sub(false), c.sub(true)); assert.notEqual(c.toGo(1), c.toGo(6));
+      assert.deepEqual(Object.keys(c.rewardName), ev.rewards.map((r) => r.kind)); assert.deepEqual(Object.keys(c.popSub), ev.rewards.map((r) => r.kind));
+      if (l !== "nl") assert.notEqual(c.lead(10), base.lead(10), `${l}: vertaald`);
+    }
+    assert.equal(EM.copy(ev.id, "xx").name, EM.copy(ev.id, "en").name, "onbekende taal → Engels");
+  }
+  // de tekeningen zijn letterlijk die van de viering (één ontwerp, twee bestanden)
+  assert.equal(EM.art("sint"), window.StrooigoedFx.ICONS.munt); assert.deepEqual([...EM.sweets("sint")], [window.StrooigoedFx.ICONS.kruidnoot, window.StrooigoedFx.ICONS.munt]);
+  assert.match(EM.menuItem("sint", "nl"), /^<span class="evm-ico" aria-hidden="true"><svg [^]*<\/svg><\/span>Strooigoed-viering$/);
+  // de balk: tot je eerste potje twee regels, daarna dun met tien nootjes
+  const v = (n, o) => ({ id: "sint", lang: "nl", n, total: 10, earned: false, on: false, lastDay: false, ...o });
+  const intro = EM.bar(v(0), { intro: true });
+  assert.match(intro, /^<div class="evm-bar" data-evm="sint" role="status"/); assert.match(intro, /<b>Speel 10 potjes, verdien Strooigoed<\/b><small>[^<]*vandaag en morgen<\/small>/); assert.match(intro, />0\/10</);
+  assert.ok(!intro.includes("evm-pip")); assert.match(EM.bar(v(0, { lastDay: true }), { intro: true }), /alleen vandaag nog/);
+  const slim = EM.bar(v(4), {});
+  assert.match(slim, /class="evm-bar slim"/); assert.equal((slim.match(/class="evm-pip[ "]/g) || []).length, 10); assert.equal((slim.match(/class="evm-pip on"/g) || []).length, 4); assert.match(slim, />4\/10</);
+  assert.match(EM.bar({ ...v(4), lang: "de" }, {}), /Bonbonregen/); assert.equal(EM.bar({ ...v(4), id: "nope" }, {}), "", "onbekend event: niets");
+  // de strook: het nieuwe nootje plopt na een vers potje; met de beloning een knop
+  const fresh = EM.strip(v(5), { arrive: true });
+  assert.match(fresh, /class="evm-strip arrive"/); assert.equal((fresh.match(/evm-pip on new/g) || []).length, 1); assert.match(fresh, /(<i class="evm-pip on"><\/i>){4}<i class="evm-pip on new"><\/i>(<i class="evm-pip"><\/i>){5}/);
+  assert.match(fresh, /Nog 5 potjes voor de viering Strooigoed/); assert.ok(!fresh.includes("<button"));
+  assert.match(EM.strip(v(9), {}), /Nog 1 potje voor/); assert.ok(!EM.strip(v(9), {}).includes(" new"));
+  const got = EM.strip(v(10, { earned: true }), { arrive: true });
+  assert.match(got, /class="evm-strip arrive done"/); assert.match(got, /<button type="button" class="evm-btn" data-evm-toggle="sint" aria-pressed="false">Zet aan<\/button>/); assert.match(got, /Verdiend!/);
+  assert.match(EM.strip(v(10, { earned: true, on: true }), {}), /aria-pressed="true">Zet uit<\/button>/); assert.match(EM.strip(v(10, { earned: true, on: true }), {}), /staat aan/);
+  // de CSS: tokens per event, het nootje als achtergrond, geen fixed, minder beweging, alle eigen variabelen gedefinieerd; één <style>
+  const css = EM.css;
+  for (const ev of T.PLAYS_EVENTS) { assert.ok(css.includes(`[data-evm="${ev.id}"] {`), `${ev.id}: geen tokens`); assert.ok(css.includes(`[data-evm="${ev.id}"] { --evm-pip: url("data:image/svg+xml,`)); }
+  assert.ok(!/position:\s*fixed/.test(css)); assert.match(css, /prefers-reduced-motion: reduce/);
+  const used = new Set([...css.matchAll(/var\((--evm[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...css.matchAll(/(--evm[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
+  for (const u of used) assert.ok(defined.has(u), `${u} wordt gebruikt maar niet gedefinieerd`);
+  assert.equal(head.kids.length, 1, "één <style>");
+  assert.ok(readFileSync(join(dir, "..", "event-mini.js"), "utf8").length < 20000, "het lui geladen bestand blijft klein");
+});
+
+test("game.js ↔ event-mini.js — lui geladen, de teksten van de beloning komen uit het juiste bestand, de balk houdt zijn plek vrij en verdwijnt als je hem hebt", () => {
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8"), tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+  assert.match(g, /const loadEventMini = fxLoader\("\/event-mini\.js", "EventMini"\)/);
+  assert.match(tpl, /<button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="evfx" hidden><\/button>/);
+  const { EM } = loadEventMiniFile(), sint = T.eventById("sint"), hadM = window.EventMini, hadS = window.SeasonEvent, wasUser = T.auth.user;
+  const el = { hidden: true, innerHTML: "x", className: "x" };
+  try {
+    T.auth.user = null; sintClean(); delete window.EventMini; window.SeasonEvent = { copy: () => ({ name: "stempel" }) };
+    assert.equal(T.eventCopy("sint"), null, "zonder het bestand: geen teksten (de stempel-UI wordt er niet voor gebruikt)");
+    assert.equal(T.eventCopy("spook").name, "stempel");
+    T.setState({ done: false, mode: "free" });
+    T.setEventToday("2026-12-04"); assert.equal(T.renderMiniEventBar(el), false, "buiten het event: de balk is niet van ons"); assert.equal(el.innerHTML, "x");
+    T.setEventToday("2026-12-05");
+    assert.equal(T.renderMiniEventBar(el), true); assert.deepEqual([el.hidden, el.innerHTML, el.className], [false, "", "ph"], "het bestand laadt nog: de plek van twee regels vrijhouden");
+    T.eventPlaysBump(); T.renderMiniEventBar(el); assert.equal(el.className, "ph slim", "na je eerste potje de dunne regel");
+    window.EventMini = EM;
+    assert.equal(T.eventCopy("sint").name, "Strooigoed"); assert.equal(T.rewardName("ev_sint_feest"), "Strooigoed");
+    T.renderMiniEventBar(el); assert.equal(el.className, ""); assert.match(el.innerHTML, /class="evm-bar slim"[^]*>1\/10</);
+    assert.deepEqual(T.miniEventView(sint), { id: "sint", lang: T.getLang(), n: 1, total: 10, earned: false, on: false, lastDay: false });
+    T.setEventToday("2026-12-06"); assert.equal(T.miniEventView(sint).lastDay, true);
+    T.setState({ done: true, mode: "daily" }); T.renderMiniEventBar(el); assert.deepEqual([el.hidden, el.innerHTML], [true, ""], "na afloop neemt de strook het over");
+    T.setState({ done: false, mode: "daily" }); for (let i = 0; i < 9; i++) T.eventPlaysBump();
+    assert.equal(T.renderMiniEventBar(el), true); assert.deepEqual([el.hidden, el.innerHTML], [true, ""], "verdiend: geen balk meer");
+    assert.equal(T.miniEventView(sint).earned, true); T.setEventFx("sint"); assert.equal(T.miniEventView(sint).on, true);
+  } finally {
+    T.auth.user = wasUser; sintClean(); T.setState(null);
+    if (hadM) window.EventMini = hadM; else delete window.EventMini;
+    if (hadS) window.SeasonEvent = hadS; else delete window.SeasonEvent;
+  }
 });
 
 test("event-viering — opties voor de laag zitten in de config (fxOpts), niet in de logica; de laag bestaat", () => {

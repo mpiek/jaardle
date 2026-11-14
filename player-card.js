@@ -150,7 +150,7 @@
       } else if (ONE_OFF[tr.key] && achvTrophyDone(a, tr)) items.push({ k: "t", tr, n: 0, tier: 0, score: ONE_OFF[tr.key], key: tr.key });
     }
     for (const id of a.finds || []) if (VONDST_BY_ID[id]) items.push({ k: "v", v: VONDST_BY_ID[id], score: 55, key: "v:" + id });
-    if (window.SeasonEvent) for (const ev of EVENTS) {
+    if (window.SeasonEvent) for (const ev of STAMP_EVENTS) {
       const n = c.stamps(ev), tier = eventTier(ev, n);
       if (tier > 0) items.push({ k: "e", ev, n, tier, score: tier * 10 - 1, key: "e:" + ev.id });
     }
@@ -197,7 +197,7 @@
     const ys = ACHV_SERIES.find((s) => s.key === "years"), yn = a.years.length, yt = achvTier(yn, ys.steps);
     const finds = (a.finds || []).map((id) => VONDST_BY_ID[id]).filter(Boolean);
     const flairs = earnedFlairsOf(a, c.stamps).sort((x, y) => flairRank(y) - flairRank(x));   // zeldzaamste vooraan
-    const evRows = !window.SeasonEvent ? "" : EVENTS.map((ev) => {
+    const evRows = !window.SeasonEvent ? "" : STAMP_EVENTS.map((ev) => {
       const n = c.stamps(ev), tier = eventTier(ev, n);
       if (!n) return "";
       return row(` achv-t${tier}`, evName(ev), `${tier ? `<i>${tierName(tier)}</i> · ` : ""}${escHtml(tx("of_n")(fmtN(n), fmtN(eventTotal(ev))))}`,

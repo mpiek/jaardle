@@ -3871,7 +3871,11 @@ const EVENT_FX = {
   "673113bc9c": "pride",      // 1969 Stonewall
 };
 const eventFxFor = (hash) => (hash && Object.prototype.hasOwnProperty.call(EVENT_FX, hash) ? EVENT_FX[hash] : null);
-const fxKnown = (id) => HOLIDAY_FX_IDS.includes(id) || EVENT_FX_IDS.includes(id);
+// Strooigoed (de viering die je met het Sinterklaas-event verdient) staat in een eigen klein bestand, /strooigoed-fx.js: alleen wie
+// hem heeft haalt het ooit op, in plaats van iedereen op elke feestdag. Zelfde contract als HolidayFx (has/ids/build), dus
+// showHolidayFx, ?fx=strooigoed en een "feest"-beloning met layer: "strooigoed" werken er gewoon mee (loadFxOf kiest het bestand).
+const STROOIGOED_FX_IDS = ["strooigoed"];
+const fxKnown = (id) => HOLIDAY_FX_IDS.includes(id) || EVENT_FX_IDS.includes(id) || STROOIGOED_FX_IDS.includes(id);
 // Zelfde ?v= als game.js zelf: een nieuwe game.js-versie ververst ook dit bestand.
 const GAME_V = (() => { try { return new URL(document.currentScript.src).searchParams.get("v") || ""; } catch (e) { return ""; } })();
 // Lui laden van een viering-bestand: één keer, belofte gecachet, opnieuw proberen na een fout.
@@ -3892,6 +3896,8 @@ function fxLoader(file, global) {
 }
 const loadHolidayFx = fxLoader("/holiday-fx.js", "HolidayFx");
 const loadEventFx = fxLoader("/event-fx.js", "EventFx");
+const loadStrooigoedFx = fxLoader("/strooigoed-fx.js", "StrooigoedFx");
+const loadFxOf = (id) => (EVENT_FX_IDS.includes(id) ? loadEventFx() : STROOIGOED_FX_IDS.includes(id) ? loadStrooigoedFx() : loadHolidayFx());   // het bestand dat de laag van deze viering bouwt
 const loadRewardFx = fxLoader("/reward-fx.js", "RewardFx");   // Scheurkalender + Wimpels (beloningen), zie showCalendar/showBunting
 const loadObsidianFx = fxLoader("/obsidian-fx.js", "ObsidianFx");
 const loadVoltrefferFx = fxLoader("/voltreffer-fx.js", "VoltrefferFx");   // de voltreffer-vieringen (In de roos), zie showVoltreffer   // de onthulling bij obsidiaan (capstone-trede 6), zie showObsidianReveal
@@ -3899,12 +3905,13 @@ const loadSeasonCat = fxLoader("/season-cat.js", "SeasonCat");   // het Hallowee
 const loadSeasonProps = fxLoader("/season-props.js", "SeasonProps");   // de bewegingen van het voorwerpje bij het katje (neutraal, dus ook voor kerst), zie syncCatProp
 const SEASON_PROP_LIBS = { halloween: fxLoader("/props-halloween.js", "SeasonPropsHalloween") };   // skin → het bestand met de voorwerpen (plaatjes, hun eigen leven) en de dagtrekking
 const loadSeasonEvent = fxLoader("/season-event.js", "SeasonEvent");   // de UI van een event (balk, strook, kaart, scherm, teksten, kleuren), zie EVENTS
+const loadEventMini = fxLoader("/event-mini.js", "EventMini");       // de UI van een potjes-event (balk, strook, teksten), zie EVENTS (unit: "plays")
 // Vooruitladen in een rustig moment, maar alleen op een dag waarop er iets te vieren
 // valt (feestdag, hoogtijdag of ?fx=-voorvertoning): dan staat de laag klaar op het
 // moment van de winst. Een inhaalpot van een oude hoogtijdag laadt op aanvraag.
 function warmHolidayFx() {
   if (!previewFx && !holidayFxFor(new Date()) && !HISTORIC_FX[todayKey().slice(5)]) return;
-  const go = () => (EVENT_FX_IDS.includes(previewFx) ? loadEventFx() : loadHolidayFx()).catch(() => {});
+  const go = () => loadFxOf(previewFx).catch(() => {});
   if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 2000);
 }
 
@@ -3922,7 +3929,7 @@ async function showHolidayFx(id, extra) {
   // een netwerkverzoek vooraf zou verraden dat het antwoord een bekende gebeurtenis is.)
   holidayFxUntil = performance.now() + 4500;
   try {
-    const fx = await (EVENT_FX_IDS.includes(id) ? loadEventFx() : loadHolidayFx());
+    const fx = await loadFxOf(id);
     if (!fx.has(id)) throw new Error("onbekende viering " + id);
     const layers = fx.build(id, innerWidth, innerHeight, { years: new Date().getFullYear() - 2026, ...extra });   // years: voor de verjaardag; extra: bv. de vleermuizen van een event-viering
     if (extra && extra.firstTry) layers.unshift(fireworksLayer());   // een event-viering bij een first-try: het vuurwerk zit er, zoals bij goud/bier/kalender, ook bij in
@@ -4427,7 +4434,7 @@ function playWinFxPreview(kind) {
   } else if (typeof kind === "string" && kind.startsWith("ev:")) {
     const ev = eventById(kind.slice(3)), r = ev && eventFxReward(ev);
     if (!r) return;
-    (EVENT_FX_IDS.includes(r.layer) ? loadEventFx() : loadHolidayFx()).then((fx) => {
+    loadFxOf(r.layer).then((fx) => {
       if (winFxPreviewLive) runFx(fx.build(r.layer, innerWidth, innerHeight, { years: 0, ...r.fxOpts }));
     }).catch(() => {});
   } else return;
@@ -4545,6 +4552,9 @@ function finishGame(won, fresh = false) {
   // gaan vóór de confetti; bij een first-try zit het vuurwerk al ín beide. De
   // onderlinge uitsluiting + hiërarchische defaults zorgen dat er hooguit één
   // actief is — de volgorde hier weerspiegelt alleen de prestige-rangorde.
+  // Potjes-event (bv. Sinterklaas): dit potje telt mee. Haal je er de beloning mee, dan speelt die viering nu meteen (bij winst en
+  // bij verlies: het is het moment dat je hem verdient); alleen een voltreffer of een viering van het antwoord of de dag gaat voor.
+  const evJust = fresh && !state.shared ? eventPlaysBump() : null, evJustR = evJust && eventFxReward(evJust);
   if (fresh && won) {
     const firstTry = state.guesses.length === 1;
     // Hoogtijdag-, feit- en feestdag-viering (winCelebrationFx): altijd, ook bij een first-try (dan met het vuurwerk
@@ -4566,6 +4576,7 @@ function finishGame(won, fresh = false) {
     const vtId = previewFx === "roos" || previewFx === "eclips" ? previewFx : vtPick !== "fw" ? vtPick : null;
     if (vtId) { showVoltreffer(vtId); if (bunting) addBunting(); }
     else if (celebration) showHolidayFx(celebration, { ...evOpts, firstTry });   // first-try: het vuurwerk gaat mee
+    else if (evJustR) showHolidayFx(evJustR.layer, { ...evJustR.fxOpts, firstTry });   // net verdiend: je ziet meteen wat je hebt
     else if (evOn) { const r = eventFxReward(evOn); showHolidayFx(r.layer, { ...r.fxOpts, firstTry }); if (bunting) addBunting(); }
     else if (calOn) showCalendar(firstTry, bunting);
     else if (goldYearsFxActive()) { showGoldYears(firstTry); if (bunting) addBunting(); }
@@ -4578,11 +4589,13 @@ function finishGame(won, fresh = false) {
     // Feestdag, confetti en kluis-vieringen blijven voor de winst.
     const ans = answerCelebrationFx();
     if (ans) showHolidayFx(ans, { lost: true });
+    else if (evJustR) showHolidayFx(evJustR.layer, { ...evJustR.fxOpts });   // de beloning van een potjes-event verdien je ook met een verloren potje
   }
   if (fresh && !state.shared) recordAchvLocal();   // anonieme prestatie-tellers (vóór recordDailyResult — anders telt de seed vandaag dubbel); een gedeeld potje telt niet (db/108)
   if (fresh && state.mode === "daily") recordDailyResult(won);
   appendStreakLine(won);   // 🔥-regel onder de score (daily-only; async, no-op bij free)
   renderEventStrip(fresh);   // de event-stand onder de wereldstatistiek (alleen tijdens een event; na recordDailyResult, dus de pot telt mee)
+  renderMiniEventStrip(fresh && !state.shared);   // de stand van een potjes-event (elke modus); een gedeeld potje telt niet, dus dan zonder plopje
   syncEventUi();             // en de balk boven de kaart weg (de strook neemt het over)
   els.result.querySelectorAll(".fun-prompt").forEach((e) => e.remove());   // nooit een stem van een vorig potje laten staan
   if (fresh) renderFunPrompt();   // duimpje: alleen direct na een echt afgerond potje, niet bij herstel na herladen
@@ -5758,8 +5771,23 @@ const EVENTS = [
       { kind: "feest", key: "ev_spook_feest", emoji: "🎃", icon: "\u{1F47B}", layer: "halloween", fxOpts: { bats: true } },   // Spookfeest: de Halloween-laag + vleermuizen (fxOpts gaan als opties naar HolidayFx.build)
     ],
   },
+  {
+    // Potjes-event (unit: "plays"): geen stempelkaart maar een teller. Elk afgemaakt potje op deze dagen telt (daily, inhaal, vrij spel;
+    // winst of verlies; een gedeeld potje niet). Eén beloning bij thresholds[0] potjes, ook zonder account te verdienen (anon: een
+    // viering ziet alleen jijzelf). Geen inhaaldagen, geen zegel, geen Events-scherm; de UI (balk + strook + teksten) is /event-mini.js.
+    // Server: db/183 (events.unit = 'plays'; je stand reist ingelogd mee met get_my_prefs).
+    id: "sint", skin: "sinterklaas", icon: "\u{1F381}", unit: "plays", anon: true,
+    start: "2026-12-05", end: "2026-12-06",              // za 5 + zo 6 dec: pakjesavond en Sint-Nicolaasdag
+    thresholds: [10], gift: 0,
+    rewards: [
+      { kind: "feest", key: "ev_sint_feest", emoji: "\u{1F381}", icon: "\u{1F381}", layer: "strooigoed" },   // Strooigoed: de laag van /strooigoed-fx.js
+    ],
+  },
 ];
 for (const ev of EVENTS) ev.rewards.forEach((r, i) => { r.event = ev.id; r.at = ev.thresholds[i]; });
+const isPlaysEvent = (ev) => !!ev && ev.unit === "plays";
+const STAMP_EVENTS = EVENTS.filter((ev) => !isPlaysEvent(ev));   // events met een stempelkaart: balk, strook, kaart, scherm, zegel (/season-event.js)
+const PLAYS_EVENTS = EVENTS.filter(isPlaysEvent);                // potjes-events: een teller in de balk en op het eindscherm (/event-mini.js)
 const eventById = (id) => EVENTS.find((e) => e.id === id) || null;
 const eventOfReward = (key) => EVENTS.find((e) => e.rewards.some((r) => r.key === key)) || null;
 const EVENT_REWARD_KEYS = EVENTS.flatMap((ev) => ev.rewards.map((r) => r.key));
@@ -5771,7 +5799,7 @@ const eventDayCounts = (ev, day) => day >= ev.start && day <= ev.end;   // een p
 function eventPhase(ev, day) {
   if (day < ev.start) return "soon";
   if (day <= ev.end) return "run";
-  return day <= eventCatchupEnd(ev) ? "catch" : "past";
+  return !isPlaysEvent(ev) && day <= eventCatchupEnd(ev) ? "catch" : "past";   // een potjes-event kent geen inhaaldagen
 }
 // ?evdate=2026-10-23 = voorvertoning: de events doen alsof het die puzzeldag is (balk, strook, kaart, tab); alleen op dit apparaat, verder niets.
 const previewEventDay = (() => { try { const v = new URLSearchParams(location.search).get("evdate"); return /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : null; } catch (e) { return null; } })();
@@ -5794,14 +5822,66 @@ function eventHistorySync() {
   for (const e of local) if (!map.has(e.date)) map.set(e.date, e);
   return [...map.values()];
 }
-const eventState = (ev) => eventStamps(ev, eventHistorySync());
+// ── Potjes-events (unit: "plays"): de teller ──
+// De stand = het aantal potjes dat je in het venster afmaakte. Dit toestel telt zelf (jaardle:ev-plays:<id> = { n }), dus het werkt
+// ook zonder account. Ingelogd reist de stand van de server mee met je voorkeuren (get_my_prefs → "ev", db/183; geen extra verzoek):
+// srv = de serverstand bij de laatste sync, at = de stand van dit toestel op dat moment, hi = de hoogste stand die je hier al zag.
+// Samen: wat de server wist plus wat je hier sindsdien speelde, nooit minder dan dit toestel zelf telde en nooit lager dan je al
+// had (een sync die een potje mist dat nog onderweg is naar de server, zet je stand dus niet terug).
+const EVPLAYS_KEY = (id) => "jaardle:ev-plays:" + id;
+const evPlaysMem = {};   // zonder lokale opslag (privévenster): alleen dit bezoek
+function eventPlaysRec(ev) {
+  let r = null;
+  try { r = JSON.parse(localStorage.getItem(EVPLAYS_KEY(ev.id)) || "null"); } catch (e) {}
+  return r && typeof r === "object" ? r : evPlaysMem[ev.id] || {};
+}
+function saveEventPlaysRec(ev, r) {
+  evPlaysMem[ev.id] = r;
+  try { localStorage.setItem(EVPLAYS_KEY(ev.id), JSON.stringify(r)); } catch (e) {}
+}
+function eventPlaysCount(ev) {
+  const r = eventPlaysRec(ev), dev = Math.max(0, Number(r.n) || 0), uid = auth.user?.uid;
+  if (!uid || r.uid !== uid) return dev;
+  return Math.max(dev, (Number(r.srv) || 0) + Math.max(0, dev - (Number(r.at) || 0)), Number(r.hi) || 0);
+}
+// Een vers afgemaakt potje telt voor elk potjes-event dat vandaag loopt. Geeft het event terug waarvan je met dít potje de beloning
+// haalt (de viering speelt dan meteen, zie finishGame), anders null.
+function eventPlaysBump() {
+  const today = eventToday();
+  let won = null;
+  for (const ev of PLAYS_EVENTS) {
+    if (eventPhase(ev, today) !== "run") continue;
+    const at = ev.thresholds[ev.thresholds.length - 1], before = eventPlaysCount(ev), r = eventPlaysRec(ev);
+    saveEventPlaysRec(ev, { ...r, n: Math.max(0, Number(r.n) || 0) + 1, hi: before + 1 });
+    if (before < at && eventPlaysCount(ev) >= at) won = ev;
+  }
+  return won;
+}
+// De serverstand uit get_my_prefs ({ <event>: n }) erbij zetten (syncPrefs).
+function eventPlaysSynced(srv) {
+  const uid = auth.user?.uid;
+  if (!uid || !srv || typeof srv !== "object") return;
+  for (const ev of PLAYS_EVENTS) {
+    const n = Number(srv[ev.id]);
+    if (!Number.isFinite(n) || n < 0) continue;
+    const r = eventPlaysRec(ev), dev = Math.max(0, Number(r.n) || 0), had = r.uid === uid ? eventPlaysCount(ev) : 0;
+    saveEventPlaysRec(ev, { n: dev, uid, srv: Math.floor(n), at: dev, hi: Math.max(had, dev) });
+  }
+}
+// Dezelfde vorm als eventStamps, zodat de beloningen (kluis, pop-up, gekozen viering) er gewoon mee werken; n loopt niet verder dan het doel.
+function eventPlaysState(ev) {
+  const total = ev.thresholds[ev.thresholds.length - 1], raw = eventPlaysCount(ev);
+  return { n: Math.min(total, raw), played: raw, total, days: [], earned: ev.thresholds.map((t) => raw >= t) };
+}
+const eventState = (ev) => (isPlaysEvent(ev) ? eventPlaysState(ev) : eventStamps(ev, eventHistorySync()));
 // De ring van het zegel (Prestaties, Events-scherm, archief): de 6-treden-schaal van de rest van het spel, op je stempels. Zonder sealTiers = het aantal beloningen.
 const eventSealTiers = (ev) => ev.sealTiers || ev.thresholds;
 const eventTier = (ev, n) => eventSealTiers(ev).filter((x) => n >= x).length;   // 0 = geen ring · 1 = brons … 6 = obsidiaan
-const eventEarnedAt = (ev, at) => !!auth.user && eventState(ev).n >= at;
+const eventEarnedAt = (ev, at) => (!!auth.user || !!ev.anon) && eventState(ev).n >= at;   // anon: een event waarvan je de beloning ook zonder account verdient
 // Welke events staan nu in beeld (lopend of nog in de inhaaldagen), en van welke is alleen nog het archief over (wie meedeed)?
-const eventsInView = (day = eventToday()) => EVENTS.filter((ev) => { const p = eventPhase(ev, day); return p === "run" || p === "catch"; });
-const eventsArchived = (day = eventToday()) => EVENTS.filter((ev) => eventPhase(ev, day) === "past" && eventState(ev).played > 0);
+// Alleen stempel-events: een potjes-event heeft zijn eigen kleine balk en strook (miniEventNow) en geen scherm, tab of archief.
+const eventsInView = (day = eventToday()) => STAMP_EVENTS.filter((ev) => { const p = eventPhase(ev, day); return p === "run" || p === "catch"; });
+const eventsArchived = (day = eventToday()) => STAMP_EVENTS.filter((ev) => eventPhase(ev, day) === "past" && eventState(ev).played > 0);
 const eventTabEvents = () => [...eventsInView(), ...eventsArchived()];   // wat de Events-tab/het Events-scherm toont
 // Event-effecten staan in FLAIR_FX zoals alle andere (kluis-keuzerij, pop-up, borden, podium lopen vanzelf mee); de teller is hier de stempelstand.
 for (const ev of EVENTS) for (const r of ev.rewards) if (r.kind === "fx") FLAIR_FX[r.fx] = { emoji: r.emoji, reward: r.key, key: "event", event: ev.id, min: r.at, earned: () => eventEarnedAt(ev, r.at) };
@@ -10283,7 +10363,8 @@ const REWARD_NAME_KEY = {
   fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme", fx_bullseye: "vt_roos", fx_vt_eclips: "vt_eclips",
 };
 // De teksten van een event komen uit het lui geladen /season-event.js (vijf talen); zonder dat bestand valt alles terug op het icoon.
-const eventCopy = (id) => (window.SeasonEvent && typeof window.SeasonEvent.copy === "function" ? window.SeasonEvent.copy(id, lang) : null);
+const eventUiOf = (id) => (isPlaysEvent(eventById(id)) ? window.EventMini : window.SeasonEvent);   // een potjes-event heeft zijn teksten in /event-mini.js
+const eventCopy = (id) => { const ui = eventUiOf(id); return ui && typeof ui.copy === "function" ? ui.copy(id, lang) : null; };
 const eventRewardKind = (key) => { const ev = eventOfReward(key); const r = ev && ev.rewards.find((x) => x.key === key); return r ? r.kind : ""; };
 function rewardName(key) {
   const r = REWARDS[key];
@@ -10387,7 +10468,7 @@ async function maybeShowRewards() {
   if (!pending.length) return false;
   if (pending.includes("cap_obsidian")) loadObsidianFx().catch(() => {});   // alvast ophalen: de speler wacht straks niet op het bestand
   if (pending.some((k) => REWARDS[k]?.cat === "flairfx" || k.startsWith("evgroup:"))) await ensureMyIdentity();   // de pop-up toont je gedragen flair
-  if (pending.some((k) => k.startsWith("evgroup:") || (REWARDS[k] && REWARDS[k].event))) { try { await ensureEventUi(EVENTS); } catch (e) { return false; } }   // de teksten van een event-beloning (volgende pot opnieuw als het laden mislukt)
+  if (pending.some((k) => k.startsWith("evgroup:") || (REWARDS[k] && REWARDS[k].event))) { try { await ensureEventUi(EVENTS.filter((ev) => pending.some((k) => (k.startsWith("evgroup:") ? k.split(":")[1] === ev.id : REWARDS[k] && REWARDS[k].event === ev.id)))); } catch (e) { return false; } }   // de teksten van een event-beloning (volgende pot opnieuw als het laden mislukt)
   if (document.getElementById("modal-reward")) return true;                              // intussen al eentje open
   if (document.querySelector(".modal:not([hidden])")) { rewardRetry = true; return false; }   // intussen ander scherm
   rewardQueue = pending;
@@ -11141,6 +11222,7 @@ function syncPrefs(mode) {
     let p = await rpc("get_my_prefs", {});
     if (auth.user?.uid !== uid) return;
     p = p && typeof p === "object" && !Array.isArray(p) ? p : {};
+    eventPlaysSynced(p.ev);   // db/183: de stand van een potjes-event (alle toestellen samen) reist mee; set_my_prefs kent "ev" niet, dus hij gaat nooit terug
     // Eerste sync na de invoering: wat dit toestel al gekozen had en de server nog niet kent, gaat erheen. Alleen voor het
     // eerste account dat hier synct: de lokale keuzes zijn van het toestel, niet van een tweede account op een gedeeld toestel.
     const seed = {};
@@ -11296,9 +11378,10 @@ function winFxPreviewHtml(k) {
   } else if (typeof k === "string" && k.startsWith("ev:")) {
     // event-viering: het icoon van het event valt omlaag, het icoon van de viering zweeft omhoog (zoals de echte laag)
     const ev = eventById(k.slice(3)), r = ev && eventFxReward(ev);
+    const sweets = ev && isPlaysEvent(ev) && window.EventMini ? window.EventMini.sweets(ev.id) : null;   // eigen tekeningen (statische SVG uit ons eigen bestand)
     if (ev && r) {
-      for (let i = 0; i < 5; i++) h += `<b style="left:${[6, 22, 40, 58, 76][i]}%;animation-delay:-${(i * 0.55).toFixed(2)}s;animation-duration:${(2.1 + (i % 3) * 0.3).toFixed(1)}s">${escHtml(ev.icon)}</b>`;
-      h += `<b class="rw-up" style="left:30%;animation-delay:-0.9s;animation-duration:3s">${escHtml(r.icon)}</b><b class="rw-up" style="left:64%;animation-delay:-2s;animation-duration:3.4s">${escHtml(r.icon)}</b>`;
+      for (let i = 0; i < 5; i++) h += `<b style="left:${[6, 22, 40, 58, 76][i]}%;animation-delay:-${(i * 0.55).toFixed(2)}s;animation-duration:${(2.1 + (i % 3) * 0.3).toFixed(1)}s">${sweets && sweets.length ? sweets[i % sweets.length] : escHtml(ev.icon)}</b>`;
+      if (!sweets) h += `<b class="rw-up" style="left:30%;animation-delay:-0.9s;animation-duration:3s">${escHtml(r.icon)}</b><b class="rw-up" style="left:64%;animation-delay:-2s;animation-duration:3.4s">${escHtml(r.icon)}</b>`;
     }
   } else if (k === "beer") {
     h = `<span class="rw-glass">🍻</span>` + [0, 1, 2, 3, 4, 5].map((j) => `<span class="rw-bub" style="left:${28 + j * 9}%;animation-delay:-${(j * 0.45).toFixed(2)}s"></span>`).join("");
@@ -11457,7 +11540,7 @@ async function renderAchievements() {
   const a = warm || await fetchAchievements();
   if (document.getElementById("modal-achv").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
-  const played = EVENTS.filter((ev) => eventState(ev).played > 0);   // zegels van events waaraan je meedeed: het event-bestand levert namen en plaatje
+  const played = STAMP_EVENTS.filter((ev) => eventState(ev).played > 0);   // zegels van events waaraan je meedeed: het event-bestand levert namen en plaatje (een potjes-event heeft geen zegel)
   if (played.length) { try { await Promise.race([ensureEventUi(played), new Promise((r) => setTimeout(r, 1500))]); } catch (e) {} }   // een trage lading houdt het bord niet op (dan zonder de Events-sectie)
   await ensureTitleEquipped(a);   // titel is niet-aflegbaar: draag altijd de hoogst verdiende
   if (document.getElementById("modal-achv").hidden) return;
@@ -11515,7 +11598,7 @@ function wireCapPips(body) {
 // meegedaan). Ook zonder account (lokaal, met de gewone "niet opgeslagen"-regel eronder). Het plaatje komt uit het event-bestand (SeasonEvent.art).
 function eventAchvHtml() {
   if (!window.SeasonEvent) return "";
-  const played = EVENTS.filter((ev) => eventState(ev).played > 0);
+  const played = STAMP_EVENTS.filter((ev) => eventState(ev).played > 0);
   if (!played.length) return "";
   injectEventArt();
   const tiles = played.map((ev) => {
@@ -12617,7 +12700,7 @@ const SEASONS = {
     bar: { dark: "#0b1230", light: "#eaf0fa" },
     icon: null,
     label: "menu_season_sinterklaas",
-    on: (m, d) => m === 12 && d === 5,
+    on: (m, d) => m === 12 && (d === 5 || d === 6),   // pakjesavond + Sint-Nicolaasdag: de twee dagen van het Sinterklaas-event (EVENTS)
   },
 };
 const seasonKey = (id) => SEASON_KEY + ":" + id;
@@ -12725,11 +12808,11 @@ function eventView(ev) {
   };
 }
 // Het katje (SeasonCat) draagt een heksenhoed zodra je de hoogste beloning van het event hebt, en heeft op 31 oktober vurige ogen en slaapt dan niet.
-const eventCatHat = () => EVENTS.some((ev) => ev.skin === seasonActive() && eventState(ev).n >= ev.thresholds[ev.thresholds.length - 1]);
+const eventCatHat = () => STAMP_EVENTS.some((ev) => ev.skin === seasonActive() && eventState(ev).n >= ev.thresholds[ev.thresholds.length - 1]);
 const eventCatOpts = () => ({ night: eventToday().slice(5) === "10-31", hat: eventCatHat(), trick: previewTrick });
 // Alles wat de UI van deze events nodig heeft: het event-bestand en de mascotte(s).
 // De mascotte is optioneel: laadt dat bestand niet, dan toont de UI gewoon het icoon (alleen het event-bestand zelf is verplicht).
-const ensureEventUi = (evs) => Promise.all([loadSeasonEvent(), ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot].load().catch(() => null) : null))]).then((r) => { injectEventArt(); return r; });
+const ensureEventUi = (evs) => Promise.all([evs.some((e) => !isPlaysEvent(e)) ? loadSeasonEvent() : null, evs.some(isPlaysEvent) ? loadEventMini() : null, ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot].load().catch(() => null) : null))]).then((r) => { injectEventArt(); return r; });
 // De zegel-plaatjes van de events (SVG-defs, id achv-art-<event>) hangen bij de badge-artwork van Prestaties; het archief in de kluis gebruikt ze ook.
 function injectEventArt() {
   const defs = document.querySelector("#achv-svg-defs svg");
@@ -12812,6 +12895,7 @@ function renderEventBar() {
   const el = document.getElementById("event-bar");
   if (!el) return;
   const ev = eventBarEvent();
+  if (!ev && renderMiniEventBar(el)) return;   // geen stempel-event in de balk: dan is hij van een potjes-event (als er een loopt)
   if (!ev || !state || state.mode !== "daily" || state.done) { el.hidden = true; el.innerHTML = ""; el.className = ""; return; }
   const intro = eventBarIntro(ev);
   if (!window.SeasonEvent) { el.className = "ph" + (intro ? "" : " slim"); el.innerHTML = ""; el.hidden = false; return; }   // het bestand laadt nog: de plek vrijhouden (de kaart springt niet omlaag)
@@ -12833,6 +12917,7 @@ function renderEventMenuItem() {
 // Eén plek die alles bijwerkt (balk, menu-regel, stip): bij laden, een nieuw spel, inloggen, taal- of skinwissel. Het bestand wordt in
 // een rustig moment opgehaald en alleen als er een event in beeld is, dus op gewone dagen gebeurt er niets.
 function syncEventUi() {
+  syncMiniEventUi();
   const evs = eventsInView();
   if (window.SeasonCat && window.SeasonCat.set) window.SeasonCat.set({ hat: eventCatHat() });   // de hoed komt bij de volgende pot (of nu, na inloggen)
   if (evs.length && auth.user && !myHistoryCache) getMyHistory().then(() => {
@@ -12872,6 +12957,87 @@ async function renderEventStrip(arrive) {
     strip.querySelectorAll(".evs-pip.rw")[crossed]?.classList.add("ring");
     if (crossed === last) strip.classList.add("hat", "hatnew");
   }, 700);
+}
+
+// ── Potjes-event: de aansluiting op het scherm (balk boven de feitenkaart, strook op het eindscherm, schakelaar in ⚙️) ─────────────
+// De opbouw en de teksten wonen in /event-mini.js (lui); hier alleen wanneer er iets te tonen is, met welke gegevens en wat een tik doet.
+const miniEventNow = () => PLAYS_EVENTS.find((ev) => eventPhase(ev, eventToday()) === "run") || null;
+function miniEventView(ev) {
+  const st = eventState(ev), fx = eventFxActive();
+  return { id: ev.id, lang, n: st.n, total: st.total, earned: eventFxUnlocked(ev), on: !!fx && fx.id === ev.id, lastDay: eventToday() >= ev.end };
+}
+// De balk: in elke modus (elk potje telt) en zolang je speelt; na afloop neemt de strook het over, en wie de beloning heeft ziet hem
+// niet meer. Tot je eerste potje twee regels (wat het is), daarna één dunne regel met je stand.
+// true = er loopt een potjes-event: de balk is dan van hem, ook als hij nu leeg blijft.
+function renderMiniEventBar(el) {
+  const ev = miniEventNow();
+  if (!ev) return false;
+  const v = miniEventView(ev);
+  if (!state || state.done || v.earned) { el.hidden = true; el.innerHTML = ""; el.className = ""; return true; }
+  const intro = v.n === 0;
+  if (!window.EventMini) { el.className = "ph" + (intro ? "" : " slim"); el.innerHTML = ""; el.hidden = false; return true; }   // het bestand laadt nog: de plek vrijhouden (de kaart springt niet omlaag)
+  el.className = "";
+  el.innerHTML = window.EventMini.bar(v, { intro });
+  el.hidden = false;
+  return true;
+}
+// De strook op het eindscherm (elke modus): je stand na dit potje; arrive = dit potje telde net mee (het nieuwe nootje plopt).
+// Heb je de beloning, dan staat er een knop om de viering aan of uit te zetten (ook zonder account: dan is dit de plek).
+async function renderMiniEventStrip(arrive) {
+  els.result.querySelectorAll(".evm-strip").forEach((e) => e.remove());
+  const ev = miniEventNow();
+  if (!ev || !state || !state.done) return;
+  try { await loadEventMini(); } catch (e) { return; }
+  if (!state || !state.done) return;
+  els.result.querySelectorAll(".evm-strip").forEach((e) => e.remove());   // een tweede aanroep intussen: nooit twee stroken
+  const box = document.createElement("div");
+  box.innerHTML = window.EventMini.strip(miniEventView(ev), { arrive: !!arrive });
+  const strip = box.firstElementChild;
+  if (!strip) return;
+  els.result.insertBefore(strip, document.getElementById("result-actions"));
+  const btn = strip.querySelector("[data-evm-toggle]");
+  if (btn) btn.onclick = () => toggleEventFx(ev);
+}
+// De viering van een event aan of uit (strook en ⚙️): aanzetten speelt hem meteen één keer af, zoals een tik in de kluis.
+function toggleEventFx(ev) {
+  const on = eventFxActive()?.id === ev.id;
+  setWinFx(on ? "none" : "ev:" + ev.id);
+  gcCount(`event-fx-${ev.id}-${on ? "off" : "on"}`, `Event ${ev.id}: celebration turned ${on ? "off" : "on"}`);
+  if (state && state.done) renderMiniEventStrip(false);
+  renderEventFxToggle();
+  if (!on) playWinFxPreview("ev:" + ev.id);
+}
+// Zonder account is er geen 🪎-kluis: wie de viering van een potjes-event verdiende, zet hem in ⚙️ aan of uit (ook na het event).
+function renderEventFxToggle() {
+  const btn = document.querySelector('#menu-pop [data-action="evfx"]');
+  if (!btn) return;
+  const ev = auth.user ? null : PLAYS_EVENTS.find(eventFxUnlocked) || null;
+  if (!ev) { if (!btn.hidden) { btn.hidden = true; btn.innerHTML = ""; } return; }
+  if (!window.EventMini) {   // de naam staat in het event-bestand: in een rustig moment ophalen (alleen voor wie de beloning heeft)
+    const go = () => loadEventMini().then(renderEventFxToggle).catch(() => {});
+    if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
+    return;
+  }
+  btn.innerHTML = window.EventMini.menuItem(ev.id, lang);
+  btn.dataset.evId = ev.id;
+  btn.setAttribute("aria-checked", String(eventFxActive()?.id === ev.id));
+  btn.hidden = false;
+}
+// Eén plek die het potjes-event bijwerkt (via syncEventUi: laden, nieuw spel, inloggen, taalwissel, na een pot). Het bestand komt in een
+// rustig moment en alleen op de dagen van zo'n event; ingelogd komt dan ook je stand van je andere toestellen mee (één keer per bezoek).
+let miniEventSyncedUid = null;
+function syncMiniEventUi() {
+  renderEventFxToggle();
+  const ev = miniEventNow();
+  if (!ev) return;
+  const redraw = () => { renderEventBar(); if (state && state.done) renderMiniEventStrip(false); };
+  const go = () => {
+    const uid = auth.user?.uid;
+    if (uid && miniEventSyncedUid !== uid) { miniEventSyncedUid = uid; syncPrefs("visit").then(redraw).catch(() => {}); }
+    if (window.EventMini) return;
+    loadEventMini().then(redraw).catch(() => { const b = document.getElementById("event-bar"); if (b && !window.EventMini) { b.hidden = true; b.className = ""; } });
+  };
+  if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
 }
 
 function syncThemeCheck() {
@@ -14311,6 +14477,11 @@ async function init() {
     // en zo weer terug kunt.
     if (action === "theme") {
       applyTheme(currentTheme() === "light" ? "dark" : "light");
+      return;
+    }
+    if (action === "evfx") {   // de viering van een potjes-event aan of uit (alleen zonder account; in-place, het menu blijft open)
+      const ev = eventById(btn.dataset.evId);
+      if (ev && eventFxUnlocked(ev)) toggleEventFx(ev);
       return;
     }
     if (action === "season") {

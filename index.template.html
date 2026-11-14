@@ -129,7 +129,7 @@
       var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
       var S = {
         halloween: { on: (m === 10 && day >= 19) || (m === 11 && day === 1), css: "/season-halloween.css?v=1", bar: ["#120a1e", "#f3edf8"], icon: "/favicon-halloween" },
-        sinterklaas: { on: m === 12 && day === 5, css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"] }
+        sinterklaas: { on: m === 12 && (day === 5 || day === 6), css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"] }
       };
       var q = /[?&]skin=([a-z]+)(&|$)/.exec(location.search), id = q && S.hasOwnProperty(q[1]) ? q[1] : "";
       if (!id) {
@@ -185,6 +185,8 @@
             <!-- ⏩ Check (db/180): staat per account op de server, dus alleen ingelogd; game.js (syncLaterCheckUi) toont en zet hem. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="later-check" data-i18n="menu_later_check" hidden>{{i18n:menu_later_check}}</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>{{i18n:menu_season_halloween}}</button>
+            <!-- De viering van een potjes-event (bv. Strooigoed) aan/uit: alleen zonder account (ingelogd kiest in 🪎) en alleen wie hem verdiende; game.js (renderEventFxToggle) vult en toont. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="evfx" hidden></button>
             <button class="menu-item" role="menuitem" data-action="install" data-i18n="menu_install" hidden>{{i18n:menu_install}}</button>
           </div>
         </div>
@@ -519,7 +521,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=404"></script>
+  <script src="/game.js?v=405"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
