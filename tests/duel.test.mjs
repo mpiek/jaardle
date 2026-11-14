@@ -180,3 +180,12 @@ test("duel.js v2 — duelscherm, eindstand, uitleg, link, flair en account-momen
   assert.ok(!D.css.includes(".duel-bar {"), "de dunne balk is weg");
   assert.ok(!D.css.includes(".tab.duel-tab"), "geen tabblad-variant (gekozen: eigen duelscherm)");
 });
+
+test("duel — GoatCounter-meetpunten over de hele trechter (via gcCount, site jaardle-events)", () => {
+  for (const p of ["duel-create", "duel-rematch", "duel-invite-", "duel-copy-link", "duel-resend", "duel-withdraw", "duel-link-", "duel-accept", "duel-decline",
+    "duel-login-invite", "duel-round-", "duel-done-first", "duel-done-second", "duel-reveal", "duel-tell", "duel-share-result", "duel-exit", "duel-help", "duel-login-end"]) {
+    assert.ok(SRC.includes(`"${p}`), `meetpunt ${p} ontbreekt in duel.js`);
+  }
+  assert.match(GAME, /gcCount\("duel-list", /, "⋮ → Duels telt in game.js");
+  assert.match(GAME.slice(GAME.indexOf("function duelHost()"), GAME.indexOf("function openDuels()")), /\bgc: gcCount\b/, "duel.js telt via gcCount (jaardle-events), niet zelf");
+});

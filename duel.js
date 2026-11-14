@@ -12,7 +12,11 @@
    game.js geeft een host mee (taal, rpc, speler-id, naam, flair, modals, een ronde starten, delen, confetti, inloggen); dit bestand
    brengt zijn eigen CSS (één <style>) en teksten in vijf talen mee, en bewaart lokaal alleen jaardle:duels (welke duels nog nieuws
    kunnen brengen), jaardle:duel-news (voor het stipje), jaardle:duel-name (je naam zonder account) en jaardle:pendingDuel (een
-   uitnodiging die na het inloggen terugkomt). */
+   uitnodiging die na het inloggen terugkomt).
+   Meetpunten (GoatCounter, site jaardle-events; game.js telt duel-list bij ⋮ → Duels): duel-create · duel-rematch · duel-invite-shared|copied|
+   abort|prompt · duel-copy-link · duel-resend · duel-withdraw · duel-link-open|own|taken|closed|notfound · duel-accept · duel-decline ·
+   duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
+   duel-help · duel-login-end. Trechter: link-open → accept → round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open. */
 window.Duel = (() => {
   const ICON = "⚔️";
   const LIST_KEY = "jaardle:duels", NEWS_KEY = "jaardle:duel-news", NAME_KEY = "jaardle:duel-name", PENDING_KEY = "jaardle:pendingDuel";
@@ -432,6 +436,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   const oppName = (d) => ((d && (d.me === "c" ? d.o_name : d.c_name)) || "?");
   const oppFlair = (d) => (d && (d.me === "c" ? d.o_flair : d.c_flair)) || null;
   const initial = (n) => ((n || "?").trim().charAt(0) || "?").toUpperCase();
+  // Meetpunten (GoatCounter, site jaardle-events via gcCount in game.js): de duel-trechter, zie de lijst in de kop van dit bestand.
+  const gc = (path, title) => { try { H?.gc?.(path, title); } catch (e) {} };
 
   let H = null;            // host van de laatste aanroep (game.js)
   const cache = {};        // code → laatste antwoord van de server (met de puzzels, als we die kregen)
@@ -595,6 +601,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
   // Alleen de link (Kopieer-knop naast het linkveld). Lukt kopiëren niet, dan staat hij geselecteerd in het veld.
   async function copyLink(T, code, btn) {
+    gc("duel-copy-link", "Duel: link copied (button)");
     try { await navigator.clipboard.writeText(LINK(code)); flash(btn, T.copied); }
     catch (e) { const inp = btn?.closest(".dl-link")?.querySelector("input"); if (inp) { inp.focus(); inp.select(); } }
   }
@@ -652,7 +659,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       top = document.createElement("div");
       top.id = "duel-top"; top.className = "duel-top";
       tabs.before(top);
-      top.addEventListener("click", (e) => { if (e.target.closest(".duel-exit")) H.switchMode("daily"); });
+      top.addEventListener("click", (e) => { if (e.target.closest(".duel-exit")) { gc("duel-exit", "Duel: left duel screen"); H.switchMode("daily"); } });
     }
     const mine = (d.mine || []).slice(0, st.done ? 5 : dl.round), theirs = d.theirs || [];
     const shown = st.done ? Math.max(1, mine.length) : dl.round + 1;
@@ -691,6 +698,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const d = keep(r.v);
     remember(d.code, d.deadline);
     if ((d.mine || []).length > dl.round || d.status === "done") H.dropDuelBoard?.(dl.code, dl.round);   // binnen (of te laat): het aparte bord mag weg
+    if (fresh && (d.mine || []).length > dl.round) gc("duel-round-" + (dl.round + 1), "Duel: round " + (dl.round + 1) + " played");
+    if (fresh && (d.mine || []).length === 5 && dl.round === 4) gc(d.status === "done" ? "duel-done-second" : "duel-done-first", d.status === "done" ? "Duel: finished (second)" : "Duel: finished (first, waiting)");
     renderEnd(T, st, d, fresh);
     sync();
   }
@@ -796,9 +805,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       if (act === "share-result") return share(H, b, { kind: "result", d });
       if (act === "share-turn") return share(H, b, { kind: "turn", d });
       if (act === "end-next") { close(); return next(H); }
-      if (act === "login") { close(); return H.openLogin?.(); }
+      if (act === "login") { gc("duel-login-end", "Duel: create account from result"); close(); return H.openLogin?.(); }
     });
     H.openModal("modal-duel-end");
+    if (flip) gc("duel-reveal", "Duel: result revealed (first finisher)");
     // je stand tegen deze tegenstander, als de lijst er al is
     const [ha, hb] = h2hOf((listItems || []).filter((x) => x.code !== d.code).concat(done ? [d] : []), d.opp || opp);   // dit duel telt al mee
     if (done && (ha || hb) && ha + hb > 1) { const x = el.querySelector(".ep-h2h"); if (x) x.textContent = ` · ${T.h2hNow(ha, hb)}`; }   // pas vanaf je tweede duel tegen deze speler
@@ -825,8 +835,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     H = host;
     const T = tx(H.lang), s = what || endShare;
     if (!s) return;
-    if (s.kind === "turn") return shareText(T, T.shTurn(oppName(s.d)), LINK(s.d.code), btn);
+    if (s.kind === "turn") { gc("duel-tell", "Duel: let opponent know"); return shareText(T, T.shTurn(oppName(s.d)), LINK(s.d.code), btn); }
     if (s.kind === "result") {
+      gc("duel-share-result", "Duel: share result");
       const o = outcome(s.d.mine, s.d.theirs);
       return shareText(T, `${T.shResult(oppName(s.d), o.w, o.l, o.res)}\n${squares(o)} · ${T.shTotals(o.a, o.b)}`, null, btn);
     }
@@ -1043,7 +1054,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     const act = b.dataset.act, code = b.dataset.code;
     if (act === "new") return create(H, {});
-    if (act === "help") { helpOpen = !helpOpen; return renderList(T, null); }
+    if (act === "help") { helpOpen = !helpOpen; if (helpOpen) gc("duel-help", "Duel: how it works"); return renderList(T, null); }
     if (act === "reload") return openList(H, { keepTop: true });
     if (act === "more") { showAll = true; return renderList(T, null); }
     if (act === "play") return play(H, code);
@@ -1051,11 +1062,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (act === "copy") return copyLink(T, code, b);
     if (act === "turn") { const d = (listItems || []).find((x) => x.code === code); if (d) share(H, b, { kind: "turn", d }); return; }
     if (act === "resend" || act === "send") {
+      gc("duel-resend", "Duel: invite sent again");
       const d = (listItems || []).find((x) => x.code === code) || cache[code];
       if (d) shareText(T, (d.rematch ? T.shRematch : T.shInvite)(d.c_name), LINK(code), b);
       return;
     }
     if (act === "withdraw") {
+      gc("duel-withdraw", "Duel: withdrawn");
       b.disabled = true;
       call("duel_withdraw", { p_code: code }).then(() => openList(H, { keepTop: true }));
     }
@@ -1094,7 +1107,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     const d = keep(r.v);
     remember(d.code, d.deadline);
+    gc(rematch ? "duel-rematch" : "duel-create", rematch ? "Duel: rematch created" : "Duel: challenge created");
     const how = await shareText(T, (rematch ? T.shRematch : T.shInvite)(d.c_name), LINK(d.code), null);
+    gc("duel-invite-" + how, "Duel: invite " + how);   // shared / copied / abort / prompt
     const head = how === "shared" ? T.sent : how === "copied" ? T.copied : T.ready;
     const sub = d.for_name ? T.onlyFor(d.for_name) : T.sentSub;
     listTop = `<div class="dl-sent"><b>✓ ${esc(head)}</b><span>${esc(sub)}</span>${linkField(T, d.code)}` +
@@ -1117,6 +1132,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       if (d.status === "active" && (d.mine || []).length < 5) return play(H, d.code, d);
       return openList(H, { focus: d.code });
     }
+    const kind = !d ? "notfound" : d.me === "c" ? "own" : d.can_accept ? "open" : d.status === "active" || d.status === "done" ? "taken" : "closed";
+    gc("duel-link-" + kind, "Duel: link opened (" + kind + ")");
     showPop(T, popBody(T, d), d);
   }
 
@@ -1169,6 +1186,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (act === "new") { H.closeModal("modal-duel-pop"); return create(H, {}); }
     if (act === "send") return shareText(T, (d?.rematch ? T.shRematch : T.shInvite)(d?.c_name || ""), LINK(code), b);
     if (act === "login") {   // na het inloggen (ook na Google) komt deze uitnodiging terug: zie duelsAfterLogin in game.js
+      gc("duel-login-invite", "Duel: log in from invite");
       writeJson(PENDING_KEY, { code, at: Date.now() });
       H.closeModal("modal-duel-pop");
       return H.openLogin?.();
@@ -1177,6 +1195,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const name = inp ? cleanName(inp.value) : myName();
     if (act === "decline") {
       b.disabled = true;
+      gc("duel-decline", "Duel: declined");
       await call("duel_decline", { p_code: code, p_name: name || null });
       H.closeModal("modal-duel-pop");
       return;
@@ -1195,6 +1214,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       }
       const dd = keep(r.v);
       remember(dd.code, dd.deadline);
+      gc("duel-accept", "Duel: accepted");
       return play(H, dd.code, dd);
     }
   }

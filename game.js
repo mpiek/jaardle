@@ -4856,7 +4856,7 @@ function duelHost() {
   return {
     lang, intl: LANGS[lang]?.intl, rpc, clientId, loggedIn: !!auth.user, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
     openModal, closeModal, renderMenuDot, isMobile: isMobileDevice, showConfetti, toEvent, t, els,
-    flairHtml: flairStaticHtml, myFlair: () => myFlair, openLogin: () => openModal("modal-login"),
+    flairHtml: flairStaticHtml, myFlair: () => myFlair, openLogin: () => openModal("modal-login"), gc: gcCount,
     state: () => state, score: computeScore,
     startRound: (rec) => {   // een duelronde is een vrij potje: het tabblad gaat mee (zoals bij een gedeelde link)
       els.tabs.forEach((tb) => tb.setAttribute("aria-selected", String(tb.dataset.mode === "free")));
@@ -4868,7 +4868,10 @@ function duelHost() {
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
   };
 }
-function openDuels() { loadDuel().then((D) => D.openList(duelHost(), {})).catch(() => {}); }
+function openDuels() {   // ⋮ → Duels (meetpunt duel-list; de rest van de duel-trechter telt /duel.js)
+  gcCount("duel-list", "Duel: Duels screen opened (menu)");
+  loadDuel().then((D) => D.openList(duelHost(), {})).catch(() => {});
+}
 function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-news")) || 0; } catch (e) { return 0; } }
 function duelKnown() {
   try { const a = JSON.parse(localStorage.getItem("jaardle:duels") || "[]"); return Array.isArray(a) && a.length > 0; } catch (e) { return false; }
