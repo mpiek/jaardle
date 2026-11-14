@@ -42,9 +42,11 @@ bundled in this repository keep their own licenses and are NOT covered by it:
   https://googlefonts.github.io/noto-emoji-animation/
   https://creativecommons.org/licenses/by/4.0/
 
-* fonts/jaardle-emoji.woff2 — a subset of Noto Color Emoji (COLRv1),
-  (c) 2022 Google Inc., licensed under the SIL Open Font License 1.1.
-  Built by tools/build-emoji-font.py; full license text in fonts/OFL.txt.
+* fonts/jaardle-emoji.woff2 and fonts/jaardle-emoji-svg.woff2 — a subset of
+  Noto Color Emoji, (c) 2022 Google Inc., licensed under the SIL Open Font
+  License 1.1. The first holds the COLRv1 drawings; the second holds the same
+  drawings converted to OpenType-SVG (with nanoemoji) for browsers without
+  COLRv1. Built by tools/build-emoji-font.py; full license text in fonts/OFL.txt.
   https://github.com/googlefonts/noto-emoji
 
 * flags/*.svg — Flag Pack by Kenney (www.kenney.nl), released under CC0 1.0.

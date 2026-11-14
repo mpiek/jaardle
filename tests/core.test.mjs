@@ -4133,6 +4133,22 @@ test("emoji-subset — het font-bereik bevat geen accolade (een losse U+FE0F na 
   assert.ok(!/\\u\{1F578\}️/.test(g), "een echte U+FE0F ná een \\u{…}-escape laat het bouwscript de accolade als emoji zien: schrijf \\uFE0F");
 });
 
+test("emoji op Safari/iOS (proef) — het SVG-font bestaat naast het COLRv1-font en gaat alleen aan met ?emoji=svg, in een browser die het formaat leest", () => {
+  const root = join(dir, ".."), tpl = readFileSync(join(root, "index.template.html"), "utf8");
+  const svg = statSync(join(root, "fonts", "jaardle-emoji-svg.woff2")).size, colr = statSync(join(root, "fonts", "jaardle-emoji.woff2")).size;
+  assert.ok(svg > colr && svg < 200 * 1024, `het SVG-font blijft onder 200 KB (nu ${Math.round(svg / 1024)} KB): het is de prijs die alleen Safari betaalt`);
+  const hook = tpl.match(/if \(\/\[\?&\]emoji=svg\(&\|\$\)\/\.test\(location\.search\)\) \{([\s\S]*?)\n      \}/);
+  assert.ok(hook, "de proef zit achter ?emoji=svg: zonder die parameter verandert er niets");
+  assert.match(hook[1], /^\s*if \(!CSS\.supports\("font-tech\(color-SVG\)"\)\) return;/, "eerst de formaat-check: Chrome leest geen OpenType-SVG en zou lege plekken tekenen");
+  assert.match(hook[1], /new FontFace\("JaardleEmoji", 'url\("\/fonts\/jaardle-emoji-svg\.woff2"\) format\("woff2"\)'/, "dezelfde familienaam als in style.css, dus ook canvas-tekst pakt hem");
+  const range = hook[1].match(/unicodeRange: "([^"]+)"/)[1].split(",").map((x) => parseInt(x.trim().slice(2).split("-")[0], 16));
+  assert.ok(Math.min(...range) > 0x2000, "het bereik dekt de spatie en gewone letters niet: anders wordt dit het hoofdfont van elke regel en verspringt de regelhoogte");
+  const build = readFileSync(join(root, "tools", "build-emoji-font.py"), "utf8");
+  assert.match(build, /build_svg_font\(unicodes, cps\)/, "het bouwscript maakt beide fonts in één run, uit dezelfde codepoints");
+  assert.match(build, /--notdef-outline/, "zonder omtrek in .notdef is de glyf-tabel leeg en weigeren Firefox en Chrome het font");
+  assert.match(readFileSync(join(root, "LICENSE"), "utf8"), /fonts\/jaardle-emoji\.woff2 and fonts\/jaardle-emoji-svg\.woff2/, "de OFL-vermelding noemt beide bestanden");
+});
+
 test("stille baseline bij de eerste keer — alles wat je al had telt als gezien, behalve de event-beloningen (die worden juist gevierd, ook na inloggen met anonieme dagen)", () => {
   assert.deepEqual(T.rewardsBaselineKeys(["ev_spook_flair", "fl_star", "ev_spook_fx", "fx_glow"]), ["fl_star", "fx_glow"]);
   assert.deepEqual(T.rewardsBaselineKeys(["ev_spook_flair"]), []);

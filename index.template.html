@@ -108,8 +108,18 @@
   // Emoji-font alleen voorladen waar hij ook gebruikt wordt: de @font-face in
   // style.css is gegate op tech(color-COLRv1), dus Safari/iOS (geen COLRv1)
   // zou 'm anders voor niks downloaden.
+  // Proef (14/11): met ?emoji=svg dezelfde emoji op Safari/iOS via het SVG-font
+  // (uitleg in tools/build-emoji-font.py). Bereik zonder spatie, anders verspringt de regelhoogte.
   (function () {
     try {
+      if (/[?&]emoji=svg(&|$)/.test(location.search)) {
+        if (!CSS.supports("font-tech(color-SVG)")) return;
+        var f = new FontFace("JaardleEmoji", 'url("/fonts/jaardle-emoji-svg.woff2") format("woff2")',
+          { unicodeRange: "U+200D, U+2100-2BFF, U+FE0F, U+1F000-1FAFF" });
+        document.fonts.add(f);
+        f.load().then(function () { document.documentElement.dataset.emoji = "svg"; }, function () {});
+        return;
+      }
       if (!CSS.supports("font-tech(color-COLRv1)")) return;
       var l = document.createElement("link");
       l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
