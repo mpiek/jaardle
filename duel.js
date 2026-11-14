@@ -275,7 +275,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       h2h: (a, b) => `jullie ${a}–${b}`, won: (a, b) => `gewonnen ${a}–${b}`, lost: (a, b) => `verloren ${a}–${b}`, drawn: (a, b) => `gelijk ${a}–${b}`,
       nobody: "Niemand nam hem aan", declined: (n) => `${n} wees af`, withdrawn: "Ingetrokken", gone: "Verlopen",
       today: "vandaag", yesterday: "gisteren", moreOpp: (n) => `Nog ${n} ${n === 1 ? "tegenstander" : "tegenstanders"} ›`,
-      total: (a, b) => `totaal ${a}–${b}`, revenge: "Revanche",
+      total: (a, b) => `totaal ${a}–${b}`, revealTap: "Uitslag binnen · tik om te onthullen", revenge: "Revanche",
       invTitle: (n) => `${n} daagt je uit`, invRematch: (n) => `${n} wil revanche`, inv1: "<b>5 rondes</b>, van makkelijk naar moeilijk", inv2: "Per ronde wint de hoogste score", inv3: "Daarna heb je <b>24 uur</b> om ze te spelen",
       invName: (n) => `Je naam (die ziet ${n})`, accept: "Accepteer en speel", decline: "Nee, dank je", invFine: (l) => `${l} om aan te nemen · telt niet mee voor je rating`,
       own: "Dit is je eigen uitdaging", ownSub: "Stuur de link naar een vriend. Wie hem als eerste aanneemt, speelt tegen je.",
@@ -308,7 +308,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       h2h: (a, b) => `${a}–${b} overall`, won: (a, b) => `won ${a}–${b}`, lost: (a, b) => `lost ${a}–${b}`, drawn: (a, b) => `tied ${a}–${b}`,
       nobody: "Nobody accepted it", declined: (n) => `${n} declined`, withdrawn: "Withdrawn", gone: "Expired",
       today: "today", yesterday: "yesterday", moreOpp: (n) => `${n} more ${n === 1 ? "opponent" : "opponents"} ›`,
-      total: (a, b) => `total ${a}–${b}`, revenge: "Rematch",
+      total: (a, b) => `total ${a}–${b}`, revealTap: "Result's in · tap to reveal", revenge: "Rematch",
       invTitle: (n) => `${n} challenges you`, invRematch: (n) => `${n} wants a rematch`, inv1: "<b>5 rounds</b>, from easy to hard", inv2: "The highest score wins each round", inv3: "Then you have <b>24 hours</b> to play them",
       invName: (n) => `Your name (${n} sees it)`, accept: "Accept and play", decline: "No, thanks", invFine: (l) => `${l} to accept · doesn't count toward your rating`,
       own: "This is your own challenge", ownSub: "Send the link to a friend. Whoever accepts it first plays against you.",
@@ -341,7 +341,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       h2h: (a, b) => `insgesamt ${a}–${b}`, won: (a, b) => `gewonnen ${a}–${b}`, lost: (a, b) => `verloren ${a}–${b}`, drawn: (a, b) => `unentschieden ${a}–${b}`,
       nobody: "Niemand hat angenommen", declined: (n) => `${n} hat abgelehnt`, withdrawn: "Zurückgezogen", gone: "Abgelaufen",
       today: "heute", yesterday: "gestern", moreOpp: (n) => `${n} weitere ›`,
-      total: (a, b) => `gesamt ${a}–${b}`, revenge: "Revanche",
+      total: (a, b) => `gesamt ${a}–${b}`, revealTap: "Ergebnis ist da · zum Aufdecken tippen", revenge: "Revanche",
       invTitle: (n) => `${n} fordert dich heraus`, invRematch: (n) => `${n} will Revanche`, inv1: "<b>5 Runden</b>, von leicht bis schwer", inv2: "Pro Runde gewinnt die höchste Punktzahl", inv3: "Danach hast du <b>24 Stunden</b> zum Spielen",
       invName: (n) => `Dein Name (sieht ${n})`, accept: "Annehmen und spielen", decline: "Nein, danke", invFine: (l) => `${l} zum Annehmen · zählt nicht für dein Rating`,
       own: "Das ist deine eigene Herausforderung", ownSub: "Schick den Link an jemanden. Wer ihn zuerst annimmt, spielt gegen dich.",
@@ -375,7 +375,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       h2h: (a, b) => `en total ${a}–${b}`, won: (a, b) => `ganado ${a}–${b}`, lost: (a, b) => `perdido ${a}–${b}`, drawn: (a, b) => `empate ${a}–${b}`,
       nobody: "Nadie lo aceptó", declined: (n) => `${n} lo rechazó`, withdrawn: "Retirado", gone: "Caducado",
       today: "hoy", yesterday: "ayer", moreOpp: (n) => `${n} ${n === 1 ? "rival" : "rivales"} más ›`,
-      total: (a, b) => `total ${a}–${b}`, revenge: "Revancha",
+      total: (a, b) => `total ${a}–${b}`, revealTap: "Ya hay resultado · toca para descubrirlo", revenge: "Revancha",
       invTitle: (n) => `${n} te reta`, invRematch: (n) => `${n} quiere la revancha`, inv1: "<b>5 rondas</b>, de fácil a difícil", inv2: "En cada ronda gana la puntuación más alta", inv3: "Después tienes <b>24 horas</b> para jugarlas",
       invName: (n) => `Tu nombre (lo verá ${n})`, accept: "Aceptar y jugar", decline: "No, gracias", invFine: (l) => `${l} para aceptar · no cuenta para tu rating`,
       own: "Este es tu propio reto", ownSub: "Envía el enlace a un amigo. Quien lo acepte primero juega contra ti.",
@@ -408,7 +408,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       h2h: (a, b) => `no total ${a}–${b}`, won: (a, b) => `venceu ${a}–${b}`, lost: (a, b) => `perdeu ${a}–${b}`, drawn: (a, b) => `empate ${a}–${b}`,
       nobody: "Ninguém aceitou", declined: (n) => `${n} recusou`, withdrawn: "Retirado", gone: "Expirado",
       today: "hoje", yesterday: "ontem", moreOpp: (n) => `Mais ${n} ${n === 1 ? "adversário" : "adversários"} ›`,
-      total: (a, b) => `total ${a}–${b}`, revenge: "Revanche",
+      total: (a, b) => `total ${a}–${b}`, revealTap: "Já há resultado · toque para revelar", revenge: "Revanche",
       invTitle: (n) => `${n} desafia você`, invRematch: (n) => `${n} quer revanche`, inv1: "<b>5 rodadas</b>, da mais fácil à mais difícil", inv2: "Em cada rodada vence a maior pontuação", inv3: "Depois você tem <b>24 horas</b> para jogá-las",
       invName: (n) => `Seu nome (${n} vai ver)`, accept: "Aceitar e jogar", decline: "Agora não", invFine: (l) => `${l} para aceitar · não conta para o seu rating`,
       own: "Este é o seu próprio desafio", ownSub: "Envie o link para um amigo. Quem aceitar primeiro joga contra você.",
@@ -524,11 +524,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   const resText = (T, o) => (o.res === "w" ? T.won : o.res === "l" ? T.lost : T.drawn)(o.w, o.l);
   const squares = (o) => o.per.map((r) => (r === "w" ? "🟩" : r === "l" ? "🟥" : "⬜")).join("");
   const verdict = (T, o, n) => (o.res === "w" ? T.vWin(o.w, o.l, n) : o.res === "l" ? T.vLoss(o.w, o.l, n) : T.vDraw(o.w, o.l));
-  // Je stand tegen één tegenstander over alle afgelopen duels (in de lijst van de server: 90 dagen, max 100).
+  // Een uitslag die je nog niet zag (seen: false van de server): de lijst verklapt hem nergens, dat doet de onthulling.
+  const unrevealed = (d) => d.status === "done" && d.seen === false;
+  // Je stand tegen één tegenstander over alle afgelopen duels (in de lijst van de server: 90 dagen, max 100), zonder ongeziene uitslagen.
   function h2hOf(items, k) {
     let a = 0, b = 0;
     for (const d of items || []) {
-      if (d.status !== "done" || (d.opp || oppName(d)) !== k) continue;
+      if (d.status !== "done" || unrevealed(d) || (d.opp || oppName(d)) !== k) continue;
       const o = outcome(d.mine, d.theirs);
       if (o.res === "w") a++; else if (o.res === "l") b++;
     }
@@ -810,12 +812,15 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     H.openModal("modal-duel-end");
     if (flip) gc("duel-reveal", "Duel: result revealed (first finisher)");
     // je stand tegen deze tegenstander, als de lijst er al is
-    const [ha, hb] = h2hOf((listItems || []).filter((x) => x.code !== d.code).concat(done ? [d] : []), d.opp || opp);   // dit duel telt al mee
+    const [ha, hb] = h2hOf((listItems || []).filter((x) => x.code !== d.code).concat(done ? [{ ...d, seen: true }] : []), d.opp || opp);   // dit duel telt al mee (je ziet het nu)
     if (done && (ha || hb) && ha + hb > 1) { const x = el.querySelector(".ep-h2h"); if (x) x.textContent = ` · ${T.h2hNow(ha, hb)}`; }   // pas vanaf je tweede duel tegen deze speler
     if (!done) return;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const opPts = flip ? el.querySelector(".duel-vs .side.op small") : null;   // het totaal van de ander verklapt de uitslag: pas na het omdraaien
+    if (opPts && !reduced) opPts.textContent = T.pts("?");
     setTimeout(() => {
       if (flip) { const big = el.querySelector(".duel-vs .mid b"); if (big) big.textContent = `${o.w}–${o.l}`; }
+      if (opPts) opPts.textContent = T.pts(sum(theirs));
       if (o.res === "w" && !(fresh && wonLast)) H.showConfetti();   // gewonnen: feest (had de laatste ronde al confetti, dan niet nog eens)
       if (!d.seen) markSeen(d.code);
     }, flip && !reduced ? FLIP_MS : 0);
@@ -884,7 +889,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (!opts.keepTop) listTop = "";
     H.openModal("modal-duels");
     if (H.loggedIn) await H.ensureIdentity?.().catch?.(() => {});
-    if (!listItems) renderList(T, null);
+    renderList(T, null);   // meteen wat we al weten (ook een net onthulde uitslag: die staat al op gezien), daarna vers van de server
     const r = await call("duel_list", {});
     if (!r.ok) { listItems = listItems || []; renderList(T, T.err); return; }
     applyList(r.v);
@@ -932,29 +937,32 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const el = document.getElementById("modal-duels");
     if (!el) return;
     const body = el.querySelector(".modal-body"), helpBtn = el.querySelector(".dl-help-btn");
-    const items = listItems || [];
+    if (!listItems) { helpBtn.hidden = true; body.innerHTML = `<p class="dl-msg">${esc(T.loading)}</p>`; return; }
+    helpBtn.hidden = !listItems.length && !listTop;
+    helpBtn.setAttribute("aria-expanded", String(helpOpen));
+    body.innerHTML = listBody(T, listItems, listTop, msg);
+  }
+
+  // De inhoud van het Duels-scherm. top = wat je net deed (naamveld, "verstuurd" met de link, een fout): dat staat bovenaan,
+  // dan jouw beurt, en pas daaronder "Daag een vriend uit" (eerst spelen wat op je wacht; na versturen geen grote knop boven het groene vak).
+  function listBody(T, items, top, msg) {
     const newBtn = `<button type="button" class="dl-new" data-act="new">${icoHtml()} ${esc(T.newBtn)}</button>`;
     const err = msg ? `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>` : "";
-    if (!listItems) { helpBtn.hidden = true; body.innerHTML = `<p class="dl-msg">${esc(T.loading)}</p>`; return; }
-    const empty = !items.length && !listTop;
-    helpBtn.hidden = empty;
-    helpBtn.setAttribute("aria-expanded", String(helpOpen));
-    if (empty) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
-      body.innerHTML = err + `<div class="dl-hero"><div class="dl-vs">${meAv(T)}<b>VS</b><span class="dl-av op" aria-hidden="true">?</span></div>` +
+    if (!items.length && !top) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
+      return err + `<div class="dl-hero"><div class="dl-vs">${meAv(T)}<b>VS</b><span class="dl-av op" aria-hidden="true">?</span></div>` +
         `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${newBtn}</div>`;
-      return;
     }
     let h = helpOpen ? `<div class="dl-help">${stepsHtml(T)}</div>` : "";
     const groups = groupsOf(items);
-    if (groups.length) {   // je stand: gewonnen, verloren, lopend (zodra er een duel afgelopen is)
+    const known = items.filter((d) => d.status === "done" && !unrevealed(d));
+    if (known.length) {   // je stand: gewonnen, verloren, lopend (zodra je een uitslag zag; een ongeziene telt nog niet mee)
       let w = 0, l = 0;
-      for (const g of groups) for (const d of g.ds) { const o = outcome(d.mine, d.theirs); if (o.res === "w") w++; else if (o.res === "l") l++; }
+      for (const d of known) { const o = outcome(d.mine, d.theirs); if (o.res === "w") w++; else if (o.res === "l") l++; }
       const run = items.filter((d) => d.status === "active" || (d.status === "open" && d.me === "c")).length;
       h += `<div class="dl-stats"><div class="dl-stat w"><b>${w}</b><small>${esc(T.statW)}</small></div><div class="dl-stat l"><b>${l}</b><small>${esc(T.statL)}</small></div>` +
         `<div class="dl-stat"><b>${run}</b><small>${esc(T.statO)}</small></div></div>`;
     }
-    h += listTop.startsWith("<form") ? listTop : newBtn + listTop;
-    h += err;
+    h += top + err;
     const turn = items.filter((d) => d.status === "active" && (d.mine || []).length < 5)
       .sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
     const wait = items.filter((d) => (d.status === "open" && d.me === "c") || (d.status === "active" && (d.mine || []).length >= 5));
@@ -970,6 +978,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
           right: `<button type="button" class="dl-go" data-act="play" data-code="${d.code}">${esc(T.play)}</button>` });
       }
     }
+    if (!top.startsWith("<form")) h += newBtn;   // met het naamveld open is "Daag uit" de knop
     if (wait.length) {
       h += `<h3 class="dl-h">${esc(T.secWait)}${wait.length > 1 ? ` · ${wait.length}` : ""}</h3>`;
       for (const d of wait) h += d.status === "open" ? openLinkHtml(T, d) : waitItemHtml(T, d, h2hTxt(d));
@@ -984,7 +993,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
         h += rowHtml({ av: qAv, name: T.yourLink, sub: esc(sub), cls: " dim", right: `<span class="dl-res">${esc(T.gone)}</span>` });
       }
     }
-    body.innerHTML = h;
+    return h;
   }
 
   // Je openstaande link: opnieuw sturen, intrekken, en de link zelf (te selecteren, Kopieer).
@@ -1010,26 +1019,28 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   function groupHtml(T, g) {
     const latest = g.ds[0], n = oppName(latest), isOpen = openGrp === g.k;
+    const known = g.ds.filter((d) => !unrevealed(d));   // stand, blokjes en details alleen van uitslagen die je al zag
     let a = 0, b = 0;
-    const form = g.ds.slice(0, 8).reverse().map((d) => outcome(d.mine, d.theirs).res);
-    for (const d of g.ds) { const o = outcome(d.mine, d.theirs); if (o.res === "w") a++; else if (o.res === "l") b++; }
-    const lo = outcome(latest.mine, latest.theirs);
-    const sel = g.ds.find((d) => d.code === selInGrp[g.k]) || latest;
+    const form = known.slice(0, 8).reverse().map((d) => outcome(d.mine, d.theirs).res);
+    for (const d of known) { const o = outcome(d.mine, d.theirs); if (o.res === "w") a++; else if (o.res === "l") b++; }
+    const sel = known.find((d) => d.code === selInGrp[g.k]) || known[0];
     const news = g.ds.some((d) => !d.seen);
+    const sub = unrevealed(latest) ? T.revealTap : `${cap(whenText(T, latest.finished_at))}: ${resText(T, outcome(latest.mine, latest.theirs))}`;
+    const rec = known.length ? `<span class="dl-rec"><span class="dl-form" aria-hidden="true">${form.map((r) => `<i class="${r}"></i>`).join("")}</span><b>${a}–${b}</b></span>` : "";
     const row = `<div class="dl-row${news ? " has-new" : ""}" data-grp="${esc(g.k)}" role="button" tabindex="0" aria-expanded="${isOpen}">` +
-      `${avHtml(oppFlair(latest), n)}<span class="dl-main"><b>${esc(n)}</b><small>${esc(cap(whenText(T, latest.finished_at)))}: ${esc(resText(T, lo))}</small></span>` +
-      `<span class="dl-rec"><span class="dl-form" aria-hidden="true">${form.map((r) => `<i class="${r}"></i>`).join("")}</span><b>${a}–${b}</b></span><span class="dl-chev" aria-hidden="true">▾</span></div>`;
+      `${avHtml(oppFlair(latest), n)}<span class="dl-main"><b>${esc(n)}</b><small>${esc(sub)}</small></span>` +
+      `${rec}<span class="dl-chev" aria-hidden="true">▾</span></div>`;
     let det = "";
-    if (isOpen) {
+    if (isOpen && sel) {
       const so = outcome(sel.mine, sel.theirs);
       det = `<div class="dl-detail"><div class="duel-card"><div class="duel-head"><b>${esc(cap(whenText(T, sel.finished_at)))}, ${esc(clockText(sel.finished_at))}</b>` +
         `<span class="duel-r">${esc(T.total(so.a, so.b))}</span></div>` + tilesHtml(sel) +
         `<span class="duel-verdict">${esc(verdict(T, so, n))}</span></div>` +
-        (g.ds.length > 1 ? `<div class="dl-past">${g.ds.slice(0, 6).map((d) => { const o = outcome(d.mine, d.theirs);
+        (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const o = outcome(d.mine, d.theirs);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${o.res}">${esc(resText(T, o))}</span></button>`; }).join("")}</div>` : "") +
         `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button></div>`;
     }
-    return `<div class="dl-item${isOpen ? " open" : ""}" data-sel="${sel.code}">${row}${det}</div>`;
+    return `<div class="dl-item${isOpen ? " open" : ""}" data-sel="${(sel || latest).code}">${row}${det}</div>`;
   }
 
   function onListClick(e) {
@@ -1229,6 +1240,6 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   return {
     openList, openInvite, play, sync, roundDone, next, share, checkNews,
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
-    _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, setHost: (h) => { H = h; } },   // voor de tests
+    _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, listBody, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

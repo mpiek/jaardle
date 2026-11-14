@@ -189,3 +189,26 @@ test("duel — GoatCounter-meetpunten over de hele trechter (via gcCount, site j
   assert.match(GAME, /gcCount\("duel-list", /, "⋮ → Duels telt in game.js");
   assert.match(GAME.slice(GAME.indexOf("function duelHost()"), GAME.indexOf("function openDuels()")), /\bgc: gcCount\b/, "duel.js telt via gcCount (jaardle-events), niet zelf");
 });
+
+test("duel.js — de Duels-lijst verklapt geen ongeziene uitslag; jouw beurt en het groene vak staan boven 'Daag een vriend uit'", () => {
+  X.setHost(host());
+  const T = D.copy("nl"), soon = new Date(Date.now() + 5e7).toISOString(), now = new Date().toISOString();
+  const lost = { code: "AAAAAA", status: "done", seen: false, opp: "b", me: "o", c_name: "Bram", o_name: "Noor", finished_at: now, mine: [95, 100, 92, 90, 63], theirs: [100, 95, 100, 82, 76] };
+  const turn = { code: "BBBBBB", status: "active", opp: "l", me: "o", c_name: "Lotte", o_name: "Noor", deadline: soon, mine: [], theirs: [], their_done: 5 };
+  // ongezien: geen stand, geen "verloren", geen blokjes; wel de uitnodiging om te tikken (het rode stipje blijft)
+  const h = X.listBody(T, [lost, turn], "", null);
+  assert.ok(!/verloren|dl-stats|dl-rec|2–3|0–1/.test(h), "niets van de uitslag in de lijst");
+  assert.match(h, /has-new[^]*Uitslag binnen · tik om te onthullen/);
+  assert.deepEqual(plain(X.h2hOf([lost], "b")), [0, 0], "telt ook niet mee in 'jullie a–b'");
+  // gezien: dan wel stand, uitslag en blokjes
+  const seen = X.listBody(T, [{ ...lost, seen: true }], "", null);
+  assert.match(seen, /dl-stats[^]*<b>0<\/b><small>Gewonnen[^]*<b>1<\/b><small>Verloren/);
+  assert.match(seen, /Vandaag: verloren 2–3/); assert.match(seen, /<b>0–1<\/b>/);
+  assert.deepEqual(plain(X.h2hOf([{ ...lost, seen: true }], "b")), [0, 1]);
+  // volgorde: jouw beurt vóór de grote knop; net verstuurd: het groene vak vóór de grote knop; naamveld: geen grote knop
+  assert.ok(h.indexOf('data-act="play"') < h.indexOf('class="dl-new"'), "Speel boven Daag een vriend uit");
+  const sent = X.listBody(T, [turn], `<div class="dl-sent">✓</div>`, null);
+  assert.ok(sent.indexOf("dl-sent") < sent.indexOf('data-act="play"') && sent.indexOf('data-act="play"') < sent.indexOf('class="dl-new"'));
+  assert.ok(!X.listBody(T, [turn], `<form class="dl-name"></form>`, null).includes('class="dl-new"'));
+  assert.match(X.listBody(T, [], "", null), /dl-hero[^]*class="dl-new"/, "lege staat ongewijzigd");
+});
