@@ -4133,16 +4133,17 @@ test("emoji-subset — het font-bereik bevat geen accolade (een losse U+FE0F na 
   assert.ok(!/\\u\{1F578\}️/.test(g), "een echte U+FE0F ná een \\u{…}-escape laat het bouwscript de accolade als emoji zien: schrijf \\uFE0F");
 });
 
-test("emoji op Safari/iOS (proef) — het SVG-font bestaat naast het COLRv1-font en gaat alleen aan met ?emoji=svg, in een browser die het formaat leest", () => {
-  const root = join(dir, ".."), tpl = readFileSync(join(root, "index.template.html"), "utf8");
+test("emoji op Safari/iOS — het SVG-font staat als tweede bron naast het COLRv1-font, elk achter tech(), en het head-script laadt alleen het bestand voor dat de browser gebruikt", () => {
+  const root = join(dir, ".."), tpl = readFileSync(join(root, "index.template.html"), "utf8"), css = readFileSync(join(root, "style.css"), "utf8");
   const svg = statSync(join(root, "fonts", "jaardle-emoji-svg.woff2")).size, colr = statSync(join(root, "fonts", "jaardle-emoji.woff2")).size;
   assert.ok(svg > colr && svg < 200 * 1024, `het SVG-font blijft onder 200 KB (nu ${Math.round(svg / 1024)} KB): het is de prijs die alleen Safari betaalt`);
-  const hook = tpl.match(/if \(\/\[\?&\]emoji=svg\(&\|\$\)\/\.test\(location\.search\)\) \{([\s\S]*?)\n      \}/);
-  assert.ok(hook, "de proef zit achter ?emoji=svg: zonder die parameter verandert er niets");
-  assert.match(hook[1], /^\s*if \(!CSS\.supports\("font-tech\(color-SVG\)"\)\) return;/, "eerst de formaat-check: Chrome leest geen OpenType-SVG en zou lege plekken tekenen");
-  assert.match(hook[1], /new FontFace\("JaardleEmoji", 'url\("\/fonts\/jaardle-emoji-svg\.woff2"\) format\("woff2"\)'/, "dezelfde familienaam als in style.css, dus ook canvas-tekst pakt hem");
-  const range = hook[1].match(/unicodeRange: "([^"]+)"/)[1].split(",").map((x) => parseInt(x.trim().slice(2).split("-")[0], 16));
-  assert.ok(Math.min(...range) > 0x2000, "het bereik dekt de spatie en gewone letters niet: anders wordt dit het hoofdfont van elke regel en verspringt de regelhoogte");
+  const face = css.match(/@font-face \{\s*font-family: "JaardleEmoji";\s*src: ([^;]+);/)[1].split(",").map((x) => x.trim());
+  assert.deepEqual(face, ['url("/fonts/jaardle-emoji.woff2") format("woff2") tech(color-COLRv1)', 'url("/fonts/jaardle-emoji-svg.woff2") format("woff2") tech(color-SVG)'],
+    "COLRv1 eerst (Firefox leest beide en moet de lichte pakken); elke bron achter tech(), want de basisglyphs zijn leeg en een browser die het formaat niet leest zou niets tekenen");
+  assert.equal((css.match(/font-family: "JaardleEmoji";/g) || []).length, 1, "één @font-face, dus één unicode-range voor beide bestanden");
+  assert.match(tpl, /var colr = CSS\.supports\("font-tech\(color-COLRv1\)"\);\s*if \(!colr && !CSS\.supports\("font-tech\(color-SVG\)"\)\) return;/, "geen van beide formaten: niets voorladen");
+  assert.match(tpl, /l\.href = colr \? "\/fonts\/jaardle-emoji\.woff2" : "\/fonts\/jaardle-emoji-svg\.woff2";\s*if \(!colr\) l\.fetchPriority = "low";/, "dezelfde keuze als de @font-face; het zware bestand met lage voorrang");
+  assert.ok(!/emoji=svg/.test(tpl) && !/new FontFace\(/.test(tpl), "de proef-tak (?emoji=svg) is weg");
   const build = readFileSync(join(root, "tools", "build-emoji-font.py"), "utf8");
   assert.match(build, /build_svg_font\(unicodes, cps\)/, "het bouwscript maakt beide fonts in één run, uit dezelfde codepoints");
   assert.match(build, /--notdef-outline/, "zonder omtrek in .notdef is de glyf-tabel leeg en weigeren Firefox en Chrome het font");

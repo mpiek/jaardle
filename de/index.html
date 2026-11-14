@@ -26,7 +26,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-MOrV47tS3pfKSB72nrWAJW/u3ozi91mNHeIbxuXwsfk=' 'sha256-dYHMkplblj1zdfOsKZUrFZrZX7AQARTYisHolunoNn4=' 'sha256-BeA3R4ljLDMmpT4rj5E+kAtwkEMqb8P3bP9lRv7OFmE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-keQ+E26gLhI0YD4BzuHIdB4kOsO7pgTc0psULqHSi5Q=' 'sha256-dYHMkplblj1zdfOsKZUrFZrZX7AQARTYisHolunoNn4=' 'sha256-BeA3R4ljLDMmpT4rj5E+kAtwkEMqb8P3bP9lRv7OFmE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
      synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=409 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
@@ -110,25 +110,18 @@
       }
     } catch (e) { /* private mode zonder localStorage → donker */ }
   })();
-  // Emoji-font alleen voorladen waar hij ook gebruikt wordt: de @font-face in
-  // style.css is gegate op tech(color-COLRv1), dus Safari/iOS (geen COLRv1)
-  // zou 'm anders voor niks downloaden.
-  // Proef (14/11): met ?emoji=svg dezelfde emoji op Safari/iOS via het SVG-font
-  // (uitleg in tools/build-emoji-font.py). Bereik zonder spatie, anders verspringt de regelhoogte.
+  // Emoji-font voorladen, en alleen het bestand dat deze browser ook gebruikt:
+  // de @font-face in style.css kiest met tech() tussen COLRv1 (Chromium, Firefox)
+  // en OpenType-SVG (Safari/iOS). Het SVG-font is zwaarder en krijgt lage
+  // voorrang, zodat het de eerste paint niet ophoudt.
   (function () {
     try {
-      if (/[?&]emoji=svg(&|$)/.test(location.search)) {
-        if (!CSS.supports("font-tech(color-SVG)")) return;
-        var f = new FontFace("JaardleEmoji", 'url("/fonts/jaardle-emoji-svg.woff2") format("woff2")',
-          { unicodeRange: "U+200D, U+2100-2BFF, U+FE0F, U+1F000-1FAFF" });
-        document.fonts.add(f);
-        f.load().then(function () { document.documentElement.dataset.emoji = "svg"; }, function () {});
-        return;
-      }
-      if (!CSS.supports("font-tech(color-COLRv1)")) return;
+      var colr = CSS.supports("font-tech(color-COLRv1)");
+      if (!colr && !CSS.supports("font-tech(color-SVG)")) return;
       var l = document.createElement("link");
       l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
-      l.href = "/fonts/jaardle-emoji.woff2";
+      l.href = colr ? "/fonts/jaardle-emoji.woff2" : "/fonts/jaardle-emoji-svg.woff2";
+      if (!colr) l.fetchPriority = "low";
       document.head.appendChild(l);
     } catch (e) { /* geen CSS.supports → geen preload, font-display: swap vangt het op */ }
   })();
@@ -168,7 +161,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=232">
+<link rel="stylesheet" href="/style.css?v=233">
 </head>
 <body>
   <main>

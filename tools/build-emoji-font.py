@@ -23,16 +23,12 @@ Beide bestanden komen uit dezelfde codepoints en hebben dezelfde maten, dus de
 indeling is op elk toestel gelijk. Het SVG-font is ruim twee keer zo zwaar en
 gaat alleen naar browsers die het COLRv1-font niet kunnen lezen.
 
-Stand 14/11/2026: het SVG-font staat als proef alleen aan met ?emoji=svg (het
-head-script in index.template.html), tot het op een echte iPhone bekeken is.
-Daar komt de face via document.fonts en gaat hij voor op die uit style.css,
-dus de link werkt ook in Firefox. Chrome leest dit formaat niet en zou lege
-plekken tekenen, vandaar de font-tech-check. Het bereik in het head-script is
-ruim maar zonder de spatie: een font dat de spatie dekt wordt het hoofdfont
-van elke regel en verschuift de regelhoogte (gemeten: 3 px in de uitleg-demo).
-Voor iedereen aanzetten = een tweede bron in de @font-face in style.css,
-`tech(color-SVG)` ná de COLRv1-bron (Firefox kan beide en moet de lichte
-pakken), plus voorladen in het head-script; de proef-tak kan dan weg.
+In style.css staan beide als bron in één @font-face, de COLRv1-bron eerst
+(Firefox kan beide en moet de lichte pakken); tech() laat elke browser de bron
+overslaan die hij niet kan tekenen. Het head-script in index.template.html
+laadt alleen het bestand voor dat de browser gaat gebruiken. Op 14/11/2026 als
+proef achter ?emoji=svg in echte Safari bekeken (Sauce Labs), daarna voor
+iedereen aangezet.
 
 Vereist: fontTools + brotli (pip), en het COLRv1-bronfont (zie SRC_FONT hieronder;
 download eenmalig van googlefonts/noto-emoji → fonts/Noto-COLRv1.ttf, niet gecommit).

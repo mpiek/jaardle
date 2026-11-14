@@ -105,25 +105,18 @@
       }
     } catch (e) { /* private mode zonder localStorage → donker */ }
   })();
-  // Emoji-font alleen voorladen waar hij ook gebruikt wordt: de @font-face in
-  // style.css is gegate op tech(color-COLRv1), dus Safari/iOS (geen COLRv1)
-  // zou 'm anders voor niks downloaden.
-  // Proef (14/11): met ?emoji=svg dezelfde emoji op Safari/iOS via het SVG-font
-  // (uitleg in tools/build-emoji-font.py). Bereik zonder spatie, anders verspringt de regelhoogte.
+  // Emoji-font voorladen, en alleen het bestand dat deze browser ook gebruikt:
+  // de @font-face in style.css kiest met tech() tussen COLRv1 (Chromium, Firefox)
+  // en OpenType-SVG (Safari/iOS). Het SVG-font is zwaarder en krijgt lage
+  // voorrang, zodat het de eerste paint niet ophoudt.
   (function () {
     try {
-      if (/[?&]emoji=svg(&|$)/.test(location.search)) {
-        if (!CSS.supports("font-tech(color-SVG)")) return;
-        var f = new FontFace("JaardleEmoji", 'url("/fonts/jaardle-emoji-svg.woff2") format("woff2")',
-          { unicodeRange: "U+200D, U+2100-2BFF, U+FE0F, U+1F000-1FAFF" });
-        document.fonts.add(f);
-        f.load().then(function () { document.documentElement.dataset.emoji = "svg"; }, function () {});
-        return;
-      }
-      if (!CSS.supports("font-tech(color-COLRv1)")) return;
+      var colr = CSS.supports("font-tech(color-COLRv1)");
+      if (!colr && !CSS.supports("font-tech(color-SVG)")) return;
       var l = document.createElement("link");
       l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
-      l.href = "/fonts/jaardle-emoji.woff2";
+      l.href = colr ? "/fonts/jaardle-emoji.woff2" : "/fonts/jaardle-emoji-svg.woff2";
+      if (!colr) l.fetchPriority = "low";
       document.head.appendChild(l);
     } catch (e) { /* geen CSS.supports → geen preload, font-display: swap vangt het op */ }
   })();
@@ -163,7 +156,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=232">
+<link rel="stylesheet" href="/style.css?v=233">
 </head>
 <body>
   <main>
