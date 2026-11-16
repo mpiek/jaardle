@@ -81,7 +81,7 @@
 .pc-m b { font-size: 0.74rem; line-height: 1.2; hyphens: auto; overflow-wrap: break-word; max-width: 100%; }
 .pc-m small { font-size: 0.66rem; line-height: 1.2; color: var(--muted); font-variant-numeric: tabular-nums; }
 .pc-m small i { font-style: normal; font-weight: 700; color: var(--tc); text-transform: capitalize; }
-.pc-m.vd-r3 small i { color: var(--rar); }
+.pc-m.vd-r3 small i, .pc-m.vd-r2 small i { color: var(--rar); }
 .pc-empty { margin: 0; font-size: 0.8rem; color: var(--muted); }
 .pc-team { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; }
 .pc-tc { display: flex; flex-direction: column; align-items: center; gap: 0.05rem; padding: 0.5rem 0.15rem 0.45rem; border-radius: 10px; background: var(--card-soft); text-align: center; }
@@ -158,12 +158,12 @@
   }
 
   const SEAL_BASE = `<svg viewBox="0 0 100 100" class="achv-art achv-art-stamp" aria-hidden="true"><use href="#achv-stamp-base"/></svg>`;
-  const seal = (v) => `<span class="vd-stamp vd-r3"><span class="vd-st">${SEAL_BASE}<span class="vd-st-fl">${flairGlyphHtml(v.flair)}</span></span></span>`;
+  const seal = (v) => `<span class="vd-stamp vd-r${vondstTier(v)}"><span class="vd-st">${SEAL_BASE}<span class="vd-st-fl">${flairGlyphHtml(v.flair)}</span></span></span>`;
   const evArt = (ev) => `<svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${ev.id}"/></svg>`;
   const tierName = (tier) => escHtml(achvTierName(tier - 1));
   const evName = (ev) => escHtml(eventCopy(ev.id)?.achName || ev.id);
   function medal(it) {
-    if (it.k === "v") return `<div class="pc-m vd-r3">${seal(it.v)}<b>${escHtml(vondstName(it.v))}</b><small><i>${escHtml(t("find_tier_3"))}</i></small></div>`;
+    if (it.k === "v") return `<div class="pc-m vd-r${vondstTier(it.v)}">${seal(it.v)}<b>${escHtml(vondstName(it.v))}</b><small><i>${escHtml(t("find_tier_" + vondstTier(it.v)))}</i></small></div>`;
     const ring = (art) => `<span class="achv-tring${it.tier ? " tiered" : ""}">${art}</span>`;
     if (it.k === "e") return `<div class="pc-m achv-t${it.tier}">${ring(evArt(it.ev))}<b>${evName(it.ev)}</b>` +
       `<small><i>${tierName(it.tier)}</i> · ${fmtN(it.n)}/${fmtN(eventTotal(it.ev))}</small></div>`;

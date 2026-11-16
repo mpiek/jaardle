@@ -81,7 +81,7 @@ src += `
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; }, getLang: () => lang,
   resolveRecord, reconstructDailyBoard, stampParam, boardIsMine, localHistoryForMe, adoptLocalDays, loadHistory, storageKey, dailyBoardForeign, boardOwnerForSave,
-  VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, vondstImgUrl, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
+  VONDSTEN, FIND_FACTS, VONDST_BY_FLAIR, VONDST_BY_ID, vondstTier, isDrawnFlair, flairTextGlyph, flairGlyphHtml, vondstHtml, vondstImgUrl, anonFindOf, findsRowHtml, rewardName, achvEarnedFlairs, achvNormalize, isVondstFlair,
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
   gcCount, hwCount, gcCountNew, gcCountDaily, noteAnchorSlide, GC_DAY_KEY, setFactSlide: (i) => { factSlideIndex = i; },
   devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY, sentSlot, potSlot,
@@ -4739,16 +4739,18 @@ function withVondstLib(fn) {
   try { return fn(globalThis.VondstFlairs); } finally { globalThis.VondstFlairs = saved; }
 }
 
-test("vondsten — 20 vondsten (ronde 1 + de abt db/146 + de capibara db/148) met unieke id's en flairs, namen in alle vijf de talen, 39 feiten die elk naar een bekende vondst wijzen", () => {
-  assert.equal(T.VONDSTEN.length, 20);
-  assert.equal(new Set(T.VONDSTEN.map((v) => v.id)).size, 20);
-  assert.equal(new Set(T.VONDSTEN.map((v) => v.flair)).size, 20);
+test("vondsten — 21 vondsten (ronde 1 + de abt db/146 + de capibara db/148 + Krampus db/188) met unieke id's en flairs, namen in alle vijf de talen, 39 feiten + de Krampus-feiten die elk naar een bekende vondst wijzen", () => {
+  assert.equal(T.VONDSTEN.length, 21);
+  assert.equal(new Set(T.VONDSTEN.map((v) => v.id)).size, 21);
+  assert.equal(new Set(T.VONDSTEN.map((v) => v.flair)).size, 21);
   for (const v of T.VONDSTEN) {
     for (const l of ["nl", "en", "de", "es", "pt"]) assert.ok(v.names[l], `${v.id}: naam in ${l}`);
     assert.ok(v.cls ? v.flair === "v:" + v.id : !v.flair.startsWith("v:"), `${v.id}: een eigen tekening heeft flair v:<id>, een gewone emoji niet`);
   }
   const ids = new Set(T.VONDSTEN.map((v) => v.id));
-  assert.equal(Object.keys(T.FIND_FACTS).length, 39);
+  const nKrampus = Object.values(T.FIND_FACTS).filter((id) => id === "krampus").length;
+  assert.ok(nKrampus >= 1, "Krampus heeft feiten");
+  assert.equal(Object.keys(T.FIND_FACTS).length, 39 + nKrampus);
   for (const [h, id] of Object.entries(T.FIND_FACTS)) { assert.match(h, /^[0-9a-f]{10}$/); assert.ok(ids.has(id), h); }
   for (const id of ids) assert.ok(Object.values(T.FIND_FACTS).includes(id), `${id} heeft minstens één feit`);
   assert.ok(!T.FLAIR_OPTIONS.includes("🦄"), "🦄 is geen vrije flair meer (de eenhoorn is een vondst)");
@@ -4807,10 +4809,19 @@ test("vondsten — verdiende flairs en beloningen komen uit finds (compute_achie
     for (const v of T.VONDSTEN) assert.ok(T.REWARD_ORDER.includes("fv_" + v.id) && T.REWARDS["fv_" + v.id].sect === "flair", v.id);
     T.setLang("nl"); assert.equal(T.rewardName("fv_ring"), "Ringdrager");
     T.setLang("en"); assert.equal(T.rewardName("fv_penguin-knight"), "Sir Penguin");
-    assert.ok(T.findsRowHtml({ finds: ["ring", "unicorn"] }).includes("2/20"));
+    assert.ok(T.findsRowHtml({ finds: ["ring", "unicorn"] }).includes("2/21"));
     T.setAchv({ ...mkAch([0, 0, 0, 0, 0]) });
     assert.ok(!T.earnedRewardKeys().some((k) => k.startsWith("fv_")), "zonder finds geen vondst-pop-up");
   } finally { T.auth.user = wasUser; T.setAchv(null); T.setLang("nl"); }
+});
+
+test("vondsten — zeldzaamheid: Krampus is Episch (tier 2), de rest Legendarisch; label en kleur volgen de tier", () => {
+  assert.equal(T.VONDST_BY_ID.krampus.tier, 2);
+  for (const v of T.VONDSTEN.filter((x) => x.id !== "krampus")) assert.equal(T.vondstTier(v), 3, v.id);
+  assert.equal(T.vondstTier(T.VONDST_BY_ID.krampus), 2);
+  assert.equal(T.vondstTier(undefined), 3);
+  const css = readFileSync(join(dir, "..", "style.css"), "utf8");
+  assert.match(css, /\.vd-r2 \{ --rar:/);
 });
 
 test("anonFindOf — alleen een gewonnen, organisch (gestempeld) vrij potje met een vondst-feit (hoofdfeit of 💡) telt", () => {
@@ -4822,7 +4833,7 @@ test("anonFindOf — alleen een gewonnen, organisch (gestempeld) vrij potje met 
   assert.equal(T.anonFindOf({ ...base, won: false, hashes: [h] }), null, "verloren");
   assert.equal(T.anonFindOf({ ...base, stamp: null, hashes: [h] }), null, "zonder stempel");
   assert.equal(T.anonFindOf({ ...base, shared: true, hashes: [h] }), null, "gedeeld");
-  assert.equal(T.anonFindOf({ ...base, mode: "daily", hashes: [h] }), null, "de daily heeft geen vondsten");
+  assert.equal(T.anonFindOf({ ...base, mode: "daily", hashes: [h] }), null, "anoniem alleen in vrij spel (een daily-vondst, zoals Krampus op 6 dec, komt na inloggen via de claim)");
 });
 
 test("achvNormalize — houdt finds van de server (zonder dit zag een ingelogde speler zijn vondst nooit); rommel valt eruit", () => {
@@ -4833,7 +4844,7 @@ test("achvNormalize — houdt finds van de server (zonder dit zag een ingelogde 
     T.auth.user = { uid: "u" };
     T.setAchv(T.achvNormalize({ games: 3, finds: ["ring"] }));
     assert.ok(T.earnedRewardKeys().includes("fv_ring"), "via de echte normalisatie: de vondst-pop-up komt");
-    assert.ok(T.findsRowHtml(T.achvNormalize({ finds: ["ring"] })).includes("1/20"));
+    assert.ok(T.findsRowHtml(T.achvNormalize({ finds: ["ring"] })).includes("1/21"));
   } finally { T.auth.user = wasUser; T.setAchv(null); }
 });
 

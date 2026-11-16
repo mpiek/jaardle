@@ -336,7 +336,7 @@ const I18N = {
     makeup_tag: "inhaaldag",
     shared_note: "Gedeeld potje: dit telt niet mee voor je prestaties of rating.",
     find_pop_eyebrow: "Zeldzame vondst", find_pop_sub: "Je won een vrij potje met een zeldzaam feit. Deze flair is nu van jou.",
-    find_pop_anon: "Je won een vrij potje met een zeldzaam feit. Log in om deze flair te bewaren.", find_tier_3: "Legendarisch", find_unknown: "Onbekend",
+    find_pop_anon: "Je won een vrij potje met een zeldzaam feit. Log in om deze flair te bewaren.", find_tier_2: "Episch", find_tier_3: "Legendarisch", find_unknown: "Onbekend",
     achv_finds: "Zeldzame vondsten", achv_finds_sub: (n, total) => `${n}/${total} gevonden · alleen in vrij spel`,
     achv_finds_head: (n, total) => `${n}/${total} gevonden · zeldzame feiten in vrij spel`,
     catchup_title_rescue: (streak) => `Red je streak van ${streak}!`,
@@ -690,7 +690,7 @@ const I18N = {
     makeup_tag: "catch-up",
     shared_note: "Shared game: this doesn't count towards your achievements or rating.",
     find_pop_eyebrow: "Rare find", find_pop_sub: "You won a free play game with a rare fact. This flair is yours now.",
-    find_pop_anon: "You won a free play game with a rare fact. Sign in to keep this flair.", find_tier_3: "Legendary", find_unknown: "Unknown",
+    find_pop_anon: "You won a free play game with a rare fact. Sign in to keep this flair.", find_tier_2: "Epic", find_tier_3: "Legendary", find_unknown: "Unknown",
     achv_finds: "Rare finds", achv_finds_sub: (n, total) => `${n}/${total} found · free play only`,
     achv_finds_head: (n, total) => `${n}/${total} found · rare facts in free play`,
     catchup_title_rescue: (streak) => `Save your ${streak}-day streak!`,
@@ -1037,7 +1037,7 @@ const I18N = {
     makeup_tag: "Nachhol-Tag",
     shared_note: "Geteilte Runde: zählt nicht für deine Erfolge oder dein Rating.",
     find_pop_eyebrow: "Seltener Fund", find_pop_sub: "Du hast eine freie Runde mit einer seltenen Tatsache gewonnen. Dieses Flair gehört jetzt dir.",
-    find_pop_anon: "Du hast eine freie Runde mit einer seltenen Tatsache gewonnen. Melde dich an, um dieses Flair zu behalten.", find_tier_3: "Legendär", find_unknown: "Unbekannt",
+    find_pop_anon: "Du hast eine freie Runde mit einer seltenen Tatsache gewonnen. Melde dich an, um dieses Flair zu behalten.", find_tier_2: "Episch", find_tier_3: "Legendär", find_unknown: "Unbekannt",
     achv_finds: "Seltene Funde", achv_finds_sub: (n, total) => `${n}/${total} gefunden · nur im freien Spiel`,
     achv_finds_head: (n, total) => `${n}/${total} gefunden · seltene Tatsachen im freien Spiel`,
     catchup_title_rescue: (streak) => `Rette deine ${streak}-Tage-Serie!`,
@@ -1388,7 +1388,7 @@ const I18N = {
     makeup_tag: "recuperación",
     shared_note: "Partida compartida: no cuenta para tus logros ni para tu rating.",
     find_pop_eyebrow: "Hallazgo raro", find_pop_sub: "Ganaste una partida de juego libre con un dato raro. Este distintivo ahora es tuyo.",
-    find_pop_anon: "Ganaste una partida de juego libre con un dato raro. Inicia sesión para conservar este distintivo.", find_tier_3: "Legendario", find_unknown: "Desconocido",
+    find_pop_anon: "Ganaste una partida de juego libre con un dato raro. Inicia sesión para conservar este distintivo.", find_tier_2: "Épico", find_tier_3: "Legendario", find_unknown: "Desconocido",
     achv_finds: "Hallazgos raros", achv_finds_sub: (n, total) => `${n}/${total} encontrados · solo en juego libre`,
     achv_finds_head: (n, total) => `${n}/${total} encontrados · datos raros en juego libre`,
     catchup_title_rescue: (streak) => `¡Salva tu racha de ${streak}!`,
@@ -1739,7 +1739,7 @@ const I18N = {
     makeup_tag: "recuperação",
     shared_note: "Partida compartilhada: não conta para suas conquistas nem para seu rating.",
     find_pop_eyebrow: "Achado raro", find_pop_sub: "Você venceu uma partida de jogo livre com um fato raro. Este distintivo agora é seu.",
-    find_pop_anon: "Você venceu uma partida de jogo livre com um fato raro. Entre para guardar este distintivo.", find_tier_3: "Lendário", find_unknown: "Desconhecido",
+    find_pop_anon: "Você venceu uma partida de jogo livre com um fato raro. Entre para guardar este distintivo.", find_tier_2: "Épico", find_tier_3: "Lendário", find_unknown: "Desconhecido",
     achv_finds: "Achados raros", achv_finds_sub: (n, total) => `${n}/${total} encontrados · só no jogo livre`,
     achv_finds_head: (n, total) => `${n}/${total} encontrados · fatos raros no jogo livre`,
     catchup_title_rescue: (streak) => `Salve sua sequência de ${streak}!`,
@@ -5693,37 +5693,40 @@ const FLAIR_SVG = {
 // gate't het dragen (set_my_flair); de client toont. Eigen tekeningen hebben geen emoji-teken: hun flair is "v:<id>" en de
 // tekening komt lui uit /vondsten.js (±30 KB gzip, alleen als er ergens een vondst-flair in beeld is).
 // @@VONDSTEN-START (gegenereerd door build_vondsten.py in jaardle-tools; niet met de hand bewerken)
-// Zeldzame vondsten: ronde 1 (18) + de abt (db/146) + de capibara (db/148), 20 met een icoon. id = vondst (find_topics.id, db/110), flair = wat er in profiles.flair
-// komt (eigen tekening: "v:<id>", lui uit /vondsten.js; de eenhoorn is gewoon 🦄), cls = de CSS-klasse van de tekening.
+// Zeldzame vondsten: ronde 1 (18) + de abt (db/146) + de capibara (db/148) + Krampus (db/188), 21 met een icoon. id = vondst (find_topics.id, db/110), flair = wat er in profiles.flair
+// komt (eigen tekening: "v:<id>", lui uit /vondsten.js; de eenhoorn is gewoon 🦄), cls = de CSS-klasse van de tekening, tier 3 = Legendarisch, 2 = Episch.
 const VONDSTEN = [
-  { id: "ring", flair: "v:ring", cls: "rg", names: { nl: "Ringdrager", en: "Ring-bearer", de: "Ringträger", es: "Portador del anillo", pt: "Portador do anel" } },
-  { id: "unicorn", flair: "🦄", cls: null, names: { nl: "Eenhoorn", en: "Unicorn", de: "Einhorn", es: "Unicornio", pt: "Unicórnio" } },
-  { id: "penguin-knight", flair: "v:penguin-knight", cls: "pk", names: { nl: "Sir Pinguïn", en: "Sir Penguin", de: "Sir Pinguin", es: "Sir Pingüino", pt: "Sir Pinguim" } },
-  { id: "platypus", flair: "v:platypus", cls: "pt", names: { nl: "Vogelbekdier", en: "Platypus", de: "Schnabeltier", es: "Ornitorrinco", pt: "Ornitorrinco" } },
-  { id: "twisty-cube", flair: "v:twisty-cube", cls: "rb", names: { nl: "Draaikubus", en: "Twisty cube", de: "Zauberwürfel", es: "Cubo mágico", pt: "Cubo mágico" } },
-  { id: "jewelled-egg", flair: "v:jewelled-egg", cls: "je", names: { nl: "Keizersei", en: "Imperial egg", de: "Kaiserei", es: "Huevo imperial", pt: "Ovo imperial" } },
-  { id: "melting-clock", flair: "v:melting-clock", cls: "mc", names: { nl: "Smeltende klok", en: "Melting clock", de: "Schmelzende Uhr", es: "Reloj derretido", pt: "Relógio derretido" } },
-  { id: "mammoth", flair: "v:mammoth", cls: "mm", names: { nl: "Mammoet", en: "Mammoth", de: "Mammut", es: "Mamut", pt: "Mamute" } },
-  { id: "paul-octopus", flair: "v:paul-octopus", cls: "po", names: { nl: "Paul de octopus", en: "Paul the Octopus", de: "Krake Paul", es: "Pulpo Paul", pt: "Polvo Paul" } },
-  { id: "schrodinger-cat", flair: "v:schrodinger-cat", cls: "sk", names: { nl: "Kat in de doos", en: "Cat in a box", de: "Katze in der Kiste", es: "Gato en la caja", pt: "Gato na caixa" } },
-  { id: "tardigrade", flair: "v:tardigrade", cls: "wb", names: { nl: "Waterbeertje", en: "Water bear", de: "Bärtierchen", es: "Osito de agua", pt: "Urso-d'água" } },
-  { id: "garden-gnome", flair: "v:garden-gnome", cls: "tk", names: { nl: "Tuinkabouter", en: "Garden gnome", de: "Gartenzwerg", es: "Gnomo de jardín", pt: "Gnomo de jardim" } },
-  { id: "martian-tripod", flair: "v:martian-tripod", cls: "ww", names: { nl: "Marsdriepoot", en: "Martian tripod", de: "Marsianischer Dreibeiner", es: "Trípode marciano", pt: "Tripé marciano" } },
-  { id: "jackalope", flair: "v:jackalope", cls: "jk", names: { nl: "Jackalope", en: "Jackalope", de: "Jackalope", es: "Jackalope", pt: "Jackalope" } },
-  { id: "lawn-chair", flair: "v:lawn-chair", cls: "tz", names: { nl: "Tuinstoelpiloot", en: "Lawn-chair pilot", de: "Gartenstuhlpilot", es: "Piloto de silla de jardín", pt: "Piloto de cadeira de jardim" } },
-  { id: "blobfish", flair: "v:blobfish", cls: "bf", names: { nl: "Blobvis", en: "Blobfish", de: "Blobfisch", es: "Pez borrón", pt: "Peixe-bolha" } },
-  { id: "nebra-disc", flair: "v:nebra-disc", cls: "nb", names: { nl: "Hemelschijf", en: "Sky disc", de: "Himmelsscheibe", es: "Disco celeste", pt: "Disco celeste" } },
-  { id: "taped-banana", flair: "v:taped-banana", cls: "bn", names: { nl: "Ducttape-banaan", en: "Taped banana", de: "Klebeband-Banane", es: "Plátano con cinta", pt: "Banana com fita" } },
-  { id: "abbot", flair: "v:abbot", cls: "ab", names: { nl: "Abt", en: "Abbot", de: "Abt", es: "Abad", pt: "Abade" } },
-  { id: "capybara", flair: "v:capybara", cls: "cb", names: { nl: "Capibara", en: "Capybara", de: "Capybara", es: "Capibara", pt: "Capivara" } },
+  { id: "ring", flair: "v:ring", cls: "rg", tier: 3, names: { nl: "Ringdrager", en: "Ring-bearer", de: "Ringträger", es: "Portador del anillo", pt: "Portador do anel" } },
+  { id: "unicorn", flair: "🦄", cls: null, tier: 3, names: { nl: "Eenhoorn", en: "Unicorn", de: "Einhorn", es: "Unicornio", pt: "Unicórnio" } },
+  { id: "penguin-knight", flair: "v:penguin-knight", cls: "pk", tier: 3, names: { nl: "Sir Pinguïn", en: "Sir Penguin", de: "Sir Pinguin", es: "Sir Pingüino", pt: "Sir Pinguim" } },
+  { id: "platypus", flair: "v:platypus", cls: "pt", tier: 3, names: { nl: "Vogelbekdier", en: "Platypus", de: "Schnabeltier", es: "Ornitorrinco", pt: "Ornitorrinco" } },
+  { id: "twisty-cube", flair: "v:twisty-cube", cls: "rb", tier: 3, names: { nl: "Draaikubus", en: "Twisty cube", de: "Zauberwürfel", es: "Cubo mágico", pt: "Cubo mágico" } },
+  { id: "jewelled-egg", flair: "v:jewelled-egg", cls: "je", tier: 3, names: { nl: "Keizersei", en: "Imperial egg", de: "Kaiserei", es: "Huevo imperial", pt: "Ovo imperial" } },
+  { id: "melting-clock", flair: "v:melting-clock", cls: "mc", tier: 3, names: { nl: "Smeltende klok", en: "Melting clock", de: "Schmelzende Uhr", es: "Reloj derretido", pt: "Relógio derretido" } },
+  { id: "mammoth", flair: "v:mammoth", cls: "mm", tier: 3, names: { nl: "Mammoet", en: "Mammoth", de: "Mammut", es: "Mamut", pt: "Mamute" } },
+  { id: "paul-octopus", flair: "v:paul-octopus", cls: "po", tier: 3, names: { nl: "Paul de octopus", en: "Paul the Octopus", de: "Krake Paul", es: "Pulpo Paul", pt: "Polvo Paul" } },
+  { id: "schrodinger-cat", flair: "v:schrodinger-cat", cls: "sk", tier: 3, names: { nl: "Kat in de doos", en: "Cat in a box", de: "Katze in der Kiste", es: "Gato en la caja", pt: "Gato na caixa" } },
+  { id: "tardigrade", flair: "v:tardigrade", cls: "wb", tier: 3, names: { nl: "Waterbeertje", en: "Water bear", de: "Bärtierchen", es: "Osito de agua", pt: "Urso-d'água" } },
+  { id: "garden-gnome", flair: "v:garden-gnome", cls: "tk", tier: 3, names: { nl: "Tuinkabouter", en: "Garden gnome", de: "Gartenzwerg", es: "Gnomo de jardín", pt: "Gnomo de jardim" } },
+  { id: "martian-tripod", flair: "v:martian-tripod", cls: "ww", tier: 3, names: { nl: "Marsdriepoot", en: "Martian tripod", de: "Marsianischer Dreibeiner", es: "Trípode marciano", pt: "Tripé marciano" } },
+  { id: "jackalope", flair: "v:jackalope", cls: "jk", tier: 3, names: { nl: "Jackalope", en: "Jackalope", de: "Jackalope", es: "Jackalope", pt: "Jackalope" } },
+  { id: "lawn-chair", flair: "v:lawn-chair", cls: "tz", tier: 3, names: { nl: "Tuinstoelpiloot", en: "Lawn-chair pilot", de: "Gartenstuhlpilot", es: "Piloto de silla de jardín", pt: "Piloto de cadeira de jardim" } },
+  { id: "blobfish", flair: "v:blobfish", cls: "bf", tier: 3, names: { nl: "Blobvis", en: "Blobfish", de: "Blobfisch", es: "Pez borrón", pt: "Peixe-bolha" } },
+  { id: "nebra-disc", flair: "v:nebra-disc", cls: "nb", tier: 3, names: { nl: "Hemelschijf", en: "Sky disc", de: "Himmelsscheibe", es: "Disco celeste", pt: "Disco celeste" } },
+  { id: "taped-banana", flair: "v:taped-banana", cls: "bn", tier: 3, names: { nl: "Ducttape-banaan", en: "Taped banana", de: "Klebeband-Banane", es: "Plátano con cinta", pt: "Banana com fita" } },
+  { id: "abbot", flair: "v:abbot", cls: "ab", tier: 3, names: { nl: "Abt", en: "Abbot", de: "Abt", es: "Abad", pt: "Abade" } },
+  { id: "capybara", flair: "v:capybara", cls: "cb", tier: 3, names: { nl: "Capibara", en: "Capybara", de: "Capybara", es: "Capibara", pt: "Capivara" } },
+  { id: "krampus", flair: "v:krampus", cls: "kp", tier: 2, names: { nl: "Krampus", en: "Krampus", de: "Krampus", es: "Krampus", pt: "Krampus" } },
 ];
 // Feit → vondst (hoofdfeit of 💡-extra). Dezelfde lijst staat in find_facts (db/110); de server beslist, dit is alleen voor
 // de pop-up bij anonieme spelers (zij hebben geen prestaties op de server).
-const FIND_FACTS = { "047ffe45fb": "nebra-disc", "0492da7dd0": "penguin-knight", "0662537dfa": "mammoth", "07fe111784": "blobfish", "0b293a50fa": "jewelled-egg", "0f77183299": "taped-banana", "0fc9e02c0a": "tardigrade", "17f43e1e75": "abbot", "1e65e2c3a2": "taped-banana", "28aa5591b8": "garden-gnome", "2d7f444e31": "unicorn", "44b19e0852": "ring", "48b4323245": "martian-tripod", "4a8a4e839a": "paul-octopus", "4cf40663e1": "tardigrade", "4e45ac89d9": "melting-clock", "62bf45af99": "lawn-chair", "6ab6bd2eb1": "paul-octopus", "70b581008e": "martian-tripod", "7350077e94": "garden-gnome", "8100325cb6": "nebra-disc", "834ea3b8dd": "lawn-chair", "92daa5bd21": "ring", "9400e14613": "jackalope", "979ee9afec": "capybara", "9c519041f7": "taped-banana", "a075de7559": "twisty-cube", "a239cce4fe": "melting-clock", "bba9f3bf91": "platypus", "c4f3e009fa": "nebra-disc", "d504258085": "tardigrade", "d6851e132d": "mammoth", "da88ffa8d9": "jackalope", "de5a141653": "blobfish", "ec6f8b24e6": "capybara", "efe4e53606": "schrodinger-cat", "f0dd829532": "abbot", "f122c2c1f2": "garden-gnome", "f75992688a": "platypus" };
+const FIND_FACTS = { "015994d032": "krampus", "047ffe45fb": "nebra-disc", "0492da7dd0": "penguin-knight", "0662537dfa": "mammoth", "07fe111784": "blobfish", "0b293a50fa": "jewelled-egg", "0f77183299": "taped-banana", "0fc9e02c0a": "tardigrade", "17f43e1e75": "abbot", "1e65e2c3a2": "taped-banana", "28aa5591b8": "garden-gnome", "2d2b0b554e": "krampus", "2d7f444e31": "unicorn", "2f2e8b1021": "krampus", "44b19e0852": "ring", "48b4323245": "martian-tripod", "4a8a4e839a": "paul-octopus", "4cf40663e1": "tardigrade", "4e45ac89d9": "melting-clock", "62bf45af99": "lawn-chair", "6ab6bd2eb1": "paul-octopus", "6db82724fa": "krampus", "70b581008e": "martian-tripod", "7350077e94": "garden-gnome", "765a0eaaa7": "krampus", "8100325cb6": "nebra-disc", "834ea3b8dd": "lawn-chair", "847e354e9e": "krampus", "92daa5bd21": "ring", "9400e14613": "jackalope", "979ee9afec": "capybara", "9c519041f7": "taped-banana", "a075de7559": "twisty-cube", "a239cce4fe": "melting-clock", "bba9f3bf91": "platypus", "c4f3e009fa": "nebra-disc", "d504258085": "tardigrade", "d6851e132d": "mammoth", "da88ffa8d9": "jackalope", "de5a141653": "blobfish", "e0069ddfbe": "krampus", "ec6f8b24e6": "capybara", "efe4e53606": "schrodinger-cat", "f0dd829532": "abbot", "f122c2c1f2": "garden-gnome", "f75992688a": "platypus" };
 // @@VONDSTEN-END
 const VONDST_BY_ID = Object.fromEntries(VONDSTEN.map((v) => [v.id, v]));
 const VONDST_BY_FLAIR = Object.fromEntries(VONDSTEN.map((v) => [v.flair, v]));
 const vondstName = (v) => (v && v.names && (v.names[lang] || v.names.en)) || "";
+// Zeldzaamheid: 3 = Legendarisch (standaard), 2 = Episch (Krampus, db/188: ook via de daily van 6 dec te krijgen).
+const vondstTier = (v) => (v && v.tier === 2 ? 2 : 3);
 // Een eigen tekening ("v:<id>"). Overal waar HTML mag de tekening zelf (flairGlyphHtml stil, flairPreviewHtml bewegend), ook
 // het gezichtje en de pin in het eindscherm-histogram; in de SVG van de 🔮-donut als geneste <svg> (oddsVfSvg); in de
 // confetti als plaatje (vondstImgUrl/vondstImage). Alleen season-event.js (alleen tekst) toont nog een ✨.
@@ -10706,7 +10709,7 @@ function showReward(key, opts) {
         `<span class="rw-eyebrow">${escHtml(evc ? evc.popEyebrow : r.find ? t("find_pop_eyebrow") : t("reward_pop_eyebrow"))}</span>` +
         `<div class="rw-heroWrap"><span class="rw-glow"></span><span class="rw-hero">${hero}</span></div>` +
         `<div class="rw-name" id="rw-pop-name">${escHtml(rewardName(key))}</div>` +
-        (r.find ? `<span class="vd-chip vd-r3">${escHtml(t("find_tier_3"))}</span>` : "") +
+        (r.find ? `<span class="vd-chip vd-r${vondstTier(VONDST_BY_ID[r.find])}">${escHtml(t("find_tier_" + vondstTier(VONDST_BY_ID[r.find])))}</span>` : "") +
         `<p class="rw-sub">${escHtml(sub)}</p>` +
         `<div class="rw-btns">` +
           (anon
@@ -11781,7 +11784,8 @@ function dailyDoneToday() {
 // ── Zeldzame vondsten in Prestaties (db/110) ──────────────────────────────────
 // Eén regel onder Overige reeksen ("1/18 gevonden · alleen in vrij spel") met › naar het album, zoals de jaarzegels:
 // gevonden in kleur (de eigen tekening op een zegel), onbekend als het "?"-zegel met een ring in de zeldzaamheidskleur.
-// Een gevonden zegel springt naar de kluis (dragen). Anoniem: alles onbekend + de inlog-regel.
+// Een gevonden zegel springt naar de kluis (dragen). Onbekend = het silhouet van de flair, helemaal zwart ("net zoals wie is deze
+// pokémon", 16/11/2026), met "Onbekend" eronder. Anoniem: alles onbekend + de inlog-regel.
 function findsRowHtml(a) {
   const got = new Set((a && a.finds) || []), n = VONDSTEN.filter((v) => got.has(v.id)).length, total = VONDSTEN.length;
   return `<div class="achv-row achv-t0" data-key="finds">
@@ -11797,13 +11801,13 @@ function findsRowHtml(a) {
   </div>`;
 }
 function renderFindsAlbum(body, a) {
-  const got = new Set((a && a.finds) || []), n = VONDSTEN.filter((v) => got.has(v.id)).length, tier = escHtml(t("find_tier_3"));
+  const got = new Set((a && a.finds) || []), n = VONDSTEN.filter((v) => got.has(v.id)).length;
   const base = `<svg viewBox="0 0 100 100" class="achv-art achv-art-stamp" aria-hidden="true"><use href="#achv-stamp-base"/></svg>`;
-  const stamps = VONDSTEN.map((v) => got.has(v.id)
-    ? `<button type="button" class="achv-stamp vd-stamp vd-r3" data-vd-wear="1"><span class="vd-st">${base}<span class="vd-st-fl">${flairGlyphHtml(v.flair)}</span></span>` +
+  const stamps = VONDSTEN.map((v) => { const r = vondstTier(v), tier = escHtml(t("find_tier_" + r)); return got.has(v.id)
+    ? `<button type="button" class="achv-stamp vd-stamp vd-r${r}" data-vd-wear="1"><span class="vd-st">${base}<span class="vd-st-fl">${flairGlyphHtml(v.flair)}</span></span>` +
       `<span class="achv-yr">${escHtml(vondstName(v))}</span><span class="vd-rar">${tier}</span></button>`
-    : `<div class="achv-stamp locked vd-stamp vd-r3"><span class="vd-st vd-lock">${achvBadgeHtml("locked", true)}</span>` +
-      `<span class="achv-yr">${escHtml(t("find_unknown"))}</span><span class="vd-rar">${tier}</span></div>`).join("");
+    : `<div class="achv-stamp locked vd-stamp vd-r${r}"><span class="vd-st vd-lock">${base}<span class="vd-st-fl vd-sil" aria-hidden="true">${flairGlyphHtml(v.flair)}</span></span>` +
+      `<span class="achv-yr">${escHtml(t("find_unknown"))}</span><span class="vd-rar">${tier}</span></div>`; }).join("");
   body.innerHTML = `
     <button class="achv-back lb-pillbtn" type="button">${escHtml(t("achv_back"))}</button>
     <p class="achv-albumhead">${escHtml(t("achv_finds_head")(n, VONDSTEN.length))}</p>
