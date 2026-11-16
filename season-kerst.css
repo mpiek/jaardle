@@ -48,6 +48,9 @@ html[data-season="kerst"] #event-card::before, html[data-season="kerst"] #result
   animation: kst-in 1.4s ease both;
 }
 
+/* de linkjes in de voet (Wikipedia, licentie, contact) in de accentkleur i.p.v. het lila van de browser */
+html[data-season="kerst"] footer a { color: var(--accent); }
+
 /* onderaan het dorpje in twee lagen: verre daken achter, gedetailleerde huizen voor, met een warme horizon-gloed */
 html[data-season="kerst"] footer { position: relative; padding-bottom: 130px; }
 html[data-season="kerst"] footer > * { position: relative; z-index: 1; }

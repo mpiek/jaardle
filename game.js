@@ -12847,7 +12847,7 @@ const SEASONS = {
     on: (m, d) => m === 12 && (d === 5 || d === 6),   // pakjesavond + Sint-Nicolaasdag: de twee dagen van het Sinterklaas-event (EVENTS)
   },
   kerst: {
-    css: "/season-kerst.css?v=4",
+    css: "/season-kerst.css?v=5",
     bar: { dark: "#1c0a0f", light: "#fbf2ea" },
     icon: "/favicon-kerst",                                     // JAAR-logo met kerstmuts, lichtsnoer, gewei en hulst
     label: "menu_season_kerst",
