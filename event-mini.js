@@ -11,6 +11,13 @@ window.EventMini = (() => {
 [data-evm] { --evm: var(--accent); --evm-nut: #b9763a; }
 [data-evm="sint"] { --evm: #e0453a; }
 html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-evm="sint"] { --evm: #b3261e; --evm-nut: #8f5423; }
+[data-evm="sneeuwpop"] { --evm: #3f7fc8; }
+html[data-theme="light"] [data-evm="sneeuwpop"], html[data-theme="parchment"] [data-evm="sneeuwpop"] { --evm: #2f6aa8; }
+/* veel potjes (Sneeuwpop: 50): een balkje i.p.v. nootjes */
+.evm-prog { flex: 1; min-width: 0; display: block; height: 0.42rem; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--evm) 20%, transparent); }
+.evm-prog i { display: block; height: 100%; width: var(--p); border-radius: inherit; background: var(--evm); }
+.evm-strip .evm-prog { margin-top: 0.5rem; height: 0.55rem; }
+.evm-emo { font-size: 1.2em; line-height: 1; }
 
 /* ── de balk boven de feitenkaart: wat je kunt verdienen en hoe ver je bent ── */
 .evm-bar { display: flex; align-items: center; gap: 0.55rem; box-sizing: border-box; width: 100%; margin: 0 0 0.5rem; padding: 0.35rem 0.7rem; font-size: 0.85rem; font-weight: 500; line-height: 1.25;
@@ -66,9 +73,10 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
       // /strooigoed-fx.js, hier overgenomen zodat de balk dat bestand niet hoeft te laden (de test houdt ze gelijk).
       art: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.4" fill="#c4860f"/><circle cx="12" cy="12" r="9" fill="#f6c63c"/><circle cx="12" cy="12" r="6.9" fill="none" stroke="#dc9f1a" stroke-width="1"/><path d="M12 7.6l1.18 3.08 3.29.17-2.57 2.07.86 3.18L12 14.3l-2.76 1.8.86-3.18-2.57-2.07 3.29-.17z" fill="#dc9f1a"/><path d="M5.5 9.4A7.4 7.4 0 0 1 10.9 4.7" fill="none" stroke="#fff6cf" stroke-width="1.6" stroke-linecap="round"/><path d="M18.3 15.4a7.2 7.2 0 0 1-2.5 2.7" fill="none" stroke="#fff6cf" stroke-width="1.2" stroke-linecap="round" opacity=".7"/></svg>',
       pip: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12.8" r="9.4" fill="#8f5423"/><circle cx="12" cy="11.5" r="8.8" fill="#bd7a35"/><ellipse cx="9.5" cy="8.8" rx="4.8" ry="3.6" fill="#d39755"/><ellipse cx="8.3" cy="7.5" rx="1.8" ry="1.1" fill="#ecc089"/><path d="M13.8 7.3l1.9 1.6M10.4 11.2l1 1.7M15.2 13.4l1.6 1.9M8.3 16.2l2.2.5" fill="none" stroke="#8f5423" stroke-width="1.2" stroke-linecap="round"/></svg>',
-      // Het zegel in Prestaties (en klein in de strook): de mijter, naar Matthijs' voorbeeldplaatje (16/11/2026). SVG-defs met id achv-art-sint
-      // op de tegel-basis van de badges (achv-tile-base uit game.js); de mijter is getekend in de maten van het voorbeeld (1254 px) en geschaald.
-      seal: '<clipPath id="snt-c"><circle cx="50" cy="50" r="46"/></clipPath><clipPath id="snt-in"><path id="snt-ip" d="M598 272C650 288 702 318 732 364C795 452 824 545 832 640C838 720 836 800 828 900L340 900C324 800 318 725 322 640C326 555 360 468 425 392C475 334 535 288 598 272Z"/></clipPath><clipPath id="snt-mc"><ellipse id="snt-me" cx="612" cy="930" rx="312" ry="104" transform="rotate(4 612 930)"/></clipPath><radialGradient id="snt-bg" cx="50" cy="47" r="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6a3170"/><stop offset="1" stop-color="#6a3170" stop-opacity="0"/></radialGradient><linearGradient id="snt-g" x1="300" y1="250" x2="900" y2="850" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffe35c"/><stop offset=".5" stop-color="#ffc732"/><stop offset="1" stop-color="#f4961e"/></linearGradient><linearGradient id="snt-r" x1="0" y1="260" x2="0" y2="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f51d2b"/><stop offset="1" stop-color="#c70f1f"/></linearGradient><linearGradient id="snt-b" x1="860" y1="0" x2="1045" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7e0810"/><stop offset=".55" stop-color="#c3161a"/><stop offset="1" stop-color="#f03020"/></linearGradient><linearGradient id="snt-l" x1="0" y1="870" x2="0" y2="1034" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f7a628"/><stop offset="1" stop-color="#e5801a"/></linearGradient><linearGradient id="snt-o" x1="0" y1="930" x2="0" y2="1024" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5a0610"/><stop offset="1" stop-color="#d41e1f"/></linearGradient><linearGradient id="snt-j" x1="0" y1="465" x2="0" y2="652" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff4766"/><stop offset="1" stop-color="#b30c2c"/></linearGradient><filter id="snt-f" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="28"/></filter><path id="snt-st" d="M0-1Q.16-.16 1 0Q.16.16 0 1Q-.16.16-1 0Q-.16-.16 0-1Z"/><path id="snt-bd" d="M535 220L662 220L592 930L462 930ZM240 575Q560 465 940 595L940 680Q560 552 240 655Z"/><g id="achv-art-sint"><use href="#achv-tile-base"/><g clip-path="url(#snt-c)"><circle cx="50" cy="50" r="46" fill="url(#snt-bg)"/><g transform="translate(50 49) scale(.075) translate(-645 -611)"><path d="M560 212C590 194 630 192 662 212C710 240 755 282 790 330C850 300 930 300 975 360C1030 430 1048 540 1040 640C1032 760 990 860 930 925L915 905L300 900C272 810 250 730 252 640C255 540 300 440 380 345C430 285 500 240 560 212Z" fill="#ffad2e" opacity=".5" filter="url(#snt-f)"/><path d="M790 330C850 300 930 300 975 360C1030 430 1048 540 1040 640C1032 760 990 860 930 925L880 900L860 380Z" fill="#ff3d22"/><path d="M805 350C855 328 918 330 952 378C996 440 1013 540 1007 640C1001 750 966 840 916 900L870 890L850 390Z" fill="url(#snt-b)"/><path d="M935 708L1040 624C1047 648 1044 672 1037 694L945 770Z" fill="#f8ab2c" stroke="#d0700f" stroke-width="6" stroke-linejoin="round"/><path d="M560 212C590 194 630 192 662 212C720 245 760 285 790 330C870 420 915 520 932 630C945 720 940 810 915 930L300 930C272 810 250 730 252 640C255 540 300 440 380 345C430 285 500 240 560 212Z" fill="url(#snt-g)" stroke="#d0700f" stroke-width="6" stroke-linejoin="round"/><g clip-path="url(#snt-in)"><use href="#snt-ip" fill="url(#snt-r)"/><path d="M690 300C790 340 850 440 858 570C800 480 745 390 690 300Z" fill="#ff6a70" opacity=".35"/><path d="M240 610Q560 500 940 630L940 730Q560 610 240 700Z" fill="#6e0612" opacity=".3"/><use href="#snt-ip" fill="none" stroke="#8c0a18" stroke-width="34" opacity=".45"/><use href="#snt-bd" fill="none" stroke="#8c0a18" stroke-width="30" opacity=".45"/><use href="#snt-bd" fill="url(#snt-g)"/></g><path d="M420 350C368 410 326 490 306 575" fill="none" stroke="#fff7c8" stroke-width="16" stroke-linecap="round" opacity=".7"/><circle cx="452" cy="302" r="14" fill="#fffbe6"/><path d="M566 452L650 552L562 662L478 560Z" fill="#7c0619"/><path d="M566 474L630 552L562 640L500 560Z" fill="url(#snt-j)"/><path d="M566 474L500 560L564 555Z" fill="#ff7a92" opacity=".7"/><path d="M630 552L562 640L564 555Z" fill="#8c0822" opacity=".5"/><ellipse cx="546" cy="520" rx="16" ry="8" transform="rotate(-48 546 520)" fill="#fff" opacity=".9"/><use href="#snt-me" fill="#ffd23e" stroke="#d0700f" stroke-width="6"/><g clip-path="url(#snt-mc)"><ellipse cx="612" cy="978" rx="312" ry="104" transform="rotate(4 612 978)" fill="url(#snt-l)"/></g><ellipse cx="616" cy="978" rx="262" ry="46" transform="rotate(4 616 978)" fill="url(#snt-o)"/><path d="M400 846Q600 806 830 852" fill="none" stroke="#fff6c0" stroke-width="9" stroke-linecap="round" opacity=".75"/></g><g fill="#ffd54d"><use href="#snt-st" transform="translate(70.5 24.5) scale(4)"/><use href="#snt-st" transform="translate(19.5 41) scale(2.9)"/><use href="#snt-st" transform="translate(77 71) scale(2.9)"/><circle cx="25" cy="31.5" r=".7"/><circle cx="76.5" cy="30.5" r=".7"/><circle cx="18.6" cy="62" r=".7"/></g></g></g>',
+      // Het zegel in Prestaties (en klein in de strook): de mijter, opnieuw getekend in de gewone badgestijl (16/11/2026: "niet de Jaardle stijl
+      // omdat we chatgpt als referentie hadden"): vlak, kleuren uit ACHV_SVG, één silhouet. id achv-art-sint op de tegel-basis van de badges
+      // (achv-tile-base uit game.js); geen eigen ids meer nodig. Bron: ~/Games/jaardle-tools/mockups/kerst/agent-out/seals2.
+      seal: '<g id="achv-art-sint"><use href="#achv-tile-base"/><path d="M31 78L26 54A42.1 42.1 0 0 1 50 16A42.1 42.1 0 0 1 74 54L69 78ZM28.9 68Q50 72 71.1 68L69 78Q50 82 31 78Z" fill="#241329" stroke="#241329" stroke-width="3" stroke-linejoin="round"/><path d="M31 78L26 54A42.1 42.1 0 0 1 50 16A42.1 42.1 0 0 1 74 54L69 78Z" fill="#c9a227"/><path d="M46.8 21.2V47H29.6A39.1 39.1 0 0 1 46.8 21.2ZM29 53H46.8V71H32.5L29 54Z" fill="#e05a4e"/><path d="M53.2 21.2V47H70.4A39.1 39.1 0 0 0 53.2 21.2ZM71 53H53.2V71H67.5L71 54Z" fill="#c14a40"/><path d="M28.9 68Q50 72 71.1 68L69 78Q50 82 31 78Z" fill="#e0b62f"/><circle cx="50" cy="50" r="3.8" fill="#f2e8c9"/></g>',
       copy: {
         nl: {
           name: "Strooigoed", rewardName: { feest: "Strooigoed" }, popEyebrow: "Sinterklaas-beloning",
@@ -124,6 +132,63 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
     },
   };
 
+  UI.sneeuwpop = {
+    // De Sneeuwpop (kerst 2026): 50 potjes in de kersttijd → de ⛄-flair. Geen tekening: de emoji zelf (staat in het emoji-font).
+    art: '<span class="evm-emo">\u26C4</span>',
+    copy: {
+      nl: {
+        name: "Sneeuwpop", rewardName: { flair: "Sneeuwpop-flair" }, popEyebrow: "Kerstbeloning",
+        popSub: { flair: "Verdiend met 50 potjes in de kersttijd. Je sneeuwpop voor op het leaderboard, blijft van jou." },
+        lead: (total) => `Speel ${total} potjes, verdien de sneeuwpop`, sub: (last) => (last ? "Vandaag is de laatste dag" : "Elk potje telt, t/m 27 december"),
+        toGo: (n) => (n === 1 ? "Nog 1 potje voor de sneeuwpop-flair" : `Nog ${n} potjes voor de sneeuwpop-flair`),
+        earnedOff: "Verdiend! Draag je sneeuwpop op het leaderboard.", earnedOn: "Je draagt je sneeuwpop.", hook: "Verdiend! Met een gratis account kun je hem dragen.",
+        turnOn: "Draag nu", turnOff: "Je draagt hem", menu: "Sneeuwpop", aria: (n, total) => `Sneeuwpop: ${n} van ${total} potjes`,
+        achName: "Sneeuwpop 2026", achH: "Events", achSub: (n) => (n === 1 ? "1 potje" : `${n} potjes`),
+        seal: (tier, k, next) => (next ? `Zegel ${tier} · nog ${k} ${k === 1 ? "potje" : "potjes"} tot ${next}` : `Zegel ${tier} · de hoogste trede`),
+      },
+      en: {
+        name: "Snowman", rewardName: { flair: "Snowman flair" }, popEyebrow: "Christmas reward",
+        popSub: { flair: "Earned with 50 rounds over Christmas. Your snowman for the leaderboard, yours to keep." },
+        lead: (total) => `Play ${total} rounds, earn the snowman`, sub: (last) => (last ? "Today is the last day" : "Every round counts, until 27 December"),
+        toGo: (n) => (n === 1 ? "1 more round for the snowman flair" : `${n} more rounds for the snowman flair`),
+        earnedOff: "Earned! Wear your snowman on the leaderboard.", earnedOn: "You're wearing your snowman.", hook: "Earned! A free account lets you wear it.",
+        turnOn: "Wear it", turnOff: "Wearing it", menu: "Snowman", aria: (n, total) => `Snowman: ${n} of ${total} rounds`,
+        achName: "Snowman 2026", achH: "Events", achSub: (n) => (n === 1 ? "1 round" : `${n} rounds`),
+        seal: (tier, k, next) => (next ? `Seal: ${tier} · ${k} more ${k === 1 ? "round" : "rounds"} to ${next}` : `Seal: ${tier} · the top tier`),
+      },
+      de: {
+        name: "Schneemann", rewardName: { flair: "Schneemann-Flair" }, popEyebrow: "Weihnachtsbelohnung",
+        popSub: { flair: "Verdient mit 50 Runden in der Weihnachtszeit. Dein Schneemann für die Bestenliste, er gehört dir." },
+        lead: (total) => `Spiel ${total} Runden, verdien den Schneemann`, sub: (last) => (last ? "Heute ist der letzte Tag" : "Jede Runde zählt, bis 27. Dezember"),
+        toGo: (n) => (n === 1 ? "Noch 1 Runde bis zum Schneemann-Flair" : `Noch ${n} Runden bis zum Schneemann-Flair`),
+        earnedOff: "Verdient! Trag deinen Schneemann auf der Bestenliste.", earnedOn: "Du trägst deinen Schneemann.", hook: "Verdient! Mit einem kostenlosen Konto kannst du ihn tragen.",
+        turnOn: "Jetzt tragen", turnOff: "Du trägst ihn", menu: "Schneemann", aria: (n, total) => `Schneemann: ${n} von ${total} Runden`,
+        achName: "Schneemann 2026", achH: "Events", achSub: (n) => (n === 1 ? "1 Runde" : `${n} Runden`),
+        seal: (tier, k, next) => (next ? `Siegel ${tier} · noch ${k} ${k === 1 ? "Runde" : "Runden"} bis ${next}` : `Siegel ${tier} · die höchste Stufe`),
+      },
+      es: {
+        name: "Muñeco de nieve", rewardName: { flair: "Distintivo de muñeco de nieve" }, popEyebrow: "Recompensa de Navidad",
+        popSub: { flair: "Ganado con 50 partidas en Navidad. Tu muñeco de nieve para la clasificación, te lo quedas." },
+        lead: (total) => `Juega ${total} partidas, gana el muñeco`, sub: (last) => (last ? "Hoy es el último día" : "Cada partida cuenta, hasta el 27 de diciembre"),
+        toGo: (n) => (n === 1 ? "Falta 1 partida para el muñeco de nieve" : `Faltan ${n} partidas para el muñeco de nieve`),
+        earnedOff: "¡Ganado! Lleva tu muñeco de nieve en la clasificación.", earnedOn: "Llevas tu muñeco de nieve.", hook: "¡Ganado! Con una cuenta gratuita puedes llevarlo.",
+        turnOn: "Llévalo", turnOff: "Lo llevas", menu: "Muñeco de nieve", aria: (n, total) => `Muñeco de nieve: ${n} de ${total} partidas`,
+        achName: "Muñeco de nieve 2026", achH: "Eventos", achSub: (n) => (n === 1 ? "1 partida" : `${n} partidas`),
+        seal: (tier, k, next) => (next ? `Sello ${tier} · ${k === 1 ? "falta 1 partida" : `faltan ${k} partidas`} para ${next}` : `Sello ${tier} · el nivel más alto`),
+      },
+      pt: {
+        name: "Boneco de neve", rewardName: { flair: "Distintivo de boneco de neve" }, popEyebrow: "Recompensa de Natal",
+        popSub: { flair: "Ganho com 50 partidas no Natal. Seu boneco de neve para o placar, é seu para sempre." },
+        lead: (total) => `Jogue ${total} partidas, ganhe o boneco`, sub: (last) => (last ? "Hoje é o último dia" : "Cada partida conta, até 27 de dezembro"),
+        toGo: (n) => (n === 1 ? "Falta 1 partida para o boneco de neve" : `Faltam ${n} partidas para o boneco de neve`),
+        earnedOff: "Ganhou! Use seu boneco de neve no placar.", earnedOn: "Você está usando seu boneco de neve.", hook: "Ganhou! Com uma conta gratuita você pode usá-lo.",
+        turnOn: "Usar agora", turnOff: "Em uso", menu: "Boneco de neve", aria: (n, total) => `Boneco de neve: ${n} de ${total} partidas`,
+        achName: "Boneco de neve 2026", achH: "Eventos", achSub: (n) => (n === 1 ? "1 partida" : `${n} partidas`),
+        seal: (tier, k, next) => (next ? `Selo ${tier} · ${k === 1 ? "falta 1 partida" : `faltam ${k} partidas`} para ${next}` : `Selo ${tier} · o nível mais alto`),
+      },
+    },
+  };
+
   const LANG_FALLBACK = "en";
   const copy = (id, lang) => { const c = (UI[id] || {}).copy || {}; return c[lang] || c[LANG_FALLBACK] || null; };
   const art = (id) => (UI[id] && UI[id].art) || "";
@@ -136,6 +201,7 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
   const ico = (v) => `<span class="evm-ico" aria-hidden="true">${art(v.id)}</span>`;
   // De stand als tien nootjes: gevuld = gespeeld; het nieuwste krijgt (op het eindscherm) een plopje.
   function pips(v, arrive) {
+    if (v.total > 14) return `<span class="evm-prog" aria-hidden="true"><i style="--p:${Math.round((100 * Math.min(v.n, v.total)) / v.total)}%"></i></span>`;   // te veel voor nootjes: een balkje
     let h = "";
     for (let i = 1; i <= v.total; i++) h += `<i class="evm-pip${i <= v.n ? " on" : ""}${arrive && i === v.n ? " new" : ""}"></i>`;
     return `<span class="evm-pips" aria-hidden="true">${h}</span>`;
@@ -165,8 +231,10 @@ html[data-theme="light"] [data-evm="sint"], html[data-theme="parchment"] [data-e
     const c = copy(v.id, v.lang);
     if (!c) return "";
     const arrive = !!(o && o.arrive);
-    const next = v.earned ? (v.on ? c.earnedOn : c.earnedOff) : c.toGo(v.total - v.n);
-    const btn = v.earned ? `<button type="button" class="evm-btn" data-evm-toggle="${esc(v.id)}" aria-pressed="${v.on ? "true" : "false"}">${esc(v.on ? c.turnOff : c.turnOn)}</button>` : "";
+    const fl = v.kind === "flair";   // een flair als beloning (Sneeuwpop): dragen (met account) i.p.v. een viering aan/uit
+    const next = !v.earned ? c.toGo(v.total - v.n) : fl ? (v.anon ? c.hook : v.worn ? c.earnedOn : c.earnedOff) : v.on ? c.earnedOn : c.earnedOff;
+    const btn = !v.earned || (fl && (v.anon || v.worn)) ? "" : fl ? `<button type="button" class="evm-btn" data-evm-wear="${esc(v.id)}">${esc(c.turnOn)}</button>`
+      : `<button type="button" class="evm-btn" data-evm-toggle="${esc(v.id)}" aria-pressed="${v.on ? "true" : "false"}">${esc(v.on ? c.turnOff : c.turnOn)}</button>`;
     return `<div class="evm-strip${arrive ? " arrive" : ""}${v.earned ? " done" : ""}" data-evm="${esc(v.id)}" aria-label="${esc(c.aria(v.n, v.total))}">` +
       `<span class="evm-top">${ico(v)}<b>${esc(c.name)}</b><span class="evm-n"><span class="evm-num">${v.n}/${v.total}</span></span></span>` +
       `${pips(v, arrive)}<span class="evm-next">${esc(next)}</span>${btn}${sealLine(v, c)}</div>`;

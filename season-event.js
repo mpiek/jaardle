@@ -156,7 +156,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
 .evc.mini .evp-no { font-size: 0.68rem; }
 .evc.mini .evp-s.rw .evp-no { display: grid; width: 1rem; height: 1rem; right: -0.15rem; bottom: -0.2rem; font-size: 0.6rem; }   /* ook op 320 px (33 px) */
 @container (max-width: 28px) { .evc.mini .evp-s.rw .evp-no { display: none; } }
-.evr-rw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+.evr-rw { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0.4rem; }
 .evr-t { display: flex; flex-direction: column; align-items: center; gap: 0.22rem; min-width: 0; padding: 0.45rem 0.15rem 0.4rem; background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; text-align: center; }
 .evr-t.lock { opacity: 0.68; }
 .evr-t.next { border-color: color-mix(in srgb, var(--ev-pk) 55%, var(--border)); }
@@ -382,7 +382,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
   function nextText(v, c) {
     const r = nextReward(v);
     if (v.n >= v.total) return c.lineDone;
-    if (r) return c.lineNext(r.at - v.n, c.rewardName[r.kind]);
+    if (r) return c.lineNext(r.at - v.n, c.rewardName[r.copy || r.kind]);
     const nx = nextSeal(v);
     return nx ? c.lineNext(nx.at - v.n, c.sealOf(nx.name)) : c.allIn;
   }
@@ -454,7 +454,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
     else if (r.kind === "fx" && !v.anyFlair) act = `<button type="button" class="ev-btn" disabled>${esc(c.turnOn)}</button>`;
     else act = `<button type="button" class="ev-btn" data-ev-act="${i}" data-ev-id="${esc(v.id)}">${esc(r.kind === "flair" ? c.wear : c.turnOn)}</button>`;
     const hint = earned && !v.anon && r.kind === "fx" && !v.anyFlair ? `<span class="ev-hint">${esc(c.needFlair)}</span>` : "";
-    return `<div class="ev-row ${earned ? "done" : isNext ? "next" : "lock"}" data-ev="${esc(v.id)}">${rewardPreview(v, r)}<div class="ev-tx"><b class="ev-nm">${esc(c.rewardName[r.kind])}</b><span class="ev-sb">${sub}</span>${hint}</div>${act}</div>`;
+    return `<div class="ev-row ${earned ? "done" : isNext ? "next" : "lock"}" data-ev="${esc(v.id)}">${rewardPreview(v, r)}<div class="ev-tx"><b class="ev-nm">${esc(c.rewardName[r.copy || r.kind])}</b><span class="ev-sb">${sub}</span>${hint}</div>${act}</div>`;
   }
   // Het zegel van Prestaties als vierde rij onder de beloningen: je ring nu en wat de volgende tier kost.
   function sealRow(v, c) {
@@ -496,7 +496,7 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
     else if (worn) st = `<span class="evr-st">✓ ${esc(r.kind === "flair" ? c.worn : c.on)}</span>`;
     else if (r.kind === "fx" && !v.anyFlair) st = `<button type="button" class="evr-btn" disabled title="${esc(c.needFlair)}">${esc(c.turnOn)}</button>`;
     else st = `<button type="button" class="evr-btn" data-ev-act="${i}" data-ev-id="${esc(v.id)}">${esc(r.kind === "flair" ? c.wear : c.turnOn)}</button>`;
-    const nm = String(c.rewardName[r.kind] || "").replace(/^[^\p{L}\p{N}]+\s+/u, "");   // "🕸️ Spinnenweb" → "Spinnenweb": het voorbeeld erboven toont het al
+    const nm = String(c.rewardName[r.copy || r.kind] || "").replace(/^[^\p{L}\p{N}]+\s+/u, "");   // "🕸️ Spinnenweb" → "Spinnenweb": het voorbeeld erboven toont het al
     return `<div class="evr-t ${earned ? "done" : isNext ? "next" : "lock"}">${rewardPreview(v, r)}<b class="evr-nm">${esc(nm)}</b>${st}</div>`;
   }
   function pane(v, o) {

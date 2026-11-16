@@ -382,7 +382,7 @@ const I18N = {
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel", fxn_ember: "🌶️ Vonken", fxn_glow: "🔥 Gloed", fxn_vizier: "🎯 Vizier", fxn_sweat: "💧 Zweetdruppel", fxn_ripple: "🌊 Rimpel", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Nippertje", fxn_pendulum: "🕰️ Slinger",
     fxn_eclipse: "\u{1F311} Eclips", fxn_shard: "🗡️ Scherven", fxn_aura: "🔮 Aura", obx_replay: "Bekijk de onthulling opnieuw",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Spinnenweb", fxn_lights: "\u{1F387} Lichtjes", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Spinnenweb", fxn_lights: "\u{1F387} Lichtjes", fxn_snow: "\u2744\uFE0F Sneeuw", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_frame: "🖼️ Sierrand", rewards_tab_theme: "🎨 Thema", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
@@ -736,7 +736,7 @@ const I18N = {
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle", fxn_ember: "🌶️ Embers", fxn_glow: "🔥 Glow", fxn_vizier: "🎯 Crosshair", fxn_sweat: "💧 Sweat drop", fxn_ripple: "🌊 Ripple", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Close call", fxn_pendulum: "🕰️ Pendulum",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Shards", fxn_aura: "🔮 Aura", obx_replay: "Watch the reveal again",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Cobweb", fxn_lights: "\u{1F387} Fairy lights", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Cobweb", fxn_lights: "\u{1F387} Fairy lights", fxn_snow: "\u2744\uFE0F Snowfall", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_frame: "🖼️ Frame", rewards_tab_theme: "🎨 Theme", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
@@ -1083,7 +1083,7 @@ const I18N = {
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln", fxn_ember: "🌶️ Glut", fxn_glow: "🔥 Glühen", fxn_vizier: "🎯 Fadenkreuz", fxn_sweat: "💧 Schweißtropfen", fxn_ripple: "🌊 Wellen", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Knapp geschafft", fxn_pendulum: "🕰️ Pendel",
     fxn_eclipse: "\u{1F311} Finsternis", fxn_shard: "🗡️ Scherben", fxn_aura: "🔮 Aura", obx_replay: "Enthüllung noch einmal ansehen",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Spinnennetz", fxn_lights: "\u{1F387} Lichterkette", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Spinnennetz", fxn_lights: "\u{1F387} Lichterkette", fxn_snow: "\u2744\uFE0F Schneefall", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_frame: "🖼️ Zierrand", rewards_tab_theme: "🎨 Design", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
@@ -1434,7 +1434,7 @@ const I18N = {
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Resplandor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de sudor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Loto", fxn_timer: "⏱️ Por los pelos", fxn_pendulum: "🕰️ Péndulo",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Esquirlas", fxn_aura: "🔮 Aura", obx_replay: "Ver la revelación otra vez",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Telaraña", fxn_lights: "\u{1F387} Lucecitas", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Telaraña", fxn_lights: "\u{1F387} Lucecitas", fxn_snow: "\u2744\uFE0F Nevada", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_frame: "🖼️ Marco", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
@@ -1785,7 +1785,7 @@ const I18N = {
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Fulgor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de suor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Lótus", fxn_timer: "⏱️ Por um triz", fxn_pendulum: "🕰️ Pêndulo",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Estilhaços", fxn_aura: "🔮 Aura", obx_replay: "Ver a revelação de novo",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Teia de aranha", fxn_lights: "\u{1F387} Pisca-pisca", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Teia de aranha", fxn_lights: "\u{1F387} Pisca-pisca", fxn_snow: "\u2744\uFE0F Neve", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_frame: "🖼️ Moldura", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
@@ -5670,6 +5670,7 @@ const FLAIR_ANIM = {
   "⭐": "flair-star",   // capstone-brons
   "🖤": "flair-blackheart",   // capstone-obsidiaan
   "🎃": "flair-pumpkin",      // Spooktober (event-flair, blijft daarna van je)
+  "⛄": "flair-snowman",      // Sneeuwpop: 50 potjes in de kersttijd (potjes-event, blijft daarna van je)
   "✨": "sparkles",     // geen flair, maar het icoon van het flair-effect-reward (pop-up zonder gedragen flair)
 };
 // Flairs met een EIGEN bewegende vorm (inline-SVG + CSS in style.css, .pep en .bv) i.p.v. een Noto-webp: voor emoji waar Noto geen
@@ -5862,12 +5863,25 @@ const EVENTS = [
     // in een eigen lui bestand (ui: [bestand, global]) dat na /season-event.js laadt, omdat dat bestand op zijn groottegrens zit. Server: db/187.
     id: "kerst", skin: "kerst", icon: "\u{1F384}", mascot: "cat", ui: ["/event-kerst.js", "EventKerst"],
     start: "2026-12-14", end: "2026-12-27",              // puzzeldatums, inclusief: ma 14 t/m zo 27 dec = 14 dagen; inhalen telt t/m 30 dec
-    thresholds: [3, 6, 10], gift: 1,
+    thresholds: [3, 6, 10, 13], gift: 1,                 // een vierde trede (Sneeuw, 16/11: "laten we een extra reward tier toevoegen"): 13 = 12 gespeelde dagen
     sealTiers: [3, 6, 10, 12, 13, 14],
     rewards: [
       { kind: "flair", key: "ev_kerst_flair", emoji: "🎄", icon: "🎄" },
-      { kind: "fx", key: "ev_kerst_fx", fx: "lights", emoji: "\u{1F387}", icon: "\u{1F387}" },   // Lichtjes: een lichtsnoer om je flair (flair-fx.css)
-      { kind: "feest", key: "ev_kerst_feest", emoji: "🎄", icon: "\u2744\uFE0F", layer: "xmas" },   // Kerstfeest: de kerstlaag van HolidayFx (sneeuw + sterretjes)
+      { kind: "fx", key: "ev_kerst_fx", fx: "lights", emoji: "\u{1F387}", icon: "\u{1F387}" },   // Lichtjes: een klein lichtsnoer boven je flair (flair-fx.css)
+      { kind: "feest", key: "ev_kerst_feest", emoji: "🎄", icon: "\u{1F31F}", layer: "xmas" },   // Kerstfeest: de kerstlaag van HolidayFx (sneeuw + sterretjes)
+      { kind: "fx", key: "ev_kerst_snow", fx: "snow", copy: "fx2", emoji: "\u2744\uFE0F", icon: "\u2744\uFE0F" },   // Sneeuw: langzaam dwarrelende vlokjes rond je flair; copy = eigen teksten (tweede effect van dit event)
+    ],
+  },
+  {
+    // De Sneeuwpop (16/11: "50 games dat je dan snowman kan krijgen … inclusief daily"): een potjes-event naast de Kerstkaart, met een flair
+    // als beloning (bij Sint was het een viering). Elk afgemaakt potje van 14 t/m 27 dec telt (daily, inhaal, vrij spel; winst of verlies;
+    // gedeeld niet); tellen kan zonder account, dragen alleen met (zoals elke flair). De UI is /event-mini.js; in de daily heeft de
+    // Kerstkaart de balk, in vrij spel deze teller. Server: db/187 (events.unit = 'plays', de flair-gate leest event_rewards).
+    id: "sneeuwpop", skin: "kerst", icon: "⛄", unit: "plays",
+    start: "2026-12-14", end: "2026-12-27",
+    thresholds: [50], gift: 0,
+    rewards: [
+      { kind: "flair", key: "ev_sneeuwpop_flair", emoji: "⛄", icon: "⛄" },
     ],
   },
 ];
@@ -10456,7 +10470,8 @@ const REWARD_NAME_KEY = {
 // De teksten van een event komen uit het lui geladen /season-event.js (vijf talen); zonder dat bestand valt alles terug op het icoon.
 const eventUiOf = (id) => (isPlaysEvent(eventById(id)) ? window.EventMini : window.SeasonEvent);   // een potjes-event heeft zijn teksten in /event-mini.js
 const eventCopy = (id) => { const ui = eventUiOf(id); return ui && typeof ui.copy === "function" ? ui.copy(id, lang) : null; };
-const eventRewardKind = (key) => { const ev = eventOfReward(key); const r = ev && ev.rewards.find((x) => x.key === key); return r ? r.kind : ""; };
+// De sleutel van de teksten van een event-beloning (rewardName/popSub in het UI-bestand): de soort, of r.copy als een event twee keer dezelfde soort heeft (kerst: twee effecten).
+const eventRewardKind = (key) => { const ev = eventOfReward(key); const r = ev && ev.rewards.find((x) => x.key === key); return r ? r.copy || r.kind : ""; };
 function rewardName(key) {
   const r = REWARDS[key];
   if (r.find) return vondstName(VONDST_BY_ID[r.find]);
@@ -13000,7 +13015,7 @@ function renderEventBar() {
   const el = document.getElementById("event-bar");
   if (!el) return;
   const ev = eventBarEvent();
-  if (!ev && renderMiniEventBar(el)) return;   // geen stempel-event in de balk: dan is hij van een potjes-event (als er een loopt)
+  if ((!ev || !state || state.mode !== "daily") && renderMiniEventBar(el)) return;   // geen stempel-event in de balk (of vrij spel, waar die niet staat): dan is hij van een potjes-event (als er een loopt)
   if (!ev || !state || state.mode !== "daily" || state.done) { el.hidden = true; el.innerHTML = ""; el.className = ""; return; }
   const intro = eventBarIntro(ev);
   if (!window.SeasonEvent) { el.className = "ph" + (intro ? "" : " slim"); el.innerHTML = ""; el.hidden = false; return; }   // het bestand laadt nog: de plek vrijhouden (de kaart springt niet omlaag)
@@ -13069,7 +13084,9 @@ async function renderEventStrip(arrive) {
 const miniEventNow = () => PLAYS_EVENTS.find((ev) => eventPhase(ev, eventToday()) === "run") || null;
 function miniEventView(ev) {
   const st = eventState(ev), fx = eventFxActive();
-  const v = { id: ev.id, lang, n: st.n, total: st.total, earned: eventFxUnlocked(ev), on: !!fx && fx.id === ev.id, lastDay: eventToday() >= ev.end };
+  const r = ev.rewards[0], flair = r && r.kind === "flair";   // een potjes-event met een flair (Sneeuwpop) i.p.v. een viering (Strooigoed)
+  const v = { id: ev.id, lang, n: st.n, total: st.total, earned: flair ? st.earned[0] : eventFxUnlocked(ev), on: !!fx && fx.id === ev.id, lastDay: eventToday() >= ev.end,
+    kind: flair ? "flair" : "feest", anon: !auth.user, worn: flair && parseFlair(myFlair).emoji === r.emoji };
   if (ev.sealTiers) {   // het zegel (de strook toont het met de beloning): trede, potjes tot de volgende, en of dit potje er net een haalde
     const n = eventSealN(ev, st), tier = eventTier(ev, n), at = ev.sealTiers[tier];
     v.seal = { n, tier, name: tier ? achvTierName(tier - 1) : "", left: at ? at - n : 0, nextName: at ? achvTierName(tier) : "", up: tier > 0 && n === ev.sealTiers[tier - 1] };
@@ -13108,6 +13125,8 @@ async function renderMiniEventStrip(arrive) {
   els.result.insertBefore(strip, document.getElementById("result-actions"));
   const btn = strip.querySelector("[data-evm-toggle]");
   if (btn) btn.onclick = () => toggleEventFx(ev);
+  const wear = strip.querySelector("[data-evm-wear]");   // een flair-beloning: meteen dragen
+  if (wear) wear.onclick = () => { wear.disabled = true; Promise.resolve(setMyFlair(ev.rewards[0].emoji)).finally(() => renderMiniEventStrip(false)); };
 }
 // De viering van een event aan of uit (strook en ⚙️): aanzetten speelt hem meteen één keer af, zoals een tik in de kluis.
 function toggleEventFx(ev) {

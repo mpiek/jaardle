@@ -3752,6 +3752,7 @@ test("season-event.js — teksten in alle vijf de talen, zelfde sleutels, geen l
         else if (typeof v === "function") { assert.ok(String(v(3, 12, 5)).length > 0 && !String(v(3, 12, 5)).includes("undefined"), `${ev.id}/${l}.${k}() geeft niets bruikbaars`); }
       }
       for (const kind of ["flair", "fx", "feest"]) assert.ok(c.rewardName[kind] && c.popSub[kind], `${ev.id}/${l}: naam en pop-up-tekst voor ${kind}`);
+      for (const r of ev.rewards) assert.ok(c.rewardName[r.copy || r.kind] && c.popSub[r.copy || r.kind], `${ev.id}/${l}: teksten voor ${r.key} (${r.copy || r.kind})`);   // een tweede effect in één event (kerst: Sneeuw) heeft eigen teksten via r.copy
     }
   }
 });
@@ -4101,12 +4102,12 @@ test("event-mini.js — teksten in vijf talen met dezelfde sleutels, de tekening
   assert.ok(!sl({}, { earned: false }).includes("evm-seal"), "zonder de beloning geen zegelregel"); assert.ok(!sl({ tier: 0 }).includes("evm-seal")); assert.ok(!fresh.includes("evm-seal"));
   // de CSS: tokens per event, het nootje als achtergrond, geen fixed, minder beweging, alle eigen variabelen gedefinieerd; één <style>
   const css = EM.css;
-  for (const ev of T.PLAYS_EVENTS) { assert.ok(css.includes(`[data-evm="${ev.id}"] {`), `${ev.id}: geen tokens`); assert.ok(css.includes(`[data-evm="${ev.id}"] { --evm-pip: url("data:image/svg+xml,`)); }
+  for (const ev of T.PLAYS_EVENTS) { assert.ok(css.includes(`[data-evm="${ev.id}"] {`), `${ev.id}: geen tokens`); if (EM.sweets(ev.id).length > 1) assert.ok(css.includes(`[data-evm="${ev.id}"] { --evm-pip: url("data:image/svg+xml,`)); }   // het nootje alleen bij een event met nootjes (de Sneeuwpop heeft een balkje)
   assert.ok(!/position:\s*fixed/.test(css)); assert.match(css, /prefers-reduced-motion: reduce/);
   const used = new Set([...css.matchAll(/var\((--evm[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...css.matchAll(/(--evm[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} wordt gebruikt maar niet gedefinieerd`);
   assert.equal(head.kids.length, 1, "één <style>");
-  assert.ok(readFileSync(join(dir, "..", "event-mini.js"), "utf8").length < 24000, "het lui geladen bestand blijft klein (met het zegel ±5 KB erbij)");
+  assert.ok(readFileSync(join(dir, "..", "event-mini.js"), "utf8").length < 30000, "het lui geladen bestand blijft klein (Strooigoed + de Sneeuwpop, alleen op eventdagen geladen)");
 });
 
 test("game.js ↔ event-mini.js — lui geladen, de teksten van de beloning komen uit het juiste bestand, de balk houdt zijn plek vrij en verdwijnt als je hem hebt", () => {
@@ -4127,7 +4128,7 @@ test("game.js ↔ event-mini.js — lui geladen, de teksten van de beloning kome
     window.EventMini = EM;
     assert.equal(T.eventCopy("sint").name, "Strooigoed"); assert.equal(T.rewardName("ev_sint_feest"), "Strooigoed");
     T.renderMiniEventBar(el); assert.equal(el.className, ""); assert.match(el.innerHTML, /class="evm-bar slim"[^]*>1\/10</);
-    assert.deepEqual(T.miniEventView(sint), { id: "sint", lang: T.getLang(), n: 1, total: 10, earned: false, on: false, lastDay: false,
+    assert.deepEqual(T.miniEventView(sint), { id: "sint", lang: T.getLang(), n: 1, total: 10, earned: false, on: false, lastDay: false, kind: "feest", anon: true, worn: false,
       seal: { n: 1, tier: 0, name: "", left: 9, nextName: T.achvTierName(0), up: false } });
     T.setEventToday("2026-12-06"); assert.equal(T.miniEventView(sint).lastDay, true);
     T.setState({ done: true, mode: "daily" }); T.renderMiniEventBar(el); assert.deepEqual([el.hidden, el.innerHTML], [true, ""], "na afloop neemt de strook het over");

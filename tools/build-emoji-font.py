@@ -84,6 +84,7 @@ ALLOW_BARE = {
     0x23F3,  # ⏳ zandloper
     0x2615,  # ☕ koffie
     0x26A1,  # ⚡ bliksem (rating)
+    0x26C4,  # ⛄ sneeuwpop (kerst-flair, potjes-event Sneeuwpop)
     0x2728,  # ✨ sterren
     0x2795,  # ➕ plus (pool erbij)
     0x2B1B,  # ⬛ zwart vierkant (resultaat/legenda)
