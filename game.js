@@ -4955,16 +4955,50 @@ function renderNewsBar(hideOnly) {
 function syncDuelUi() {   // het duelscherm aan (in een duelronde) of weer uit; zonder duel.js geladen is er niets op te ruimen
   if (state?.duel || window.Duel) loadDuel().then((D) => D.sync(duelHost())).catch(() => {});
 }
-// Na inloggen: je anonieme duels van dit toestel naar je account (db/186 duel_claim), en een uitnodiging die je openliet om eerst
-// in te loggen komt terug (ook na een Google-redirect: jaardle:pendingDuel, 30 minuten geldig).
+// Na inloggen: je anonieme duels van dit toestel naar je account (db/186 duel_claim), en het duel waarbij je op inloggen tikte komt
+// terug (ook na een Google-redirect: jaardle:pendingDuel, 30 minuten geldig): een uitnodiging als pop-up, je eigen duel als het
+// Duels-scherm bij dat duel (daar staat je tegenstander dan als gezichtje, zie de account-momenten in /duel.js).
+// Overzetten: één keer per account per toestel, en opnieuw zodra hier weer zonder account geduelleerd is (/duel.js wist
+// jaardle:duelclaim dan). Bewust niet meer gekoppeld aan jaardle:duels: dat lijstje is leeg zodra je de uitslag zag, en juist
+// dán komt het account-moment (tot 16/11 bleef zo'n duel daardoor anoniem). Zonder jaardle:duel-name is hier nooit zonder
+// account geduelleerd: niets te halen, geen aanroep.
 const DUEL_PENDING_KEY = "jaardle:pendingDuel";
+const DUEL_CLAIM_KEY = "jaardle:duelclaim";   // uid's (max. 5) waarvoor dit toestel zijn duels al overzette
+function duelClaimDue(uid) {
+  try {
+    if (!localStorage.getItem("jaardle:duel-name")) return false;
+    const done = JSON.parse(localStorage.getItem(DUEL_CLAIM_KEY) || "[]");
+    return !Array.isArray(done) || !done.includes(uid);
+  } catch (e) { return false; }
+}
+function duelClaimDone(uid) {
+  try {
+    let done = JSON.parse(localStorage.getItem(DUEL_CLAIM_KEY) || "[]");
+    if (!Array.isArray(done)) done = [];
+    localStorage.setItem(DUEL_CLAIM_KEY, JSON.stringify(done.filter((u) => u !== uid).concat(uid).slice(-5)));
+  } catch (e) {}
+}
+let duelClaimReq = null;   // { uid, p }: de lopende overzet-aanroep (sb-auth-changed vuurt 2-3× bij het laden: één is genoeg)
+function duelClaim(uid) {
+  if (!duelClaimDue(uid)) return Promise.resolve();
+  if (duelClaimReq?.uid !== uid) {
+    const req = { uid };
+    req.p = rpc("duel_claim", { p_client: clientId() }).then(() => duelClaimDone(uid)).catch(() => {})   // mislukt: de volgende keer opnieuw
+      .finally(() => { if (duelClaimReq === req) duelClaimReq = null; });
+    duelClaimReq = req;
+  }
+  return duelClaimReq.p;
+}
 function duelsAfterLogin() {
   if (!auth.user) return;
-  if (duelKnown()) rpc("duel_claim", { p_client: clientId() }).catch(() => {});
-  else duelInboxCheck();
+  const claimed = duelClaim(auth.user.uid);   // eerst overzetten, dan pas openen: anders mist het Duels-scherm je duels (en dus je tegenstanders)
+  if (!duelKnown()) duelInboxCheck();
   let p = null;
   try { p = JSON.parse(localStorage.getItem(DUEL_PENDING_KEY) || "null"); localStorage.removeItem(DUEL_PENDING_KEY); } catch (e) {}
-  if (p && p.code && Date.now() - (p.at || 0) < 30 * 60 * 1000) loadDuel().then((D) => D.openInvite(duelHost(), p.code)).catch(() => {});
+  if (p && p.code && Date.now() - (p.at || 0) < 30 * 60 * 1000) {
+    gcCount("duel-login-back", "Duel: back after logging in");   // de noemer staat in /duel.js: duel-login-invite|-end|-list
+    claimed.then(() => loadDuel()).then((D) => D.openInvite(duelHost(), p.code)).catch(() => {});
+  }
 }
 // db/189: een teamgenoot kan je direct uitdagen. Wie nog geen duels op dit toestel heeft (dan kijkt checkNews niet), vraagt met
 // een account hooguit eens per kwartier één klein getal op (duel_inbox, geen duel.js); iets binnen = het rode stipje op ⋮.

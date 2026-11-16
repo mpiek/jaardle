@@ -12,18 +12,24 @@
    game.js geeft een host mee (taal, rpc, speler-id, naam, flair, modals, een ronde starten, delen, confetti, inloggen); dit bestand
    brengt zijn eigen CSS (één <style>) en teksten in vijf talen mee, en bewaart lokaal alleen jaardle:duels (welke duels nog nieuws
    kunnen brengen), jaardle:duel-news (voor het stipje), jaardle:duel-name (je naam zonder account) en jaardle:pendingDuel (een
-   uitnodiging die na het inloggen terugkomt).
+   uitnodiging of je eigen duel dat na het inloggen terugkomt); jaardle:duelclaim is van game.js (zie remember).
    Meetpunten (GoatCounter, site jaardle-events; game.js telt duel-list bij ⋮ → Duels): duel-create · duel-rematch · duel-invite-shared|copied|
    abort|prompt · duel-copy-link · duel-resend · duel-withdraw · duel-link-open|own|taken|closed|notfound · duel-accept · duel-decline ·
    duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
-   duel-help · duel-login-end · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily. Trechter: link-open → accept →
+   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily. Trechter: link-open → accept →
    round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
    Versie 4 (stap 2, db/190, mockup v6 16/11): "Deel uitslag" stuurt een plaatje mee (canvas 1080×1080, scorebord: winnaar links met kroon,
    elke ronde met beide scores, iedere speler in de kleur van zijn gezichtje) met één regel en de link; wie die link opent zonder mee te
-   spelen, ziet de uitslag (de rondes draaien om) met "Daag zelf iemand uit", een teamgenoot van de winnaar "Daag <winnaar> uit". */
+   spelen, ziet de uitslag (de rondes draaien om) met "Daag zelf iemand uit", een teamgenoot van de winnaar "Daag <winnaar> uit".
+   Account-momenten (16/11, db/193): zonder account staat bij de uitslag wat je er met déze tegenstander aan hebt ("Met een account daag je
+   Bram uit zonder link"; alleen als Bram een account met een naam heeft: opp_acc van de server, anders "Bewaar je duels op al je
+   toestellen"), en in het Duels-scherm één regel onder de knop zodra je zo'n duel speelde. Tijdens het wachten op de ander staat er geen
+   account-regel meer. Na het inloggen (ook via Google) zet game.js eerst je duels over en opent dan het Duels-scherm bij dat duel: je
+   tegenstander staat er als gezichtje (duelsAfterLogin). */
 window.Duel = (() => {
   const ICON = "⚔️";
   const LIST_KEY = "jaardle:duels", NEWS_KEY = "jaardle:duel-news", NAME_KEY = "jaardle:duel-name", PENDING_KEY = "jaardle:pendingDuel";
+  const CLAIM_KEY = "jaardle:duelclaim";   // van game.js (duelsAfterLogin): voor welke accounts dit toestel zijn duels al overzette
   const LINK = (code) => `https://jaardle.com/?duel=${code}`;
   const FLIP_MS = 500 + 5 * 650 + 500;   // zo lang duurt de onthulling (zie .flip in de CSS)
 
@@ -289,6 +295,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .dl-linkb { appearance: none; align-self: center; min-height: 2.5rem; padding: 0.2rem 0.8rem; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--muted);
   background: transparent; border: 0; cursor: pointer; }
 .dl-linkb:hover { filter: none; color: var(--fg); text-decoration: underline; }
+/* zonder account, na een duel tegen iemand met een account: één regel onder de knop (alleen "Log in" onderstreept) */
+.dl-acct { margin-top: -0.2rem; font-weight: 500; line-height: 1.35; text-wrap: balance; }
+.dl-acct u { font-weight: 700; color: var(--fg); text-underline-offset: 2px; }
+.dl-acct:hover { text-decoration: none; }
 
 /* een uitdaging die op jou wacht: in "Jouw beurt", met Neem aan en een kruisje */
 .dl-x { flex: none; appearance: none; width: 2.5rem; height: 2.5rem; display: grid; place-items: center; padding: 0; font: inherit; font-size: 0.9rem;
@@ -403,6 +413,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       spHow: "Allebei dezelfde 5 puzzels, van makkelijk naar moeilijk. Per ronde wint de hoogste score.", spDaily: "Speel de daily van vandaag",
       spNew: "Nieuw hier? In Jaardle raad je elke dag het jaar bij een gebeurtenis.", spMate: (n) => `Jij tegen ${n}`, spOther: "Daag iemand anders uit",
       notForYouD: "Deze uitdaging is voor iemand anders", lockedLogin: "Log in met je account om hem aan te nemen.", loginBtn: "Log in",
+      // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
+      keepVs: (n) => `Met een account daag je ${n} uit zonder link`, keepList: "<u>Log in</u>, dan staan je tegenstanders hier en daag je ze uit met één tik",
     },
     en: {
       help: "How does it work?", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
@@ -450,6 +462,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       spHow: "Both played the same 5 puzzles, from easy to hard. The highest score wins each round.", spDaily: "Play today's daily",
       spNew: "New here? In Jaardle you guess the year of an event, every day.", spMate: (n) => `You vs ${n}`, spOther: "Challenge someone else",
       notForYouD: "This challenge is for someone else", lockedLogin: "Log in to your account to accept it.", loginBtn: "Log in",
+      // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
+      keepVs: (n) => `With an account, you can challenge ${n} without a link`, keepList: "<u>Log in</u> and your opponents appear here: challenge them with one tap",
     },
     de: {
       help: "Wie funktioniert das?", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", duelTitle: "Duell", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
@@ -498,6 +512,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       spHow: "Beide spielten dieselben 5 Rätsel, von leicht bis schwer. Pro Runde gewinnt die höhere Punktzahl.", spDaily: "Das heutige Rätsel spielen",
       spNew: "Neu hier? Bei Jaardle errätst du jeden Tag das Jahr eines Ereignisses.", spMate: (n) => `Du gegen ${n}`, spOther: "Fordere jemand anderen heraus",
       notForYouD: "Diese Herausforderung ist für jemand anderen", lockedLogin: "Melde dich an, um sie anzunehmen.", loginBtn: "Anmelden",
+      // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
+      keepVs: (n) => `Mit einem Konto forderst du ${n} ohne Link heraus`, keepList: "<u>Melde dich an</u>, dann forderst du deine Gegner hier mit einem Tipp heraus",
     },
     es: {
       help: "¿Cómo funciona?", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
@@ -545,6 +561,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       spHow: "Los dos jugaron los mismos 5 puzles, de fácil a difícil. En cada ronda gana la puntuación más alta.", spDaily: "Jugar el Diario de hoy",
       spNew: "¿Nuevo aquí? En Jaardle adivinas cada día el año de un acontecimiento.", spMate: (n) => `Tú contra ${n}`, spOther: "Reta a otra persona",
       notForYouD: "Este reto es para otra persona", lockedLogin: "Inicia sesión para aceptarlo.", loginBtn: "Iniciar sesión",
+      // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
+      keepVs: (n) => `Con una cuenta retas a ${n} sin enlace`, keepList: "<u>Inicia sesión</u> y tus rivales aparecerán aquí: rétalos con un toque",
     },
     pt: {
       help: "Como funciona?", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
@@ -592,6 +610,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       spHow: "Os dois jogaram os mesmos 5 desafios, do fácil ao difícil. Em cada rodada vence a maior pontuação.", spDaily: "Jogar o Diário de hoje",
       spNew: "Novo por aqui? No Jaardle você adivinha todo dia o ano de um acontecimento.", spMate: (n) => `Você contra ${n}`, spOther: "Desafie outra pessoa",
       notForYouD: "Este desafio é para outra pessoa", lockedLogin: "Entre na sua conta para aceitar.", loginBtn: "Entrar",
+      // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
+      keepVs: (n) => `Com uma conta, você desafia ${n} sem link`, keepList: "<u>Entre</u> e seus adversários aparecem aqui: desafie com um toque",
     },
   };
   const tx = (l) => TXT[l] || TXT.en;
@@ -627,6 +647,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const list = (readJson(LIST_KEY, []) || []).filter((x) => x && x.c !== code);
     list.push({ c: code, u: Date.parse(deadline || "") || Date.now() + 864e5 });
     writeJson(LIST_KEY, list.slice(-30));
+    // Zonder account geduelleerd: bij de volgende keer inloggen zet game.js de duels van dit toestel (opnieuw) over naar het account.
+    if (!H?.loggedIn) { try { localStorage.removeItem(CLAIM_KEY); } catch (e) {} }
   }
   function setNews(n) {
     try { localStorage.setItem(NEWS_KEY, String(Math.max(0, n | 0))); } catch (e) {}
@@ -711,6 +733,24 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     .slice(-8).map((d) => outcome(d.mine, d.theirs).res);
   const formHtml = (f) => (f.length ? `<span class="dl-form" aria-hidden="true">${f.map((r) => `<i class="${r}"></i>`).join("")}</span>` : "");
   const incoming = (d) => d.status === "open" && !d.me && d.can_accept;
+
+  // ── account-momenten (zonder account) ──
+  // opp_acc (db/193): je tegenstander heeft een account met een naam. Dan staat die na het inloggen bij je gezichtjes (duel_list.targets)
+  // en klopt "daag je X uit zonder link". Zonder dat veld (oudere server, of een tegenstander zonder account): de algemene regel.
+  const oppAcc = (d) => !!d && d.opp_acc === true;
+  // Bij de uitslag (niet tijdens het wachten op de ander: daar staan de seintjes-knop en "Laat X het weten" al).
+  const keepHtml = (T, d, cls = "") => `<div class="ep-keep${cls}"><span>${esc(oppAcc(d) ? T.keepVs(oppName(d)) : T.keepTitle)}</span>` +
+    `<button type="button" class="dl-mini" data-act="login">${esc(T.keepBtn)}</button></div>`;
+  // In het Duels-scherm: één regel onder de knop, zodra je een uitslag zag van een duel tegen iemand met een account (een uitslag
+  // die je nog niet zag telt niet: de onthulling heeft haar eigen regel). De knop draagt dat duel mee voor de terugkeer.
+  function acctHtml(T, items) {
+    if (H?.loggedIn) return "";
+    const d = (items || []).find((x) => x.status === "done" && !unrevealed(x) && oppAcc(x));
+    return d ? `<button type="button" class="dl-linkb dl-acct" data-act="login" data-code="${esc(d.code)}">${T.keepList}</button>` : "";
+  }
+  // Na het inloggen (ook na een Google-redirect, 30 minuten geldig) komt dit duel terug: een uitnodiging als pop-up, je eigen duel
+  // als het Duels-scherm bij dat duel (openInvite). game.js zet eerst je duels over: zie duelsAfterLogin.
+  const parkLogin = (code) => { if (code) writeJson(PENDING_KEY, { code, at: Date.now() }); };
 
   // ── rondjes: je flair (met een account) of de beginletter ──
   // De ander krijgt dezelfde achtergrondkleur als zijn gezichtje in het score-histogram (faceHue in game.js, op naam).
@@ -1336,7 +1376,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
         (d.opp_push ? "" : `<button type="button" class="duel-btn${bell ? " ep-ghost" : ""}" data-act="share-turn">${esc(T.tell(opp))}</button>`) +
         `<button type="button" class="ep-ghost" data-act="end-next">${endNext ? endNext.html : esc(T.toDaily)}</button></div>`;
     }
-    if (!H.loggedIn) inner += `<div class="ep-keep${af}"><span>${esc(T.keepTitle)}</span><button type="button" class="dl-mini" data-act="login">${esc(T.keepBtn)}</button></div>`;
+    if (done && !H.loggedIn) inner += keepHtml(T, d, af);
     const el = document.createElement("div");
     el.id = "modal-duel-end";
     el.className = "modal";
@@ -1357,7 +1397,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       if (act === "share-turn") return share(H, b, { kind: "turn", d });
       if (act === "push") return onBell(b);
       if (act === "end-next") { close(); return next(H); }
-      if (act === "login") { gc("duel-login-end", "Duel: create account from result"); close(); return H.openLogin?.(); }
+      if (act === "login") { gc("duel-login-end", "Duel: create account from result"); parkLogin(d.code); close(); return H.openLogin?.(); }
     });
     H.openModal("modal-duel-end");
     if (flip) gc("duel-reveal", "Duel: result revealed (first finisher)");
@@ -1546,7 +1586,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
           right: `<button type="button" class="dl-go" data-act="play" data-code="${d.code}">${esc(T.play)}</button>` });
       }
     }
-    if (!top.startsWith("<form")) h += pickHtml(T, newBtn);   // met het naamveld open is "Daag uit" de knop
+    if (!top.startsWith("<form")) h += pickHtml(T, newBtn, items);   // met het naamveld open is "Daag uit" de knop
     if (wait.length) {
       h += `<h3 class="dl-h">${esc(T.secWait)}${wait.length > 1 ? ` · ${wait.length}` : ""}</h3>`;
       for (const d of wait) h += d.status === "open" ? openLinkHtml(T, d) : waitItemHtml(T, d, h2hTxt(d));
@@ -1566,8 +1606,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   // db/189: je teamgenoten (en eerdere tegenstanders met een account) als gezichtjes, met jullie stand eronder. Tik = kiezen;
   // dan wordt de grote knop "Daag X uit" (geen link nodig, X krijgt een seintje). Zonder keuze blijft het de link.
-  function pickHtml(T, newBtn) {
-    if (!H.loggedIn || !listTargets.length) return newBtn;
+  function pickHtml(T, newBtn, items = listItems) {
+    if (!H.loggedIn) return newBtn + acctHtml(T, items);   // zonder account: de link, en (na een duel tegen een account) de account-regel
+    if (!listTargets.length) return newBtn;
     const faces = listTargets.map((t) => {
       const [a, b] = recOf(t.k), busy = !!t.busy;
       const lab = busy ? `<small class="run">${esc(T.faceRun)}</small>`
@@ -1689,6 +1730,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     const act = b.dataset.act, code = b.dataset.code;
     if (act === "new") { pickSel = null; return create(H, {}); }
+    if (act === "login") { gc("duel-login-list", "Duel: log in from the Duels screen"); parkLogin(code); return H.openLogin?.(); }   // het login-paneel sluit dit scherm
     if (act === "challenge") { const t = listTargets.find((x) => x.k === b.dataset.k); if (t) { gc("duel-create-team", "Duel: teammate challenged"); return create(H, { forK: t.k, forName: t.name }); } return; }
     if (act === "push") return onBell(b);
     if (act === "accept") return acceptFromList(T, code, b);
@@ -1885,7 +1927,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (act === "send") return shareText(T, (d?.rematch ? T.shRematch : T.shInvite)(d?.c_name || ""), LINK(code), b);
     if (act === "login") {   // na het inloggen (ook na Google) komt deze uitnodiging terug: zie duelsAfterLogin in game.js
       gc("duel-login-invite", "Duel: log in from invite");
-      writeJson(PENDING_KEY, { code, at: Date.now() });
+      parkLogin(code);
       H.closeModal("modal-duel-pop");
       return H.openLogin?.();
     }
@@ -1928,7 +1970,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     openList, openInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
-         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare,
+         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml,
          setPick: (k) => { pickSel = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

@@ -85,6 +85,7 @@ src += `
   LATER_WINDOWS, LATER_CLUE_SLOTS, laterWindow, laterSlotText, availableLaterClues, laterSlotFuture, canBuyLaterClue,
   gcCount, hwCount, gcCountNew, gcCountDaily, noteAnchorSlide, GC_DAY_KEY, setFactSlide: (i) => { factSlideIndex = i; },
   devClaimDue, devClaimDone, claimDevicePlays, DEVCLAIM_KEY, ANON_PLAYED_KEY, sentSlot, potSlot,
+  duelClaimDue, duelClaim, duelsAfterLogin, DUEL_CLAIM_KEY, DUEL_PENDING_KEY,
   RANDOM_TEAM_SIZE, RT_LINE_KEY, RT_SEEN_KEY, RT_GIVEN_KEY, RT_GIVEN_MS, PENDING_RT_KEY, rtDotsHtml, rtLineFor, rtLineHtml, rtGivenHintHtml,
   rtIntentPark, rtIntentFresh, rtErrorText, resetRtSession: () => { rtSessionLine = null; },
   isRealTap, TAP_SLOP, TAP_MAX_MS,
@@ -5021,6 +5022,83 @@ test("inloggen zet álle anonieme potjes van dit toestel over (claim_device_play
     for (const u of ["a", "b", "c", "d", "e"]) T.devClaimDone(u);
     assert.deepEqual(JSON.parse(ls.getItem(T.DEVCLAIM_KEY)), ["a", "b", "c", "d", "e"], "hooguit 5 accounts onthouden");
   } finally { clear(); T.auth.user = wasUser; if (wasSb === undefined) delete globalThis.sb; else globalThis.sb = wasSb; }
+});
+
+test("inloggen zet je anonieme duels over (duel_claim), ook als je de uitslag al zag: één keer per account per toestel, opnieuw na een duel zonder account; het geparkeerde duel opent pas daarna", async () => {
+  const ls = globalThis.localStorage, wasUser = T.auth.user, wasSb = globalThis.sb, wasDuel = globalThis.Duel;
+  const keys = ["jaardle:duel-name", "jaardle:duels", "jaardle:duelInboxAt", "jaardle:cid", T.DUEL_CLAIM_KEY, T.DUEL_PENDING_KEY];
+  const calls = [], opened = [];
+  let fail = false, gate = null;
+  const clear = () => keys.forEach((k) => ls.removeItem(k));
+  const tick = () => new Promise((r) => setTimeout(r, 0));
+  const claims = () => calls.filter((c) => c[0] === "duel_claim");
+  try {
+    clear();
+    ls.setItem("jaardle:duelInboxAt", String(Date.now()));   // het kwartier van duel_inbox loopt nog: geen timer in deze test
+    ls.setItem("jaardle:cid", "11111111-2222-4333-8444-555555555555");
+    globalThis.sb = { rpc: (fn, a) => {
+      calls.push([fn, a]);
+      if (fn !== "duel_claim") return Promise.resolve(null);
+      if (fail) return Promise.reject(new Error("boem"));
+      return gate ? gate.p : Promise.resolve(1);
+    } };
+    globalThis.Duel = { openInvite: (h, code) => { opened.push([code, h.loggedIn]); } };
+    T.auth.user = { uid: "u1" };
+
+    assert.equal(T.duelClaimDue("u1"), false, "nooit zonder account geduelleerd op dit toestel: niets te halen");
+    T.duelsAfterLogin(); await tick();
+    assert.equal(claims().length, 0, "dus ook geen aanroep per pagina");
+
+    // zonder account geduelleerd en de uitslag al gezien: jaardle:duels is dan leeg, maar het duel moet wél mee
+    ls.setItem("jaardle:duel-name", "Noor");
+    assert.equal(ls.getItem("jaardle:duels"), null);
+    assert.equal(T.duelClaimDue("u1"), true);
+    T.duelsAfterLogin(); T.duelsAfterLogin(); T.duelsAfterLogin();   // sb-auth-changed vuurt 2-3× bij het laden
+    await tick();
+    assert.deepEqual(claims(), [["duel_claim", { p_client: "11111111-2222-4333-8444-555555555555" }]], "één aanroep");
+    assert.equal(T.duelClaimDue("u1"), false, "daarna niet bij elke pagina opnieuw");
+    T.duelsAfterLogin(); await tick();
+    assert.equal(claims().length, 1);
+
+    // weer zonder account geduelleerd (/duel.js wist de sleutel) en bij de uitslag op "Maak een account" getikt
+    ls.removeItem(T.DUEL_CLAIM_KEY);
+    ls.setItem(T.DUEL_PENDING_KEY, JSON.stringify({ code: "ABC234", at: Date.now() }));
+    let open; gate = { p: new Promise((r) => { open = r; }) };
+    T.duelsAfterLogin(); await tick();
+    assert.equal(claims().length, 2);
+    assert.equal(ls.getItem(T.DUEL_PENDING_KEY), null, "één keer te gebruiken");
+    assert.deepEqual(opened, [], "het Duels-scherm wacht op het overzetten (anders mist het je tegenstander)");
+    open(1); await tick(); await tick();
+    assert.deepEqual(opened, [["ABC234", true]], "daarna opent het duel waarbij je op inloggen tikte");
+    assert.equal(T.duelClaimDue("u1"), false);
+    gate = null;
+
+    // te oud (30 minuten): vergeten
+    ls.setItem(T.DUEL_PENDING_KEY, JSON.stringify({ code: "OLD234", at: Date.now() - 31 * 60 * 1000 }));
+    T.duelsAfterLogin(); await tick(); await tick();
+    assert.equal(opened.length, 1); assert.equal(ls.getItem(T.DUEL_PENDING_KEY), null);
+
+    // een ander account op dit toestel krijgt zijn eigen keer; mislukt = de volgende keer opnieuw; het geparkeerde duel opent toch
+    assert.equal(T.duelClaimDue("u2"), true);
+    fail = true; T.auth.user = { uid: "u2" };
+    ls.setItem(T.DUEL_PENDING_KEY, JSON.stringify({ code: "XYZ234", at: Date.now() }));
+    T.duelsAfterLogin(); await tick(); await tick();
+    assert.equal(T.duelClaimDue("u2"), true, "mislukt (netwerk) → volgende keer opnieuw");
+    assert.deepEqual(opened.at(-1), ["XYZ234", true]);
+    fail = false;
+    await T.duelClaim("u2");
+    assert.deepEqual(JSON.parse(ls.getItem(T.DUEL_CLAIM_KEY)), ["u1", "u2"]);
+
+    // uitgelogd: niets
+    T.auth.user = null; const n = calls.length;
+    ls.setItem(T.DUEL_PENDING_KEY, JSON.stringify({ code: "ABC234", at: Date.now() }));
+    T.duelsAfterLogin(); await tick();
+    assert.equal(calls.length, n); assert.ok(ls.getItem(T.DUEL_PENDING_KEY), "het geparkeerde duel wacht op de login");
+  } finally {
+    clear(); T.auth.user = wasUser;
+    if (wasSb === undefined) delete globalThis.sb; else globalThis.sb = wasSb;
+    if (wasDuel === undefined) delete globalThis.Duel; else globalThis.Duel = wasDuel;
+  }
 });
 
 test("dedup-slot van record_play: de daily per account (twee accounts op één toestel spelen elk hun eigen daily), anoniem de kale datum (claim na inloggen), vrij spel per pot", () => {

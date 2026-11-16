@@ -189,10 +189,11 @@ test("duel.js v2 — duelscherm, eindstand, uitleg, link, flair en account-momen
 
 test("duel — GoatCounter-meetpunten over de hele trechter (via gcCount, site jaardle-events)", () => {
   for (const p of ["duel-create", "duel-rematch", "duel-invite-", "duel-copy-link", "duel-resend", "duel-withdraw", "duel-link-", "duel-accept", "duel-decline",
-    "duel-login-invite", "duel-round-", "duel-done-first", "duel-done-second", "duel-reveal", "duel-tell", "duel-share-result", "duel-exit", "duel-help", "duel-login-end"]) {
+    "duel-login-invite", "duel-round-", "duel-done-first", "duel-done-second", "duel-reveal", "duel-tell", "duel-share-result", "duel-exit", "duel-help", "duel-login-end", "duel-login-list"]) {
     assert.ok(SRC.includes(`"${p}`), `meetpunt ${p} ontbreekt in duel.js`);
   }
   assert.match(GAME, /gcCount\("duel-list", /, "⋮ → Duels telt in game.js");
+  assert.match(GAME, /gcCount\("duel-login-back", /, "terug na het inloggen (teller bij duel-login-invite|-end|-list) telt in game.js");
   assert.match(GAME.slice(GAME.indexOf("function duelHost()"), GAME.indexOf("function openDuels()")), /\bgc: gcCount\b/, "duel.js telt via gcCount (jaardle-events), niet zelf");
 });
 
@@ -277,7 +278,7 @@ test("game.js / sw.js / remind.js ↔ db/189 — kleur, seintjes-schakelaar, rod
   assert.match(TPL, /data-action="duel-push" data-i18n="menu_duel_push" hidden>\{\{i18n:menu_duel_push\}\}<\/button>/);
   assert.equal((GAME.match(/menu_duel_push: "⚔️ /g) || []).length, 5);
   assert.match(GAME, /if \(action === "duel-push"\) \{/); assert.match(GAME, /D\.pushToggle\(duelHost\(\)\)/);
-  assert.match(GAME, /else duelInboxCheck\(\);/, "met een account zonder duels op dit toestel: één klein getal");
+  assert.match(GAME, /if \(!duelKnown\(\)\) duelInboxCheck\(\);/, "met een account zonder duels op dit toestel: één klein getal");
   assert.match(GAME, /rpc\("duel_inbox", \{ p_client: clientId\(\) \}\)/); assert.match(GAME, /15 \* 60 \* 1000/, "hooguit eens per kwartier");
   const SW = readFileSync(join(dir, "..", "sw.js"), "utf8"), RM = readFileSync(join(dir, "..", "remind.js"), "utf8");
   assert.match(SW, /tag: d\.tag \|\| "jaardle-daily"/);
@@ -402,5 +403,45 @@ test("duel.js — een ingetrokken link staat niet in de Duels-lijst; verlopen en
   assert.match(h, /Niemand nam hem aan/); assert.match(h, /Bram wees af/); assert.ok(!/Ingetrokken/.test(h));
   for (const l of ["nl", "en", "de", "es", "pt"]) assert.equal(D.copy(l).withdrawn, undefined, `${l}: de tekst "Ingetrokken" is weg`);
   assert.match(SRC, /duel_withdraw[^]{0,120}listItems = listItems\.filter\(\(x\) => x\.code !== code\)/, "na Intrekken is de rij meteen weg");
+  X.applyList({ items: [], targets: [], h2h: {} });
+});
+
+test("duel.js — account-momenten zonder account: bij de uitslag wat je er met déze tegenstander aan hebt, in het Duels-scherm één regel, tijdens het wachten niets", () => {
+  const T = D.copy("nl"), now = new Date().toISOString();
+  X.setHost(host());
+  const done = { code: "AAAAAA", status: "done", seen: true, opp: "kb", me: "o", c_name: "Bram", o_name: "Noor", finished_at: now, mine: [9, 9, 9, 9, 9], theirs: [1, 1, 1, 1, 1] };
+  // de uitslag: heeft de ander een account met een naam (opp_acc, db/193), dan de regel met die naam; anders (ook een oudere server) de algemene
+  assert.equal(X.keepHtml(T, { ...done, opp_acc: true }, " after"),
+    `<div class="ep-keep after"><span>Met een account daag je Bram uit zonder link</span><button type="button" class="dl-mini" data-act="login">Maak een account</button></div>`);
+  assert.match(X.keepHtml(T, done), /^<div class="ep-keep"><span>Bewaar je duels op al je toestellen<\/span>/);
+  assert.match(X.keepHtml(T, { ...done, opp_acc: false }), /Bewaar je duels op al je toestellen/);
+  assert.match(X.keepHtml(T, { ...done, me: "c", o_name: "<b>x", opp_acc: true }), /daag je &lt;b&gt;x uit/, "de naam is tekst, geen opmaak");
+  for (const l of D.langs()) assert.ok(D.copy(l).keepVs("Bram").includes("Bram") && /^<u>[^<]+<\/u>/.test(D.copy(l).keepList), `${l}: naam in de regel, het werkwoord onderstreept`);
+  // het Duels-scherm: de regel onder de knop, zodra je een uitslag zag van een duel tegen iemand met een account
+  const withAcc = X.listBody(T, [{ ...done, opp_acc: true }], "", null);
+  assert.match(withAcc, /class="dl-new"[^]*?<\/button><button type="button" class="dl-linkb dl-acct" data-act="login" data-code="AAAAAA"><u>Log in<\/u>, dan staan je tegenstanders hier en daag je ze uit met één tik<\/button>/);
+  assert.ok(withAcc.indexOf("dl-acct") < withAcc.indexOf("Stand per tegenstander"), "boven je stand, direct onder de knop");
+  assert.ok(!X.listBody(T, [done], "", null).includes("dl-acct"), "tegenstander zonder account (of een oudere server): geen regel");
+  assert.ok(!X.listBody(T, [{ ...done, opp_acc: true, seen: false }], "", null).includes("dl-acct"), "een uitslag die je nog niet zag: de onthulling heeft haar eigen regel");
+  assert.ok(!X.listBody(T, [{ ...done, opp_acc: true, status: "active", mine: [9], theirs: [1], deadline: now }], "", null).includes("dl-acct"), "een lopend duel telt nog niet");
+  assert.ok(!X.listBody(T, [], "", null).includes("dl-acct"), "lege staat: alleen de uitleg");
+  assert.ok(!X.listBody(T, [{ ...done, opp_acc: true }], `<form class="dl-name"></form>`, null).includes("dl-acct"), "met het naamveld open: alleen het naamveld");
+  X.setHost(host({ loggedIn: true, myName: () => "Noor" }));
+  assert.ok(!X.listBody(T, [{ ...done, opp_acc: true }], "", null).includes("dl-acct"), "met een account: geen regel");
+  assert.equal(X.acctHtml(T, [{ ...done, opp_acc: true }]), "");
+  X.setHost(host());
+  // de eindstand-pop-up: alleen bij de uitslag (tijdens het wachten staan de seintjes-knop en "Laat X het weten" er al)
+  assert.match(SRC, /if \(done && !H\.loggedIn\) inner \+= keepHtml\(T, d, af\);/);
+  // inloggen parkeert het duel: uitnodiging, uitslag en Duels-scherm via dezelfde plek; game.js opent het daarna (duelsAfterLogin)
+  assert.match(SRC, /const parkLogin = \(code\) => \{ if \(code\) writeJson\(PENDING_KEY, \{ code, at: Date\.now\(\) \}\); \};/);
+  assert.match(SRC, /gc\("duel-login-end", [^)]*\); parkLogin\(d\.code\); close\(\); return H\.openLogin\?\.\(\);/);
+  assert.match(SRC, /gc\("duel-login-list", [^)]*\); parkLogin\(code\); return H\.openLogin\?\.\(\);/);
+  assert.match(SRC, /gc\("duel-login-invite", [^)]*\);\s+parkLogin\(code\);/);
+  // je eigen afgelopen duel openen = het Duels-scherm bij dat duel (daar komt de terugkeer na het inloggen uit)
+  assert.match(SRC, /if \(d && d\.me && \(d\.status === "active" \|\| d\.status === "done"\)\) \{[^]*?return openList\(H, \{ focus: d\.code \}\);/);
+  // zonder account geduelleerd → game.js zet de duels bij de volgende login (opnieuw) over
+  assert.match(SRC, /CLAIM_KEY = "jaardle:duelclaim"/); assert.match(GAME, /DUEL_CLAIM_KEY = "jaardle:duelclaim"/);
+  assert.match(SRC, /if \(!H\?\.loggedIn\) \{ try \{ localStorage\.removeItem\(CLAIM_KEY\); \} catch \(e\) \{\} \}/);
+  for (const sel of [".dl-acct {", ".dl-acct u {"]) assert.ok(D.css.includes(sel), `CSS mist ${sel}`);
   X.applyList({ items: [], targets: [], h2h: {} });
 });
