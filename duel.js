@@ -359,7 +359,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     nl: {
       help: "Hoe werkt het?", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", statW: "Gewonnen", statL: "Verloren", statO: "Lopend", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
       title: "Duels", close: "Sluiten", newBtn: "Daag een vriend uit", nameLabel: "Je naam (die ziet je tegenstander)", namePh: "Naam", go: "Daag uit",
-      ready: "Je uitdaging staat klaar", sent: "Link verstuurd", copied: "Link gekopieerd", sentSub: "Wie hem als eerste aanneemt, speelt tegen je.", onlyFor: (n) => `Alleen ${n} kan hem aannemen.`, rematchFor: (n) => `Revanche voor ${n}`,  sendLink: "Stuur de link",
+      ready: "Je uitdaging staat klaar", sent: "Link verstuurd", copied: "Link gekopieerd", sentSub: "Wie hem als eerste aanneemt, speelt tegen je.", onlyFor: (n) => `Alleen ${n} kan hem aannemen.`,  sendLink: "Stuur de link",
       copyPrompt: "Kopieer de link:", empty: "Nog geen duels. Daag iemand uit: jullie spelen dezelfde 5 rondes en per ronde wint de hoogste score.",
       loading: "Even laden…", err: "Dat lukte niet. Probeer het nog eens.", retry: "Opnieuw",
       errMax: "Je hebt al 3 uitnodigingen openstaan. Wacht tot iemand aanneemt of trek er een in.", errName: "Vul eerst je naam in.",
@@ -407,7 +407,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     en: {
       help: "How does it work?", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
       title: "Duels", close: "Close", newBtn: "Challenge a friend", nameLabel: "Your name (your opponent sees it)", namePh: "Name", go: "Challenge",
-      ready: "Your challenge is ready", sent: "Link sent", copied: "Link copied", sentSub: "Whoever accepts it first plays against you.", onlyFor: (n) => `Only ${n} can accept it.`, rematchFor: (n) => `Rematch for ${n}`,  sendLink: "Send the link",
+      ready: "Your challenge is ready", sent: "Link sent", copied: "Link copied", sentSub: "Whoever accepts it first plays against you.", onlyFor: (n) => `Only ${n} can accept it.`,  sendLink: "Send the link",
       copyPrompt: "Copy the link:", empty: "No duels yet. Challenge someone: you both play the same 5 rounds and the highest score wins each round.",
       loading: "Loading…", err: "That didn't work. Please try again.", retry: "Retry",
       errMax: "You already have 3 open invitations. Wait for someone to accept, or withdraw one.", errName: "Fill in your name first.",
@@ -454,7 +454,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     de: {
       help: "Wie funktioniert das?", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", duelTitle: "Duell", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
       title: "Duelle", close: "Schließen", newBtn: "Fordere jemanden heraus", nameLabel: "Dein Name (sieht dein Gegenüber)", namePh: "Name", go: "Herausfordern",
-      ready: "Deine Herausforderung ist bereit", sent: "Link verschickt", copied: "Link kopiert", sentSub: "Wer ihn zuerst annimmt, spielt gegen dich.", onlyFor: (n) => `Nur ${n} kann sie annehmen.`, rematchFor: (n) => `Revanche für ${n}`,  sendLink: "Link senden",
+      ready: "Deine Herausforderung ist bereit", sent: "Link verschickt", copied: "Link kopiert", sentSub: "Wer ihn zuerst annimmt, spielt gegen dich.", onlyFor: (n) => `Nur ${n} kann sie annehmen.`,  sendLink: "Link senden",
       copyPrompt: "Kopiere den Link:", empty: "Noch keine Duelle. Fordere jemanden heraus: Ihr spielt dieselben 5 Runden, und pro Runde gewinnt die höchste Punktzahl.",
       loading: "Lädt…", err: "Das hat nicht geklappt. Versuch es noch einmal.", retry: "Nochmal",
       errMax: "Du hast schon 3 offene Einladungen. Warte, bis jemand annimmt, oder zieh eine zurück.", errName: "Gib zuerst deinen Namen ein.",
@@ -502,7 +502,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     es: {
       help: "¿Cómo funciona?", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
       title: "Duelos", close: "Cerrar", newBtn: "Reta a un amigo", nameLabel: "Tu nombre (lo verá tu rival)", namePh: "Nombre", go: "Retar",
-      ready: "Tu reto está listo", sent: "Enlace enviado", copied: "Enlace copiado", sentSub: "Quien lo acepte primero juega contra ti.", onlyFor: (n) => `Solo ${n} puede aceptarlo.`, rematchFor: (n) => `Revancha para ${n}`,  sendLink: "Enviar el enlace",
+      ready: "Tu reto está listo", sent: "Enlace enviado", copied: "Enlace copiado", sentSub: "Quien lo acepte primero juega contra ti.", onlyFor: (n) => `Solo ${n} puede aceptarlo.`,  sendLink: "Enviar el enlace",
       copyPrompt: "Copia el enlace:", empty: "Aún no hay duelos. Reta a alguien: jugáis las mismas 5 rondas y en cada ronda gana la puntuación más alta.",
       loading: "Cargando…", err: "No ha funcionado. Inténtalo de nuevo.", retry: "Reintentar",
       errMax: "Ya tienes 3 invitaciones abiertas. Espera a que alguien acepte o retira una.", errName: "Escribe primero tu nombre.",
@@ -549,7 +549,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     pt: {
       help: "Como funciona?", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
       title: "Duelos", close: "Fechar", newBtn: "Desafie um amigo", nameLabel: "Seu nome (seu adversário vai ver)", namePh: "Nome", go: "Desafiar",
-      ready: "Seu desafio está pronto", sent: "Link enviado", copied: "Link copiado", sentSub: "Quem aceitar primeiro joga contra você.", onlyFor: (n) => `Só ${n} pode aceitar.`, rematchFor: (n) => `Revanche para ${n}`,  sendLink: "Enviar o link",
+      ready: "Seu desafio está pronto", sent: "Link enviado", copied: "Link copiado", sentSub: "Quem aceitar primeiro joga contra você.", onlyFor: (n) => `Só ${n} pode aceitar.`,  sendLink: "Enviar o link",
       copyPrompt: "Copie o link:", empty: "Ainda não há duelos. Desafie alguém: vocês jogam as mesmas 5 rodadas e em cada rodada vence a maior pontuação.",
       loading: "Carregando…", err: "Não deu certo. Tente de novo.", retry: "Tentar de novo",
       errMax: "Você já tem 3 convites em aberto. Espere alguém aceitar ou retire um.", errName: "Preencha seu nome primeiro.",
@@ -1586,13 +1586,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   // Je openstaande link: opnieuw sturen, intrekken, en de link zelf (te selecteren, Kopieer).
   function openLinkHtml(T, d) {
-    if (d.for_name && !d.rematch) {   // db/189: een directe uitdaging aan een teamgenoot (geen link nodig; hij kan er wel bij)
+    if (d.for_name) {   // db/189: een directe uitdaging of een revanche: die ander krijgt een seintje en ziet hem in zijn lijst, dus geen linkveld (de link kan er los bij)
       return rowHtml({ av: avHtml(d.for_flair, d.for_name), name: d.for_name, h2h: (() => { const [a, b] = recOf(d.opp); return a || b ? T.h2h(a, b) : ""; })(),
-        sub: `${esc(T.invited)} · ${esc(cap(T.linkLeft(leftText(T, d.deadline))))}`, cls: " wrap",
+        sub: `${esc(d.rematch ? T.revenge : T.invited)} · ${esc(cap(T.linkLeft(leftText(T, d.deadline))))}`, cls: " wrap",
         right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.sendLinkShort)}</button>` +
           `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` });
     }
-    return rowHtml({ av: d.for_name ? avHtml(d.for_flair, d.for_name) : qAv, name: d.for_name ? T.rematchFor(d.for_name) : T.yourLink,   // revanche: de flair van je vorige tegenstander (for_flair, db/189; zonder account de beginletter)
+    return rowHtml({ av: qAv, name: T.yourLink,   // een gewone link (wie hem als eerste aanneemt): de link is de enige weg, dus het veld met Kopieer erbij
       sub: esc(cap(T.linkLeft(leftText(T, d.deadline)))), cls: " wrap",
       right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.resend)}</button>` +
         `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` +

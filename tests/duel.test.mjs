@@ -371,3 +371,18 @@ test("duel.js v4 — het plaatje tekent je flair zoals in het spel: emoji of von
   assert.match(GAME.slice(GAME.indexOf("function duelHost()"), GAME.indexOf("function openDuels()")), /\bvondstImage,/, "game.js geeft de vondst-tekening als plaatje mee");
   assert.match(SRC, /tc\.getImageData\(0, 0, 1, 1\)/, "een tekening die het canvas onleesbaar maakt → beginletter, niet het hele plaatje kwijt");
 });
+
+test("duel.js — onder Wacht: een revanche staat er net als een directe uitdaging (geen linkveld); alleen een gewone link heeft het linkveld", () => {
+  X.setHost(host({ loggedIn: true, myName: () => "Matthijs", faceHue: faceHueGame }));
+  X.applyList({ items: [], targets: [], h2h: { ko: { w: 3, l: 1, n: 4 } } });
+  const T = D.copy("nl"), soon = new Date(Date.now() + 20 * 3600e3).toISOString();
+  const open = (o) => ({ code: "K7QX2M", status: "open", me: "c", c_name: "Matthijs", deadline: soon, mine: [], ...o });
+  const html = (d) => X.listBody(T, [d], "", null);
+  const rem = html(open({ for_name: "Maarten", for_flair: "🦫", rematch: true, locked: true, opp: "ko" }));
+  assert.match(rem, /Maarten/); assert.match(rem, /Revanche · Nog \d+ u om aan te nemen/); assert.match(rem, /jullie 3–1/);
+  assert.match(rem, /data-act="resend"[^>]*>Stuur link</); assert.ok(!/class="dl-link"/.test(rem), "geen linkveld bij een revanche");
+  const dir = html(open({ for_name: "Tosti Tim", locked: true, opp: "kt" }));
+  assert.match(dir, /Uitgedaagd · Nog \d+ u om aan te nemen/); assert.ok(!/class="dl-link"/.test(dir));
+  const link = html(open({}));
+  assert.match(link, /Je link/); assert.match(link, /class="dl-link"/, "een gewone link houdt het linkveld met Kopieer");
+});
