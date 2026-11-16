@@ -386,3 +386,21 @@ test("duel.js — onder Wacht: een revanche staat er net als een directe uitdagi
   const link = html(open({}));
   assert.match(link, /Je link/); assert.match(link, /class="dl-link"/, "een gewone link houdt het linkveld met Kopieer");
 });
+
+test("duel.js — een ingetrokken link staat niet in de Duels-lijst; verlopen en afgewezen wel (grijze rij onder Stand per tegenstander)", () => {
+  X.setHost(host({ loggedIn: true, myName: () => "Matthijs" }));
+  const T = D.copy("nl"), now = new Date().toISOString();
+  const mine = (o) => ({ code: "WWWWWW", me: "c", c_name: "Matthijs", created_at: now, mine: [], ...o });
+  const wd = mine({ status: "withdrawn" }), exp = mine({ code: "EEEEEE", status: "expired" }), decl = mine({ code: "DDDDDD", status: "declined", o_name: "Bram" });
+  // de lijst van de server: de ingetrokken link valt eraf; alleen die → de lege staat (Jij vs ?), geen losse kop
+  assert.deepEqual(plain(X.applyList({ items: [wd, exp], targets: [], h2h: {} }).map((d) => d.code)), ["EEEEEE"]);
+  const only = X.listBody(T, X.applyList({ items: [wd], targets: [], h2h: {} }), "", null);
+  assert.match(only, /dl-hero/); assert.ok(!/Stand per tegenstander|Verlopen/.test(only));
+  // en ook wie hem toch meekrijgt tekent hem niet
+  const h = X.listBody(T, [wd, exp, decl], "", null);
+  assert.equal((h.match(/class="dl-res"/g) || []).length, 2, "twee grijze rijen: verlopen en afgewezen");
+  assert.match(h, /Niemand nam hem aan/); assert.match(h, /Bram wees af/); assert.ok(!/Ingetrokken/.test(h));
+  for (const l of ["nl", "en", "de", "es", "pt"]) assert.equal(D.copy(l).withdrawn, undefined, `${l}: de tekst "Ingetrokken" is weg`);
+  assert.match(SRC, /duel_withdraw[^]{0,120}listItems = listItems\.filter\(\(x\) => x\.code !== code\)/, "na Intrekken is de rij meteen weg");
+  X.applyList({ items: [], targets: [], h2h: {} });
+});
