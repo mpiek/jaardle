@@ -190,6 +190,8 @@
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="remind" data-i18n="menu_remind" hidden>{{i18n:menu_remind}}</button>
             <!-- ⏩ Check (db/180): staat per account op de server, dus alleen ingelogd; game.js (syncLaterCheckUi) toont en zet hem. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="later-check" data-i18n="menu_later_check" hidden>{{i18n:menu_later_check}}</button>
+            <!-- ⚔️ Duel-seintjes (db/189): los van het dagelijkse seintje; alleen voor wie duels heeft en push kan. game.js (syncDuelPushUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-push" data-i18n="menu_duel_push" hidden>{{i18n:menu_duel_push}}</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>{{i18n:menu_season_halloween}}</button>
             <!-- De viering van een potjes-event (bv. Strooigoed) aan/uit: alleen zonder account (ingelogd kiest in 🪎) en alleen wie hem verdiende; game.js (renderEventFxToggle) vult en toont. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="evfx" hidden></button>
@@ -527,7 +529,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=416"></script>
+  <script src="/game.js?v=417"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

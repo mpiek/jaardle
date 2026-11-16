@@ -435,7 +435,11 @@ html[data-theme="light"] #modal-remind, html[data-theme="parchment"] #modal-remi
       const reg = await navigator.serviceWorker.getRegistration("/");
       const sub = await reg?.pushManager.getSubscription();
       const ep = sub?.endpoint || st.ep;
-      if (sub) await sub.unsubscribe();
+      // db/189: duel-seintjes gebruiken hetzelfde abonnement. Zette de speler die zelf aan (jaardle:duelpush), dan blijft het
+      // abonnement en gaat alleen het dagelijkse seintje uit; anders gaan ze samen uit (eerst duel, dan verdwijnt de rij).
+      let duelKeep = false; try { duelKeep = JSON.parse(localStorage.getItem("jaardle:duelpush") || "null")?.on === true; } catch (e) {}
+      if (sub && !duelKeep) await sub.unsubscribe();
+      if (ep && !duelKeep) await host.rpc("set_push_duel", { p_endpoint: ep, p_p256dh: null, p_auth: null, p_tz: null, p_lang: null, p_client_id: null, p_on: false }).catch(() => {});
       if (ep) await host.rpc("del_push_sub", { p_endpoint: ep }).catch(() => {});
     } catch (e) {}
     st = { on: false, hour: st.hour };

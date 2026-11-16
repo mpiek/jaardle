@@ -110,7 +110,11 @@ test("duel.js — pop-up bij een link: aannemen (met naamveld zonder account), e
   assert.match(X.popBody(D.copy("nl"), { ...base, me: "c", status: "open" }), /Dit is je eigen uitdaging[^]*data-act="send"/);
   assert.match(X.popBody(D.copy("nl"), { ...base, me: null, status: "active", o_name: "Sanne" }), /Sanne nam deze uitdaging al aan[^]*Daag zelf iemand uit/);
   assert.match(X.popBody(D.copy("nl"), { ...base, me: null, status: "expired" }), /verlopen[^]*Daag Noor&lt;b&gt; uit/);
-  assert.match(X.popBody(D.copy("nl"), { ...base, me: null, status: "open", can_accept: false, locked: true }), /Deze revanche is voor iemand anders/);
+  assert.match(X.popBody(D.copy("nl"), { ...base, me: null, status: "open", can_accept: false, locked: true, rematch: true }), /Deze revanche is voor iemand anders/);
+  assert.match(X.popBody(D.copy("nl"), { ...base, me: null, status: "open", can_accept: false, locked: true }), /Log in met je account om hem aan te nemen[^]*data-act="login"/, "directe uitdaging zonder account: eerst inloggen");
+  X.setHost(host({ loggedIn: true, myName: () => "Sanne" }));
+  assert.match(X.popBody(D.copy("nl"), { ...base, me: null, status: "open", can_accept: false, locked: true }), /Deze uitdaging is voor iemand anders/);
+  X.setHost(host());
   assert.match(X.popBody(D.copy("nl"), null), /Deze duellink klopt niet/);
 });
 
@@ -119,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 110000, `het lui geladen bestand blijft klein (${SRC.length})`);
+  assert.ok(SRC.length < 135000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip, alleen voor wie duelleert)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde telt niet en gaat naar duel_submit", () => {
@@ -141,13 +145,15 @@ test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde telt niet 
   }
 });
 
-test("db/185 ↔ duel.js — elke RPC die duel.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "185_duels.sql")) }, () => {
-  const sql = readFileSync(join(dir, "..", "..", "jaardle-tools", "db", "185_duels.sql"), "utf8");
+test("db/185 + 189 ↔ duel.js — elke RPC die duel.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "189_duel_push.sql")) }, () => {
+  // de laatste definitie telt (db/189 maakt duel_create opnieuw, met p_for)
+  const sql = ["185_duels.sql", "186_duels_flair_claim.sql", "189_duel_push.sql"].map((f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8")).join("\n");
   const calls = [...SRC.matchAll(/call\("(duel_[a-z]+)", \{([^}]*)\}/g)].map((m) => [m[1], [...m[2].matchAll(/(p_[a-z]+):/g)].map((x) => x[1])]);
   assert.ok(calls.length >= 8);
+  assert.ok(calls.some(([fn, a]) => fn === "duel_create" && a.includes("p_for")), "direct uitdagen stuurt p_for");
   for (const [fn, args] of calls) {
-    const def = sql.match(new RegExp(`create function public\\.${fn}\\(([^)]*)\\)`));
-    assert.ok(def, `${fn} bestaat niet in db/185`);
+    const defs = [...sql.matchAll(new RegExp(`create (?:or replace )?function public\\.${fn}\\(([^)]*)\\)`, "g"))], def = defs[defs.length - 1];
+    assert.ok(def, `${fn} bestaat niet in db/185–189`);
     const params = [...def[1].matchAll(/(p_[a-z]+)\s/g)].map((x) => x[1]);
     assert.ok(params.includes("p_client"), `${fn}: p_client (call() stuurt hem altijd mee)`);
     for (const a of args) assert.ok(params.includes(a), `${fn}: argument ${a} bestaat niet`);
@@ -211,4 +217,71 @@ test("duel.js — de Duels-lijst verklapt geen ongeziene uitslag; jouw beurt en 
   assert.ok(sent.indexOf("dl-sent") < sent.indexOf('data-act="play"') && sent.indexOf('data-act="play"') < sent.indexOf('class="dl-new"'));
   assert.ok(!X.listBody(T, [turn], `<form class="dl-name"></form>`, null).includes('class="dl-new"'));
   assert.match(X.listBody(T, [], "", null), /dl-hero[^]*class="dl-new"/, "lege staat ongewijzigd");
+});
+
+test("duel.js v3 (db/189) — gezichtjes met jullie stand, kiezen → 'Daag X uit', loopt = geen keuze; zonder account alleen de link", () => {
+  const T = D.copy("nl");
+  X.setHost(host({ loggedIn: true, myName: () => "Noor", faceHue: (n) => (n === "Bram" ? 28 : 190), flairHtml: (f) => `<i>${f}</i>` }));
+  const now = new Date().toISOString();
+  X.applyList({
+    items: [{ code: "AAAAAA", status: "done", seen: true, opp: "kb", me: "c", c_name: "Noor", o_name: "Bram", finished_at: now, mine: [9, 9, 9, 9, 9], theirs: [1, 1, 1, 1, 1] }],
+    h2h: { kb: { w: 4, l: 2, n: 6, rw: 16, rl: 13, a: 2400, b: 2200, best: [4, 1] }, kj: { w: 1, l: 3, n: 4 } },
+    targets: [{ k: "kb", name: "Bram", flair: "🦫", team: true, busy: null }, { k: "kj", name: "Joost", flair: null, team: true, busy: null },
+              { k: "ks", name: "Sanne", flair: null, team: true, busy: null }, { k: "kl", name: "Lotte", flair: "🔥", team: true, busy: "LLLLLL" }],
+  });
+  let h = X.pickHtml(T, "<NEW>");
+  assert.match(h, /Daag iemand uit/);
+  assert.match(h, /data-face="kb" aria-pressed="false"><span class="dl-av fl hue" style="--h:28" aria-hidden="true"><i>🦫<\/i><\/span><b>Bram<\/b><small class="up">4–2<\/small>/, "Bram: flair, kleur zoals het histogram, groen 4–2");
+  assert.match(h, /<b>Joost<\/b><small class="down">1–3<\/small>/); assert.match(h, /<b>Sanne<\/b><small class="new">nieuw<\/small>/);
+  assert.match(h, /class="dl-face busy" data-face="kl"[^]*<small class="run">loopt<\/small>/);
+  assert.match(h, /<NEW>/, "zonder keuze: de gewone knop (de link)");
+  X.setPick("kb");
+  h = X.pickHtml(T, "<NEW>");
+  assert.ok(!h.includes("<NEW>"));
+  assert.match(h, /Jij tegen Bram: <b>4–2<\/b>/); assert.match(h, /data-act="challenge" data-k="kb"[^>]*>[^]*Daag Bram uit/); assert.match(h, /data-act="new">Liever een link sturen/);
+  X.setHost(host({ loggedIn: false }));
+  assert.equal(X.pickHtml(T, "<NEW>"), "<NEW>", "zonder account geen gezichtjes");
+  X.setPick(null);
+  X.applyList({ items: [], h2h: {}, targets: [] });
+});
+
+test("duel.js v3 — een uitdaging aan jou bovenaan (Neem aan / ✕), je directe uitdaging onder Wacht, stand van de server", () => {
+  const T = D.copy("nl"), soon = new Date(Date.now() + 5e7).toISOString();
+  X.setHost(host({ loggedIn: true, myName: () => "Noor" }));
+  const inc = { code: "IIIIII", status: "open", me: null, can_accept: true, locked: true, opp: "kl", c_name: "Lotte", c_flair: "🔥", deadline: soon };
+  const out = { code: "OOOOOO", status: "open", me: "c", locked: true, opp: "kb", c_name: "Noor", for_name: "Bram", for_flair: "🦫", deadline: soon };
+  X.applyList({ items: [inc, out], h2h: { kl: { w: 1, l: 1, n: 2 }, kb: { w: 4, l: 2, n: 6 } }, targets: [] });
+  const h = X.listBody(T, [inc, out], "", null);
+  assert.match(h, /Jouw beurt[^]*Lotte daagt je uit[^]*Jullie 1–1[^]*data-act="accept" data-code="IIIIII"[^]*data-act="decline" data-code="IIIIII"/);
+  assert.match(h, /Wacht[^]*<b>Bram <small>· jullie 4–2<\/small><\/b><small>Uitgedaagd · Nog \d+ u om aan te nemen<\/small>[^]*data-act="withdraw" data-code="OOOOOO"/);
+  assert.ok(h.indexOf("Lotte daagt je uit") < h.indexOf("Daag een vriend uit"), "eerst wat op je wacht");
+  assert.match(h, /<div class="dl-stat w"><b>5<\/b>[^]*<div class="dl-stat l"><b>3<\/b>/, "je stand bovenin: over alle duels (server)");
+  X.applyList({ items: [], h2h: {}, targets: [] });
+});
+
+test("duel.js v3 — seintjes-knop: niets zonder push, knop zonder toestemming, regel als ze aan staan", () => {
+  X.setHost(host({ remindSupport: () => null }));
+  assert.equal(X.bellHtml("Seintje als Bram begint", "aan"), "");
+  X.setHost(host({ remindSupport: () => "push" }));   // geen Notification in de vm: nog niet aan
+  assert.match(X.bellHtml("Seintje als Bram begint", "Je krijgt een seintje als Bram begint"), /<button type="button" class="dl-bell" data-act="push" data-on="Je krijgt een seintje als Bram begint">[^]*Seintje als Bram begint<\/button>/);
+  const T = D.copy("nl");
+  assert.equal(T.bellAcc("Bram"), "Seintje als Bram begint");
+  assert.match(T.pushYes("Bram"), /meteen een seintje/);
+  assert.match(D.css, /\.dl-av\.hue \{ color: var\(--fg\); background: color-mix\(in srgb, hsl\(var\(--h\) 65% 52%\) 38%, var\(--card-soft\)\); \}/, "zelfde achtergrond als .hist-face");
+  for (const sel of [".dl-face {", ".dl-faces {", ".dl-vsline {", ".dl-bell {", ".dl-x {", ".dl-h2h-sub {", ".duel-inv .duel-h2h {"]) assert.ok(D.css.includes(sel), `CSS mist ${sel}`);
+});
+
+test("game.js / sw.js / remind.js ↔ db/189 — kleur, seintjes-schakelaar, rode stip voor een uitdaging, tag per duel", () => {
+  const host = GAME.slice(GAME.indexOf("function duelHost()"), GAME.indexOf("function openDuels()"));
+  for (const k of ["faceHue", "remindSupport", "remindOn", "openInstall", "onPushChange"]) assert.ok(new RegExp(`\\b${k}\\b`).test(host), `duelHost mist ${k}`);
+  assert.match(TPL, /data-action="duel-push" data-i18n="menu_duel_push" hidden>\{\{i18n:menu_duel_push\}\}<\/button>/);
+  assert.equal((GAME.match(/menu_duel_push: "⚔️ /g) || []).length, 5);
+  assert.match(GAME, /if \(action === "duel-push"\) \{/); assert.match(GAME, /D\.pushToggle\(duelHost\(\)\)/);
+  assert.match(GAME, /else duelInboxCheck\(\);/, "met een account zonder duels op dit toestel: één klein getal");
+  assert.match(GAME, /rpc\("duel_inbox", \{ p_client: clientId\(\) \}\)/); assert.match(GAME, /15 \* 60 \* 1000/, "hooguit eens per kwartier");
+  const SW = readFileSync(join(dir, "..", "sw.js"), "utf8"), RM = readFileSync(join(dir, "..", "remind.js"), "utf8");
+  assert.match(SW, /tag: d\.tag \|\| "jaardle-daily"/);
+  assert.match(RM, /if \(sub && !duelKeep\) await sub\.unsubscribe\(\);/, "het dagelijkse seintje uit laat zelf aangezette duel-seintjes staan");
+  assert.match(SRC, /"jaardle:duelpush"/); assert.match(GAME, /"jaardle:duelpush"/); assert.match(RM, /"jaardle:duelpush"/);
+  for (const p of ["duel-create-direct", "duel-create-team", "duel-push-on", "duel-push-off", "duel-push-denied"]) assert.ok(SRC.includes(`"${p}`), `meetpunt ${p}`);
 });

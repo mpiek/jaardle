@@ -230,7 +230,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
-    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_later_check: "⏩ Check", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
+    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
@@ -584,7 +584,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
-    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_later_check: "⏩ Check", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
+    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
@@ -931,7 +931,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
-    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_later_check: "⏩ Check", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
+    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
@@ -1282,7 +1282,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
-    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_later_check: "⏩ Comprobar", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
@@ -1633,7 +1633,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
-    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_later_check: "⏩ Conferir", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
@@ -4878,6 +4878,8 @@ function duelHost() {
     newFree: () => startGame("free", true),
     switchMode, dailyDone: () => !!loadRecord("daily", todayKey())?.board?.done, ready: whenSbReady,
     duelBoard: (code, r) => { try { return JSON.parse(localStorage.getItem(DUEL_BOARD_KEY(code, r)) || "null"); } catch (e) { return null; } },
+    // db/189: kleur per persoon (zoals de gezichtjes in het histogram) en de duel-seintjes
+    faceHue, remindSupport, remindOn: () => !!remindState().on, openInstall: () => openInstall(), onPushChange: () => syncDuelPushUi(),
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
   };
 }
@@ -4898,9 +4900,38 @@ const DUEL_PENDING_KEY = "jaardle:pendingDuel";
 function duelsAfterLogin() {
   if (!auth.user) return;
   if (duelKnown()) rpc("duel_claim", { p_client: clientId() }).catch(() => {});
+  else duelInboxCheck();
   let p = null;
   try { p = JSON.parse(localStorage.getItem(DUEL_PENDING_KEY) || "null"); localStorage.removeItem(DUEL_PENDING_KEY); } catch (e) {}
   if (p && p.code && Date.now() - (p.at || 0) < 30 * 60 * 1000) loadDuel().then((D) => D.openInvite(duelHost(), p.code)).catch(() => {});
+}
+// db/189: een teamgenoot kan je direct uitdagen. Wie nog geen duels op dit toestel heeft (dan kijkt checkNews niet), vraagt met
+// een account hooguit eens per kwartier één klein getal op (duel_inbox, geen duel.js); iets binnen = het rode stipje op ⋮.
+const DUEL_INBOX_AT = "jaardle:duelInboxAt";
+function duelInboxCheck() {
+  try { if (Date.now() - (Number(localStorage.getItem(DUEL_INBOX_AT)) || 0) < 15 * 60 * 1000) return; localStorage.setItem(DUEL_INBOX_AT, String(Date.now())); } catch (e) { return; }
+  setTimeout(() => {
+    rpc("duel_inbox", { p_client: clientId() }).then((n) => {
+      if (!(Number(n) > 0)) return;
+      try { localStorage.setItem("jaardle:duel-news", String(Number(n))); } catch (e) {}
+      renderMenuDot();
+    }).catch(() => {});
+  }, 3000);
+}
+// db/189: duel-seintjes aan/uit in ⚙️ (los van het dagelijkse seintje; de logica zit in /duel.js). Wie het dagelijkse seintje
+// heeft, krijgt ze ook, tot hij ze hier uitzet.
+const DUEL_PUSH_KEY = "jaardle:duelpush";   // { on, ep } — schrijft /duel.js
+function duelPushOn() {
+  try { if (typeof Notification === "undefined" || Notification.permission !== "granted") return false; } catch (e) { return false; }
+  try { const st = JSON.parse(localStorage.getItem(DUEL_PUSH_KEY) || "null"); if (st && typeof st.on === "boolean") return st.on; } catch (e) {}
+  return !!remindState().on;
+}
+function syncDuelPushUi() {
+  const item = document.querySelector('#menu-pop [data-action="duel-push"]');
+  if (!item) return;
+  let set = false; try { set = localStorage.getItem(DUEL_PUSH_KEY) != null; } catch (e) {}
+  item.hidden = remindSupport() !== "push" || !(duelKnown() || set);
+  item.setAttribute("aria-checked", String(duelPushOn()));
 }
 const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft remind.js
 const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
@@ -4959,6 +4990,7 @@ function syncRemindUi() {
   }
   const item = document.querySelector('#menu-pop [data-action="remind"]');
   if (item) { item.hidden = !remindSupport(); item.setAttribute("aria-checked", String(!!remindState().on)); }
+  syncDuelPushUi();
   document.querySelectorAll(".daily-countdown .remind-chip").forEach((b) => {
     const tmp = document.createElement("div");
     tmp.innerHTML = remindChipHtml();
@@ -14637,6 +14669,10 @@ async function init() {
     if (action === "settings" || action === "settings-back") {
       showMenuPane(action === "settings" ? "settings" : "main", true);
       if (action === "settings") syncPrefs("visit");   // de schakelaars kloppen zodra de server antwoordt
+      return;
+    }
+    if (action === "duel-push") {   // db/189: in-place, het menu blijft open; aanzetten vraagt (pas nu) om toestemming
+      loadDuel().then((D) => D.pushToggle(duelHost())).then(syncDuelPushUi).catch(() => {});
       return;
     }
     if (action === "later-check") {   // in-place, het menu blijft open (zoals het thema)

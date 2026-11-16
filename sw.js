@@ -1,4 +1,4 @@
-/* Service worker van Jaardle: alleen voor het dagelijkse seintje (web push, zie remind.js en db/137). Bewust géén fetch-handler
+/* Service worker van Jaardle: alleen voor seintjes (web push: het dagelijkse, remind.js en db/137, en duel-seintjes, duel.js en db/189). Bewust géén fetch-handler
    en geen cache: het spel komt altijd vers van het net, dus nooit een oude game.js die blijft hangen. Wordt pas geregistreerd
    als iemand het seintje aanzet. */
 self.addEventListener("install", () => self.skipWaiting());
@@ -11,8 +11,8 @@ self.addEventListener("push", (e) => {
     body: d.body || "",
     icon: "/favicon-192.png?v=2",
     badge: "/badge-96.png",
-    tag: "jaardle-daily",   // een nieuw seintje vervangt het vorige
-    renotify: false,
+    tag: d.tag || "jaardle-daily",   // een nieuw seintje vervangt het vorige (een duel heeft een eigen tag per duel)
+    renotify: !!d.tag,   // een nieuw duel-seintje over hetzelfde duel trilt opnieuw
     data: { url: d.url || "/" },
   }));
 });
