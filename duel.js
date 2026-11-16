@@ -795,7 +795,131 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     dark: { bg: "#1a1a1a", card: "#262626", soft: "#2c2c2c", fg: "#f5f5f5", mu: "#a3a3a3", line: "#383838", arena: "#e8794a", gold: "#f4c430", tile: 0.3, gray: "rgba(158,158,158,0.22)", glow: "rgba(232,121,74,0.24)", edge: "rgba(232,121,74,0.5)" },
     light: { bg: "#f4f1ea", card: "#fffdf8", soft: "#ebe7dd", fg: "#211e19", mu: "#5d574b", line: "#d6d0c2", arena: "#b5531c", gold: "#c99a0e", tile: 0.26, gray: "rgba(158,158,158,0.24)", glow: "rgba(181,83,28,0.16)", edge: "rgba(181,83,28,0.45)" },
   };
-  const flairEmoji = (f) => { const e = String(f || "").split("~")[0]; return e && !e.startsWith("v:") ? e : null; };   // een vondst-tekening → de beginletter
+  // Een flair = een emoji of een vondst-tekening ("v:<id>"), eventueel met een effect erachter ("~sparkle").
+  const FX_IDS = ["sparkle", "ember", "glow", "vizier", "sweat", "ripple", "lotus", "timer", "pendulum", "eclipse", "shard", "aura", "web", "lights", "snow"];   // = de .fx-<id> in flair-fx.css (een test bewaakt dat)
+  function flairParts(f) {
+    const [g, fx] = String(f || "").split("~"), vf = !!g && g.startsWith("v:");
+    return { em: g && !vf ? g : null, vf: vf ? g : null, fx: FX_IDS.includes(fx) ? fx : null };
+  }
+  const flairEmoji = (f) => flairParts(f).em;
+  // De tekening van een vondst-flair als plaatje (game.js, stil); null als dat niet lukt of de browser het canvas er niet meer van
+  // laat uitlezen (dan zou het hele plaatje mislukken): dan de beginletter.
+  async function vondstImg(vf) {
+    try {
+      const im = await H?.vondstImage?.(vf);
+      if (!im) return null;
+      const t = document.createElement("canvas"); t.width = t.height = 2;
+      const tc = t.getContext("2d"); tc.drawImage(im, 0, 0, 2, 2); tc.getImageData(0, 0, 1, 1);
+      return im;
+    } catch (e) { return null; }
+  }
+  // De flair-effecten in hun stilstaande stand (.fl-still in flair-fx.css), nagetekend: zelfde vormen, maten in em en kleuren per thema.
+  // (x0, y0) = linksboven van het em-vak van de flair, E = 1em; back = de laag achter de flair (alleen de ring van de eclips).
+  const FXC = {
+    dark: { core: "#fff6c8", edge: "#f5c518", sc: "#fff6c0", sm: "#ffb12e", se: "#ff5a12", sr: "rgba(130,24,0,0.75)", gi: "#fff0b0", gm: "#ffb02e", go: "rgba(255,70,0,0.9)",
+      target: "#ff5a4d", da: "#9fdcff", db: "#3aa0e8", ripple: "#9be7dc", line: "#cfc8dd", timer: "#ffb020",
+      ohi: "#efe8ff", omid: "#a58ff0", odeep: "#5a45b0", odark: "#1a0e33", oblack: "#07040f", halo: "rgba(150,118,255,0.75)", ring: "#a58ff0", dcore: "#fff", dmid: "#cdbdff", dedge: "#8f6cff",
+      ai: "#e6dcff", am: "#8f6cff", ao: "rgba(88,40,200,0.85)", web: "#ece3ff", spider: "#f3ecff",
+      wire: "#7f998c", hi: "#fff", r: "#ff5a5a", y: "#ffc93c", g: "#40d98a", b: "#5aa8ff", flake: "#fff", flake0: "rgba(255,255,255,0)", lotus: ["#f2e8c9", "#e8d9ae", "#6db06d"], lotusLine: null },
+    light: { core: "#ffc933", edge: "#b25a00", sc: "#ffe2a0", sm: "#ff9a1f", se: "#d94a00", sr: "rgba(120,30,0,0.7)", gi: "#ffd37a", gm: "#ff9a1f", go: "rgba(214,60,0,0.85)",
+      target: "#d32f2f", da: "#5cb8f0", db: "#1f78c8", ripple: "#2a9d8f", line: "#6d6555", timer: "#c77700",
+      ohi: "#ffffff", omid: "#7a5cd6", odeep: "#432c8f", odark: "#160b2c", oblack: "#07040f", halo: "rgba(90,60,190,0.7)", ring: "#5d3fb8", dcore: "#fff", dmid: "#6a40d8", dedge: "#1a0e33",
+      ai: "#b9a2ff", am: "#6a40d8", ao: "rgba(50,20,140,0.9)", web: "#4a2f7a", spider: "#2d1b45",
+      wire: "#41564b", hi: "#fff3c4", r: "#e5383b", y: "#f0a000", g: "#12a060", b: "#2f84ea", flake: "#9fb6c8", flake0: "rgba(159,182,200,0)", lotus: ["#fffaf0", "#f6ecd0", "#4e9a52"], lotusLine: "#b99a47" },
+  };
+  const FX_STAR = [[50, 0], [60, 40], [100, 50], [60, 60], [50, 100], [40, 60], [0, 50], [40, 40]];
+  const FX_DROP = [[50, 0], [74, 38], [100, 68], [84, 94], [50, 100], [16, 94], [0, 68], [26, 38]];
+  const FX_LOTUS = [["M50 26C56 36 56 48 50 57C44 48 44 36 50 26Z", 0], ["M29 38C40 40 48 48 50 59C40 59 31 50 29 38Z", 1], ["M71 38C60 40 52 48 50 59C60 59 69 50 71 38Z", 1], ["M27 61Q50 74 73 61Q66 77 50 77Q34 77 27 61Z", 2]];
+  const FX_WEB = "M100 0L2 0M100 0L9.5 37.5M100 0L30.7 69.3M100 0L62.5 90.5M100 0L100 98M70.7 0Q75.9 4.8 73 11.2M73 11.2Q79.6 13.7 79.3 20.7M79.3 20.7Q86.3 20.4 88.8 27M88.8 27Q95.2 24.1 100 29.3M41.5 0Q51.8 9.6 45.9 22.4M45.9 22.4Q59.1 27.3 58.6 41.4M58.6 41.4Q72.7 40.9 77.6 54.1M77.6 54.1Q90.4 48.2 100 58.5M12.2 0Q27.7 14.4 18.9 33.6M18.9 33.6Q38.7 41 37.9 62.1M37.9 62.1Q59 61.3 66.4 81.1M66.4 81.1Q85.6 72.3 100 87.8";
+  const FX_SPIDER = ["M12 25a8 9 0 1 0 16 0a8 9 0 1 0 -16 0ZM15 14a5 5 0 1 0 10 0a5 5 0 1 0 -10 0ZM17.2 13a1.15 1.15 0 1 0 2.3 0a1.15 1.15 0 1 0 -2.3 0ZM20.5 13a1.15 1.15 0 1 0 2.3 0a1.15 1.15 0 1 0 -2.3 0Z",
+    "M14 20Q5 11 2 19M13 23Q3 21 1 29M13 26Q4 30 3 38M15 29Q9 35 8 43M26 20Q35 11 38 19M27 23Q37 21 39 29M27 26Q36 30 37 38M25 29Q31 35 32 43"];
+  function drawFx(c, fx, x0, y0, E, theme, back) {
+    const K = FXC[theme] || FXC.dark, x1 = x0 + E, y1 = y0 + E, cx = x0 + E / 2, cy = y0 + E / 2, TAU = Math.PI * 2;
+    const poly = (pts, x, y, w, h) => { c.beginPath(); pts.forEach(([px, py], i) => c[i ? "lineTo" : "moveTo"](x + (px / 100) * w, y + (py / 100) * h)); c.closePath(); };
+    const radial = (x, y, r, stops) => { const g = c.createRadialGradient(x, y, 0, x, y, r); stops.forEach(([o, col]) => g.addColorStop(o, col)); return g; };
+    const dot = (x, y, r, stops) => { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = radial(x, y, r, stops); c.fill(); };
+    const box = (x, y, w, h, deg, fn, ox = 0.5, oy = 0.5) => { c.save(); c.translate(x + w * ox, y + h * oy); c.rotate((deg * Math.PI) / 180); c.translate(-w * ox, -h * oy); fn(w, h); c.restore(); };
+    c.save();
+    if (back) {
+      if (fx === "eclipse") {   // de ring, schuin achter de flair, met een gloed
+        c.translate(cx, cy); c.rotate((-14 * Math.PI) / 180); c.beginPath(); c.ellipse(0, 0, 0.7225 * E, 0.2525 * E, 0, 0, TAU);
+        c.lineWidth = 0.055 * E; c.strokeStyle = K.ring; c.shadowColor = K.halo; c.shadowBlur = 0.1 * E; c.stroke();
+      }
+      c.restore();
+      return;
+    }
+    if (fx === "sparkle") {
+      const star = (x, y, s) => box(x, y, s, s, 45, (w) => { const q = w * 0.85, o = (w - q) / 2; poly(FX_STAR, o, o, q, q);
+        c.fillStyle = radial(w / 2, w / 2, q * 0.707, [[0, K.core], [0.22, K.core], [0.85, K.edge], [1, K.edge]]); c.fill(); });
+      star(x1 - 0.32 * E, y0 - 0.24 * E, 0.56 * E); star(x0 - 0.2 * E, y1 - 0.32 * E, 0.4 * E);
+    } else if (fx === "ember") {   // vonkjes in zes kolommen, onder- en bovenaan uitgevaagd
+      const top = y1 - 1.04 * E, HH = 1.12 * E, L = x0 - 0.3 * E, tw = 0.32 * E;
+      const stops = [[0, K.sc], [0.22, K.sc], [0.22, K.sm], [0.46, K.sm], [0.46, K.se], [0.68, K.se], [0.68, K.sr], [0.88, K.sr], [1, "rgba(0,0,0,0)"]];
+      [[2.3, 0.62, 0.1, 0.24], [32.8, 0.5, 0.075, 0.47], [96.9, 0.74, 0.09, 0.25], [9.4, 0.62, 0.1, 0.37], [65.6, 0.5, 0.075, 0.25], [89.8, 0.74, 0.09, 0.41]].forEach(([p, th, r, off]) => {
+        const x = L + (1.6 * E - tw) * (p / 100) + tw / 2;
+        for (let k = -3; k <= 3; k++) {
+          const y = top + off * E + k * th * E + (th * E) / 2, t = (top + HH - y) / HH;
+          if (t <= 0 || t >= 1) continue;
+          c.globalAlpha = t < 0.26 ? t / 0.26 : t <= 0.58 ? 1 : (1 - t) / 0.42;
+          dot(x, y, r * E, stops);
+        }
+      });
+    } else if (fx === "vizier") {
+      c.strokeStyle = K.target; c.fillStyle = K.target; c.lineWidth = 0.07 * E;
+      c.beginPath(); c.arc(cx, cy, 0.535 * E, 0, TAU); c.stroke();
+      const B = 1.36 * E, t = 0.07 * E, l = 0.24 * E;
+      c.fillRect(cx - t / 2, cy - B / 2, t, l); c.fillRect(cx - t / 2, cy + B / 2 - l, t, l); c.fillRect(cx - B / 2, cy - t / 2, l, t); c.fillRect(cx + B / 2 - l, cy - t / 2, l, t);
+    } else if (fx === "sweat") {
+      const drop = (x, y, w, h) => { poly(FX_DROP, x, y, w, h); const g = c.createRadialGradient(x + 0.35 * w, y + 0.32 * h, 0, x + 0.35 * w, y + 0.32 * h, h);
+        g.addColorStop(0, "#fff"); g.addColorStop(0.1, "#fff"); g.addColorStop(0.35, K.da); g.addColorStop(1, K.db); c.fillStyle = g; c.fill(); };
+      drop(x1 - 0.16 * E, y0 + 0.04 * E, 0.22 * E, 0.31 * E); drop(x0 - 0.06 * E, y0 + 0.27 * E, 0.17 * E, 0.24 * E);
+    } else if (fx === "ripple") {
+      [[0.5, 0.85], [0.88, 0.45]].forEach(([s, al]) => { c.globalAlpha = al; c.beginPath(); c.ellipse(cx, y1 - 0.05 * E, (0.71 * E) * s, (0.21 * E) * s, 0, 0, TAU);
+        c.lineWidth = 0.08 * E * s; c.strokeStyle = K.ripple; c.stroke(); });
+    } else if (fx === "lotus") {
+      const lotus = (x, y, w, h) => { c.save(); const s = Math.min(w / 50, h / 55); c.translate(x + (w - 50 * s) / 2, y + (h - 55 * s) / 2); c.scale(s, s); c.translate(-25, -24);
+        FX_LOTUS.forEach(([d, k]) => { const p = new Path2D(d); c.fillStyle = K.lotus[k]; c.fill(p); if (K.lotusLine && k < 2) { c.lineWidth = 1.3; c.lineJoin = "round"; c.strokeStyle = K.lotusLine; c.stroke(p); } });
+        c.restore(); };
+      lotus(x1 - 0.32 * E, y1 - 0.42 * E, 0.54 * E, 0.6 * E); lotus(x0 - 0.16 * E, y1 - 0.32 * E, 0.42 * E, 0.46 * E);
+    } else if (fx === "timer") {   // een ring om de flair, 300° gevuld vanaf boven
+      c.beginPath(); c.arc(cx, cy, 0.57 * E, -Math.PI / 2, -Math.PI / 2 + (300 / 180) * Math.PI); c.lineWidth = 0.1 * E; c.strokeStyle = K.timer; c.stroke();
+    } else if (fx === "pendulum") {   // het draadje en het ophangpunt boven de flair
+      const b = y0 + 0.08 * E;
+      c.fillStyle = K.line; c.fillRect(cx - 0.0225 * E, b - 0.26 * E, 0.045 * E, 0.26 * E);
+      c.beginPath(); c.arc(cx, b - 0.3 * E, 0.07 * E, 0, TAU); c.fill();
+    } else if (fx === "eclipse") {   // het lichtpunt vóór de flair
+      dot(cx - 0.402 * E, cy + 0.123 * E, 0.105 * E, [[0, K.dcore], [0.24, K.dcore], [0.4, K.dmid], [0.66, K.dedge], [0.72, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]]);
+    } else if (fx === "shard") {   // twee scherven zwart glas
+      const shard = (x, y, w, h, deg, pts) => box(x, y, w, h, deg, (w, h) => {
+        const a = (128 * Math.PI) / 180, dx = Math.sin(a), dy = -Math.cos(a), L = Math.abs(w * dx) + Math.abs(h * dy);
+        const g = c.createLinearGradient(w / 2 - (dx * L) / 2, h / 2 - (dy * L) / 2, w / 2 + (dx * L) / 2, h / 2 + (dy * L) / 2);
+        [[0, K.ohi], [0.12, K.ohi], [0.12, K.omid], [0.26, K.omid], [0.26, K.odeep], [0.4, K.odeep], [0.4, K.odark], [0.62, K.odark], [0.62, K.oblack], [1, K.oblack]].forEach(([o, col]) => g.addColorStop(o, col));
+        poly(pts, 0, 0, w, h); c.fillStyle = g; c.fill(); });
+      shard(x1 - 0.19 * E, y0 - 0.21 * E, 0.46 * E, 0.52 * E, 5, [[44, 0], [100, 26], [92, 66], [58, 100], [6, 74]]);
+      shard(x0 - 0.21 * E, y1 - 0.33 * E, 0.34 * E, 0.38 * E, -4, [[26, 0], [100, 18], [80, 100], [8, 82], [0, 36]]);
+    } else if (fx === "web") {   // een web in de hoek rechtsboven en een spinnetje aan een draad
+      const w = 0.76 * E;
+      c.save(); c.translate(x1 + 0.17 * E - w, y0 - 0.27 * E); c.scale(w / 100, w / 100); c.globalAlpha = 0.95;
+      c.lineWidth = 4.4; c.lineCap = "round"; c.strokeStyle = K.web; c.stroke(new Path2D(FX_WEB)); c.restore();
+      box(x1 - 0.18 * E, y0 - 0.2 * E, 0.32 * E, 0.84 * E, -6, (bw, bh) => {
+        c.fillStyle = K.spider; c.fillRect(bw / 2 - 0.0175 * E, 0, 0.035 * E, 0.52 * E);
+        c.save(); c.translate((bw - 0.29 * E) / 2, bh - 0.32 * E); c.scale((0.29 * E) / 40, (0.32 * E) / 46);
+        c.fill(new Path2D(FX_SPIDER[0]), "evenodd"); c.lineWidth = 1.8; c.lineCap = "round"; c.strokeStyle = K.spider; c.stroke(new Path2D(FX_SPIDER[1])); c.restore();
+      }, 0.5, 0);
+    } else if (fx === "lights") {   // een lichtsnoer boven de flair
+      const s = (1.04 * E) / 104;
+      c.translate(cx - 0.52 * E, y0 - 0.27 * E); c.scale(s, s);
+      c.lineWidth = 3.5; c.lineCap = "round"; c.strokeStyle = K.wire; c.stroke(new Path2D("M5.5 4Q52 16 98.5 4"));
+      c.fillStyle = K.wire; [[3.7, 3.5], [27, 8], [50.2, 9.5], [73.5, 8], [96.7, 3.5]].forEach(([x, y]) => c.fillRect(x, y, 3.6, 3.5));
+      [[5.5, 12, K.r], [28.8, 16.5, K.g], [52, 18, K.y], [75.3, 16.5, K.b], [98.5, 12, K.r]].forEach(([x, y, col]) => {
+        c.beginPath(); c.ellipse(x, y, 5, 6, 0, 0, TAU); c.fillStyle = radial(x, y, 6.4, [[0, K.hi], [0.39, col], [1, col]]); c.fill(); });
+    } else if (fx === "snow") {   // een paar vlokjes boven en naast de flair
+      const bx = cx - 0.83 * E, by = y0 - 0.24 * E;
+      [[0.15, 0.26, 0.042, 0.07], [0.31, 0.13, 0.025, 0.042], [1.43, 0.16, 0.028, 0.046], [1.59, 0.6, 0.034, 0.056]].forEach(([x, y, r1, r2]) =>
+        dot(bx + x * E, by + y * E, r2 * E, [[0, K.flake], [r1 / r2, K.flake], [1, K.flake0]]));
+    }
+    c.restore();
+  }
   const hueOf = (name) => { try { const h = H?.faceHue?.(name); return HUES.includes(h) ? h : HUES[0]; } catch (e) { return HUES[0]; } };
   // De twee spelers van een afgelopen duel, winnaar links. Twee gelijke kleuren: wiens naam later in het alfabet staat schuift op
   // (vast, los van wie er won).
@@ -821,9 +945,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   const shareIcon = () => iconP || (iconP = new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = "/favicon-192.png"; }));
 
   async function drawShare(cv, d, T, theme) {
-    const P = PAL[theme] || PAL.dark, { a, b, o } = duelSides(d), fa = flairEmoji(a.flair), fb = flairEmoji(b.flair);
-    try { await document.fonts.load(`64px ${EMO}`, "⚔️👑" + (fa || "") + (fb || "")); } catch (e) {}
-    const icon = await shareIcon();
+    const P = PAL[theme] || PAL.dark, { a, b, o } = duelSides(d), fa = flairParts(a.flair), fb = flairParts(b.flair);
+    try { await document.fonts.load(`64px ${EMO}`, "⚔️👑" + (fa.em || "") + (fb.em || "")); } catch (e) {}
+    const [icon, ia, ib] = await Promise.all([shareIcon(), fa.vf ? vondstImg(fa.vf) : null, fb.vf ? vondstImg(fb.vf) : null]);
+    fa.img = ia; fb.img = ib;
     cv.width = 1080; cv.height = 1080;
     const c = cv.getContext("2d");
     const hue = (h, al) => `hsla(${h}, 65%, 52%, ${al})`;
@@ -833,11 +958,21 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const fit = (s, max) => { s = String(s); if (c.measureText(s).width <= max) return s; while (s.length > 1 && c.measureText(s + "…").width > max) s = s.slice(0, -1); return s.trimEnd() + "…"; };
     const shrink = (s, max, w, sizes) => { for (const px of sizes) { font(w, px); if (c.measureText(s).width <= max) return s; } return fit(s, max); };   // lange naam: eerst kleiner, dan pas afkappen
     const text = (s, x, y, al = "center", col = P.fg) => { c.textAlign = al; c.textBaseline = "alphabetic"; c.fillStyle = col; c.fillText(s, x, y); };
-    function avatar(cx, cy, r, pl, em) {
+    // het rondje met de flair (emoji of vondst-tekening) en zijn effect, zoals in het spel; zonder flair de beginletter
+    function avatar(cx, cy, r, pl, gl) {
       c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fillStyle = P.soft; c.fill(); c.fillStyle = hue(pl.hue, 0.38); c.fill();
       c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = P.fg;
-      if (em) { font("", Math.round(r * 1.02), EMO); c.fillText(em, cx, cy + r * 0.07); }
-      else { font(800, Math.round(r * 0.92)); c.fillText(initial(pl.name), cx, cy + r * 0.05); }
+      if (!gl.img && !gl.em) { font(800, Math.round(r * 0.92)); c.fillText(initial(pl.name), cx, cy + r * 0.05); return; }
+      const E = r * (gl.fx ? 0.9 : 1.02), x0 = cx - E / 2, y0 = cy - E / 2 + r * 0.03;   // met effect iets kleiner: het effect steekt uit
+      const glyph = () => {
+        if (gl.img) c.drawImage(gl.img, x0, y0, E, E);
+        else { font("", Math.round(E), EMO); c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = P.fg; c.fillText(gl.em, cx, cy + r * 0.07); }
+      };
+      if (gl.fx) drawFx(c, gl.fx, x0, y0, E, theme, true);
+      const K = FXC[theme] || FXC.dark, halo = gl.fx === "glow" ? [K.gi, K.gm, K.go, 0.22] : gl.fx === "aura" ? [K.ai, K.am, K.ao, 0.25] : null;
+      if (halo) [[halo[2], halo[3]], [halo[1], 0.13], [halo[0], 0.04]].forEach(([col, s]) => { c.save(); c.shadowColor = col; c.shadowBlur = s * E * 1.2; glyph(); c.restore(); });   // gloed/aura: drop-shadows
+      glyph();
+      if (gl.fx) drawFx(c, gl.fx, x0, y0, E, theme, false);
     }
     // achtergrond: een kaart met de duelgloed, zoals het duelscherm
     c.fillStyle = P.bg; c.fillRect(0, 0, 1080, 1080);
@@ -1457,7 +1592,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
         right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.sendLinkShort)}</button>` +
           `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` });
     }
-    return rowHtml({ av: d.for_name ? avHtml(null, d.for_name) : qAv, name: d.for_name ? T.rematchFor(d.for_name) : T.yourLink,
+    return rowHtml({ av: d.for_name ? avHtml(d.for_flair, d.for_name) : qAv, name: d.for_name ? T.rematchFor(d.for_name) : T.yourLink,   // revanche: de flair van je vorige tegenstander (for_flair, db/189; zonder account de beginletter)
       sub: esc(cap(T.linkLeft(leftText(T, d.deadline)))), cls: " wrap",
       right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.resend)}</button>` +
         `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` +
@@ -1576,7 +1711,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (act === "withdraw") {
       gc("duel-withdraw", "Duel: withdrawn");
       b.disabled = true;
-      call("duel_withdraw", { p_code: code }).then(() => openList(H, { keepTop: true }));
+      call("duel_withdraw", { p_code: code }).then(() => {
+        if (/duel-err/.test(listTop) || listTop.includes(code)) listTop = "";   // een foutmelding ("al 3 open uitnodigingen") of het groene vak van díe link verdwijnt mee
+        openList(H, { keepTop: true });
+      });
     }
   }
   // Een uitdaging aan jou aannemen vanuit de lijst; zonder naam (geen account) eerst de pop-up met het naamveld.
@@ -1787,7 +1925,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     openList, openInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
-         spectateBody, duelSides, flairEmoji, HUES, drawShare,
+         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare,
          setPick: (k) => { pickSel = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

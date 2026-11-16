@@ -4880,6 +4880,7 @@ function duelHost() {
     duelBoard: (code, r) => { try { return JSON.parse(localStorage.getItem(DUEL_BOARD_KEY(code, r)) || "null"); } catch (e) { return null; } },
     // db/189: kleur per persoon (zoals de gezichtjes in het histogram) en de duel-seintjes
     faceHue, remindSupport, remindOn: () => !!remindState().on, openInstall: () => openInstall(), onPushChange: () => syncDuelPushUi(),
+    vondstImage,   // db/190: een vondst-tekening als plaatje (stil), voor het deelplaatje
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
   };
 }

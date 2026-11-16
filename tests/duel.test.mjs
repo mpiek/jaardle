@@ -123,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 150000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer (≈ +4 KB gzip), alleen voor wie duelleert
+  assert.ok(SRC.length < 165000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde telt niet en gaat naar duel_submit", () => {
@@ -355,4 +355,19 @@ test("duel.js v4 — delen: plaatje + link als het toestel bestanden kan delen, 
   for (const p of ["duel-share-image", "duel-link-spectate", "duel-spectate-challenge", "duel-spectate-challenge-direct", "duel-spectate-daily"]) assert.ok(SRC.includes(`"${p}"`), `meetpunt ${p}`);
   assert.match(D.css, /\.sp\.rev \.sp-rd \{ animation: dsp-flip/); assert.match(D.css, /prefers-reduced-motion: reduce\) \{\n  \.sp\.rev \.sp-rd/, "omdraaien valt weg bij minder beweging");
   assert.ok(!/\?ref=/.test(SRC.slice(SRC.indexOf("const LINK"), SRC.indexOf("const LINK") + 80)), "geen ref aan de deellink");
+});
+
+test("duel.js v4 — het plaatje tekent je flair zoals in het spel: emoji of vondst-tekening, met elk effect uit flair-fx.css", () => {
+  const FXCSS = readFileSync(join(dir, "..", "flair-fx.css"), "utf8");
+  const ids = [...new Set([...FXCSS.matchAll(/\.fx-([a-z]+)\b/g)].map((m) => m[1]))];   // de klassen (keyframes heten fx-… zonder punt)
+  assert.ok(ids.length >= 15, `effecten gevonden: ${ids}`);
+  for (const id of ids) assert.ok(X.FX_IDS.includes(id), `effect ${id} uit flair-fx.css wordt niet getekend`);
+  assert.deepEqual(plain(X.flairParts("v:martian-tripod~pendulum")), { em: null, vf: "v:martian-tripod", fx: "pendulum" });
+  assert.deepEqual(plain(X.flairParts("🎲~sparkle")), { em: "🎲", vf: null, fx: "sparkle" });
+  assert.deepEqual(plain(X.flairParts("🦫~onbekend")), { em: "🦫", vf: null, fx: null }, "onbekend effect (nieuwere server) → alleen de flair");
+  assert.deepEqual(plain(X.flairParts(null)), { em: null, vf: null, fx: null });
+  for (const id of X.FX_IDS) assert.ok(SRC.includes(`fx === "${id}"`) || ["glow", "aura"].includes(id), `drawFx kent ${id}`);
+  assert.match(SRC, /halo = gl\.fx === "glow"[^]*gl\.fx === "aura"/, "gloed en aura als schaduw om de flair");
+  assert.match(GAME.slice(GAME.indexOf("function duelHost()"), GAME.indexOf("function openDuels()")), /\bvondstImage,/, "game.js geeft de vondst-tekening als plaatje mee");
+  assert.match(SRC, /tc\.getImageData\(0, 0, 1, 1\)/, "een tekening die het canvas onleesbaar maakt → beginletter, niet het hele plaatje kwijt");
 });
