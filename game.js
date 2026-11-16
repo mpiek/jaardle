@@ -11418,7 +11418,7 @@ async function renderRewards() {
   const a = warm || await fetchAchievements();
   await ensureMyIdentity();
   // Een event in beeld, in het archief of een event-viering verdiend: het event-bestand moet er zijn voor de tab en de namen (lukt het niet: zonder tab).
-  const evs = [...new Set([...eventTabEvents(), ...eventFxUnlockedList()])];
+  const evs = [...new Set([...eventTabEvents(), ...eventFxUnlockedList(), ...miniEventsNow()])];
   if (evs.length) { try { await ensureEventUi(evs); } catch (e) {} }
   if (document.getElementById("modal-rewards").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
@@ -11562,7 +11562,7 @@ function renderRewardsBody(body, a) {
     vier: () => rewardsVierHtml(unlocked),
     frame: () => rewardsFrameHtml(),
     theme: () => `<section class="rw-sect" data-rw-sect="theme"><h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>${themePickerHtml()}</section>`,
-    events: () => (window.SeasonEvent ? window.SeasonEvent.tab(eventTabEvents().map(eventView)) : ""),
+    events: () => (window.SeasonEvent ? window.SeasonEvent.tab(eventTabEvents().map(eventView)) : "") + miniEventCardsHtml(),
   };
   // Alles verdiend = geen wegwijzer. Anders één gedimde 🔒-regel naar Prestaties.
   const lock = !(themed && unlocked.beer) ? `<p class="rw-locked">🔒 ${escHtml(t("rewards_locked_hint"))}</p>` : "";
@@ -11577,6 +11577,7 @@ function renderRewardsBody(body, a) {
   wireRewards(body);
   if (tabs.length > 1) mountRewardsTabs(body, tabs);
   // Na een vault-sprong vanuit een beloning-pop-up: scroll naar díe sectie (de Events-tab begint zelf bovenaan: daar schuift de tabbalk niet weg).
+  if (rewardScrollSect === "events") focusMiniEventStrip(body);   // geopend vanaf de balk van een potjes-event: naar zijn strook
   if (rewardScrollSect) {
     const sect = rewardScrollSect === "events" ? null : body.querySelector(`[data-rw-sect="${rewardScrollSect}"]`);
     rewardScrollSect = null;
@@ -12965,7 +12966,8 @@ function renderEventDots() {
 
 // Waar leidt een tik naartoe? Ingelogd: de Events-tab van de 🪎-kluis; anders het Events-scherm (zonder tabbalk, kluis is login-only).
 function openEventScreen(from) {
-  const ev = eventsInView()[0] || eventTabEvents()[0];
+  eventFocusMini = from === "mini";
+  const ev = (eventFocusMini && miniEventNow()) || eventsInView()[0] || eventTabEvents()[0];
   if (ev) gcCount(`event-open-${ev.id}-${typeof from === "string" ? from : "bar"}`, `Event ${ev.id}: screen opened from ${typeof from === "string" ? from : "bar"}`);   // anoniem en cookieloos: werkt het event (waar tikken ze op: balk, strook, menu)?
   closeAllModals();
   if (auth.user) { rewardScrollSect = "events"; openModal("modal-rewards"); }
@@ -12974,17 +12976,22 @@ function openEventScreen(from) {
 async function renderEventsModal() {
   const body = document.getElementById("events-body");
   if (!body) return;
-  const evs = eventTabEvents();
-  if (!evs.length) { body.innerHTML = ""; return; }
+  const evs = eventTabEvents(), mini = miniEventsNow();
+  if (!evs.length && !mini.length) { body.innerHTML = ""; return; }
   body.innerHTML = `<p class="stats-empty">${t("loading")}</p>`;
-  try { await ensureEventUi(evs); } catch (e) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
+  try { await ensureEventUi([...evs, ...mini]); } catch (e) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
   if (document.getElementById("modal-events").hidden) return;
-  body.innerHTML = window.SeasonEvent.tab(evs.map(eventView), { google: document.querySelector("#login-google svg")?.outerHTML || "" });
+  body.innerHTML = (evs.length ? window.SeasonEvent.tab(evs.map(eventView), { google: document.querySelector("#login-google svg")?.outerHTML || "" }) : "") + miniEventCardsHtml();
   wireEventBody(body);
+  focusMiniEventStrip(body);
   markEventSeen();
 }
 // Knoppen in de Events-tab en het Events-scherm: beloningen dragen/aanzetten, vandaag spelen, inloggen (het haakje).
 function wireEventBody(body) {
+  // de strook van een potjes-event in het scherm: dragen (Sneeuwpop) of de viering aan/uit (Strooigoed)
+  const redraw = () => { if (!document.getElementById("modal-rewards").hidden) renderRewards(); else if (!document.getElementById("modal-events").hidden) renderEventsModal(); };
+  body.querySelectorAll("[data-evm-wear]").forEach((b) => { b.onclick = () => { const ev = eventById(b.dataset.evmWear); if (!ev) return; b.disabled = true; Promise.resolve(setMyFlair(ev.rewards[0].emoji)).finally(redraw); }; });
+  body.querySelectorAll("[data-evm-toggle]").forEach((b) => { b.onclick = () => { const ev = eventById(b.dataset.evmToggle); if (ev) { toggleEventFx(ev); redraw(); } }; });
   body.querySelectorAll("[data-ev-act]").forEach((b) => {
     b.onclick = () => {
       const ev = eventById(b.dataset.evId), r = ev && ev.rewards[Number(b.dataset.evAct)];
@@ -13082,6 +13089,18 @@ async function renderEventStrip(arrive) {
 // ── Potjes-event: de aansluiting op het scherm (balk boven de feitenkaart, strook op het eindscherm, schakelaar in ⚙️) ─────────────
 // De opbouw en de teksten wonen in /event-mini.js (lui); hier alleen wanneer er iets te tonen is, met welke gegevens en wat een tik doet.
 const miniEventNow = () => PLAYS_EVENTS.find((ev) => eventPhase(ev, eventToday()) === "run") || null;
+// De potjes-events die nu lopen (Sneeuwpop, Strooigoed) staan met hun strook ook in het Events-scherm en de Events-tab van de kluis, zodat een
+// tik op hun balk ergens landt waar ze uitgelegd staan (16/11: "als je op de sneeuwpop klikt ga je naar rewards maar het is niet duidelijk wat
+// de sneeuwpop ermee te maken heeft"). eventFocusMini = geopend vanaf zo'n balk: dan scrolt het scherm naar de strook.
+const miniEventsNow = () => PLAYS_EVENTS.filter((ev) => eventPhase(ev, eventToday()) === "run");
+const miniEventCardsHtml = () => { const h = window.EventMini ? miniEventsNow().map((ev) => window.EventMini.strip(miniEventView(ev), {})).join("") : ""; return h ? `<section class="rw-sect ev-mini-sect">${h}</section>` : ""; };
+let eventFocusMini = false;
+function focusMiniEventStrip(body) {
+  if (!eventFocusMini) return;
+  eventFocusMini = false;
+  const el = body.querySelector(".ev-mini-sect .evm-strip");
+  if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }));
+}
 function miniEventView(ev) {
   const st = eventState(ev), fx = eventFxActive();
   const r = ev.rewards[0], flair = r && r.kind === "flair";   // een potjes-event met een flair (Sneeuwpop) i.p.v. een viering (Strooigoed)
@@ -14681,7 +14700,7 @@ async function init() {
   syncSeasonCheck();   // idem voor de seizoens-skin: regel alleen tijdens het event, schakelaar = aan, label van de juiste skin
   syncSeasonCat();   // en het Halloween-katje, als de skin aanstaat
   syncEventUi();     // en de event-balk/menu-regel/stip als er een event loopt
-  document.getElementById("event-bar")?.addEventListener("click", () => openEventScreen("bar"));
+  document.getElementById("event-bar")?.addEventListener("click", (e) => openEventScreen(e.target.closest?.(".evm-bar") ? "mini" : "bar"));   // de balk van een potjes-event → zijn strook in het scherm
 
   // Modals: backdrop / ✕ knop / Escape. De kluis (modal-rewards) is bijzonder: kwam
   // je via de flair-chip vanaf het bord (rewardsReturnTo), dan brengen ✕/backdrop/Esc
