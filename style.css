@@ -264,47 +264,48 @@ html[data-season="sinterklaas"][data-theme="midnight"] { --sk-glow: rgba(130, 84
 html[data-season="sinterklaas"][data-theme="gold"] { --sk-glow: rgba(200, 160, 40, 0.16); }
 html[data-season="sinterklaas"] body { background: transparent; }
 
-/* ── Seizoens-skin: kerst "Lichtjesnacht" (palet) ─────────────────────────────
+/* ── Seizoens-skin: kerst "Lichtjesnacht" (palet, rood) ─────────────────────────
    Het head-script in de template zet data-season="kerst" van 14 t/m 27 december op de apparaatdatum (of met
-   ?skin=kerst; uit te zetten via het ⋮-menu). Hier alleen het palet en een warme gloed bovenaan; de versiering
-   (lichtsnoer, sneeuw, de slee, het dorpje) staat in /season-kerst.css en wordt alleen dan opgehaald. Donker en licht
-   krijgen een eigen palet; de verdiende thema's houden hun eigen kleuren. Gokbadges en hint-kleuren blijven.
+   ?skin=kerst; uit te zetten via het ⋮-menu). Hier alleen het palet en een warme gloed bovenaan: een wijnrode
+   kerstnacht met gouden knoppen (licht: warm crème met rood); de versiering (lichtsnoer, sneeuw, sneeuwlaagjes,
+   het dorpje in twee lagen) staat in /season-kerst.css en wordt alleen dan opgehaald. De verdiende thema's houden
+   hun eigen kleuren; gokbadges en hint-kleuren blijven.
    --bg hier in sync houden met SEASONS.kerst.bar in game.js en het head-script (kleur van de browserbalk). */
 html[data-season="kerst"]:not([data-theme]) {
-  --bg: #0a1411;
-  --fg: #f4efe4;
-  --muted: #9aaea4;
-  --card: #111e1a;
-  --card-soft: #172823;
-  --border: #263b34;
-  --accent: #ffc34d;
-  --on-accent: #241600;
-  --flame: #ffb03b;
-  --kbd-tint: rgba(255, 240, 210, 0.05);
-  --penalty-tint: rgba(255, 240, 210, 0.07);
-  --shadow-pop: 0 8px 22px rgba(0, 6, 4, 0.6);
-  --shadow-modal: 0 22px 54px rgba(0, 6, 4, 0.72);
-  --shadow-tip: 0 2px 8px rgba(0, 6, 4, 0.55);
+  --bg: #1c0a0f;
+  --fg: #f8ece4;
+  --muted: #c9a3a6;
+  --card: #2a1016;
+  --card-soft: #36151d;
+  --border: #55222c;
+  --accent: #f2c14e;
+  --on-accent: #2a1300;
+  --flame: #ffb347;
+  --kbd-tint: rgba(255, 236, 225, 0.05);
+  --penalty-tint: rgba(255, 236, 225, 0.07);
+  --shadow-pop: 0 8px 22px rgba(10, 0, 3, 0.6);
+  --shadow-modal: 0 22px 54px rgba(10, 0, 3, 0.72);
+  --shadow-tip: 0 2px 8px rgba(10, 0, 3, 0.55);
 }
 html[data-season="kerst"][data-theme="light"] {
-  --bg: #edf2ef;
-  --fg: #13221d;
-  --muted: #536760;
-  --card: #ffffff;
-  --card-soft: #e1eae5;
-  --border: #c9d7d0;
-  --accent: #c42f2f;
+  --bg: #fbf2ea;
+  --fg: #3a1016;
+  --muted: #7f5a5e;
+  --card: #fffaf5;
+  --card-soft: #f5e6dc;
+  --border: #ead2c6;
+  --accent: #b5242e;
   --on-accent: #fff;
   --flame: #b5530c;
-  --kbd-tint: rgba(19, 34, 29, 0.05);
-  --penalty-tint: rgba(19, 34, 29, 0.07);
+  --kbd-tint: rgba(58, 16, 22, 0.05);
+  --penalty-tint: rgba(58, 16, 22, 0.07);
 }
 html[data-season="kerst"] {
-  --sk-glow: rgba(255, 190, 90, 0.10);
+  --sk-glow: rgba(255, 150, 90, 0.12);
   background-image: radial-gradient(130% 260px at 50% 0, var(--sk-glow), transparent 70%);
   background-repeat: no-repeat;
 }
-html[data-season="kerst"][data-theme="light"], html[data-season="kerst"][data-theme="parchment"] { --sk-glow: rgba(255, 196, 92, 0.16); }
+html[data-season="kerst"][data-theme="light"], html[data-season="kerst"][data-theme="parchment"] { --sk-glow: rgba(240, 150, 120, 0.16); }
 html[data-season="kerst"][data-theme="gold"] { --sk-glow: rgba(200, 160, 40, 0.14); }
 html[data-season="kerst"] body { background: transparent; }
 

@@ -12815,11 +12815,11 @@ const SEASONS = {
     on: (m, d) => m === 12 && (d === 5 || d === 6),   // pakjesavond + Sint-Nicolaasdag: de twee dagen van het Sinterklaas-event (EVENTS)
   },
   kerst: {
-    css: "/season-kerst.css?v=3",
-    bar: { dark: "#0a1411", light: "#edf2ef" },
+    css: "/season-kerst.css?v=4",
+    bar: { dark: "#1c0a0f", light: "#fbf2ea" },
     icon: "/favicon-kerst",                                     // JAAR-logo met kerstmuts, lichtsnoer, gewei en hulst
     label: "menu_season_kerst",
-    on: (m, d) => m === 12 && d >= 14 && d <= 27,     // "Lichtjesnacht": de twee weken van het kerst-event (EVENTS), ma 14 t/m zo 27 dec 2026
+    on: (m, d) => m === 12 && d >= 14 && d <= 27,     // "Lichtjesnacht" (rood): de twee weken van het kerst-event (EVENTS), ma 14 t/m zo 27 dec 2026
   },
 };
 const seasonKey = (id) => SEASON_KEY + ":" + id;

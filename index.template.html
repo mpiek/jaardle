@@ -133,7 +133,7 @@
       var S = {
         halloween: { on: (m === 10 && day >= 19) || (m === 11 && day === 1), css: "/season-halloween.css?v=1", bar: ["#120a1e", "#f3edf8"], icon: "/favicon-halloween" },
         sinterklaas: { on: m === 12 && (day === 5 || day === 6), css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"], icon: "/favicon-sinterklaas" },
-        kerst: { on: m === 12 && day >= 14 && day <= 27, css: "/season-kerst.css?v=3", bar: ["#0a1411", "#edf2ef"], icon: "/favicon-kerst" }
+        kerst: { on: m === 12 && day >= 14 && day <= 27, css: "/season-kerst.css?v=4", bar: ["#1c0a0f", "#fbf2ea"], icon: "/favicon-kerst" }
       };
       var q = /[?&]skin=([a-z]+)(&|$)/.exec(location.search), id = q && S.hasOwnProperty(q[1]) ? q[1] : "";
       if (!id) {
@@ -157,7 +157,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=235">
+<link rel="stylesheet" href="/style.css?v=236">
 </head>
 <body>
   <main>
@@ -527,7 +527,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=415"></script>
+  <script src="/game.js?v=416"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
