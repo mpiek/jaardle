@@ -90,6 +90,7 @@ src += `
   isRealTap, TAP_SLOP, TAP_MAX_MS,
   earnedFlairsOf, dailyRowHtml, lbRow, pcFetch, pcCache, raceLaneHtml,
   boardVeilFor, historyVeilFor, dailyTableHtml, esLockHtml, setLbDailyDate: (d) => { lbDailyDate = d; },
+  NEWS, NEWS_NEW, NEWS_DAYS, NEWS_KEY, newsItem, newsDone, newsSeen,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -5260,3 +5261,57 @@ test("eerst spelen, dan kijken: een dicht dagbord heeft plaatshouders, nooit de 
   assert.match(T.esLockHtml("A<b>"), /A&lt;b&gt;/, "tekst ge-escaped");
 });
 
+
+test("NEWS — elke rij is sluitend: id, datums, kleur, menu-actie en tekst in alle talen", () => {
+  const ids = new Set();
+  const tmpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+  assert.match(tmpl, /<div id="event-bar" hidden><\/div>[\s\S]*?<div id="news-bar" hidden><\/div>\s*\n\s*<section id="event-card">/, "de balk staat ná de andere balken (CSS laat hem daarvoor wijken)");
+  for (const k of Object.keys(T.LANGS)) assert.ok(T.NEWS_NEW[k], `"nieuw" in ${k}`);
+  for (const n of T.NEWS) {
+    assert.match(n.id, /^[a-z0-9-]+$/); assert.ok(!ids.has(n.id), "unieke id"); ids.add(n.id);
+    assert.match(n.from, /^\d{4}-\d\d-\d\d$/); assert.match(n.to, /^\d{4}-\d\d-\d\d$/); assert.ok(n.from <= n.to);
+    assert.equal(n.tint.length, 2); for (const c of n.tint) assert.match(c, /^#[0-9a-f]{6}$/i);
+    assert.match(tmpl, new RegExp(`class="menu-item" role="menuitem" data-action="${n.action}"`), "de actie is een scherm in het ⋮-menu");
+    for (const k of Object.keys(T.LANGS)) {
+      const c = n.copy[k];
+      assert.ok(Array.isArray(c) && c.length === 2 && c.every((x) => typeof x === "string" && x.trim()), `${n.id}: tekst in ${k}`);
+      assert.ok(c[1].length <= 36, `${n.id}/${k}: de regel past op 360 px op één regel (gemeten: 41 tekens liep over)`);
+    }
+  }
+});
+
+test("NEWS — wie ziet de balk: terugkerend, in het venster, hoogstens NEWS_DAYS dagen, weg na openen", () => {
+  const n = T.NEWS[0], day = n.from, d2 = (k) => { const x = new Date(day + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + k); return x.toISOString().slice(0, 10); };
+  const doc = globalThis.document, item = { hidden: false };
+  globalThis.document = { ...doc, querySelector: (q) => (q.includes(`data-action="${n.action}"`) ? item : null) };
+  const user = T.auth.user, known = n.known;
+  try {
+    T.auth.user = null; n.known = () => false;
+    localStorage.removeItem(T.NEWS_KEY(n.id));
+    T.setState({ mode: "daily" });
+    T.setLocalHistory([]);
+    assert.equal(T.newsItem(day), null, "nieuwkomer (geen eerdere dag): niets");
+    T.setLocalHistory([{ date: "2026-01-01" }]);
+    assert.equal(T.newsItem(day), n, "terugkerende speler in het venster");
+    assert.equal(T.newsItem(d2(-1) < n.from ? d2(-1) : n.from), d2(-1) < n.from ? null : n, "vóór het venster: niets");
+    assert.equal(T.newsItem(d2(400)), null, "na het venster: niets");
+    T.setState({ mode: "free" }); assert.equal(T.newsItem(day), null, "vrij spel: niets");
+    T.setState({ mode: "daily", duel: { code: "X" } }); assert.equal(T.newsItem(day), null, "duelronde: niets");
+    T.setState({ mode: "daily" });
+    item.hidden = true; assert.equal(T.newsItem(day), null, "menu-item verborgen: niets"); item.hidden = false;
+    n.known = () => true; assert.equal(T.newsItem(day), null, "kent het al"); n.known = () => false;
+    // NEWS_DAYS getoonde dagen: op de laatste dag nog wel, de dag erna niet meer
+    localStorage.setItem(T.NEWS_KEY(n.id), JSON.stringify({ n: T.NEWS_DAYS, day }));
+    assert.equal(T.newsItem(day), n, "dezelfde dag blijft hij staan");
+    assert.equal(T.newsItem(d2(1) <= n.to ? d2(1) : day), d2(1) <= n.to ? null : n, "na NEWS_DAYS dagen weg");
+    localStorage.removeItem(T.NEWS_KEY(n.id));
+    T.newsSeen("stats"); assert.equal(T.newsItem(day), n, "een ander scherm openen telt niet");
+    T.newsSeen(n.action); assert.equal(T.newsItem(day), null, "dat scherm geopend (menu of balk): weg");
+    localStorage.removeItem(T.NEWS_KEY(n.id));
+    T.newsDone(n.id); assert.equal(T.newsItem(day), null, "✕: weg");
+    T.auth.user = { uid: "u" }; T.setLocalHistory([]); localStorage.removeItem(T.NEWS_KEY(n.id));
+    assert.equal(T.newsItem(day), n, "ingelogd zonder lokale historie (ander toestel) telt als terugkerend");
+  } finally {
+    globalThis.document = doc; T.auth.user = user; n.known = known; T.setState(null); T.setLocalHistory([]); localStorage.removeItem(T.NEWS_KEY(n.id));
+  }
+});

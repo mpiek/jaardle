@@ -1954,6 +1954,7 @@ function applyLang() {
   const am = document.getElementById("modal-achv");
   if (am && !am.hidden) renderAchievements();
   syncEventUi();   // balk en menu-regel in de nieuwe taal
+  renderNewsBar(true);   // de nieuws-balk ook
   const em = document.getElementById("modal-events");
   if (em && !em.hidden) renderEventsModal();
 }
@@ -4892,6 +4893,65 @@ function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-new
 function duelKnown() {
   try { const a = JSON.parse(localStorage.getItem("jaardle:duels") || "[]"); return Array.isArray(a) && a.length > 0; } catch (e) { return false; }
 }
+
+// ── Nieuws-balk (16/11/2026): een nieuwe feature een paar dagen aankondigen boven de feitenkaart. Nieuwe aankondiging = alleen een rij:
+// van/tot (puzzeldatums), icoon, kleur [donker, licht], tekst [naam, regel] per taal, action = het ⋮-menu-scherm dat een tik opent;
+// optioneel known() = kent het al. Alleen terugkerende spelers op de daily, hoogstens NEWS_DAYS dagen, weg na openen of ✕; de andere
+// balken gaan voor (style.css). Geen RPC. Meetpunten news-<id>-shown/-tap/-close. ?evdate= = voorvertoning.
+const NEWS = [
+  { id: "duels", from: "2026-11-17", to: "2026-11-23", icon: "⚔️", tint: ["#e8794a", "#b5531c"], action: "duels",
+    known: () => { try { return duelKnown() || localStorage.getItem("jaardle:duel-news") != null || !!localStorage.getItem("jaardle:duel-name"); } catch (e) { return false; } },
+    copy: {
+      nl: ["Duels", "Daag een vriend uit voor 5 rondes"],
+      en: ["Duels", "Challenge a friend to 5 rounds"],
+      de: ["Duelle", "Fordere Freunde zu 5 Runden heraus"],
+      es: ["Duelos", "Reta a un amigo a 5 rondas"],
+      pt: ["Duelos", "Desafie um amigo para 5 rodadas"],
+    } },
+];
+const NEWS_NEW = { nl: "Nieuw", en: "New", de: "Neu", es: "Nuevo", pt: "Novo" };
+const NEWS_DAYS = 3;
+const NEWS_KEY = (id) => "jaardle:news:" + id;
+function newsRec(id) { try { return JSON.parse(localStorage.getItem(NEWS_KEY(id)) || "{}") || {}; } catch (e) { return {}; } }
+function newsSave(id, rec) { try { localStorage.setItem(NEWS_KEY(id), JSON.stringify(rec)); } catch (e) {} }
+function newsDone(id) { const r = newsRec(id); if (!r.off) newsSave(id, { ...r, off: 1 }); }
+function newsSeen(action) { for (const n of NEWS) if (n.action === action) newsDone(n.id); }   // dat scherm is geopend (menu of balk)
+let newsOpen = () => {};   // = openMenuScreen (init)
+function newsItem(today) {
+  if (!state || state.mode !== "daily" || state.duel) return null;
+  if (!auth.user && !loadHistory().some((e) => e && e.date && e.date < today)) return null;   // nieuwkomer: eerst de puzzel, "nieuw" zegt hem niets
+  for (const n of NEWS) {
+    if (today < n.from || today > n.to) continue;
+    const r = newsRec(n.id);
+    if (r.off || (r.day !== today && (r.n || 0) >= NEWS_DAYS)) continue;
+    const item = document.querySelector(`#menu-pop .menu-item[data-action="${n.action}"]`);
+    if (!item || item.hidden) continue;   // dat scherm is er (nu) niet voor jou (bv. zonder account)
+    if (n.known && n.known()) continue;
+    return n;
+  }
+  return null;
+}
+// hideOnly: niet nieuw tonen, alleen weghalen of bijwerken (vóór de inhaal-/reparatie-balk bekend is: geen opflitsen).
+function renderNewsBar(hideOnly) {
+  const el = document.getElementById("news-bar");
+  if (!el) return;
+  const today = eventToday(), n = auth.resolved ? newsItem(today) : null;
+  if (!n) { if (!el.hidden) { el.hidden = true; el.innerHTML = ""; } return; }
+  if (hideOnly && el.hidden) return;
+  const [name, line] = n.copy[lang] || n.copy.en;
+  el.dataset.news = n.id;
+  el.style.setProperty("--nb-d", n.tint[0]);
+  el.style.setProperty("--nb-l", n.tint[1]);
+  el.innerHTML = `<button type="button" class="nb-go"><span class="nb-ico" aria-hidden="true">${n.icon}</span>` +
+    `<span class="nb-t"><b><span class="nb-new">${escHtml(NEWS_NEW[lang] || NEWS_NEW.en)}</span> ${escHtml(name)}</b><small>${escHtml(line)}</small></span>` +
+    `<span class="nb-chev" aria-hidden="true">›</span></button><button type="button" class="nb-x" aria-label="${escHtml(t("aria_close"))}">✕</button>`;
+  el.querySelector(".nb-go").onclick = () => { newsDone(n.id); el.hidden = true; gcCount(`news-${n.id}-tap`, `News bar tapped: ${n.id}`); newsOpen(n.action); };
+  el.querySelector(".nb-x").onclick = () => { newsDone(n.id); el.hidden = true; gcCount(`news-${n.id}-close`, `News bar closed: ${n.id}`); };
+  el.hidden = false;
+  if (getComputedStyle(el).display === "none") return;   // een andere balk staat er al: deze dag telt niet
+  const r = newsRec(n.id);
+  if (r.day !== today) { newsSave(n.id, { ...r, n: (r.n || 0) + 1, day: today }); gcCountDaily(`news-${n.id}-shown`, `News bar shown: ${n.id}`); }
+}
 function syncDuelUi() {   // het duelscherm aan (in een duelronde) of weer uit; zonder duel.js geladen is er niets op te ruimen
   if (state?.duel || window.Duel) loadDuel().then((D) => D.sync(duelHost())).catch(() => {});
 }
@@ -5434,8 +5494,10 @@ async function refreshRepairBanner() {
 // de balk kijkt naar een lopende reparatie om de neutrale toon te onderdrukken.
 async function refreshStreakBanners() {
   syncEventUi();   // de event-balk volgt hetzelfde ritme (nieuw spel, inloggen, na een pot)
+  renderNewsBar(true);   // vrij spel of een duel: de nieuws-balk meteen weg
   try { await refreshRepairBanner(); } catch (e) {}
   try { await refreshCatchupBar(); } catch (e) {}
+  renderNewsBar();   // pas nu: de inhaal-/reparatie-balk is bekend (die gaan voor)
 }
 
 // Ná elke weggeschreven pot: verse reparatie-stand ophalen (het luie onderhoud
@@ -14698,6 +14760,11 @@ async function init() {
       return;
     }
     toggleMenu(false);
+    openMenuScreen(action);
+  });
+  // De schermen achter het ⋮-menu; de nieuws-balk opent er ook een (NEWS[].action). Wie zo'n scherm opent kent het: geen balk meer.
+  function openMenuScreen(action) {
+    newsSeen(action);
     // Stats zijn er voor iedereen: anon ziet de lokale stats + bewaar-CTA.
     if (action === "stats") openModal("modal-stats");
     else if (action === "history") openModal("modal-history");
@@ -14710,7 +14777,8 @@ async function init() {
     else if (action === "install") openInstall();
     else if (action === "login") openModal("modal-login");
     else if (action === "logout") doSignOut();
-  });
+  }
+  newsOpen = openMenuScreen;
   // Footer-socials: één generieke klikteller (cookieloos) per icoon, als "<social>-footer" (bv. discord-footer).
   document.getElementById("footer-socials")?.addEventListener("click", (e) => {
     const a = e.target.closest("a[data-social]");

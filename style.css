@@ -4529,6 +4529,27 @@ html[data-theme="light"] .achv-card::after {
    Maten = die van .ev-bar (intro: twee regels, slim: één regel) + de marge eronder. */
 #event-bar.ph { height: 2.83rem; margin-bottom: 0.5rem; }
 #event-bar.ph.slim { height: 1.93rem; }
+/* Nieuws-balk (#news-bar, NEWS in game.js): een nieuwe feature een paar dagen aankondigen; de vorm van de event-balk, in de kleur van
+   de feature (--nb-d/--nb-l zet game.js per rij). Nooit twee balken boven de kaart: hij wijkt voor de inhaal-, reparatie- en
+   event-balk (die staan vóór hem) en staat niet in het duelscherm. */
+#news-bar { --nb: var(--nb-d, var(--accent)); --nb-on: #1d0f05; display: flex; align-items: stretch; margin: 0 0 0.5rem;
+  background: color-mix(in srgb, var(--nb) 10%, var(--card)); border: 1px solid color-mix(in srgb, var(--nb) 45%, var(--border)); border-radius: 12px;
+  animation: makeup-pop 0.35s ease-out; }
+html[data-theme="light"] #news-bar, html[data-theme="parchment"] #news-bar { --nb: var(--nb-l, var(--accent)); --nb-on: #fff; }
+#news-bar:hover { background: color-mix(in srgb, var(--nb) 16%, var(--card)); }
+#news-bar[hidden], #catchup-bar:not([hidden]) ~ #news-bar, #repair-banner:not([hidden]) ~ #news-bar, #event-bar:not([hidden]) ~ #news-bar,
+[data-duelpage] #news-bar { display: none; }
+.nb-go { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.1rem 0.4rem 0.7rem; background: none; border: 0;
+  color: var(--fg); font: inherit; font-size: 0.85rem; line-height: 1.25; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.nb-ico { flex: none; font-size: 1.35rem; line-height: 1; }
+.nb-t { flex: 1; min-width: 0; }
+.nb-t b { font-weight: 600; }
+.nb-t small { display: block; color: var(--muted); font-size: 0.75rem; }
+.nb-new { display: inline-block; margin-right: 0.3rem; padding: 0.08rem 0.4rem; border-radius: 999px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; vertical-align: 0.12em; line-height: 1.2; color: var(--nb-on); background: var(--nb); }
+.nb-chev { flex: none; color: var(--nb); font-size: 1.2rem; line-height: 1; }
+.nb-x { flex: none; width: 2.5rem; padding: 0; background: none; border: 0; color: var(--muted); font-size: 0.85rem; cursor: pointer; }
+.nb-x:hover { color: var(--fg); }
 .menu-item.has-new::after {
   content: "";
   display: inline-block;

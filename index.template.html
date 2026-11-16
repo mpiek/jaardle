@@ -157,7 +157,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=236">
+<link rel="stylesheet" href="/style.css?v=237">
 </head>
 <body>
   <main>
@@ -219,6 +219,9 @@
     <!-- Event-balk (Spooktober, later kerst, …): de aankondiging boven de feitenkaart; tikken opent het Events-scherm.
          Alleen tijdens een event, met de skin en zolang je speelt; game.js (syncEventUi) vult en toont. -->
     <div id="event-bar" hidden></div>
+    <!-- Nieuws-balk: een nieuwe feature een paar dagen aankondigen (NEWS in game.js). Staat ná de balken hierboven: die gaan voor
+         (style.css verbergt deze zolang er een staat). -->
+    <div id="news-bar" hidden></div>
 
     <section id="event-card">
       <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="{{i18n:fact_prev}}" data-i18n-aria="fact_prev" hidden>‹</button>
@@ -529,7 +532,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=420"></script>
+  <script src="/game.js?v=421"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
