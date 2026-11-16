@@ -2585,14 +2585,16 @@ test("teamTeaserHtml — de week-baan telt al je daily's van deze week (db/144: 
 });
 
 // ── Pitch-kaartje voor uitgelogde spelers: Google direct, e-mail als link ─────────────────────────────
-test("recapAccountHtml — Google-knop als hoofdactie, 'of met e-mail' als link naar de login-modal", () => {
+test("recapAccountHtml — Google-knop als hoofdactie, eronder 'of met Discord · e-mail' als twee losse links", () => {
   for (const l of Object.keys(T.I18N)) {
     T.setLang(l);
     const h = T.recapAccountHtml();
     assert.match(h, /class="google-btn js-google-btn"/, `${l}: Google-knop`);
     assert.ok(h.includes(T.I18N[l].login_google), `${l}: label uit login_google`);
-    assert.match(h, /class="link-btn js-acct-btn"/, `${l}: e-mail-link houdt de js-acct-btn-hook`);
-    assert.ok(h.includes(T.I18N[l].login_or), `${l}: label uit login_or`);
+    assert.ok(h.includes(`<p class="recap-alt">${T.I18N[l].login_or_with} <button`), `${l}: zinnetje begint met login_or_with`);
+    assert.match(h, /<button type="button" class="link-btn js-discord-btn">Discord<\/button>/, `${l}: Discord-link`);
+    assert.ok(h.includes(`<button type="button" class="link-btn js-acct-btn">${T.I18N[l].login_alt_mail}</button>`), `${l}: e-mail-link houdt de js-acct-btn-hook`);
+    assert.ok(h.indexOf("js-discord-btn") < h.indexOf("js-acct-btn"), `${l}: Discord vóór e-mail`);
     assert.ok(!h.includes("undefined"), `${l}: geen ontbrekende sleutel`);
   }
   T.setLang("nl");

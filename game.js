@@ -188,7 +188,7 @@ const I18N = {
     later_future: (y) => `${y} jaar later is nog niet geweest — het antwoord ligt in de afgelopen ~${y} jaar.`,
     later_none: (y) => `Geen gebeurtenis van rond ${y} jaar later bekend.`,
     help_summary: "Hoe werkt het?", stats_title: "📊 Statistieken",
-    login_title: "Inloggen", login_google: "Doorgaan met Google", login_discord: "Doorgaan met Discord", login_or: "of met e-mail",
+    login_title: "Inloggen", login_google: "Doorgaan met Google", login_discord: "Doorgaan met Discord", login_or: "of met e-mail", login_or_with: "of met", login_alt_mail: "e-mail",
     login_email: "E-mail", login_password: "Wachtwoord", login_submit: "Inloggen", login_register: "Registreren",
     login_forgot: "Wachtwoord vergeten?",
     login_reset_email_needed: "Vul eerst je e-mailadres in.",
@@ -537,7 +537,7 @@ const I18N = {
     later_future: (y) => `${y} years later hasn't happened yet — so the answer is within the last ~${y} years.`,
     later_none: (y) => `No event from around ${y} years later is known.`,
     help_summary: "How to play?", stats_title: "📊 Statistics",
-    login_title: "Sign in", login_google: "Continue with Google", login_discord: "Continue with Discord", login_or: "or with email",
+    login_title: "Sign in", login_google: "Continue with Google", login_discord: "Continue with Discord", login_or: "or with email", login_or_with: "or with", login_alt_mail: "email",
     login_email: "Email", login_password: "Password", login_submit: "Sign in", login_register: "Register",
     login_forgot: "Forgot password?",
     login_reset_email_needed: "Enter your email address first.",
@@ -889,7 +889,7 @@ const I18N = {
     later_future: (y) => `${y} Jahre später ist noch nicht gewesen — die Antwort liegt also in den letzten ~${y} Jahren.`,
     later_none: (y) => `Kein Ereignis von rund ${y} Jahren später bekannt.`,
     help_summary: "Wie funktioniert es?", stats_title: "📊 Statistiken",
-    login_title: "Anmelden", login_google: "Mit Google fortfahren", login_discord: "Mit Discord fortfahren", login_or: "oder mit E-Mail",
+    login_title: "Anmelden", login_google: "Mit Google fortfahren", login_discord: "Mit Discord fortfahren", login_or: "oder mit E-Mail", login_or_with: "oder mit", login_alt_mail: "E-Mail",
     login_email: "E-Mail", login_password: "Passwort", login_submit: "Anmelden", login_register: "Registrieren",
     login_forgot: "Passwort vergessen?",
     login_reset_email_needed: "Gib zuerst deine E-Mail-Adresse ein.",
@@ -1235,7 +1235,7 @@ const I18N = {
     later_future: (y) => `${y} años después aún no ha ocurrido — así que la respuesta está en los últimos ~${y} años.`,
     later_none: (y) => `No se conoce ningún acontecimiento de unos ${y} años después.`,
     help_summary: "¿Cómo se juega?", stats_title: "📊 Estadísticas",
-    login_title: "Iniciar sesión", login_google: "Continuar con Google", login_discord: "Continuar con Discord", login_or: "o con correo electrónico",
+    login_title: "Iniciar sesión", login_google: "Continuar con Google", login_discord: "Continuar con Discord", login_or: "o con correo electrónico", login_or_with: "o con", login_alt_mail: "correo",
     login_email: "Correo electrónico", login_password: "Contraseña", login_submit: "Iniciar sesión", login_register: "Registrarse",
     login_forgot: "¿Olvidaste tu contraseña?",
     login_reset_email_needed: "Introduce primero tu correo electrónico.",
@@ -1586,7 +1586,7 @@ const I18N = {
     later_future: (y) => `${y} anos depois ainda não aconteceu — então a resposta está nos últimos ~${y} anos.`,
     later_none: (y) => `Não se conhece nenhum acontecimento de cerca de ${y} anos depois.`,
     help_summary: "Como jogar?", stats_title: "📊 Estatísticas",
-    login_title: "Entrar", login_google: "Continuar com o Google", login_discord: "Continuar com o Discord", login_or: "ou com e-mail",
+    login_title: "Entrar", login_google: "Continuar com o Google", login_discord: "Continuar com o Discord", login_or: "ou com e-mail", login_or_with: "ou com", login_alt_mail: "e-mail",
     login_email: "E-mail", login_password: "Senha", login_submit: "Entrar", login_register: "Cadastrar-se",
     login_forgot: "Esqueceu a senha?",
     login_reset_email_needed: "Digite primeiro o seu e-mail.",
@@ -8262,7 +8262,9 @@ async function renderRecap() {
 // omlijnd accent-kaartje dat als call-to-action opvalt. Ook hergebruikt in de
 // stats-modal (anon) — daarom een class i.p.v. id op de knop (kan 2× in de DOM).
 // De hoofdknop is direct "Doorgaan met Google" (één tik minder dan eerst de login-modal openen);
-// "of met e-mail" opent die modal nog steeds (inloggen/registreren/wachtwoord vergeten).
+// eronder "of met Discord · e-mail": Discord start meteen de Discord-login, e-mail opent de login-modal
+// (inloggen/registreren/wachtwoord vergeten). Discord stond eerst alleen in de modal (1 op 26 nieuwe accounts,
+// 4/10–16/11); als tekstlink in plaats van halve knop, zodat Google (2/3 van de aanmeldingen) de grote knop houdt.
 function recapAccountHtml() {
   // Het Google-logo komt uit de login-modal (één bron, officiële kleuren); zonder DOM (tests) gewoon geen icoon.
   const googleIcon = document.querySelector("#login-google svg")?.outerHTML || "";
@@ -8275,7 +8277,7 @@ function recapAccountHtml() {
     <button type="button" class="rt-perk js-rt-btn">${escHtml(t("rt_perk"))}<span class="rt-perk-chev" aria-hidden="true">›</span></button>
     <div class="recap-signin">
       <button type="button" class="google-btn js-google-btn">${googleIcon}<span>${t("login_google")}</span></button>
-      <button type="button" class="link-btn js-acct-btn">${t("login_or")}</button>
+      <p class="recap-alt">${t("login_or_with")} <button type="button" class="link-btn js-discord-btn">Discord</button><span aria-hidden="true">·</span><button type="button" class="link-btn js-acct-btn">${t("login_alt_mail")}</button></p>
     </div>
     <p class="recap-free">${t("recap_acct_free")}</p>
   </div>`;
@@ -12582,11 +12584,16 @@ function selectStatsTab(name) {
   try { localStorage.setItem("jaardle:statsTab", name); } catch (e) {}
 }
 
+// Meetpunten (GoatCounter, geen DB): acct-google / acct-discord / acct-email = welke keuze men tikt (elk kaartje),
+// acct-card-daily(-new) = het kaartje gezien op het eindscherm van de daily (één keer per dag per apparaat) als noemer.
 function wireAcctPitch(container, from) {
   const mail = container.querySelector(".js-acct-btn");
-  if (mail) mail.onclick = () => { closeAllModals(); openModal("modal-login"); };
+  if (mail) mail.onclick = () => { gcCount("acct-email", "Account card: email"); closeAllModals(); openModal("modal-login"); };
   const google = container.querySelector(".js-google-btn");
-  if (google) google.onclick = () => doGoogleSignIn(google, from);
+  if (google) google.onclick = () => { gcCount("acct-google", "Account card: Google"); doGoogleSignIn(google, from); };
+  const discord = container.querySelector(".js-discord-btn");
+  if (discord) discord.onclick = () => { gcCount("acct-discord", "Account card: Discord"); doDiscordSignIn(discord, from); };
+  if (from === "recap") gcCountDaily("acct-card-daily", "Account card shown (daily end screen)");
   wireRtPerk(container);
 }
 
