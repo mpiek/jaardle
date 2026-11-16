@@ -5831,11 +5831,13 @@ const EVENTS = [
   {
     // Potjes-event (unit: "plays"): geen stempelkaart maar een teller. Elk afgemaakt potje op deze dagen telt (daily, inhaal, vrij spel;
     // winst of verlies; een gedeeld potje niet). Eén beloning bij thresholds[0] potjes, ook zonder account te verdienen (anon: een
-    // viering ziet alleen jijzelf). Geen inhaaldagen, geen zegel, geen Events-scherm; de UI (balk + strook + teksten) is /event-mini.js.
+    // viering ziet alleen jijzelf). Geen inhaaldagen, geen Events-scherm; de UI (balk + strook + teksten + zegel) is /event-mini.js.
+    // Het zegel in Prestaties telt door na de beloning: sealTiers = potjes per trede (alleen weergave, de server telt al door, db/183).
     // Server: db/183 (events.unit = 'plays'; je stand reist ingelogd mee met get_my_prefs).
     id: "sint", skin: "sinterklaas", icon: "\u{1F381}", unit: "plays", anon: true,
     start: "2026-12-05", end: "2026-12-06",              // za 5 + zo 6 dec: pakjesavond en Sint-Nicolaasdag
     thresholds: [10], gift: 0,
+    sealTiers: [10, 20, 30, 40, 50, 60],                 // een trede per 10 potjes: brons · zilver · goud · platina · diamant · obsidiaan (16/11: "tredes per 10 potjes")
     rewards: [
       { kind: "feest", key: "ev_sint_feest", emoji: "\u{1F381}", icon: "\u{1F381}", layer: "strooigoed" },   // Strooigoed: de laag van /strooigoed-fx.js
     ],
@@ -5845,6 +5847,7 @@ for (const ev of EVENTS) ev.rewards.forEach((r, i) => { r.event = ev.id; r.at = 
 const isPlaysEvent = (ev) => !!ev && ev.unit === "plays";
 const STAMP_EVENTS = EVENTS.filter((ev) => !isPlaysEvent(ev));   // events met een stempelkaart: balk, strook, kaart, scherm, zegel (/season-event.js)
 const PLAYS_EVENTS = EVENTS.filter(isPlaysEvent);                // potjes-events: een teller in de balk en op het eindscherm (/event-mini.js)
+const SEAL_EVENTS = EVENTS.filter((ev) => !isPlaysEvent(ev) || !!ev.sealTiers);   // events met een zegel in Prestaties (een potjes-event alleen met sealTiers)
 const eventById = (id) => EVENTS.find((e) => e.id === id) || null;
 const eventOfReward = (key) => EVENTS.find((e) => e.rewards.some((r) => r.key === key)) || null;
 const EVENT_REWARD_KEYS = EVENTS.flatMap((ev) => ev.rewards.map((r) => r.key));
@@ -5934,6 +5937,7 @@ const eventState = (ev) => (isPlaysEvent(ev) ? eventPlaysState(ev) : eventStamps
 // De ring van het zegel (Prestaties, Events-scherm, archief): de 6-treden-schaal van de rest van het spel, op je stempels. Zonder sealTiers = het aantal beloningen.
 const eventSealTiers = (ev) => ev.sealTiers || ev.thresholds;
 const eventTier = (ev, n) => eventSealTiers(ev).filter((x) => n >= x).length;   // 0 = geen ring · 1 = brons … 6 = obsidiaan
+const eventSealN = (ev, st = eventState(ev)) => (isPlaysEvent(ev) ? st.played : st.n);   // waar het zegel op telt: stempels, of al je potjes (n stopt bij de beloning)
 const eventEarnedAt = (ev, at) => (!!auth.user || !!ev.anon) && eventState(ev).n >= at;   // anon: een event waarvan je de beloning ook zonder account verdient
 // Welke events staan nu in beeld (lopend of nog in de inhaaldagen), en van welke is alleen nog het archief over (wie meedeed)?
 // Alleen stempel-events: een potjes-event heeft zijn eigen kleine balk en strook (miniEventNow) en geen scherm, tab of archief.
@@ -11600,7 +11604,7 @@ async function renderAchievements() {
   const a = warm || await fetchAchievements();
   if (document.getElementById("modal-achv").hidden) return;
   if (!a) { body.innerHTML = `<p class="stats-empty">${t("err_load")}</p>`; return; }
-  const played = STAMP_EVENTS.filter((ev) => eventState(ev).played > 0);   // zegels van events waaraan je meedeed: het event-bestand levert namen en plaatje (een potjes-event heeft geen zegel)
+  const played = SEAL_EVENTS.filter((ev) => eventState(ev).played > 0);   // zegels van events waaraan je meedeed: het event-bestand levert namen en plaatje
   if (played.length) { try { await Promise.race([ensureEventUi(played), new Promise((r) => setTimeout(r, 1500))]); } catch (e) {} }   // een trage lading houdt het bord niet op (dan zonder de Events-sectie)
   await ensureTitleEquipped(a);   // titel is niet-aflegbaar: draag altijd de hoogst verdiende
   if (document.getElementById("modal-achv").hidden) return;
@@ -11655,16 +11659,16 @@ function wireCapPips(body) {
 }
 
 // Events in Prestaties: een zegel per event waaraan je meedeed, met een ring die meegroeit met de beloningen die je haalde (geen ring-kleur =
-// meegedaan). Ook zonder account (lokaal, met de gewone "niet opgeslagen"-regel eronder). Het plaatje komt uit het event-bestand (SeasonEvent.art).
+// meegedaan). Ook zonder account (lokaal, met de gewone "niet opgeslagen"-regel eronder). Het plaatje komt uit het event-bestand
+// (SeasonEvent.art, of EventMini.seal bij een potjes-event; daar groeit de ring met je potjes, een trede per sealTiers).
 function eventAchvHtml() {
-  if (!window.SeasonEvent) return "";
-  const played = STAMP_EVENTS.filter((ev) => eventState(ev).played > 0);
+  const played = SEAL_EVENTS.filter((ev) => eventState(ev).played > 0 && eventCopy(ev.id));   // zonder het event-bestand (nog) niet: het bord wacht er niet op
   if (!played.length) return "";
   injectEventArt();
   const tiles = played.map((ev) => {
-    const st = eventState(ev), c = eventCopy(ev.id), tier = eventTier(ev, st.n);
+    const st = eventState(ev), c = eventCopy(ev.id), n = eventSealN(ev, st), tier = eventTier(ev, n);
     return `<div class="achv-trophy achv-t${tier}"><span class="achv-tring tiered"><svg viewBox="0 0 100 100" class="achv-art" aria-hidden="true"><use href="#achv-art-${ev.id}"/></svg></span>` +
-      `<span class="achv-tname">${escHtml(c.achName)}${tier ? ` <span class="achv-ttier">${escHtml(achvTierName(tier - 1))}</span>` : ""}</span><span class="achv-tsub">${escHtml(c.achSub(st.n, st.total))}</span></div>`;
+      `<span class="achv-tname">${escHtml(c.achName)}${tier ? ` <span class="achv-ttier">${escHtml(achvTierName(tier - 1))}</span>` : ""}</span><span class="achv-tsub">${escHtml(c.achSub(n, st.total))}</span></div>`;
   }).join("");
   return `<h3 class="stats-heading">${escHtml(eventCopy(played[0].id).achH)}</h3><div class="achv-trophies">${tiles}</div>`;
 }
@@ -12876,8 +12880,11 @@ const ensureEventUi = (evs) => Promise.all([evs.some((e) => !isPlaysEvent(e)) ? 
 // De zegel-plaatjes van de events (SVG-defs, id achv-art-<event>) hangen bij de badge-artwork van Prestaties; het archief in de kluis gebruikt ze ook.
 function injectEventArt() {
   const defs = document.querySelector("#achv-svg-defs svg");
-  if (!defs || !window.SeasonEvent) return;
-  for (const id of window.SeasonEvent.ids()) if (!defs.querySelector("#achv-art-" + id)) defs.insertAdjacentHTML("beforeend", window.SeasonEvent.art(id));
+  if (!defs) return;
+  for (const [ui, fn] of [[window.SeasonEvent, "art"], [window.EventMini, "seal"]]) {   // stempel-events: art = het zegel; potjes-events: art = het icoon, seal = het zegel
+    if (!ui || typeof ui[fn] !== "function") continue;
+    for (const id of ui.ids()) { const svg = ui[fn](id); if (svg && !defs.querySelector("#achv-art-" + id)) defs.insertAdjacentHTML("beforeend", svg); }
+  }
 }
 
 // "Nieuw"-stip: er staat een stempel op de kaart die je nog niet zag (bij het openen van de Events-tab/het scherm wordt het gezien).
@@ -13024,7 +13031,12 @@ async function renderEventStrip(arrive) {
 const miniEventNow = () => PLAYS_EVENTS.find((ev) => eventPhase(ev, eventToday()) === "run") || null;
 function miniEventView(ev) {
   const st = eventState(ev), fx = eventFxActive();
-  return { id: ev.id, lang, n: st.n, total: st.total, earned: eventFxUnlocked(ev), on: !!fx && fx.id === ev.id, lastDay: eventToday() >= ev.end };
+  const v = { id: ev.id, lang, n: st.n, total: st.total, earned: eventFxUnlocked(ev), on: !!fx && fx.id === ev.id, lastDay: eventToday() >= ev.end };
+  if (ev.sealTiers) {   // het zegel (de strook toont het met de beloning): trede, potjes tot de volgende, en of dit potje er net een haalde
+    const n = eventSealN(ev, st), tier = eventTier(ev, n), at = ev.sealTiers[tier];
+    v.seal = { n, tier, name: tier ? achvTierName(tier - 1) : "", left: at ? at - n : 0, nextName: at ? achvTierName(tier) : "", up: tier > 0 && n === ev.sealTiers[tier - 1] };
+  }
+  return v;
 }
 // De balk: in elke modus (elk potje telt) en zolang je speelt; na afloop neemt de strook het over, en wie de beloning heeft ziet hem
 // niet meer. Tot je eerste potje twee regels (wat het is), daarna één dunne regel met je stand.
@@ -13049,6 +13061,7 @@ async function renderMiniEventStrip(arrive) {
   if (!ev || !state || !state.done) return;
   try { await loadEventMini(); } catch (e) { return; }
   if (!state || !state.done) return;
+  injectEventArt();   // het zegel in de strook is een <use> naar de badge-defs
   els.result.querySelectorAll(".evm-strip").forEach((e) => e.remove());   // een tweede aanroep intussen: nooit twee stroken
   const box = document.createElement("div");
   box.innerHTML = window.EventMini.strip(miniEventView(ev), { arrive: !!arrive });

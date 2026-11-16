@@ -76,7 +76,7 @@ src += `
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
   seasonFor, SEASONS, SEASON_KEY, seasonKey, THEME_COLORS, themeBarColor, setSeason, seasonActive, seasonCurrent, seasonMenuShown, syncSeasonCheck,
   EVENTS, STAMP_EVENTS, PLAYS_EVENTS, isPlaysEvent, EVPLAYS_KEY, eventPlaysCount, eventPlaysBump, eventPlaysSynced, eventPlaysState, eventState, eventEarnedAt, eventsInView, eventsArchived,
-  miniEventNow, miniEventView, renderMiniEventBar, loadEventMini, eventUiOf, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventTier, eventSealTiers, eventDayCounts, rewardsBaselineKeys, EVENT_MASCOTS, ensureEventUi, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
+  miniEventNow, miniEventView, renderMiniEventBar, loadEventMini, eventUiOf, eventCatHat, eventCatOpts, eventById, eventOfReward, EVENT_REWARD_KEYS, eventDay, eventTotal, eventCatchupEnd, eventPhase, eventStamps, eventTier, eventSealTiers, eventSealN, SEAL_EVENTS, eventDayCounts, rewardsBaselineKeys, EVENT_MASCOTS, ensureEventUi, eventState, eventEarnedAt, eventsInView, eventsArchived, eventTabEvents,
   eventFxReward, eventFxUnlocked, eventFxUnlockedList, eventFxActive, setEventFx, EVFX_KEY, achvEarnedFlairs, rewardName, eventCopy, eventHistorySync, showReward, eventRewardKind, eventView, eventHasNew, EVSEEN_KEY, eventAchvHtml,
   setEventToday: (k) => { eventTodayFn = () => k; }, setLocalHistory: (h) => { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); },
   setLang:  (l) => { lang = l; }, getLang: () => lang,
@@ -4050,6 +4050,11 @@ test("event-mini.js — teksten in vijf talen met dezelfde sleutels, de tekening
         c.lead(10), c.sub(false), c.sub(true), c.toGo(1), c.toGo(6), c.aria(4, 10)];
       for (const x of flat) assert.ok(typeof x === "string" && x.trim() && !/undefined|NaN|\[object/.test(x), `${ev.id}/${l}: lege of kapotte tekst (${x})`);
       assert.notEqual(c.sub(false), c.sub(true)); assert.notEqual(c.toGo(1), c.toGo(6));
+      for (const x of [c.achName, c.achH, c.achSub(1), c.achSub(23), c.seal("brons", 1, "zilver"), c.seal("brons", 7, "zilver"), c.seal("obsidiaan", 0, "")])
+        assert.ok(typeof x === "string" && x.trim() && !/undefined|NaN|\[object/.test(x), `${ev.id}/${l}: lege of kapotte zegeltekst (${x})`);
+      assert.notEqual(c.achSub(1), c.achSub(23)); assert.notEqual(c.seal("a", 1, "b"), c.seal("a", 7, "b")); assert.ok(!c.seal("a", 0, "").includes("undefined"));
+      const tn = T.I18N[l].achv_tiers, longest = c.seal(tn.platinum, 10, tn.diamond);
+      assert.ok(longest.length <= 60, `${l}: de zegelregel blijft op een smal scherm binnen twee regels (${longest})`);
       assert.deepEqual(Object.keys(c.rewardName), ev.rewards.map((r) => r.kind)); assert.deepEqual(Object.keys(c.popSub), ev.rewards.map((r) => r.kind));
       if (l !== "nl") assert.notEqual(c.lead(10), base.lead(10), `${l}: vertaald`);
     }
@@ -4058,6 +4063,12 @@ test("event-mini.js — teksten in vijf talen met dezelfde sleutels, de tekening
   // de tekeningen zijn letterlijk die van de viering (één ontwerp, twee bestanden)
   assert.equal(EM.art("sint"), window.StrooigoedFx.ICONS.munt); assert.deepEqual([...EM.sweets("sint")], [window.StrooigoedFx.ICONS.kruidnoot, window.StrooigoedFx.ICONS.munt]);
   assert.match(EM.menuItem("sint", "nl"), /^<span class="evm-ico" aria-hidden="true"><svg [^]*<\/svg><\/span>Strooigoed-viering$/);
+  // het zegel: defs met het id dat game.js gebruikt, op de tegel-basis van de badges, eigen ids (snt-) die nergens anders voorkomen
+  const seal = EM.seal("sint");
+  assert.match(seal, /<g id="achv-art-sint"><use href="#achv-tile-base"\/>/); assert.equal(EM.seal("nope"), "");
+  const g = readFileSync(join(dir, "..", "game.js"), "utf8"), se = readFileSync(join(dir, "..", "season-event.js"), "utf8");
+  for (const [, id] of seal.matchAll(/id="([^"]+)"/g)) { assert.match(id, /^(snt-|achv-art-sint$)/, `${id}: eigen voorvoegsel`); assert.ok(!g.includes(`"${id}"`) && !se.includes(`"${id}"`), `${id} bestaat al`); }
+  for (const [, ref] of seal.matchAll(/(?:href="#|url\(#)([^")]+)/g)) assert.ok(ref === "achv-tile-base" || seal.includes(`id="${ref}"`), `${ref}: verwijzing zonder doel`);
   // de balk: tot je eerste potje twee regels, daarna dun met tien nootjes
   const v = (n, o) => ({ id: "sint", lang: "nl", n, total: 10, earned: false, on: false, lastDay: false, ...o });
   const intro = EM.bar(v(0), { intro: true });
@@ -4076,6 +4087,12 @@ test("event-mini.js — teksten in vijf talen met dezelfde sleutels, de tekening
   const got = EM.strip(v(10, { earned: true }), { arrive: true });
   assert.match(got, /class="evm-strip arrive done"/); assert.match(got, /<button type="button" class="evm-btn" data-evm-toggle="sint" aria-pressed="false">Zet aan<\/button>/); assert.match(got, /Verdiend!/);
   assert.match(EM.strip(v(10, { earned: true, on: true }), {}), /aria-pressed="true">Zet uit<\/button>/); assert.match(EM.strip(v(10, { earned: true, on: true }), {}), /staat aan/);
+  // het zegel onderaan de strook: alleen met de beloning; ring in de kleur van de trede; plopt alleen bij een vers gehaalde trede
+  const sl = (o, x) => EM.strip(v(10, { earned: true, seal: { n: 13, tier: 1, name: "brons", left: 7, nextName: "zilver", up: false, ...o }, ...x }), { arrive: true });
+  assert.match(sl({}), /<span class="evm-seal achv-line-t1"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#achv-art-sint"\/><\/svg><span>Zegel brons · nog 7 potjes tot zilver<\/span><\/span><\/div>$/);
+  assert.match(sl({ n: 20, tier: 2, name: "zilver", left: 10, nextName: "goud", up: true }), /class="evm-seal achv-line-t2 up"/);
+  assert.match(sl({ n: 61, tier: 6, name: "obsidiaan", left: 0, nextName: "" }), /Zegel obsidiaan · de hoogste trede/); assert.match(sl({ left: 1 }), /nog 1 potje tot zilver/);
+  assert.ok(!sl({}, { earned: false }).includes("evm-seal"), "zonder de beloning geen zegelregel"); assert.ok(!sl({ tier: 0 }).includes("evm-seal")); assert.ok(!fresh.includes("evm-seal"));
   // de CSS: tokens per event, het nootje als achtergrond, geen fixed, minder beweging, alle eigen variabelen gedefinieerd; één <style>
   const css = EM.css;
   for (const ev of T.PLAYS_EVENTS) { assert.ok(css.includes(`[data-evm="${ev.id}"] {`), `${ev.id}: geen tokens`); assert.ok(css.includes(`[data-evm="${ev.id}"] { --evm-pip: url("data:image/svg+xml,`)); }
@@ -4083,7 +4100,7 @@ test("event-mini.js — teksten in vijf talen met dezelfde sleutels, de tekening
   const used = new Set([...css.matchAll(/var\((--evm[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...css.matchAll(/(--evm[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} wordt gebruikt maar niet gedefinieerd`);
   assert.equal(head.kids.length, 1, "één <style>");
-  assert.ok(readFileSync(join(dir, "..", "event-mini.js"), "utf8").length < 20000, "het lui geladen bestand blijft klein");
+  assert.ok(readFileSync(join(dir, "..", "event-mini.js"), "utf8").length < 24000, "het lui geladen bestand blijft klein (met het zegel ±5 KB erbij)");
 });
 
 test("game.js ↔ event-mini.js — lui geladen, de teksten van de beloning komen uit het juiste bestand, de balk houdt zijn plek vrij en verdwijnt als je hem hebt", () => {
@@ -4104,14 +4121,44 @@ test("game.js ↔ event-mini.js — lui geladen, de teksten van de beloning kome
     window.EventMini = EM;
     assert.equal(T.eventCopy("sint").name, "Strooigoed"); assert.equal(T.rewardName("ev_sint_feest"), "Strooigoed");
     T.renderMiniEventBar(el); assert.equal(el.className, ""); assert.match(el.innerHTML, /class="evm-bar slim"[^]*>1\/10</);
-    assert.deepEqual(T.miniEventView(sint), { id: "sint", lang: T.getLang(), n: 1, total: 10, earned: false, on: false, lastDay: false });
+    assert.deepEqual(T.miniEventView(sint), { id: "sint", lang: T.getLang(), n: 1, total: 10, earned: false, on: false, lastDay: false,
+      seal: { n: 1, tier: 0, name: "", left: 9, nextName: T.achvTierName(0), up: false } });
     T.setEventToday("2026-12-06"); assert.equal(T.miniEventView(sint).lastDay, true);
     T.setState({ done: true, mode: "daily" }); T.renderMiniEventBar(el); assert.deepEqual([el.hidden, el.innerHTML], [true, ""], "na afloop neemt de strook het over");
     T.setState({ done: false, mode: "daily" }); for (let i = 0; i < 9; i++) T.eventPlaysBump();
     assert.equal(T.renderMiniEventBar(el), true); assert.deepEqual([el.hidden, el.innerHTML], [true, ""], "verdiend: geen balk meer");
     assert.equal(T.miniEventView(sint).earned, true); T.setEventFx("sint"); assert.equal(T.miniEventView(sint).on, true);
+    assert.deepEqual(T.miniEventView(sint).seal, { n: 10, tier: 1, name: T.achvTierName(0), left: 10, nextName: T.achvTierName(1), up: true }, "10 potjes: brons, net gehaald");
+    for (let i = 0; i < 3; i++) T.eventPlaysBump();
+    assert.equal(T.miniEventView(sint).n, 10, "de teller van de beloning stopt bij 10"); assert.deepEqual(T.miniEventView(sint).seal, { n: 13, tier: 1, name: T.achvTierName(0), left: 7, nextName: T.achvTierName(1), up: false }, "het zegel telt door");
+    for (let i = 0; i < 50; i++) T.eventPlaysBump();
+    assert.deepEqual(T.miniEventView(sint).seal, { n: 63, tier: 6, name: T.achvTierName(5), left: 0, nextName: "", up: false }, "boven de 60: obsidiaan, geen volgende trede");
   } finally {
     T.auth.user = wasUser; sintClean(); T.setState(null);
+    if (hadM) window.EventMini = hadM; else delete window.EventMini;
+    if (hadS) window.SeasonEvent = hadS; else delete window.SeasonEvent;
+  }
+});
+
+test("Prestaties — het Sint-zegel: een trede per 10 potjes, telt door na de beloning, blijft na het event; ook anoniem", () => {
+  const { EM } = loadEventMiniFile(), hadM = window.EventMini, hadS = window.SeasonEvent, sint = T.eventById("sint");
+  try {
+    T.auth.user = null; sintClean(); evClean(); delete window.SeasonEvent; window.EventMini = EM; T.setLang("nl");
+    assert.deepEqual(sint.sealTiers, [10, 20, 30, 40, 50, 60]);
+    assert.ok(T.SEAL_EVENTS.includes(sint) && T.SEAL_EVENTS.includes(T.eventById("spook")));
+    assert.equal(T.eventAchvHtml(), "", "nog geen potje: geen zegel");
+    T.setEventToday("2026-12-05"); T.eventPlaysBump();
+    let h = T.eventAchvHtml();
+    assert.match(h, /<h3 class="stats-heading">Events<\/h3>/); assert.match(h, /achv-t0/); assert.match(h, /Sinterklaas 2026/); assert.match(h, />1 potje</); assert.match(h, /#achv-art-sint/);
+    for (const [n, t] of [[10, 1], [19, 1], [20, 2], [59, 5], [60, 6], [75, 6]]) {
+      while (T.eventSealN(sint) < n) T.eventPlaysBump();
+      h = T.eventAchvHtml(); assert.match(h, new RegExp(`achv-t${t}\\b`), `${n} potjes = trede ${t}`); assert.match(h, new RegExp(`>${n} potjes<`));
+    }
+    assert.match(h, />obsidiaan</, "de naam van de trede staat erbij");
+    T.setEventToday("2026-12-20"); assert.match(T.eventAchvHtml(), /achv-t6/, "na het event blijft het zegel staan");
+    delete window.EventMini; assert.equal(T.eventAchvHtml(), "", "zonder het UI-bestand niets (het bord wacht er niet op)");
+  } finally {
+    sintClean(); evClean();
     if (hadM) window.EventMini = hadM; else delete window.EventMini;
     if (hadS) window.SeasonEvent = hadS; else delete window.SeasonEvent;
   }
