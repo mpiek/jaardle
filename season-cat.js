@@ -1,4 +1,5 @@
-/* Het Halloween-katje (lui geladen, alleen met de Halloween-skin): een vlak zwart silhouet met grote witte ogen. Hij doet niets functioneels:
+/* Het katje (lui geladen, alleen met de Halloween- of de kerst-skin): een vlak zwart silhouet met grote witte ogen (met kerst een bruine tabby met
+   kerstmuts: het uiterlijk komt dan uit /cat-kerst.js via look(), de beweging hieronder is dezelfde). Hij doet niets functioneels:
    hij zit, knippert, miauwt af en toe, gaapt, slaapt, rekt zich uit en reageert op wat jij doet. Ontwerp: de kat-mockup (artifact
    "Spooktober-kat"); de CSS hieronder is daar 1-op-1 uit overgenomen en onder de skin gescopet.
    Standen (klasse op .sk-cat): .meow .yawn .drowsy .asleep .wake .pet .hear .watch .flick .purr .grump .intro .cheer .comfort .perched; .hallow = 31 oktober
@@ -17,41 +18,43 @@ window.SeasonCat = (() => {
   const HEAD = `<svg class="cat-head" viewBox="7 0 34 34.4" aria-hidden="true" focusable="false"><g class="cat-hd"><g class="cat-ear-l"><path d="M12.2 20C11.6 13.8 12.4 8.2 14.4 3.2C18 5.6 21 9.2 22.6 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><g class="cat-ear-r"><path d="M35.8 20C36.4 13.8 35.6 8.2 33.6 3.2C30 5.6 27 9.2 25.4 13.8Z" fill="#0b0910" stroke="#0b0910" stroke-width="1.2" stroke-linejoin="round"/></g><path d="M10.8 23.5C10.8 16.2 16.2 11.4 24 11.4C31.8 11.4 37.2 16.2 37.2 23.5C37.2 25.4 37.8 27 39.4 29.6C37 29.2 35.6 29.6 34.6 30.6C31.6 32.6 27.6 33.2 24 33.2C20.4 33.2 16.4 32.6 13.4 30.6C12.4 29.6 11 29.2 8.6 29.6C10.2 27 10.8 25.4 10.8 23.5Z" fill="#0b0910"/><g class="cat-eyes"><g class="cat-ball"><circle cx="18" cy="22.4" r="4.5" fill="#fbf7ff"/><circle cx="30" cy="22.4" r="4.5" fill="#fbf7ff"/></g><g class="cat-pup"><circle cx="18.25" cy="22.9" r="1.55" fill="#0b0910"/><circle cx="30.25" cy="22.9" r="1.55" fill="#0b0910"/></g></g><g class="cat-happy" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 23.7Q18 18.5 21.9 23.7"/><path d="M26.1 23.7Q30 18.5 33.9 23.7"/></g><g class="cat-closed" fill="none" stroke="#fbf7ff" stroke-width="1.35" stroke-linecap="round"><path d="M14.1 21.3Q18 26.3 21.9 21.3"/><path d="M26.1 21.3Q30 26.3 33.9 21.3"/></g><rect x="23.1" y="26.5" width="1.8" height=".75" rx=".375" fill="#cfc4e6"/><g class="cat-mouth"><ellipse cx="24" cy="29.6" rx="2.1" ry="2.6" fill="#ee5f88"/><ellipse cx="24" cy="30.7" rx="1.2" ry="1" fill="#ff9db8"/></g><g class="cat-tongue"><path d="M24.6 28.2q2.6 -.1 2.4 2.2q-.2 1.6 -1.6 1.4q-1.4 -.2 -1.3 -1.8Z" fill="#f48fb0"/></g><g class="acc acc-hat"><g transform="rotate(14 29 12)"><path d="M22.6 11.6 28.6 1.8Q29.6-1.2 34-2.4 30.9-.6 30.9 2.6L35.4 11.6Z" fill="#0b0910"/><path d="M25 7.6H33.4L34.9 10.5H23.3Z" fill="#ff8a1f"/><ellipse cx="29" cy="11.9" rx="10.2" ry="2.2" fill="#0b0910"/></g></g></g></svg>`;
   // De verlopen van de vurige ogen (31 oktober); de poses verwijzen ernaar met url(#skk-eye) en url(#skk-glow).
   const DEFS = `<svg viewBox="0 0 1 1" aria-hidden="true" focusable="false"><defs><radialGradient id="skk-eye" r=".55"><stop offset="0" stop-color="#fff6c0"/><stop offset=".5" stop-color="#ffbf1f"/><stop offset="1" stop-color="#ff6400"/></radialGradient><radialGradient id="skk-glow" cy=".58"><stop offset=".45" stop-color="#ff9a00" stop-opacity=".9"/><stop offset=".72" stop-color="#ff4d00" stop-opacity=".45"/><stop offset="1" stop-color="#ff2000" stop-opacity="0"/></radialGradient></defs></svg>`;
+  // De skins met het katje: de CSS geldt voor allebei; het uiterlijk (zwart of tabby met kerstmuts) komt uit look() (/cat-kerst.js).
+  const SK = 'html:is([data-season="halloween"],[data-season="kerst"])';
   const CSS = `/* Het Halloween-katje: puur voor de gezelligheid, naast je score. Ontwerp en tempo: zie de kat-mockup; gedrag: season-cat.js. */
-html[data-season="halloween"] .sk-cat {position:absolute;left:0;top:-8px;z-index:4;width:46px;height:56px;padding:0;margin:0;color:var(--muted);background:none;border:0;border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;filter:drop-shadow(0 0 1.1px rgba(205,170,255,0.95)) }
-html[data-season="halloween"][data-theme="light"] .sk-cat {filter:drop-shadow(0 0 0.6px rgba(90,60,140,0.55)) }
-html[data-season="halloween"] .sk-cat:hover {background:none }
-html[data-season="halloween"] .sk-cat svg {position:absolute;left:0;top:0;width:100%;height:100%;display:block;overflow:visible;pointer-events:none }
-html[data-season="halloween"] .sk-cat .cat-sit {transform-origin:50% 100% }
-html[data-season="halloween"] .sk-cat .cat-nap {opacity:0 }
-html[data-season="halloween"] .sk-cat .cat-nap,
-html[data-season="halloween"] .sk-cat .cat-sit {transition:opacity 0.45s ease }
-html[data-season="halloween"] .sk-cat.asleep .cat-nap {opacity:1 }
-html[data-season="halloween"] .sk-cat.asleep .cat-sit {opacity:0 }
-html[data-season="halloween"] .cat-happy,
-html[data-season="halloween"] .cat-closed,
-html[data-season="halloween"] .cat-wave,
-html[data-season="halloween"] .cat-heart {opacity:0 }
-html[data-season="halloween"] .cat-mouth,
-html[data-season="halloween"] .cat-tongue {transform-box:fill-box;transform-origin:50%0;transform:scale(0) }
-html[data-season="halloween"] .cat-ear-l,
-html[data-season="halloween"] .cat-ear-r,
-html[data-season="halloween"] .cat-hd,
-html[data-season="halloween"] .cat-eyes,
-html[data-season="halloween"] .cat-tail {transform-box:fill-box }
-html[data-season="halloween"] .cat-hd {transform-origin:50% 100% }
-html[data-season="halloween"] .cat-ear-l,
-html[data-season="halloween"] .cat-ear-r {transform-origin:50% 100% }
-html[data-season="halloween"] .cat-eyes {transform-origin:50% 55% }
-html[data-season="halloween"] .cat-tail {transform-origin:2% 98% }
-html[data-season="halloween"] .cat-wh {stroke:var(--fg);opacity:0.8 }
-html[data-season="halloween"] .cat-gap {stroke:var(--bg) }
-html[data-season="halloween"] .cat-tail {animation:skk-tail 3.4s ease-in-out infinite alternate }
-html[data-season="halloween"] .cat-eyes {animation:skk-blink 6.5s infinite }
-html[data-season="halloween"] .cat-pup {animation:skk-glance 9s ease-in-out infinite }
-html[data-season="halloween"] .cat-hd {animation:skk-look 11s ease-in-out infinite }
-html[data-season="halloween"] .cat-ear-l {animation:skk-twitch-l 7.3s infinite }
-html[data-season="halloween"] .cat-ear-r {animation:skk-twitch-r 9.1s 2s infinite }
+${SK} .sk-cat {position:absolute;left:0;top:-8px;z-index:4;width:46px;height:56px;padding:0;margin:0;color:var(--muted);background:none;border:0;border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;filter:drop-shadow(0 0 1.1px rgba(205,170,255,0.95)) }
+${SK}[data-theme="light"] .sk-cat {filter:drop-shadow(0 0 0.6px rgba(90,60,140,0.55)) }
+${SK} .sk-cat:hover {background:none }
+${SK} .sk-cat svg {position:absolute;left:0;top:0;width:100%;height:100%;display:block;overflow:visible;pointer-events:none }
+${SK} .sk-cat .cat-sit {transform-origin:50% 100% }
+${SK} .sk-cat .cat-nap {opacity:0 }
+${SK} .sk-cat .cat-nap,
+${SK} .sk-cat .cat-sit {transition:opacity 0.45s ease }
+${SK} .sk-cat.asleep .cat-nap {opacity:1 }
+${SK} .sk-cat.asleep .cat-sit {opacity:0 }
+${SK} .cat-happy,
+${SK} .cat-closed,
+${SK} .cat-wave,
+${SK} .cat-heart {opacity:0 }
+${SK} .cat-mouth,
+${SK} .cat-tongue {transform-box:fill-box;transform-origin:50%0;transform:scale(0) }
+${SK} .cat-ear-l,
+${SK} .cat-ear-r,
+${SK} .cat-hd,
+${SK} .cat-eyes,
+${SK} .cat-tail {transform-box:fill-box }
+${SK} .cat-hd {transform-origin:50% 100% }
+${SK} .cat-ear-l,
+${SK} .cat-ear-r {transform-origin:50% 100% }
+${SK} .cat-eyes {transform-origin:50% 55% }
+${SK} .cat-tail {transform-origin:2% 98% }
+${SK} .cat-wh {stroke:var(--fg);opacity:0.8 }
+${SK} .cat-gap {stroke:var(--bg) }
+${SK} .cat-tail {animation:skk-tail 3.4s ease-in-out infinite alternate }
+${SK} .cat-eyes {animation:skk-blink 6.5s infinite }
+${SK} .cat-pup {animation:skk-glance 9s ease-in-out infinite }
+${SK} .cat-hd {animation:skk-look 11s ease-in-out infinite }
+${SK} .cat-ear-l {animation:skk-twitch-l 7.3s infinite }
+${SK} .cat-ear-r {animation:skk-twitch-r 9.1s 2s infinite }
 @keyframes skk-tail{from{transform:rotate(-7deg)}to{transform:rotate(10deg)}}
 @keyframes skk-blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(0.08)}}
 @keyframes skk-glance{0%,22%,100%{transform:none}28%,40%{transform:translate(-1.7px,-0.2px)}46%,60%{transform:none}66%,80%{transform:translate(1.7px,-0.4px)}86%{transform:none}}
@@ -60,150 +63,150 @@ html[data-season="halloween"] .cat-ear-r {animation:skk-twitch-r 9.1s 2s infinit
 @keyframes skk-twitch-r{0%,90%,100%{transform:none}92%{transform:rotate(10deg)}94.5%{transform:rotate(-2deg)}96.5%{transform:none}}
 @keyframes skk-eo{0%,7%{opacity:1}8%,87%{opacity:0}88%,100%{opacity:1}}
 @keyframes skk-ac{0%,7%{opacity:0}8%,87%{opacity:1}88%,100%{opacity:0}}
-html[data-season="halloween"] .meow .cat-hd {animation:skk-hd 1.5s ease-in-out both }
-html[data-season="halloween"] .meow .cat-mouth {animation:skk-mouth 1.5s ease-in-out both }
-html[data-season="halloween"] .meow .cat-eyes {animation:skk-eo 1.5s both }
-html[data-season="halloween"] .meow .cat-happy {animation:skk-ac 1.5s both }
-html[data-season="halloween"] .meow .cat-pup {animation:none }
-html[data-season="halloween"] .meow .cat-ear-r {animation:skk-ear 1.5s ease-in-out both }
-html[data-season="halloween"] .meow .cat-wave {animation:skk-wave 1.5s ease-out both }
-html[data-season="halloween"] .meow .cat-smile {animation:skk-eo 1.5s both }
+${SK} .meow .cat-hd {animation:skk-hd 1.5s ease-in-out both }
+${SK} .meow .cat-mouth {animation:skk-mouth 1.5s ease-in-out both }
+${SK} .meow .cat-eyes {animation:skk-eo 1.5s both }
+${SK} .meow .cat-happy {animation:skk-ac 1.5s both }
+${SK} .meow .cat-pup {animation:none }
+${SK} .meow .cat-ear-r {animation:skk-ear 1.5s ease-in-out both }
+${SK} .meow .cat-wave {animation:skk-wave 1.5s ease-out both }
+${SK} .meow .cat-smile {animation:skk-eo 1.5s both }
 @keyframes skk-hd{0%,100%{transform:none}14%{transform:translateY(-1.2px) rotate(-7deg)}70%{transform:translateY(-0.8px) rotate(-5deg)}88%{transform:rotate(-1deg)}}
 @keyframes skk-mouth{0%,8%,100%{transform:scale(0)}18%,36%{transform:scale(1,1)}44%{transform:scale(0.85,0.3)}54%,70%{transform:scale(1,0.95)}82%{transform:scale(0.8,0.2)}90%{transform:scale(0)}}
 @keyframes skk-ear{0%,100%{transform:none}30%{transform:rotate(9deg)}40%{transform:rotate(-3deg)}52%{transform:rotate(8deg)}64%{transform:none}}
 @keyframes skk-wave{0%,12%{opacity:0;transform:translateX(-2px)}28%{opacity:0.95;transform:none}62%{opacity:0.55}90%,100%{opacity:0;transform:translateX(2px)}}
-html[data-season="halloween"] .yawn .cat-hd {animation:skk-yawn-h 1.6s ease-in-out both }
-html[data-season="halloween"] .yawn .cat-mouth {animation:skk-yawn-m 1.6s ease-in-out both }
-html[data-season="halloween"] .yawn .cat-eyes {animation:skk-eo 1.6s both }
-html[data-season="halloween"] .yawn .cat-happy {animation:skk-ac 1.6s both }
-html[data-season="halloween"] .yawn .cat-pup {animation:none }
-html[data-season="halloween"] .yawn .cat-smile {animation:skk-eo 1.6s both }
-html[data-season="halloween"] .drowsy .cat-eyes {animation:skk-droop 2s ease-in both }
-html[data-season="halloween"] .drowsy .cat-closed {animation:skk-closed-in 2s steps(1,end) both }
-html[data-season="halloween"] .drowsy .cat-pup {animation:none }
-html[data-season="halloween"] .drowsy .cat-hd {animation:skk-nod 2s ease-in-out both }
-html[data-season="halloween"] .drowsy .cat-tail {animation-duration:6s }
+${SK} .yawn .cat-hd {animation:skk-yawn-h 1.6s ease-in-out both }
+${SK} .yawn .cat-mouth {animation:skk-yawn-m 1.6s ease-in-out both }
+${SK} .yawn .cat-eyes {animation:skk-eo 1.6s both }
+${SK} .yawn .cat-happy {animation:skk-ac 1.6s both }
+${SK} .yawn .cat-pup {animation:none }
+${SK} .yawn .cat-smile {animation:skk-eo 1.6s both }
+${SK} .drowsy .cat-eyes {animation:skk-droop 2s ease-in both }
+${SK} .drowsy .cat-closed {animation:skk-closed-in 2s steps(1,end) both }
+${SK} .drowsy .cat-pup {animation:none }
+${SK} .drowsy .cat-hd {animation:skk-nod 2s ease-in-out both }
+${SK} .drowsy .cat-tail {animation-duration:6s }
 @keyframes skk-yawn-h{0%,100%{transform:none}25%,70%{transform:translateY(-1.6px) rotate(-9deg)}}
 @keyframes skk-yawn-m{0%,100%{transform:scale(0)}22%,68%{transform:scale(1.35,1.5)}88%{transform:scale(0.5,0.2)}}
 @keyframes skk-droop{0%{transform:scaleY(1)}25%{transform:scaleY(0.45)}38%{transform:scaleY(0.9)}62%{transform:scaleY(0.4)}80%{transform:scaleY(0.12);opacity:1}82%,100%{transform:scaleY(0.12);opacity:0}}
 @keyframes skk-closed-in{0%,79%{opacity:0}80%,100%{opacity:1}}
 @keyframes skk-nod{0%,100%{transform:none}30%{transform:rotate(6deg) translateY(1.4px)}50%{transform:rotate(1deg)}78%{transform:rotate(7deg) translateY(1.8px)}}
-html[data-season="halloween"] .cat-nb,
-html[data-season="halloween"] .cat-nh {transform-box:fill-box;transform-origin:50% 100% }
-html[data-season="halloween"] .asleep .cat-nb {animation:skk-breathe 3.8s ease-in-out infinite alternate }
-html[data-season="halloween"] .asleep .cat-nh {animation:skk-breathe-h 3.8s ease-in-out infinite alternate }
-html[data-season="halloween"] .cat-zzz {stroke:var(--muted) }
-html[data-season="halloween"] .cat-zzz path {opacity:0;transform-box:fill-box;transform-origin:50% 50% }
-html[data-season="halloween"] .asleep .cat-zzz .z1 {animation:skk-z 3.8s ease-in-out infinite }
-html[data-season="halloween"] .asleep .cat-zzz .z2 {animation:skk-z 3.8s 1.1s ease-in-out infinite }
-html[data-season="halloween"] .asleep .cat-zzz .z3 {animation:skk-z 3.8s 2.2s ease-in-out infinite }
+${SK} .cat-nb,
+${SK} .cat-nh {transform-box:fill-box;transform-origin:50% 100% }
+${SK} .asleep .cat-nb {animation:skk-breathe 3.8s ease-in-out infinite alternate }
+${SK} .asleep .cat-nh {animation:skk-breathe-h 3.8s ease-in-out infinite alternate }
+${SK} .cat-zzz {stroke:var(--muted) }
+${SK} .cat-zzz path {opacity:0;transform-box:fill-box;transform-origin:50% 50% }
+${SK} .asleep .cat-zzz .z1 {animation:skk-z 3.8s ease-in-out infinite }
+${SK} .asleep .cat-zzz .z2 {animation:skk-z 3.8s 1.1s ease-in-out infinite }
+${SK} .asleep .cat-zzz .z3 {animation:skk-z 3.8s 2.2s ease-in-out infinite }
 @keyframes skk-breathe{from{transform:scale(1,1)}to{transform:scale(1.012,1.06)}}
 @keyframes skk-breathe-h{from{transform:translateY(0)}to{transform:translateY(-0.7px)}}
 @keyframes skk-z{0%{opacity:0;transform:translate(0,6px) scale(0.7)}25%{opacity:1}72%{opacity:0.9}100%{opacity:0;transform:translate(3px,-8px) scale(1.1)}}
-html[data-season="halloween"] .sk-cat .cat-stretch {opacity:0;transition:opacity 0.4s ease;transform-origin:90% 100% }
-html[data-season="halloween"] .sk-cat.wake .cat-stretch {opacity:1;animation:skk-bow 1.7s ease-in-out both }
-html[data-season="halloween"] .sk-cat.wake .cat-sit {opacity:0 }
-html[data-season="halloween"] .wake .cat-stretch .cat-tail {animation:skk-tail-up 1.7s ease-in-out both }
+${SK} .sk-cat .cat-stretch {opacity:0;transition:opacity 0.4s ease;transform-origin:90% 100% }
+${SK} .sk-cat.wake .cat-stretch {opacity:1;animation:skk-bow 1.7s ease-in-out both }
+${SK} .sk-cat.wake .cat-sit {opacity:0 }
+${SK} .wake .cat-stretch .cat-tail {animation:skk-tail-up 1.7s ease-in-out both }
 @keyframes skk-bow{0%{transform:scale(1,0.97)}45%{transform:scale(1.03,1.03) rotate(-1.5deg)}100%{transform:none}}
 @keyframes skk-tail-up{0%,30%{transform:rotate(8deg)}60%{transform:rotate(-6deg)}100%{transform:rotate(3deg)}}
-html[data-season="halloween"] .pet .cat-hd {animation:skk-pet 1.6s ease-in-out both }
-html[data-season="halloween"] .pet .cat-eyes {animation:skk-eo 1.6s both }
-html[data-season="halloween"] .pet .cat-happy {animation:skk-ac 1.6s both }
-html[data-season="halloween"] .pet .cat-pup {animation:none }
-html[data-season="halloween"] .pet .cat-tongue {animation:skk-tongue 1.6s ease-in-out both }
-html[data-season="halloween"] .pet .cat-tail {animation-duration:0.5s }
-html[data-season="halloween"] .cat-heart {transform:translate(24px,8px) }
-html[data-season="halloween"] .pet .cat-heart.h1 {animation:skk-heart1 1.6s ease-out both }
-html[data-season="halloween"] .pet .cat-heart.h2 {animation:skk-heart2 1.6s 0.2s ease-out both }
-html[data-season="halloween"] .pet .cat-heart.h3 {animation:skk-heart3 1.6s 0.38s ease-out both }
+${SK} .pet .cat-hd {animation:skk-pet 1.6s ease-in-out both }
+${SK} .pet .cat-eyes {animation:skk-eo 1.6s both }
+${SK} .pet .cat-happy {animation:skk-ac 1.6s both }
+${SK} .pet .cat-pup {animation:none }
+${SK} .pet .cat-tongue {animation:skk-tongue 1.6s ease-in-out both }
+${SK} .pet .cat-tail {animation-duration:0.5s }
+${SK} .cat-heart {transform:translate(24px,8px) }
+${SK} .pet .cat-heart.h1 {animation:skk-heart1 1.6s ease-out both }
+${SK} .pet .cat-heart.h2 {animation:skk-heart2 1.6s 0.2s ease-out both }
+${SK} .pet .cat-heart.h3 {animation:skk-heart3 1.6s 0.38s ease-out both }
 @keyframes skk-pet{0%,100%{transform:none}15%,82%{transform:rotate(5deg) translateY(1.4px)}30%{transform:rotate(3deg) translateY(1px)}45%{transform:rotate(6deg) translateY(1.6px)}60%{transform:rotate(3.5deg) translateY(1.2px)}}
 @keyframes skk-tongue{0%,14%{transform:scale(0)}24%,76%{transform:scale(1)}90%,100%{transform:scale(0)}}
 @keyframes skk-heart1{0%{opacity:0;transform:translate(14px,10px) scale(0.4)}20%{opacity:1}100%{opacity:0;transform:translate(6px,-10px) scale(1.15)}}
 @keyframes skk-heart2{0%{opacity:0;transform:translate(24px,7px) scale(0.4)}20%{opacity:1}100%{opacity:0;transform:translate(26px,-15px) scale(1.3)}}
 @keyframes skk-heart3{0%{opacity:0;transform:translate(34px,10px) scale(0.4)}20%{opacity:1}100%{opacity:0;transform:translate(44px,-9px) scale(1.05)}}
-html[data-season="halloween"] .sk-cat.intro {animation:skk-in 1.15s cubic-bezier(0.2,0.9,0.3,1) both }
+${SK} .sk-cat.intro {animation:skk-in 1.15s cubic-bezier(0.2,0.9,0.3,1) both }
 @keyframes skk-in{from{opacity:0;transform:translateX(-84px) translateY(6px)}55%{opacity:1;transform:translateX(6px) translateY(0)}75%{transform:translateX(-2px) translateY(-5px)}to{transform:none}}
-html[data-season="halloween"] .acc {display:none }
-html[data-season="halloween"] .hat .acc-hat {display:inline }
-html[data-season="halloween"] .hat .cat-zzz {transform:translate(5px,-3px) }
-html[data-season="halloween"] .cat-gap {stroke:#2b2338 }
-html[data-season="halloween"] .sk-cat :is(.cat-sit,.cat-nap,.cat-stretch) {transition-duration:0.15s }
-html[data-season="halloween"] .sk-cat.perched {position:relative;left:auto;top:auto;display:block;width:46px;height:56px;margin:-8px 0 -6px 10px }
-html[data-season="halloween"] .sk-cat.arrive {animation:skk-arrive 0.5s ease 0.25s both }
+${SK} .acc {display:none }
+${SK} .hat .acc-hat {display:inline }
+${SK} .hat .cat-zzz {transform:translate(5px,-3px) }
+${SK} .cat-gap {stroke:#2b2338 }
+${SK} .sk-cat :is(.cat-sit,.cat-nap,.cat-stretch) {transition-duration:0.15s }
+${SK} .sk-cat.perched {position:relative;left:auto;top:auto;display:block;width:46px;height:56px;margin:-8px 0 -6px 10px }
+${SK} .sk-cat.arrive {animation:skk-arrive 0.5s ease 0.25s both }
 @keyframes skk-arrive{from{opacity:0}to{opacity:1}}
-html[data-season="halloween"][data-theme="gold"] :is(.sk-cat,.cat-head) {filter:drop-shadow(0 0 1.1px rgba(244,196,48,0.75)) }
-html[data-season="halloween"] .cat-head * {animation:none }
-html[data-season="halloween"] .cat-head :where(.cat-eyes) {animation:skk-blink1 0.5s 0.9s both }
-html[data-season="halloween"] .cat-pup circle {transform-box:fill-box;transform-origin:center }
-html[data-season="halloween"] .hear .cat-sit .cat-hd {animation:skk-tilt 1.2s ease-in-out both }
-html[data-season="halloween"] .hear .cat-sit .cat-ear-l {animation:skk-perk-l 1.2s ease-in-out both }
-html[data-season="halloween"] .hear .cat-sit .cat-ear-r {animation:skk-perk-r 1.2s ease-in-out both }
-html[data-season="halloween"] .hear .cat-sit .cat-pup {animation:none }
-html[data-season="halloween"] .hear .cat-sit .cat-pup circle {animation:skk-wide 1.2s ease-in-out both }
-html[data-season="halloween"] .flick .cat-nap .cat-ear-r {animation:skk-flick 0.8s ease-out both }
-html[data-season="halloween"] .watch .cat-sit .cat-pup {animation:skk-watch 0.25s ease-out both }
-html[data-season="halloween"] .watch .cat-sit .cat-hd {animation:skk-watch-hd 0.5s ease-out both }
-html[data-season="halloween"] .cat-paw {opacity:0;transform-box:fill-box;transform-origin:12% 20% }
-html[data-season="halloween"] .bat .cat-sit .cat-paw {animation:skk-paw 1.3s ease-in-out both }
-html[data-season="halloween"] .bat .cat-sit .cat-hd {animation:skk-bat-hd 1.3s ease-in-out both }
-html[data-season="halloween"] :is(.bat,.sniff) .cat-sit .cat-pup {animation:skk-prop-pup 1.8s ease-in-out both }
-html[data-season="halloween"] .bat .cat-sit .cat-pup {animation-duration:1.3s }
-html[data-season="halloween"] .sniff .cat-sit .cat-hd {animation:skk-sniff 1.8s ease-in-out both }
-html[data-season="halloween"] .purr .cat-sit {animation:skk-purr 0.1s linear infinite alternate }
-html[data-season="halloween"] .purr .cat-sit .cat-hd {animation:skk-content 0.5s ease-out both }
-html[data-season="halloween"] .purr .cat-sit .cat-eyes {animation:none;opacity:0 }
-html[data-season="halloween"] .purr .cat-sit .cat-happy {opacity:1 }
-html[data-season="halloween"] .purr .cat-sit .cat-tail {animation-duration:6s }
-html[data-season="halloween"] .purr .cat-wave {animation:skk-hum 1s ease-in-out infinite }
-html[data-season="halloween"] .grump .cat-sit .cat-hd {animation:skk-away 2.2s ease-in-out both }
-html[data-season="halloween"] .grump .cat-sit .cat-ear-l {animation:skk-flat-l 2.2s ease-in-out both }
-html[data-season="halloween"] .grump .cat-sit .cat-ear-r {animation:skk-flat-r 2.2s ease-in-out both }
-html[data-season="halloween"] .grump .cat-sit .cat-eyes {animation:skk-squint 2.2s ease-in-out both }
-html[data-season="halloween"] .grump .cat-sit .cat-pup {animation:skk-side 2.2s ease-in-out both }
-html[data-season="halloween"] .grump .cat-sit .cat-tail {animation:skk-lash 0.3s ease-in-out 7 alternate }
-html[data-season="halloween"] .grump .cat-sit .cat-tail path {animation:skk-puff 2.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat .fire {display:none }
-html[data-season="halloween"] .hallow .fire {display:inline }
-html[data-season="halloween"] .hallow .fire ellipse {fill:url(#skk-glow)none;transform-box:fill-box;transform-origin:50% 72%;animation:skk-flame 1.7s ease-in-out infinite }
-html[data-season="halloween"] .hallow .fire ellipse+ellipse {animation-duration:1.3s;animation-delay:-0.6s }
-html[data-season="halloween"] .hallow .cat-ball circle {fill:url(#skk-eye)#ffb21f }
-html[data-season="halloween"] .hallow :is(.cat-happy,.cat-closed,.cat-shut,.cat-squeeze) {stroke:#ffb21f }
-html[data-season="halloween"] .hallow .cat-pup circle {transform:scale(0.42,1.5) }
-html[data-season="halloween"] .hallow.hear .cat-sit .cat-pup circle {animation-name:skk-wide-slit }
-html[data-season="halloween"] .evs {position:relative }
-html[data-season="halloween"] .evs .cat-head {overflow:visible }
-html[data-season="halloween"] .cheer .cat-head {transform-origin:50% 100%;animation:skk-hop 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .cheer .cat-head .cat-eyes {animation:none;opacity:0 }
-html[data-season="halloween"] .cheer .cat-head .cat-happy {opacity:1 }
-html[data-season="halloween"] .cheer .cat-head .cat-mouth {animation:skk-grin 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .cheer .cat-head .cat-ear-l {animation:skk-perk-l 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .cheer .cat-head .cat-ear-r {animation:skk-perk-r 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .evs::before,
-html[data-season="halloween"] .evs::after {content:"";position:absolute;top:6px;left:6px;width:9px;height:9px;opacity:0;pointer-events:none;clip-path:var(--fx-star);background:radial-gradient(circle,var(--fx-core)0 24%,var(--fx-edge) 85%) }
-html[data-season="halloween"] .evs::after {left:38px }
-html[data-season="halloween"] .evs.cheer::before {animation:skk-star-l 1.6s 0.15s ease-out 3 both }
-html[data-season="halloween"] .evs.cheer::after {animation:skk-star-r 1.6s 0.35s ease-out 3 both }
-html[data-season="halloween"] .comfort .cat-head .cat-hd {animation:skk-tilt-soft 2.6s ease-in-out 2 both }
-html[data-season="halloween"] .comfort .cat-head .cat-eyes {animation:skk-slow-blink 2.6s ease-in-out 2 both }
-html[data-season="halloween"] .comfort .cat-head .cat-ear-l {animation:skk-soft-l 2.6s ease-in-out 2 both }
-html[data-season="halloween"] .comfort .cat-head .cat-ear-r {animation:skk-soft-r 2.6s ease-in-out 2 both }
-html[data-season="halloween"] .evs-pip.ring {animation:skk-ring 0.9s ease-out 2 }
+${SK}[data-theme="gold"] :is(.sk-cat,.cat-head) {filter:drop-shadow(0 0 1.1px rgba(244,196,48,0.75)) }
+${SK} .cat-head * {animation:none }
+${SK} .cat-head :where(.cat-eyes) {animation:skk-blink1 0.5s 0.9s both }
+${SK} .cat-pup circle {transform-box:fill-box;transform-origin:center }
+${SK} .hear .cat-sit .cat-hd {animation:skk-tilt 1.2s ease-in-out both }
+${SK} .hear .cat-sit .cat-ear-l {animation:skk-perk-l 1.2s ease-in-out both }
+${SK} .hear .cat-sit .cat-ear-r {animation:skk-perk-r 1.2s ease-in-out both }
+${SK} .hear .cat-sit .cat-pup {animation:none }
+${SK} .hear .cat-sit .cat-pup circle {animation:skk-wide 1.2s ease-in-out both }
+${SK} .flick .cat-nap .cat-ear-r {animation:skk-flick 0.8s ease-out both }
+${SK} .watch .cat-sit .cat-pup {animation:skk-watch 0.25s ease-out both }
+${SK} .watch .cat-sit .cat-hd {animation:skk-watch-hd 0.5s ease-out both }
+${SK} .cat-paw {opacity:0;transform-box:fill-box;transform-origin:12% 20% }
+${SK} .bat .cat-sit .cat-paw {animation:skk-paw 1.3s ease-in-out both }
+${SK} .bat .cat-sit .cat-hd {animation:skk-bat-hd 1.3s ease-in-out both }
+${SK} :is(.bat,.sniff) .cat-sit .cat-pup {animation:skk-prop-pup 1.8s ease-in-out both }
+${SK} .bat .cat-sit .cat-pup {animation-duration:1.3s }
+${SK} .sniff .cat-sit .cat-hd {animation:skk-sniff 1.8s ease-in-out both }
+${SK} .purr .cat-sit {animation:skk-purr 0.1s linear infinite alternate }
+${SK} .purr .cat-sit .cat-hd {animation:skk-content 0.5s ease-out both }
+${SK} .purr .cat-sit .cat-eyes {animation:none;opacity:0 }
+${SK} .purr .cat-sit .cat-happy {opacity:1 }
+${SK} .purr .cat-sit .cat-tail {animation-duration:6s }
+${SK} .purr .cat-wave {animation:skk-hum 1s ease-in-out infinite }
+${SK} .grump .cat-sit .cat-hd {animation:skk-away 2.2s ease-in-out both }
+${SK} .grump .cat-sit .cat-ear-l {animation:skk-flat-l 2.2s ease-in-out both }
+${SK} .grump .cat-sit .cat-ear-r {animation:skk-flat-r 2.2s ease-in-out both }
+${SK} .grump .cat-sit .cat-eyes {animation:skk-squint 2.2s ease-in-out both }
+${SK} .grump .cat-sit .cat-pup {animation:skk-side 2.2s ease-in-out both }
+${SK} .grump .cat-sit .cat-tail {animation:skk-lash 0.3s ease-in-out 7 alternate }
+${SK} .grump .cat-sit .cat-tail path {animation:skk-puff 2.2s ease-in-out both }
+${SK} .sk-cat .fire {display:none }
+${SK} .hallow .fire {display:inline }
+${SK} .hallow .fire ellipse {fill:url(#skk-glow)none;transform-box:fill-box;transform-origin:50% 72%;animation:skk-flame 1.7s ease-in-out infinite }
+${SK} .hallow .fire ellipse+ellipse {animation-duration:1.3s;animation-delay:-0.6s }
+${SK} .hallow .cat-ball circle {fill:url(#skk-eye)#ffb21f }
+${SK} .hallow :is(.cat-happy,.cat-closed,.cat-shut,.cat-squeeze) {stroke:#ffb21f }
+${SK} .hallow .cat-pup circle {transform:scale(0.42,1.5) }
+${SK} .hallow.hear .cat-sit .cat-pup circle {animation-name:skk-wide-slit }
+${SK} .evs {position:relative }
+${SK} .evs .cat-head {overflow:visible }
+${SK} .cheer .cat-head {transform-origin:50% 100%;animation:skk-hop 1.6s ease-in-out 3 both }
+${SK} .cheer .cat-head .cat-eyes {animation:none;opacity:0 }
+${SK} .cheer .cat-head .cat-happy {opacity:1 }
+${SK} .cheer .cat-head .cat-mouth {animation:skk-grin 1.6s ease-in-out 3 both }
+${SK} .cheer .cat-head .cat-ear-l {animation:skk-perk-l 1.6s ease-in-out 3 both }
+${SK} .cheer .cat-head .cat-ear-r {animation:skk-perk-r 1.6s ease-in-out 3 both }
+${SK} .evs::before,
+${SK} .evs::after {content:"";position:absolute;top:6px;left:6px;width:9px;height:9px;opacity:0;pointer-events:none;clip-path:var(--fx-star);background:radial-gradient(circle,var(--fx-core)0 24%,var(--fx-edge) 85%) }
+${SK} .evs::after {left:38px }
+${SK} .evs.cheer::before {animation:skk-star-l 1.6s 0.15s ease-out 3 both }
+${SK} .evs.cheer::after {animation:skk-star-r 1.6s 0.35s ease-out 3 both }
+${SK} .comfort .cat-head .cat-hd {animation:skk-tilt-soft 2.6s ease-in-out 2 both }
+${SK} .comfort .cat-head .cat-eyes {animation:skk-slow-blink 2.6s ease-in-out 2 both }
+${SK} .comfort .cat-head .cat-ear-l {animation:skk-soft-l 2.6s ease-in-out 2 both }
+${SK} .comfort .cat-head .cat-ear-r {animation:skk-soft-r 2.6s ease-in-out 2 both }
+${SK} .evs-pip.ring {animation:skk-ring 0.9s ease-out 2 }
 /* Het staande katje op het eindscherm: dezelfde vreugde (springen, blije oogjes, grijns, twee sterretjes) en dezelfde zachte knipoog als het kopje in de strook */
-html[data-season="halloween"] .sk-cat::before,
-html[data-season="halloween"] .sk-cat::after {content:"";position:absolute;top:2px;left:-7px;width:9px;height:9px;opacity:0;pointer-events:none;clip-path:var(--fx-star);background:radial-gradient(circle,var(--fx-core)0 24%,var(--fx-edge) 85%) }
-html[data-season="halloween"] .sk-cat::after {top:5px;left:44px }
-html[data-season="halloween"] .sk-cat.cheer::before {animation:skk-star-l 1.6s 0.15s ease-out 3 both }
-html[data-season="halloween"] .sk-cat.cheer::after {animation:skk-star-r 1.6s 0.35s ease-out 3 both }
-html[data-season="halloween"] .sk-cat.cheer .cat-sit {animation:skk-hop 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-eyes {animation:none;opacity:0 }
-html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-happy {opacity:1 }
-html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-mouth {animation:skk-grin 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-ear-l {animation:skk-perk-l 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .sk-cat.cheer .cat-sit .cat-ear-r {animation:skk-perk-r 1.6s ease-in-out 3 both }
-html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-hd {animation:skk-tilt-soft 2.6s ease-in-out 2 both }
-html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-eyes {animation:skk-slow-blink 2.6s ease-in-out 2 both }
-html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-ear-l {animation:skk-soft-l 2.6s ease-in-out 2 both }
-html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-ear-r {animation:skk-soft-r 2.6s ease-in-out 2 both }
+${SK} .sk-cat::before,
+${SK} .sk-cat::after {content:"";position:absolute;top:2px;left:-7px;width:9px;height:9px;opacity:0;pointer-events:none;clip-path:var(--fx-star);background:radial-gradient(circle,var(--fx-core)0 24%,var(--fx-edge) 85%) }
+${SK} .sk-cat::after {top:5px;left:44px }
+${SK} .sk-cat.cheer::before {animation:skk-star-l 1.6s 0.15s ease-out 3 both }
+${SK} .sk-cat.cheer::after {animation:skk-star-r 1.6s 0.35s ease-out 3 both }
+${SK} .sk-cat.cheer .cat-sit {animation:skk-hop 1.6s ease-in-out 3 both }
+${SK} .sk-cat.cheer .cat-sit .cat-eyes {animation:none;opacity:0 }
+${SK} .sk-cat.cheer .cat-sit .cat-happy {opacity:1 }
+${SK} .sk-cat.cheer .cat-sit .cat-mouth {animation:skk-grin 1.6s ease-in-out 3 both }
+${SK} .sk-cat.cheer .cat-sit .cat-ear-l {animation:skk-perk-l 1.6s ease-in-out 3 both }
+${SK} .sk-cat.cheer .cat-sit .cat-ear-r {animation:skk-perk-r 1.6s ease-in-out 3 both }
+${SK} .sk-cat.comfort .cat-sit .cat-hd {animation:skk-tilt-soft 2.6s ease-in-out 2 both }
+${SK} .sk-cat.comfort .cat-sit .cat-eyes {animation:skk-slow-blink 2.6s ease-in-out 2 both }
+${SK} .sk-cat.comfort .cat-sit .cat-ear-l {animation:skk-soft-l 2.6s ease-in-out 2 both }
+${SK} .sk-cat.comfort .cat-sit .cat-ear-r {animation:skk-soft-r 2.6s ease-in-out 2 both }
 @keyframes skk-flame{0%,100%{opacity:0.75;transform:none}17%{opacity:1;transform:scale(1.04,1.16)}34%{opacity:0.82;transform:scale(0.97,1.04)}52%{opacity:0.95;transform:scale(1.02,1.2)}70%{opacity:0.68;transform:scale(0.98,1.02)}86%{opacity:0.9;transform:scale(1.03,1.12)}}
 @keyframes skk-blink1{0%,100%{transform:none}50%{transform:scaleY(0.08)}}
 @keyframes skk-tilt{0%,100%{transform:none}22%,70%{transform:rotate(-9deg) translateY(-0.6px)}}
@@ -240,48 +243,48 @@ html[data-season="halloween"] .sk-cat.comfort .cat-sit .cat-ear-r {animation:skk
 @keyframes skk-plop{from{opacity:0;transform:scale(0)}50%{opacity:1}to{transform:none}}
 /* Kunstjes: Hatsjoe! (.sneeze, 4,2 s) en Bonk! (.swat, 5,4 s). De kat beweegt met zijn gewone groepen; het ding (blaadje, spinnetje) zit in een
    eigen laagje .sk-act met de maten van de kat (viewBox -2 0 52 64) en komt uit de lib van de skin, dus een ander tekeningetje landt op dezelfde plek */
-html[data-season="halloween"] .sk-cat {--act-silk:rgba(226,216,246,0.85);--act-tink:#ffbe3b }
-html[data-season="halloween"][data-theme="light"] .sk-cat,
-html[data-season="halloween"][data-theme="parchment"] .sk-cat {--act-silk:rgba(60,40,100,0.7);--act-tink:#e08a00 }
-html[data-season="halloween"] .sk-cat .sk-act {position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none }
-html[data-season="halloween"] .cat-squeeze,
-html[data-season="halloween"] .cat-puff {opacity:0 }
-html[data-season="halloween"] .cat-puff {stroke:var(--fg) }
-html[data-season="halloween"] .act-tink {fill:var(--act-tink);opacity:0 }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit {animation:skk-sn-body 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-hd {animation:skk-sn-hd 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-eyes {animation:skk-sn-eyes 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-pup {animation:skk-sn-pup 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-pup circle:first-child {animation:skk-sn-xl 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-pup circle:last-child {animation:skk-sn-xr 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-squeeze {animation:skk-sn-sq 4.2s both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-ear-l {animation:skk-sn-el 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-ear-r {animation:skk-sn-er 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-mouth {animation:skk-sn-mo 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-tail {animation:skk-sn-tail 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff {transform-origin:24px 27.8px;animation:skk-sn-puff 4.2s ease-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p1 {animation:skk-sn-p1 4.2s ease-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p2 {animation:skk-sn-p2 4.2s ease-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p3 {animation:skk-sn-p3 4.2s ease-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .p4 {animation:skk-sn-p4 4.2s ease-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .cat-puff .pr {animation:skk-sn-pr 4.2s ease-out both }
-html[data-season="halloween"] .sk-cat.sneeze .cat-sit .acc-hat {transform-box:fill-box;transform-origin:50% 100%;animation:skk-sn-hat 4.2s ease-out both }
-html[data-season="halloween"] .sk-cat.sneeze .act-fall {animation:skk-sn-fall 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.sneeze .act-spin {animation:skk-sn-spin 4.2s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit {animation:skk-sw-body 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-hd {animation:skk-sw-hd 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-eyes {animation:skk-sw-eyes 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-squeeze {animation:skk-sw-sq 5.4s both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-pup {animation:skk-sw-pup 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-pup circle {animation:skk-sw-wide 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-ear-l {animation:skk-sw-el 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-ear-r {animation:skk-sw-er 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-tail {animation:skk-sw-tail 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .cat-sit .cat-paw {animation:skk-sw-paw 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .act-drop {animation:skk-sw-drop 5.4s both }
-html[data-season="halloween"] .sk-cat.swat .act-swing {transform-origin:49px -42px;animation:skk-sw-swing 5.4s ease-in-out both }
-html[data-season="halloween"] .sk-cat.swat .act-legs {transform-origin:0 0;animation:skk-sw-legs 5.4s linear both }
-html[data-season="halloween"] .sk-cat.swat .act-tink {transform-origin:0 0;animation:skk-sw-tink 5.4s ease-out both }
+${SK} .sk-cat {--act-silk:rgba(226,216,246,0.85);--act-tink:#ffbe3b }
+${SK}[data-theme="light"] .sk-cat,
+${SK}[data-theme="parchment"] .sk-cat {--act-silk:rgba(60,40,100,0.7);--act-tink:#e08a00 }
+${SK} .sk-cat .sk-act {position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none }
+${SK} .cat-squeeze,
+${SK} .cat-puff {opacity:0 }
+${SK} .cat-puff {stroke:var(--fg) }
+${SK} .act-tink {fill:var(--act-tink);opacity:0 }
+${SK} .sk-cat.sneeze .cat-sit {animation:skk-sn-body 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-hd {animation:skk-sn-hd 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-eyes {animation:skk-sn-eyes 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-pup {animation:skk-sn-pup 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-pup circle:first-child {animation:skk-sn-xl 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-pup circle:last-child {animation:skk-sn-xr 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-squeeze {animation:skk-sn-sq 4.2s both }
+${SK} .sk-cat.sneeze .cat-sit .cat-ear-l {animation:skk-sn-el 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-ear-r {animation:skk-sn-er 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-mouth {animation:skk-sn-mo 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-tail {animation:skk-sn-tail 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-puff {transform-origin:24px 27.8px;animation:skk-sn-puff 4.2s ease-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-puff .p1 {animation:skk-sn-p1 4.2s ease-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-puff .p2 {animation:skk-sn-p2 4.2s ease-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-puff .p3 {animation:skk-sn-p3 4.2s ease-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-puff .p4 {animation:skk-sn-p4 4.2s ease-out both }
+${SK} .sk-cat.sneeze .cat-sit .cat-puff .pr {animation:skk-sn-pr 4.2s ease-out both }
+${SK} .sk-cat.sneeze .cat-sit .acc-hat {transform-box:fill-box;transform-origin:50% 100%;animation:skk-sn-hat 4.2s ease-out both }
+${SK} .sk-cat.sneeze .act-fall {animation:skk-sn-fall 4.2s ease-in-out both }
+${SK} .sk-cat.sneeze .act-spin {animation:skk-sn-spin 4.2s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit {animation:skk-sw-body 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-hd {animation:skk-sw-hd 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-eyes {animation:skk-sw-eyes 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-squeeze {animation:skk-sw-sq 5.4s both }
+${SK} .sk-cat.swat .cat-sit .cat-pup {animation:skk-sw-pup 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-pup circle {animation:skk-sw-wide 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-ear-l {animation:skk-sw-el 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-ear-r {animation:skk-sw-er 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-tail {animation:skk-sw-tail 5.4s ease-in-out both }
+${SK} .sk-cat.swat .cat-sit .cat-paw {animation:skk-sw-paw 5.4s ease-in-out both }
+${SK} .sk-cat.swat .act-drop {animation:skk-sw-drop 5.4s both }
+${SK} .sk-cat.swat .act-swing {transform-origin:49px -42px;animation:skk-sw-swing 5.4s ease-in-out both }
+${SK} .sk-cat.swat .act-legs {transform-origin:0 0;animation:skk-sw-legs 5.4s linear both }
+${SK} .sk-cat.swat .act-tink {transform-origin:0 0;animation:skk-sw-tink 5.4s ease-out both }
 @keyframes skk-sn-body{0%,70.5%{transform:none}71.5%{transform:scale(1.045,0.92)}74.5%{transform:scale(0.98,1.03)}78%,100%{transform:none}}
 @keyframes skk-sn-hd{0%{transform:none}14%{transform:rotate(-3deg) translateY(-0.4px)}25%{transform:rotate(3deg) translateY(-0.4px)}35%{transform:rotate(-2.5deg) translateY(-0.3px)}42%{transform:rotate(1.5deg) translateY(-0.3px)}45%{transform:translateY(0.5px)}47%{transform:translateY(-0.2px)}51%{transform:translateY(0.8px)}54%{transform:translateY(-0.6px)}58%,61%{transform:translateY(0.3px)}64.5%{transform:rotate(-5deg) translateY(-1px)}69%{transform:rotate(-9.5deg) translateY(-1.8px);animation-timing-function:cubic-bezier(0.7,0,1,1)}71.5%{transform:rotate(10deg) translateY(1.9px) scale(1.035)}75%{transform:rotate(5deg) translateY(1px)}79%{transform:rotate(-7deg)}82.5%{transform:rotate(6deg)}86%{transform:rotate(-3.5deg)}89.5%{transform:rotate(1deg)}93%,100%{transform:none}}
 @keyframes skk-sn-eyes{0%,62%{transform:none;opacity:1}66%{transform:scaleY(0.5)}68.4%{transform:scaleY(0.12);opacity:1}68.5%,80%{transform:scaleY(0.12);opacity:0}80.1%{transform:scaleY(0.12);opacity:1}84%,92%{transform:none}93.5%{transform:scaleY(0.1)}95.5%,100%{transform:none;opacity:1}}
@@ -316,16 +319,16 @@ html[data-season="halloween"] .sk-cat.swat .act-tink {transform-origin:0 0;anima
 @keyframes skk-sw-swing{0%,20%{transform:none}24%{transform:rotate(-4deg)}28%{transform:rotate(2.5deg)}32%,33%{transform:none;animation-timing-function:cubic-bezier(0.15,0.75,0.35,1)}41%{transform:rotate(-38deg);animation-timing-function:cubic-bezier(0.6,0,0.85,0.5)}50%{transform:rotate(4.5deg);animation-timing-function:cubic-bezier(0.2,0.7,0.4,1)}56%{transform:rotate(-15deg)}61%{transform:rotate(3deg)}65.5%{transform:rotate(-5deg)}69.5%{transform:rotate(1deg)}73%,100%{transform:none}}
 @keyframes skk-sw-legs{0%,33%{transform:none}35%{transform:scale(1.18,0.86)}37%{transform:scale(0.9,1.1)}39%{transform:scale(1.18,0.86)}41%{transform:scale(0.9,1.1)}43%{transform:scale(1.18,0.86)}45%{transform:scale(0.9,1.1)}47%{transform:scale(1.18,0.86)}49%{transform:scale(0.9,1.1)}51%{transform:scale(1.18,0.86)}53%{transform:scale(0.9,1.1)}55%,73%{transform:none}75%{transform:scale(1.15,0.88)}77%{transform:scale(0.92,1.08)}79%{transform:scale(1.15,0.88)}81%{transform:scale(0.92,1.08)}83%{transform:scale(1.15,0.88)}85%,100%{transform:none}}
 @keyframes skk-sw-tink{0%,49.4%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(0.6) rotate(0)}53%{opacity:1;transform:scale(1.25) rotate(25deg)}57%,100%{opacity:0;transform:scale(0.4) rotate(45deg)}}
-html[data-season="halloween"] .sk-cat:is(.asleep,.wake) .cat-sit *,
-html[data-season="halloween"] .sk-cat:not(.asleep) .cat-nap *,
-html[data-season="halloween"] .sk-cat:not(.wake) .cat-stretch * {animation-play-state:paused }
-html[data-season="halloween"] #play-bar { position: relative; }
-html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transform-origin: 50% 100%; animation: skk-plop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+${SK} .sk-cat:is(.asleep,.wake) .cat-sit *,
+${SK} .sk-cat:not(.asleep) .cat-nap *,
+${SK} .sk-cat:not(.wake) .cat-stretch * {animation-play-state:paused }
+${SK} #play-bar { position: relative; }
+${SK} .hatnew .acc-hat { transform-box: fill-box; transform-origin: 50% 100%; animation: skk-plop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
 @media (prefers-reduced-motion: reduce) {
-  html[data-season="halloween"] :is(.sk-cat, .cat-head, .evs-pip), html[data-season="halloween"] :is(.sk-cat, .cat-head) *,
-  html[data-season="halloween"] .evs::before, html[data-season="halloween"] .evs::after { animation: none !important; transition: none !important; }
-  html[data-season="halloween"] .cat-zzz path { opacity: 0.85; }
-  html[data-season="halloween"] .sk-cat .sk-act { display: none; }
+  ${SK} :is(.sk-cat, .cat-head, .evs-pip), ${SK} :is(.sk-cat, .cat-head) *,
+  ${SK} .evs::before, ${SK} .evs::after { animation: none !important; transition: none !important; }
+  ${SK} .cat-zzz path { opacity: 0.85; }
+  ${SK} .sk-cat .sk-act { display: none; }
 }
 `;
   const VISITS_KEY = "jaardle:season:halloween:cat";   // hoe vaak hij al binnenhupte (de eerste drie bezoeken)
@@ -521,6 +524,9 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
   function endShow() { if (el && perched && !busy()) trick(pickTrick()); }
   // De tekeningetjes van de skin: { sneeze, swat, thread } (props-halloween.js), of null = geen kunstjes.
   function setActors(a) { actors = a && typeof a === "object" ? a : null; }
+  // Het uiterlijk voor de skin van nu ({ SIT, NAP, STRETCH, HEAD, css, actors }, bv. window.SeasonCatKerst); null = het zwarte katje. Vóór mount() zetten.
+  let look = null;
+  function setLook(l) { look = l && typeof l === "object" && l.SIT ? l : null; }
 
   function set(o) {
     if (el && o && "hat" in o) el.classList[o.hat ? "add" : "remove"]("hat");
@@ -567,12 +573,14 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     if (!bar || el) return;
     style = document.createElement("style");
     style.setAttribute("data-season-cat", "");
-    style.textContent = CSS;
+    style.textContent = CSS + ((look && look.css) || "");
     document.head.appendChild(style);
     el = document.createElement("div");
     el.className = "sk-cat";
     el.setAttribute("aria-hidden", "true");
-    el.innerHTML = SIT + NAP + STRETCH + DEFS;
+    const L = look || {};
+    el.innerHTML = (L.SIT || SIT) + (L.NAP || NAP) + (L.STRETCH || STRETCH) + DEFS;
+    if (L.actors) actors = L.actors;   // de dingen voor de kunstjes horen bij dit uiterlijk (kerst: geen vriendjes-lib)
     night = !!(opts && opts.night);
     if (night) el.classList.add("hallow");
     if (opts && opts.hat) el.classList.add("hat");
@@ -597,5 +605,5 @@ html[data-season="halloween"] .hatnew .acc-hat { transform-box: fill-box; transf
     el = style = propEl = actEl = null; live = false; perched = false; streak = 0; afterWake = null; calmProp = false; propId = null;
     actors = lastTrick = previewTrick = null; lastTrickAt = lastInput = -Infinity;
   }
-  return { mount, unmount, perch, cheer, type, guess, set, prop, actors: setActors, css: CSS, head: HEAD };
+  return { mount, unmount, perch, cheer, type, guess, set, prop, actors: setActors, look: setLook, css: CSS, get head() { return (look && look.HEAD) || HEAD; } };
 })();

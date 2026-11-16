@@ -6,7 +6,7 @@
    (teksten ×5 en het plaatje van het zegel; de mascotte staat in EVENTS) + een tokens-blok in de CSS hieronder ([data-ev="<id>"]). */
 window.SeasonEvent = (() => {
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const CSS = String.raw`/* ═══ Event-UI (EVENTS in game.js): balk, strook, stempelkaart, Events-scherm, archief ═══════════════════════════════════════════
+  let CSS = String.raw`/* ═══ Event-UI (EVENTS in game.js): balk, strook, stempelkaart, Events-scherm, archief ═══════════════════════════════════════════
    Alles is generiek; de kleur en het stempel-plaatje komen per event uit de tokens hieronder ([data-ev="<id>"]). Een nieuw event =
    een blok met tokens erbij (+ het licht-thema-blok). Alle onderdelen dragen data-ev zodat de tokens erbij komen. */
 [data-ev] { --ev-gift: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 96 96%22 %3E%3Cpath fill-rule=%22evenodd%22 d=%22M12 38h72v14H12Z M16 52h64v36H16ZM43 38h10v50H43Z%22/%3E%3Cpath d=%22M48 38C40 24 26 22 27 31C28 38 40 38 48 38C56 38 68 38 69 31C70 22 56 24 48 38Z%22/%3E%3C/svg%3E"); --ev-ok: #6fd08c; }
@@ -527,6 +527,8 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
   // Het zegel-plaatje(s) voor de SVG-defs van Prestaties (id achv-art-<event>); null als het event er geen heeft.
   const art = (id) => (EVENT_UI[id] && EVENT_UI[id].art) || "";
   const ids = () => Object.keys(EVENT_UI);
+  // Een event met een eigen bestand (EVENTS[].ui, bv. /event-kerst.js) zet hier zijn blok neer en voegt zijn kleuren toe aan dezelfde <style>.
+  function add(id, ui, css) { EVENT_UI[id] = ui; CSS += css || ""; const st = document.querySelector("style[data-season-event]"); if (st) st.textContent = CSS; }
 
   // De CSS komt als één <style> mee (de CSP staat inline style toe); eenmalig, ook bij een tweede inlaad.
   try {
@@ -538,5 +540,5 @@ button.ev-chip { cursor: pointer; border-color: var(--ev-pk); color: var(--ev-pk
     }
   } catch (e) {}
 
-  return { copy, bar, card, strip, screen, pane, archive, tab, menuItem, art, ids, css: CSS, nextText: (v) => nextText(v, copy(v.id, v.lang)), dates };
+  return { copy, bar, card, strip, screen, pane, archive, tab, menuItem, art, ids, add, get css() { return CSS; }, nextText: (v) => nextText(v, copy(v.id, v.lang)), dates };
 })();

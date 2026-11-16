@@ -168,6 +168,7 @@ const I18N = {
     menu_theme: "☀️ Licht thema",
     menu_season_halloween: "\u{1F383} Halloween-look",   // aan/uit-regel voor de seizoens-skin in het ⋮-menu, alleen tijdens het event (emoji als \u-escape: geen glyph erbij in het emoji-font)
     menu_season_sinterklaas: "\u{1F381} Sinterklaas-look",
+    menu_season_kerst: "\u{1F384} Kerst-look",
     menu_history: "📅 Geschiedenis",
     menu_settings: "⚙️ Instellingen", menu_settings_back: "‹ Instellingen",   // ⋮-menu: de tweede laag (thema, seintje, beginscherm, skin)
     aria_guesses: "Pogingen", aria_year_input: "Ingevoerd jaar", aria_keypad: "Numeriek toetsenbord",
@@ -381,7 +382,7 @@ const I18N = {
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
     rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel", fxn_ember: "🌶️ Vonken", fxn_glow: "🔥 Gloed", fxn_vizier: "🎯 Vizier", fxn_sweat: "💧 Zweetdruppel", fxn_ripple: "🌊 Rimpel", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Nippertje", fxn_pendulum: "🕰️ Slinger",
     fxn_eclipse: "\u{1F311} Eclips", fxn_shard: "🗡️ Scherven", fxn_aura: "🔮 Aura", obx_replay: "Bekijk de onthulling opnieuw",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Spinnenweb", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Spinnenweb", fxn_lights: "\u{1F387} Lichtjes", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_frame: "🖼️ Sierrand", rewards_tab_theme: "🎨 Thema", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
@@ -516,6 +517,7 @@ const I18N = {
     menu_theme: "☀️ Light theme",
     menu_season_halloween: "\u{1F383} Halloween look",
     menu_season_sinterklaas: "\u{1F381} Sinterklaas look",
+    menu_season_kerst: "\u{1F384} Christmas look",
     menu_history: "📅 History",
     menu_settings: "⚙️ Settings", menu_settings_back: "‹ Settings",
     aria_guesses: "Guesses", aria_year_input: "Entered year", aria_keypad: "Numeric keypad",
@@ -734,7 +736,7 @@ const I18N = {
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
     rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle", fxn_ember: "🌶️ Embers", fxn_glow: "🔥 Glow", fxn_vizier: "🎯 Crosshair", fxn_sweat: "💧 Sweat drop", fxn_ripple: "🌊 Ripple", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Close call", fxn_pendulum: "🕰️ Pendulum",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Shards", fxn_aura: "🔮 Aura", obx_replay: "Watch the reveal again",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Cobweb", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Cobweb", fxn_lights: "\u{1F387} Fairy lights", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_frame: "🖼️ Frame", rewards_tab_theme: "🎨 Theme", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
@@ -867,6 +869,7 @@ const I18N = {
     menu_theme: "☀️ Helles Design",
     menu_season_halloween: "\u{1F383} Halloween-Look",
     menu_season_sinterklaas: "\u{1F381} Sinterklaas-Look",
+    menu_season_kerst: "\u{1F384} Weihnachts-Look",
     menu_history: "📅 Verlauf",
     menu_settings: "⚙️ Einstellungen", menu_settings_back: "‹ Einstellungen",
     aria_guesses: "Versuche", aria_year_input: "Eingegebenes Jahr", aria_keypad: "Ziffernblock",
@@ -1080,7 +1083,7 @@ const I18N = {
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
     rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln", fxn_ember: "🌶️ Glut", fxn_glow: "🔥 Glühen", fxn_vizier: "🎯 Fadenkreuz", fxn_sweat: "💧 Schweißtropfen", fxn_ripple: "🌊 Wellen", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Knapp geschafft", fxn_pendulum: "🕰️ Pendel",
     fxn_eclipse: "\u{1F311} Finsternis", fxn_shard: "🗡️ Scherben", fxn_aura: "🔮 Aura", obx_replay: "Enthüllung noch einmal ansehen",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Spinnennetz", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Spinnennetz", fxn_lights: "\u{1F387} Lichterkette", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_frame: "🖼️ Zierrand", rewards_tab_theme: "🎨 Design", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
@@ -1212,6 +1215,7 @@ const I18N = {
     menu_theme: "☀️ Tema claro",
     menu_season_halloween: "\u{1F383} Aspecto de Halloween",
     menu_season_sinterklaas: "\u{1F381} Aspecto de Sinterklaas",
+    menu_season_kerst: "\u{1F384} Aspecto navideño",
     menu_history: "📅 Historial",
     menu_settings: "⚙️ Ajustes", menu_settings_back: "‹ Ajustes",
     aria_guesses: "Intentos", aria_year_input: "Año introducido", aria_keypad: "Teclado numérico",
@@ -1430,7 +1434,7 @@ const I18N = {
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
     rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Resplandor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de sudor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Loto", fxn_timer: "⏱️ Por los pelos", fxn_pendulum: "🕰️ Péndulo",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Esquirlas", fxn_aura: "🔮 Aura", obx_replay: "Ver la revelación otra vez",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Telaraña", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Telaraña", fxn_lights: "\u{1F387} Lucecitas", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_frame: "🖼️ Marco", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
@@ -1562,6 +1566,7 @@ const I18N = {
     menu_theme: "☀️ Tema claro",
     menu_season_halloween: "\u{1F383} Visual de Halloween",
     menu_season_sinterklaas: "\u{1F381} Visual de Sinterklaas",
+    menu_season_kerst: "\u{1F384} Visual de Natal",
     menu_history: "📅 Histórico",
     menu_settings: "⚙️ Configurações", menu_settings_back: "‹ Configurações",
     aria_guesses: "Tentativas", aria_year_input: "Ano digitado", aria_keypad: "Teclado numérico",
@@ -1780,7 +1785,7 @@ const I18N = {
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
     rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Fulgor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de suor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Lótus", fxn_timer: "⏱️ Por um triz", fxn_pendulum: "🕰️ Pêndulo",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Estilhaços", fxn_aura: "🔮 Aura", obx_replay: "Ver a revelação de novo",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
-    fxn_web: "\u{1F578}\uFE0F Teia de aranha", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
+    fxn_web: "\u{1F578}\uFE0F Teia de aranha", fxn_lights: "\u{1F387} Pisca-pisca", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_frame: "🖼️ Moldura", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
@@ -3906,7 +3911,15 @@ const loadFxOf = (id) => (EVENT_FX_IDS.includes(id) ? loadEventFx() : STROOIGOED
 const loadRewardFx = fxLoader("/reward-fx.js", "RewardFx");   // Scheurkalender + Wimpels (beloningen), zie showCalendar/showBunting
 const loadObsidianFx = fxLoader("/obsidian-fx.js", "ObsidianFx");
 const loadVoltrefferFx = fxLoader("/voltreffer-fx.js", "VoltrefferFx");   // de voltreffer-vieringen (In de roos), zie showVoltreffer   // de onthulling bij obsidiaan (capstone-trede 6), zie showObsidianReveal
-const loadSeasonCat = fxLoader("/season-cat.js", "SeasonCat");   // het Halloween-katje naast je score (markup + CSS + gedrag), zie syncSeasonCat
+const loadSeasonCat = fxLoader("/season-cat.js", "SeasonCat");   // het katje naast je score (markup + CSS + gedrag), zie syncSeasonCat
+// De skins met het katje, en per skin zijn uiterlijk (zonder = het zwarte Halloween-katje): met kerst een tabby met kerstmuts (/cat-kerst.js).
+const CAT_SKINS = ["halloween", "kerst"];
+const SEASON_CAT_LOOKS = { kerst: fxLoader("/cat-kerst.js", "SeasonCatKerst") };
+// Het katje met het uiterlijk van de skin van nu (eerst het uiterlijk zetten, anders zie je heel even het zwarte katje).
+function loadCat() {
+  const look = SEASON_CAT_LOOKS[seasonActive()];
+  return Promise.all([loadSeasonCat(), look ? look() : null]).then(([c, l]) => { if (c.look) c.look(l || null); return c; });
+}
 const loadSeasonProps = fxLoader("/season-props.js", "SeasonProps");   // de bewegingen van het voorwerpje bij het katje (neutraal, dus ook voor kerst), zie syncCatProp
 const SEASON_PROP_LIBS = { halloween: fxLoader("/props-halloween.js", "SeasonPropsHalloween") };   // skin → het bestand met de voorwerpen (plaatjes, hun eigen leven) en de dagtrekking
 const loadSeasonEvent = fxLoader("/season-event.js", "SeasonEvent");   // de UI van een event (balk, strook, kaart, scherm, teksten, kleuren), zie EVENTS
@@ -5670,6 +5683,7 @@ const FLAIR_ANIM = {
 const FLAIR_SVG = {
   "🌶️": `<svg class="emoji-anim pep pep-b" viewBox="-4 -8 136 128" aria-hidden="true"><g class="pep-all"><path class="pep-body" d="M62 40C64.4 36.7 69.3 31.3 74 30C78.7 28.7 85.3 30.3 90 32C94.7 33.7 99.2 37 102 40C104.8 43 106.4 46.3 107 50C107.6 53.7 106.8 57.8 105.5 62C104.2 66.2 102 70.8 99.5 75C97 79.2 94.2 83 90.5 87C86.8 91 82.4 95.6 77 99C71.6 102.4 64.2 105.6 58 107.5C51.8 109.4 46 110.8 40 110.5C34 110.2 27.2 108.2 22 106C16.8 103.8 12.2 100.5 9 97C5.8 93.5 4 88.7 2.5 85C1 81.3 0.1 77.8 0 75C-0.1 72.2 0.5 68.5 2 68C3.5 67.5 7.1 70.3 9 72C10.9 73.7 11.3 76.2 13.5 78C15.7 79.8 19.1 81.8 22 83C24.9 84.2 28 85.5 31 85.5C34 85.5 37.2 84.2 40 83C42.8 81.8 45.3 80.3 47.5 78C49.7 75.7 51.4 72 53 69C54.6 66 55.9 63.2 57 60C58.1 56.8 58.7 53.3 59.5 50C60.3 46.7 59.6 43.3 62 40Z" fill="#ff5117"/><path class="pep-shade" d="M102 40C104.8 43 106.4 46.3 107 50C107.6 53.7 106.8 57.8 105.5 62C104.2 66.2 102 70.8 99.5 75C97 79.2 94.2 83 90.5 87C86.8 91 82.4 95.6 77 99C71.6 102.4 64.2 105.6 58 107.5C51.8 109.4 46 110.8 40 110.5C41.2 110.1 44.3 108.9 47 108C49.7 107.1 53.3 106.1 56 105C58.7 103.9 60.5 103 63 101.5C65.5 100 68.4 97.9 71 96C73.6 94.1 76.5 92 78.5 90C80.5 88 81.6 86.1 83 84C84.4 81.9 85.9 79.7 87 77.5C88.1 75.3 88.7 73.1 89.5 71C90.3 68.9 91.2 67 92 65C92.8 63 93.2 61.2 94 59C94.8 56.8 96.1 54.5 96.5 52C96.9 49.5 96.2 46.3 96.5 44C96.8 41.7 97.8 39 98 38Z" fill="#dc0d28"/><path class="pep-tip" d="M2 68C3.5 67.5 7.1 70.3 9 72C10.9 73.7 11.3 76.2 13.5 78C15.7 79.8 19.1 81.8 22 83C24.9 84.2 28 85.5 31 85.5C20.7 82.5 16.3 81.3 14 80C11.7 78.7 9.8 76.7 8 75C6.2 73.3 4.2 70.8 3.5 70Z" fill="#dc0d28"/><path class="pep-hi" d="M72 40.5C73 40.5 74.2 42.1 74.5 44C74.8 45.9 74.1 49.3 73.5 52C72.9 54.7 71.9 57.6 71 60C70.1 62.4 68.9 64.9 68 66.5C67.1 68.1 66.1 69.6 65.5 69.5C64.9 69.4 64.6 67.9 64.5 66C64.4 64.1 64.7 60.7 65 58C65.3 55.3 65.9 52.3 66.5 50C67.1 47.7 67.6 45.6 68.5 44C69.4 42.4 71 40.5 72 40.5Z" fill="#ffcb88"/><path class="pep-hi2" d="M61.5 70.5C62.2 70.5 62.9 72 63 73C63.1 74 62.5 75.7 62 76.5C61.5 77.3 60.6 78.1 60 78C59.4 77.9 58.7 76.8 58.5 76C58.3 75.2 58.5 73.9 59 73C59.5 72.1 60.8 70.5 61.5 70.5Z" fill="#ffcb88"/><path class="pep-cap" d="M68.5 29C68.9 28.6 69.8 27.3 71 26.8C72.2 26.3 73.8 26.1 76 26C78.2 25.9 82 26.3 84 26C86 25.7 86.9 24.9 88 24.2C89.1 23.4 89.8 22.4 90.5 21.5C91.2 20.6 91.4 19.4 92.5 19C93.6 18.6 96 18.2 97 19C98 19.8 98.5 22.1 98.8 24C99.1 25.9 98.5 29.1 99 30.5C99.5 31.9 100.7 31.8 101.5 32.5C102.3 33.2 103.2 34 104 35C104.8 36 105.8 37 106.5 38.2C107.2 39.4 107.9 40.7 108.3 42C108.7 43.3 108.7 45.5 108.8 46.2C108.4 46.1 107.2 45.8 106.5 45.3C105.8 44.8 105.2 43.8 104.5 43.3C103.8 42.8 102.9 42.4 102 42C101.1 41.6 100 41.2 99 41.1C98 41 96.8 41 96 41.2C95.2 41.4 95 41.9 94.5 42.3C94 42.6 93.2 43.1 93 43.3C92.8 43.1 92.1 42.8 91.5 42.2C90.9 41.6 90.1 40.5 89.5 39.8C88.9 39.1 88.6 38.4 88 37.8C87.4 37.2 87.3 36.5 86 36.2C84.7 35.9 81.6 36 80 36C78.4 36 77.4 36.2 76.5 36.5C75.6 36.8 75 37.5 74.7 37.7C74.5 37.2 74 35.6 73.7 34.5C73.5 33.4 73.7 31.6 73.2 30.8C72.7 30.1 71.3 30.3 70.5 30C69.7 29.7 68.8 29.2 68.5 29Z" fill="#98b71e"/><path class="pep-stem" d="M88 24.5C86.8 24 89.2 22.5 90 21.5C90.8 20.5 91.8 19.6 92.5 18.5C93.2 17.4 93.7 16.2 94 15C94.3 13.8 94.6 12.2 94.5 11C94.4 9.8 94 8.9 93.5 8C93 7.1 92.3 6 91.5 5.6C90.7 5.1 89.5 5.3 88.5 5.3C87.5 5.3 86.5 5.6 85.8 5.4C85.1 5.2 84.5 4.4 84.4 3.9C84.3 3.4 84.7 2.7 85.2 2.3C85.7 1.9 86.6 1.8 87.5 1.6C88.4 1.4 89.4 1.2 90.5 1.2C91.6 1.1 93 1 94 1.3C95 1.6 96.1 2 96.8 2.8C97.5 3.6 98 4.8 98.4 6C98.8 7.2 99.2 8.5 99.2 10C99.2 11.5 98.9 13.3 98.6 15C98.3 16.7 97.8 18.4 97.6 20C97.4 21.6 98.8 23.8 97.2 24.5C95.6 25.2 89.2 25 88 24.5Z" fill="#98b71e"/></g><g class="pep-fx pep-fx-sparks"><circle class="pep-spark" cx="12" cy="106" r="3.2" fill="#ffd166"/><circle class="pep-spark" cx="30" cy="111" r="2.6" fill="#ff9b4a"/><circle class="pep-spark" cx="52" cy="110" r="3.4" fill="#ffd166"/><circle class="pep-spark" cx="74" cy="103" r="2.8" fill="#ff9b4a"/><circle class="pep-spark" cx="90" cy="92" r="2.4" fill="#ffd166"/></g></svg>`,
   "🦫": `<svg class="emoji-anim bv" viewBox="-4 -4.625 136.5 136.5" aria-hidden="true"><g class="bv-all"><g class="bv-tail"><path fill="#694d42" d="M77.5 83.8a41 41 0 0 0 19 4.1 36 36 0 0 0 27.2-19.2c2.3-4.3 2.5-13-1.3-13.8-4.7-1.2-10.3-.3-19 3.8-9 4.2-11 10.9-21.6 5.8"/><path fill="#b3937c" d="M79.9 75c1.8 1.3 2 2 3.6 3.6 3 3.1 10 3.3 11.3 3.3 8.1.1 12-1.8 17.2-5.3s10.2-11 11-14.7q1-3.8.9-6.1-.6-.7-1.4-1c-4.8-1.1-10.4-.2-19.2 4-8.8 4.1-11 10.8-21.5 5.7l-2.2 10.1z" opacity=".44"/><path fill="#694d42" d="m123.5 60 .3-2.6-5.3-2.3.3-.7q-2.9 0-6.2.8l2.6 1.1-2.7 6-6-2.6 1.3-2.9c-1.1.4-5.1 2.1-6.9 3.2l2.3 1-2.7 6-6-2.7q-1.6 1.1-3.4 1.6l-6 13.7 2.3 1 2.4-5.6 6 2.6L94 82h2.7l1.5-3.3 5.4 2.3q2.3-.6 4.5-1.8L110 74l3.5 1.5 2-1.8-4.4-2 2.6-6 6 2.7 1.4-2.2-6.4-2.8 2.7-6zM96.8 75.3l-6-2.6 2.7-6 6 2.6zm8.4 3.7-6-2.6 2.6-6 6 2.6zm3.6-8.3-6-2.7 2.7-6 6 2.7z"/></g><path fill="#694d42" d="M57.4 102A72 72 0 0 0 37 117.1c-.4.5-2.3 2.5-1.1 3.2 1.1.6 4-1.5 4.8-1 1 .7.3 1.8 1.3 2.6 1 .7 3.8-1.5 5.2-.8s.8 1.7 1.6 2.6c1 1.3 3.5.1 4-.4 3.9-3 13.3-12 15-13.8 2.1-2.6 3.5-6 1.6-8.3"/><path fill="#694d42" d="M28.3 99.2a76 76 0 0 0-17.5 8.4q-.6.6-.4 1.2c.8.8 2.3-.4 3.5.5.4.3.2 1.7.5 2.1q.6.6 1.5.6c.9 0 1-.3 1.6-.5 1.1-.3 2.3-.5 3.1.4q.6.8.8 1.7t1.4.8q2-.1 3.6-1.3 7.4-5 14.2-10.7"/><g class="bv-up"><g class="bv-hd"><path fill="#825b4e" d="M17.4 8.2 14.3 8q-.8 0-1.3.2l-.7.8a7 7 0 0 0-.3 5.7c.2.4.6 1 1 .9q.3 0 .5-.3 2.3-1.8 4.1-3.9.4-.4.2-.8"/><path fill="#825b4e" d="M47.3 12.4c3.5 1 4.3 0 7 .2 3.3.2 2.9 3.4 2.4 5.1a11 11 0 0 1-3.7 5.5q-.4.4-1 .6-.8 0-1.3-.6-3.6-3.2-4-7.9"/></g><path fill="#b38a6d" d="M12.2 41.1s-6.2.7-8.3 7.3C.7 58 9 63.6 9 63.6s-2.3 19.7 9.7 30.5 16 11.2 30 13.8 27.1-6.5 30.5-10.1 8.6-11.3 9.6-20.7-7.5-26-15-34.6-23.1-22-23.1-22l-22.4 21z"/><g class="bv-hd"><path fill="#b38a6d" d="M48.3 13.2a21 21 0 0 0-18.7-9.4c-7.3 0-14.3 5.5-17.5 9.7a31 31 0 0 0-6.3 15.6A14 14 0 0 0 12 42.5c5 3.6 25 7.8 33.3 2.1 7.2-5 9.6-11.6 8.9-17.2a29 29 0 0 0-6-14.2"/><path class="bv-th" fill="#ffecb3" d="M15.6 32.8c-.5 3.6 1.1 9 2.5 9 1 0 1.3-2.3 1.3-2.3s1 2.8 2.8 2.7c1.6-.2 1.6-6.2 2-9.2l-5.7-2.3z"/><g class="bv-eye"><ellipse cx="36.3" cy="17.7" fill="#212121" rx="2.4" ry="3.1" transform="rotate(-17.8 36.3 17.7)"/><path fill="#212121" d="M11.8 16c.4-1.1 1.3-2.4 2.8-2.4 1.6 0 1.3 2.4.8 3.6s-1.9 2.4-3 1.6c-.9-.5-.8-2.2-.6-2.9"/></g><path fill="#212121" d="M21.8 18.5q-1-1-2-.3-2.5 2.1-3.7 3.7c-.4.7-.8 2.1 0 3.1s3.4 3 3.4 3 3.2-1.4 4.2-2.1c1.2-1 1.5-2.8.5-4.3z"/><path fill="#212121" d="M28.5 32.4c.8-1.3-.1-2-.7-1.3s-2.2 1.8-4.5 1c-1.2-.4-2-.8-2.6-2.2q-.3-1.7-.2-3.5c0-.4-2.1-.5-2.2-.1q-.4 1.3-.4 2.5.2 1.7-1 2.6c-2.6 1.7-4.1-.8-4.4-1.1q-.5 0-.2 1.5c1.2 4 5.7 3.3 7 1.3.2 1.6 5.8 4.5 9.2-.7"/></g><path class="bv-pw" fill="#825b4e" d="M41.5 67.4c-12.8-4.3-13.3-17-17.2-20-1.4-1.1-2.7-1.4-4-2s-2.7-1.4-4-.9q1.4 1 2.3 2.3c-1.3.1-3.2.3-3.9 1.1q0 .3.2.4c.2.1 2.3.5 3.2 1.4q-1.1.7-2 1.7c-.4.4 0 .6 0 .7 1 .2 2 0 2.9.5q1.2.8 2.2 1.7 1.4 1 3.2 1.1 3 6 7.7 10.4Q36.7 70 43 71.3c13 2.4 18.7-10.8 18.7-10.8s-9.2 10.6-20 6.9"/><path fill="#825b4e" d="m8 62.7.5.5q.7.5 1.4-.1t1.3-2.4c.7-2.1.4-5-.8-7.2l-1.2 1.2a9 9 0 0 1-.4 7z"/><path fill="#825b4e" d="m39 43-.6 3.3c3-.4 6.4-6.4 6.4-6.4v4c4-2.2 6.1-11.5 6.1-11.5.4 4.5.8 14.6-12.7 16.4-5 .6-10-1.4-10-1.4s7.6-.5 10.9-4.5"/><path class="bv-pw" fill="#825b4e" d="M7 47a7 7 0 0 1 7-3.1l.6.2q.1.3-.1.6l-.6.2q-2.1.5-2.6 2.5 1.5-.6 2.7.2.5.2.4.6l-.4.2q-1.6.8-2 2.6.9-.3 1.8-.2c.6.1 1.3.6 1.3 1-.1.5-1.4.2-2 1.2q-.4 1.3-1.3 2.2-1 .6-2.1.3a4 4 0 0 1-1.9-1.3c-1.7-1.9-2-5-.9-7.2"/></g></g><g class="bv-fx"><rect class="bv-p" x="12" y="41" width="8" height="5.5" rx="1" fill="#e9bd7f"/><rect class="bv-p" x="17" y="43" width="6" height="4.5" rx="1" fill="#c08347"/><rect class="bv-p" x="11" y="43" width="7" height="5" rx="1" fill="#e9bd7f"/><rect class="bv-p" x="16" y="41" width="8" height="5.5" rx="1" fill="#e9bd7f"/><rect class="bv-p" x="13" y="44" width="6" height="4.5" rx="1" fill="#8d5a2f"/><rect class="bv-p" x="18" y="42" width="7" height="5" rx="1" fill="#c08347"/><rect class="bv-p" x="10" y="42" width="6.5" height="4.5" rx="1" fill="#e9bd7f"/><rect class="bv-p" x="15" y="43" width="5.5" height="4" rx="1" fill="#8d5a2f"/><circle class="bv-d" cx="16" cy="44" r="3.4" fill="#f3e2c4"/><circle class="bv-d" cx="21" cy="45" r="3" fill="#f3e2c4"/><circle class="bv-d" cx="12" cy="42" r="3.6" fill="#f3e2c4"/></g></svg>`,
+  "🎄": `<svg class="emoji-anim xt" viewBox="-4 -4.625 136.5 136.5" aria-hidden="true"><g class="xt-all"><path fill="#835d4e" d="M58 106c0 0-.5 4-1.5 7-1 3-2 5-2 7.5 0 2 1.5 3.5 9.5 4 6.5 0 9-2 9-5-.5-3-1.5-5-2-8-.5-2.5-1-5-1-5l-12-.5z"/><path fill="#0a7c1f" d="M67 28l-17.5 6.5-11.5 2c0 0-1.5 1.5.5 3.5 1 1.5 3.5 3 6.5 3 3.5 0 4.5-1.5 5-.5.5 1.5-4.5 4-7 5.5-2.5 1.5-11 4-11 8-.5 3 2.5 5 4 5 1.5 1 4 .5 5 1 .5 0 1 1.5 0 2-1 1-4 2-6 3-2 .5-10 3-11 3.5-1 .5-2.5 2.5-1.5 5.5 1 2.5 4.5 4.5 7 5.5 3 1.5 4 1 4 1s-.5 1.5-2 3c-1.5 1-6 6-6 6s-9 .5-9.5 1c-1 .5-1.5 2-1 3.5.5 1.5 1.5 5 8.5 7.5 7 2 11.5 0 11.5 0s-2 4 3 6.5c4 1.5 10.5-.5 12-1 1.5-.5 7-2.5 7-2.5s1.5 3.5 7 4c6.5 0 11-3 11-3s8.5 5.5 15.5 2.5c4.5-2 3-7 3-7s8.5 1.5 14.5-1c6.5-2.5 7.5-5.5 7.5-7.5 0-1.5-2.5-3-3.5-3-1.5 0-4.5 0-6.5-1s-4.5-2.5-4.5-2.5-4.5-1.5-7.5-4c-1.5-1-1.5-2 .5-2 2 0 7.5 0 10.5-2.5 3.5-2.5 3.5-4.5 3-5.5 0-1.5-1.5-2-1.5-2s-13-4-13-4c-.5-.5-2.5-3-2.5-3-.5-.5-4-1.5-3-2.5.5-1 4.5-1.5 7-3.5 2.5-3 2-5.5 1-6.5s-2.5-1.5-2.5-1.5-3 1-4 .5c-1-.5-6-5.5-6-5.5s-4.5-2.5-4.5-3c0-1 4.5 0 8-1 3-1 3-3.5 3-4-.5-1.5-1.5-2-2.5-2.5-.5-.5-20-7.5-20-7.5z"/><path fill="#02ab48" d="M60 15c0 0-3 6-7.5 11-7.5 8.5-14.5 10.5-14.5 10.5s1 2.5 5.5 2.5c5.5 0 12.5-4 12.5-4s2.5 5 5 8c3 3.5 6.5 6 10.5 4 1-.5 1.5-3.5 0-5.5-4.5-5.5-1.5-5-1.5-4.5 0 0 3.5 2.5 9 2 6 0 8-3.5 8-3.5s-7-4-12-9.5c-4.5-5.5-8.5-10.5-8.5-10.5l-6.5-.5zM57 45.5c0 0-3.5 2-7.5 1.5-1.5 0-2.5-1-2.5-1s-4 2-6 3c-2 1-5 2.5-6.5 3.5-1 .5-2 1.5-2 1.5s.5 3 5.5 3 8-1 11 0c3 1 8 5.5 11 5.5 3.5 0 6-4.5 9-4.5s4 2 8.5 2.5c5 .5 12.5-2.5 14.5-4 2.5-2.5 1-5.5 1-5.5s-3-1.5-6-2.5c-2-1.5-4-2.5-4-2.5s-1.5 1.5-2.5 1.5c-1.5-.5-3-1-4.5 0-1.5 1.5-2.5 3-5.5 3.5-7 1-13.5-5.5-13.5-5.5zM24 70.5c0 0-1 3.5 3.5 5.5 5 2.5 13.5.5 14 1 .5.5-7 4.5-3 8 4.5 4 17-8 17.5-8 1 0 1.5 9.5 6.5 11.5s9.5-5.5 12.5-6.5c3-1 5.5 2 9 2 5.5.5 8-1 8-3 .5-2.5-4-6-3-7 1-.5 2.5 2.5 9.5 2 6.5-.5 7.5-4 7.5-4l-15.5-7c0 0-2.5 2.5-5.5 2.5-3.5 0-12-1.5-15.5-.5-3.5 1-4.5 5-10 5-6-.5-9.5-4.5-13.5-2.5-4 2-7 4.5-9 3-1-1-1-2-1-3.5 0-1.5.5-3 .5-3l-12.5 4.5zM16 92.5c0 0 2 6 12.5 6 9.5 0 12.5-5 14-6.5 2-1.5 3-3.5 3.5-2.5.5 1-5.5 7.5-8 9.5-1 1.5-3 4-.5 5.5 3 2 9 1 14-1s6.5-6.5 6.5-6.5-4-1.5-4.5-6c-1-4.5-1-6.5-2.5-6.5-1.5 0-11.5 8-18 5.5-3-1.5-1.5-4.5-1.5-4.5s-3 2-7 3.5c-3 1-8.5 3.5-8.5 3.5zM60 97.5c0 0-1.5 4-1.5 5 .5 1.5 2.5 3.5 7 3.5 5-.5 7.5-2.5 7-4 0-1.5-3-5-1.5-6 1.5-1 2.5 1 4 3.5s7.5 10 14.5 6.5c6-3.5-2-10-.5-11s5.5 2.5 11.5 2.5c10.5-.5 12-6 12-6s-4-1-6.5-1.5-5-1.5-5-1.5-5 2-11.5 2c-6.5-.5-10.5-3-13.5-2.5-2.5.5-4.5 4.5-8 7-5 3-8 2.5-8 2.5z"/><g fill="#f9c319"><circle cx="50.2" cy="34.4" r="2.3"/><circle cx="55.8" cy="39.8" r="2.3"/><circle cx="63.4" cy="43" r="2.3"/><circle cx="78.3" cy="36.3" r="2.3"/><circle cx="72.7" cy="42.4" r="2.3"/><circle cx="44.7" cy="56.9" r="2.3"/><circle cx="51.2" cy="62.2" r="2.3"/><circle cx="59.2" cy="66.4" r="2.3"/><circle cx="68.8" cy="66.1" r="2.3"/><circle cx="78.1" cy="63.1" r="2.3"/><circle cx="86.7" cy="58.6" r="2.3"/><circle cx="97.7" cy="75.2" r="2.3"/><circle cx="91.1" cy="80.4" r="2.3"/><circle cx="83.2" cy="84.4" r="2.3"/><circle cx="73.4" cy="87.7" r="2.3"/><circle cx="62" cy="89" r="2.3"/><circle cx="51.8" cy="85.8" r="2.3"/><circle cx="42.2" cy="81.9" r="2.3"/><circle cx="36.2" cy="74.1" r="2.3"/></g><g fill="#fffdf0" stroke="#fff59d" stroke-opacity=".55" stroke-width="3.4"><g class="xt-l"><circle cx="50.2" cy="34.4" r="2.7"/><circle cx="72.7" cy="42.4" r="2.7"/><circle cx="51.2" cy="62.2" r="2.7"/><circle cx="59.2" cy="66.4" r="2.7"/><circle cx="97.7" cy="75.2" r="2.7"/><circle cx="62" cy="89" r="2.7"/><circle cx="91.1" cy="80.4" r="2.7"/></g><g class="xt-l"><circle cx="55.8" cy="39.8" r="2.7"/><circle cx="78.3" cy="36.3" r="2.7"/><circle cx="86.7" cy="58.6" r="2.7"/><circle cx="68.8" cy="66.1" r="2.7"/><circle cx="42.2" cy="81.9" r="2.7"/><circle cx="73.4" cy="87.7" r="2.7"/></g><g class="xt-l"><circle cx="63.4" cy="43" r="2.7"/><circle cx="44.7" cy="56.9" r="2.7"/><circle cx="36.2" cy="74.1" r="2.7"/><circle cx="78.1" cy="63.1" r="2.7"/><circle cx="51.8" cy="85.8" r="2.7"/><circle cx="83.2" cy="84.4" r="2.7"/></g></g><g stroke-width="2.1" stroke-linecap="round"><g class="xt-b"><circle cx="65.6" cy="31.1" r="5.3" fill="#ff5f5e"/><path stroke="#f9ffff" d="M62.3 30.5L64.3 28.1"/></g><g class="xt-b"><circle cx="79.2" cy="51.2" r="5.6" fill="#fcd81e"/><path stroke="#f9ffff" d="M76.3 51L78.3 48.5"/></g><g class="xt-b"><circle cx="55.3" cy="52.4" r="5.7" fill="#df0e2b"/><path stroke="#f9ffff" d="M52.2 51.6L54.1 49.1"/></g><g class="xt-b"><circle cx="45.6" cy="71.5" r="5.8" fill="#ffd2b1"/><path stroke="#f9ffff" d="M42.3 70.7L44.4 68.1"/></g><g class="xt-b"><circle cx="66.6" cy="77.2" r="5.8" fill="#fcd81e"/><path stroke="#f9ffff" d="M63.4 76.4L65.3 73.9"/></g><g class="xt-b"><circle cx="85.5" cy="71.7" r="6" fill="#ff5f5d"/><path stroke="#f9ffff" d="M82.2 70.6L84.3 68.2"/></g><g class="xt-b"><circle cx="82.3" cy="93.7" r="5.4" fill="#c9c9c9"/><path stroke="#f9ffff" d="M79.4 93L81.4 90.7"/></g><g class="xt-b"><circle cx="47.2" cy="93.9" r="5.4" fill="#ff5f5e"/><path stroke="#f9ffff" d="M44 93.1L45.8 90.9"/></g></g><g class="xt-star"><path fill="#fcc11a" d="M67.4 17.5c-.1.2-1.7 6-3.4 6-1.7 0-4.6-6.2-4.6-6.2s-6.1-.2-6.4-1c-.3-1.1 4-5.7 4-5.7s-.7-6.4 0-7c.8-.6 6.5 3.1 6.5 3.1s5.7-3.2 6.7-2.5c.9.7-.8 6.1-.8 6.1s4.6 3.8 4.2 4.8c-.3 1.1-6.2 2.4-6.2 2.4z"/><path fill="#fee56b" d="M59.7 5.5c-.2.2.3 1.5 1.5 3s2.1 2.7 2.4 2.7c.3 0 2.1-2.3 2.7-3 .6-.7 1.4-2.1 1.2-2.3-.4-.4-4 2.1-4 2.1s-3.3-2.8-3.8-2.5zM53.8 15.6c.3.2 7.3-2.5 7.4-2.8.1-.5-2.1-1.4-2.7-1.6-.7-.2-1.9.8-3.1 2.1-.9 1-1.9 2.1-1.6 2.3z"/></g><g fill="#fffdf0"><path class="xt-g" d="M66.5 0q1 8.5 9.5 9.5-8.5 1-9.5 9.5-1-8.5-9.5-9.5 8.5-1 9.5-9.5z"/><path class="xt-g" d="M77.3 41.7q.9 7.1 8 8-7.1.9-8 8-.9-7.1-8-8 7.1-.9 8-8z"/><path class="xt-g" d="M43.3 61.4q.9 7.1 8 8-7.1.9-8 8-.9-7.1-8-8 7.1-.9 8-8z"/><path class="xt-g" d="M80.4 83.8q.9 7.1 8 8-7.1.9-8 8-.9-7.1-8-8 7.1-.9 8-8z"/></g></g></svg>`,   // Kerstkaart-flair: de Noto-boom met lichtjes die om beurten aangaan, een fonkelende ster en zwiepende ballen (geen Noto-animatie)
 };
 
 // ── Zeldzame vondsten (db/110) ────────────────────────────────────────────────
@@ -5840,6 +5854,20 @@ const EVENTS = [
     sealTiers: [10, 20, 30, 40, 50, 60],                 // een trede per 10 potjes: brons · zilver · goud · platina · diamant · obsidiaan (16/11: "tredes per 10 potjes")
     rewards: [
       { kind: "feest", key: "ev_sint_feest", emoji: "\u{1F381}", icon: "\u{1F381}", layer: "strooigoed" },   // Strooigoed: de laag van /strooigoed-fx.js
+    ],
+  },
+  {
+    // Kerst "Kerstkaart" 2026: precies de vorm van Spooktober (twee volle weken, ma t/m zo), dus dezelfde drempels en zegel-treden; de skin is
+    // "Lichtjesnacht" (SEASONS.kerst) met het katje als tabby met kerstmuts. De teksten, het zegel (een gebreid kersttruitje) en de kleuren staan
+    // in een eigen lui bestand (ui: [bestand, global]) dat na /season-event.js laadt, omdat dat bestand op zijn groottegrens zit. Server: db/187.
+    id: "kerst", skin: "kerst", icon: "\u{1F384}", mascot: "cat", ui: ["/event-kerst.js", "EventKerst"],
+    start: "2026-12-14", end: "2026-12-27",              // puzzeldatums, inclusief: ma 14 t/m zo 27 dec = 14 dagen; inhalen telt t/m 30 dec
+    thresholds: [3, 6, 10], gift: 1,
+    sealTiers: [3, 6, 10, 12, 13, 14],
+    rewards: [
+      { kind: "flair", key: "ev_kerst_flair", emoji: "🎄", icon: "🎄" },
+      { kind: "fx", key: "ev_kerst_fx", fx: "lights", emoji: "\u{1F387}", icon: "\u{1F387}" },   // Lichtjes: een lichtsnoer om je flair (flair-fx.css)
+      { kind: "feest", key: "ev_kerst_feest", emoji: "🎄", icon: "\u2744\uFE0F", layer: "xmas" },   // Kerstfeest: de kerstlaag van HolidayFx (sneeuw + sterretjes)
     ],
   },
 ];
@@ -12766,6 +12794,13 @@ const SEASONS = {
     label: "menu_season_sinterklaas",
     on: (m, d) => m === 12 && (d === 5 || d === 6),   // pakjesavond + Sint-Nicolaasdag: de twee dagen van het Sinterklaas-event (EVENTS)
   },
+  kerst: {
+    css: "/season-kerst.css?v=1",
+    bar: { dark: "#0a1411", light: "#edf2ef" },
+    icon: "/favicon-kerst",                                     // JAAR-logo met kerstmuts, lichtsnoer, gewei en hulst
+    label: "menu_season_kerst",
+    on: (m, d) => m === 12 && d >= 14 && d <= 27,     // "Lichtjesnacht": de twee weken van het kerst-event (EVENTS), ma 14 t/m zo 27 dec 2026
+  },
 };
 const seasonKey = (id) => SEASON_KEY + ":" + id;
 // De skin die op deze datum hoort (of null).
@@ -12819,8 +12854,8 @@ function setSeason(on) {
 // Het katje hoort bij de Halloween-skin: er zolang die aanstaat (ook bij ?skin=halloween), weg zodra je 'm uitzet. Het bestand
 // (/season-cat.js, ~6 KB gzip) wordt pas in een rustig moment opgehaald, en alleen als de skin aanstaat: op alle andere dagen nooit.
 function syncSeasonCat() {
-  if (seasonActive() !== "halloween") { if (window.SeasonCat) window.SeasonCat.unmount(); return; }
-  const go = () => loadSeasonCat().then((c) => { if (seasonActive() === "halloween") { c.mount(eventCatOpts()); syncCatProp(); } }).catch(() => {});
+  if (!CAT_SKINS.includes(seasonActive())) { if (window.SeasonCat) window.SeasonCat.unmount(); return; }
+  const go = () => loadCat().then((c) => { if (CAT_SKINS.includes(seasonActive())) { c.mount(eventCatOpts()); syncCatProp(); } }).catch(() => {});
   if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1500);
 }
 // Het vriendje bij het katje (de lantaarn, het spookje): volgens het rooster in de lib van de skin, op de datum (voor iedereen en in elke spelstand
@@ -12855,7 +12890,7 @@ function syncSeasonCheck() {
 // ── Events: de aansluiting op het scherm (balk, strook, Events-scherm, Events-tab, stip) ─────────────────────────────────────
 // De opbouw van al die onderdelen woont in /season-event.js (lui); hier alleen: wanneer is er iets te tonen, met welke gegevens
 // (eventView), en wat een tik doet. Eén event tegelijk in de balk en de strook (het eerste dat in beeld is).
-const EVENT_MASCOTS = { cat: { load: () => loadSeasonCat(), head: () => (window.SeasonCat && window.SeasonCat.head) || "" } };   // mascotte-id → het (lui) bestand en het kopje (HTML)
+const EVENT_MASCOTS = { cat: { load: () => loadCat(), head: () => (window.SeasonCat && window.SeasonCat.head) || "" } };   // mascotte-id → het (lui) bestand en het kopje (HTML)
 function eventView(ev) {
   const st = eventState(ev), today = eventToday(), idx = daysBetween(ev.start, today), flair = parseFlair(myFlair), fx = eventFxActive();
   // De mascotte alleen mét de skin: het kopje zit zonder de CSS van /season-cat.js (die komt pas bij aanstaande skin) vol overlappende standen.
@@ -12876,7 +12911,10 @@ const eventCatHat = () => STAMP_EVENTS.some((ev) => ev.skin === seasonActive() &
 const eventCatOpts = () => ({ night: eventToday().slice(5) === "10-31", hat: eventCatHat(), trick: previewTrick });
 // Alles wat de UI van deze events nodig heeft: het event-bestand en de mascotte(s).
 // De mascotte is optioneel: laadt dat bestand niet, dan toont de UI gewoon het icoon (alleen het event-bestand zelf is verplicht).
-const ensureEventUi = (evs) => Promise.all([evs.some((e) => !isPlaysEvent(e)) ? loadSeasonEvent() : null, evs.some(isPlaysEvent) ? loadEventMini() : null, ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot].load().catch(() => null) : null))]).then((r) => { injectEventArt(); return r; });
+// Een event met een eigen UI-bestand (EVENTS[].ui = [bestand, global], bv. kerst) laadt dat ná /season-event.js: het zet zich daar neer met SeasonEvent.add().
+const EVENT_UI_FILES = {};
+const loadEventUiFile = (ev) => (ev.ui ? (EVENT_UI_FILES[ev.id] = EVENT_UI_FILES[ev.id] || fxLoader(ev.ui[0], ev.ui[1]))() : null);
+const ensureEventUi = (evs) => Promise.all([evs.some((e) => !isPlaysEvent(e)) ? loadSeasonEvent().then(() => Promise.all(evs.map(loadEventUiFile))) : null, evs.some(isPlaysEvent) ? loadEventMini() : null, ...evs.map((e) => (EVENT_MASCOTS[e.mascot] ? EVENT_MASCOTS[e.mascot].load().catch(() => null) : null))]).then((r) => { injectEventArt(); return r; });
 // De zegel-plaatjes van de events (SVG-defs, id achv-art-<event>) hangen bij de badge-artwork van Prestaties; het archief in de kluis gebruikt ze ook.
 function injectEventArt() {
   const defs = document.querySelector("#achv-svg-defs svg");

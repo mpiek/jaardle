@@ -2749,11 +2749,12 @@ test("seasonFor — Halloween 19 okt t/m 1 nov, Sinterklaas 5 en 6 december, elk
     [2026, 10, 18, null], [2026, 10, 19, "halloween"], [2026, 10, 20, "halloween"], [2026, 10, 21, "halloween"], [2026, 10, 25, "halloween"], [2026, 10, 31, "halloween"], [2026, 11, 1, "halloween"], [2026, 11, 2, null],
     [2027, 10, 25, "halloween"], [2027, 11, 1, "halloween"], [2026, 10, 1, null], [2026, 1, 1, null], [2026, 6, 15, null],
     [2026, 12, 4, null], [2026, 12, 5, "sinterklaas"], [2026, 12, 6, "sinterklaas"], [2026, 12, 7, null], [2027, 12, 5, "sinterklaas"], [2030, 12, 5, "sinterklaas"],
-    [2026, 12, 24, null], [2026, 5, 12, null], [2026, 11, 5, null],
+    [2026, 12, 13, null], [2026, 12, 14, "kerst"], [2026, 12, 24, "kerst"], [2026, 12, 27, "kerst"], [2026, 12, 28, null], [2027, 12, 20, "kerst"],
+    [2026, 5, 12, null], [2026, 11, 5, null],
   ]) assert.equal(T.seasonFor(seasonDay(y, m, dd)), want, `${y}-${m}-${dd}`);
   const days = new Set();
   for (let m = 1; m <= 12; m++) for (let dd = 1; dd <= new Date(2026, m, 0).getDate(); dd++) if (T.seasonFor(seasonDay(2026, m, dd))) days.add(`${m}/${dd}`);
-  assert.equal(days.size, 14 + 2, "14 dagen Halloween (19 okt t/m 1 nov) + 2 dagen Sinterklaas (pakjesavond en Sint-Nicolaasdag: het Sinterklaas-event)");
+  assert.equal(days.size, 14 + 2 + 14, "14 dagen Halloween (19 okt t/m 1 nov) + 2 dagen Sinterklaas (pakjesavond en Sint-Nicolaasdag: het Sinterklaas-event) + 14 dagen kerst (14 t/m 27 dec: het kerst-event)");
 });
 
 test("head-script van de skins ≡ seasonFor(): elke dag van het jaar, ?skin=-voorvertoning, uitzetten per skin, versie van de CSS", () => {
@@ -2851,12 +2852,13 @@ test("style.css + season-<id>.css: palet in de kritieke CSS (≡ balkkleur), ver
 test("menu-regel voor de skins: in de template, per skin vertaald in alle talen, verborgen buiten het event", () => {
   const tpl = readFileSync(join(dir, "..", "index.template.html"), "utf8");
   assert.match(tpl, /data-action="season"[^>]*data-i18n="menu_season_halloween"[^>]*hidden/);
-  const emoji = { halloween: /^\u{1F383} /u, sinterklaas: /^\u{1F381} /u };
+  const emoji = { halloween: /^\u{1F383} /u, sinterklaas: /^\u{1F381} /u, kerst: /^\u{1F384} /u };
+  const name = { kerst: /kerst|christmas|weihnacht|navide|natal/ };   // kerst heet in elke taal anders
   for (const id of Object.keys(T.SEASONS)) for (const code of Object.keys(T.I18N)) {
     const v = T.I18N[code][T.SEASONS[id].label];
     assert.ok(v, `${code}: ${T.SEASONS[id].label} ontbreekt`);
     assert.match(v, emoji[id], `${code}: ${id}: emoji vooraan`);
-    assert.ok(v.toLowerCase().includes(id), `${code}: ${id}: naam van de skin in het label`);
+    assert.ok(name[id] ? name[id].test(v.toLowerCase()) : v.toLowerCase().includes(id), `${code}: ${id}: naam van de skin in het label`);
   }
   // elk skin-icoon bestaat in de drie vormen waar de <link rel="icon">-regels naar wijzen
   for (const id of Object.keys(T.SEASONS)) for (const ext of [".svg", "-96.png", "-192.png"]) {
@@ -3148,7 +3150,7 @@ test("season-cat.js: verborgen tab of ingeklapt speelveld = hij wacht; minder be
 
 test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een @keyframes, minder beweging dempt alles, geen fixed/klik-blokkade", () => {
   const { make } = loadSeasonCat(), w = make(), css = w.api.css, js = readFileSync(join(dir, "..", "season-cat.js"), "utf8");
-  const sel = 'html[data-season="halloween"]';
+  const sel = 'html:is([data-season="halloween"],[data-season="kerst"])';   // de skins met het katje (Halloween en kerst)
   assert.ok(css.includes(`${sel} #play-bar { position: relative; }`), "de kat is absoluut t.o.v. #play-bar");
   assert.ok(!/<style|<\/style/.test(js.replace(/\/\/.*$/gm, "")), "geen <style> in de bron: de CSS is een string");
   // elke klasse waar de SVG's of het script mee werken staat in de CSS
@@ -3170,10 +3172,10 @@ test("season-cat.js (CSS): elke pose/stand/groep heeft regels, elke animatie een
   assert.ok(!/\bz-index:\s*(?!4\b)\d+/.test(css), "de kat blijft laag (z-index 4)");
   assert.ok(!/(#keypad|#year-input|\.key\s*\{|main\s*\{)/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "raakt de speelkolom niet aan");
   assert.ok(js.length < 70000, `season-cat.js is onverwacht groot geworden (${js.length} bytes)`);   // 44000 → 48000 met het pootje, het snuffelen en het voorwerpje (9 KB gz); → 70000 met de kunstjes Hatsjoe! en Bonk! (±15 KB gz, alleen met de skin geladen)
-  // alleen opgemaakt onder de skin: elke selector (buiten @keyframes) begint met html[data-season="halloween"]
+  // alleen opgemaakt onder de skin: elke selector (buiten @keyframes) begint met de skins van het katje
   const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "");
   for (const m of flat.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const one of m[1].replace(/@media[^{]*\{/g, "").replace(/\([^)]*\)/g, (x) => x.replace(/,/g, ";")).split(",")) {
-    if (one.trim()) assert.ok(one.trim().startsWith('html[data-season="halloween"]'), `regel buiten de skin: ${one.trim().slice(0, 80)}`);
+    if (one.trim()) assert.ok(one.trim().startsWith(sel.replace(/,/g, ";")), `regel buiten de skin: ${one.trim().slice(0, 80)}`);   // komma's binnen :is() zijn hierboven ;
   }
 });
 
@@ -3478,10 +3480,12 @@ test("game.js ↔ season-cat.js: syncSeasonCat bij laden en bij aan/uit, het bes
   assert.match(g, /const loadSeasonCat = fxLoader\("\/season-cat\.js", "SeasonCat"\)/);
   assert.ok((g.match(/syncSeasonCat\(\)/g) || []).length >= 2, "bij laden én in setSeason");
   const fn = g.slice(g.indexOf("function syncSeasonCat()"), g.indexOf("function syncSeasonCheck()"));
-  assert.match(fn, /seasonActive\(\) !== "halloween"/, "alleen bij Halloween");
+  assert.match(fn, /!CAT_SKINS\.includes\(seasonActive\(\)\)/, "alleen bij een skin met het katje (Halloween, kerst)");
+  assert.match(g, /const CAT_SKINS = \["halloween", "kerst"\];/);
+  assert.match(g, /const SEASON_CAT_LOOKS = \{ kerst: fxLoader\("\/cat-kerst\.js", "SeasonCatKerst"\) \}/, "het kerst-uiterlijk is een eigen lui bestand");
   assert.match(fn, /unmount\(\)/, "uitzetten haalt de kat weg");
   assert.match(fn, /requestIdleCallback/, "pas in een rustig moment");
-  assert.match(fn, /if \(seasonActive\(\) === "halloween"\) \{ c\.mount\(eventCatOpts\(\)\); syncCatProp\(\); \}/, "niet mounten als de skin intussen uit is gezet; 31 oktober en de hoed gaan mee; daarna het voorwerpje van de pot");
+  assert.match(fn, /loadCat\(\)\.then\(\(c\) => \{ if \(CAT_SKINS\.includes\(seasonActive\(\)\)\) \{ c\.mount\(eventCatOpts\(\)\); syncCatProp\(\); \}/, "eerst het uiterlijk, niet mounten als de skin intussen uit is gezet; 31 oktober en de hoed gaan mee; daarna het voorwerpje van de pot");
   // het katje reageert op je spel: cijfers, wissen en een geaccepteerde gok (nooit op warm of koud, dat verklapt de Richting-hint)
   const dig = g.slice(g.indexOf("function appendDigit("), g.indexOf("function toggleSign()")), sub = g.slice(g.indexOf("function submitGuess()"), g.indexOf("let inputFlashOff"));
   assert.ok((dig.match(/SeasonCat\?\.type\?\.\(\)/g) || []).length === 2, "appendDigit en backspaceYear");
@@ -3532,6 +3536,7 @@ const loadSeasonEvent = () => {
   const win = {};
   const ctx = vm.createContext({ window: win, document: doc, Intl, String, Object, Array, Math, Date });
   vm.runInContext(readFileSync(join(dir, "..", "season-event.js"), "utf8"), ctx);
+  for (const ev of T.EVENTS) if (ev.ui) vm.runInContext(readFileSync(join(dir, "..", ev.ui[0].slice(1)), "utf8"), ctx);   // bv. /event-kerst.js zet zich neer met SeasonEvent.add()
   return { SE: win.SeasonEvent, head, win };
 };
 
@@ -3866,7 +3871,7 @@ test("game.js ↔ season-event.js — het bestand wordt lui geladen, de template
   assert.match(g, /async function refreshStreakBanners\(\) \{\s*syncEventUi\(\)/);
   assert.match(g, /renderEventStrip\(fresh\)/);
   // het katje levert het kopje voor de balk
-  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, cheer, type, guess, set, prop, actors: setActors, css: CSS, head: HEAD \}/);
+  assert.match(readFileSync(join(dir, "..", "season-cat.js"), "utf8"), /return \{ mount, unmount, perch, cheer, type, guess, set, prop, actors: setActors, look: setLook, css: CSS, get head\(\) \{ return \(look && look\.HEAD\) \|\| HEAD; \} \}/);
   assert.ok(existsSync(join(dir, "..", "emoji", "flair-pumpkin.webp")), "de animatie van de 🎃-flair");
 });
 
@@ -3942,10 +3947,11 @@ test("ensureEventUi — het kattenbestand (mascotte) is optioneel: een mislukte 
   const had = window.SeasonEvent, load = T.EVENT_MASCOTS.cat.load;
   try {
     window.SeasonEvent = { ids: () => [], art: () => "" };          // het event-bestand is er al
+    window.EventKerst = true;                                       // en het eigen UI-bestand van kerst ook
     T.EVENT_MASCOTS.cat.load = () => Promise.reject(new Error("404"));
     await T.ensureEventUi(T.STAMP_EVENTS);                           // mag niet rejecten
     assert.ok(typeof T.EVENT_MASCOTS.cat.head() === "string");       // zonder kat: lege string → de UI valt terug op het icoon
-  } finally { T.EVENT_MASCOTS.cat.load = load; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; }
+  } finally { T.EVENT_MASCOTS.cat.load = load; if (had) window.SeasonEvent = had; else delete window.SeasonEvent; delete window.EventKerst; }
 });
 
 test("eventDayCounts — alleen een pot binnen het venster is een stempel (geen viering voor een gewone daily in de inhaaldagen)", () => {

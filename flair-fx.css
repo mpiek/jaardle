@@ -277,3 +277,28 @@ html[data-theme="light"], html[data-theme="parchment"] { --fx-web: #4a2f7a; --fx
   .fl-fx.fx-web::before { transform: none; }
   .fl-fx.fx-web::after { transform: rotate(-6deg); }
 }
+
+/* ── Kerstkaart-event: lights = Lichtjes (event-beloning; blijft daarna van je) ───────────────────────────────────────────────
+   Een snoertje van vijf lampjes dat in een boog over de onderste helft van de flair hangt; de lampjes twinkelen om en om
+   (warm: rood-goud-rood, tegenover koel: groen-blauw). Opbouw: één masker (draad + fittingen + peertjes, alleen alpha) op beide
+   pseudo-elementen; de kleur komt uit tokens via radial-gradients. ::before = draad + alle lampjes aan, met een donkere waas
+   (--fxl-dim) over de koele; ::after = dezelfde waas over de warme + de koele aan, en alleen de opacity daarvan beweegt. Zo
+   blijft de draad altijd even helder en is er maar één animatie. Het snoer hangt gecentreerd (left 50%), dus de breedte van
+   het teken of plaatje maakt niet uit. Buiten de flair: opzij 0,07em, onder 0,14em, boven niets (ruim binnen de sprankel-zone). */
+:root { --fxl-wire: #7f998c; --fxl-dim: rgba(16, 22, 19, 0.55); --fxl-hi: #fff; --fxl-r: #ff5a5a; --fxl-y: #ffc93c; --fxl-g: #40d98a; --fxl-b: #5aa8ff; }
+html[data-theme="light"], html[data-theme="parchment"] { --fxl-wire: #41564b; --fxl-dim: rgba(52, 62, 57, 0.5); --fxl-hi: #fff3c4; --fxl-r: #e5383b; --fxl-y: #f0a000; --fxl-g: #12a060; --fxl-b: #2f84ea; }
+.rw-card, .podpop.night .podpop-card { --fxl-wire: #7f998c; --fxl-dim: rgba(16, 22, 19, 0.55); --fxl-hi: #fff; --fxl-r: #ff5a5a; --fxl-y: #ffc93c; --fxl-g: #40d98a; --fxl-b: #5aa8ff; }   /* donkere kaarten in elk thema */
+.fx-lights {
+  --fxl-m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 138.5 94'%3E%3Cpath d='M8 12Q69.2 126 130.5 12' fill='none' stroke='%23000' stroke-width='4.5' stroke-linecap='round'/%3E%3Cpath d='M5.5 11.5h5v5h-5zM0 25a8 10 0 1 0 16 0a8 10 0 1 0 -16 0zM36.1 54.3h5v5h-5zM30.6 67.8a8 10 0 1 0 16 0a8 10 0 1 0 -16 0zM66.8 68.5h5v5h-5zM61.3 82a8 10 0 1 0 16 0a8 10 0 1 0 -16 0zM97.4 54.2h5v5h-5zM91.9 67.8a8 10 0 1 0 16 0a8 10 0 1 0 -16 0zM128 11.5h5v5h-5zM122.5 25a8 10 0 1 0 16 0a8 10 0 1 0 -16 0z'/%3E%3C/svg%3E") center / contain no-repeat;
+  --fxl-warm: radial-gradient(circle at .08em .25em, var(--fxl-hi) 0, var(--fxl-r) .04em .105em, #0000 0), radial-gradient(circle at .693em .82em, var(--fxl-hi) 0, var(--fxl-y) .04em .105em, #0000 0), radial-gradient(circle at 1.305em .25em, var(--fxl-hi) 0, var(--fxl-r) .04em .105em, #0000 0);
+  --fxl-cool: radial-gradient(circle at .386em .678em, var(--fxl-hi) 0, var(--fxl-g) .04em .105em, #0000 0), radial-gradient(circle at .999em .677em, var(--fxl-hi) 0, var(--fxl-b) .04em .105em, #0000 0);
+}
+.fx-lights::before, .fx-lights::after { left: 50%; top: .22em; width: 1.385em; height: .94em; margin-left: -.693em; -webkit-mask: var(--fxl-m); mask: var(--fxl-m); }
+.fx-lights::before { background: radial-gradient(circle at .386em .678em, var(--fxl-dim) .105em, #0000 0), radial-gradient(circle at .999em .677em, var(--fxl-dim) .105em, #0000 0), var(--fxl-warm), var(--fxl-cool), var(--fxl-wire); }
+.fx-lights::after { background: radial-gradient(circle at .08em .25em, var(--fxl-dim) .105em, #0000 0), radial-gradient(circle at .693em .82em, var(--fxl-dim) .105em, #0000 0), radial-gradient(circle at 1.305em .25em, var(--fxl-dim) .105em, #0000 0), var(--fxl-cool); animation: fxl-twinkle 3.2s ease-in-out infinite; }
+@keyframes fxl-twinkle { 0%, 32%, 100% { opacity: 0; } 50%, 82% { opacity: 1; } }
+/* stilstaande pose (flairs die niet bewegen, en "minder beweging"): alle lampjes aan */
+.fl-still.fx-lights::after { background: var(--fxl-cool); }
+@media (prefers-reduced-motion: reduce) {
+  .fl-fx.fx-lights::after { background: var(--fxl-cool); }
+}
