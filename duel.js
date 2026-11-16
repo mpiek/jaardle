@@ -16,7 +16,11 @@
    Meetpunten (GoatCounter, site jaardle-events; game.js telt duel-list bij ⋮ → Duels): duel-create · duel-rematch · duel-invite-shared|copied|
    abort|prompt · duel-copy-link · duel-resend · duel-withdraw · duel-link-open|own|taken|closed|notfound · duel-accept · duel-decline ·
    duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
-   duel-help · duel-login-end. Trechter: link-open → accept → round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open. */
+   duel-help · duel-login-end · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily. Trechter: link-open → accept →
+   round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
+   Versie 4 (stap 2, db/190, mockup v6 16/11): "Deel uitslag" stuurt een plaatje mee (canvas 1080×1080, scorebord: winnaar links met kroon,
+   elke ronde met beide scores, iedere speler in de kleur van zijn gezichtje) met één regel en de link; wie die link opent zonder mee te
+   spelen, ziet de uitslag (de rondes draaien om) met "Daag zelf iemand uit", een teamgenoot van de winnaar "Daag <winnaar> uit". */
 window.Duel = (() => {
   const ICON = "⚔️";
   const LIST_KEY = "jaardle:duels", NEWS_KEY = "jaardle:duel-news", NAME_KEY = "jaardle:duel-name", PENDING_KEY = "jaardle:pendingDuel";
@@ -319,6 +323,36 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .duel-note .duel-pushes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.6rem; margin-top: 0.45rem; }
 /* db/189: de ander krijgt dezelfde achtergrond als zijn gezichtje in het score-histogram (game.js faceHue) */
 .dl .dl-av.hue, .duel-vs .side .dl-av.hue, .duel-inv .dl-av.hue, .dl-av.hue { color: var(--fg); background: color-mix(in srgb, hsl(var(--h) 65% 52%) 38%, var(--card-soft)); }
+/* db/190: de uitslag voor wie de link opent zonder mee te spelen: winnaar links (gouden rand), iedere speler in zijn eigen kleur
+   (--ha links, --hb rechts); de rondes draaien één voor één om, daarna verschijnen de stand en de kop */
+.duel-inv.sp .duel-vs { align-self: stretch; }
+.duel-inv .sp-vs .side .dl-av.hue { background: color-mix(in srgb, hsl(var(--h) 65% 52%) 38%, var(--card-soft)); color: var(--fg); }
+.duel-inv .sp-vs .side.win .dl-av { box-shadow: 0 0 0 2px var(--card), 0 0 0 4.5px var(--gold-text); }
+.sp-rds { align-self: stretch; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; font-variant-numeric: tabular-nums; perspective: 600px; }
+.sp-rd { display: flex; flex-direction: column; align-items: center; gap: 0.08rem; padding: 0.3rem 0 0.4rem; border-radius: 8px; background: var(--card); }
+.sp-rd small { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+.sp-rd b { display: flex; align-items: center; gap: 0.24rem; font-size: 1rem; font-weight: 800; line-height: 1.2; color: var(--fg); }
+.sp-rd b::before { content: ""; width: 0.42rem; height: 0.42rem; border-radius: 50%; }
+.sp-rd b.a::before { background: hsl(var(--ha) 65% 52%); }
+.sp-rd b.b::before { background: hsl(var(--hb) 65% 52%); }
+.sp-rd b.lo { color: var(--muted); font-weight: 600; }
+.sp-rd.wa { background: color-mix(in srgb, hsl(var(--ha) 65% 52%) 28%, var(--card)); }
+.sp-rd.wb { background: color-mix(in srgb, hsl(var(--hb) 65% 52%) 28%, var(--card)); }
+.sp-rd.d { background: color-mix(in srgb, var(--gray) 22%, var(--card)); }
+.duel-inv .sp-how { font-size: 0.8rem; max-width: 30ch; }
+.sp.rev .sp-rd { animation: dsp-flip 0.42s cubic-bezier(.3, .7, .3, 1.15) both; animation-delay: calc(0.35s + var(--i) * 0.32s); }
+.sp.rev h2, .sp.rev .sp-vs .side small { animation: dsp-in 0.35s ease-out both; animation-delay: 2.05s; }
+.sp.rev .sp-vs .mid b { position: relative; color: transparent; animation: dsp-show 0.01s linear both; animation-delay: 2.05s; }
+.sp.rev .sp-vs .mid b::before { content: "?–?"; position: absolute; inset: 0; color: var(--muted); animation: dsp-hide 0.01s linear both; animation-delay: 2.05s; }
+@keyframes dsp-flip { from { transform: rotateX(90deg); opacity: 0.2; } to { transform: none; opacity: 1; } }
+@keyframes dsp-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes dsp-show { to { color: var(--fg); } }
+@keyframes dsp-hide { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .sp.rev .sp-rd, .sp.rev h2, .sp.rev .sp-vs .side small, .sp.rev .sp-vs .mid b { animation: none; }
+  .sp.rev .sp-vs .mid b { color: var(--fg); }
+  .sp.rev .sp-vs .mid b::before { content: none; }
+}
 `;
 
   const TXT = {
@@ -363,6 +397,11 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pushThem: (n) => `${n} krijgt een seintje dat jij klaar bent`, pushDenied: "Meldingen staan uit voor deze site. Zet ze aan in je browser.",
       h2hChip: "Jullie stand", duelsN: (n) => (n === 1 ? "1 duel" : `${n} duels`), wonN: (n) => `${n} gewonnen`,
       stRounds: "Rondes", stAvg: "Gemiddeld", stAgainst: "tegen", stBest: "Grootste zege",
+      // db/190: uitslag delen als plaatje, en de pop-up voor wie de link opent zonder mee te spelen
+      imgBrand: "JAARDLE-DUEL", imgTotal: (a, b) => `Totaal ${a} – ${b}`, imgTag: "Raad het jaar bij een gebeurtenis", onTotal: "op totaal",
+      spEyebrow: "Jaardle-duel", spWin: (a, b, w, l) => `${a} wint ${w}–${l} van ${b}`, spWinTotal: (a, b) => `${a} wint op totaal van ${b}`, spTie: (a, b) => `Gelijkspel tussen ${a} en ${b}`,
+      spHow: "Allebei dezelfde 5 puzzels, van makkelijk naar moeilijk. Per ronde wint de hoogste score.", spDaily: "Speel de daily van vandaag",
+      spNew: "Nieuw hier? In Jaardle raad je elke dag het jaar bij een gebeurtenis.", spMate: (n) => `Jij tegen ${n}`, spOther: "Daag iemand anders uit",
       notForYouD: "Deze uitdaging is voor iemand anders", lockedLogin: "Log in met je account om hem aan te nemen.", loginBtn: "Log in",
     },
     en: {
@@ -406,6 +445,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pushThem: (n) => `${n} gets a notification that you're done`, pushDenied: "Notifications are blocked for this site. Allow them in your browser.",
       h2hChip: "Your record", duelsN: (n) => (n === 1 ? "1 duel" : `${n} duels`), wonN: (n) => `${n} won`,
       stRounds: "Rounds", stAvg: "Average", stAgainst: "vs", stBest: "Biggest win",
+      imgBrand: "JAARDLE DUEL", imgTotal: (a, b) => `Total ${a} – ${b}`, imgTag: "Guess the year of the event", onTotal: "on points",
+      spEyebrow: "Jaardle duel", spWin: (a, b, w, l) => `${a} beats ${b} ${w}–${l}`, spWinTotal: (a, b) => `${a} beats ${b} on points`, spTie: (a, b) => `${a} and ${b} tied`,
+      spHow: "Both played the same 5 puzzles, from easy to hard. The highest score wins each round.", spDaily: "Play today's daily",
+      spNew: "New here? In Jaardle you guess the year of an event, every day.", spMate: (n) => `You vs ${n}`, spOther: "Challenge someone else",
       notForYouD: "This challenge is for someone else", lockedLogin: "Log in to your account to accept it.", loginBtn: "Log in",
     },
     de: {
@@ -450,6 +493,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pushThem: (n) => `${n} bekommt eine Benachrichtigung, dass du fertig bist`, pushDenied: "Benachrichtigungen sind für diese Seite blockiert. Erlaube sie im Browser.",
       h2hChip: "Euer Stand", duelsN: (n) => (n === 1 ? "1 Duell" : `${n} Duelle`), wonN: (n) => `${n} gewonnen`,
       stRounds: "Runden", stAvg: "Schnitt", stAgainst: "gegen", stBest: "Höchster Sieg",
+      imgBrand: "JAARDLE-DUELL", imgTotal: (a, b) => `Gesamt ${a} – ${b}`, imgTag: "Errate das Jahr des Ereignisses", onTotal: "nach Punkten",
+      spEyebrow: "Jaardle-Duell", spWin: (a, b, w, l) => `${a} schlägt ${b} ${w}–${l}`, spWinTotal: (a, b) => `${a} schlägt ${b} nach Punkten`, spTie: (a, b) => `Unentschieden zwischen ${a} und ${b}`,
+      spHow: "Beide spielten dieselben 5 Rätsel, von leicht bis schwer. Pro Runde gewinnt die höhere Punktzahl.", spDaily: "Das heutige Rätsel spielen",
+      spNew: "Neu hier? Bei Jaardle errätst du jeden Tag das Jahr eines Ereignisses.", spMate: (n) => `Du gegen ${n}`, spOther: "Fordere jemand anderen heraus",
       notForYouD: "Diese Herausforderung ist für jemand anderen", lockedLogin: "Melde dich an, um sie anzunehmen.", loginBtn: "Anmelden",
     },
     es: {
@@ -493,6 +540,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pushThem: (n) => `${n} recibe un aviso de que has terminado`, pushDenied: "Las notificaciones están bloqueadas para este sitio. Permítelas en el navegador.",
       h2hChip: "Marcador", duelsN: (n) => (n === 1 ? "1 duelo" : `${n} duelos`), wonN: (n) => `${n} ganados`,
       stRounds: "Rondas", stAvg: "Media", stAgainst: "contra", stBest: "Mayor victoria",
+      imgBrand: "DUELO JAARDLE", imgTotal: (a, b) => `Total ${a} – ${b}`, imgTag: "Adivina el año del acontecimiento", onTotal: "por puntos",
+      spEyebrow: "Duelo de Jaardle", spWin: (a, b, w, l) => `${a} gana ${w}–${l} a ${b}`, spWinTotal: (a, b) => `${a} gana a ${b} por puntos`, spTie: (a, b) => `Empate entre ${a} y ${b}`,
+      spHow: "Los dos jugaron los mismos 5 puzles, de fácil a difícil. En cada ronda gana la puntuación más alta.", spDaily: "Jugar el Diario de hoy",
+      spNew: "¿Nuevo aquí? En Jaardle adivinas cada día el año de un acontecimiento.", spMate: (n) => `Tú contra ${n}`, spOther: "Reta a otra persona",
       notForYouD: "Este reto es para otra persona", lockedLogin: "Inicia sesión para aceptarlo.", loginBtn: "Iniciar sesión",
     },
     pt: {
@@ -536,6 +587,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pushThem: (n) => `${n} recebe um aviso de que você terminou`, pushDenied: "As notificações estão bloqueadas para este site. Permita-as no navegador.",
       h2hChip: "Placar", duelsN: (n) => (n === 1 ? "1 duelo" : `${n} duelos`), wonN: (n) => `${n} vitórias`,
       stRounds: "Rodadas", stAvg: "Média", stAgainst: "contra", stBest: "Maior vitória",
+      imgBrand: "DUELO JAARDLE", imgTotal: (a, b) => `Total ${a} – ${b}`, imgTag: "Adivinhe o ano do acontecimento", onTotal: "nos pontos",
+      spEyebrow: "Duelo de Jaardle", spWin: (a, b, w, l) => `${a} vence ${b} por ${w}–${l}`, spWinTotal: (a, b) => `${a} vence ${b} nos pontos`, spTie: (a, b) => `Empate entre ${a} e ${b}`,
+      spHow: "Os dois jogaram os mesmos 5 desafios, do fácil ao difícil. Em cada rodada vence a maior pontuação.", spDaily: "Jogar o Diário de hoje",
+      spNew: "Novo por aqui? No Jaardle você adivinha todo dia o ano de um acontecimento.", spMate: (n) => `Você contra ${n}`, spOther: "Desafie outra pessoa",
       notForYouD: "Este desafio é para outra pessoa", lockedLogin: "Entre na sua conta para aceitar.", loginBtn: "Entrar",
     },
   };
@@ -731,6 +786,157 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
   const linkField = (T, code) => `<div class="dl-link"><input type="text" readonly value="${esc(LINK(code).replace(/^https:\/\//, ""))}" aria-label="${esc(T.linkAria)}">` +
     `<button type="button" class="dl-mini" data-act="copy" data-code="${code}">${esc(T.copy)}</button></div>`;
+
+  // ── het deelplaatje (db/190, mockup v6 "scorebord"): canvas 1080×1080, op dit toestel getekend; geen puzzels of jaartallen ──
+  // Winnaar links met een kroon (gelijk: de uitdager), elke ronde met beide scores, iedere speler in de kleur van zijn gezichtje.
+  const HUES = [8, 28, 42, 168, 190, 262, 292, 330];   // = FACE_HUES in game.js (een test bewaakt dat)
+  const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', EMO = '"JaardleEmoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+  const PAL = {   // de spelkleuren (style.css), los van een seizoens-skin
+    dark: { bg: "#1a1a1a", card: "#262626", soft: "#2c2c2c", fg: "#f5f5f5", mu: "#a3a3a3", line: "#383838", arena: "#e8794a", gold: "#f4c430", tile: 0.3, gray: "rgba(158,158,158,0.22)", glow: "rgba(232,121,74,0.24)", edge: "rgba(232,121,74,0.5)" },
+    light: { bg: "#f4f1ea", card: "#fffdf8", soft: "#ebe7dd", fg: "#211e19", mu: "#5d574b", line: "#d6d0c2", arena: "#b5531c", gold: "#c99a0e", tile: 0.26, gray: "rgba(158,158,158,0.24)", glow: "rgba(181,83,28,0.16)", edge: "rgba(181,83,28,0.45)" },
+  };
+  const flairEmoji = (f) => { const e = String(f || "").split("~")[0]; return e && !e.startsWith("v:") ? e : null; };   // een vondst-tekening → de beginletter
+  const hueOf = (name) => { try { const h = H?.faceHue?.(name); return HUES.includes(h) ? h : HUES[0]; } catch (e) { return HUES[0]; } };
+  // De twee spelers van een afgelopen duel, winnaar links. Twee gelijke kleuren: wiens naam later in het alfabet staat schuift op
+  // (vast, los van wie er won).
+  function sides(p, q) {
+    p = { ...p, hue: hueOf(p.name) }; q = { ...q, hue: hueOf(q.name) };
+    if (p.hue === q.hue) {
+      const shift = (x) => ({ ...x, hue: HUES[(HUES.indexOf(x.hue) + 4) % HUES.length] });
+      if (String(p.name) > String(q.name)) p = shift(p); else q = shift(q);
+    }
+    const o = outcome(p.s, q.s), [a, b] = o.res === "l" ? [q, p] : [p, q];
+    return { a, b, o: outcome(a.s, b.s) };
+  }
+  // Je eigen afgelopen duel (jij en de ander) of, voor een buitenstaander, d.spec van db/190 (uitdager en tegenstander, met hun sleutel).
+  function duelSides(d) {
+    if (d.spec) return sides({ name: d.c_name || "?", flair: d.c_flair, s: d.spec.c || [], key: d.spec.c_key || null },
+                             { name: d.o_name || "?", flair: d.o_flair, s: d.spec.o || [], key: d.spec.o_key || null });
+    const meC = d.me === "c";
+    return sides({ name: (meC ? d.c_name : d.o_name) || myName() || "?", flair: meC ? d.c_flair : d.o_flair, s: d.mine || [] },
+                 { name: oppName(d), flair: oppFlair(d), s: d.theirs || [] });
+  }
+  const dayOf = (d) => { try { return new Date(d.finished_at || Date.now()).toLocaleDateString(H.intl || H.lang, { day: "numeric", month: "short" }); } catch (e) { return ""; } };
+  let iconP = null;
+  const shareIcon = () => iconP || (iconP = new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = "/favicon-192.png"; }));
+
+  async function drawShare(cv, d, T, theme) {
+    const P = PAL[theme] || PAL.dark, { a, b, o } = duelSides(d), fa = flairEmoji(a.flair), fb = flairEmoji(b.flair);
+    try { await document.fonts.load(`64px ${EMO}`, "⚔️👑" + (fa || "") + (fb || "")); } catch (e) {}
+    const icon = await shareIcon();
+    cv.width = 1080; cv.height = 1080;
+    const c = cv.getContext("2d");
+    const hue = (h, al) => `hsla(${h}, 65%, 52%, ${al})`;
+    const sp = (px) => { if ("letterSpacing" in c) c.letterSpacing = px + "px"; };
+    const font = (w, px, fam = SANS) => { c.font = `${w} ${px}px ${fam}`; };
+    const rr = (x, y, w, h, r) => { c.beginPath(); if (c.roundRect) c.roundRect(x, y, w, h, r); else c.rect(x, y, w, h); };
+    const fit = (s, max) => { s = String(s); if (c.measureText(s).width <= max) return s; while (s.length > 1 && c.measureText(s + "…").width > max) s = s.slice(0, -1); return s.trimEnd() + "…"; };
+    const shrink = (s, max, w, sizes) => { for (const px of sizes) { font(w, px); if (c.measureText(s).width <= max) return s; } return fit(s, max); };   // lange naam: eerst kleiner, dan pas afkappen
+    const text = (s, x, y, al = "center", col = P.fg) => { c.textAlign = al; c.textBaseline = "alphabetic"; c.fillStyle = col; c.fillText(s, x, y); };
+    function avatar(cx, cy, r, pl, em) {
+      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fillStyle = P.soft; c.fill(); c.fillStyle = hue(pl.hue, 0.38); c.fill();
+      c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = P.fg;
+      if (em) { font("", Math.round(r * 1.02), EMO); c.fillText(em, cx, cy + r * 0.07); }
+      else { font(800, Math.round(r * 0.92)); c.fillText(initial(pl.name), cx, cy + r * 0.05); }
+    }
+    // achtergrond: een kaart met de duelgloed, zoals het duelscherm
+    c.fillStyle = P.bg; c.fillRect(0, 0, 1080, 1080);
+    const g = c.createRadialGradient(540, -160, 60, 540, -160, 980);
+    g.addColorStop(0, P.glow); g.addColorStop(1, "rgba(0,0,0,0)");
+    c.fillStyle = g; c.fillRect(0, 0, 1080, 1080);
+    rr(40, 40, 1000, 1000, 56); c.fillStyle = P.card; c.fill(); c.lineWidth = 3; c.strokeStyle = P.edge; c.stroke();
+    // kop: ⚔️ JAARDLE-DUEL · datum
+    font("", 40, EMO); c.textAlign = "left"; c.textBaseline = "alphabetic"; c.fillText(ICON, 92, 134);
+    font(800, 31); sp(6); text(T.imgBrand, 148, 130, "left", P.arena); sp(0);
+    font(500, 30); text(dayOf(d), 988, 130, "right", P.mu);
+    // de twee spelers en de stand
+    const Y = 300, R = 96, XL = 232, XR = 848;
+    avatar(XL, Y, R, a, fa); avatar(XR, Y, R, b, fb);
+    if (o.res !== "d") {
+      c.beginPath(); c.arc(XL, Y, R + 11, 0, Math.PI * 2); c.lineWidth = 9; c.strokeStyle = P.gold; c.stroke();
+      c.save(); c.translate(XL + R * 0.68, Y - R * 0.8); c.rotate(0.34); font("", 64, EMO); c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("👑", 0, 0); c.restore();
+    }
+    text(shrink(a.name, 330, 700, [46, 40, 35]), XL, 452); text(shrink(b.name, 330, 700, [46, 40, 35]), XR, 452);
+    font(500, 31); text(T.pts(o.a), XL, 498, "center", P.mu); text(T.pts(o.b), XR, 498, "center", P.mu);
+    font(800, 172); text(`${o.w}–${o.l}`, 540, 356);
+    font(700, 27); sp(4); text((o.w === o.l && o.res !== "d" ? T.onTotal : T.final).toUpperCase(), 540, 412, "center", P.mu); sp(0);
+    // vijf rondes: bovenaan de score van links, onderaan die van rechts; de tegel in de kleur van wie de ronde won
+    const TY = 556, TH = 262, X0 = 80, GAP = 18, TW = (920 - 4 * GAP) / 5;
+    for (let i = 0; i < 5; i++) {
+      const x = X0 + i * (TW + GAP), r = o.per[i], va = a.s[i], vb = b.s[i];
+      rr(x, TY, TW, TH, 26); c.fillStyle = P.soft; c.fill();
+      c.fillStyle = r === "w" ? hue(a.hue, P.tile) : r === "l" ? hue(b.hue, P.tile) : P.gray; c.fill();
+      font(700, 25); sp(3); text(`R${i + 1}`, x + TW / 2, TY + 50, "center", P.mu); sp(0);
+      [[va, vb, a.hue, TY + 140], [vb, va, b.hue, TY + 224]].forEach(([v, w, h, y]) => {
+        c.beginPath(); c.arc(x + 25, y - 21, 10, 0, Math.PI * 2); c.fillStyle = hue(h, 1); c.fill();
+        const top = v != null && (w == null || v >= w);
+        font(top ? 800 : 600, 58); text(v == null ? "–" : String(v), x + TW / 2 + 14, y, "center", top ? P.fg : P.mu);
+      });
+    }
+    // voet: logo + jaardle.com + wat Jaardle is, rechts het totaal
+    c.fillStyle = P.line; c.fillRect(80, 862, 920, 2);
+    if (icon) { c.save(); rr(80, 878, 64, 64, 14); c.clip(); c.drawImage(icon, 80, 878, 64, 64); c.restore(); }
+    font(800, 40); text("jaardle.com", 162, 936, "left");
+    font(500, 27); text(T.imgTag, 162, 976, "left", P.mu);
+    font(500, 31); text(T.imgTotal(o.a, o.b), 1000, 936, "right", P.mu);
+  }
+
+  // Het plaatje wordt klaargezet zodra de uitslag op je scherm staat: Safari wil het deelvenster vlak na de tik, zonder wachten.
+  const pngs = {};   // code → Promise<Blob | null>
+  function canShareFiles() {
+    try {
+      return !!(navigator.share && navigator.canShare && H?.isMobile?.() && typeof File === "function" &&
+        navigator.canShare({ files: [new File(["x"], "x.png", { type: "image/png" })] }));
+    } catch (e) { return false; }
+  }
+  function prepShare(d) {
+    if (!d || d.status !== "done" || pngs[d.code] || !canShareFiles()) return;
+    const T = tx(H.lang), theme = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+    pngs[d.code] = (async () => {
+      const cv = document.createElement("canvas");
+      await drawShare(cv, d, T, theme);
+      return await new Promise((ok) => cv.toBlob((bl) => ok(bl), "image/png"));
+    })().catch(() => null);
+  }
+  async function shareImage(d, text) {
+    if (!canShareFiles()) return null;
+    prepShare(d);
+    const blob = await pngs[d.code];
+    if (!blob) return null;
+    const file = new File([blob], `jaardle-duel-${d.code}.png`, { type: "image/png" });
+    if (!navigator.canShare({ files: [file], text })) return null;
+    try { await navigator.share({ files: [file], text }); return "shared"; }
+    catch (e) { return e && e.name === "AbortError" ? "abort" : null; }   // geen toestemming meer (te laat na de tik) → tekst
+  }
+
+  // ── wie de link van een afgelopen duel opent zonder mee te spelen (db/190: d.spec): de uitslag, met de rondes die omdraaien ──
+  function spectateBody(T, d) {
+    const { a, b, o } = duelSides(d), win = o.res !== "d";
+    const av = (p) => { const f = p.flair && H?.flairHtml ? H.flairHtml(p.flair) : ""; return `<span class="dl-av hue${f ? " fl" : ""}" style="--h:${p.hue}" aria-hidden="true">${f || esc(initial(p.name))}</span>`; };
+    const h = !win ? T.spTie(a.name, b.name) : o.w === o.l ? T.spWinTotal(a.name, b.name) : T.spWin(a.name, b.name, o.w, o.l);
+    const vs = `<div class="duel-vs sp-vs"><span class="side me${win ? " win" : ""}">${av(a)}<span><b>${esc(a.name)}</b><small>${esc(T.pts(o.a))}</small></span></span>` +
+      `<span class="mid"><b>${o.w}–${o.l}</b><small>${esc(win && o.w === o.l ? T.onTotal : T.final)}</small></span>` +
+      `<span class="side op">${av(b)}<span><b>${esc(b.name)}</b><small>${esc(T.pts(o.b))}</small></span></span></div>`;
+    let rds = `<div class="sp-rds">`;
+    for (let i = 0; i < 5; i++) {
+      const r = o.per[i];
+      rds += `<div class="sp-rd${r === "w" ? " wa" : r === "l" ? " wb" : r === "d" ? " d" : ""}" style="--i:${i}"><small>R${i + 1}</small>` +
+        `<b class="a${r === "l" ? " lo" : ""}">${a.s[i] ?? "–"}</b><b class="b${r === "w" ? " lo" : ""}">${b.s[i] ?? "–"}</b></div>`;
+    }
+    rds += `</div>`;
+    // een teamgenoot van de winnaar (bij gelijk: de uitdager) kan die meteen uitdagen, met zijn eigen stand erbij
+    const t = H?.loggedIn && a.key ? (listTargets || []).find((x) => x.k === a.key && !x.busy) : null;
+    const [ha, hb] = t ? recOf(a.key) : [0, 0];
+    const chip = t && (ha || hb) ? `<p class="duel-h2h">${esc(T.spMate(a.name))} <b>${ha}–${hb}</b>${formHtml(formOf(a.key))}</p>` : "";
+    const btns = t
+      ? `<button type="button" class="duel-go" data-act="sp-for" data-k="${esc(a.key)}" data-name="${esc(a.name)}">${ICON} ${esc(T.challengeX(a.name))}</button>` +
+        `<button type="button" class="duel-no" data-act="new">${esc(T.spOther)}</button>`
+      : `<p class="sp-how">${esc(T.spHow)}</p><button type="button" class="duel-go" data-act="new">${ICON} ${esc(T.challengeAny)}</button>` +
+        `<button type="button" class="duel-no" data-act="sp-daily">${esc(T.spDaily)}</button>`;
+    const day = dayOf(d);
+    return `<p class="ep-eyebrow">${ICON} ${esc(T.spEyebrow)}${day ? ` · ${esc(day)}` : ""}</p><h2>${win ? "🏆 " : ""}${esc(h)}</h2>${chip}${vs}${rds}${btns}` +
+      (H?.loggedIn ? "" : `<p class="duel-fine">${esc(T.spNew)}</p>`);
+  }
 
   // ── seintjes (web push, db/189) ──
   // Duel-seintjes staan los van het dagelijkse seintje (set_push_duel); wie dat al had, krijgt ze ook (server: duel = true).
@@ -930,6 +1136,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       head = `${icoHtml(o.res === "w" ? "🏆" : ICON)}<span class="duel-verdict">${esc(verdict(T, o, opp))}</span>`;
       note = (late ? esc(T.late) + " " : "") + esc(T.totalNote(o.a, o.b));
       setButtons({ kind: "rematch", code: d.code, html: `${icoHtml()} ${esc(T.revenge)}`, icon: true }, { kind: "result", d, label: T.shareRes });
+      prepShare(d);
     } else if (mine.length < 5) {
       const s = stand(mine, theirs);
       head = `${icoHtml()}<b>${esc(T.duelWith(opp))}</b>` + (s.n ? `<span class="duel-big">${s.w}–${s.l}</span>` : `<span class="duel-r">${esc(T.roundOf(mine.length))}</span>`);
@@ -972,6 +1179,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const o = outcome(mine, theirs), s = stand(mine, theirs), af = flip ? " after" : "";
     let inner = `<p class="ep-eyebrow">${ICON} ${esc(T.duelWith(opp))}</p>`;
     if (done) {
+      prepShare(d);
       const h = verdict(T, o, opp);
       inner += `<h2 class="${af.trim()}">${o.res === "w" ? "🏆 " : ""}${esc(h)}</h2>` +
         `<div class="duel-vs">${vsInner(T, d, { big: flip ? "?–?" : `${o.w}–${o.l}`, small: T.final })}</div>` +
@@ -1048,10 +1256,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const T = tx(H.lang), s = what || endShare;
     if (!s) return;
     if (s.kind === "turn") { gc("duel-tell", "Duel: let opponent know"); return shareText(T, T.shTurn(oppName(s.d)), LINK(s.d.code), btn); }
-    if (s.kind === "result") {
+    if (s.kind === "result") {   // db/190: met het plaatje en de link (een buitenstaander ziet daar de uitslag); kan dat niet, dan tekst met link
       gc("duel-share-result", "Duel: share result");
-      const o = outcome(s.d.mine, s.d.theirs);
-      return shareText(T, `${T.shResult(oppName(s.d), o.w, o.l, o.res)}\n${squares(o)} · ${T.shTotals(o.a, o.b)}`, null, btn);
+      const o = outcome(s.d.mine, s.d.theirs), line = T.shResult(oppName(s.d), o.w, o.l, o.res), url = LINK(s.d.code);
+      return shareImage(s.d, `${line}\n${url}`).then((how) => {
+        if (how === "shared") gc("duel-share-image", "Duel: result shared as image");
+        return how || shareText(T, `${line}\n${squares(o)} · ${T.shTotals(o.a, o.b)}`, url, btn);
+      });
     }
   }
 
@@ -1455,6 +1666,11 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       if (d.status === "active" && (d.mine || []).length < 5) return play(H, d.code, d);
       return openList(H, { focus: d.code });
     }
+    if (d && !d.me && d.status === "done" && d.spec) {   // db/190
+      gc("duel-link-spectate", "Duel: result opened by a spectator");
+      const { a, b } = duelSides(d);
+      return showPop(T, spectateBody(T, d), d, { cls: " sp rev", style: `--ha:${a.hue};--hb:${b.hue}` });
+    }
     const kind = !d ? "notfound" : d.me === "c" ? "own" : d.can_accept ? "open" : d.status === "active" || d.status === "done" ? "taken" : "closed";
     gc("duel-link-" + kind, "Duel: link opened (" + kind + ")");
     showPop(T, popBody(T, d), d);
@@ -1492,7 +1708,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     return `${icoHtml()}<h2>${esc(T.closedExp)}</h2>${again}`;
   }
 
-  function showPop(T, inner, d) {
+  function showPop(T, inner, d, { cls = "", style = "" } = {}) {
     document.getElementById("modal-duel-pop")?.remove();
     const el = document.createElement("div");
     el.id = "modal-duel-pop";
@@ -1500,7 +1716,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     el.hidden = true;
     el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "duel-pop-title");
     el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card duel-pop">` +
-      `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button><section class="duel-inv">${inner}</section></div>`;
+      `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button><section class="duel-inv${cls}"${style ? ` style="${style}"` : ""}>${inner}</section></div>`;
     el.querySelector("h2")?.setAttribute("id", "duel-pop-title");
     document.body.appendChild(el);
     el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => H.closeModal("modal-duel-pop")));
@@ -1512,7 +1728,19 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const T = tx(H.lang), b = e.target.closest("[data-act]");
     if (!b) return;
     const act = b.dataset.act, code = b.dataset.code;
+    if (act === "new" && d?.spec) gc("duel-spectate-challenge", "Duel: spectator challenges someone");
     if (act === "new") { H.closeModal("modal-duel-pop"); return create(H, {}); }
+    if (act === "sp-for") {   // db/190: een teamgenoot daagt de winnaar uit (zoals een gezichtje)
+      gc("duel-spectate-challenge-direct", "Duel: spectator challenges the winner");
+      H.closeModal("modal-duel-pop");
+      return create(H, { forK: b.dataset.k, forName: b.dataset.name });
+    }
+    if (act === "sp-daily") {
+      gc("duel-spectate-daily", "Duel: spectator goes to the daily");
+      H.closeModal("modal-duel-pop");
+      if (H.state?.()?.mode !== "daily") H.switchMode?.("daily");
+      return;
+    }
     if (act === "send") return shareText(T, (d?.rematch ? T.shRematch : T.shInvite)(d?.c_name || ""), LINK(code), b);
     if (act === "login") {   // na het inloggen (ook na Google) komt deze uitnodiging terug: zie duelsAfterLogin in game.js
       gc("duel-login-invite", "Duel: log in from invite");
@@ -1559,6 +1787,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     openList, openInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
+         spectateBody, duelSides, flairEmoji, HUES, drawShare,
          setPick: (k) => { pickSel = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

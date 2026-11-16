@@ -123,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 135000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip, alleen voor wie duelleert)
+  assert.ok(SRC.length < 150000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer (≈ +4 KB gzip), alleen voor wie duelleert
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde telt niet en gaat naar duel_submit", () => {
@@ -284,4 +284,75 @@ test("game.js / sw.js / remind.js ↔ db/189 — kleur, seintjes-schakelaar, rod
   assert.match(RM, /if \(sub && !duelKeep\) await sub\.unsubscribe\(\);/, "het dagelijkse seintje uit laat zelf aangezette duel-seintjes staan");
   assert.match(SRC, /"jaardle:duelpush"/); assert.match(GAME, /"jaardle:duelpush"/); assert.match(RM, /"jaardle:duelpush"/);
   for (const p of ["duel-create-direct", "duel-create-team", "duel-push-on", "duel-push-off", "duel-push-denied"]) assert.ok(SRC.includes(`"${p}`), `meetpunt ${p}`);
+});
+
+// ── stap 2 (db/190, mockup v6): uitslag delen als plaatje + link, en de uitslag voor wie de link opent zonder mee te spelen ──
+const FACE_HUES_GAME = JSON.parse(GAME.match(/const FACE_HUES = (\[[^\]]+\])/)[1]);
+function faceHueGame(name) { let h = 0; const s = String(name || ""); for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return FACE_HUES_GAME[h % FACE_HUES_GAME.length]; }
+
+test("duel.js v4 — de kleuren van het plaatje zijn die van de gezichtjes; winnaar links; gelijke kleur schuift vast op", () => {
+  assert.deepEqual(plain(X.HUES), FACE_HUES_GAME, "HUES in duel.js = FACE_HUES in game.js");
+  X.setHost(host({ faceHue: faceHueGame }));
+  assert.equal(faceHueGame("Noor"), faceHueGame("Bram"), "Noor en Bram hebben toevallig dezelfde kleur (zo test dit het opschuiven)");
+  const spec = (c, o) => ({ code: "K7QX2M", status: "done", me: null, c_name: "Noor", o_name: "Bram", spec: { c, o, c_key: "kc", o_key: "ko" } });
+  const win = X.duelSides(spec([95, 52, 87, 92, 85], [87, 74, 64, 100, 72]));
+  const loss = X.duelSides(spec([87, 74, 64, 100, 72], [95, 52, 87, 92, 85]));
+  assert.equal(win.a.name, "Noor"); assert.equal(loss.a.name, "Bram", "de winnaar staat links");
+  assert.deepEqual([win.o.w, win.o.l, win.o.res], [3, 2, "w"]); assert.deepEqual([loss.o.w, loss.o.l], [3, 2]);
+  assert.notEqual(win.a.hue, win.b.hue, "twee verschillende kleuren");
+  assert.equal(win.a.hue, loss.b.hue, "Noor houdt haar kleur, wie er ook won"); assert.equal(win.b.hue, loss.a.hue);
+  assert.equal(win.b.hue, faceHueGame("Bram"), "Bram (eerder in het alfabet) houdt de kleur van zijn gezichtje");
+  const tie = X.duelSides(spec([90, 60, 80, 70, 85], [85, 65, 80, 75, 80]));
+  assert.equal(tie.o.res, "d"); assert.equal(tie.a.name, "Noor", "gelijk: de uitdager links");
+  // je eigen duel: jij en de ander
+  const own = X.duelSides({ code: "K7QX2M", status: "done", me: "o", c_name: "Bram", o_name: "Noor", c_flair: "🦫", o_flair: "🎲~sparkle", mine: [95, 52, 87, 92, 85], theirs: [87, 74, 64, 100, 72] });
+  assert.equal(own.a.name, "Noor"); assert.equal(own.a.flair, "🎲~sparkle"); assert.equal(own.b.flair, "🦫");
+  assert.equal(X.flairEmoji("🎲~sparkle"), "🎲", "effect eraf"); assert.equal(X.flairEmoji("v:capibara"), null, "een vondst-tekening → beginletter"); assert.equal(X.flairEmoji(null), null);
+});
+
+test("duel.js v4 — pop-up voor een buitenstaander: uitslag met omdraaiende rondes, 'Daag zelf iemand uit'; teamgenoot: 'Daag <winnaar> uit'", () => {
+  const T = D.copy("nl");
+  const d = { code: "K7QX2M", status: "done", me: null, c_name: "Noor<b>", o_name: "Bram", finished_at: "2026-11-16T19:00:00Z",
+    spec: { c: [95, 52, 87, 92, 85], o: [87, 74, 64, 100, 72], c_key: "kc", o_key: "ko" } };
+  X.setHost(host({ faceHue: faceHueGame }));
+  const anon = X.spectateBody(T, d);
+  assert.match(anon, /🏆 Noor&lt;b&gt; wint 3–2 van Bram/, "kop met winnaar, ge-escaped");
+  assert.match(anon, /class="side me win"[^]*Noor&lt;b&gt;[^]*class="side op"[^]*Bram/, "winnaar links met de gouden rand");
+  assert.equal((anon.match(/class="sp-rd /g) || []).length, 5);
+  assert.match(anon, /class="sp-rd wa" style="--i:0"><small>R1<\/small><b class="a">95<\/b><b class="b lo">87<\/b>/);
+  assert.match(anon, /class="sp-rd wb" style="--i:1"><small>R2<\/small><b class="a lo">52<\/b><b class="b">74<\/b>/);
+  assert.match(anon, /data-act="new">⚔️ Daag zelf iemand uit/); assert.match(anon, /data-act="sp-daily">Speel de daily van vandaag/);
+  assert.match(anon, /Nieuw hier\?/, "zonder account: één zin over wat Jaardle is");
+  assert.ok(!/sp-for/.test(anon), "zonder account geen directe uitdaging");
+  // ingelogd, Noor is een teamgenoot (vrij) met een stand
+  X.setHost(host({ faceHue: faceHueGame, loggedIn: true, myName: () => "Sanne" }));
+  X.applyList({ items: [], targets: [{ k: "kc", name: "Noor", team: true, busy: null }], h2h: { kc: { w: 1, l: 2, n: 3 } } });
+  const mate = X.spectateBody(T, d);
+  assert.match(mate, /Jij tegen Noor&lt;b&gt; <b>1–2<\/b>/); assert.match(mate, /data-act="sp-for" data-k="kc" data-name="Noor&lt;b&gt;">⚔️ Daag Noor&lt;b&gt; uit/);
+  assert.match(mate, /data-act="new">Daag iemand anders uit/); assert.ok(!/Nieuw hier/.test(mate));
+  X.applyList({ items: [], targets: [{ k: "kc", name: "Noor", team: true, busy: "ABCDEF" }], h2h: {} });
+  assert.ok(!/sp-for/.test(X.spectateBody(T, d)), "loopt er al een duel met de winnaar: geen directe uitdaging");
+  X.applyList({ items: [], targets: [], h2h: {} });
+  const tie = X.spectateBody(T, { ...d, spec: { ...d.spec, c: [90, 60, 80, 70, 85], o: [85, 65, 80, 75, 80] } });
+  assert.match(tie, /Gelijkspel tussen Noor&lt;b&gt; en Bram/); assert.ok(!/class="side me win"/.test(tie), "gelijk: geen gouden rand");
+  const pts = X.spectateBody(T, { ...d, spec: { ...d.spec, c: [50, 60, 70, 80, 90], o: [60, 50, 70, 70, 95] } });
+  assert.match(pts, /wint op totaal van/); assert.match(pts, /<small>op totaal<\/small>/);
+});
+
+test("duel.js v4 — delen: plaatje + link als het toestel bestanden kan delen, anders tekst mét link; de link opent de uitslag", () => {
+  const share = SRC.slice(SRC.indexOf("function share(host"), SRC.indexOf("async function markSeen"));
+  assert.match(share, /shareImage\(s\.d, `\$\{line\}\\n\$\{url\}`\)/, "plaatje met regel + link");
+  assert.match(share, /shareText\(T, `\$\{line\}\\n\$\{squares\(o\)\} · \$\{T\.shTotals\(o\.a, o\.b\)\}`, url, btn\)/, "zonder plaatje: tekst met de link (was zonder)");
+  assert.match(SRC, /navigator\.canShare\(\{ files: \[file\], text \}\)/); assert.match(SRC, /navigator\.share\(\{ files: \[file\], text \}\)/);
+  assert.match(SRC, /H\?\.isMobile\?\.\(\)/, "alleen op een telefoon (op een computer kopiëren, zoals nu)");
+  const end = SRC.slice(SRC.indexOf("function renderEnd("), SRC.indexOf("function next(host)"));
+  assert.equal((end.match(/prepShare\(d\)/g) || []).length, 2, "plaatje klaarzetten op de eindkaart en in de eindstand-pop-up");
+  assert.match(SRC, /if \(!d \|\| d\.status !== "done" \|\| pngs\[d\.code\] \|\| !canShareFiles\(\)\) return;/, "alleen bij een afgelopen duel, één keer, en alleen waar het kan");
+  const inv = SRC.slice(SRC.indexOf("async function openInvite("), SRC.indexOf("function popBody("));
+  assert.match(inv, /if \(d && !d\.me && d\.status === "done" && d\.spec\)/, "buitenstaander + afgelopen duel → de uitslag");
+  assert.ok(inv.indexOf("d.spec") > inv.indexOf("if (d && d.me &&"), "spelers zelf gaan eerst naar hun eigen duel");
+  assert.match(SRC, /"\/favicon-192\.png"/); assert.match(SRC, /toBlob\(/);
+  for (const p of ["duel-share-image", "duel-link-spectate", "duel-spectate-challenge", "duel-spectate-challenge-direct", "duel-spectate-daily"]) assert.ok(SRC.includes(`"${p}"`), `meetpunt ${p}`);
+  assert.match(D.css, /\.sp\.rev \.sp-rd \{ animation: dsp-flip/); assert.match(D.css, /prefers-reduced-motion: reduce\) \{\n  \.sp\.rev \.sp-rd/, "omdraaien valt weg bij minder beweging");
+  assert.ok(!/\?ref=/.test(SRC.slice(SRC.indexOf("const LINK"), SRC.indexOf("const LINK") + 80)), "geen ref aan de deellink");
 });
