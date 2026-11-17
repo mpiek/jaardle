@@ -4881,7 +4881,8 @@ const loadDuel = fxLoader("/duel.js", "Duel");
 const DUEL_BOARD_KEY = (code, r) => `jaardle:duelboard:${code}:${r}`;
 function duelHost() {
   return {
-    lang, intl: LANGS[lang]?.intl, rpc, clientId, loggedIn: !!auth.user, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
+    lang, intl: LANGS[lang]?.intl, rpc, clientId, get loggedIn() { return !!auth.user; }, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
+    authReady: () => Promise.race([authResolvedP, new Promise((r) => setTimeout(r, 4000))]),
     openModal, closeModal, renderMenuDot, isMobile: isMobileDevice, showConfetti, toEvent, t, els,
     flairHtml: flairStaticHtml, myFlair: () => myFlair, openLogin: () => openModal("modal-login"), gc: gcCount,
     state: () => state, score: computeScore,
@@ -4923,7 +4924,11 @@ function openDuels() {   // ⋮ → Duels (meetpunt duel-list; de rest van de du
 }
 function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-news")) || 0; } catch (e) { return 0; } }
 function duelKnown() {
-  try { const a = JSON.parse(localStorage.getItem("jaardle:duels") || "[]"); return Array.isArray(a) && a.length > 0; } catch (e) { return false; }
+  try { const a = JSON.parse(localStorage.getItem("jaardle:duels") || "[]"); return (Array.isArray(a) && a.length > 0) || !!duelInviteWaiting(); } catch (e) { return false; }
+}
+// Een nog onbeantwoorde uitnodiging (zie INVITE_KEY in /duel.js)
+function duelInviteWaiting() {
+  try { const v = JSON.parse(localStorage.getItem("jaardle:duelInvite") || "null"); return v && v.c && v.u > Date.now() ? v : null; } catch (e) { return null; }
 }
 
 // ── Nieuws-balk (16/11/2026): een nieuwe feature een paar dagen aankondigen boven de feitenkaart. Nieuwe aankondiging = alleen een rij:
@@ -5029,7 +5034,7 @@ function duelsAfterLogin() {
   try { p = JSON.parse(localStorage.getItem(DUEL_PENDING_KEY) || "null"); localStorage.removeItem(DUEL_PENDING_KEY); } catch (e) {}
   if (p && p.code && Date.now() - (p.at || 0) < 30 * 60 * 1000) {
     gcCount("duel-login-back", "Duel: back after logging in");   // de noemer staat in /duel.js: duel-login-invite|-end|-list
-    claimed.then(() => loadDuel()).then((D) => D.openInvite(duelHost(), p.code)).catch(() => {});
+    claimed.then(() => loadDuel()).then((D) => D.openInvite(duelHost(), p.code, { afterLogin: true })).catch(() => {});
   }
 }
 // db/189: een teamgenoot kan je direct uitdagen. Wie nog geen duels op dit toestel heeft (dan kijkt checkNews niet), vraagt met
@@ -13402,6 +13407,8 @@ function themePickerHtml() {
 // `resolved` wordt true bij het eerste sb-auth-changed-event (vuurt óók voor anon):
 // pas dan weten we welke historie-bron (DB of lokaal) gezaghebbend is.
 const auth = { user: null, resolved: false };
+let authResolvedNow = () => {};
+const authResolvedP = new Promise((r) => { authResolvedNow = r; });
 
 // Het menu-knopje toont de account-staat: profielfoto (Google) / initiaal-cirkel
 // (e-mail) / silhouet + "Inloggen" (uitgelogd) — i.p.v. de vaste ⋮.
@@ -14930,15 +14937,19 @@ async function init() {
 
   // Sync auth-state vanuit de Supabase-bridge (index.template.html).
   const onAuthChanged = async (e) => {
+    // supabase-js meldt SIGNED_IN ook bij elke terugkeer naar de app: zelfde speler → naam+flair laten staan (anders o.a. "J" in duels)
+    const sameUser = auth.resolved && (auth.user?.uid ?? null) === (e.detail?.uid ?? null);
     auth.user = e.detail
       ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null, name: e.detail.name || null }
       : null;
     auth.resolved = true;  // historie-bron is nu bekend (ook bij anon: detail=null)
+    authResolvedNow();
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
     invalidateStreakExtras();  // levens/bruggen/reparatie horen bij de identiteit
     achvCache = null;      // prestaties horen bij de identiteit
     myTitle = null; myTitleLoaded = false;   // idem: gedragen titel is per account
-    myFlair = null; myUsername = null; myIdentityLoaded = false;   // naam+flair horen bij de identiteit (kluis herlaadt ze)
+    if (!sameUser) { myFlair = null; myUsername = null; }   // naam+flair horen bij de identiteit (kluis herlaadt ze)
+    myIdentityLoaded = false;
     myRewardsSeen = undefined;                                     // beloning-gezien-lijst hoort bij de identiteit (herlaadt na de eerste pot)
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     syncPrefs("new");      // nieuw toestel voor dit account: je keuzes (thema, vieringen …) ophalen; anders niets
@@ -15110,6 +15121,7 @@ async function init() {
     setTimeout(uncoverDuel, 10000);
     loadDuel().then((D) => D.openInvite(duelHost(), duelCode)).catch(uncoverDuel);
   }
+  else if (duelInviteWaiting() && !duelInviteWaiting().later && !sharedHashes) setTimeout(() => loadDuel().then((D) => D.resumeInvite(duelHost())).catch(() => {}), 600);
   // Rode stip voor duels (jouw beurt, een nieuwe uitslag): alleen wie op dit toestel duels heeft vraagt het na, in een rustig moment.
   else if (duelKnown()) setTimeout(() => loadDuel().then((D) => D.checkNews(duelHost())).catch(() => {}), 2500);
   if (!duelCode) uncoverDuel();

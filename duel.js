@@ -29,6 +29,7 @@
 window.Duel = (() => {
   const ICON = "⚔️";
   const LIST_KEY = "jaardle:duels", NEWS_KEY = "jaardle:duel-news", NAME_KEY = "jaardle:duel-name", PENDING_KEY = "jaardle:pendingDuel";
+  const INVITE_KEY = "jaardle:duelInvite";   // { c: code, u: einde (ms), later: na ✕ } — een uitnodiging die nog op je antwoord wacht (game.js leest hem ook)
   const CLAIM_KEY = "jaardle:duelclaim";   // van game.js (duelsAfterLogin): voor welke accounts dit toestel zijn duels al overzette
   const LINK = (code) => `https://jaardle.com/?duel=${code}`;
   const FLIP_MS = 500 + 5 * 650 + 500;   // zo lang duurt de onthulling (zie .flip in de CSS)
@@ -692,6 +693,24 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     writeJson(LIST_KEY, list.slice(-30));
     // Zonder account geduelleerd: bij de volgende keer inloggen zet game.js de duels van dit toestel (opnieuw) over naar het account.
     if (!H?.loggedIn) { try { localStorage.removeItem(CLAIM_KEY); } catch (e) {} }
+  }
+  // Een link-uitnodiging staat in geen lijst: bewaard tot je antwoordt (17/11: terug naar WhatsApp, app later weer open → onvindbaar).
+  const inviteRec = () => { const v = readJson(INVITE_KEY, null); return v && v.c && v.u > Date.now() ? v : null; };
+  function inviteKeep(d, later = false) { writeJson(INVITE_KEY, { c: d.code, u: Date.parse(d.deadline || "") || Date.now() + 864e5, later }); }
+  function inviteDrop(code) { const v = readJson(INVITE_KEY, null); if (v && (!code || v.c === code)) { try { localStorage.removeItem(INVITE_KEY); } catch (e) {} } }
+  // Duels-scherm en stipje: de bewaarde uitnodiging erbij onder Jouw beurt (één aanroep, alleen als er een is).
+  async function withInvite(v) {
+    const inv = readJson(INVITE_KEY, null);
+    if (!inv || !inv.c || !v) return v;
+    if (!(inv.u > Date.now())) { inviteDrop(); return v; }
+    const items = Array.isArray(v.items) ? v.items : [];
+    const there = items.find((x) => x.code === inv.c);
+    if (there) { if (!incoming(there)) inviteDrop(inv.c); return v; }
+    const g = await call("duel_get", { p_code: inv.c });
+    if (!g.ok) return v;   // geen netwerk: volgende keer
+    if (!g.v || !incoming(g.v)) { inviteDrop(inv.c); return v; }
+    keep(g.v);
+    return { ...v, items: [g.v, ...items], news: (v.news || 0) + 1 };
   }
   function setNews(n) {
     try { localStorage.setItem(NEWS_KEY, String(Math.max(0, n | 0))); } catch (e) {}
@@ -1378,6 +1397,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (d.status !== "active" || r >= 5 || !d.rounds || !d.rounds[r]) return openList(H, { focus: d.code });
     const p = d.rounds[r], board = H.duelBoard?.(d.code, r) || null;
     const begun = !!(board && (board.done || (board.guesses || []).length));
+    if (how && !begun && H.loggedIn) await H.ensureIdentity?.().catch?.(() => {});   // je flair in de opening
     const intro = how && !begun ? introStart(d, r, how === "short") : null;
     if (intro) await intro.covered; else uncover();
     ["modal-duels", "modal-duel-pop", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
@@ -1391,7 +1411,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   // Het duelscherm (zolang state.duel): de duelkop in plaats van de tabbladen (‹ Jaardle · ⚔️ DUEL · ronde), de VS-kop boven
   // het feit, en de duelkleur (body[data-arena]). Zonder duel: alles weer weg.
-  let vsFetching = null;
+  let vsFetching = null, idAsked = false;
   function sync(host) {
     H = host || H;
     const st = H.state(), body = document.body;
@@ -1402,6 +1422,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       return;
     }
     ensureCss();
+    if (H.loggedIn && !H.myFlair?.() && !idAsked) {   // na herladen: je flair i.p.v. je beginletter
+      idAsked = true;
+      H.ensureIdentity?.().then(() => { if (H.myFlair?.()) sync(); }).catch(() => {});
+    }
     const T = tx(H.lang), dl = st.duel;
     const d = cache[dl.code] || { code: dl.code, status: "active", me: null, c_name: dl.opp, o_name: dl.opp, mine: [], theirs: [], deadline: dl.deadline };
     body.setAttribute("data-duelpage", "");
@@ -1669,15 +1693,15 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     renderList(T, null);   // meteen wat we al weten (ook een net onthulde uitslag: die staat al op gezien), daarna vers van de server
     const r = await call("duel_list", {});
     if (!r.ok) { listItems = listItems || []; renderList(T, T.err); return; }
-    applyList(r.v);
+    applyList(await withInvite(r.v));
     let pop = null;
     if (opts.focus) {
-      const d = listItems.find((x) => x.code === opts.focus);
-      if (d && d.status === "done") { openGrp = d.opp || oppName(d); selInGrp[openGrp] = d.code; if (!d.seen) pop = d; }
+      const d = listItems.find((x) => x.code === opts.focus) || (opts.end && opts.end.code === opts.focus ? opts.end : null);
+      if (d && d.status === "done") { openGrp = d.opp || oppName(d); selInGrp[openGrp] = d.code; if (!d.seen || opts.end) pop = d; }
       else if (d && d.status === "active") openWait.add(d.code);
     }
     renderList(T, null);
-    if (pop) showEndPop(T, pop, { flip: true });
+    if (pop) showEndPop(T, pop, pop.seen ? { again: true } : { flip: true });
   }
 
   function applyList(v) {
@@ -1922,7 +1946,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (act === "decline") {
       gc("duel-decline", "Duel: declined");
       b.disabled = true;
-      return call("duel_decline", { p_code: code, p_name: myName() }).then(() => openList(H, { keepTop: true }));
+      return call("duel_decline", { p_code: code, p_name: myName() }).then(() => { inviteDrop(code); return openList(H, { keepTop: true }); });
     }
     if (act === "help") { helpOpen = !helpOpen; if (helpOpen) gc("duel-help", "Duel: how it works"); return renderList(T, null); }
     if (act === "reload") return openList(H, { keepTop: true });
@@ -1963,6 +1987,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     b.textContent = T.loading;
     const r = await call("duel_accept", { p_code: code, p_name: name });
     if (!r.ok) return openList(H, { keepTop: true });
+    inviteDrop(code);
     const dd = keep(r.v);
     remember(dd.code, dd.deadline);
     gc("duel-accept", "Duel: accepted");
@@ -2027,19 +2052,30 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
 
   // ════ een ?duel=CODE-link ════
-  async function openInvite(host, raw) {
+  // afterLogin: een afgelopen duel zonder eindstand-pop-up (je tegenstander bij de gezichtjes). resume: bewaarde uitnodiging, alleen als hij nog kan.
+  async function openInvite(host, raw, { afterLogin = false, resume = false } = {}) {
     H = host;
     ensureCss();
     const T = tx(H.lang), code = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+    // Eerst weten of je ingelogd bent: anders een leeg naamveld ("Neem aan" deed niets) en "J" (van "Jij") in de opening.
+    await H.authReady?.();
     if (H.loggedIn) await H.ensureIdentity?.().catch?.(() => {});
     const [r, l] = await Promise.all([call("duel_get", { p_code: code }), H.loggedIn ? call("duel_list", {}) : null]);
     if (l && l.ok) applyList(l.v);   // db/189: jullie stand in de uitnodiging
+    if (resume) {
+      if (!r.ok) return;   // geen netwerk: volgende keer
+      if (!r.v || !incoming(r.v)) return inviteDrop(code);   // al beantwoord, ingetrokken of verlopen: stil weg
+      if (document.querySelector(".modal:not([hidden])")) return;
+      return showPop(T, popBody(T, r.v), r.v);
+    }
     if (!r.ok) return showPop(T, `<p>${esc(T.err)}</p>`, null);
     const d = r.v;
+    if (d && incoming(d)) inviteKeep(d); else inviteDrop(code);
     if (d && d.me && (d.status === "active" || d.status === "done")) {
       keep(d); remember(d.code, d.deadline);
       if (d.status === "active" && (d.mine || []).length < 5) return play(H, d.code, d);
-      return openList(H, { focus: d.code });
+      // uitgespeeld, via seintje of link: de eindstand-pop-up boven het Duels-scherm
+      return openList(H, { focus: d.code, end: afterLogin ? null : d });
     }
     if (d && !d.me && d.status === "done" && d.spec) {   // db/190
       gc("duel-link-spectate", "Duel: result opened by a spectator");
@@ -2049,6 +2085,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const kind = !d ? "notfound" : d.me === "c" ? "own" : d.can_accept ? "open" : d.status === "active" || d.status === "done" ? "taken" : "closed";
     gc("duel-link-" + kind, "Duel: link opened (" + kind + ")");
     showPop(T, popBody(T, d), d);
+  }
+
+  function resumeInvite(host) {
+    H = host;
+    const inv = inviteRec();
+    if (!inv || inv.later) return;
+    return openInvite(host, inv.c, { resume: true });
   }
 
   function popBody(T, d) {
@@ -2095,7 +2138,12 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button><section class="duel-inv${cls}"${style ? ` style="${style}"` : ""}>${inner}</section></div>`;
     el.querySelector("h2")?.setAttribute("id", "duel-pop-title");
     document.body.appendChild(el);
-    el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => H.closeModal("modal-duel-pop")));
+    el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => {
+      const later = d && incoming(d) && readJson(INVITE_KEY, null)?.c === d.code;
+      if (later) inviteKeep(d, true);   // ✕ = later beslissen: dan in het Duels-scherm (met stipje), niet meer als pop-up
+      H.closeModal("modal-duel-pop");
+      if (later) checkNews(H);
+    }));
     el.addEventListener("click", (e) => onPopClick(e, d));
     H.openModal("modal-duel-pop");
   }
@@ -2125,11 +2173,12 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       return H.openLogin?.();
     }
     const inp = document.getElementById("duel-name-acc");
-    const name = inp ? cleanName(inp.value) : myName();
+    const name = (inp && cleanName(inp.value)) || myName();
     if (act === "decline") {
       b.disabled = true;
       gc("duel-decline", "Duel: declined");
       await call("duel_decline", { p_code: code, p_name: name || null });
+      inviteDrop(code);
       H.closeModal("modal-duel-pop");
       return;
     }
@@ -2141,10 +2190,12 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       const r = await call("duel_accept", { p_code: code, p_name: name });
       if (!r.ok) {   // al aangenomen, verlopen of geen netwerk: laat zien hoe het er nu voor staat
         const g = await call("duel_get", { p_code: code });
+        if (g.ok && !(g.v && incoming(g.v))) inviteDrop(code);
         const box = document.querySelector("#modal-duel-pop .duel-inv");
         if (box) box.innerHTML = g.ok ? popBody(T, g.v) : `<p class="duel-err">${esc(T.err)}</p>`;
         return;
       }
+      inviteDrop(code);
       const dd = keep(r.v);
       remember(dd.code, dd.deadline);
       gc("duel-accept", "Duel: accepted");
@@ -2156,13 +2207,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   async function checkNews(host) {
     H = host || H;
     const r = await call("duel_list", {});
-    if (r.ok) applyList(r.v);
+    if (r.ok) applyList(await withInvite(r.v));
   }
 
   return {
-    openList, openInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
+    openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
-    _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
+    _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel,
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };

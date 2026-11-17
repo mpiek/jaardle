@@ -123,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 182000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip)
+  assert.ok(SRC.length < 185500, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -454,8 +454,10 @@ test("duel.js — account-momenten zonder account: bij de uitslag wat je er met 
   assert.match(SRC, /gc\("duel-login-end", [^)]*\); parkLogin\(d\.code\); close\(\); return H\.openLogin\?\.\(\);/);
   assert.match(SRC, /gc\("duel-login-list", [^)]*\); parkLogin\(code\); return H\.openLogin\?\.\(\);/);
   assert.match(SRC, /gc\("duel-login-invite", [^)]*\);\s+parkLogin\(code\);/);
-  // je eigen afgelopen duel openen = het Duels-scherm bij dat duel (daar komt de terugkeer na het inloggen uit)
-  assert.match(SRC, /if \(d && d\.me && \(d\.status === "active" \|\| d\.status === "done"\)\) \{[^]*?return openList\(H, \{ focus: d\.code \}\);/);
+  // je eigen afgelopen duel openen = het Duels-scherm bij dat duel (daar komt de terugkeer na het inloggen uit); via een link of
+  // seintje met de eindstand-pop-up erboven, na het inloggen zonder (dan zie je je tegenstander bij de gezichtjes)
+  assert.match(SRC, /if \(d && d\.me && \(d\.status === "active" \|\| d\.status === "done"\)\) \{[^]*?return openList\(H, \{ focus: d\.code, end: afterLogin \? null : d \}\);/);
+  assert.match(GAME, /D\.openInvite\(duelHost\(\), p\.code, \{ afterLogin: true \}\)/);
   // zonder account geduelleerd → game.js zet de duels bij de volgende login (opnieuw) over
   assert.match(SRC, /CLAIM_KEY = "jaardle:duelclaim"/); assert.match(GAME, /DUEL_CLAIM_KEY = "jaardle:duelclaim"/);
   assert.match(SRC, /if \(!H\?\.loggedIn\) \{ try \{ localStorage\.removeItem\(CLAIM_KEY\); \} catch \(e\) \{\} \}/);
@@ -522,4 +524,69 @@ test("duel.js — een seintje of link (?duel=) opent achter het ⚔️-laadscher
   assert.match(D.css, /#duel-intro\.short \{ pointer-events: none;/);
   assert.match(SRC, /coverAt = 0; holdTo = INTRO_MS\.bandIn \+ INTRO_MS\.bandHold;/);
   assert.match(SRC, /if \(!short\) \{ e\.preventDefault\(\); e\.stopImmediatePropagation\(\); \}/);
+});
+
+test("duel.js — een link-uitnodiging zonder antwoord blijft bewaard (17/11: terug naar WhatsApp, app later open → kon niet meer aannemen)", async () => {
+  const store = {};
+  const ls = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: (k) => { delete store[k]; } };
+  const win = {};
+  const doc = { head: { appendChild() {} }, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], createElement: () => ({ setAttribute() {}, textContent: "" }) };
+  vm.runInContext(SRC, vm.createContext({ window: win, document: doc, localStorage: ls, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, encodeURIComponent, setTimeout }));
+  const Y = win.Duel._, T = win.Duel.copy("nl"), KEY = Y.INVITE_KEY, soon = new Date(Date.now() + 3600e3).toISOString();
+  const calls = [];
+  let reply = null;
+  Y.setHost({ lang: "nl", loggedIn: false, myName: () => null, clientId: () => "c1", rpc: async (fn, a) => { calls.push([fn, a.p_code]); return reply; } });
+  const inv = { code: "ABC123", status: "open", me: null, can_accept: true, c_name: "Geert", opp: "kg", deadline: soon };
+  // ✕ = later: hij staat in het Duels-scherm onder Jouw beurt, met Neem aan, en telt mee voor het stipje
+  store[KEY] = JSON.stringify({ c: "ABC123", u: Date.now() + 3600e3, later: true });
+  reply = inv;
+  let v = await Y.withInvite({ items: [], news: 0 });
+  assert.deepEqual(plain(v.items.map((x) => x.code)), ["ABC123"]);
+  assert.equal(v.news, 1);
+  assert.match(Y.listBody(T, v.items, "", null), /data-act="accept" data-code="ABC123"/);
+  assert.ok(KEY in store);
+  // staat hij al in de lijst (een directe uitdaging): geen extra aanroep, niet dubbel
+  calls.length = 0;
+  v = await Y.withInvite({ items: [inv], news: 1 });
+  assert.equal(v.items.length, 1); assert.equal(calls.length, 0);
+  // geen netwerk: bewaren voor de volgende keer
+  Y.setHost({ lang: "nl", loggedIn: false, myName: () => null, clientId: () => "c1", rpc: async () => { throw new Error("offline"); } });
+  v = await Y.withInvite({ items: [], news: 0 });
+  assert.equal(v.items.length, 0); assert.ok(KEY in store, "offline: niet weggooien");
+  // al aangenomen (door jou elders of iemand anders), afgewezen of verlopen: stil weg
+  Y.setHost({ lang: "nl", loggedIn: false, myName: () => null, clientId: () => "c1", rpc: async () => reply });
+  reply = { ...inv, status: "active", can_accept: false, o_name: "Bram" };
+  v = await Y.withInvite({ items: [], news: 0 });
+  assert.equal(v.items.length, 0); assert.ok(!(KEY in store));
+  // de 24 uur voorbij: weg zonder aanroep
+  store[KEY] = JSON.stringify({ c: "ABC123", u: Date.now() - 1 });
+  calls.length = 0;
+  Y.setHost({ lang: "nl", loggedIn: false, myName: () => null, clientId: () => "c1", rpc: async (fn) => { calls.push(fn); return reply; } });
+  await Y.withInvite({ items: [], news: 0 });
+  assert.equal(calls.length, 0); assert.ok(!(KEY in store));
+  // de bedrading: bewaren bij het tonen, weg bij aannemen/afwijzen, ✕ = later, game.js toont hem bij het volgende openen opnieuw
+  assert.match(SRC, /if \(d && incoming\(d\)\) inviteKeep\(d\); else inviteDrop\(code\);/);
+  assert.match(SRC, /if \(later\) inviteKeep\(d, true\);/);
+  assert.equal((SRC.match(/inviteDrop\(code\)/g) || []).length >= 5, true, "aannemen (pop-up + lijst), afwijzen (pop-up + lijst), link");
+  assert.match(SRC, /applyList\(await withInvite\(r\.v\)\)/);
+  assert.match(GAME, /else if \(duelInviteWaiting\(\) && !duelInviteWaiting\(\)\.later && !sharedHashes\) setTimeout\(\(\) => loadDuel\(\)\.then\(\(D\) => D\.resumeInvite\(duelHost\(\)\)\)/);
+  assert.match(GAME, /localStorage\.getItem\("jaardle:duelInvite"\)/); assert.equal(KEY, "jaardle:duelInvite");
+});
+
+test("duel.js — ingelogd blijft ingelogd: geen naamveld of \"J\" (van Jij) door een te vroege host of een terugkeer naar de app", () => {
+  // de host leest loggedIn live, en een ?duel=-link wacht eerst tot bekend is of je ingelogd bent
+  assert.match(GAME, /get loggedIn\(\) \{ return !!auth\.user; \}/);
+  assert.match(GAME, /authReady: \(\) => Promise\.race\(\[authResolvedP, /);
+  assert.match(SRC, /await H\.authReady\?\.\(\);\s+if \(H\.loggedIn\) await H\.ensureIdentity/);
+  // supabase-js meldt SIGNED_IN bij elke terugkeer naar de app: zelfde speler → naam en flair blijven staan
+  assert.match(GAME, /const sameUser = auth\.resolved && \(auth\.user\?\.uid \?\? null\) === \(e\.detail\?\.uid \?\? null\);/);
+  assert.match(GAME, /if \(!sameUser\) \{ myFlair = null; myUsername = null; \}/);
+  assert.ok(!/myFlair = null; myUsername = null; myIdentityLoaded = false;/.test(GAME));
+  // ingelogd maar toch een (leeg) naamveld: je profielnaam
+  assert.match(SRC, /const name = \(inp && cleanName\(inp\.value\)\) \|\| myName\(\);/);
+});
+
+test("duel.js — een uitgespeeld duel via seintje of link: eindstand-pop-up boven het Duels-scherm, ook als je hem al zag (zonder confetti)", () => {
+  assert.match(SRC, /if \(d && d\.status === "done"\) \{ openGrp = d\.opp \|\| oppName\(d\); selInGrp\[openGrp\] = d\.code; if \(!d\.seen \|\| opts\.end\) pop = d; \}/);
+  assert.match(SRC, /if \(pop\) showEndPop\(T, pop, pop\.seen \? \{ again: true \} : \{ flip: true \}\);/);
 });
