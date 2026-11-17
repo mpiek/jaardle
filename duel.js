@@ -373,6 +373,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
    tegenstander in de kleur van zijn gezichtje (--h), met de ⚔️ op de naad; daarna schuiven de helften weg. Tussen twee rondes alleen
    een korte band (.short). Altijd donker (een eigen beeld, los van het thema). Alleen transform en opacity bewegen, geen vervaging. */
 #duel-intro { --or: #f08a52; position: fixed; inset: 0; z-index: 200; overflow: hidden; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#duel-intro.short { pointer-events: none; cursor: auto; }   /* de band tussen rondes: de nieuwe ronde staat er al, tikken gaat erdoorheen */
 #duel-intro .dix-bg, #duel-intro .dix-wrap { position: absolute; inset: 0; }
 #duel-intro .dix-bg { background: var(--bg); }
 #duel-intro .dix-cur { position: absolute; left: 50%; top: 50%; width: 6rem; height: 6rem; margin: -3rem 0 0 -3rem; display: grid; place-items: center; font-size: 3.2rem; line-height: 1; }
@@ -1238,8 +1239,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   // ════ de opening van een duelronde (17/11, mockup v7 richting B "Twee kanten") ════
   // Jouw kant schuift van links binnen, die van je tegenstander van rechts; ze botsen op de ⚔️ (flits, schokgolf), eronder de ronde
-  // met de stand. Daarna schuiven de helften weg en sta je in de ronde. Tussen twee rondes (na "Ronde 4 ›") alleen een korte band.
-  // Tik of toets = meteen door (de eerste toets gaat niet naar het spel). Met "minder beweging": het stilstaande beeld, heel even.
+  // met de stand. Daarna schuiven de helften weg en sta je in de ronde. Tussen twee rondes (na "Ronde 4 ›") alleen een korte band
+  // over de nieuwe ronde heen (geen zwart scherm, tikken en toetsen gaan er gewoon doorheen; 17/11 op zijn "is wat smoother").
+  // Tik of toets = meteen door (bij de volle opening gaat die eerste toets niet naar het spel). Met "minder beweging": het stilstaande beeld, heel even.
   // Een seintje of link (?duel=) opent achter het ⚔️-laadscherm (head-script + style.css, html[data-duelload]): dat neemt de
   // opening over, en verder haalt alles wat iets anders laat zien (pop-up, Duels-scherm, een ronde zonder opening) het weg.
   const uncover = () => { try { document.documentElement.removeAttribute("data-duelload"); } catch (e) {} };
@@ -1265,12 +1267,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const meAv = av(H.loggedIn ? H.myFlair?.() : null, mine || T.you), opAv = av(oppFlair(d), opName);
     const el = document.createElement("div");
     el.id = "duel-intro";
+    if (short) el.className = "short";
     el.setAttribute("aria-hidden", "true");
     el.style.setProperty("--h", hue);
     // Vanaf het laadscherm blijft de ⚔️ daarvan liggen, bóven de helften (die schuiven eronder door); bij de botsing groeit het
     // donkere rondje erachter en wordt hij het zwaard op de naad.
     const cur = curtain && !short;
-    el.innerHTML = `<div class="dix-bg"></div>` + (short
+    el.innerHTML = (short ? "" : `<div class="dix-bg"></div>`) + (short
       ? `<div class="dix-band"><div class="dix-bin">${meAv}<span class="dix-bmid"><span class="dix-x">${ICON}</span><b>${esc(label)}</b></span>${opAv}</div></div>`
       : `<div class="dix-wrap"><div class="dix-half me"><div class="dix-in">${meAv}${mine ? `<small class="dix-tag">${esc(T.you)}</small>` : ""}<b class="dix-nm">${esc(mine || T.you)}</b></div></div>` +
         `<div class="dix-half op"><div class="dix-in">${opAv}<b class="dix-nm">${esc(opName)}</b><small class="dix-tag">${esc(T.played5(played))}</small></div></div>` +
@@ -1286,10 +1289,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       anim(el, [[0, { opacity: curtain ? 1 : 0 }], [120, { opacity: 1 }]]);
       coverAt = 120; holdTo = 120 + INTRO_MS.still;
     } else if (short) {
-      anim($(".dix-bg"), [[0, { opacity: 0, easing: E_OUT }], [160, { opacity: 1 }]]);
       anim($(".dix-band"), [[0, { transform: "translateX(-104%)", easing: "cubic-bezier(.2,.9,.3,1)" }], [INTRO_MS.bandIn, { transform: "translateX(0%)" }]]);
       anim($(".dix-bin"), [[40, { transform: "translateX(-60px)", opacity: 0, easing: E_OUT }], [380, { transform: "translateX(0px)", opacity: 1 }]]);
-      coverAt = 160; holdTo = INTRO_MS.bandIn + INTRO_MS.bandHold;
+      coverAt = 0; holdTo = INTRO_MS.bandIn + INTRO_MS.bandHold;   // geen zwart scherm: de nieuwe ronde staat er meteen, de band schuift eroverheen
     } else {
       anim($(".dix-bg"), [[0, { opacity: curtain ? 1 : 0, easing: E_OUT }], [140, { opacity: 1 }]]);
       if (cur) anim($(".dix-cur"), [[0, { transform: "scale(1)" }], [HIT - 60, { transform: "scale(1)", easing: E_IN }], [HIT, { transform: "scale(1.12)", easing: E_OUT }], [HIT + 200, { transform: "scale(.84)" }]]);
@@ -1309,7 +1311,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     const t0 = performance.now();
     let ready = false, gone = false;
-    function off() { window.removeEventListener("keydown", onKey, true); if (introNow === api) introNow = null; }
+    function off() { window.removeEventListener("keydown", onKey, true); window.removeEventListener("pointerdown", skip, true); if (introNow === api) introNow = null; }
     function exit(fast) {   // fast = overgeslagen: even vervagen in plaats van de helften weg te schuiven
       if (gone) return;
       gone = true;
@@ -1320,7 +1322,6 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       else if (short) {
         ms = INTRO_MS.bandOut;
         anim($(".dix-band"), [[0, { transform: "translateX(0%)", easing: E_IN }], [ms, { transform: "translateX(104%)" }]]);
-        anim($(".dix-bg"), [[0, { opacity: 1, easing: E_OUT }], [ms, { opacity: 0 }]]);
       } else {
         ms = INTRO_MS.out;
         anim($(".dix-bg"), [[0, { opacity: 1 }], [1, { opacity: 0 }]]);
@@ -1335,16 +1336,16 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     function skip() {
       if (gone) return;
-      gc("duel-intro-skip", "Duel: intro skipped");
+      if (!short) gc("duel-intro-skip", "Duel: intro skipped");   // de band gaat bij elke toets of tik weg: dat is gewoon spelen
       if (ready) exit(true); else el.dataset.skip = "1";   // de ronde staat er nog niet: zodra hij er is (open) meteen weg
     }
     function onKey(e) {
       if (e.metaKey || e.ctrlKey || e.altKey || e.key === "Tab" || e.key === "Shift") return;
-      e.preventDefault(); e.stopImmediatePropagation();
+      if (!short) { e.preventDefault(); e.stopImmediatePropagation(); }   // de opening bedekt het scherm: die eerste toets slaat alleen over; de band laat hem door
       skip();
     }
     window.addEventListener("keydown", onKey, true);
-    el.addEventListener("click", skip);
+    if (short) window.addEventListener("pointerdown", skip, true); else el.addEventListener("click", skip);
     const api = {
       covered: new Promise((res) => setTimeout(res, coverAt)),   // het oude scherm is bedekt: nu mag de ronde eronder klaarstaan
       async open() {   // de ronde staat klaar: na het vasthouden de helften weg

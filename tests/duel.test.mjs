@@ -518,4 +518,8 @@ test("duel.js — een seintje of link (?duel=) opent achter het ⚔️-laadscher
   // tussen twee rondes de korte band, een ander duel de volle opening; een ronde die al liep zonder opening
   assert.match(SRC, /if \(m\.kind === "round"\) return play\(H, m\.code, null, "short"\);/);
   assert.match(SRC, /const begun = !!\(board && \(board\.done \|\| \(board\.guesses \|\| \[\]\)\.length\)\);/);
+  // de band tussen rondes: geen zwart scherm, en tikken en toetsen gaan erdoorheen naar de nieuwe ronde
+  assert.match(D.css, /#duel-intro\.short \{ pointer-events: none;/);
+  assert.match(SRC, /coverAt = 0; holdTo = INTRO_MS\.bandIn \+ INTRO_MS\.bandHold;/);
+  assert.match(SRC, /if \(!short\) \{ e\.preventDefault\(\); e\.stopImmediatePropagation\(\); \}/);
 });
