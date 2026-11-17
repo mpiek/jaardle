@@ -98,7 +98,7 @@ function buildCsp(template) {
     "form-action 'self'",
     `script-src 'self' https://gc.zgo.at ${hashes.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",                       // inline style-attrs via innerHTML
-    `img-src 'self' data: https://*.googleusercontent.com ${goat} ${goatEv}`,  // Google-avatars + GoatCounter-pixel
+    `img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com ${goat} ${goatEv}`,  // Google- en Discord-avatars + GoatCounter-pixel
     "font-src 'self'",
     `connect-src 'self' ${supa} ${supaWss} ${goat} ${goatEv}`,  // Supabase REST/auth + realtime (wss), GoatCounter-beacons
   ].join("; ");
