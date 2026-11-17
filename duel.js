@@ -144,7 +144,12 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .dl-detail .duel-head { padding-top: 0.45rem; }
 .dl-detail .duel-head b { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
 .dl-detail .duel-verdict { display: block; margin-top: 0.55rem; font-size: 0.95rem; }
-.dl-btnrow { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+/* 🏁› rechts op de kaart: de eindstand (zoals de 🏆› in de tabrij van het eindscherm) */
+.dl-endb { flex: none; display: inline-flex; align-items: center; gap: 0.1rem; min-height: 2rem; margin: -0.3rem -0.35rem -0.3rem 0.2rem; padding: 0.15rem 0.45rem; border: 0; border-radius: 999px;
+  background: none; color: var(--muted); font: inherit; font-size: 0.85rem; line-height: 1.4; cursor: pointer; }
+.dl-endb span { font-size: 1.05rem; line-height: 1; }
+.dl-endb:hover { background: var(--card); color: var(--fg); filter: none; }
+.dl-endb:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .dl-rev { align-self: flex-start; display: inline-flex; align-items: center; gap: 0.35rem; }
 .dl-past { display: flex; flex-direction: column; }
 .dl-past button { appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; width: 100%; min-height: 2.5rem; padding: 0.25rem 0.1rem; font: inherit; font-size: 0.8rem; font-weight: 500;
@@ -1407,7 +1412,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       if (act === "end-next") { close(); return next(H); }
       if (act === "login") { gc("duel-login-end", "Duel: create account from result"); parkLogin(d.code); close(); return H.openLogin?.(); }
     });
-    H.openModal("modal-duel-end");
+    H.openModal("modal-duel-end", { over: true });   // boven het Duels-scherm (als dat open is): wegklikken = terug in de lijst
     if (flip) gc("duel-reveal", "Duel: result revealed (first finisher)");
     // je stand tegen deze tegenstander, als de lijst er al is
     const [ha, hb] = h2hOf((listItems || []).filter((x) => x.code !== d.code).concat(done ? [{ ...d, seen: true }] : []), d.opp || opp);   // dit duel telt al mee (je ziet het nu)
@@ -1694,12 +1699,12 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
         }
       }
       det = `<div class="dl-detail">${vs}<div class="duel-card"><div class="duel-head"><b>${esc(cap(whenText(T, sel.finished_at)))}, ${esc(clockText(sel.finished_at))}</b>` +
-        `<span class="duel-r">${esc(T.total(so.a, so.b))}</span></div>` + tilesHtml(sel) +
+        `<span class="duel-r">${esc(T.total(so.a, so.b))}</span>` +
+        `<button type="button" class="dl-endb" data-act="end" data-code="${sel.code}" aria-label="${esc(cap(T.final))}" title="${esc(cap(T.final))}">🏁<span aria-hidden="true">›</span></button></div>` + tilesHtml(sel) +
         `<span class="duel-verdict">${esc(verdict(T, so, n))}</span></div>` +
         (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const o = outcome(d.mine, d.theirs);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${o.res}">${esc(resText(T, o))}</span></button>`; }).join("")}</div>` : "") +
-        `<div class="dl-btnrow"><button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button>` +
-        `<button type="button" class="dl-mini" data-act="end" data-code="${sel.code}">${esc(cap(T.final))} ›</button></div></div>`;
+        `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button></div>`;
     }
     return `<div class="dl-item${isOpen ? " open" : ""}" data-sel="${(sel || latest).code}">${row}${det}</div>`;
   }
@@ -1753,7 +1758,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (act === "more") { showAll = true; return renderList(T, null); }
     if (act === "play") return play(H, code);
     if (act === "rematch") return create(H, { rematch: code });
-    // Eindstand ›: de pop-up met Revanche en Deel uitslag, ook op een ander toestel dan waar je speelde. Hij ligt boven het
+    // 🏁› rechts op de kaart: de eindstand-pop-up met Revanche en Deel uitslag, ook op een ander toestel dan waar je speelde. Hij ligt boven het
     // Duels-scherm (modal-duel-end is geen MODAL_PANELS-paneel): wegklikken = terug waar je was. Zonder confetti: die uitslag zag je al.
     if (act === "end") {
       const d = (listItems || []).find((x) => x.code === code);

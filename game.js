@@ -13929,8 +13929,9 @@ function openModal(id, opts) {
   // Eén scherm tegelijk: een ander open paneel gaat éérst dicht (met z'n gezien-
   // hook), zodat panelen niet stapelen — sluiten brengt je dan naar het spel terug,
   // niet naar een half zichtbaar scherm eronder (bv. de kluis boven op 🏆).
+  // opts.over: een pop-up bóven het open scherm (de eindstand van een duel boven het Duels-scherm); wegklikken = terug daarheen.
   for (const pid of MODAL_PANELS) {
-    if (pid === id) continue;
+    if (pid === id || opts?.over) continue;
     const p = document.getElementById(pid);
     if (p && !p.hidden) { p.hidden = true; if (pid === "modal-achv") achvPanelClosed(); }
   }
