@@ -119,11 +119,11 @@ test("duel.js — pop-up bij een link: aannemen (met naamveld zonder account), e
 });
 
 test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand", () => {
-  assert.ok(!/position:\s*fixed/.test(D.css));
+  assert.ok(!/position:\s*fixed/.test(D.css.replace(/#duel-intro \{[^}]*\}/, "")), "alleen de opening van een ronde ligt over het hele scherm");
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 165000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert
+  assert.ok(SRC.length < 182000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -489,4 +489,33 @@ test("duel.js — 🏁› rechts op de kaart opent de eindstand (Deel uitslag) b
   assert.match(GAME, /if \(de && !de\.hidden && dl && !dl\.hidden\) \{ closeModal\("modal-duel-end"\); return; \}/, "Esc sluit alleen de eindstand");
   assert.match(SRC.slice(0, SRC.indexOf("window.Duel")), /duel-result-open/, "meetpunt in de kopregel");
   X.setHost(host());
+});
+
+test("duel.js — de opening van een ronde: pil met de ronde, vanaf ronde 2 met de stand (jij eerst), in elke taal", () => {
+  const d = { mine: [92, 61, 70], theirs: [85, 74, 88, 90, 60] };
+  for (const l of D.langs()) {
+    const T = D.copy(l);
+    assert.equal(X.introLabel(T, d, 0), T.roundN(1), `${l}: ronde 1 zonder stand`);
+    assert.equal(X.introLabel(T, d, 3), `${T.roundN(4)} · 1–2`, `${l}: ronde 4 met de stand over de rondes die jullie allebei speelden`);
+  }
+  // de ander speelde ronde 3 nog niet: die telt nog niet mee
+  assert.equal(X.introLabel(D.copy("nl"), { mine: [92, 61, 70], theirs: [85, 74] }, 3), "Ronde 4/5 · 1–1");
+});
+
+test("duel.js — een seintje of link (?duel=) opent achter het ⚔️-laadscherm, nooit eerst de daily; en dat scherm gaat altijd weer weg", () => {
+  // het head-script zet het vóór de eerste tekening, style.css tekent het
+  assert.match(TPL, /\[\?&\]duel=\[A-Za-z0-9\]\/\.test\(location\.search\)\) \{\s*document\.documentElement\.setAttribute\("data-duelload"/);
+  assert.match(TPL, /setTimeout\(function \(\) \{ document\.documentElement\.removeAttribute\("data-duelload"\); \}, 12000\)/, "vangnet in het head-script zelf");
+  const CSS = readFileSync(join(dir, "..", "style.css"), "utf8");
+  assert.match(CSS, /html\[data-duelload\]::after \{/);
+  // game.js: bij een fout bij het laden van duel.js weg, en na 10 s altijd
+  assert.match(GAME, /loadDuel\(\)\.then\(\(D\) => D\.openInvite\(duelHost\(\), duelCode\)\)\.catch\(uncoverDuel\)/);
+  assert.match(GAME, /setTimeout\(uncoverDuel, 10000\)/);
+  // duel.js: de opening neemt het over; een pop-up, het Duels-scherm of een ronde zonder opening haalt het weg
+  assert.match(SRC, /function showPop\([^)]*\) \{\n    uncover\(\);/);
+  assert.match(SRC, /async function openList\(host, opts = \{\}\) \{\n    H = host;\n    uncover\(\);/);
+  assert.match(SRC, /if \(intro\) await intro\.covered; else uncover\(\);/);
+  // tussen twee rondes de korte band, een ander duel de volle opening; een ronde die al liep zonder opening
+  assert.match(SRC, /if \(m\.kind === "round"\) return play\(H, m\.code, null, "short"\);/);
+  assert.match(SRC, /const begun = !!\(board && \(board\.done \|\| \(board\.guesses \|\| \[\]\)\.length\)\);/);
 });

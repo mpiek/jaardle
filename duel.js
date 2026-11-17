@@ -369,6 +369,42 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   .sp.rev .sp-vs .mid b { color: var(--fg); }
   .sp.rev .sp-vs .mid b::before { content: none; }
 }
+/* de opening van een duelronde (17/11, mockup v7 richting B "Twee kanten"): het scherm splitst schuin, boven jij in blauw, onder je
+   tegenstander in de kleur van zijn gezichtje (--h), met de ⚔️ op de naad; daarna schuiven de helften weg. Tussen twee rondes alleen
+   een korte band (.short). Altijd donker (een eigen beeld, los van het thema). Alleen transform en opacity bewegen, geen vervaging. */
+#duel-intro { --or: #f08a52; position: fixed; inset: 0; z-index: 200; overflow: hidden; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#duel-intro .dix-bg, #duel-intro .dix-wrap { position: absolute; inset: 0; }
+#duel-intro .dix-bg { background: var(--bg); }
+#duel-intro .dix-cur { position: absolute; left: 50%; top: 50%; width: 6rem; height: 6rem; margin: -3rem 0 0 -3rem; display: grid; place-items: center; font-size: 3.2rem; line-height: 1; }
+#duel-intro .dix-half { position: absolute; inset: 0 -24px; }
+#duel-intro .dix-half.me { clip-path: polygon(0 0, 100% 0, 100% 42%, 0 58%); background: linear-gradient(180deg, hsl(222 70% 13%) 0%, hsl(222 62% 28%) 30%, hsl(222 60% 47%) 58%); }
+#duel-intro .dix-half.op { clip-path: polygon(0 58%, 100% 42%, 100% 100%, 0 100%); background: linear-gradient(0deg, hsl(var(--h) 70% 12%) 0%, hsl(var(--h) 62% 26%) 30%, hsl(var(--h) 60% 44%) 58%); }
+#duel-intro .dix-half::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(-18deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 17px); }
+#duel-intro .dix-in { position: absolute; z-index: 1; left: max(48px, calc(50% - 256px)); right: max(48px, calc(50% - 256px)); display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+#duel-intro .me .dix-in { top: 12%; }
+#duel-intro .op .dix-in { bottom: 10%; align-items: flex-end; text-align: right; }
+#duel-intro .dix-av { flex: none; width: 104px; height: 104px; box-sizing: border-box; border-radius: 50%; display: grid; place-items: center; margin-bottom: 0.6rem;
+  font-size: 2.8rem; font-weight: 800; line-height: 1; color: #fff; background: rgba(255, 255, 255, 0.14); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.92), 0 14px 30px rgba(0, 0, 0, 0.35); }
+#duel-intro .dix-av.fl { font-size: 3.4rem; }
+#duel-intro .dix-tag { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255, 255, 255, 0.8); font-variant-numeric: tabular-nums; }
+#duel-intro .dix-nm { font-size: 2.6rem; font-weight: 900; line-height: 1.02; text-transform: uppercase; letter-spacing: 0.01em; text-shadow: 0 3px 0 rgba(0, 0, 0, 0.22); max-width: 100%; overflow-wrap: anywhere; }
+#duel-intro .dix-seam { position: absolute; top: 0; left: -24px; width: calc(100% + 48px); height: 100%; overflow: visible; opacity: 0; filter: drop-shadow(0 0 5px var(--or)) drop-shadow(0 0 14px var(--or)); }
+#duel-intro .dix-seam line { stroke: #fff; stroke-width: 3; }
+#duel-intro .dix-ring { position: absolute; left: 50%; top: 50%; width: 140px; height: 140px; margin: -70px 0 0 -70px; box-sizing: border-box; border-radius: 50%; opacity: 0;
+  border: 3px solid var(--or); box-shadow: 0 0 22px rgba(240, 138, 82, 0.55), inset 0 0 16px rgba(240, 138, 82, 0.4); }
+#duel-intro .dix-flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+#duel-intro .dix-badge { position: absolute; left: 50%; top: 50%; width: 88px; height: 88px; margin: -44px 0 0 -44px; box-sizing: border-box; border-radius: 50%; display: grid; place-items: center;
+  font-size: 2.7rem; line-height: 1; background: #121214; box-shadow: 0 0 0 3px var(--or), 0 0 32px rgba(240, 138, 82, 0.7), 0 10px 24px rgba(0, 0, 0, 0.45); }
+#duel-intro .dix-rd { position: absolute; left: 0; right: 0; top: calc(50% + 56px); margin-inline: auto; width: max-content; padding: 0.42rem 1rem; border-radius: 999px; white-space: nowrap;
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; font-variant-numeric: tabular-nums; color: #1d0f05; background: var(--or); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28); }
+#duel-intro .dix-band { position: absolute; left: 0; right: 0; top: calc(42% - 84px); height: 168px; clip-path: polygon(0 14%, 100% 0, 100% 86%, 0 100%);
+  background: linear-gradient(90deg, hsl(222 60% 36%) 0%, #141418 34%, #141418 66%, hsl(var(--h) 60% 33%) 100%); }
+#duel-intro .dix-bin { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0 max(22px, calc(50% - 258px)); }
+#duel-intro .dix-band .dix-av { width: 62px; height: 62px; margin: 0; font-size: 1.6rem; }
+#duel-intro .dix-band .dix-av.fl { font-size: 2.05rem; }
+#duel-intro .dix-bmid { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; min-width: 0; }
+#duel-intro .dix-x { font-size: 2.3rem; line-height: 1; }
+#duel-intro .dix-bmid b { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--or); white-space: nowrap; font-variant-numeric: tabular-nums; }
 `;
 
   const TXT = {
@@ -1200,8 +1236,135 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
 
+  // ════ de opening van een duelronde (17/11, mockup v7 richting B "Twee kanten") ════
+  // Jouw kant schuift van links binnen, die van je tegenstander van rechts; ze botsen op de ⚔️ (flits, schokgolf), eronder de ronde
+  // met de stand. Daarna schuiven de helften weg en sta je in de ronde. Tussen twee rondes (na "Ronde 4 ›") alleen een korte band.
+  // Tik of toets = meteen door (de eerste toets gaat niet naar het spel). Met "minder beweging": het stilstaande beeld, heel even.
+  // Een seintje of link (?duel=) opent achter het ⚔️-laadscherm (head-script + style.css, html[data-duelload]): dat neemt de
+  // opening over, en verder haalt alles wat iets anders laat zien (pop-up, Duels-scherm, een ronde zonder opening) het weg.
+  const uncover = () => { try { document.documentElement.removeAttribute("data-duelload"); } catch (e) {} };
+  const E_OUT = "cubic-bezier(.2,.8,.2,1)", E_IN = "cubic-bezier(.55,0,.8,.3)", E_BACK = "cubic-bezier(.3,1.45,.5,1)";
+  const INTRO_MS = { hit: 340, hold: 920, out: 380, bandIn: 280, bandHold: 480, bandOut: 240, still: 800 };
+  // De regel op de pil/band: ronde 1 zonder stand, daarna met (jij eerst).
+  const introLabel = (T, d, r) => { const s = stand((d.mine || []).slice(0, r), d.theirs || []); return r === 0 ? T.roundN(1) : `${T.roundN(r + 1)} · ${s.w}–${s.l}`; };
+  // Eén animatie per element; steps = [[ms, keyframe], …] (easing in een keyframe geldt voor het stuk erna).
+  function anim(el, steps) {
+    if (!el || !el.animate) return;
+    const t0 = steps[0][0], dur = Math.max(1, steps[steps.length - 1][0] - t0);
+    try { el.animate(steps.map(([t, k]) => ({ ...k, offset: (t - t0) / dur })), { delay: t0, duration: dur, fill: "both" }); } catch (e) {}
+  }
+  let introNow = null;
+  function introStart(d, r, short) {
+    ensureCss();
+    introNow?.kill();
+    const T = tx(H.lang), curtain = document.documentElement.hasAttribute("data-duelload");
+    let still = false; try { still = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+    const label = introLabel(T, d, r), mine = myName(), opName = oppName(d), played = d.their_done ?? (d.theirs || []).length;
+    let hue = 28; try { const h = H.faceHue?.(opName); if (h != null) hue = h; } catch (e) {}
+    const av = (flair, name) => { const f = flair && H.flairHtml ? H.flairHtml(flair) : ""; return `<span class="dix-av${f ? " fl" : ""}">${f || esc(initial(name))}</span>`; };
+    const meAv = av(H.loggedIn ? H.myFlair?.() : null, mine || T.you), opAv = av(oppFlair(d), opName);
+    const el = document.createElement("div");
+    el.id = "duel-intro";
+    el.setAttribute("aria-hidden", "true");
+    el.style.setProperty("--h", hue);
+    // Vanaf het laadscherm blijft de ⚔️ daarvan liggen, bóven de helften (die schuiven eronder door); bij de botsing groeit het
+    // donkere rondje erachter en wordt hij het zwaard op de naad.
+    const cur = curtain && !short;
+    el.innerHTML = `<div class="dix-bg"></div>` + (short
+      ? `<div class="dix-band"><div class="dix-bin">${meAv}<span class="dix-bmid"><span class="dix-x">${ICON}</span><b>${esc(label)}</b></span>${opAv}</div></div>`
+      : `<div class="dix-wrap"><div class="dix-half me"><div class="dix-in">${meAv}${mine ? `<small class="dix-tag">${esc(T.you)}</small>` : ""}<b class="dix-nm">${esc(mine || T.you)}</b></div></div>` +
+        `<div class="dix-half op"><div class="dix-in">${opAv}<b class="dix-nm">${esc(opName)}</b><small class="dix-tag">${esc(T.played5(played))}</small></div></div>` +
+        `<svg class="dix-seam" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="0" y1="58" x2="100" y2="42" vector-effect="non-scaling-stroke"/></svg></div>` +
+        `<div class="dix-ring"></div><div class="dix-flash"></div><div class="dix-badge">${cur ? "" : ICON}</div>${cur ? `<div class="dix-cur">${ICON}</div>` : ""}<div class="dix-rd">${esc(label)}</div>`);
+    document.body.appendChild(el);
+    uncover();   // het laadscherm en de opening hebben dezelfde achtergrond: de wissel is niet te zien
+    const avail = Math.min(window.innerWidth || 390, 560) - 48;   // namen zo groot als past (hoofdletters, ±0,74 em per teken)
+    el.querySelectorAll(".dix-nm").forEach((n) => { const k = Math.max(...n.textContent.split(/\s+/).map((w) => w.length), 1); n.style.fontSize = Math.min(41.6, avail / (k * 0.74)).toFixed(1) + "px"; });
+    const $ = (s) => el.querySelector(s), HIT = INTRO_MS.hit;
+    let coverAt, holdTo;
+    if (still) {
+      anim(el, [[0, { opacity: curtain ? 1 : 0 }], [120, { opacity: 1 }]]);
+      coverAt = 120; holdTo = 120 + INTRO_MS.still;
+    } else if (short) {
+      anim($(".dix-bg"), [[0, { opacity: 0, easing: E_OUT }], [160, { opacity: 1 }]]);
+      anim($(".dix-band"), [[0, { transform: "translateX(-104%)", easing: "cubic-bezier(.2,.9,.3,1)" }], [INTRO_MS.bandIn, { transform: "translateX(0%)" }]]);
+      anim($(".dix-bin"), [[40, { transform: "translateX(-60px)", opacity: 0, easing: E_OUT }], [380, { transform: "translateX(0px)", opacity: 1 }]]);
+      coverAt = 160; holdTo = INTRO_MS.bandIn + INTRO_MS.bandHold;
+    } else {
+      anim($(".dix-bg"), [[0, { opacity: curtain ? 1 : 0, easing: E_OUT }], [140, { opacity: 1 }]]);
+      if (cur) anim($(".dix-cur"), [[0, { transform: "scale(1)" }], [HIT - 60, { transform: "scale(1)", easing: E_IN }], [HIT, { transform: "scale(1.12)", easing: E_OUT }], [HIT + 200, { transform: "scale(.84)" }]]);
+      const door = (dir) => [[0, { transform: `translateX(${dir * 104}%)`, easing: "cubic-bezier(.3,.6,.35,1)" }], [HIT, { transform: "translateX(0px)", easing: E_OUT }],
+        [HIT + 70, { transform: `translateX(${-dir * 7}px)`, easing: E_OUT }], [HIT + 230, { transform: "translateX(0px)" }]];
+      anim($(".dix-half.me"), door(-1));
+      anim($(".dix-half.op"), door(1));
+      anim($(".me .dix-in"), [[40, { transform: "translateX(-70px)", opacity: 0, easing: E_OUT }], [HIT + 180, { transform: "translateX(0px)", opacity: 1 }]]);
+      anim($(".op .dix-in"), [[40, { transform: "translateX(70px)", opacity: 0, easing: E_OUT }], [HIT + 180, { transform: "translateX(0px)", opacity: 1 }]]);
+      anim($(".dix-seam"), [[HIT - 10, { opacity: 0 }], [HIT + 30, { opacity: 1, easing: E_OUT }], [HIT + 420, { opacity: 0.5 }]]);
+      anim($(".dix-flash"), [[HIT - 5, { opacity: 0 }], [HIT + 35, { opacity: 0.5, easing: E_OUT }], [HIT + 320, { opacity: 0 }]]);
+      anim($(".dix-ring"), [[HIT - 1, { opacity: 0, transform: "scale(.25)" }], [HIT, { opacity: 1, transform: "scale(.25)", easing: "cubic-bezier(.1,.7,.3,1)" }], [HIT + 760, { opacity: 0, transform: "scale(6.5)" }]]);
+      anim($(".dix-badge"), [[HIT - 30, { opacity: 0, transform: "scale(.2) rotate(-60deg)", easing: E_BACK }], [HIT + 210, { opacity: 1, transform: "scale(1) rotate(0deg)" }]]);
+      anim($(".dix-rd"), [[HIT + 170, { opacity: 0, transform: "translateY(10px)", easing: E_OUT }], [HIT + 400, { opacity: 1, transform: "translateY(0px)" }]]);
+      anim($(".dix-wrap"), [[HIT, { transform: "translate(0px,0px)" }], [HIT + 40, { transform: "translate(5px,-3px)" }], [HIT + 95, { transform: "translate(-4px,2px)" }], [HIT + 150, { transform: "translate(2px,-1px)" }], [HIT + 210, { transform: "translate(0px,0px)" }]]);
+      coverAt = HIT; holdTo = HIT + INTRO_MS.hold;
+    }
+    const t0 = performance.now();
+    let ready = false, gone = false;
+    function off() { window.removeEventListener("keydown", onKey, true); if (introNow === api) introNow = null; }
+    function exit(fast) {   // fast = overgeslagen: even vervagen in plaats van de helften weg te schuiven
+      if (gone) return;
+      gone = true;
+      off();
+      el.style.pointerEvents = "none";
+      let ms;
+      if (fast || still) { ms = fast ? 140 : 200; anim(el, [[0, { opacity: 1 }], [ms, { opacity: 0 }]]); }
+      else if (short) {
+        ms = INTRO_MS.bandOut;
+        anim($(".dix-band"), [[0, { transform: "translateX(0%)", easing: E_IN }], [ms, { transform: "translateX(104%)" }]]);
+        anim($(".dix-bg"), [[0, { opacity: 1, easing: E_OUT }], [ms, { opacity: 0 }]]);
+      } else {
+        ms = INTRO_MS.out;
+        anim($(".dix-bg"), [[0, { opacity: 1 }], [1, { opacity: 0 }]]);
+        anim($(".dix-half.me"), [[0, { transform: "translateX(0px)", easing: E_IN }], [ms, { transform: "translateX(-104%)" }]]);
+        anim($(".dix-half.op"), [[0, { transform: "translateX(0px)", easing: E_IN }], [ms, { transform: "translateX(104%)" }]]);
+        anim($(".dix-seam"), [[0, { opacity: 0.5, easing: E_OUT }], [90, { opacity: 0 }]]);
+        anim($(".dix-badge"), [[30, { opacity: 1, transform: "scale(1) rotate(0deg)", easing: E_IN }], [240, { opacity: 0, transform: "scale(.35) rotate(0deg)" }]]);
+        anim($(".dix-cur"), [[30, { opacity: 1, transform: "scale(.84)", easing: E_IN }], [240, { opacity: 0, transform: "scale(.29)" }]]);
+        anim($(".dix-rd"), [[0, { opacity: 1, transform: "translateY(0px)", easing: E_OUT }], [160, { opacity: 0, transform: "translateY(0px)" }]]);
+      }
+      setTimeout(() => el.remove(), ms + 30);
+    }
+    function skip() {
+      if (gone) return;
+      gc("duel-intro-skip", "Duel: intro skipped");
+      if (ready) exit(true); else el.dataset.skip = "1";   // de ronde staat er nog niet: zodra hij er is (open) meteen weg
+    }
+    function onKey(e) {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.key === "Tab" || e.key === "Shift") return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      skip();
+    }
+    window.addEventListener("keydown", onKey, true);
+    el.addEventListener("click", skip);
+    const api = {
+      covered: new Promise((res) => setTimeout(res, coverAt)),   // het oude scherm is bedekt: nu mag de ronde eronder klaarstaan
+      async open() {   // de ronde staat klaar: na het vasthouden de helften weg
+        ready = true;
+        if (gone) return;
+        if (el.dataset.skip) return exit(true);
+        const wait = holdTo - (performance.now() - t0);
+        if (wait > 0) await new Promise((res) => setTimeout(res, wait));
+        exit(false);
+      },
+      kill() { gone = true; off(); el.remove(); },
+    };
+    introNow = api;
+    return api;
+  }
+
   // ════ een ronde spelen ════
-  async function play(host, code, d) {
+  // how: "full" = de opening (binnenkomen via seintje, link, aannemen of het Duels-scherm), "short" = de band tussen twee rondes,
+  // null = zonder. Een ronde die al liep (herladen, of terug van de daily) begint altijd zonder opening.
+  async function play(host, code, d, how = "full") {
     H = host;
     if (!d || !d.rounds) {
       const r = await call("duel_get", { p_code: code });
@@ -1212,12 +1375,17 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (!d.me) return openInvite(H, code);
     const r = (d.mine || []).length;
     if (d.status !== "active" || r >= 5 || !d.rounds || !d.rounds[r]) return openList(H, { focus: d.code });
-    const p = d.rounds[r];
+    const p = d.rounds[r], board = H.duelBoard?.(d.code, r) || null;
+    const begun = !!(board && (board.done || (board.guesses || []).length));
+    const intro = how && !begun ? introStart(d, r, how === "short") : null;
+    if (intro) await intro.covered; else uncover();
     ["modal-duels", "modal-duel-pop", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
-    await H.startRound({
-      mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(d.code, r) || null, potId: `d${d.code}${r}`,   // niet shared: een duelronde telt als een vrij potje (db/200)
-      duel: { code: d.code, round: r, opp: oppName(d), deadline: d.deadline },
-    });
+    try {
+      await H.startRound({
+        mode: "free", hashes: p.hashes, event: H.toEvent(p), board, potId: `d${d.code}${r}`,   // niet shared: een duelronde telt als een vrij potje (db/200)
+        duel: { code: d.code, round: r, opp: oppName(d), deadline: d.deadline },
+      });
+    } finally { intro?.open(); }
   }
 
   // Het duelscherm (zolang state.duel): de duelkop in plaats van de tabbladen (‹ Jaardle · ⚔️ DUEL · ronde), de VS-kop boven
@@ -1433,7 +1601,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     H = host;
     const m = endNext;
     if (!m) return H.newFree();
-    if (m.kind === "round" || m.kind === "duel") return play(H, m.code);
+    if (m.kind === "round") return play(H, m.code, null, "short");   // de volgende ronde van dit duel: alleen de korte band
+    if (m.kind === "duel") return play(H, m.code);
     if (m.kind === "rematch") return create(H, { rematch: m.code });
     if (m.kind === "daily") return H.switchMode("daily");
     return H.newFree();
@@ -1487,6 +1656,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   async function openList(host, opts = {}) {
     H = host;
+    uncover();
     ensureCss();
     const T = tx(H.lang), el = ensureListModal();
     el.querySelector("#duels-title").textContent = `${ICON} ${T.title}`;
@@ -1913,6 +2083,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
 
   function showPop(T, inner, d, { cls = "", style = "" } = {}) {
+    uncover();
     document.getElementById("modal-duel-pop")?.remove();
     const el = document.createElement("div");
     el.id = "modal-duel-pop";
@@ -1991,7 +2162,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     openList, openInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
-         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml,
+         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel,
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

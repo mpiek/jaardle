@@ -15104,9 +15104,15 @@ async function init() {
   } else {
     switchMode("daily");
   }
-  if (duelCode) loadDuel().then((D) => D.openInvite(duelHost(), duelCode)).catch(() => {});
+  // Het ⚔️-laadscherm (head-script + style.css) haalt /duel.js weg; lukt het laden van duel.js niet, dan meteen, en na 10 s altijd.
+  const uncoverDuel = () => document.documentElement.removeAttribute("data-duelload");
+  if (duelCode) {
+    setTimeout(uncoverDuel, 10000);
+    loadDuel().then((D) => D.openInvite(duelHost(), duelCode)).catch(uncoverDuel);
+  }
   // Rode stip voor duels (jouw beurt, een nieuwe uitslag): alleen wie op dit toestel duels heeft vraagt het na, in een rustig moment.
   else if (duelKnown()) setTimeout(() => loadDuel().then((D) => D.checkNews(duelHost())).catch(() => {}), 2500);
+  if (!duelCode) uncoverDuel();
 
   // Open de login-modal als /login of /register is bezocht (tenzij al ingelogd).
   // Login en registreren zitten in dezelfde modal.

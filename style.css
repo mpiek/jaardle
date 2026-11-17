@@ -2254,6 +2254,15 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 }
 
 
+/* ⚔️ Laadscherm voor een duel-seintje of -link (?duel=, head-script): geen daily ertussen. Eén vlak in de achtergrondkleur
+   (de schaduw van het ⚔️-vakje vult het scherm) met een rustig ademende ⚔️. /duel.js haalt het weg zodra de opening van de ronde
+   begint (die heeft dezelfde achtergrond) of het iets anders laat zien. html::after, want de skins gebruiken html::before. */
+html[data-duelload]::after { content: "⚔️"; position: fixed; z-index: 150; left: 50%; top: 50%; width: 6rem; height: 6rem; margin: -3rem 0 0 -3rem;
+  display: grid; place-items: center; font: 3.2rem/1 "JaardleEmoji", sans-serif; background: var(--bg); box-shadow: 0 0 0 100vmax var(--bg);
+  animation: duel-load 1.1s ease-in-out infinite alternate; }
+@keyframes duel-load { from { transform: scale(0.88); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { html[data-duelload]::after { animation: none; } }
+
 /* --- Modals --- */
 .modal {
   position: fixed;
