@@ -16,7 +16,7 @@
    Meetpunten (GoatCounter, site jaardle-events; game.js telt duel-list bij ⋮ → Duels): duel-create · duel-rematch · duel-invite-shared|copied|
    abort|prompt · duel-copy-link · duel-resend · duel-withdraw · duel-link-open|own|taken|closed|notfound · duel-accept · duel-decline ·
    duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
-   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily. Trechter: link-open → accept →
+   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open. Trechter: link-open → accept →
    round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
    Versie 4 (stap 2, db/190, mockup v6 16/11): "Deel uitslag" stuurt een plaatje mee (canvas 1080×1080, scorebord: winnaar links met kroon,
    elke ronde met beide scores, iedere speler in de kleur van zijn gezichtje) met één regel en de link; wie die link opent zonder mee te
@@ -144,6 +144,9 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .dl-detail .duel-head { padding-top: 0.45rem; }
 .dl-detail .duel-head b { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
 .dl-detail .duel-verdict { display: block; margin-top: 0.55rem; font-size: 0.95rem; }
+.dl-detail .duel-card[data-end] { cursor: pointer; }
+.dl-open { flex: none; color: var(--muted); font-size: 1rem; line-height: 1; }
+.dl-detail .duel-card[data-end]:hover .dl-open, .dl-detail .duel-card[data-end]:hover .duel-head b { color: var(--accent); }
 .dl-rev { align-self: flex-start; display: inline-flex; align-items: center; gap: 0.35rem; }
 .dl-past { display: flex; flex-direction: column; }
 .dl-past button { appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; width: 100%; min-height: 2.5rem; padding: 0.25rem 0.1rem; font: inherit; font-size: 0.8rem; font-weight: 500;
@@ -1354,7 +1357,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   // ════ de eindstand-pop-up ════
   // Na je vijfde ronde (de ander nog bezig of al klaar), en voor een uitslag die je nog niet zag (flip: de rondes draaien om).
-  function showEndPop(T, d, { flip = false, fresh = false, wonLast = false } = {}) {
+  function showEndPop(T, d, { flip = false, fresh = false, wonLast = false, again = false } = {}) {
     ensureCss();
     document.getElementById("modal-duel-end")?.remove();
     const opp = oppName(d), mine = d.mine || [], theirs = d.theirs || [], done = d.status === "done";
@@ -1418,7 +1421,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     setTimeout(() => {
       if (flip) { const big = el.querySelector(".duel-vs .mid b"); if (big) big.textContent = `${o.w}–${o.l}`; }
       if (opPts) opPts.textContent = T.pts(sum(theirs));
-      if (o.res === "w" && !(fresh && wonLast)) H.showConfetti();   // gewonnen: feest (had de laatste ronde al confetti, dan niet nog eens)
+      if (o.res === "w" && !again && !(fresh && wonLast)) H.showConfetti();   // gewonnen: feest (had de laatste ronde al confetti, of zag je hem al: niet nog eens)
       if (!d.seen) markSeen(d.code);
     }, flip && !reduced ? FLIP_MS : 0);
   }
@@ -1474,7 +1477,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     el.addEventListener("click", onListClick);
     el.addEventListener("submit", onListSubmit);
     el.addEventListener("keydown", (e) => {
-      if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-grp], [data-wait]")) { e.preventDefault(); e.target.click(); }
+      if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-grp], [data-wait], [data-end]")) { e.preventDefault(); e.target.click(); }
     });
     return el;
   }
@@ -1692,8 +1695,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
             (best ? `<span>${esc(T.stBest)} <b>${best[0]}–${best[1]}</b></span>` : "") + `</p>`;
         }
       }
-      det = `<div class="dl-detail">${vs}<div class="duel-card"><div class="duel-head"><b>${esc(cap(whenText(T, sel.finished_at)))}, ${esc(clockText(sel.finished_at))}</b>` +
-        `<span class="duel-r">${esc(T.total(so.a, so.b))}</span></div>` + tilesHtml(sel) +
+      det = `<div class="dl-detail">${vs}<div class="duel-card" data-end="${sel.code}" role="button" tabindex="0"><div class="duel-head"><b>${esc(cap(whenText(T, sel.finished_at)))}, ${esc(clockText(sel.finished_at))}</b>` +
+        `<span class="duel-r">${esc(T.total(so.a, so.b))}</span><span class="dl-open" aria-hidden="true">›</span></div>` + tilesHtml(sel) +
         `<span class="duel-verdict">${esc(verdict(T, so, n))}</span></div>` +
         (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const o = outcome(d.mine, d.theirs);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${o.res}">${esc(resText(T, o))}</span></button>`; }).join("")}</div>` : "") +
@@ -1704,7 +1707,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 
   function onListClick(e) {
     const T = tx(H.lang);
-    const b = e.target.closest("[data-act], [data-grp], [data-wait], [data-sel][data-grp-of], [data-face]");
+    const b = e.target.closest("[data-act], [data-grp], [data-wait], [data-sel][data-grp-of], [data-end], [data-face]");
     if (!b) return;
     if (b.dataset.face) {   // db/189: een gezichtje kiezen (nog eens = weer de link); loopt er al een duel, dan dat duel
       const t = listTargets.find((x) => x.k === b.dataset.face);
@@ -1719,7 +1722,14 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pickSel = pickSel === t.k ? null : t.k;
       return renderList(T, null);
     }
-    if (b.dataset.grpOf) { selInGrp[b.dataset.grpOf] = b.dataset.sel; renderList(T, null); return; }
+    // Een afgelopen duel (de kaart, of een regel "Vandaag" / "Gisteren" eronder): de eindstand-pop-up met Revanche en Deel uitslag,
+    // ook op een ander toestel dan waar je speelde. Zonder confetti: die uitslag zag je al.
+    if (b.dataset.grpOf) { selInGrp[b.dataset.grpOf] = b.dataset.sel; renderList(T, null); }
+    if (b.dataset.grpOf || b.dataset.end) {
+      const d = (listItems || []).find((x) => x.code === (b.dataset.end || b.dataset.sel));
+      if (d && d.status === "done" && !unrevealed(d)) { gc("duel-result-open", "Duel: result opened from the Duels screen"); showEndPop(T, d, { again: true }); }
+      return;
+    }
     if (b.dataset.wait && !b.dataset.act) {
       if (openWait.has(b.dataset.wait)) openWait.delete(b.dataset.wait); else openWait.add(b.dataset.wait);
       renderList(T, null);
@@ -1978,6 +1988,6 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml,
-         setPick: (k) => { pickSel = k; }, setHost: (h) => { H = h; } },   // voor de tests
+         setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

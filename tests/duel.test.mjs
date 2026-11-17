@@ -462,3 +462,27 @@ test("duel.js — account-momenten zonder account: bij de uitslag wat je er met 
   for (const sel of [".dl-acct {", ".dl-acct u {"]) assert.ok(D.css.includes(sel), `CSS mist ${sel}`);
   X.applyList({ items: [], targets: [], h2h: {} });
 });
+
+test("duel.js — een afgelopen duel in het Duels-scherm opent de eindstand (Revanche + Deel uitslag), ook op een ander toestel; zonder confetti", () => {
+  X.setHost(host({ loggedIn: true, myName: () => "Noor" }));
+  const T = D.copy("nl"), now = Date.now(), iso = (h) => new Date(now - h * 3600e3).toISOString();
+  const duel = (code, h, o) => ({ code, status: "done", seen: true, opp: "kb", me: "o", c_name: "Bram", o_name: "Noor", finished_at: iso(h), mine: [9, 9, 9, 9, 9], theirs: [1, 1, 1, 1, 1], ...o });
+  const a = duel("AAAAAA", 0), b = duel("BBBBBB", 26, { mine: [1, 1, 1, 1, 1], theirs: [9, 9, 9, 9, 9] });
+  X.setGrp("kb");
+  const h = X.listBody(T, [a, b], "", null);
+  assert.match(h, /<div class="duel-card" data-end="AAAAAA" role="button" tabindex="0">[^]*class="dl-open"/, "de kaart van het nieuwste duel is tikbaar, met een pijltje");
+  assert.match(h, /data-sel="AAAAAA" data-grp-of="kb"[^>]*><span>Vandaag<\/span>/);
+  assert.match(h, /data-sel="BBBBBB" data-grp-of="kb"[^>]*><span>Gisteren<\/span>/);
+  // een uitslag die je nog niet zag: geen tikbare kaart (de onthulling doet dat, met de rondes die omdraaien)
+  assert.ok(!X.listBody(T, [{ ...a, seen: false }], "", null).includes("data-end="));
+  X.setGrp(null);
+  assert.ok(!X.listBody(T, [a, b], "", null).includes("data-end="), "dichtgeklapt: geen kaart");
+  // de klik: de kaart of een regel eronder → showEndPop met again (geen confetti; de pop-up maakt het plaatje klaar via prepShare)
+  const click = SRC.slice(SRC.indexOf("function onListClick"), SRC.indexOf("async function acceptFromList"));
+  assert.match(click, /closest\([^)]*\[data-end\]/);
+  assert.match(click, /if \(b\.dataset\.grpOf \|\| b\.dataset\.end\) \{[^]*?!unrevealed\(d\)[^]*?gc\("duel-result-open"[^]*?showEndPop\(T, d, \{ again: true \}\)/);
+  assert.match(SRC, /o\.res === "w" && !again && !\(fresh && wonLast\)\) H\.showConfetti\(\)/, "opnieuw geopend: geen confetti");
+  assert.match(SRC, /matches\?\.\("\[data-grp\], \[data-wait\], \[data-end\]"\)/, "ook met het toetsenbord");
+  assert.match(SRC.slice(0, SRC.indexOf("window.Duel")), /duel-result-open/, "meetpunt in de kopregel");
+  X.setHost(host());
+});
