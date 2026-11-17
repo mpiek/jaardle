@@ -6146,8 +6146,10 @@ function ensureFlairFxCss() {
   } catch (e) { flairFxCssLink = null; }
 }
 const flairFxClass = (fx, still) => { if (!fx) return ""; ensureFlairFxCss(); return ` fl-fx fx-${fx}${still ? " fl-still" : ""}`; };
-function flairFxWrap(fx, html, still) { return fx ? `<span class="${flairFxClass(fx, still).trim()}">${html}</span>` : html; }
-function flairStaticHtml(raw) { const p = parseFlair(raw); return p.emoji ? flairFxWrap(p.fx, flairGlyphHtml(p.emoji), true) : ""; }
+// `flair` = het kale teken (of "v:<id>") en komt als data-flair op de wrapper, net als op de bord-badge: de effect-CSS weet zo per
+// flair waar de tekening in haar vakje begint (--fl-drop, zie flair-fx.css) en hangt het Slinger-draadje op de tekening i.p.v. op het vakje.
+function flairFxWrap(fx, flair, html, still) { return fx ? `<span class="${flairFxClass(fx, still).trim()}" data-flair="${escHtml(flair)}">${html}</span>` : html; }
+function flairStaticHtml(raw) { const p = parseFlair(raw); return p.emoji ? flairFxWrap(p.fx, p.emoji, flairGlyphHtml(p.emoji), true) : ""; }
 function flairFxEarned(a) { return a && auth.user ? Object.keys(FLAIR_FX).filter((id) => FLAIR_FX[id].earned(a)) : []; }
 
 // De 🥇 draagt z'n flair met trots: op rang 1 beweegt de flair (tenzij reduced-
@@ -7419,7 +7421,7 @@ function podiumParts(rows, isLive, awards, noFormula, ghosts) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const flairDance = (f) => {
     const p = parseFlair(f);
-    return p.emoji ? flairFxWrap(p.fx, reduced ? flairGlyphHtml(p.emoji) : flairPreviewHtml(p.emoji)) : "";
+    return p.emoji ? flairFxWrap(p.fx, p.emoji, reduced ? flairGlyphHtml(p.emoji) : flairPreviewHtml(p.emoji)) : "";
   };
   if (!rows.length) {
     return { all: `<div class="lb-wk-msg"><div class="lb-wk-msg-i">🏟️</div>` +
@@ -9882,13 +9884,13 @@ function platinaFrameActive() {   // de actieve stijl of "" (niet verdiend / uit
 // De rand draagt je flair (zonder flair: het woord PLATINA). Eén bron voor het eindscherm én het miniatuurtje in de kluis.
 function frameLabelHtml(raw) {
   const { emoji, fx } = parseFlair(raw);
-  const mid = emoji ? `<span class="pf-em">${flairFxWrap(fx, flairGlyphHtml(emoji))}</span>` : `<span class="pf-gt">${escHtml(t("achv_tiers").platinum)}</span>`;
+  const mid = emoji ? `<span class="pf-em">${flairFxWrap(fx, emoji, flairGlyphHtml(emoji))}</span>` : `<span class="pf-gt">${escHtml(t("achv_tiers").platinum)}</span>`;
   return `<span class="pf-dia"></span>${mid}<span class="pf-dia"></span>`;
 }
 function frameOverlayHtml(style, raw) {
   const { emoji, fx } = parseFlair(raw);
   if (style === "a") return `<div class="pf-ov pf-tab" aria-hidden="true">${frameLabelHtml(raw)}</div>`;
-  if (style === "b") return emoji ? `<div class="pf-ov pf-chip" aria-hidden="true"><span class="pf-em">${flairFxWrap(fx, flairGlyphHtml(emoji))}</span></div>` : "";
+  if (style === "b") return emoji ? `<div class="pf-ov pf-chip" aria-hidden="true"><span class="pf-em">${flairFxWrap(fx, emoji, flairGlyphHtml(emoji))}</span></div>` : "";
   if (style === "d") return `<div class="pf-ov pf-title" aria-hidden="true"><i></i><div class="pf-mid">${frameLabelHtml(raw)}</div><i></i></div>`;
   return "";
 }
@@ -10821,8 +10823,9 @@ function showReward(key, opts) {
   const worn = parseFlair(myFlair).emoji;
   const isEffect = r.cat === "effect" || (fxCat && !!worn);
   const evFlair = r.event ? (eventById(r.event).rewards.find((x) => x.kind === "flair") || {}).emoji : null;   // een event-effect zonder gedragen flair: laat de event-flair zien (niet het effect-icoon)
-  const heroInner = flairPreviewHtml(fxCat ? (worn || evFlair || r.emoji) : r.emoji);
-  const hero = fxCat ? flairFxWrap(r.fx, heroInner) : heroInner;
+  const heroFlair = fxCat ? (worn || evFlair || r.emoji) : r.emoji;
+  const heroInner = flairPreviewHtml(heroFlair);
+  const hero = fxCat ? flairFxWrap(r.fx, heroFlair, heroInner) : heroInner;
   const evc = r.event ? eventCopy(r.event) : null;   // een event-beloning heeft eigen teksten (en een eigen kopregel)
   const sub = r.find ? t(anon ? "find_pop_anon" : "find_pop_sub")
     : evc ? evc.popSub[eventRewardKind(key)] : t(r.sub || (isFlair ? "reward_sub_flair" : fxCat ? "reward_sub_flairfx" : r.cat === "theme" ? "reward_sub_theme" : "reward_sub_effect"));
@@ -10898,7 +10901,7 @@ function showEventGroup(evId, keys) {
   const pick = (kind) => ev.rewards.find((r) => r.kind === kind && keys.includes(r.key));
   const flairR = pick("flair"), fxR = pick("fx"), feestR = pick("feest");
   const emoji = flairR ? flairR.emoji : (parseFlair(myFlair).emoji || (ev.rewards.find((r) => r.kind === "flair") || {}).emoji || ev.icon);
-  const heroInner = flairPreviewHtml(emoji), hero = fxR ? flairFxWrap(fxR.fx, heroInner) : heroInner;
+  const heroInner = flairPreviewHtml(emoji), hero = fxR ? flairFxWrap(fxR.fx, emoji, heroInner) : heroInner;
   const el = document.createElement("div");
   el.id = "modal-reward";
   el.className = "modal rw-pop rw-flair" + (reduced ? "" : " rw-pop-anim");
@@ -11568,7 +11571,7 @@ function flairFxSectionHtml(a) {
   if (!earned.length) return "";
   const { emoji, fx } = parseFlair(myFlair);
   const row = (id) => {
-    const prev = emoji ? `<span class="rw-fxprev">${flairFxWrap(id, flairGlyphHtml(emoji))}</span>` : "";
+    const prev = emoji ? `<span class="rw-fxprev">${flairFxWrap(id, emoji, flairGlyphHtml(emoji))}</span>` : "";
     const name = id ? t("fxn_" + id) : t("flairfx_none");
     return `<button type="button" class="cap-action" role="radio" aria-checked="${fx === id}" data-flairfx="${id}"${emoji ? "" : " disabled"}>` +
       `<span class="rw-fxlbl">${prev}<span>${escHtml(name)}</span></span></button>`;

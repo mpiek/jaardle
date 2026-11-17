@@ -1730,9 +1730,45 @@ test("flairBadgeHtml/flairStaticHtml — effect-klassen op de badge, het teken b
   assert.ok(!plain.includes("fl-fx"), "zonder effect geen effect-klassen");
   assert.equal(T.flairBadgeHtml("", 1), "");
   assert.equal(T.flairBadgeHtml("~sparkle", 1), "");
-  assert.equal(T.flairStaticHtml("🔥~sparkle"), '<span class="fl-fx fx-sparkle fl-still">🔥</span>', "een statische emoji → een stilstaand effect");
+  assert.equal(T.flairStaticHtml("🔥~sparkle"), '<span class="fl-fx fx-sparkle fl-still" data-flair="🔥">🔥</span>', "een statische emoji → een stilstaand effect");
   assert.equal(T.flairStaticHtml("🔥"), "🔥");
   assert.equal(T.flairStaticHtml(null), "");
+});
+
+test("elke effect-wrapper draagt data-flair, de sleutel waarmee de effect-CSS weet waar de tekening begint (--fl-drop)", () => {
+  assert.match(T.flairStaticHtml("🦕~pendulum"), /^<span class="fl-fx fx-pendulum fl-still" data-flair="🦕">/);
+  assert.match(T.flairStaticHtml("v:taped-banana~pendulum"), /^<span class="fl-fx fx-pendulum fl-still" data-flair="v:taped-banana">/, "een eigen tekening: de hele flair-string");
+  assert.match(T.flairBadgeHtml("v:taped-banana~pendulum", 2), /class="lb-flair-badge fl-fx fx-pendulum fl-still" data-flair="v:taped-banana"/);
+  assert.match(T.frameLabelHtml("☄️~pendulum"), /<span class="fl-fx fx-pendulum" data-flair="☄️">/, "de sierrand (VS16 blijft in de sleutel)");
+  const pod = T.podiumParts([{ rank: 1, display_name: "A", flair: "🌶️~pendulum", total: 300, played: 3, wins: 1, is_me: true }], false, [], true).stage;
+  assert.match(pod, /<span class="fl-fx fx-pendulum" data-flair="🌶️">/, "het podium");
+  assert.ok(!T.flairStaticHtml("🦕").includes("data-flair"), "zonder effect geen wrapper");
+});
+
+test("flair-fx.css — Slinger hangt op de tekening: draadje, spijkertje en draaipunt zakken met --fl-drop; de tabel kent alleen bestaande flairs", () => {
+  const css = readFileSync(join(dir, "..", "flair-fx.css"), "utf8");
+  // zonder regel is --fl-drop 0: een flair die haar vakje vult staat er precies zo bij als vóór de tabel
+  assert.ok(css.includes(".fx-pendulum { transform-origin: 50% calc(var(--fl-drop, 0em) - 0.26em);"), "het draaipunt zakt mee");
+  assert.ok(css.includes(".fx-pendulum::before { left: 50%; bottom: calc(92% - var(--fl-drop, 0em));"), "het draadje zakt mee");
+  assert.ok(css.includes(".fx-pendulum::after { left: 50%; bottom: calc(92% + 0.23em - var(--fl-drop, 0em));"), "het spijkertje zakt mee");
+  const emoji = new Set([...T.FLAIR_OPTIONS, ...Object.keys(T.FLAIR_ANIM), ...Object.keys(T.FLAIR_SVG), ...T.VONDSTEN.filter((v) => !v.cls).map((v) => v.flair)]);
+  const drawn = new Set(T.VONDSTEN.filter((v) => v.cls).map((v) => v.flair));
+  const a = css.indexOf("/* @@VONDST-DROP-START"), b = css.indexOf("/* @@VONDST-DROP-END */");
+  assert.ok(a > 0 && b > a, "het blok van build_vondsten.py staat erin");
+  const seen = {};
+  for (const m of css.matchAll(/([^{}]+)\{ --fl-drop: ([\d.]+)em; \}/g)) {
+    const v = Number(m[2]), at = m.index + m[1].length, generated = at > a && at < b;   // m[1] begint vóór het marker-commentaar
+    assert.ok(v >= 0.12 && v <= 0.7, `${m[1].trim()}: ${v}em valt buiten wat een vakje van 1,25em kan hebben`);
+    for (const sel of m[1].replace(/\/\*[\s\S]*?\*\//g, "").split(",").map((x) => x.trim()).filter(Boolean)) {
+      const k = sel.match(/^\.fl-fx\[data-flair="([^"]+)"\](:has\(> \.pep\))?$/);
+      assert.ok(k, `onverwachte selector: ${sel}`);
+      assert.ok(generated ? drawn.has(k[1]) : emoji.has(k[1]), `${k[1]}: ${generated ? "geen eigen tekening" : "geen bekende emoji-flair (let op de variatie-selector)"}`);
+      assert.ok(!seen[sel], `${sel} staat er twee keer`); seen[sel] = v;
+    }
+  }
+  assert.ok(seen['.fl-fx[data-flair="v:taped-banana"]'] >= 0.3, "de ducttape-banaan ligt schuin: het draadje zakt tot op de tape");
+  assert.ok(seen['.fl-fx[data-flair="🦕"]'] >= 0.4 && seen['.fl-fx[data-flair="🌶️"]'] >= 0.4, "de diepste emoji-flairs");
+  for (const f of ["🎲", "💀", "⭐", "v:jewelled-egg", "v:nebra-disc"]) assert.ok(!(`.fl-fx[data-flair="${f}"]` in seen), `${f} vult het vakje en heeft geen regel nodig`);
 });
 
 test("beweging van een flair-effect volgt de emoji's: rang 1 en het kluis-voorbeeld bewegen, de rest staat stil", () => {

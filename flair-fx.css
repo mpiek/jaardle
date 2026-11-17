@@ -129,11 +129,41 @@ html[data-theme="light"], html[data-theme="parchment"] {
 }
 @keyframes fx-drain { 0% { --fx-a: 360deg; opacity: 1; } 72% { --fx-a: 0deg; opacity: 1; } 80% { --fx-a: 0deg; opacity: 0; } 100% { --fx-a: 360deg; opacity: 0; } }
 @keyframes fx-zero { 0%, 70% { transform: scale(0.9); opacity: 0; } 74% { transform: scale(0.95); opacity: 1; } 92% { transform: scale(1.12); opacity: 0; } 100% { opacity: 0; } }
-/* pendulum = Slinger (Zigzag 45): de flair hangt aan een kort draadje en slingert */
-.fx-pendulum { transform-origin: 50% -0.26em; animation: fx-swing 2.8s ease-in-out infinite; }
-.fx-pendulum::before { left: 50%; bottom: 92%; width: 0.045em; height: 0.26em; margin-left: -0.0225em; background: var(--fx-line); }
-.fx-pendulum::after { left: 50%; bottom: calc(92% + 0.23em); width: 0.14em; height: 0.14em; margin-left: -0.07em; border-radius: 50%; background: var(--fx-line); }
+/* pendulum = Slinger (Zigzag 45): de flair hangt aan een kort draadje en slingert. Draadje, spijkertje en draaipunt zakken met
+   --fl-drop mee tot op de tekening (tabel hieronder), anders zweeft het draadje boven een flair die haar vakje niet vult. */
+.fx-pendulum { transform-origin: 50% calc(var(--fl-drop, 0em) - 0.26em); animation: fx-swing 2.8s ease-in-out infinite; }
+.fx-pendulum::before { left: 50%; bottom: calc(92% - var(--fl-drop, 0em)); width: 0.045em; height: 0.26em; margin-left: -0.0225em; background: var(--fx-line); }
+.fx-pendulum::after { left: 50%; bottom: calc(92% + 0.23em - var(--fl-drop, 0em)); width: 0.14em; height: 0.14em; margin-left: -0.07em; border-radius: 50%; background: var(--fx-line); }
 @keyframes fx-swing { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+
+/* --fl-drop: hoe ver de tekening van een flair in het midden onder de bovenrand van haar vakje begint, voor effecten die de
+   tekening moeten raken (nu alleen Slinger). Een effect hangt aan het vakje, niet aan de tekening: een flair die schuin ligt of
+   bovenaan lucht heeft (🦕, 🌶️, de ducttape-banaan) kreeg het draadje een eind boven zich. Alleen flairs met 0,08em lucht of meer
+   staan hier; de rest vult het vakje en blijft op 0. Waarde = die lucht + 0,04em, zodat het draadje net in de tekening steekt
+   (zoals bij 🎲 en 💀). De sleutel is data-flair (flairFxWrap/flairBadgeHtml in game.js). Eerst de emoji-flairs, met de hand,
+   gemeten op het stilstaande teken; dan de eigen tekeningen ("v:<id>"), uitgerekend door build_vondsten.py (een nieuwe vondst
+   krijgt haar regel dus vanzelf). Nieuwe emoji-flair: meten met jaardle-tools/tools/fx_hang_harness en op het oog controleren
+   (een smalle spleet zoals tussen de cijfers van 💯 is geen lucht). */
+.fl-fx[data-flair="🐢"], .fl-fx[data-flair="🦄"] { --fl-drop: 0.14em; }
+.fl-fx[data-flair="☄️"], .fl-fx[data-flair="🖤"] { --fl-drop: 0.16em; }
+.fl-fx[data-flair="⚡"], .fl-fx[data-flair="🚀"] { --fl-drop: 0.18em; }
+.fl-fx[data-flair="🦫"] { --fl-drop: 0.2em; }
+.fl-fx[data-flair="🦊"], .fl-fx[data-flair="🐙"] { --fl-drop: 0.22em; }
+.fl-fx[data-flair="💅"] { --fl-drop: 0.32em; }
+.fl-fx[data-flair="🦕"] { --fl-drop: 0.52em; }
+.fl-fx[data-flair="🌶️"] { --fl-drop: 0.6em; }
+.fl-fx[data-flair="🌶️"]:has(> .pep) { --fl-drop: 0.38em; }   /* de huppelende peper is een andere tekening dan het teken (FLAIR_SVG) */
+/* @@VONDST-DROP-START (gegenereerd door build_vondsten.py in jaardle-tools; niet met de hand bewerken) */
+.fl-fx[data-flair="v:platypus"] { --fl-drop: 0.29em; }
+.fl-fx[data-flair="v:mammoth"] { --fl-drop: 0.15em; }
+.fl-fx[data-flair="v:schrodinger-cat"] { --fl-drop: 0.31em; }
+.fl-fx[data-flair="v:tardigrade"] { --fl-drop: 0.16em; }
+.fl-fx[data-flair="v:jackalope"] { --fl-drop: 0.5em; }
+.fl-fx[data-flair="v:taped-banana"] { --fl-drop: 0.37em; }
+.fl-fx[data-flair="v:abbot"] { --fl-drop: 0.12em; }
+.fl-fx[data-flair="v:capybara"] { --fl-drop: 0.16em; }
+.fl-fx[data-flair="v:krampus"] { --fl-drop: 0.21em; }
+/* @@VONDST-DROP-END */
 
 /* Stilstaande pose per effect: voor flairs die niet bewegen (.fl-still) en, via de media-query hieronder, voor
    iedereen met minder beweging. Expliciete waarden, geen bevroren animatie: een later toegevoegde class pauzeert een
