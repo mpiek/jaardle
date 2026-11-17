@@ -4713,23 +4713,11 @@ function stampParam(s) {
   return s && s.mode === "free" && s.stamp ? { p_stamp: s.stamp } : {};
 }
 
-// Eén rij per afgerond spel naar de DB (fire-and-forget). Idempotent per puzzel
-// zodat herladen/heropenen niet dubbel telt. Geen PII — anon of JWT (server-side).
-// Een gedeeld potje gaat ook naar de server (die beslist), maar zonder ⚡-regel: het telt niet voor je rating.
-function sendTelemetry() {
-  const hash = state.hashes?.[0];
-  if (!hash || state.duel) return Promise.resolve();   // een duelronde gaat naar duel_submit (/duel.js), niet naar plays
-  const slot = sentSlot();
-  const sentKey = `jaardle:sent:${hash}:${slot}`;
-  if (localStorage.getItem(sentKey)) return Promise.resolve();
-  try { localStorage.setItem(sentKey, "1"); } catch (e) {}
+// Hoe het potje gespeeld is, zoals record_play het krijgt. Een duelronde stuurt hetzelfde mee met duel_submit (db/200), dat er
+// zelf de plays-rij van maakt.
+function playFields() {
   const first = state.guesses[0];
-  const prevRating = auth.rating, prevRaw = auth.ratingRaw;
-  const shared = !!state.shared;
-  const anon = !auth.user;
-  const ratingLine = shared ? null : ratingLineStart(prevRating);   // ⚡-regel meteen in beeld met de oude stand
-  return rpc("record_play", {
-    p_fact_hash: hash,
+  return {
     p_attempts: Math.min(6, Math.max(1, state.guesses.length)),
     p_won: state.won,
     p_first_distance: first ? Math.abs(first.diff) : 0,
@@ -4737,12 +4725,32 @@ function sendTelemetry() {
     p_dir_hints_used: state.directionsRevealed.length,
     p_century_hint_used: !!state.centuryRevealed,
     p_last_digit_used: !!state.lastDigitRevealed,
+    p_guesses: state.guesses.map((g) => g.year),  // voor cross-device reconstructie
+    p_anchor_hash: state.anchorHash || state.hashes?.[0],   // feit dat open stond bij de gok (categorie-signaal)
+    p_dir_hint_idx: state.directionsRevealed,  // bij wélke gokken 🧭 (db/64) — exact bord bij herstel
+  };
+}
+
+// Eén rij per afgerond spel naar de DB (fire-and-forget). Idempotent per puzzel
+// zodat herladen/heropenen niet dubbel telt. Geen PII — anon of JWT (server-side).
+// Een gedeeld potje gaat ook naar de server (die beslist), maar zonder ⚡-regel: het telt niet voor je rating.
+function sendTelemetry() {
+  const hash = state.hashes?.[0];
+  if (!hash || state.duel) return Promise.resolve();   // een duelronde gaat naar duel_submit (/duel.js); dat schrijft de plays-rij (duelPlayStart)
+  const slot = sentSlot();
+  const sentKey = `jaardle:sent:${hash}:${slot}`;
+  if (localStorage.getItem(sentKey)) return Promise.resolve();
+  try { localStorage.setItem(sentKey, "1"); } catch (e) {}
+  const prevRating = auth.rating, prevRaw = auth.ratingRaw;
+  const shared = !!state.shared;
+  const anon = !auth.user;
+  const ratingLine = shared ? null : ratingLineStart(prevRating);   // ⚡-regel meteen in beeld met de oude stand
+  return rpc("record_play", {
+    p_fact_hash: hash,
+    ...playFields(),
     p_mode: state.mode,
     p_puzzle_date: state.mode === "daily" ? (state.puzzleDate || todayKey()) : null,
     p_score: computeScore(),
-    p_guesses: state.guesses.map((g) => g.year),  // voor cross-device reconstructie
-    p_anchor_hash: state.anchorHash || hash,   // feit dat open stond bij de gok (categorie-signaal)
-    p_dir_hint_idx: state.directionsRevealed,  // bij wélke gokken 🧭 (db/64) — exact bord bij herstel
     p_client_id: clientId(),   // speler-id (db/72): komt deze speler terug?
     ...stampParam(state),      // db/108: alleen een organisch vrij potje heeft een stempel
   })
@@ -4862,8 +4870,13 @@ const loadRemind = fxLoader("/remind.js", "Remind");
 // ── ⚔️ Duels (lui: /duel.js, server db/185) ──────────────────────────────────
 // Wie nooit duelleert laadt niets: het bestand komt pas bij ⋮ → Duels, een ?duel=-link, een lopende duelronde, of (alleen wie
 // op dit toestel duels heeft: jaardle:duels) voor de check van het rode stipje. Een duelronde is een gewoon vrij potje met
-// state.duel = { code, round, opp, deadline }: gedeeld (telt nergens voor), niet naar record_play maar naar duel_submit, en het
-// bord staat ook apart (jaardle:duelboard:…), zodat "Nieuw spel" een halve ronde niet kan wissen om hem opnieuw te beginnen.
+// state.duel = { code, round, opp, deadline }: het gaat niet naar record_play maar naar duel_submit, en het bord staat ook
+// apart (jaardle:duelboard:…), zodat "Nieuw spel" een halve ronde niet kan wissen om hem opnieuw te beginnen.
+// Sinds db/200 telt een duelronde als een vrij potje (prestaties, potjes-events, 🎭). Dat de tweede speler de antwoorden kan
+// kennen is geaccepteerd (17/11/2026: "ik vind die lek niet erg, niet erger dan iemand die het antwoord opzoekt op google").
+// Alleen de rating blijft erbuiten ("zullen we rating toch erbuiten laten voor nu"): de server schrijft het potje ongewaardeerd.
+// duel_submit krijgt playFields() mee en schrijft zelf één plays-rij per ronde, van het feit dat de server koos. Vondsten
+// zitten niet in een duel (db/191).
 const loadDuel = fxLoader("/duel.js", "Duel");
 const DUEL_BOARD_KEY = (code, r) => `jaardle:duelboard:${code}:${r}`;
 function duelHost() {
@@ -4883,6 +4896,25 @@ function duelHost() {
     faceHue, remindSupport, remindOn: () => !!remindState().on, openInstall: () => openInstall(), onPushChange: () => syncDuelPushUi(),
     vondstImage,   // db/190: een vondst-tekening als plaatje (stil), voor het deelplaatje
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
+    playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
+  };
+}
+// Vlak vóór duel_submit (door /duel.js): de gegevens van het potje. done(id) komt na het antwoord: id = de nieuwe plays-rij,
+// null = er kwam geen rij (de ronde stond er al na herladen, of een server van vóór db/200). Geen ⚡-regel: een duelronde
+// verschuift je rating niet.
+function duelPlayStart(st) {
+  if (st !== state || !st.done) return null;
+  const hash = st.hashes?.[0], slot = potSlot(), anon = !auth.user;
+  return {
+    play: playFields(),
+    done: (id) => {
+      if (id == null) return;
+      invalidateHistory();
+      updateRepairAfterPlay();
+      // zoals na record_play: het rij-id voor wie nu inlogt (claimPlayOnLogin), en claimDevicePlays mag weer
+      try { localStorage.setItem(`jaardle:playid:${hash}:${slot}`, String(id)); if (anon) localStorage.setItem(ANON_PLAYED_KEY, "1"); } catch (e) {}
+      if (state === st) checkAchievements().catch(() => {});   // unlock-kaartje onder de score
+    },
   };
 }
 function openDuels() {   // ⋮ → Duels (meetpunt duel-list; de rest van de duel-trechter telt /duel.js)

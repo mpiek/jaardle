@@ -126,34 +126,51 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.ok(SRC.length < 165000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert
 });
 
-test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde telt niet en gaat naar duel_submit", () => {
+test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
   assert.match(GAME, /const loadDuel = fxLoader\("\/duel\.js", "Duel"\);/);
   assert.ok(!/<script[^>]+duel\.js/.test(TPL), "duel.js staat niet in de pagina: alleen lui");
   assert.match(TPL, /<button class="menu-item" role="menuitem" data-action="duels" data-i18n="menu_duels">\{\{i18n:menu_duels\}\}<\/button>/);
   assert.equal((GAME.match(/menu_duels: "⚔️ /g) || []).length, 5, "menu-label in vijf talen");
   assert.match(GAME, /else if \(action === "duels"\) openDuels\(\);/);
   assert.match(GAME, /"modal-login", "modal-duels"\]/, "één paneel tegelijk");
-  assert.match(GAME, /if \(!hash \|\| state\.duel\) return Promise\.resolve\(\);/, "geen record_play voor een duelronde");
+  assert.match(GAME, /if \(!hash \|\| state\.duel\) return Promise\.resolve\(\);/, "geen record_play voor een duelronde (duel_submit schrijft de rij)");
+  // db/200: een duelronde telt als een vrij potje, zonder rating. Dezelfde gegevens als record_play (playFields) gaan mee als
+  // p_play; de ronde is niet meer "gedeeld" (anders tellen de lokale tellers en de potjes-events hem niet); zonder db/200 nog
+  // eens zonder p_play. Geen ⚡-regel: de server schrijft het potje ongewaardeerd.
+  assert.match(GAME, /p_fact_hash: hash,\n    \.\.\.playFields\(\),/, "record_play en duel_submit krijgen dezelfde gegevens");
+  assert.match(GAME, /function duelPlayStart\(st\) \{\n  if \(st !== state \|\| !st\.done\) return null;/);
+  { const fn = GAME.slice(GAME.indexOf("function duelPlayStart(st)"), GAME.indexOf("function openDuels()"));
+    assert.ok(!/ratingLineStart|showLiveRating|refreshMyRating/.test(fn), "een duelronde raakt de rating niet: geen ⚡-regel");
+    assert.match(fn, /checkAchievements\(\)/, "wel een unlock-kaartje");
+    assert.match(fn, /ANON_PLAYED_KEY/, "en na inloggen gaan de duelpotjes mee (claimDevicePlays)"); }
+  assert.match(GAME, /play: playFields\(\),/);
+  assert.match(GAME, /done: \(id\) => \{\n      if \(id == null\) return;/, "geen rij (herladen, oude server): niets bijwerken");
+  assert.ok(!/shared: true/.test(SRC), "een duelronde is geen gedeeld potje meer");
+  assert.match(SRC, /call\("duel_submit", \{ p_code: dl\.code, p_round: dl\.round, p_score: score, p_play: sent \? sent\.play : null \}\)/);
+  assert.match(SRC, /if \(!r\.ok && \/PGRST202\|schema cache\|p_play\/i\.test\(r\.e \|\| ""\)\) r = await call\("duel_submit", \{ p_code: dl\.code, p_round: dl\.round, p_score: score \}\);/, "server zonder db/200: de ronde telt nog");
+  assert.match(SRC, /try \{ if \(sent\) sent\.done\(r\.ok && r\.v && r\.v\.play != null \? r\.v\.play : null\); \} catch \(e\) \{\}/);
+  assert.match(SRC, /let sent = null; try \{ sent = H\.playStart \? H\.playStart\(st\) : null; \} catch \(e\) \{\}/, "het potje mag de ronde nooit tegenhouden");
   assert.match(GAME, /if \(state\.duel\) loadDuel\(\)\.then\(\(D\) => D\.roundDone\(duelHost\(\), doneState, fresh\)\)/);
   assert.match(GAME, /if \(state\.duel\) localStorage\.setItem\(DUEL_BOARD_KEY\(state\.duel\.code, state\.duel\.round\), JSON\.stringify\(board\)\);/);
   assert.match(GAME, /\? `\$\{window\.location\.pathname\}\?duel=\$\{state\.duel\.code\}`/, "het duelscherm: ?duel= in de adresbalk, geen ?p=");
   assert.match(GAME, /duelsAfterLogin\(\);/); assert.match(GAME, /rpc\("duel_claim", \{ p_client: clientId\(\) \}\)/, "na inloggen: anonieme duels naar je account");
   assert.match(GAME, /lbParams\.get\("duel"\)/); assert.match(GAME, /D\.openInvite\(duelHost\(\), duelCode\)/);
   assert.match(GAME, /else if \(duelKnown\(\)\) setTimeout/, "het stipje: alleen wie duels heeft vraagt het na");
-  for (const k of ["startRound", "newFree", "duelBoard", "dropDuelBoard", "dailyDone", "renderMenuDot", "showConfetti", "toEvent", "score", "flairHtml", "myFlair", "openLogin", "ready"]) {
+  for (const k of ["startRound", "newFree", "duelBoard", "dropDuelBoard", "dailyDone", "renderMenuDot", "showConfetti", "toEvent", "score", "flairHtml", "myFlair", "openLogin", "ready", "playStart"]) {
     assert.ok(new RegExp(`\\b${k}\\b`).test(GAME.slice(GAME.indexOf("function duelHost()"), GAME.indexOf("function openDuels()"))), `duelHost mist ${k}`);
   }
 });
 
-test("db/185 + 189 ↔ duel.js — elke RPC die duel.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "189_duel_push.sql")) }, () => {
-  // de laatste definitie telt (db/189 maakt duel_create opnieuw, met p_for)
-  const sql = ["185_duels.sql", "186_duels_flair_claim.sql", "189_duel_push.sql"].map((f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8")).join("\n");
+test("db/185 + 189 + 200 ↔ duel.js — elke RPC die duel.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "200_duel_plays.sql")) }, () => {
+  // de laatste definitie telt (db/189 maakt duel_create opnieuw, met p_for; db/200 duel_submit, met p_play)
+  const sql = ["185_duels.sql", "186_duels_flair_claim.sql", "189_duel_push.sql", "200_duel_plays.sql"].map((f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8")).join("\n");
   const calls = [...SRC.matchAll(/call\("(duel_[a-z]+)", \{([^}]*)\}/g)].map((m) => [m[1], [...m[2].matchAll(/(p_[a-z]+):/g)].map((x) => x[1])]);
   assert.ok(calls.length >= 8);
   assert.ok(calls.some(([fn, a]) => fn === "duel_create" && a.includes("p_for")), "direct uitdagen stuurt p_for");
+  assert.ok(calls.some(([fn, a]) => fn === "duel_submit" && a.includes("p_play")), "een ronde stuurt het potje mee (p_play)");
   for (const [fn, args] of calls) {
-    const defs = [...sql.matchAll(new RegExp(`create (?:or replace )?function public\\.${fn}\\(([^)]*)\\)`, "g"))], def = defs[defs.length - 1];
-    assert.ok(def, `${fn} bestaat niet in db/185–189`);
+    const defs = [...sql.matchAll(new RegExp(`create (?:or replace )?function public\\.${fn}\\(([^)]*)\\)`, "gi"))], def = defs[defs.length - 1];
+    assert.ok(def, `${fn} bestaat niet in db/185–200`);
     const params = [...def[1].matchAll(/(p_[a-z]+)\s/g)].map((x) => x[1]);
     assert.ok(params.includes("p_client"), `${fn}: p_client (call() stuurt hem altijd mee)`);
     for (const a of args) assert.ok(params.includes(a), `${fn}: argument ${a} bestaat niet`);

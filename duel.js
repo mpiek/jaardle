@@ -1209,7 +1209,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const p = d.rounds[r];
     ["modal-duels", "modal-duel-pop", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
     await H.startRound({
-      mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(d.code, r) || null, potId: `d${d.code}${r}`, shared: true,
+      mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(d.code, r) || null, potId: `d${d.code}${r}`,   // niet shared: een duelronde telt als een vrij potje (db/200)
       duel: { code: d.code, round: r, opp: oppName(d), deadline: d.deadline },
     });
   }
@@ -1266,7 +1266,14 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     H.els.shareBtn.hidden = true;
     placeCard(`<p class="duel-note">${esc(T.loading)}</p>`);
     // Altijd insturen, ook bij herstel: een ronde die al binnen is negeert de server, een ronde die (geen netwerk) nooit aankwam gaat alsnog.
-    const r = await call("duel_submit", { p_code: dl.code, p_round: dl.round, p_score: H.score() });
+    // db/200: de ronde telt als een vrij potje (prestaties, potjes-events, 🎭; niet voor de rating). game.js geeft de gegevens van
+    // het potje (p_play); de server schrijft de rij en geeft het id terug (play). Een server zonder db/200 kent p_play niet: dan
+    // nog eens zonder (de ronde telt, het potje niet).
+    const score = H.score();
+    let sent = null; try { sent = H.playStart ? H.playStart(st) : null; } catch (e) {}   // het potje mag de ronde nooit tegenhouden
+    let r = await call("duel_submit", { p_code: dl.code, p_round: dl.round, p_score: score, p_play: sent ? sent.play : null });
+    if (!r.ok && /PGRST202|schema cache|p_play/i.test(r.e || "")) r = await call("duel_submit", { p_code: dl.code, p_round: dl.round, p_score: score });
+    try { if (sent) sent.done(r.ok && r.v && r.v.play != null ? r.v.play : null); } catch (e) {}
     if (H.state() !== st) return;   // de speler is al verder
     if (!r.ok || !r.v) {
       placeCard(`<p class="duel-note duel-err">${esc(fresh ? T.saveErr : T.err)}</p><button type="button" class="dl-mini" data-duel-retry>${esc(T.retry)}</button>`)
