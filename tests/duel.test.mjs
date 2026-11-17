@@ -578,10 +578,17 @@ test("duel.js — ingelogd blijft ingelogd: geen naamveld of \"J\" (van Jij) doo
   assert.match(GAME, /get loggedIn\(\) \{ return !!auth\.user; \}/);
   assert.match(GAME, /authReady: \(\) => Promise\.race\(\[authResolvedP, /);
   assert.match(SRC, /await H\.authReady\?\.\(\);\s+if \(H\.loggedIn\) await H\.ensureIdentity/);
-  // supabase-js meldt SIGNED_IN bij elke terugkeer naar de app: zelfde speler → naam en flair blijven staan
-  assert.match(GAME, /const sameUser = auth\.resolved && \(auth\.user\?\.uid \?\? null\) === \(e\.detail\?\.uid \?\? null\);/);
-  assert.match(GAME, /if \(!sameUser\) \{ myFlair = null; myUsername = null; \}/);
-  assert.ok(!/myFlair = null; myUsername = null; myIdentityLoaded = false;/.test(GAME));
+  // supabase-js meldt SIGNED_IN bij elke terugkeer naar de app: zelfde speler → niets wissen of opnieuw ophalen (naam en flair
+  // blijven staan), alleen de daily naast de DB leggen (hooguit eens per 30 s) en het duel-stipje; het wissen staat ná die uitgang
+  assert.match(GAME, /const prev = auth\.user, sameUser = auth\.resolved && \(prev\?\.uid \?\? null\) === \(e\.detail\?\.uid \?\? null\);/);
+  const h = GAME.slice(GAME.indexOf("const onAuthChanged = async"));
+  const exit = h.indexOf("if (sameUser) {"), wipe = h.indexOf("myFlair = null; myUsername = null;"), achv = h.indexOf("achvRefreshBaseline();"), pools = h.indexOf("await refreshPoolState();");
+  assert.ok(exit > 0 && exit < wipe && exit < achv && exit < pools, "uitgang vóór het wissen en de zware aanroepen");
+  assert.match(h.slice(exit, wipe), /if \(!reconcileFresh\(\)\) reconcileDailyProgress\(\);\s+duelsAfterLogin\(\);\s+return;/);
+  // ook de volle route slaat een reconcile over die net (< 30 s, zelfde speler) al liep of waarvan het bord vers van de server kwam
+  assert.match(GAME, /else if \(!reconcileFresh\(\)\) reconcileDailyProgress\(\); claimPlayOnLogin\(\)/);
+  assert.match(GAME, /if \(answerYear == null\) return;\s+const hash = state\.hashes\?\.\[0\];\s+reconcileMark\(auth\.user\.uid\);/);
+  assert.match(GAME, /\]\);\s+if \(me\) reconcileMark\(me\.uid\);/);
   // ingelogd maar toch een (leeg) naamveld: je profielnaam
   assert.match(SRC, /const name = \(inp && cleanName\(inp\.value\)\) \|\| myName\(\);/);
 });

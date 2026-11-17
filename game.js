@@ -12277,6 +12277,11 @@ function reopenDailyForMe() {
 // gewisseld/afgerond zijn.
 let reconcileBusy = false;
 let reconcileRun = Promise.resolve();   // lopende reconcile — de ?recap-deeplink wacht erop voordat hij "nog niet gespeeld" zegt
+// Lag de daily van deze speler net (< 30 s) naast de DB (reconcile, of vers opgehaald)? Dan slaat de auth-handler hem over: die
+// vuurt 2-3× bij het laden en bij elke terugkeer naar de app (anders 2× get_my_daily_state per laadbeurt).
+let reconcileAt = 0, reconcileUid = null;
+const reconcileMark = (uid) => { reconcileAt = Date.now(); reconcileUid = uid ?? null; };
+const reconcileFresh = () => !!auth.user && reconcileUid === auth.user.uid && Date.now() - reconcileAt < 30000;
 function reconcileDailyProgress() {
   if (reconcileBusy) return reconcileRun;
   reconcileRun = reconcileDailyProgressRun();
@@ -12287,6 +12292,7 @@ async function reconcileDailyProgressRun() {
   const answerYear = state.event?.year;
   if (answerYear == null) return;
   const hash = state.hashes?.[0];
+  reconcileMark(auth.user.uid);
   reconcileBusy = true;
   let board;
   try { board = await reconstructDailyBoard(answerYear, state.puzzleDate || todayKey()); }
@@ -14539,7 +14545,7 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate, preset) {
     // Het bord in de cache is van een ander account op dit toestel (of van vóór de eigenaar-regel): de puzzel
     // mag eruit, het bord niet. Jouw eigen stand komt uit de DB; is auth.user er nog niet, dan haalt de reconcile
     // in de auth-handler 'm alsnog op.
-    if (cached) return { mode: "daily", puzzleDate: d, ...cached, board: await reconstructDailyBoard(cached.event.year, d), owner: me.uid, synced: true };
+    if (cached) { reconcileMark(me?.uid); return { mode: "daily", puzzleDate: d, ...cached, board: await reconstructDailyBoard(cached.event.year, d), owner: me.uid, synced: true }; }
     // Geen lokale cache (ander apparaat / cache gewist), maar ingelogd? Herstel het
     // bord uit de DB: afgerond (niet opnieuw speelbaar) óf halverwege (db/64: de
     // gokken/hints van je andere apparaat). synced=true: startGame hoeft daarna
@@ -14551,6 +14557,7 @@ async function resolveRecord(mode, forceNew, sharedHashes, targetDate, preset) {
       rpc("get_daily", { d }),
       me ? rpc("get_my_daily_state", { d }).catch(() => null) : undefined,
     ]);
+    if (me) reconcileMark(me.uid);
     if (!p) return null;
     const board = await reconstructDailyBoard(p.year, d, row);
     return { mode: "daily", puzzleDate: d, hashes: p.hashes, band: p.band ?? null, event: toEvent(p), board, owner: me?.uid ?? null, synced: true };
@@ -14937,19 +14944,26 @@ async function init() {
 
   // Sync auth-state vanuit de Supabase-bridge (index.template.html).
   const onAuthChanged = async (e) => {
-    // supabase-js meldt SIGNED_IN ook bij elke terugkeer naar de app: zelfde speler → naam+flair laten staan (anders o.a. "J" in duels)
-    const sameUser = auth.resolved && (auth.user?.uid ?? null) === (e.detail?.uid ?? null);
+    // supabase-js meldt SIGNED_IN bij elke terugkeer naar de app (en TOKEN_REFRESHED, en 2-3× bij het laden). Zelfde speler = geen
+    // nieuwe identiteit: alleen de daily naast de DB leggen (ander toestel verder?) en het duel-stipje; de rest kostte 6 RPC's per wissel.
+    const prev = auth.user, sameUser = auth.resolved && (prev?.uid ?? null) === (e.detail?.uid ?? null);
     auth.user = e.detail
       ? { email: e.detail.email, uid: e.detail.uid, avatar: e.detail.avatar || null, name: e.detail.name || null }
       : null;
     auth.resolved = true;  // historie-bron is nu bekend (ook bij anon: detail=null)
     authResolvedNow();
+    if (sameUser) {
+      if (!auth.user) return;
+      if (prev.avatar !== auth.user.avatar || prev.email !== auth.user.email || prev.name !== auth.user.name) renderMenu();
+      if (!reconcileFresh()) reconcileDailyProgress();
+      duelsAfterLogin();
+      return;
+    }
     invalidateHistory();   // andere speler / uitgelogd -> stats opnieuw laden
     invalidateStreakExtras();  // levens/bruggen/reparatie horen bij de identiteit
     achvCache = null;      // prestaties horen bij de identiteit
     myTitle = null; myTitleLoaded = false;   // idem: gedragen titel is per account
-    if (!sameUser) { myFlair = null; myUsername = null; }   // naam+flair horen bij de identiteit (kluis herlaadt ze)
-    myIdentityLoaded = false;
+    myFlair = null; myUsername = null; myIdentityLoaded = false;   // naam+flair horen bij de identiteit (kluis herlaadt ze)
     myRewardsSeen = undefined;                                     // beloning-gezien-lijst hoort bij de identiteit (herlaadt na de eerste pot)
     achvRefreshBaseline(); // stille snapshot (geen unlock-regen na login/wissel)
     syncPrefs("new");      // nieuw toestel voor dit account: je keuzes (thema, vieringen …) ophalen; anders niets
@@ -14971,7 +14985,7 @@ async function init() {
     // Staat er het daily-bord van een ander account (wissel op dit toestel, of auth kwam pas ná het lokale bord binnen)?
     // Dan niet reconcilen (dat zou zijn stand naar jouw daily_progress duwen) maar dezelfde dag opnieuw openen: jouw stand uit de DB.
     const foreign = dailyBoardForeign();
-    if (auth.user) { if (foreign) reopenDailyForMe(); else reconcileDailyProgress(); claimPlayOnLogin().finally(claimDevicePlays); claimParkedFind(); }
+    if (auth.user) { if (foreign) reopenDailyForMe(); else if (!reconcileFresh()) reconcileDailyProgress(); claimPlayOnLogin().finally(claimDevicePlays); claimParkedFind(); }
     if (!remindTzChecked) { remindTzChecked = true; remindTzSync(); }   // seintje aan en naar een andere tijdzone gereisd? (één keer per sessie, meestal niets)
     if (pendingRecapAfterLogin && auth.user) { pendingRecapAfterLogin = false; pendingOpenRecap = true; }   // net ingelogd vanuit het eindscherm-kaartje
     maybeOpenRecapDeeplink();   // ?recap: wacht (ingelogd) op de reconcile hierboven, dan eindscherm of 'speel eerst'
