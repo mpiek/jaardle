@@ -773,3 +773,56 @@ test("db/203 ↔ duel.js — hooguit 3 lopende duels per tweetal: uitdagen, reva
   assert.match(SRC, /const full = \/running\/\.test\(r\.e\) && g\.ok && g\.v \? `<p class="duel-err">\$\{esc\(T\.errRunning\(g\.v\.c_name \|\| "\?"\)\)\}<\/p>` : "";/);
   for (const lang of ["nl", "en", "de", "es", "pt"]) assert.ok(/3/.test(D.copy(lang).errRunning("Mike")) && D.copy(lang).errRunning("Mike").includes("Mike"), lang);
 });
+
+// ── db/204: een duel-seintje toont rechts het gezichtje van de tegenstander (sw.js tekent het zelf, zonder netwerk) ──
+function loadSw(canvas) {
+  const handlers = {}, shown = [];
+  const self = {
+    addEventListener: (t, f) => { handlers[t] = f; },
+    registration: { showNotification: async (title, o) => { shown.push({ title, ...o }); } },
+    clients: { claim: async () => {} }, skipWaiting() {}, location: { origin: "https://jaardle.com" },
+  };
+  const ctx = vm.createContext({ self, String, Math, Promise, Uint8Array, setTimeout, btoa: (s) => Buffer.from(s, "binary").toString("base64"), ...(canvas ? { OffscreenCanvas: canvas } : {}) });
+  vm.runInContext(readFileSync(join(dir, "..", "sw.js"), "utf8"), ctx);
+  const push = async (payload) => {
+    let p; handlers.push({ data: { json: () => payload, text: () => "" }, waitUntil: (x) => { p = x; } }); await p; return shown.at(-1);
+  };
+  return { ctx, push };
+}
+function fakeCanvas(log) {
+  return class { constructor(w, h) { log.size = [w, h]; }
+    getContext() { return { set font(v) { log.font = v; }, set fillStyle(v) { (log.fills ||= []).push(v); }, beginPath() {}, arc() {}, fill() {},
+      measureText: () => ({ actualBoundingBoxAscent: 70, actualBoundingBoxDescent: 0, actualBoundingBoxLeft: 40, actualBoundingBoxRight: 40 }),
+      fillText(t, x, y) { log.text = t; log.at = [x, y]; } }; }
+    async convertToBlob() { return { arrayBuffer: async () => new Uint8Array([137, 80, 78, 71]).buffer }; } };
+}
+
+test("sw.js (db/204) — duel-seintje met het gezichtje van de ander: zijn kleur, zijn flair of zijn beginletter; anders het gewone icoon", async () => {
+  const SW = readFileSync(join(dir, "..", "sw.js"), "utf8");
+  const { ctx } = loadSw();
+  assert.deepEqual(plain(vm.runInContext("FACE_HUES", ctx)), FACE_HUES_GAME, "FACE_HUES in sw.js = game.js");
+  for (const n of ["Geert", "Maarten", "Tosti Tim", "Jij", "é", ""]) assert.equal(ctx.faceHue(n), faceHueGame(n), n);
+  // achtergrond = color-mix(in srgb, hsl(h 65% 52%) 38%, #2c2c2c) zoals .dl-av.hue in het donkere thema
+  assert.equal(ctx.faceBg(8), "rgb(108,55,47)");   // hsl(8 65% 52%) = (212,74,53), × 0.38 + 44 × 0.62
+  assert.equal(ctx.faceBg(190), "rgb(47,98,108)");   // hsl(190 65% 52%) = (53,186,212)
+
+  // met flair: de emoji, gecentreerd, als data-URL (geen netwerk)
+  let log = {};
+  let n = await loadSw(fakeCanvas(log)).push({ title: "⚔️ Geert is begonnen", tag: "jaardle-duel-ABC", face: { n: "Geert", f: "🦕" } });
+  assert.match(n.icon, /^data:image\/png;base64,/);
+  assert.equal(log.text, "🦕"); assert.match(log.font, /Noto Color Emoji/);
+  assert.deepEqual(log.size, [192, 192]); assert.deepEqual(log.at, [96, 131]);
+  assert.equal(log.fills[0], ctx.faceBg(faceHueGame("Geert")), "achtergrond in de kleur van Geert");
+  assert.equal(n.badge, "/badge-96.png"); assert.equal(n.tag, "jaardle-duel-ABC");
+  // zonder flair: de beginletter, als hoofdletter (ook bij een naam die met een emoji of accent begint: het eerste teken)
+  log = {};
+  n = await loadSw(fakeCanvas(log)).push({ title: "x", face: { n: "élise", f: null } });
+  assert.equal(log.text, "É"); assert.match(log.font, /^700 96px/);
+  // het dagelijkse seintje, een browser zonder OffscreenCanvas of een tekenfout: het gewone icoon
+  assert.equal((await loadSw(fakeCanvas({})).push({ title: "Daily" })).icon, "/favicon-192.png?v=2");
+  assert.equal((await loadSw().push({ title: "x", face: { n: "Geert", f: "🦕" } })).icon, "/favicon-192.png?v=2");
+  const broken = class { constructor() { throw new Error("nee"); } };
+  const b = await loadSw(broken).push({ title: "x", tag: "jaardle-duel-ABC", face: { n: "Geert" } });
+  assert.equal(b.icon, "/favicon-192.png?v=2"); assert.equal(b.title, "x");
+  assert.ok(!/fetch\(|caches\./.test(SW), "sw.js haalt niets van het net en cachet niets");
+});
