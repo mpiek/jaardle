@@ -123,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 210000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 215000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -825,4 +825,17 @@ test("sw.js (db/204) — duel-seintje met het gezichtje van de ander: zijn kleur
   const b = await loadSw(broken).push({ title: "x", tag: "jaardle-duel-ABC", face: { n: "Geert" } });
   assert.equal(b.icon, "/favicon-192.png?v=2"); assert.equal(b.title, "x");
   assert.ok(!/fetch\(|caches\./.test(SW), "sw.js haalt niets van het net en cachet niets");
+});
+
+test("duel.js — verversen bij kijken (18/11): het ⚔️ DUELS-logo, een tik op een lopend duel en terug in de app halen de lijst vers op", () => {
+  for (const lang of ["nl", "en", "de", "es", "pt"]) assert.ok(D.copy(lang).refresh, `refresh in ${lang}`);
+  assert.match(SRC, /<button type="button" class="dl-logo-btn" data-act="sync" title="\$\{esc\(T\.refresh\)\}">/, "het logo is een knop");
+  assert.match(SRC, /if \(act === "sync"\) \{ gc\("duel-sync", "Duel: Duels logo tapped \(refresh\)"\); return syncList\(T, true\); \}/);
+  assert.match(SRC, /if \(listSync \|\| \(!force && Date\.now\(\) - listAt < 4000\)\)/, "één tegelijk; zonder tik op het logo hooguit eens per 4 s");
+  assert.match(SRC, /function applyList\(v\) \{\n    listAt = Date\.now\(\);/, "elke verse lijst telt (net geopend = al vers)");
+  assert.match(SRC, /else \{ openWait\.add\(c\); syncCode = c; syncList\(T\); \}/, "openklappen van een lopend duel kijkt even vers");
+  assert.match(SRC, /document\.visibilityState === "visible" && H && m && !m\.hidden\) syncList\(tx\(H\.lang\)\)/, "terug in de app alleen als het Duels-scherm open is");
+  assert.match(SRC, /openWait\.has\(d\.code\) && was\.get\(d\.code\) === "active" && d\.status === "done" && !d\.seen/, "net klaar en nog niet gezien → eindstand");
+  assert.match(D.css, /\.dl-logo\.sync \.dl-logo-sw \{ animation: dl-clash/);
+  assert.match(D.css, /prefers-reduced-motion: reduce\) \{ \.dl-logo\.sync \.dl-logo-sw \{ animation: none/);
 });

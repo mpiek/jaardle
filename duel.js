@@ -16,7 +16,7 @@
    Meetpunten (GoatCounter, site jaardle-events; game.js telt duel-list bij ⋮ → Duels): duel-create · duel-rematch · duel-invite-shared|copied|
    abort|prompt · duel-copy-link · duel-resend · duel-withdraw · duel-link-open|own|taken|closed|notfound · duel-accept · duel-decline ·
    duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
-   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open · duel-peek. Trechter: link-open → accept →
+   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open · duel-peek · duel-sync (tik op het logo = verversen). Trechter: link-open → accept →
    round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
    De Duels-pagina (18/11/2026): het Duels-scherm is geen pop-up meer maar een eigen scherm met een eigen adres, /duels/ (zie
    ensureListModal en duelsPageSet in game.js); de deellink gaat daarheen (eigen titel + deelplaatje). Meetpunten: duel-page (het
@@ -179,6 +179,9 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .dl-item > .dl-row { background: transparent; cursor: pointer; }
 .dl-chev { flex: none; color: var(--muted); font-size: 0.75rem; transition: transform 0.2s; }
 .dl-item.open .dl-chev { transform: rotate(180deg); }
+.dl-row.sync .dl-main small { animation: dl-sync 0.7s ease-in-out infinite alternate; }   /* syncList: even vers kijken */
+@keyframes dl-sync { to { opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .dl-row.sync .dl-main small { animation: none; opacity: 0.6; } }
 .dl-detail { display: none; flex-direction: column; gap: 0.5rem; padding: 0 0.6rem 0.65rem; }
 .dl-item.open .dl-detail { display: flex; }
 .dl-detail .duel-card { margin: 0; padding: 0.15rem 0 0; background: transparent; border: 0; border-top: 1px solid var(--border); border-radius: 0; }
@@ -297,6 +300,12 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .dl-logo { position: relative; display: inline-grid; place-items: center; line-height: 1; }
 .dl-logo > * { grid-area: 1 / 1; }
 .dl-logo-sw { font-size: 1.9rem; line-height: 1; letter-spacing: 0; }   /* even hoog als het Jaardle-icoontje links (30 px) */
+.dl-logo-btn { all: unset; display: inline-grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.dl-logo-btn > * { grid-area: 1 / 1; }
+.dl-logo-btn:focus-visible { outline: 2px solid var(--duel-arena); outline-offset: 4px; border-radius: 6px; }
+.dl-logo.sync .dl-logo-sw { animation: dl-clash 0.3s ease-in-out infinite alternate; }   /* ververs (syncList): de zwaarden kletteren */
+@keyframes dl-clash { from { transform: rotate(-9deg) scale(0.95); } to { transform: rotate(9deg) scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { .dl-logo.sync .dl-logo-sw { animation: none; opacity: 0.6; } }
 .dl-logo-txt { position: relative; font-size: 1.2rem; padding-left: 0.14em;   /* letter-spacing zet ook ruimte ná de laatste letter: zo staat het woord echt in het midden */
   text-shadow: 0 0 4px var(--bg), 0 0 8px var(--bg); }
 .dl-page .dl-help-btn { justify-self: end; width: 2.75rem; height: 2.75rem; min-height: 0; margin: 0; padding: 0; justify-content: center; border-radius: 50%; font-size: 1.05rem; font-weight: 800; }
@@ -501,7 +510,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       title: "Duels", close: "Sluiten", newBtn: "Daag een vriend uit", nameLabel: "Je naam (die ziet je tegenstander)", namePh: "Naam", go: "Daag uit",
       ready: "Je uitdaging staat klaar", sent: "Link verstuurd", copied: "Link gekopieerd", sentSub: "Wie hem als eerste aanneemt, speelt tegen je.", onlyFor: (n) => `Alleen ${n} kan hem aannemen.`,  sendLink: "Stuur de link",
       copyPrompt: "Kopieer de link:", empty: "Nog geen duels. Daag iemand uit: jullie spelen dezelfde 5 rondes en per ronde wint de hoogste score.",
-      loading: "Even laden…", err: "Dat lukte niet. Probeer het nog eens.", retry: "Opnieuw",
+      loading: "Even laden…", err: "Dat lukte niet. Probeer het nog eens.", retry: "Opnieuw", refresh: "Ververs",
       errMax: "Je hebt al 3 uitnodigingen openstaan. Wacht tot iemand aanneemt of trek er een in.", errName: "Vul eerst je naam in.",
       secTurn: "Jouw beurt", secWait: "Wacht", secDone: "Stand per tegenstander",
       left: (h, m) => (h >= 1 ? `nog ${h} u` : `nog ${m} min`),
@@ -555,7 +564,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       title: "Duels", close: "Close", newBtn: "Challenge a friend", nameLabel: "Your name (your opponent sees it)", namePh: "Name", go: "Challenge",
       ready: "Your challenge is ready", sent: "Link sent", copied: "Link copied", sentSub: "Whoever accepts it first plays against you.", onlyFor: (n) => `Only ${n} can accept it.`,  sendLink: "Send the link",
       copyPrompt: "Copy the link:", empty: "No duels yet. Challenge someone: you both play the same 5 rounds and the highest score wins each round.",
-      loading: "Loading…", err: "That didn't work. Please try again.", retry: "Retry",
+      loading: "Loading…", err: "That didn't work. Please try again.", retry: "Retry", refresh: "Refresh",
       errMax: "You already have 3 open invitations. Wait for someone to accept, or withdraw one.", errName: "Fill in your name first.",
       secTurn: "Your turn", secWait: "Waiting", secDone: "Head-to-head",
       left: (h, m) => (h >= 1 ? `${h} h left` : `${m} min left`),
@@ -608,7 +617,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       title: "Duelle", close: "Schließen", newBtn: "Fordere jemanden heraus", nameLabel: "Dein Name (sieht dein Gegenüber)", namePh: "Name", go: "Herausfordern",
       ready: "Deine Herausforderung ist bereit", sent: "Link verschickt", copied: "Link kopiert", sentSub: "Wer ihn zuerst annimmt, spielt gegen dich.", onlyFor: (n) => `Nur ${n} kann sie annehmen.`,  sendLink: "Link senden",
       copyPrompt: "Kopiere den Link:", empty: "Noch keine Duelle. Fordere jemanden heraus: Ihr spielt dieselben 5 Runden, und pro Runde gewinnt die höchste Punktzahl.",
-      loading: "Lädt…", err: "Das hat nicht geklappt. Versuch es noch einmal.", retry: "Nochmal",
+      loading: "Lädt…", err: "Das hat nicht geklappt. Versuch es noch einmal.", retry: "Nochmal", refresh: "Aktualisieren",
       errMax: "Du hast schon 3 offene Einladungen. Warte, bis jemand annimmt, oder zieh eine zurück.", errName: "Gib zuerst deinen Namen ein.",
       secTurn: "Du bist dran", secWait: "Wartet", secDone: "Stand pro Gegner",
       left: (h, m) => (h >= 1 ? `noch ${h} Std.` : `noch ${m} Min.`),
@@ -662,7 +671,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       title: "Duelos", close: "Cerrar", newBtn: "Reta a un amigo", nameLabel: "Tu nombre (lo verá tu rival)", namePh: "Nombre", go: "Retar",
       ready: "Tu reto está listo", sent: "Enlace enviado", copied: "Enlace copiado", sentSub: "Quien lo acepte primero juega contra ti.", onlyFor: (n) => `Solo ${n} puede aceptarlo.`,  sendLink: "Enviar el enlace",
       copyPrompt: "Copia el enlace:", empty: "Aún no hay duelos. Reta a alguien: jugáis las mismas 5 rondas y en cada ronda gana la puntuación más alta.",
-      loading: "Cargando…", err: "No ha funcionado. Inténtalo de nuevo.", retry: "Reintentar",
+      loading: "Cargando…", err: "No ha funcionado. Inténtalo de nuevo.", retry: "Reintentar", refresh: "Actualizar",
       errMax: "Ya tienes 3 invitaciones abiertas. Espera a que alguien acepte o retira una.", errName: "Escribe primero tu nombre.",
       secTurn: "Tu turno", secWait: "En espera", secDone: "Marcador por rival",
       left: (h, m) => (h >= 1 ? `quedan ${h} h` : `quedan ${m} min`),
@@ -715,7 +724,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       title: "Duelos", close: "Fechar", newBtn: "Desafie um amigo", nameLabel: "Seu nome (seu adversário vai ver)", namePh: "Nome", go: "Desafiar",
       ready: "Seu desafio está pronto", sent: "Link enviado", copied: "Link copiado", sentSub: "Quem aceitar primeiro joga contra você.", onlyFor: (n) => `Só ${n} pode aceitar.`,  sendLink: "Enviar o link",
       copyPrompt: "Copie o link:", empty: "Ainda não há duelos. Desafie alguém: vocês jogam as mesmas 5 rodadas e em cada rodada vence a maior pontuação.",
-      loading: "Carregando…", err: "Não deu certo. Tente de novo.", retry: "Tentar de novo",
+      loading: "Carregando…", err: "Não deu certo. Tente de novo.", retry: "Tentar de novo", refresh: "Atualizar",
       errMax: "Você já tem 3 convites em aberto. Espere alguém aceitar ou retire um.", errName: "Preencha seu nome primeiro.",
       secTurn: "Sua vez", secWait: "Aguardando", secDone: "Placar por adversário",
       left: (h, m) => (h >= 1 ? `faltam ${h} h` : `faltam ${m} min`),
@@ -796,6 +805,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   let listItems = null, listTop = "", openGrp = null, showAll = false;
   let listTargets = [], listH2h = {}, pickSel = null;   // db/189: wie je direct kunt uitdagen, je stand per tegenstander (alle duels), het gekozen gezichtje
   const selInGrp = {}, openWait = new Set();
+  let listAt = 0, listSync = null, syncCode = null, visHooked = false;   // verversen bij kijken (syncList)
 
   function ensureCss() {
     if (document.getElementById("duel-css")) return;
@@ -1935,13 +1945,22 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     uncover();
     ensureCss();
     const T = tx(H.lang), el = ensureListModal();
-    el.querySelector("#duels-title").innerHTML = `<span class="dl-logo-sw" aria-hidden="true">${ICON}</span><span class="dl-logo-txt">${esc(T.title)}</span>`;
+    // Het logo is ook de ververs-knop (18/11): spelers tikken erop om te zien of de ander al speelde (syncList).
+    el.querySelector("#duels-title").innerHTML = `<button type="button" class="dl-logo-btn" data-act="sync" title="${esc(T.refresh)}">` +
+      `<span class="dl-logo-sw" aria-hidden="true">${ICON}</span><span class="dl-logo-txt">${esc(T.title)}</span></button>`;
     const ex = el.querySelector(".duel-exit");
     ex.innerHTML = exitHtml(); ex.setAttribute("aria-label", T.exit);
     const hb = el.querySelector(".dl-help-btn");
     hb.setAttribute("aria-label", T.help); hb.title = T.help;
     if (!opts.keepTop) listTop = "";
     H.openModal("modal-duels");
+    if (!visHooked) {   // terug in de app met het Duels-scherm open: even vers kijken (syncList); verder kost terugkomen niets
+      visHooked = true;
+      document.addEventListener("visibilitychange", () => {
+        const m = document.getElementById("modal-duels");
+        if (document.visibilityState === "visible" && H && m && !m.hidden) syncList(tx(H.lang));
+      });
+    }
     if (H.loggedIn) await H.ensureIdentity?.().catch?.(() => {});
     renderList(T, null);   // meteen wat we al weten (ook een net onthulde uitslag: die staat al op gezien), daarna vers van de server
     const r = await call("duel_list", {});
@@ -1958,6 +1977,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
 
   function applyList(v) {
+    listAt = Date.now();
     const all = v?.items || [];
     listItems = all.filter((d) => d.status !== "withdrawn");   // een link die je zelf introk hoeft niet in de lijst (ook niet als "Ingetrokken" onder Stand per tegenstander)
     listTargets = Array.isArray(v?.targets) ? v.targets : [];
@@ -1969,6 +1989,30 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       .map((d) => ({ c: d.code, u: Date.parse(d.deadline || "") || Date.now() })));
     for (const d of all) if (cache[d.code]) keep(d);
     return listItems;
+  }
+
+  // 18/11 (zijn vraag): spelers tikken op een lopend duel, of komen terug in de app, om te zien of de ander al speelde. Dan haalt het
+  // scherm de lijst vers op: één duel_list, hooguit eens per 4 s (net geopend = al vers); intussen pulseert de regel van dat duel.
+  // Is een duel dat je openklapte intussen klaar en zag je de uitslag nog niet: meteen de eindstand met de omdraaiende rondes.
+  function syncList(T, force = false) {   // force = een tik op het logo: dan ook binnen 4 s
+    if (listSync || (!force && Date.now() - listAt < 4000)) { if (!listSync) syncCode = null; return; }
+    const was = new Map((listItems || []).map((d) => [d.code, d.status]));
+    const logo = document.getElementById("duels-title"), t0 = Date.now();
+    logo?.classList.add("sync");   // de zwaarden kletteren zolang hij kijkt
+    const shown = () => { const el = document.getElementById("modal-duels"); return !!el && !el.hidden; };
+    listSync = call("duel_list", {}).then(async (r) => {
+      if (!r.ok || !shown()) return null;
+      applyList(await withInvite(r.v));
+      const pop = listItems.find((d) => openWait.has(d.code) && was.get(d.code) === "active" && d.status === "done" && !d.seen);
+      if (pop) { openGrp = pop.opp || oppName(pop); selInGrp[openGrp] = pop.code; }
+      return pop;
+    }).catch(() => null).then((pop) => {
+      listSync = null; syncCode = null;
+      setTimeout(() => logo?.classList.remove("sync"), Math.max(0, 600 - (Date.now() - t0)));
+      if (!shown()) return;
+      renderList(T, null);
+      if (pop) showEndPop(T, pop, { flip: true });
+    });
   }
 
   function rowHtml({ av, name, h2h, tag = "", sub, right, cls = "", attrs = "" }) {   // tag = het thema-pilletje (db/202)
@@ -2107,6 +2151,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const n = oppName(d), k = d.their_done || 0, s = stand(d.mine, d.theirs), open = openWait.has(d.code);
     const row = rowHtml({ av: avHtml(oppFlair(d), n), name: n, h2h, tag: thHtml(d), sub: `${esc(k > 0 ? T.oppPlays(n, k) : T.oppNotYet(n))} · ${esc(leftText(T, d.deadline))}`,
       right: (s.n ? `<span class="dl-stand">${s.w}–${s.l}</span>` : "") + `<span class="dl-chev" aria-hidden="true">▾</span>`,
+      cls: listSync && syncCode === d.code ? " sync" : "",   // syncList: even vers kijken
       attrs: ` data-wait="${d.code}" role="button" tabindex="0" aria-expanded="${open}"` });
     const det = open ? `<div class="dl-detail"><div class="duel-card"><div class="duel-head"><b>${esc(T.yourRounds)}</b><span class="duel-r">${esc(T.pts(sum(d.mine)))}</span></div>` +
       tilesHtml(d) + `<p class="dl-wait-note">${esc(T.waitDetail(n, k))}</p></div>` +
@@ -2167,7 +2212,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
         const d = (listItems || []).find((x) => x.code === t.busy);
         if (d && incoming(d)) return showPop(T, popBody(T, d), d);
         if (d && d.status === "active" && (d.mine || []).length < 5) return play(H, d.code);
-        if (d && d.status === "active") openWait.add(d.code);
+        if (d && d.status === "active") { openWait.add(d.code); syncCode = d.code; syncList(T); }
         return renderList(T, null);
       }
       pickSel = pickSel === t.k ? null : t.k;
@@ -2175,7 +2220,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     if (b.dataset.grpOf) { selInGrp[b.dataset.grpOf] = b.dataset.sel; renderList(T, null); return; }
     if (b.dataset.wait && !b.dataset.act) {
-      if (openWait.has(b.dataset.wait)) openWait.delete(b.dataset.wait); else openWait.add(b.dataset.wait);
+      const c = b.dataset.wait;
+      if (openWait.has(c)) openWait.delete(c); else { openWait.add(c); syncCode = c; syncList(T); }   // openklappen = even vers kijken
       renderList(T, null);
       return;
     }
@@ -2190,6 +2236,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       return;
     }
     const act = b.dataset.act, code = b.dataset.code;
+    if (act === "sync") { gc("duel-sync", "Duel: Duels logo tapped (refresh)"); return syncList(T, true); }
     if (act === "modes") { modesOpen = !modesOpen; if (modesOpen) gc("duel-modes-open", "Duel: more duel types opened"); return renderList(T, null); }
     if (act === "new") { pickSel = null; return create(H, { theme: b.dataset.theme || null }); }
     if (act === "login") { gc("duel-login-list", "Duel: log in from the Duels screen"); parkLogin(code); return H.openLogin?.(); }   // het login-paneel sluit dit scherm
