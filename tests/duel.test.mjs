@@ -762,3 +762,14 @@ test("duel.js — duelmodus 1900+ (db/202): ▾ naast de grote knop, pilletje, u
   // de server krijgt p_theme alleen bij een modus (zo blijft een gewoon duel werken tegen een server zonder db/202)
   assert.match(SRC, /\.\.\.\(theme && !rematch \? \{ p_theme: theme \} : \{\}\)/);
 });
+
+test("db/203 ↔ duel.js — hooguit 3 lopende duels per tweetal: uitdagen, revanche én een link aannemen; de melding noemt de naam", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "203_duel_pair3.sql")) }, () => {
+  const sql = readFileSync(join(dir, "..", "..", "jaardle-tools", "db", "203_duel_pair3.sql"), "utf8");
+  for (const fn of ["duel_create", "duel_accept", "duel_list"]) assert.match(sql, new RegExp(`FUNCTION public\\.${fn}\\(`), `db/203 raakt ${fn}`);
+  assert.equal((sql.match(/\) >= 3 then\n\s+raise exception 'running';/g) || []).length, 2, "aanmaken en aannemen: running bij 3");
+  assert.match(sql, /case when count\(\*\) >= 3 then \(array_agg\(x\.code order by x\.created_at desc\)\)\[1\] end/, "gezichtje pas bezig bij 3");
+  // aannemen (Duels-scherm en pop-up) zegt waarom het niet lukt, met de naam van wie uitdaagde
+  assert.match(SRC, /if \(\/running\/\.test\(r\.e\)\) listTop = `<p class="dl-msg duel-err">\$\{esc\(T\.errRunning\(\(d && d\.c_name\) \|\| "\?"\)\)\}<\/p>`;/);
+  assert.match(SRC, /const full = \/running\/\.test\(r\.e\) && g\.ok && g\.v \? `<p class="duel-err">\$\{esc\(T\.errRunning\(g\.v\.c_name \|\| "\?"\)\)\}<\/p>` : "";/);
+  for (const lang of ["nl", "en", "de", "es", "pt"]) assert.ok(/3/.test(D.copy(lang).errRunning("Mike")) && D.copy(lang).errRunning("Mike").includes("Mike"), lang);
+});

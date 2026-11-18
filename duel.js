@@ -531,7 +531,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       // db/189: teamgenoten direct uitdagen, seintjes, stand per tegenstander
       pickH: "Daag iemand uit", faceNew: "nieuw", faceRun: "loopt", vsLine: (n) => `Jij tegen ${n}:`, linkInstead: "Liever een link sturen",
       challenged: (n) => `${n} is uitgedaagd`, pushYes: (n) => `${n} krijgt meteen een seintje. Nog 24 uur om aan te nemen.`, pushNo: (n) => `${n} ziet hem bij het openen van Jaardle. Nog 24 uur om aan te nemen.`,
-      alsoLink: "Stuur ook een link", sendLinkShort: "Stuur link", invited: "Uitgedaagd", acceptShort: "Neem aan", errRunning: (n) => `Er loopt al een duel met ${n}.`,
+      alsoLink: "Stuur ook een link", sendLinkShort: "Stuur link", invited: "Uitgedaagd", acceptShort: "Neem aan", errRunning: (n) => `Je hebt al 3 duels met ${n} lopen.`,
       errRecent: "Je hebt net al 3 uitnodigingen verstuurd. Over een uurtje kan het weer.", errIncoming: (n) => `${n} daagt je al uit: neem die hieronder aan.`,
       eraSub: "Alle 5 rondes uit 1900 tot nu", modes: "Meer duelvormen", inv1Era: "<b>5 rondes</b> uit <b>1900 tot nu</b>, van makkelijk naar moeilijk", eraPh: (y) => `${y} – nu`, eraRefuse: (y) => `📻 Dit duel gaat over ${y} tot nu`,
       bellAcc: (n) => `Seintje als ${n} begint`, bellAccAny: "Seintje als iemand begint", bellDone: (n) => `Seintje als ${n} klaar is`,
@@ -585,7 +585,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       // db/189: challenge teammates directly, notifications, head-to-head
       pickH: "Challenge someone", faceNew: "new", faceRun: "live", vsLine: (n) => `You vs ${n}:`, linkInstead: "Send a link instead",
       challenged: (n) => `You challenged ${n}`, pushYes: (n) => `${n} gets a notification right away. 24 hours to accept.`, pushNo: (n) => `${n} will see it when opening Jaardle. 24 hours to accept.`,
-      alsoLink: "Also send a link", sendLinkShort: "Send link", invited: "Challenged", acceptShort: "Accept", errRunning: (n) => `You already have a duel with ${n}.`,
+      alsoLink: "Also send a link", sendLinkShort: "Send link", invited: "Challenged", acceptShort: "Accept", errRunning: (n) => `You already have 3 duels going with ${n}.`,
       errRecent: "You just sent 3 invitations. You can send more in about an hour.", errIncoming: (n) => `${n} already challenged you: accept it below.`,
       eraSub: "All 5 rounds from 1900 or later", modes: "More duel types", inv1Era: "<b>5 rounds</b>, all <b>1900 or later</b>, from easy to hard", eraPh: (y) => `${y} – now`, eraRefuse: (y) => `📻 This duel only covers ${y} or later`,
       bellAcc: (n) => `Notify me when ${n} starts`, bellAccAny: "Notify me when someone starts", bellDone: (n) => `Notify me when ${n} is done`,
@@ -639,7 +639,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       // db/189: Teammitglieder direkt herausfordern, Benachrichtigungen, Stand pro Gegner
       pickH: "Fordere jemanden heraus", faceNew: "neu", faceRun: "läuft", vsLine: (n) => `Du gegen ${n}:`, linkInstead: "Lieber einen Link schicken",
       challenged: (n) => `${n} ist herausgefordert`, pushYes: (n) => `${n} bekommt sofort eine Benachrichtigung. 24 Stunden zum Annehmen.`, pushNo: (n) => `${n} sieht sie beim Öffnen von Jaardle. 24 Stunden zum Annehmen.`,
-      alsoLink: "Auch einen Link schicken", sendLinkShort: "Link schicken", invited: "Herausgefordert", acceptShort: "Annehmen", errRunning: (n) => `Du hast schon ein Duell mit ${n}.`,
+      alsoLink: "Auch einen Link schicken", sendLinkShort: "Link schicken", invited: "Herausgefordert", acceptShort: "Annehmen", errRunning: (n) => `Du hast schon 3 laufende Duelle mit ${n}.`,
       errRecent: "Du hast gerade 3 Einladungen verschickt. In etwa einer Stunde geht es wieder.", errIncoming: (n) => `${n} hat dich schon herausgefordert: nimm unten an.`,
       eraSub: "Alle 5 Runden ab 1900", modes: "Weitere Duellarten", inv1Era: "<b>5 Runden</b>, alle <b>ab 1900</b>, von leicht bis schwer", eraPh: (y) => `${y} – heute`, eraRefuse: (y) => `📻 In diesem Duell geht es nur um ${y} bis heute`,
       bellAcc: (n) => `Benachrichtigen, wenn ${n} anfängt`, bellAccAny: "Benachrichtigen, wenn jemand anfängt", bellDone: (n) => `Benachrichtigen, wenn ${n} fertig ist`,
@@ -692,7 +692,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       // db/189: retar directamente a compañeros, avisos, marcador por rival
       pickH: "Reta a alguien", faceNew: "nuevo", faceRun: "en curso", vsLine: (n) => `Tú contra ${n}:`, linkInstead: "Mejor enviar un enlace",
       challenged: (n) => `Has retado a ${n}`, pushYes: (n) => `${n} recibe un aviso ahora mismo. 24 horas para aceptar.`, pushNo: (n) => `${n} lo verá al abrir Jaardle. 24 horas para aceptar.`,
-      alsoLink: "Enviar también un enlace", sendLinkShort: "Enviar enlace", invited: "Retado", acceptShort: "Aceptar", errRunning: (n) => `Ya tienes un duelo con ${n}.`,
+      alsoLink: "Enviar también un enlace", sendLinkShort: "Enviar enlace", invited: "Retado", acceptShort: "Aceptar", errRunning: (n) => `Ya tienes 3 duelos en curso con ${n}.`,
       errRecent: "Acabas de enviar 3 invitaciones. Podrás enviar más dentro de una hora.", errIncoming: (n) => `${n} ya te ha retado: acéptalo abajo.`,
       eraSub: "Las 5 rondas, de 1900 en adelante", modes: "Más tipos de duelo", inv1Era: "<b>5 rondas</b>, todas <b>de 1900 en adelante</b>, de fácil a difícil", eraPh: (y) => `${y} – hoy`, eraRefuse: (y) => `📻 Este duelo solo va de ${y} en adelante`,
       bellAcc: (n) => `Avísame cuando ${n} empiece`, bellAccAny: "Avísame cuando alguien empiece", bellDone: (n) => `Avísame cuando ${n} termine`,
@@ -745,7 +745,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       // db/189: desafiar colegas de equipe diretamente, avisos, placar por adversário
       pickH: "Desafie alguém", faceNew: "novo", faceRun: "em curso", vsLine: (n) => `Você contra ${n}:`, linkInstead: "Prefiro enviar um link",
       challenged: (n) => `Você desafiou ${n}`, pushYes: (n) => `${n} recebe um aviso agora mesmo. 24 horas para aceitar.`, pushNo: (n) => `${n} verá ao abrir o Jaardle. 24 horas para aceitar.`,
-      alsoLink: "Enviar também um link", sendLinkShort: "Enviar link", invited: "Desafiado", acceptShort: "Aceitar", errRunning: (n) => `Você já tem um duelo com ${n}.`,
+      alsoLink: "Enviar também um link", sendLinkShort: "Enviar link", invited: "Desafiado", acceptShort: "Aceitar", errRunning: (n) => `Você já tem 3 duelos em andamento com ${n}.`,
       errRecent: "Você acabou de enviar 3 convites. Poderá enviar mais em cerca de uma hora.", errIncoming: (n) => `${n} já te desafiou: aceite abaixo.`,
       eraSub: "As 5 rodadas, de 1900 em diante", modes: "Mais tipos de duelo", inv1Era: "<b>5 rodadas</b>, todas <b>de 1900 em diante</b>, da mais fácil à mais difícil", eraPh: (y) => `${y} – hoje`, eraRefuse: (y) => `📻 Este duelo só vai de ${y} em diante`,
       bellAcc: (n) => `Avise-me quando ${n} começar`, bellAccAny: "Avise-me quando alguém começar", bellDone: (n) => `Avise-me quando ${n} terminar`,
@@ -2239,7 +2239,11 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     b.disabled = true;
     b.textContent = T.loading;
     const r = await call("duel_accept", { p_code: code, p_name: name });
-    if (!r.ok) return openList(H, { keepTop: true });
+    if (!r.ok) {
+      // db/203: al 3 duels met deze speler: zeg dat, in plaats van stil de lijst te verversen (de uitnodiging blijft 24 uur staan)
+      if (/running/.test(r.e)) listTop = `<p class="dl-msg duel-err">${esc(T.errRunning((d && d.c_name) || "?"))}</p>`;
+      return openList(H, { keepTop: true });
+    }
     inviteDrop(code);
     const dd = keep(r.v);
     remember(dd.code, dd.deadline);
@@ -2450,7 +2454,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
         const g = await call("duel_get", { p_code: code });
         if (g.ok && !(g.v && incoming(g.v))) inviteDrop(code);
         const box = document.querySelector("#modal-duel-pop .duel-inv");
-        if (box) box.innerHTML = g.ok ? popBody(T, g.v) : `<p class="duel-err">${esc(T.err)}</p>`;
+        // db/203: al 3 duels met deze speler: dat bovenaan, de uitnodiging eronder (die blijft 24 uur staan)
+        const full = /running/.test(r.e) && g.ok && g.v ? `<p class="duel-err">${esc(T.errRunning(g.v.c_name || "?"))}</p>` : "";
+        if (box) box.innerHTML = g.ok ? full + popBody(T, g.v) : `<p class="duel-err">${esc(T.err)}</p>`;
         return;
       }
       inviteDrop(code);
