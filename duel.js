@@ -16,7 +16,7 @@
    Meetpunten (GoatCounter, site jaardle-events; game.js telt duel-list bij ⋮ → Duels): duel-create · duel-rematch · duel-invite-shared|copied|
    abort|prompt · duel-copy-link · duel-resend · duel-withdraw · duel-link-open|own|taken|closed|notfound · duel-accept · duel-decline ·
    duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
-   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open. Trechter: link-open → accept →
+   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open · duel-peek. Trechter: link-open → accept →
    round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
    Versie 4 (stap 2, db/190, mockup v6 16/11): "Deel uitslag" stuurt een plaatje mee (canvas 1080×1080, scorebord: winnaar links met kroon,
    elke ronde met beide scores, iedere speler in de kleur van zijn gezichtje) met één regel en de link; wie die link opent zonder mee te
@@ -84,6 +84,40 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 @keyframes duel-flip { 0% { transform: rotateX(90deg); } 100% { transform: none; } }
 @keyframes duel-in { 0% { opacity: 0; transform: translateY(0.3rem); } 100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .duel-card .new, .duel-rd.flip > .fv, .duel-card .after, .dl .after { animation: none; } }
+/* een tegel van een ronde die je speelde: tik = de vraag terugzien (pop-up bóven wat er open is) */
+.duel-rd[data-q] { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.12s ease, border-color 0.12s ease; }
+.duel-rd[data-q]:hover { border-color: color-mix(in srgb, var(--fg) 28%, transparent); }
+.duel-rd[data-q]:active { transform: scale(0.94); }
+.duel-rd[data-q]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.duel-tip { margin: 0.4rem 0 0; font-size: 0.72rem; color: var(--muted); text-align: center; }
+.rq { max-width: 22rem; }
+.rq-body { display: flex; flex-direction: column; gap: 0.7rem; padding: 1.2rem 1rem 1rem; text-align: center; }
+.rq-eyebrow { margin: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--duel-arena); }
+.rq-in { display: flex; flex-direction: column; gap: 0.7rem; }
+/* het hoofdfeit en de 💡-extra's van de ronde als klein carrouselletje (zoals in de ❓-uitleg): vegen, of tik op een puntje */
+.rq-ev { background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 0.35rem 0.25rem; text-align: left; }
+.rq-vp { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.rq-vp::-webkit-scrollbar { display: none; }
+.rq-fs { --c: var(--h-extra); flex: 0 0 100%; min-width: 0; box-sizing: border-box; padding: 0 0.5rem 0.3rem; scroll-snap-align: start; scroll-snap-stop: always; }
+.rq-fs.c-fun { --c: var(--h-fun); } .rq-fs.c-wow { --c: var(--h-wow); } .rq-fs.c-mys { --c: var(--h-mys); }
+.rq-fs.c-rec { --c: var(--h-rec); } .rq-fs.c-warm { --c: var(--h-warm); } .rq-fs.c-spook { --c: var(--h-spook); }
+.rq-tag { display: flex; align-items: center; gap: 0.4em; margin: 0 0 0.3rem 0.85em; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c); }
+.rq-fact { margin: 0; padding-left: 0.75em; border-left: 3px solid var(--c); font-size: 0.92rem; font-weight: 500; line-height: 1.35; text-wrap: pretty; }
+.rq-dots { display: flex; justify-content: center; gap: 0.1rem; }
+.rq-dots button { appearance: none; background: none; color: inherit; border: 0; border-radius: 6px; padding: 0.25rem 0.35rem; min-width: 1.9rem; min-height: 1.75rem;
+  font-size: 0.8rem; line-height: 1; cursor: pointer; opacity: 0.35; filter: grayscale(1); transition: opacity 0.25s, filter 0.25s; }
+.rq-dots button:hover { filter: grayscale(1); opacity: 0.6; }
+.rq-dots button.on, .rq-dots button.on:hover { opacity: 1; filter: none; }
+.rq-year { margin: -0.1rem 0 0; font-size: 2.1rem; font-weight: 900; line-height: 1.05; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.rq-scores { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.4rem; }
+.rq-sc { display: flex; flex-direction: column; align-items: center; gap: 0.05rem; min-width: 0; padding: 0.4rem 0.4rem 0.45rem; border-radius: 8px; background: var(--card-soft); font-variant-numeric: tabular-nums; }
+.rq-sc small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.72rem; color: var(--muted); }
+.rq-sc b { font-size: 1.25rem; font-weight: 800; line-height: 1.15; }
+.rq-sc.me.won { background: color-mix(in srgb, var(--duel-win) 26%, var(--card)); }
+.rq-sc.op.won { background: color-mix(in srgb, var(--duel-op) 24%, var(--card)); }
+.rq-verdict { margin: -0.2rem 0 0; font-size: 0.85rem; font-weight: 700; }
+.rq-src { align-self: center; font-size: 0.75rem; color: var(--muted); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.rq-load { margin: 0.6rem 0; color: var(--muted); font-size: 0.88rem; }
 /* de uitnodiging: een pop-up boven het spel (zoals de bevestiging bij een team-uitnodiging) */
 .duel-pop { max-width: 22rem; }
 .duel-pop .modal-close { position: absolute; top: 0.45rem; right: 0.45rem; min-width: 2.75rem; min-height: 2.75rem; }
@@ -459,6 +493,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       notForYouD: "Deze uitdaging is voor iemand anders", lockedLogin: "Log in met je account om hem aan te nemen.", loginBtn: "Log in",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
       keepVs: (n) => `Met een account daag je ${n} uit zonder link`, keepList: "<u>Log in</u>, dan staan je tegenstanders hier en daag je ze uit met één tik",
+      // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
+      peekTip: "Tik op een ronde om de vraag terug te zien",
     },
     en: {
       help: "How does it work?", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
@@ -508,6 +544,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       notForYouD: "This challenge is for someone else", lockedLogin: "Log in to your account to accept it.", loginBtn: "Log in",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
       keepVs: (n) => `With an account, you can challenge ${n} without a link`, keepList: "<u>Log in</u> and your opponents appear here: challenge them with one tap",
+      // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
+      peekTip: "Tap a round to see its question again",
     },
     de: {
       help: "Wie funktioniert das?", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", duelTitle: "Duell", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
@@ -558,6 +596,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       notForYouD: "Diese Herausforderung ist für jemand anderen", lockedLogin: "Melde dich an, um sie anzunehmen.", loginBtn: "Anmelden",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
       keepVs: (n) => `Mit einem Konto forderst du ${n} ohne Link heraus`, keepList: "<u>Melde dich an</u>, dann forderst du deine Gegner hier mit einem Tipp heraus",
+      // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
+      peekTip: "Tippe auf eine Runde, um die Frage noch mal zu sehen",
     },
     es: {
       help: "¿Cómo funciona?", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
@@ -607,6 +647,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       notForYouD: "Este reto es para otra persona", lockedLogin: "Inicia sesión para aceptarlo.", loginBtn: "Iniciar sesión",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
       keepVs: (n) => `Con una cuenta retas a ${n} sin enlace`, keepList: "<u>Inicia sesión</u> y tus rivales aparecerán aquí: rétalos con un toque",
+      // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
+      peekTip: "Toca una ronda para volver a ver la pregunta",
     },
     pt: {
       help: "Como funciona?", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
@@ -656,6 +698,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       notForYouD: "Este desafio é para outra pessoa", lockedLogin: "Entre na sua conta para aceitar.", loginBtn: "Entrar",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
       keepVs: (n) => `Com uma conta, você desafia ${n} sem link`, keepList: "<u>Entre</u> e seus adversários aparecem aqui: desafie com um toque",
+      // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
+      peekTip: "Toque em uma rodada para ver a pergunta de novo",
     },
   };
   const tx = (l) => TXT[l] || TXT.en;
@@ -824,27 +868,33 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   const meAv = (T, cls = " me") => avHtml(H?.loggedIn ? H.myFlair?.() : null, myName() || T.you, cls, false);
 
   // Vijf tegels. fresh = index van de net gespeelde ronde (plopt); flip = onthulling (alles bekend, per ronde omdraaien).
-  function tilesHtml(d, { fresh = -1, flip = false } = {}) {
+  // 18/11 (gevraagd door spelers): een tegel van een ronde die je speelde (of elke ronde, als het duel klaar is) opent de vraag
+  // (openPeek); hint = de tip eronder, die uitdooft (peekHint). Een ronde die je nog moet spelen, blijft dicht.
+  function tilesHtml(d, { fresh = -1, flip = false, hint = false } = {}) {
     const mine = d.mine || [], theirs = d.theirs || [], done = d.status === "done";
     const their = d.their_done ?? theirs.length, o = outcome(mine, theirs);
+    const qa = (i) => (canPeek(d, i) ? ` data-q="${esc(d.code)}.${i}" role="button" tabindex="0" aria-haspopup="dialog"` : "");
+    if (d.code && d.me) peekSrc.set(d.code, d);   // de stand zoals je hem ziet: de pop-up toont dezelfde scores
     let h = `<div class="duel-rds">`;
     for (let i = 0; i < 5; i++) {
       const lab = `<small>R${i + 1}</small>`, x = mine[i], y = theirs[i], nw = i === fresh ? " new" : "";
       if (flip) {
-        h += `<div class="duel-rd mine flip" data-r="${o.per[i]}" style="--i:${i}">${lab}<b>${x ?? "–"}</b><span>?</span>` +
+        h += `<div class="duel-rd mine flip" data-r="${o.per[i]}" style="--i:${i}"${qa(i)}>${lab}<b>${x ?? "–"}</b><span>?</span>` +
           `<i class="fv">${lab}<b>${x ?? "–"}</b><span>${y ?? "–"}</span></i></div>`;
       } else if (done) {
         const r = o.per[i];
-        h += `<div class="duel-rd ${r === "n" ? "todo" : r}${nw}">${lab}<b>${x ?? "–"}</b><span>${y ?? "–"}</span></div>`;
+        h += `<div class="duel-rd ${r === "n" ? "todo" : r}${nw}"${qa(i)}>${lab}<b>${x ?? "–"}</b><span>${y ?? "–"}</span></div>`;
       } else if (x == null) {
         h += `<div class="duel-rd todo">${lab}<b>–</b><span>${i < their ? "?" : "–"}</span></div>`;
       } else if (y == null) {
-        h += `<div class="duel-rd mine${nw}">${lab}<b>${x}</b><span>${i < their ? "?" : "–"}</span></div>`;
+        h += `<div class="duel-rd mine${nw}"${qa(i)}>${lab}<b>${x}</b><span>${i < their ? "?" : "–"}</span></div>`;
       } else {
-        h += `<div class="duel-rd ${x > y ? "w" : x < y ? "l" : "d"}${nw}">${lab}<b>${x}</b><span>${y}</span></div>`;
+        h += `<div class="duel-rd ${x > y ? "w" : x < y ? "l" : "d"}${nw}"${qa(i)}>${lab}<b>${x}</b><span>${y}</span></div>`;
       }
     }
-    return h + `</div>`;
+    h += `</div>`;
+    if (hint && [0, 1, 2, 3, 4].some((i) => canPeek(d, i)) && peekHint(d.code)) h += `<p class="duel-tip${flip ? " after" : ""}">${esc(tx(H?.lang).peekTip)}</p>`;
+    return h;
   }
 
   // De VS-kop: jij links, de ander rechts, in het midden de stand. big/small = het midden; cells = een vakje per ronde.
@@ -1551,6 +1601,102 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
   }
 
+  // ════ de vraag van een ronde terugzien (18/11, gevraagd door spelers) ════
+  // Tik op een tegel → een pop-up met het feit, het jaartal en jullie scores, bóven wat er open is (de duelkaart onder het bord, de
+  // eindstand of het Duels-scherm): sluiten (✕, achtergrond, Esc) brengt je terug naar precies dat scherm. Alleen rondes die je zelf
+  // speelde, of alle vijf als het duel klaar is: een ronde die je nog moet spelen, verklapt hij nooit. De puzzels komen van duel_get
+  // (db/185 bewaart ze in duels.rounds); het Duels-scherm krijgt ze niet mee (duel_list), dan haalt een tik dat ene duel op.
+  // Je gokken staan niet op de server: die toont hij niet. Meetpunt duel-peek.
+  const PEEK_ID = "modal-duel-q";
+  const PEEK_KEY = "jaardle:duel-peek";   // { n: [duels waar de tip stond], used: 1 = al eens getikt } → de tip dooft uit
+  const peekSrc = new Map();   // code → het duel zoals de tegels het laatst toonden
+  const canPeek = (d, i) => !!(d && d.code && d.me) && (d.status === "done" || (d.mine || [])[i] != null);
+  function peekHint(code) {   // de tip "tik op een ronde": tot je eerste tik, op hoogstens 3 duels
+    const v = readJson(PEEK_KEY, {});
+    if (v.used) return false;
+    const n = Array.isArray(v.n) ? v.n : [];
+    if (n.includes(code)) return true;
+    if (n.length >= 3) return false;
+    writeJson(PEEK_KEY, { n: [...n, code] });
+    return true;
+  }
+  const yearText = (y) => (y < 0 ? `${-y} ${H?.t ? H.t("bc") : "BC"}` : String(y));
+  // Labels en kleuren zoals in het spel (STORY_TAGS in game.js): 🎭 gek maar waar, de verhaal-kopjes, anders 💡.
+  const PEEK_TAGS = { fun: ["🎭", "fun_label", "fun"], a: ["🤯", "tag_wow", "wow"], m: ["🔍", "tag_mys", "mys"], f: ["🏆", "tag_rec", "rec"],
+    w: ["❤️", "tag_warm", "warm"], d: ["👻", "tag_spook", "spook"] };
+  function peekSlides(p, lang) {   // het hoofdfeit en de 💡-extra's van de ronde
+    const txt = (f) => (f && (f[lang] || f.en || f.nl)) || "";
+    return [{ e: "💡", label: "main_label", c: "extra", text: txt((p.facts || [])[0]) }].concat((p.extras || []).map((x) => {
+      const tg = PEEK_TAGS[x.fun ? "fun" : x.tag];
+      return { e: tg ? tg[0] : "💡", label: tg ? tg[1] : "extra_label", c: tg ? tg[2] : "extra", text: txt(x) };
+    })).filter((sl) => sl.text);
+  }
+  function peekHtml(T, d, i, p, lang) {
+    const f = (p.facts || [])[0] || {}, sl = peekSlides(p, lang), lb = (k) => (H?.t ? H.t(k) : k);
+    const x = (d.mine || [])[i], y = (d.theirs || [])[i], n = oppName(d);
+    const res = x == null || y == null ? null : x > y ? "w" : x < y ? "l" : "d";
+    const cell = (who, cls, s, won) => `<span class="rq-sc ${cls}${won ? " won" : ""}"><small>${esc(who)}</small><b>${s ?? "–"}</b></span>`;
+    let src = "";
+    try {
+      const u = new URL(f.source || "");
+      if (u.protocol === "https:" || u.protocol === "http:") {
+        src = `<a class="rq-src" href="${esc(u.href)}" target="_blank" rel="noopener">${esc(H?.t ? H.t("source") : "Source:")} ${esc(u.hostname.replace(/^www\./, ""))}</a>`;
+      }
+    } catch (e) {}
+    const car = `<div class="rq-ev"><div class="rq-vp">` + sl.map((z) => `<div class="rq-fs c-${z.c}"><div class="rq-tag"><span aria-hidden="true">${z.e}</span>` +
+        `<span>${esc(lb(z.label))}</span></div><p class="rq-fact">${esc(z.text)}</p></div>`).join("") + `</div>` +
+      (sl.length > 1 ? `<div class="rq-dots">${sl.map((z, j) => `<button type="button" data-i="${j}"${j ? "" : ` class="on"`} aria-label="${j + 1}/${sl.length}">${z.e}</button>`).join("")}</div>` : "") +
+      `</div>`;
+    return car + `<p class="rq-year">${esc(yearText(p.year))}</p>` +
+      `<div class="rq-scores">${cell(T.you, "me", x, res === "w")}${cell(n, "op", y, res === "l")}</div>` +
+      (res ? `<p class="rq-verdict">${esc(res === "w" ? T.rYours : res === "l" ? T.rTheirs(n) : T.rDraw)}</p>` : "") + src;
+  }
+  async function openPeek(code, i) {
+    if (!H) return;
+    const T = tx(H.lang);
+    ensureCss();
+    gc("duel-peek", "Duel: question of a round reopened");
+    writeJson(PEEK_KEY, { used: 1 });
+    document.querySelectorAll(".duel-tip").forEach((e) => e.remove());   // de tip heeft zijn werk gedaan
+    document.getElementById(PEEK_ID)?.remove();
+    const el = document.createElement("div");
+    el.id = PEEK_ID;
+    el.className = "modal";
+    el.hidden = true;
+    el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "duel-q-title");
+    el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card duel-pop rq">` +
+      `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button>` +
+      `<section class="rq-body"><p class="rq-eyebrow" id="duel-q-title">${ICON} ${esc(T.roundN(i + 1))}</p>` +
+      `<div class="rq-in"><p class="rq-load">${esc(T.loading)}</p></div></section></div>`;
+    document.body.appendChild(el);   // als laatste: ligt boven de eindstand en het Duels-scherm
+    el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => H.closeModal(PEEK_ID)));
+    H.openModal(PEEK_ID, { over: true });   // over: wat eronder open is, blijft open
+    let d = peekSrc.get(code) || cache[code], rounds = d?.rounds || cache[code]?.rounds;
+    if (!rounds?.[i]) {   // het Duels-scherm heeft de puzzels niet: dit ene duel ophalen
+      const r = await call("duel_get", { p_code: code });
+      if (r.ok && r.v) { const v = keep(r.v); rounds = v.rounds; d = d || v; }
+    }
+    const box = el.querySelector(".rq-in");
+    if (!el.isConnected || !box) return;
+    box.innerHTML = rounds?.[i] && d ? peekHtml(T, d, i, rounds[i], H.lang) : `<p class="rq-load duel-err">${esc(T.err)}</p>`;
+    // vegen (scroll-snap) of tik op een puntje
+    const vp = box.querySelector(".rq-vp"), dots = [...box.querySelectorAll(".rq-dots button")];
+    if (!vp || !dots.length) return;
+    vp.addEventListener("scroll", () => {
+      const k = Math.round(vp.scrollLeft / Math.max(1, vp.clientWidth));
+      dots.forEach((b, j) => b.classList.toggle("on", j === k));
+    }, { passive: true });
+    const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    dots.forEach((b) => b.addEventListener("click", () => vp.scrollTo({ left: Number(b.dataset.i) * vp.clientWidth, behavior: smooth ? "smooth" : "auto" })));
+  }
+  function peekTarget(e) { const t = e.target?.closest?.(".duel-rd[data-q]"); return t && /^(.+)\.([0-4])$/.exec(t.dataset.q); }
+  document.addEventListener?.("click", (e) => { const m = peekTarget(e); if (m) openPeek(m[1], Number(m[2])); });
+  document.addEventListener?.("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const m = peekTarget(e);
+    if (m) { e.preventDefault(); openPeek(m[1], Number(m[2])); }
+  });
+
   // ════ de eindstand-pop-up ════
   // Na je vijfde ronde (de ander nog bezig of al klaar), en voor een uitslag die je nog niet zag (flip: de rondes draaien om).
   function showEndPop(T, d, { flip = false, fresh = false, wonLast = false, again = false } = {}) {
@@ -1564,7 +1710,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       const h = verdict(T, o, opp);
       inner += `<h2 class="${af.trim()}">${o.res === "w" ? "🏆 " : ""}${esc(h)}</h2>` +
         `<div class="duel-vs">${vsInner(T, d, { big: flip ? "?–?" : `${o.w}–${o.l}`, small: T.final })}</div>` +
-        tilesHtml(d, { flip }) +
+        tilesHtml(d, { flip, hint: true }) +
         `<p class="ep-note${af}">${esc(T.totalNote(o.a, o.b))}<span class="ep-h2h"></span></p>` +
         `<div class="ep-btns${af}"><button type="button" class="duel-btn" data-act="rematch" data-code="${d.code}">${icoHtml()} ${esc(T.revenge)}</button>` +
         `<button type="button" class="duel-btn ep-ghost" data-act="share-result">${esc(T.shareRes)}</button></div>`;
@@ -1895,7 +2041,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       }
       det = `<div class="dl-detail">${vs}<div class="duel-card"><div class="duel-head"><b>${esc(cap(whenText(T, sel.finished_at)))}, ${esc(clockText(sel.finished_at))}</b>` +
         `<span class="duel-r">${esc(T.total(so.a, so.b))}</span>` +
-        `<button type="button" class="dl-endb" data-act="end" data-code="${sel.code}" aria-label="${esc(cap(T.final))}" title="${esc(cap(T.final))}">🏁<span aria-hidden="true">›</span></button></div>` + tilesHtml(sel) +
+        `<button type="button" class="dl-endb" data-act="end" data-code="${sel.code}" aria-label="${esc(cap(T.final))}" title="${esc(cap(T.final))}">🏁<span aria-hidden="true">›</span></button></div>` + tilesHtml(sel, { hint: true }) +
         `<span class="duel-verdict">${esc(verdict(T, so, n))}</span></div>` +
         (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const o = outcome(d.mine, d.theirs);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${o.res}">${esc(resText(T, o))}</span></button>`; }).join("")}</div>` : "") +
@@ -2214,7 +2360,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
-         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel,
+         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID,
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

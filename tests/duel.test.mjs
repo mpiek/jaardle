@@ -16,7 +16,7 @@ function loadDuel() {
   const head = { kids: [], appendChild(e) { this.kids.push(e); } };
   const win = {};
   const doc = { head, getElementById: () => null, querySelector: () => null, createElement: () => ({ setAttribute() {}, textContent: "" }) };
-  vm.runInContext(SRC, vm.createContext({ window: win, document: doc, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, encodeURIComponent, setTimeout }));
+  vm.runInContext(SRC, vm.createContext({ window: win, document: doc, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL, encodeURIComponent, setTimeout }));
   return win.Duel;
 }
 const D = loadDuel();
@@ -123,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 185500, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip)
+  assert.ok(SRC.length < 199000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -531,7 +531,7 @@ test("duel.js — een link-uitnodiging zonder antwoord blijft bewaard (17/11: te
   const ls = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: (k) => { delete store[k]; } };
   const win = {};
   const doc = { head: { appendChild() {} }, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], createElement: () => ({ setAttribute() {}, textContent: "" }) };
-  vm.runInContext(SRC, vm.createContext({ window: win, document: doc, localStorage: ls, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, encodeURIComponent, setTimeout }));
+  vm.runInContext(SRC, vm.createContext({ window: win, document: doc, localStorage: ls, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL, encodeURIComponent, setTimeout }));
   const Y = win.Duel._, T = win.Duel.copy("nl"), KEY = Y.INVITE_KEY, soon = new Date(Date.now() + 3600e3).toISOString();
   const calls = [];
   let reply = null;
@@ -596,4 +596,66 @@ test("duel.js — ingelogd blijft ingelogd: geen naamveld of \"J\" (van Jij) doo
 test("duel.js — een uitgespeeld duel via seintje of link: eindstand-pop-up boven het Duels-scherm, ook als je hem al zag (zonder confetti)", () => {
   assert.match(SRC, /if \(d && d\.status === "done"\) \{ openGrp = d\.opp \|\| oppName\(d\); selInGrp\[openGrp\] = d\.code; if \(!d\.seen \|\| opts\.end\) pop = d; \}/);
   assert.match(SRC, /if \(pop\) showEndPop\(T, pop, pop\.seen \? \{ again: true \} : \{ flip: true \}\);/);
+});
+
+test("duel.js — de vraag van een ronde terugzien: alleen rondes die je speelde (alles als het duel klaar is), tip dooft uit", () => {
+  X.setHost(host({ t: (k) => ({ bc: "v.Chr.", source: "Bron:" })[k] }));
+  const q = (h) => [...h.matchAll(/data-q="([A-Z2-9]{6})\.(\d)"/g)].map((m) => Number(m[2]));
+  // lopend: R1 en R2 gespeeld, de rest dicht (ook al speelde de ander verder)
+  const act = { code: "ABCDEF", me: "c", status: "active", mine: [95, 52], theirs: [87], their_done: 5, c_name: "Noor", o_name: "Bram" };
+  assert.deepEqual(q(X.tilesHtml(act)), [0, 1]);
+  assert.match(X.tilesHtml(act), /class="duel-rd w" data-q="ABCDEF\.0" role="button" tabindex="0" aria-haspopup="dialog"><small>R1/);
+  // klaar (ook na een time-out): alle vijf, ook in de onthulling
+  const done = { ...act, status: "done", mine: [87], theirs: [] };
+  assert.deepEqual(q(X.tilesHtml(done)), [0, 1, 2, 3, 4]);
+  assert.deepEqual(q(X.tilesHtml({ ...done, mine: [1, 2, 3, 4, 5], theirs: [5, 4, 3, 2, 1] }, { flip: true })), [0, 1, 2, 3, 4]);
+  // geen deelnemer (buitenstaander) of geen code: niets tikbaar
+  assert.deepEqual(q(X.tilesHtml({ ...done, me: null })), []);
+  assert.equal(X.canPeek({ status: "done", mine: [] }, 0), false);
+  // de tip alleen op verzoek (eindstand, Duels-scherm), en bij de onthulling pas ná het omdraaien
+  assert.match(X.tilesHtml(done, { hint: true }), /<p class="duel-tip">Tik op een ronde om de vraag terug te zien<\/p>$/);
+  assert.ok(!X.tilesHtml(done).includes("duel-tip"));
+  assert.match(X.tilesHtml(done, { hint: true, flip: true }), /class="duel-tip after"/);
+  assert.ok(!X.tilesHtml({ status: "done", mine: [1], theirs: [] }, { hint: true }).includes("duel-tip"), "niets tikbaar → geen tip");
+});
+
+test("duel.js — pop-up van een ronde: feit in jouw taal, jaartal (v.Chr.), beide scores, wie de ronde won, bron alleen als http(s)", () => {
+  X.setHost(host({ t: (k) => ({ bc: "v.Chr.", source: "Bron:" })[k] }));
+  const T = D.copy("nl");
+  const d = { code: "ABCDEF", me: "o", status: "done", c_name: "Bram", o_name: "Noor", mine: [40, 90], theirs: [70, 90] };
+  const p = { year: -44, facts: [{ nl: "Caesar <vermoord>", en: "Caesar murdered", source: "https://nl.wikipedia.org/wiki/Caesar" }] };
+  const h = X.peekHtml(T, d, 0, p, "nl");
+  assert.match(h, /<p class="rq-fact">Caesar &lt;vermoord&gt;<\/p>/, "eigen taal, ge-escaped");
+  assert.match(h, /<p class="rq-year">44 v\.Chr\.<\/p>/);
+  assert.match(h, /rq-sc me"><small>Jij<\/small><b>40<\/b>.*rq-sc op won"><small>Bram<\/small><b>70<\/b>/);
+  assert.match(h, /<p class="rq-verdict">Deze is voor Bram\.<\/p>/);
+  assert.match(h, /<a class="rq-src" href="https:\/\/nl\.wikipedia\.org\/wiki\/Caesar" target="_blank" rel="noopener">Bron: nl\.wikipedia\.org<\/a>/);
+  assert.match(X.peekHtml(T, d, 1, { ...p, year: 1648 }, "nl"), /rq-year">1648<.*Gelijk\./);
+  assert.match(X.peekHtml(T, d, 0, p, "de"), /Caesar murdered/, "geen Duits → Engels");
+  assert.ok(!X.peekHtml(T, d, 0, { ...p, facts: [{ nl: "x", source: "javascript:alert(1)" }] }, "nl").includes("<a"), "geen javascript:-link");
+  // één feit: geen puntjes; met 💡-extra's: een carrouselletje zoals in de ❓-uitleg (label + kleur per soort, emoji-puntjes)
+  assert.ok(!h.includes("rq-dots"));
+  X.setHost(host({ t: (k) => ({ main_label: "Dit jaar", extra_label: "Ook dit jaar", fun_label: "Gek maar waar", bc: "v.Chr." })[k] }));
+  const car = X.peekHtml(T, d, 0, { ...p, extras: [{ nl: "Extra een" }, { nl: "Een grap", fun: true }, { en: "only en", tag: "d" }, { nl: "" }] }, "nl");
+  assert.equal((car.match(/class="rq-fs /g) || []).length, 4, "hoofdfeit + 3 extra's (een lege valt weg)");
+  assert.match(car, /rq-fs c-extra"><div class="rq-tag"><span aria-hidden="true">💡<\/span><span>Dit jaar<\/span><\/div><p class="rq-fact">Caesar/);
+  assert.match(car, /rq-fs c-extra"><div class="rq-tag"><span aria-hidden="true">💡<\/span><span>Ook dit jaar<\/span><\/div><p class="rq-fact">Extra een/);
+  assert.match(car, /rq-fs c-fun"><div class="rq-tag"><span aria-hidden="true">🎭<\/span><span>Gek maar waar/);
+  assert.match(car, /rq-fs c-spook">.*<p class="rq-fact">only en</, "verhaal-kopje + terugval op Engels");
+  assert.match(car, /<div class="rq-dots"><button type="button" data-i="0" class="on" aria-label="1\/4">💡<\/button><button type="button" data-i="1" aria-label="2\/4">💡/);
+  assert.match(SRC, /\.rq-fs\.c-fun \{ --c: var\(--h-fun\); \}/);
+  // de ander speelde de ronde (nog) niet: – en geen oordeel
+  const half = X.peekHtml(T, { ...d, status: "active", theirs: [] }, 0, p, "nl");
+  assert.match(half, /rq-sc op"><small>Bram<\/small><b>–<\/b>/); assert.ok(!half.includes("rq-verdict"));
+});
+
+test("duel.js — pop-up van een ronde ligt bóven het scherm eronder: openModal over, Esc sluit alleen die", () => {
+  assert.equal(X.PEEK_ID, "modal-duel-q");
+  assert.match(SRC, /H\.openModal\(PEEK_ID, \{ over: true \}\)/);
+  // game.js: Esc sluit eerst alleen de vraag (vóór de eindstand-regel en vóór closeAllModals)
+  const esc = GAME.slice(GAME.indexOf('if (e.key !== "Escape") return;'));
+  const q = esc.indexOf('if (dq && !dq.hidden) { closeModal("modal-duel-q"); return; }'), all = esc.indexOf("closeAllModals();");
+  assert.ok(q > 0 && q < esc.indexOf('const de = document.getElementById("modal-duel-end")') && q < all);
+  // het Duels-scherm heeft de puzzels niet (duel_list): dan haalt een tik dat ene duel op
+  assert.match(SRC, /if \(!rounds\?\.\[i\]\) \{[^\n]*\n\s+const r = await call\("duel_get", \{ p_code: code \}\);/);
 });

@@ -14921,6 +14921,9 @@ async function init() {
     if (!document.getElementById("modal-login").hidden) dropTeamIntent();
     const rp = document.getElementById("modal-podium-pop");
     if (rp && !rp.hidden && rp.dataset.replay === "1") { closeModal("modal-podium-pop"); return; }
+    // De vraag van een duelronde (/duel.js, tik op een tegel) ligt boven alles: alleen die dicht, het scherm eronder blijft.
+    const dq = document.getElementById("modal-duel-q");
+    if (dq && !dq.hidden) { closeModal("modal-duel-q"); return; }
     // De eindstand van een duel boven het Duels-scherm (/duel.js): alleen die dicht, het Duels-scherm blijft staan.
     const de = document.getElementById("modal-duel-end"), dl = document.getElementById("modal-duels");
     if (de && !de.hidden && dl && !dl.hidden) { closeModal("modal-duel-end"); return; }
