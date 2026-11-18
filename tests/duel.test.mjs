@@ -775,19 +775,22 @@ test("db/203 ↔ duel.js — hooguit 3 lopende duels per tweetal: uitdagen, reva
 });
 
 // ── db/204: een duel-seintje toont rechts het gezichtje van de tegenstander (sw.js tekent het zelf, zonder netwerk) ──
-function loadSw(canvas) {
-  const handlers = {}, shown = [];
+function loadSw(canvas, env = {}) {
+  const handlers = {}, shown = [], posted = [], closed = [];
+  const tabs = (env.tabs || []).map((t) => ({ ...t, postMessage: (m) => posted.push(m) }));
   const self = {
     addEventListener: (t, f) => { handlers[t] = f; },
-    registration: { showNotification: async (title, o) => { shown.push({ title, ...o }); } },
-    clients: { claim: async () => {} }, skipWaiting() {}, location: { origin: "https://jaardle.com" },
+    registration: { showNotification: async (title, o) => { shown.push({ title, ...o }); },
+      ...(env.endpoint ? { pushManager: { getSubscription: async () => ({ endpoint: env.endpoint }) } } : {}),
+      getNotifications: async ({ tag }) => (env.open || []).filter((t) => t === tag).map((t) => ({ close: () => closed.push(t) })) },
+    clients: { claim: async () => {}, matchAll: async () => tabs }, skipWaiting() {}, location: { origin: "https://jaardle.com" },
   };
   const ctx = vm.createContext({ self, String, Math, Promise, Uint8Array, setTimeout, btoa: (s) => Buffer.from(s, "binary").toString("base64"), ...(canvas ? { OffscreenCanvas: canvas } : {}) });
   vm.runInContext(readFileSync(join(dir, "..", "sw.js"), "utf8"), ctx);
   const push = async (payload) => {
     let p; handlers.push({ data: { json: () => payload, text: () => "" }, waitUntil: (x) => { p = x; } }); await p; return shown.at(-1);
   };
-  return { ctx, push };
+  return { ctx, push, shown, posted, closed };
 }
 function fakeCanvas(log) {
   return class { constructor(w, h) { log.size = [w, h]; }
@@ -835,7 +838,34 @@ test("duel.js — verversen bij kijken (18/11): het ⚔️ DUELS-logo, een tik o
   assert.match(SRC, /function applyList\(v\) \{\n    listAt = Date\.now\(\);/, "elke verse lijst telt (net geopend = al vers)");
   assert.match(SRC, /else \{ openWait\.add\(c\); syncCode = c; syncList\(T\); \}/, "openklappen van een lopend duel kijkt even vers");
   assert.match(SRC, /document\.visibilityState === "visible" && H && m && !m\.hidden\) syncList\(tx\(H\.lang\)\)/, "terug in de app alleen als het Duels-scherm open is");
-  assert.match(SRC, /openWait\.has\(d\.code\) && was\.get\(d\.code\) === "active" && d\.status === "done" && !d\.seen/, "net klaar en nog niet gezien → eindstand");
+  assert.match(SRC, /openWait\.has\(d\.code\) \|\| d\.code === focus\) && was\.get\(d\.code\) === "active" && d\.status === "done" && !d\.seen/, "net klaar en nog niet gezien → eindstand");
   assert.match(D.css, /\.dl-logo\.sync \.dl-logo-sw \{ animation: dl-clash/);
   assert.match(D.css, /prefers-reduced-motion: reduce\) \{ \.dl-logo\.sync \.dl-logo-sw \{ animation: none/);
+});
+
+test("sw.js (db/204) — geen systeemmelding voor een duel als Jaardle open en in beeld is (behalve bij Apple); 'klaar' vlak na een eerder seintje is stil", async () => {
+  const FCM = "https://fcm.googleapis.com/fcm/send/x", APPLE = "https://web.push.apple.com/x";
+  const duel = { title: "⚔️ Geert is klaar", tag: "jaardle-duel-ABC", face: { n: "Geert", f: null } };
+  const inBeeld = [{ visibilityState: "visible", focused: true }];
+  let sw = loadSw(null, { endpoint: FCM, tabs: inBeeld, open: ["jaardle-duel-ABC", "jaardle-daily"] });
+  await sw.push(duel);
+  assert.equal(sw.shown.length, 0, "in de app: geen melding");
+  assert.deepEqual(plain(sw.posted), [{ jaardle: "duel-push", code: "ABC" }], "de pagina krijgt het door");
+  assert.deepEqual(plain(sw.closed), ["jaardle-duel-ABC"], "een oude melding over dat duel gaat weg, andere niet");
+  sw = loadSw(null, { endpoint: APPLE, tabs: inBeeld }); await sw.push(duel);
+  assert.equal(sw.shown.length, 1, "Apple eist altijd een melding"); assert.equal(sw.posted.length, 0);
+  sw = loadSw(null, { endpoint: FCM, tabs: [{ visibilityState: "visible", focused: false }, { visibilityState: "hidden", focused: false }] }); await sw.push(duel);
+  assert.equal(sw.shown.length, 1, "Jaardle niet vooraan: gewoon de melding");
+  sw = loadSw(null, { endpoint: FCM, tabs: inBeeld }); await sw.push({ title: "Daily", body: "x" });
+  assert.equal(sw.shown.length, 1, "het dagelijkse seintje blijft altijd");
+  // stil: vervangt zonder geluid of trilling
+  sw = loadSw(null, { endpoint: FCM });
+  const q = await sw.push({ ...duel, quiet: true });
+  assert.equal(q.silent, true); assert.equal(q.renotify, false);
+  const l = await sw.push(duel);
+  assert.equal(l.silent, false); assert.equal(l.renotify, true);
+  // de pagina: game.js luistert, duel.js ververst het Duels-scherm (met de eindstand als dat duel net klaar is) of het stipje
+  assert.match(GAME, /if \(e\.data\?\.jaardle === "duel-push"\) loadDuel\(\)\.then\(\(D\) => D\.pushed\(duelHost\(\), e\.data\.code\)\)/);
+  assert.match(SRC, /if \(m && !m\.hidden\) return syncList\(tx\(H\.lang\), true, code \|\| null\);\n    return checkNews\(H\);/);
+  assert.match(SRC, /\(openWait\.has\(d\.code\) \|\| d\.code === focus\) && was\.get\(d\.code\) === "active"/);
 });

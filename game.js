@@ -5184,6 +5184,12 @@ let installPrompt = null;
 if (typeof navigator !== "undefined" && navigator.serviceWorker && !isStandaloneApp()) {
   window.addEventListener?.("load", () => (window.requestIdleCallback || setTimeout)(() => navigator.serviceWorker.register("/sw.js").catch(() => {})));
 }
+// sw.js (db/204): een duel-seintje terwijl Jaardle open en in beeld is, komt hier binnen i.p.v. als systeemmelding.
+if (typeof navigator !== "undefined" && navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener?.("message", (e) => {
+    if (e.data?.jaardle === "duel-push") loadDuel().then((D) => D.pushed(duelHost(), e.data.code)).catch(() => {});
+  });
+}
 window.addEventListener?.("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; syncInstallUi(); });
 window.addEventListener?.("appinstalled", () => { installPrompt = null; gcCount("install-done", "Install: installed"); syncInstallUi(); });
 function installMode() {

@@ -1994,7 +1994,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   // 18/11 (zijn vraag): spelers tikken op een lopend duel, of komen terug in de app, om te zien of de ander al speelde. Dan haalt het
   // scherm de lijst vers op: één duel_list, hooguit eens per 4 s (net geopend = al vers); intussen pulseert de regel van dat duel.
   // Is een duel dat je openklapte intussen klaar en zag je de uitslag nog niet: meteen de eindstand met de omdraaiende rondes.
-  function syncList(T, force = false) {   // force = een tik op het logo: dan ook binnen 4 s
+  function syncList(T, force = false, focus = null) {   // force = een tik op het logo (of een seintje): dan ook binnen 4 s
     if (listSync || (!force && Date.now() - listAt < 4000)) { if (!listSync) syncCode = null; return; }
     const was = new Map((listItems || []).map((d) => [d.code, d.status]));
     const logo = document.getElementById("duels-title"), t0 = Date.now();
@@ -2003,7 +2003,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     listSync = call("duel_list", {}).then(async (r) => {
       if (!r.ok || !shown()) return null;
       applyList(await withInvite(r.v));
-      const pop = listItems.find((d) => openWait.has(d.code) && was.get(d.code) === "active" && d.status === "done" && !d.seen);
+      const pop = listItems.find((d) => (openWait.has(d.code) || d.code === focus) && was.get(d.code) === "active" && d.status === "done" && !d.seen);
       if (pop) { openGrp = pop.opp || oppName(pop); selInGrp[openGrp] = pop.code; }
       return pop;
     }).catch(() => null).then((pop) => {
@@ -2515,6 +2515,15 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
 
   // Het rode stipje: alleen voor wie duels heeft (game.js roept dit pas aan als jaardle:duels iets bevat).
+  // sw.js (db/204): een duel-seintje terwijl je in de app zit, zonder systeemmelding. Duels-scherm open: vers kijken (zoals een tik op het
+  // logo; is dat duel net klaar, dan de eindstand). Anders de lijst voor het rode stipje.
+  function pushed(host, code) {
+    H = host || H;
+    const m = document.getElementById("modal-duels");
+    if (m && !m.hidden) return syncList(tx(H.lang), true, code || null);
+    return checkNews(H);
+  }
+
   async function checkNews(host) {
     H = host || H;
     const r = await call("duel_list", {});
@@ -2522,7 +2531,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
 
   return {
-    openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
+    openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },

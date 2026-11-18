@@ -44,10 +44,28 @@ async function faceIcon(face) {
   } catch (err) { return null; }
 }
 
+// Een duel-seintje terwijl je Jaardle open en in beeld hebt: geen systeemmelding (daar tikt niemand op, en Android/Chrome rekenen
+// dat als ongewenst: "te veel meldingen"). De pagina krijgt het door (game.js → Duel.pushed: Duels-scherm vers, anders het stipje)
+// en een oude melding over dat duel gaat weg. Apple (iPhone, Safari) eist bij elk bericht een melding, anders zegt hij het
+// abonnement op: daar altijd tonen. Chrome eist er geen zolang een Jaardle-tab in beeld is.
+async function inApp(tag, code) {
+  try {
+    const sub = await self.registration.pushManager.getSubscription();
+    if (!sub || /push\.apple\.com/.test(sub.endpoint)) return false;
+    const tabs = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    if (!tabs.some((c) => c.visibilityState === "visible" && c.focused)) return false;
+    for (const c of tabs) c.postMessage({ jaardle: "duel-push", code });
+    for (const n of await self.registration.getNotifications({ tag })) n.close();
+    return true;
+  } catch (err) { return false; }
+}
+
 self.addEventListener("push", (e) => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (err) { d = { body: e.data && e.data.text() }; }
   e.waitUntil((async () => {
+    const duel = /^jaardle-duel-(.+)$/.exec(d.tag || "");
+    if (duel && await inApp(d.tag, duel[1])) return;
     // Nooit langer dan 2 s op het gezichtje wachten: het seintje gaat altijd.
     const face = d.face ? await Promise.race([faceIcon(d.face), new Promise((ok) => setTimeout(() => ok(null), 2000))]) : null;
     await self.registration.showNotification(d.title || "Jaardle", {
@@ -55,7 +73,8 @@ self.addEventListener("push", (e) => {
       icon: face || "/favicon-192.png?v=2",
       badge: "/badge-96.png",
       tag: d.tag || "jaardle-daily",   // een nieuw seintje vervangt het vorige (een duel heeft een eigen tag per duel)
-      renotify: !!d.tag,   // een nieuw duel-seintje over hetzelfde duel trilt opnieuw
+      renotify: !!d.tag && !d.quiet,   // een nieuw duel-seintje over hetzelfde duel trilt opnieuw…
+      silent: !!d.quiet,   // …behalve "de ander is klaar" vlak na een eerder seintje over dat duel (db/204): stil vervangen
       data: { url: d.url || "/" },
     });
   })());
