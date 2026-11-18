@@ -717,3 +717,16 @@ test("Duels-pagina — de build schrijft /duels/ in elke taal met een eigen tite
   assert.ok(!/<meta property="og:image"/.test(main), "de hoofdpagina houdt (voorlopig) geen og:image");
   assert.match(read("sitemap.xml"), /<loc>https:\/\/jaardle\.com\/nl\/duels\/<\/loc>/);
 });
+
+test("db/201 ↔ duel.js — revanche volgt 'één duel per tweetal', intrekken telt een uur mee: elke fout van duel_create heeft een eigen melding", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "201_duel_limits.sql")) }, () => {
+  const sql = readFileSync(join(dir, "..", "..", "jaardle-tools", "db", "201_duel_limits.sql"), "utf8");
+  for (const code of ["'incoming:%'", "'running'", "'too_many_open'", "'too_many_recent'"]) assert.ok(sql.includes(`raise exception ${code}`), `db/201 geeft ${code}`);
+  // incoming eerst testen (/running/ en /too_many_open/ mogen hem niet wegvangen), de naam ook bij een revanche (nameOf)
+  assert.match(SRC, /const nm = forName \|\| nameOf\(rematch\) \|\| "\?", inc = \/incoming:\/\.test\(r\.e\);/);
+  assert.match(SRC, /inc \? T\.errIncoming\(nm\) : \/too_many_open\/\.test\(r\.e\) \? T\.errMax : \/too_many_recent\/\.test\(r\.e\) \? T\.errRecent\s*: \/running\/\.test\(r\.e\) \? T\.errRunning\(nm\)/);
+  for (const lang of ["nl", "en", "de", "es", "pt"]) {
+    const T = D.copy(lang);
+    assert.ok(T.errIncoming("Mike").includes("Mike") && T.errRunning("Mike").includes("Mike"), lang);
+    assert.ok(/3/.test(T.errRecent) && T.errRecent !== T.errMax, lang);
+  }
+});

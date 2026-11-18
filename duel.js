@@ -501,6 +501,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pickH: "Daag iemand uit", faceNew: "nieuw", faceRun: "loopt", vsLine: (n) => `Jij tegen ${n}:`, linkInstead: "Liever een link sturen",
       challenged: (n) => `${n} is uitgedaagd`, pushYes: (n) => `${n} krijgt meteen een seintje. Nog 24 uur om aan te nemen.`, pushNo: (n) => `${n} ziet hem bij het openen van Jaardle. Nog 24 uur om aan te nemen.`,
       alsoLink: "Stuur ook een link", sendLinkShort: "Stuur link", invited: "Uitgedaagd", acceptShort: "Neem aan", errRunning: (n) => `Er loopt al een duel met ${n}.`,
+      errRecent: "Je hebt net al 3 uitnodigingen verstuurd. Over een uurtje kan het weer.", errIncoming: (n) => `${n} daagt je al uit: neem die hieronder aan.`,
       bellAcc: (n) => `Seintje als ${n} begint`, bellAccAny: "Seintje als iemand begint", bellDone: (n) => `Seintje als ${n} klaar is`,
       onAcc: (n) => `Je krijgt een seintje als ${n} begint`, onAccAny: "Je krijgt een seintje als iemand begint", onDone: (n) => `Je krijgt een seintje als ${n} klaar is`,
       pushThem: (n) => `${n} krijgt een seintje dat jij klaar bent`, pushDenied: "Meldingen staan uit voor deze site. Zet ze aan in je browser.",
@@ -553,6 +554,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pickH: "Challenge someone", faceNew: "new", faceRun: "live", vsLine: (n) => `You vs ${n}:`, linkInstead: "Send a link instead",
       challenged: (n) => `You challenged ${n}`, pushYes: (n) => `${n} gets a notification right away. 24 hours to accept.`, pushNo: (n) => `${n} will see it when opening Jaardle. 24 hours to accept.`,
       alsoLink: "Also send a link", sendLinkShort: "Send link", invited: "Challenged", acceptShort: "Accept", errRunning: (n) => `You already have a duel with ${n}.`,
+      errRecent: "You just sent 3 invitations. You can send more in about an hour.", errIncoming: (n) => `${n} already challenged you: accept it below.`,
       bellAcc: (n) => `Notify me when ${n} starts`, bellAccAny: "Notify me when someone starts", bellDone: (n) => `Notify me when ${n} is done`,
       onAcc: (n) => `You'll get a notification when ${n} starts`, onAccAny: "You'll get a notification when someone starts", onDone: (n) => `You'll get a notification when ${n} is done`,
       pushThem: (n) => `${n} gets a notification that you're done`, pushDenied: "Notifications are blocked for this site. Allow them in your browser.",
@@ -605,6 +607,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pickH: "Fordere jemanden heraus", faceNew: "neu", faceRun: "läuft", vsLine: (n) => `Du gegen ${n}:`, linkInstead: "Lieber einen Link schicken",
       challenged: (n) => `${n} ist herausgefordert`, pushYes: (n) => `${n} bekommt sofort eine Benachrichtigung. 24 Stunden zum Annehmen.`, pushNo: (n) => `${n} sieht sie beim Öffnen von Jaardle. 24 Stunden zum Annehmen.`,
       alsoLink: "Auch einen Link schicken", sendLinkShort: "Link schicken", invited: "Herausgefordert", acceptShort: "Annehmen", errRunning: (n) => `Du hast schon ein Duell mit ${n}.`,
+      errRecent: "Du hast gerade 3 Einladungen verschickt. In etwa einer Stunde geht es wieder.", errIncoming: (n) => `${n} hat dich schon herausgefordert: nimm unten an.`,
       bellAcc: (n) => `Benachrichtigen, wenn ${n} anfängt`, bellAccAny: "Benachrichtigen, wenn jemand anfängt", bellDone: (n) => `Benachrichtigen, wenn ${n} fertig ist`,
       onAcc: (n) => `Du bekommst eine Benachrichtigung, wenn ${n} anfängt`, onAccAny: "Du bekommst eine Benachrichtigung, wenn jemand anfängt", onDone: (n) => `Du bekommst eine Benachrichtigung, wenn ${n} fertig ist`,
       pushThem: (n) => `${n} bekommt eine Benachrichtigung, dass du fertig bist`, pushDenied: "Benachrichtigungen sind für diese Seite blockiert. Erlaube sie im Browser.",
@@ -656,6 +659,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pickH: "Reta a alguien", faceNew: "nuevo", faceRun: "en curso", vsLine: (n) => `Tú contra ${n}:`, linkInstead: "Mejor enviar un enlace",
       challenged: (n) => `Has retado a ${n}`, pushYes: (n) => `${n} recibe un aviso ahora mismo. 24 horas para aceptar.`, pushNo: (n) => `${n} lo verá al abrir Jaardle. 24 horas para aceptar.`,
       alsoLink: "Enviar también un enlace", sendLinkShort: "Enviar enlace", invited: "Retado", acceptShort: "Aceptar", errRunning: (n) => `Ya tienes un duelo con ${n}.`,
+      errRecent: "Acabas de enviar 3 invitaciones. Podrás enviar más dentro de una hora.", errIncoming: (n) => `${n} ya te ha retado: acéptalo abajo.`,
       bellAcc: (n) => `Avísame cuando ${n} empiece`, bellAccAny: "Avísame cuando alguien empiece", bellDone: (n) => `Avísame cuando ${n} termine`,
       onAcc: (n) => `Te avisaremos cuando ${n} empiece`, onAccAny: "Te avisaremos cuando alguien empiece", onDone: (n) => `Te avisaremos cuando ${n} termine`,
       pushThem: (n) => `${n} recibe un aviso de que has terminado`, pushDenied: "Las notificaciones están bloqueadas para este sitio. Permítelas en el navegador.",
@@ -707,6 +711,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       pickH: "Desafie alguém", faceNew: "novo", faceRun: "em curso", vsLine: (n) => `Você contra ${n}:`, linkInstead: "Prefiro enviar um link",
       challenged: (n) => `Você desafiou ${n}`, pushYes: (n) => `${n} recebe um aviso agora mesmo. 24 horas para aceitar.`, pushNo: (n) => `${n} verá ao abrir o Jaardle. 24 horas para aceitar.`,
       alsoLink: "Enviar também um link", sendLinkShort: "Enviar link", invited: "Desafiado", acceptShort: "Aceitar", errRunning: (n) => `Você já tem um duelo com ${n}.`,
+      errRecent: "Você acabou de enviar 3 convites. Poderá enviar mais em cerca de uma hora.", errIncoming: (n) => `${n} já te desafiou: aceite abaixo.`,
       bellAcc: (n) => `Avise-me quando ${n} começar`, bellAccAny: "Avise-me quando alguém começar", bellDone: (n) => `Avise-me quando ${n} terminar`,
       onAcc: (n) => `Você receberá um aviso quando ${n} começar`, onAccAny: "Você receberá um aviso quando alguém começar", onDone: (n) => `Você receberá um aviso quando ${n} terminar`,
       pushThem: (n) => `${n} recebe um aviso de que você terminou`, pushDenied: "As notificações estão bloqueadas para este site. Permita-as no navegador.",
@@ -729,6 +734,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   const sum = (a) => (a || []).reduce((x, y) => x + (y || 0), 0);
   const icoHtml = (ch = ICON) => `<span class="duel-ico" aria-hidden="true">${ch}</span>`;
   const oppName = (d) => ((d && (d.me === "c" ? d.o_name : d.c_name)) || "?");
+  // De tegenstander in een duel dat we al kennen (cache of het Duels-scherm): de naam in de foutmelding bij een revanche.
+  const nameOf = (code) => { const d = code && (cache[code] || (listItems || []).find((x) => x.code === code)); return d ? oppName(d) : null; };
   const oppFlair = (d) => (d && (d.me === "c" ? d.o_flair : d.c_flair)) || null;
   const initial = (n) => ((n || "?").trim().charAt(0) || "?").toUpperCase();
   // Meetpunten (GoatCounter, site jaardle-events via gcCount in game.js): de duel-trechter, zie de lijst in de kop van dit bestand.
@@ -2212,7 +2219,11 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const opened = openList(H, { keepTop: true });
     const r = await call("duel_create", { p_name: name, p_rematch: forK ? null : rematch, ...(forK ? { p_for: forK } : {}) });   // p_for alleen als het moet (oudere server kent hem niet)
     if (!r.ok) {
-      listTop = `<p class="dl-msg duel-err">${esc(/too_many_open/.test(r.e) ? T.errMax : /running/.test(r.e) ? T.errRunning(forName || "?") : /name/.test(r.e) ? T.errName : T.err)}</p>`;
+      // db/201: ook een revanche volgt "één duel tegelijk per tweetal" (running). Daagde de ander jou al uit (incoming:CODE), dan
+      // staat die uitdaging hieronder bij Jouw beurt. Ingetrokken uitnodigingen tellen een uur mee voor de grens van 3 (too_many_recent).
+      const nm = forName || nameOf(rematch) || "?", inc = /incoming:/.test(r.e);
+      listTop = `<p class="dl-msg${inc ? "" : " duel-err"}">${esc(inc ? T.errIncoming(nm) : /too_many_open/.test(r.e) ? T.errMax : /too_many_recent/.test(r.e) ? T.errRecent
+        : /running/.test(r.e) ? T.errRunning(nm) : /name/.test(r.e) ? T.errName : T.err)}</p>`;
       await opened;
       renderList(T, null);
       return;
