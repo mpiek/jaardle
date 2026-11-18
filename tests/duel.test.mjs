@@ -123,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 204000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 210000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -436,7 +436,7 @@ test("duel.js — account-momenten zonder account: bij de uitslag wat je er met 
   for (const l of D.langs()) assert.ok(D.copy(l).keepVs("Bram").includes("Bram") && /^<u>[^<]+<\/u>/.test(D.copy(l).keepList), `${l}: naam in de regel, het werkwoord onderstreept`);
   // het Duels-scherm: de regel onder de knop, zodra je een uitslag zag van een duel tegen iemand met een account
   const withAcc = X.listBody(T, [{ ...done, opp_acc: true }], "", null);
-  assert.match(withAcc, /class="dl-new"[^]*?<\/button><button type="button" class="dl-linkb dl-acct" data-act="login" data-code="AAAAAA"><u>Log in<\/u>, dan staan je tegenstanders hier en daag je ze uit met één tik<\/button>/);
+  assert.match(withAcc, /class="dl-new"[^]*?<\/button><\/div><button type="button" class="dl-linkb dl-acct" data-act="login" data-code="AAAAAA"><u>Log in<\/u>, dan staan je tegenstanders hier en daag je ze uit met één tik<\/button>/);
   assert.ok(withAcc.indexOf("dl-acct") < withAcc.indexOf("Stand per tegenstander"), "boven je stand, direct onder de knop");
   assert.ok(!X.listBody(T, [done], "", null).includes("dl-acct"), "tegenstander zonder account (of een oudere server): geen regel");
   assert.ok(!X.listBody(T, [{ ...done, opp_acc: true, seen: false }], "", null).includes("dl-acct"), "een uitslag die je nog niet zag: de onthulling heeft haar eigen regel");
@@ -729,4 +729,36 @@ test("db/201 ↔ duel.js — revanche volgt 'één duel per tweetal', intrekken 
     assert.ok(T.errIncoming("Mike").includes("Mike") && T.errRunning("Mike").includes("Mike"), lang);
     assert.ok(/3/.test(T.errRecent) && T.errRecent !== T.errMax, lang);
   }
+});
+
+test("duel.js — duelmodus 1900+ (db/202): ▾ naast de grote knop, pilletje, uitnodiging, gok-guard in game.js", () => {
+  X.setHost(host());
+  const T = D.copy("nl");
+  // dicht: de grote knop met rechts de ▾, geen lijstje; open: één regel 1900+ die met dezelfde actie meteen uitdaagt
+  X.setModes(false);
+  let h = X.goHtml(T, `data-act="new"`, T.newBtn);
+  assert.match(h, /^<div class="dl-split"><button type="button" class="dl-new" data-act="new">[^]*?Daag een vriend uit<\/button><button type="button" class="dl-more" data-act="modes" aria-expanded="false" aria-label="Meer duelvormen">/);
+  assert.ok(!h.includes("dl-menu"));
+  X.setModes(true);
+  h = X.goHtml(T, `data-act="challenge" data-k="kb"`, T.challengeX("Bram"));
+  assert.match(h, /aria-expanded="true"/);
+  assert.match(h, /<div class="dl-menu"><button type="button" class="dl-opt" data-act="challenge" data-k="kb" data-theme="1900">[^]*?<b>1900\+<\/b><small>Alle 5 rondes uit 1900 tot nu<\/small>/);
+  X.setModes(false);
+  // pilletje alleen bij een bekend thema (een oudere server stuurt geen theme)
+  assert.equal(X.thHtml({ theme: "1900" }), `<span class="dl-th"><span aria-hidden="true">📻</span>1900+</span>`);
+  assert.equal(X.thHtml({ theme: null }), "");
+  assert.equal(X.thHtml({}), "");
+  assert.equal(X.thHtml({ theme: "onbekend" }), "");
+  // de uitnodiging: pilletje onder de titel en de eerste regel zegt over welke jaren het gaat
+  const inv = { code: "AAAAAA", status: "open", me: null, can_accept: true, c_name: "Noor", deadline: new Date(Date.now() + 864e5).toISOString() };
+  assert.match(X.popBody(T, { ...inv, theme: "1900" }), /Noor daagt je uit<\/h2><span class="dl-th">[^]*?<li><b>5 rondes<\/b> uit <b>1900 tot nu<\/b>/);
+  assert.ok(!X.popBody(T, inv).includes("dl-th"));
+  assert.match(X.popBody(T, inv), /<li><b>5 rondes<\/b>, van makkelijk naar moeilijk<\/li>/);
+  for (const l of D.langs()) { const c = D.copy(l); assert.ok(c.eraPh(1900).startsWith("1900 – ") && c.inv1Era.includes("1900"), `${l}: 1900+-teksten`); }
+  // game.js: een gok vóór state.duel.from wordt geweigerd, met de tekst in vijf talen
+  // (de tekst staat in het lui geladen duel.js: game.js haalt hem op via window.Duel, met een terugval als duel.js er nog niet is)
+  assert.match(GAME, /if \(state\?\.duel\?\.from && year < state\.duel\.from && !lines\.length\) lines\.push\(window\.Duel\?\.copy\?\.\(lang\)\?\.eraRefuse\?\.\(state\.duel\.from\) \|\| `📻 \$\{state\.duel\.from\}\+`\);/);
+  for (const l of D.langs()) assert.match(D.copy(l).eraRefuse(1900), /^📻 .*1900/, `${l}: weigertekst`);
+  // de server krijgt p_theme alleen bij een modus (zo blijft een gewoon duel werken tegen een server zonder db/202)
+  assert.match(SRC, /\.\.\.\(theme && !rematch \? \{ p_theme: theme \} : \{\}\)/);
 });

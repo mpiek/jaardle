@@ -2606,6 +2606,8 @@ function guessBlockReason(year) {
       lines.push(t("digit_warn")(Math.abs(answer) % 10));
     }
   }
+  // ⚔️ duel 1900+ (db/202): from en de tekst komen uit /duel.js
+  if (state?.duel?.from && year < state.duel.from && !lines.length) lines.push(window.Duel?.copy?.(lang)?.eraRefuse?.(state.duel.from) || `📻 ${state.duel.from}+`);
   return { lines, row };
 }
 
