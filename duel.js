@@ -289,13 +289,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 #modal-duels.dl-page { position: static; inset: auto; z-index: auto; display: block; padding: 0; }
 .dl-page .dl-top { margin-bottom: 0.7rem; }
 .dl-page .duel-title { margin: 0; }
-/* de kop als logo (18/11): de ⚔️ groot áchter het woord, DUELS in de duelkleur erover. Een rand in de achtergrondkleur
-   houdt de letters los van de zwaarden (zoals een woordmerk op een embleem). */
+/* de kop als logo (18/11): de ⚔️ áchter het woord, DUELS in de duelkleur erover. Een zachte gloed in de achtergrondkleur (geen harde
+   rand: die oogde als een zwarte omlijning) laat de zwaarden net achter de letters vervagen, zodat het woord leesbaar blijft. */
 .dl-logo { position: relative; display: inline-grid; place-items: center; line-height: 1; }
 .dl-logo > * { grid-area: 1 / 1; }
 .dl-logo-sw { font-size: 1.9rem; line-height: 1; letter-spacing: 0; }   /* even hoog als het Jaardle-icoontje links (30 px) */
 .dl-logo-txt { position: relative; font-size: 1.2rem; padding-left: 0.14em;   /* letter-spacing zet ook ruimte ná de laatste letter: zo staat het woord echt in het midden */
-  text-shadow: 1.5px 0 var(--bg), -1.5px 0 var(--bg), 0 1.5px var(--bg), 0 -1.5px var(--bg), 0 0 3px var(--bg); }
+  text-shadow: 0 0 4px var(--bg), 0 0 8px var(--bg); }
 .dl-page .dl-help-btn { justify-self: end; width: 2.75rem; height: 2.75rem; min-height: 0; margin: 0; padding: 0; justify-content: center; border-radius: 50%; font-size: 1.05rem; font-weight: 800; }
 .dl-page .modal-body { padding: 0 0 1.5rem; }
 
