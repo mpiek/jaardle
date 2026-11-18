@@ -1989,7 +1989,8 @@ function setLang(code) {
   if (!LANG_CODES.includes(code) || code === lang) return;
   lang = code;
   applyLang();
-  try { history.replaceState(null, "", "/" + LANGS[lang].path + location.search); }
+  const duels = document.body.hasAttribute("data-duelshome");   // de Duels-pagina: /nl/duels/ → /de/duels/
+  try { history.replaceState(null, "", "/" + LANGS[lang].path + (duels ? (LANGS[lang].path ? "/" : "") + "duels/" : location.search)); }
   catch (e) {}
 }
 
@@ -4921,6 +4922,23 @@ function duelPlayStart(st) {
 function openDuels() {   // ⋮ → Duels (meetpunt duel-list; de rest van de duel-trechter telt /duel.js)
   gcCount("duel-list", "Duel: Duels screen opened (menu)");
   loadDuel().then((D) => D.openList(duelHost(), {})).catch(() => {});
+}
+// ⚔️ De Duels-pagina (18/11/2026): een eigen scherm met een eigen adres, /duels/ (build-html.mjs: eigen titel + deelplaatje). Open =
+// dat adres + body[data-duelshome] (verbergt het spel, CSS in /duel.js). Voor game.js blijft het een .modal (toetsen, wachtende
+// pop-ups), maar zonder scroll-slot; andere schermen gaan erbovenop en sluiten terug naar de pagina.
+const DUELS_PAGE = "modal-duels";
+function onDuelsPath() { return /\/duels\/?$/.test(location.pathname); }
+function pathBase() { const seg = location.pathname.split("/").filter(Boolean)[0]; return LANG_CODES.includes(seg) ? `/${seg}/` : "/"; }   // "/" of "/nl/"
+function duelsPageSet(on) {
+  if (!on && !document.body.hasAttribute("data-duelshome")) return;
+  document.body.toggleAttribute("data-duelshome", on);
+  // open: kaal /duels/ (geen ?p= van een vrij potje erachter); dicht: terug naar de basis, syncUrl zet de rest er weer achter
+  try { history.replaceState(null, "", pathBase() + (on ? "duels/" : location.search + location.hash)); } catch (e) {}
+}
+function duelsPageOpened() {
+  duelsPageSet(true);
+  if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden && m.id !== DUELS_PAGE)) unlockBodyScroll();
+  window.scrollTo(0, 0);
 }
 function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-news")) || 0; } catch (e) { return 0; } }
 function duelKnown() {
@@ -13548,9 +13566,10 @@ function unlockBodyScroll() {
 }
 
 // De navigeerbare panelen (géén pop-ups: kroning/podium/beloning blokkeren de UI
-// zelf en beheren hun eigen sluiten). Eén tegelijk zichtbaar.
+// zelf en beheren hun eigen sluiten). Eén tegelijk zichtbaar. De Duels-pagina (modal-duels) hoort er sinds 18/11/2026 niet meer
+// bij: dat is een eigen scherm, een paneel gaat erbovenop en sluiten brengt je terug naar de pagina (zie duelsPageSet).
 const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards", "modal-events",
-  "modal-leaderboard", "modal-recap", "modal-login", "modal-duels"];
+  "modal-leaderboard", "modal-recap", "modal-login"];
 
 // Kwam je via de flair-chip op het bord of via een capstone-pip in Prestaties in de
 // 🪎-kluis? Dan onthouden we waarheen je terug moet: de '‹ Leaderboard' / '‹ Prestaties'-
@@ -13949,7 +13968,7 @@ function openModal(id, opts) {
     if (p && !p.hidden) { p.hidden = true; if (pid === "modal-achv") achvPanelClosed(); }
   }
   document.getElementById(id).hidden = false;
-  lockBodyScroll();
+  if (id === DUELS_PAGE) duelsPageOpened(); else lockBodyScroll();
   if (id === "modal-help") { renderHelpConstants(); hwOpen(); }   // banden van het potje op het scherm (🟦 of niet)
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-history") { renderHistory(opts && opts.date); setModalUrl("history"); }
@@ -13994,7 +14013,8 @@ function closeModal(id) {
   if (id === "modal-podium-pop") podiumPopClosed();
   if (id === "modal-reward") rewardClosed();
   if (id === "modal-obsidian") obsidianClosed();
-  if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden)) unlockBodyScroll();
+  if (id === DUELS_PAGE) duelsPageSet(false);
+  if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden && m.id !== DUELS_PAGE)) unlockBodyScroll();   // de Duels-pagina scrollt zelf
   setModalUrl(null);
   retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken
 }
@@ -14010,6 +14030,7 @@ function closeAllModals() {
   coronationClosed();  // kroning dicht = titel-mijlpaal gezien (server-side, db/59)
   rewardClosed();      // beloning-pop-up dicht = gevierd (server-side, db/61) + keten door
   obsidianClosed();    // onthulling dicht = gevierd (server-side) + keten door
+  duelsPageSet(false); // de Duels-pagina ging mee dicht: weer het adres van de daily
   setModalUrl(null);
   retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken (bv. de recap)
 }
@@ -14924,9 +14945,12 @@ async function init() {
     // De vraag van een duelronde (/duel.js, tik op een tegel) ligt boven alles: alleen die dicht, het scherm eronder blijft.
     const dq = document.getElementById("modal-duel-q");
     if (dq && !dq.hidden) { closeModal("modal-duel-q"); return; }
-    // De eindstand van een duel boven het Duels-scherm (/duel.js): alleen die dicht, het Duels-scherm blijft staan.
-    const de = document.getElementById("modal-duel-end"), dl = document.getElementById("modal-duels");
-    if (de && !de.hidden && dl && !dl.hidden) { closeModal("modal-duel-end"); return; }
+    // Op de Duels-pagina (/duel.js): eerst alleen wat erboven ligt (de eindstand, inloggen, …); de pagina zelf pas bij de volgende Esc.
+    const dl = document.getElementById(DUELS_PAGE);
+    if (dl && !dl.hidden) {
+      const over = [...document.querySelectorAll(".modal:not([hidden])")].filter((m) => m !== dl);
+      if (over.length) { over.forEach((m) => closeModal(m.id)); return; }
+    }
     closeAllModals();
   });
   const loginForm = document.getElementById("login-form");
@@ -15117,9 +15141,12 @@ async function init() {
   // ?duel=CODE: een duel-uitnodiging (of je eigen duel). De daily laadt gewoon; /duel.js zet de pop-up erboven, of start je ronde.
   const duelCode = (lbParams.get("duel") || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
   if (lbParams.has("duel")) lbParams.delete("duel");
-  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap || duelCode) {
+  // /duels/ (de Duels-pagina): het adres gaat eerst terug naar de basis; openList zet het weer zodra de pagina er staat. Met een
+  // ?duel= erbij (de deellink sinds 18/11) gaat de uitnodiging voor, net als op de gewone pagina.
+  const duelsLand = onDuelsPath();
+  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap || duelCode || duelsLand) {
     const qs = lbParams.toString();
-    history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);
+    history.replaceState(null, "", (duelsLand ? pathBase() : window.location.pathname) + (qs ? "?" + qs : "") + window.location.hash);
   }
 
   const sharedHashes = getSharedLocation();
@@ -15138,10 +15165,15 @@ async function init() {
     setTimeout(uncoverDuel, 10000);
     loadDuel().then((D) => D.openInvite(duelHost(), duelCode)).catch(uncoverDuel);
   }
+  else if (duelsLand) {   // meetpunt duel-page: wie het adres zelf opent (bladwijzer, gedeeld, duels.jaardle.com)
+    gcCount("duel-page", "Duel: Duels page opened by address");
+    setTimeout(uncoverDuel, 10000);
+    loadDuel().then((D) => D.openList(duelHost(), {})).catch(uncoverDuel);
+  }
   else if (duelInviteWaiting() && !duelInviteWaiting().later && !sharedHashes) setTimeout(() => loadDuel().then((D) => D.resumeInvite(duelHost())).catch(() => {}), 600);
   // Rode stip voor duels (jouw beurt, een nieuwe uitslag): alleen wie op dit toestel duels heeft vraagt het na, in een rustig moment.
   else if (duelKnown()) setTimeout(() => loadDuel().then((D) => D.checkNews(duelHost())).catch(() => {}), 2500);
-  if (!duelCode) uncoverDuel();
+  if (!duelCode && !duelsLand) uncoverDuel();
 
   // Open de login-modal als /login of /register is bezocht (tenzij al ingelogd).
   // Login en registreren zitten in dezelfde modal.

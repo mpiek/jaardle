@@ -18,6 +18,9 @@
    duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
    duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open · duel-peek. Trechter: link-open → accept →
    round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
+   De Duels-pagina (18/11/2026): het Duels-scherm is geen pop-up meer maar een eigen scherm met een eigen adres, /duels/ (zie
+   ensureListModal en duelsPageSet in game.js); de deellink gaat daarheen (eigen titel + deelplaatje). Meetpunten: duel-page (het
+   adres zelf geopend, game.js) · duel-list-exit (‹ Jaardle).
    Versie 4 (stap 2, db/190, mockup v6 16/11): "Deel uitslag" stuurt een plaatje mee (canvas 1080×1080, scorebord: winnaar links met kroon,
    elke ronde met beide scores, iedere speler in de kleur van zijn gezichtje) met één regel en de link; wie die link opent zonder mee te
    spelen, ziet de uitslag (de rondes draaien om) met "Daag zelf iemand uit", een teamgenoot van de winnaar "Daag <winnaar> uit".
@@ -31,7 +34,7 @@ window.Duel = (() => {
   const LIST_KEY = "jaardle:duels", NEWS_KEY = "jaardle:duel-news", NAME_KEY = "jaardle:duel-name", PENDING_KEY = "jaardle:pendingDuel";
   const INVITE_KEY = "jaardle:duelInvite";   // { c: code, u: einde (ms), later: na ✕ } — een uitnodiging die nog op je antwoord wacht (game.js leest hem ook)
   const CLAIM_KEY = "jaardle:duelclaim";   // van game.js (duelsAfterLogin): voor welke accounts dit toestel zijn duels al overzette
-  const LINK = (code) => `https://jaardle.com/?duel=${code}`;
+  const LINK = (code) => `https://jaardle.com/duels/?duel=${code}`;   // /duels/ (18/11/2026): het deelvoorbeeld is dan een duel (eigen titel + plaatje); oude ?duel=-links blijven werken
   const FLIP_MS = 500 + 5 * 650 + 500;   // zo lang duurt de onthulling (zie .flip in de CSS)
 
   const CSS = String.raw`/* ═══ Duels (/duel.js) ═══ */
@@ -205,9 +208,7 @@ html[data-theme="light"] { --duel-arena: #b5531c; --duel-arena-on: #fff; }
 /* kop van het Duels-scherm: "Hoe werkt het?" naast het kruisje */
 .dl-help-btn { appearance: none; margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; min-height: 2.5rem; padding: 0.2rem 0.75rem;
   font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
-.dl-help-btn[aria-expanded="true"] { color: var(--fg); border-color: var(--duel-arena); }
 .dl-help-btn:hover { filter: none; color: var(--fg); }
-.modal-header .dl-help-btn + .modal-close { margin-left: 0.35rem; }
 
 /* de uitleg: drie stappen (in de lege staat altijd, daarna achter "Hoe werkt het?") */
 .dl-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; counter-reset: dl; }
@@ -215,7 +216,8 @@ html[data-theme="light"] { --duel-arena: #b5531c; --duel-arena-on: #fff; }
 .dl-steps li::before { counter-increment: dl; content: counter(dl); display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%;
   font-weight: 800; font-size: 0.85rem; color: var(--duel-arena-on); background: var(--duel-arena); }
 .dl-steps li small { display: block; margin-top: 0.1rem; font-size: 0.76rem; color: var(--muted); }
-.dl-help { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.8rem 0.85rem; background: var(--card-soft); border: 1px solid var(--border); border-radius: 12px; }
+.dl-howto .duel-inv { gap: 0.85rem; }
+.dl-howto .dl-steps { align-self: stretch; }
 .dl-fine { margin: 0; text-align: center; font-size: 0.72rem; color: var(--muted); }
 
 /* lege staat: Jij vs ?, de uitleg, de knop */
@@ -272,11 +274,30 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
    ⚔️ DUEL en de ronde; daaronder de VS-kop, en alles in de duelkleur (zoals de arena) */
 [data-duelpage] #mode-tabs { display: none; }
 .duel-top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.5rem; min-height: 2.75rem; margin-bottom: 0.6rem; }
-.duel-exit { justify-self: start; appearance: none; display: inline-flex; align-items: center; gap: 0.3rem; min-height: 2.75rem; padding: 0.2rem 0.85rem 0.2rem 0.6rem;
-  font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--fg); background: var(--card); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
-.duel-exit:hover { filter: none; border-color: var(--duel-arena); }
+/* terug naar het spel = het Jaardle-icoontje als thuisknop (18/11: "‹ Jaardle" als pil voelde onnatuurlijk: je zit al in Jaardle) */
+.duel-exit { justify-self: start; appearance: none; display: inline-flex; align-items: center; gap: 0.25rem; min-width: 2.75rem; min-height: 2.75rem; padding: 0 0.3rem 0 0.1rem;
+  font: inherit; color: var(--muted); background: transparent; border: 0; border-radius: 10px; cursor: pointer; }
+.duel-exit:hover { filter: none; color: var(--fg); }
+.duel-exit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dx-chev { font-size: 1.35rem; line-height: 1; margin-top: -0.1em; }
+.dx-logo { display: block; width: 30px; height: 30px; border-radius: 8px; }
 .duel-title { font-size: 1rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; color: var(--duel-arena); white-space: nowrap; }
 .duel-round { justify-self: end; font-size: 0.8rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* de Duels-pagina (/duels/, 18/11/2026): het Duels-scherm op de plek van het spel, met dezelfde kop als een duelronde
+   (‹ Jaardle · ⚔️ DUELS · ?). game.js zet body[data-duelshome] en het adres; het spel en de voet-knoppen gaan zolang weg. */
+[data-duelshome] main > :not(#modal-duels), [data-duelshome] #help-btn, [data-duelshome] #day-label { display: none !important; }
+#modal-duels.dl-page { position: static; inset: auto; z-index: auto; display: block; padding: 0; }
+.dl-page .dl-top { margin-bottom: 0.7rem; }
+.dl-page .duel-title { margin: 0; }
+/* de kop als logo (18/11): de ⚔️ groot áchter het woord, DUELS in de duelkleur erover. Een rand in de achtergrondkleur
+   houdt de letters los van de zwaarden (zoals een woordmerk op een embleem). */
+.dl-logo { position: relative; display: inline-grid; place-items: center; line-height: 1; }
+.dl-logo > * { grid-area: 1 / 1; }
+.dl-logo-sw { font-size: 1.9rem; line-height: 1; letter-spacing: 0; }   /* even hoog als het Jaardle-icoontje links (30 px) */
+.dl-logo-txt { position: relative; font-size: 1.2rem; padding-left: 0.14em;   /* letter-spacing zet ook ruimte ná de laatste letter: zo staat het woord echt in het midden */
+  text-shadow: 1.5px 0 var(--bg), -1.5px 0 var(--bg), 0 1.5px var(--bg), 0 -1.5px var(--bg), 0 0 3px var(--bg); }
+.dl-page .dl-help-btn { justify-self: end; width: 2.75rem; height: 2.75rem; min-height: 0; margin: 0; padding: 0; justify-content: center; border-radius: 50%; font-size: 1.05rem; font-weight: 800; }
+.dl-page .modal-body { padding: 0 0 1.5rem; }
 
 /* eindstand-pop-up: na je vijfde ronde (ook als de ander nog moet), en bij een uitslag die je nog niet zag (dan draaien de rondes om) */
 .ep { max-width: 23rem; }
@@ -716,7 +737,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   let H = null;            // host van de laatste aanroep (game.js)
   const cache = {};        // code → laatste antwoord van de server (met de puzzels, als we die kregen)
   let endNext = null, endShare = null;   // wat de knoppen op het eindscherm (en in de eindstand-pop-up) doen
-  let listItems = null, listTop = "", openGrp = null, showAll = false, helpOpen = false;
+  let listItems = null, listTop = "", openGrp = null, showAll = false;
   let listTargets = [], listH2h = {}, pickSel = null;   // db/189: wie je direct kunt uitdagen, je stand per tegenstander (alle duels), het gekozen gezichtje
   const selInGrp = {}, openWait = new Set();
 
@@ -1490,7 +1511,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     const mine = (d.mine || []).slice(0, st.done ? 5 : dl.round), theirs = d.theirs || [];
     const shown = st.done ? Math.max(1, mine.length) : dl.round + 1;
-    if (top) top.innerHTML = `<button type="button" class="duel-exit">‹ ${esc(T.exit)}</button><span class="duel-title">${ICON} ${esc(T.duelTitle)}</span>` +
+    if (top) top.innerHTML = `<button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button><span class="duel-title">${ICON} ${esc(T.duelTitle)}</span>` +
       `<span class="duel-round">${esc(T.roundN(Math.min(5, shown)))}</span>`;
     let vs = document.getElementById("duel-vs");
     if (!vs && card) { vs = document.createElement("div"); vs.id = "duel-vs"; vs.className = "duel-vs"; vs.setAttribute("role", "status"); card.before(vs); }
@@ -1803,20 +1824,44 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (!document.getElementById("modal-duels")?.hidden) renderList(tx(H.lang), null);   // stipje op de rij weg
   }
 
-  // ════ het Duels-scherm (⋮ → Duels) ════
+  // De terugknop (pagina en ronde): ‹ + het Jaardle-icoontje (dat van de skin als er een is: het favicon in de <head>); de naam
+  // "Jaardle" staat alleen in aria-label.
+  const exitHtml = () => `<span class="dx-chev" aria-hidden="true">‹</span><img class="dx-logo" src="${esc(document.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute("href") || "/favicon.svg?v=2")}" alt="">`;
+  // "?" op de Duels-pagina: de drie stappen als pop-up boven de pagina (18/11: liever dan uitklappen); Esc/✕/naast = dicht
+  const HOWTO_ID = "modal-duel-help";
+  function openHowto(T) {
+    let el = document.getElementById(HOWTO_ID);
+    if (!el) {
+      el = document.createElement("div");
+      el.id = HOWTO_ID; el.className = "modal"; el.hidden = true;
+      el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "duel-howto-title");
+      document.body.appendChild(el);
+      el.addEventListener("click", (e) => { if (e.target.closest("[data-close]")) H.closeModal(HOWTO_ID); });
+    }
+    el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card duel-pop dl-howto">` +
+      `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button>` +
+      `<div class="duel-inv"><span class="duel-ico" aria-hidden="true">${ICON}</span><h2 id="duel-howto-title">${esc(T.help)}</h2>${stepsHtml(T)}</div></div>`;
+    H.openModal(HOWTO_ID, { over: true });
+    el.querySelector(".modal-close")?.focus();
+  }
+
+  // ════ het Duels-scherm (⋮ → Duels, of het adres /duels/) ════
+  // Sinds 18/11/2026 een eigen pagina in plaats van een pop-up: het staat in <main> op de plek van het spel, met de kop van een
+  // duelronde (‹ Jaardle · ⚔️ DUELS · ?). Het id en de klasse .modal blijven, zodat game.js het als open scherm blijft zien (toetsen,
+  // pop-ups die wachten); openModal/closeModal zetten body[data-duelshome] en het adres (duelsPageSet). Inloggen, de eindstand en de
+  // vraag van een ronde gaan erbovenop en sluiten terug naar de pagina.
   function ensureListModal() {
     let el = document.getElementById("modal-duels");
     if (el) return el;
-    el = document.createElement("div");
+    el = document.createElement("section");
     el.id = "modal-duels";
-    el.className = "modal";
+    el.className = "modal dl-page";
     el.hidden = true;
-    el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "duels-title");
-    el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card"><header class="modal-header"><h2 id="duels-title"></h2>` +
-      `<button type="button" class="dl-help-btn" data-act="help" aria-expanded="false" hidden></button>` +
-      `<button type="button" class="modal-close" data-close>✕</button></header><div class="modal-body dl"></div></div>`;
-    document.body.appendChild(el);
-    el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => H.closeModal("modal-duels")));
+    el.setAttribute("aria-labelledby", "duels-title");
+    el.innerHTML = `<div class="duel-top dl-top"><button type="button" class="duel-exit" data-close></button><h2 id="duels-title" class="duel-title dl-logo"></h2>` +
+      `<button type="button" class="dl-help-btn" data-act="help" aria-haspopup="dialog" hidden>?</button></div><div class="modal-body dl"></div>`;
+    (document.querySelector("main") || document.body).appendChild(el);
+    el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => { gc("duel-list-exit", "Duel: left Duels page"); H.closeModal("modal-duels"); }));
     el.addEventListener("click", onListClick);
     el.addEventListener("submit", onListSubmit);
     el.addEventListener("keydown", (e) => {
@@ -1830,9 +1875,11 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     uncover();
     ensureCss();
     const T = tx(H.lang), el = ensureListModal();
-    el.querySelector("#duels-title").textContent = `${ICON} ${T.title}`;
-    el.querySelector(".modal-close").setAttribute("aria-label", T.close);
-    el.querySelector(".dl-help-btn").textContent = T.help;
+    el.querySelector("#duels-title").innerHTML = `<span class="dl-logo-sw" aria-hidden="true">${ICON}</span><span class="dl-logo-txt">${esc(T.title)}</span>`;
+    const ex = el.querySelector(".duel-exit");
+    ex.innerHTML = exitHtml(); ex.setAttribute("aria-label", T.exit);
+    const hb = el.querySelector(".dl-help-btn");
+    hb.setAttribute("aria-label", T.help); hb.title = T.help;
     if (!opts.keepTop) listTop = "";
     H.openModal("modal-duels");
     if (H.loggedIn) await H.ensureIdentity?.().catch?.(() => {});
@@ -1891,7 +1938,6 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const body = el.querySelector(".modal-body"), helpBtn = el.querySelector(".dl-help-btn");
     if (!listItems) { helpBtn.hidden = true; body.innerHTML = `<p class="dl-msg">${esc(T.loading)}</p>`; return; }
     helpBtn.hidden = !listItems.length && !listTop;
-    helpBtn.setAttribute("aria-expanded", String(helpOpen));
     body.innerHTML = listBody(T, listItems, listTop, msg);
   }
 
@@ -1904,7 +1950,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       return err + `<div class="dl-hero"><div class="dl-vs">${meAv(T)}<b>VS</b><span class="dl-av op" aria-hidden="true">?</span></div>` +
         `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${newBtn}</div>`;
     }
-    let h = helpOpen ? `<div class="dl-help">${stepsHtml(T)}</div>` : "";
+    let h = "";
     const groups = groupsOf(items);
     const known = items.filter((d) => d.status === "done" && !unrevealed(d));
     const hs = Object.values(listH2h);
@@ -2094,7 +2140,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       b.disabled = true;
       return call("duel_decline", { p_code: code, p_name: myName() }).then(() => { inviteDrop(code); return openList(H, { keepTop: true }); });
     }
-    if (act === "help") { helpOpen = !helpOpen; if (helpOpen) gc("duel-help", "Duel: how it works"); return renderList(T, null); }
+    if (act === "help") { gc("duel-help", "Duel: how it works"); return openHowto(T); }
     if (act === "reload") return openList(H, { keepTop: true });
     if (act === "more") { showAll = true; return renderList(T, null); }
     if (act === "play") return play(H, code);

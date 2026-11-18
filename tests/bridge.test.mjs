@@ -12,7 +12,9 @@ import { dirname, join } from "node:path";
 const dir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (f) => readFileSync(join(dir, f), "utf8");
 const template = read("index.template.html");
-const MIRRORS = ["index.html", "en/index.html", "nl/index.html", "de/index.html", "es/index.html", "pt/index.html"];
+const MIRRORS = ["index.html", "en/index.html", "nl/index.html", "de/index.html", "es/index.html", "pt/index.html",
+  // de Duels-pagina (/duels/, 18/11/2026): dezelfde laadroute, alleen een andere <head>-tekst
+  "duels/index.html", "en/duels/index.html", "nl/duels/index.html", "de/duels/index.html", "es/duels/index.html", "pt/duels/index.html"];
 
 const inlineScripts = () => [...template.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
 const earlyScript = () => inlineScripts().find((b) => b.includes("window.sbEarly ="));

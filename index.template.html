@@ -11,6 +11,7 @@
 
   Tokens (telkens tussen dubbele accolades):
     html, url, intl, og, hreflang  → per-taal <head>/SEO-waarden
+    pageHead        → twitter:card, en op een subpagina (/duels/) het grote deelplaatje (og:image)
     csp             → Content-Security-Policy (build berekent de sha256-hash
                       van de inline scripts, o.a. de Supabase-bridge; taal-onafhankelijk)
     gameSrc         → de src van de game.js-tag onderaan (met ?v=), voor de preload
@@ -64,7 +65,7 @@
 <meta property="og:locale" content="{{og}}">
 <meta property="og:site_name" content="Jaardle">
 
-<meta name="twitter:card" content="summary">
+{{pageHead}}
 <meta name="twitter:title" content="{{i18n:meta_share_title}}">
 <meta name="twitter:description" content="{{i18n:meta_desc}}">
 
@@ -105,10 +106,10 @@
       }
     } catch (e) { /* private mode zonder localStorage → donker */ }
   })();
-  // ⚔️ Een duel-seintje of -link (?duel=): meteen het ⚔️-laadscherm (style.css) in plaats van eerst de daily. /duel.js haalt het
-  // weg zodra de opening van de ronde begint of als het iets anders laat zien; game.js na 10 s, dit vangnet na 12 s.
+  // ⚔️ Een duel-seintje of -link (?duel=), of de Duels-pagina (/duels/): meteen het ⚔️-laadscherm (style.css) in plaats van eerst
+  // de daily. /duel.js haalt het weg zodra de opening van de ronde begint of als het iets anders laat zien; game.js na 10 s, dit vangnet na 12 s.
   try {
-    if (/[?&]duel=[A-Za-z0-9]/.test(location.search)) {
+    if (/[?&]duel=[A-Za-z0-9]/.test(location.search) || /\/duels\/?$/.test(location.pathname)) {
       document.documentElement.setAttribute("data-duelload", "");
       setTimeout(function () { document.documentElement.removeAttribute("data-duelload"); }, 12000);
     }
@@ -540,7 +541,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=434"></script>
+  <script src="/game.js?v=435"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

@@ -53,13 +53,52 @@ const escAttr = (s) => String(s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const urlFor = (path) => BASE_URL + "/" + path; // path "" → "https://jaardle.nl/"
+// De URL van een pagina in een taal: de hoofdpagina zoals altijd ("/", "/nl"), een subpagina met slash erachter ("/duels/", "/nl/duels/").
+const pageUrl = (langPath, dir) => urlFor(dir ? (langPath ? `${langPath}/` : "") + `${dir}/` : langPath);
 
-function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG) {
+function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, dir = "") {
   const lines = LANG_CODES.map(
-    (c) => `<link rel="alternate" hreflang="${c}" href="${urlFor(LANGS[c].path)}">`
+    (c) => `<link rel="alternate" hreflang="${c}" href="${pageUrl(LANGS[c].path, dir)}">`
   );
-  lines.push(`<link rel="alternate" hreflang="x-default" href="${urlFor(LANGS[DEFAULT_LANG].path)}">`);
+  lines.push(`<link rel="alternate" hreflang="x-default" href="${pageUrl(LANGS[DEFAULT_LANG].path, dir)}">`);
   return lines.join("\n");
+}
+
+// ⚔️ Subpagina's (18/11/2026): hetzelfde spel onder een eigen adres, met een eigen <title>, beschrijving en deelvoorbeeld.
+// /duels/ opent meteen het Duels-scherm (game.js herkent het pad). De teksten staan hier en niet in de I18N van game.js: ze
+// horen alleen in de <head>, dus het spel hoeft ze niet mee te laden. Elke taal moet er zijn (de build stopt anders).
+const PAGES = [
+  { dir: "", strings: null },
+  { dir: "duels", image: "/og-duel.jpg", strings: {
+    nl: { meta_title: "Jaardle Duels — daag een vriend uit: wie raadt het jaar het best?",
+      meta_share_title: "⚔️ Jaardle-duel: daag een vriend uit",
+      meta_desc: "Daag een vriend uit voor een Jaardle-duel: jullie raden het jaar van dezelfde 5 historische gebeurtenissen, van makkelijk naar moeilijk. Per ronde wint de hoogste score. Gratis, zonder account." },
+    en: { meta_title: "Jaardle Duels — challenge a friend: who guesses the year best?",
+      meta_share_title: "⚔️ Jaardle Duel: challenge a friend",
+      meta_desc: "Challenge a friend to a Jaardle duel: you both guess the year of the same 5 historic events, from easy to hard. The highest score wins each round. Free, no account needed." },
+    de: { meta_title: "Jaardle-Duelle — fordere jemanden heraus: wer errät das Jahr am besten?",
+      meta_share_title: "⚔️ Jaardle-Duell: fordere jemanden heraus",
+      meta_desc: "Fordere Freunde zu einem Jaardle-Duell heraus: Ihr ratet das Jahr derselben 5 historischen Ereignisse, von leicht bis schwer. Pro Runde gewinnt die höchste Punktzahl. Kostenlos, ohne Konto." },
+    es: { meta_title: "Duelos de Jaardle — reta a un amigo: ¿quién adivina mejor el año?",
+      meta_share_title: "⚔️ Duelo de Jaardle: reta a un amigo",
+      meta_desc: "Reta a un amigo a un duelo de Jaardle: adivináis el año de los mismos 5 acontecimientos históricos, de fácil a difícil. En cada ronda gana la puntuación más alta. Gratis, sin cuenta." },
+    pt: { meta_title: "Duelos do Jaardle — desafie um amigo: quem adivinha melhor o ano?",
+      meta_share_title: "⚔️ Duelo do Jaardle: desafie um amigo",
+      meta_desc: "Desafie um amigo para um duelo do Jaardle: vocês adivinham o ano dos mesmos 5 acontecimentos históricos, do mais fácil ao mais difícil. Em cada rodada vence a maior pontuação. Grátis, sem conta." },
+  } },
+];
+
+// Extra <head>-regels van een subpagina: een groot deelplaatje (WhatsApp, Discord, X). De hoofdpagina heeft er (nog) geen.
+function pageHead(page) {
+  if (!page.image) return `<meta name="twitter:card" content="summary">`;
+  const img = BASE_URL + page.image;
+  return [
+    `<meta property="og:image" content="${img}">`,
+    `<meta property="og:image:width" content="1200">`,
+    `<meta property="og:image:height" content="630">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:image" content="${img}">`,
+  ].join("\n");
 }
 
 // Bouw de Content-Security-Policy. De inline scripts (thema, skin, vroege puzzel,
@@ -105,9 +144,9 @@ function buildCsp(template) {
 }
 
 // Vul de {{…}}-tokens voor één taal. str-keys uit I18N met fallback op DEFAULT_LANG.
-function render(template, code, mod, csp, gameSrc) {
+function render(template, code, mod, csp, gameSrc, page = PAGES[0]) {
   const { I18N, LANGS, LANG_CODES, DEFAULT_LANG } = mod;
-  const strings = I18N[code];
+  const strings = { ...I18N[code], ...(page.strings ? page.strings[code] : null) };
   const get = (key) => {
     const v = strings[key] != null ? strings[key] : I18N[DEFAULT_LANG][key];
     if (typeof v !== "string") {
@@ -121,10 +160,11 @@ function render(template, code, mod, csp, gameSrc) {
     .replace(/\{\{gameSrc\}\}/g, gameSrc)
     .replace(/\{\{manifestHref\}\}/g, meta.path ? `/${meta.path}/manifest.webmanifest` : "/manifest.webmanifest")
     .replace(/\{\{html\}\}/g, meta.html)
-    .replace(/\{\{url\}\}/g, urlFor(meta.path))
+    .replace(/\{\{url\}\}/g, pageUrl(meta.path, page.dir))
     .replace(/\{\{intl\}\}/g, meta.intl)
     .replace(/\{\{og\}\}/g, meta.og)
-    .replace(/\{\{hreflang\}\}/g, hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG))
+    .replace(/\{\{hreflang\}\}/g, hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, page.dir))
+    .replace(/\{\{pageHead\}\}/g, pageHead(page))
     .replace(/\{\{json:([\w.-]+)\}\}/g, (_, k) => JSON.stringify(get(k)))
     .replace(/\{\{i18nhtml:([\w.-]+)\}\}/g, (_, k) => get(k))          // ruwe HTML
     .replace(/\{\{i18n:([\w.-]+)\}\}/g, (_, k) => escAttr(get(k)));    // tekst/attribuut
@@ -160,9 +200,9 @@ function manifestFor(code, mod) {
 }
 
 function sitemap(LANGS, LANG_CODES) {
-  const urls = LANG_CODES.map((c) =>
-    `  <url>\n    <loc>${urlFor(LANGS[c].path)}</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`
-  ).join("\n");
+  const urls = PAGES.flatMap((page) => LANG_CODES.map((c) =>
+    `  <url>\n    <loc>${pageUrl(LANGS[c].path, page.dir)}</loc>\n    <changefreq>daily</changefreq>\n    <priority>${page.dir ? "0.8" : "1.0"}</priority>\n  </url>`
+  )).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
 
@@ -177,30 +217,38 @@ if (!gameSrc) throw new Error('<script src="/game.js?v=N"> niet gevonden in de t
 // sanity: nog onvervangbare tokens overgebleven?
 const leftover = (s) => (s.match(/\{\{[^}]+\}\}/g) || []);
 
+for (const page of PAGES) {
+  if (!page.strings) continue;
+  const gaps = mod.LANG_CODES.filter((c) => !page.strings[c] || ["meta_title", "meta_share_title", "meta_desc"].some((k) => typeof page.strings[c][k] !== "string"));
+  if (gaps.length) throw new Error(`Pagina /${page.dir}/ mist teksten voor: ${gaps.join(", ")}`);
+}
+
 let count = 0;
-for (const code of mod.LANG_CODES) {
-  const html = render(template, code, mod, csp, gameSrc);
+for (const page of PAGES) for (const code of mod.LANG_CODES) {
+  const html = render(template, code, mod, csp, gameSrc, page);
   const missing = leftover(html);
   if (missing.length) throw new Error(`Onbekende tokens voor "${code}": ${[...new Set(missing)].join(", ")}`);
 
   const path = mod.LANGS[code].path;
-  const outDir = path ? join(ROOT, path) : ROOT;
-  if (path) mkdirSync(outDir, { recursive: true });
+  const rel = [path, page.dir].filter(Boolean).join("/");
+  const outDir = rel ? join(ROOT, rel) : ROOT;
+  if (rel) mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "index.html"), html);
-  writeFileSync(join(outDir, "manifest.webmanifest"), manifestFor(code, mod));
-  console.log(`✓ ${path ? path + "/" : ""}index.html + manifest.webmanifest  (${code})`);
+  if (!page.dir) writeFileSync(join(outDir, "manifest.webmanifest"), manifestFor(code, mod));   // een subpagina deelt het manifest van haar taal
+  console.log(`✓ ${rel ? rel + "/" : ""}index.html${page.dir ? "" : " + manifest.webmanifest"}  (${code})`);
   count++;
 
   // De root-taal (path "") krijgt ook een expliciete alias (/en) zodat oude
   // links + binnenkomende redirects niet 404'en. De canonical in de HTML wijst
   // al naar "/", dus Google consolideert de alias naar de root (geen duplicate).
   if (!path) {
-    mkdirSync(join(ROOT, code), { recursive: true });
-    writeFileSync(join(ROOT, code, "index.html"), html);
-    console.log(`✓ ${code}/index.html  (${code}, alias → /)`);
+    const alias = [code, page.dir].filter(Boolean).join("/");
+    mkdirSync(join(ROOT, alias), { recursive: true });
+    writeFileSync(join(ROOT, alias, "index.html"), html);
+    console.log(`✓ ${alias}/index.html  (${code}, alias → /${page.dir ? page.dir + "/" : ""})`);
   }
 }
 
 writeFileSync(join(ROOT, "sitemap.xml"), sitemap(mod.LANGS, mod.LANG_CODES));
-console.log(`✓ sitemap.xml  (${mod.LANG_CODES.length} URL's)`);
-console.log(`\n${count} taal-mirror(s) gegenereerd uit index.template.html.`);
+console.log(`✓ sitemap.xml  (${mod.LANG_CODES.length * PAGES.length} URL's)`);
+console.log(`\n${count} pagina's (taal × pagina) gegenereerd uit index.template.html.`);

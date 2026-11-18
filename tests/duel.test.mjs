@@ -95,7 +95,7 @@ test("duel.js — tijd, groeperen per tegenstander, link", () => {
   const g = X.groupsOf(items);
   assert.deepEqual(plain(g.map((x) => x.k)), ["b", "l"], "nieuwste tegenstander eerst; lopende duels niet");
   assert.deepEqual(plain(g[0].ds.map((d) => d.code)), ["CCCCCC", "AAAAAA"]);
-  assert.equal(X.LINK("K7QX2M"), "https://jaardle.com/?duel=K7QX2M");
+  assert.equal(X.LINK("K7QX2M"), "https://jaardle.com/duels/?duel=K7QX2M", "de deellink gaat naar de Duels-pagina (eigen deelvoorbeeld)");
 });
 
 test("duel.js — pop-up bij een link: aannemen (met naamveld zonder account), eigen link, al aangenomen, verlopen, revanche voor een ander", () => {
@@ -123,7 +123,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 199000, `het lui geladen bestand blijft klein (${SRC.length})`);   // db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 204000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -132,7 +132,7 @@ test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar 
   assert.match(TPL, /<button class="menu-item" role="menuitem" data-action="duels" data-i18n="menu_duels">\{\{i18n:menu_duels\}\}<\/button>/);
   assert.equal((GAME.match(/menu_duels: "⚔️ /g) || []).length, 5, "menu-label in vijf talen");
   assert.match(GAME, /else if \(action === "duels"\) openDuels\(\);/);
-  assert.match(GAME, /"modal-login", "modal-duels"\]/, "één paneel tegelijk");
+  assert.match(GAME, /"modal-leaderboard", "modal-recap", "modal-login"\];/, "één paneel tegelijk; de Duels-pagina is geen paneel (die blijft eronder staan)");
   assert.match(GAME, /if \(!hash \|\| state\.duel\) return Promise\.resolve\(\);/, "geen record_play voor een duelronde (duel_submit schrijft de rij)");
   // db/200: een duelronde telt als een vrij potje, zonder rating. Dezelfde gegevens als record_play (playFields) gaan mee als
   // p_play; de ronde is niet meer "gedeeld" (anders tellen de lokale tellers en de potjes-events hem niet); zonder db/200 nog
@@ -488,7 +488,7 @@ test("duel.js — 🏁› rechts op de kaart opent de eindstand (Deel uitslag) b
   assert.match(SRC, /H\.openModal\("modal-duel-end", \{ over: true \}\)/, "de eindstand gaat bóven het Duels-scherm open");
   const om = GAME.slice(GAME.indexOf("function openModal(id, opts)"), GAME.indexOf("document.getElementById(id).hidden = false;", GAME.indexOf("function openModal(id, opts)")));
   assert.match(om, /if \(pid === id \|\| opts\?\.over\) continue;/, "openModal met over laat het open scherm staan (anders sluit het Duels-scherm en kom je bij Jaardle uit)");
-  assert.match(GAME, /if \(de && !de\.hidden && dl && !dl\.hidden\) \{ closeModal\("modal-duel-end"\); return; \}/, "Esc sluit alleen de eindstand");
+  assert.match(GAME, /if \(dl && !dl\.hidden\) \{\n\s+const over = [^\n]+\n\s+if \(over\.length\) \{ over\.forEach\(\(m\) => closeModal\(m\.id\)\); return; \}/, "Esc sluit alleen de eindstand (wat boven de Duels-pagina ligt)");
   assert.match(SRC.slice(0, SRC.indexOf("window.Duel")), /duel-result-open/, "meetpunt in de kopregel");
   X.setHost(host());
 });
@@ -506,7 +506,7 @@ test("duel.js — de opening van een ronde: pil met de ronde, vanaf ronde 2 met 
 
 test("duel.js — een seintje of link (?duel=) opent achter het ⚔️-laadscherm, nooit eerst de daily; en dat scherm gaat altijd weer weg", () => {
   // het head-script zet het vóór de eerste tekening, style.css tekent het
-  assert.match(TPL, /\[\?&\]duel=\[A-Za-z0-9\]\/\.test\(location\.search\)\) \{\s*document\.documentElement\.setAttribute\("data-duelload"/);
+  assert.match(TPL, /\[\?&\]duel=\[A-Za-z0-9\]\/\.test\(location\.search\)( \|\| [^)]+\))?\) \{\s*document\.documentElement\.setAttribute\("data-duelload"/);
   assert.match(TPL, /setTimeout\(function \(\) \{ document\.documentElement\.removeAttribute\("data-duelload"\); \}, 12000\)/, "vangnet in het head-script zelf");
   const CSS = readFileSync(join(dir, "..", "style.css"), "utf8");
   assert.match(CSS, /html\[data-duelload\]::after \{/);
@@ -655,7 +655,65 @@ test("duel.js — pop-up van een ronde ligt bóven het scherm eronder: openModal
   // game.js: Esc sluit eerst alleen de vraag (vóór de eindstand-regel en vóór closeAllModals)
   const esc = GAME.slice(GAME.indexOf('if (e.key !== "Escape") return;'));
   const q = esc.indexOf('if (dq && !dq.hidden) { closeModal("modal-duel-q"); return; }'), all = esc.indexOf("closeAllModals();");
-  assert.ok(q > 0 && q < esc.indexOf('const de = document.getElementById("modal-duel-end")') && q < all);
+  assert.ok(q > 0 && q < esc.indexOf("const over = ") && q < all);
   // het Duels-scherm heeft de puzzels niet (duel_list): dan haalt een tik dat ene duel op
   assert.match(SRC, /if \(!rounds\?\.\[i\]\) \{[^\n]*\n\s+const r = await call\("duel_get", \{ p_code: code \}\);/);
+});
+
+// ── De Duels-pagina (/duels/, 18/11/2026): een eigen scherm met een eigen adres i.p.v. een pop-up ──────────────────────────
+test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de pagina is geen paneel en heeft geen scroll-slot", () => {
+  // het adres: /duels/ en /nl/duels/ herkennen; de basis houdt de taal uit het pad (of de root)
+  assert.match(GAME, /function onDuelsPath\(\) \{ return \/\\\/duels\\\/\?\$\/\.test\(location\.pathname\); \}/);
+  const re = /\/duels\/?$/;
+  for (const [p, ok] of [["/duels/", true], ["/duels", true], ["/nl/duels/", true], ["/", false], ["/nl/", false], ["/duelsx/", false]]) assert.equal(re.test(p), ok, p);
+  // init: zonder ?duel= opent /duels/ meteen het scherm (meetpunt duel-page); met ?duel= gaat de uitnodiging voor
+  assert.match(GAME, /else if \(duelsLand\) \{[^]*?gcCount\("duel-page"[^]*?loadDuel\(\)\.then\(\(D\) => D\.openList\(duelHost\(\), \{\}\)\)\.catch\(uncoverDuel\);/);
+  assert.match(GAME, /if \(!duelCode && !duelsLand\) uncoverDuel\(\);/, "het ⚔️-laadscherm blijft tot de pagina er staat");
+  // het ⚔️-laadscherm in de head ook voor het pad (geen daily die eerst flitst)
+  assert.match(TPL, /\/\[\?&\]duel=\[A-Za-z0-9\]\/\.test\(location\.search\) \|\| \/\\\/duels\\\/\?\$\/\.test\(location\.pathname\)/);
+  // openModal/closeModal/closeAllModals: adres + body[data-duelshome], geen scroll-slot voor de pagina zelf
+  assert.match(GAME, /if \(id === DUELS_PAGE\) duelsPageOpened\(\); else lockBodyScroll\(\);/);
+  assert.match(GAME, /if \(id === DUELS_PAGE\) duelsPageSet\(false\);\n  if \(!\[\.\.\.document\.querySelectorAll\("\.modal"\)\]\.some\(\(m\) => !m\.hidden && m\.id !== DUELS_PAGE\)\) unlockBodyScroll\(\);/);
+  assert.match(GAME, /duelsPageSet\(false\); \/\/ de Duels-pagina ging mee dicht/);
+  // Esc op de pagina: eerst wat erboven ligt
+  assert.match(GAME, /const over = \[\.\.\.document\.querySelectorAll\("\.modal:not\(\[hidden\]\)"\)\]\.filter\(\(m\) => m !== dl\);/);
+  // duel.js: het scherm staat in <main>, met de kop van een duelronde, en de CSS verbergt het spel zolang
+  assert.match(SRC, /el\.className = "modal dl-page";/);
+  assert.match(SRC, /\(document\.querySelector\("main"\) \|\| document\.body\)\.appendChild\(el\);/);
+  assert.match(SRC, /<div class="duel-top dl-top"><button type="button" class="duel-exit" data-close><\/button>/);
+  assert.match(SRC, /\[data-duelshome\] main > :not\(#modal-duels\)/);
+  assert.ok(!/modal-backdrop" data-close><\/div><div class="modal-card"><header class="modal-header"><h2 id="duels-title"/.test(SRC), "geen pop-up meer");
+  // de kop: logo (de ⚔️ áchter het woord), thuisknop = ‹ + het Jaardle-icoontje (van de skin), "?" = een pop-up boven de pagina
+  assert.match(SRC, /<span class="dl-logo-sw" aria-hidden="true">\$\{ICON\}<\/span><span class="dl-logo-txt">\$\{esc\(T\.title\)\}<\/span>/);
+  assert.match(SRC, /\.dl-logo > \* \{ grid-area: 1 \/ 1; \}/, "zwaarden en woord op dezelfde plek: het woord ligt erover");
+  assert.match(SRC, /link\[rel="icon"\]\[type="image\/svg\+xml"\][^\n]*\|\| "\/favicon\.svg\?v=2"/, "het icoontje van de skin als die er is");
+  assert.ok(!/‹ \$\{esc\(T\.exit\)\}/.test(SRC), "geen \"‹ Jaardle\"-pil meer (pagina en ronde)");
+  assert.match(SRC, /if \(act === "help"\) \{ gc\("duel-help", "Duel: how it works"\); return openHowto\(T\); \}/);
+  assert.match(SRC, /H\.openModal\(HOWTO_ID, \{ over: true \}\)/, "de uitleg ligt bóven de pagina; dicht = terug op de pagina");
+});
+
+test("Duels-pagina — de build schrijft /duels/ in elke taal met een eigen titel, canonical, hreflang en deelplaatje", () => {
+  const root = join(dir, "..");
+  const read = (f) => readFileSync(join(root, f), "utf8");
+  const pages = { "duels/index.html": ["en", "https://jaardle.com/duels/"], "en/duels/index.html": ["en", "https://jaardle.com/duels/"],
+    "nl/duels/index.html": ["nl", "https://jaardle.com/nl/duels/"], "de/duels/index.html": ["de", "https://jaardle.com/de/duels/"],
+    "es/duels/index.html": ["es", "https://jaardle.com/es/duels/"], "pt/duels/index.html": ["pt", "https://jaardle.com/pt/duels/"] };
+  const main = read("nl/index.html");
+  for (const [f, [lang, url]] of Object.entries(pages)) {
+    assert.ok(existsSync(join(root, f)), `${f} bestaat (npm run build)`);
+    const h = read(f);
+    assert.match(h, new RegExp(`<html lang="${lang}">`), f);
+    assert.match(h, new RegExp(`<link rel="canonical" href="${url}">`), f);
+    assert.match(h, /<meta property="og:image" content="https:\/\/jaardle\.com\/og-duel\.jpg">/, f);
+    assert.match(h, /<meta name="twitter:card" content="summary_large_image">/, f);
+    assert.match(h, /<title>[^<]*(Duel|Duelo)[^<]*<\/title>/, f);
+    assert.match(h, /<link rel="alternate" hreflang="x-default" href="https:\/\/jaardle\.com\/duels\/">/, f);
+    // verder precies de hoofdpagina (zelfde scripts, CSP, game.js-versie): alleen de <head>-teksten verschillen
+    const body = (x) => x.slice(x.indexOf("<body>"));
+    if (lang === "nl") assert.equal(body(h), body(main), "zelfde <body> als /nl/");
+    assert.equal(h.match(/content="(default-src[^"]*)"/)[1], main.match(/content="(default-src[^"]*)"/)[1], `${f}: zelfde CSP`);
+  }
+  assert.ok(existsSync(join(root, "og-duel.jpg")), "het deelplaatje staat in de repo");
+  assert.ok(!/<meta property="og:image"/.test(main), "de hoofdpagina houdt (voorlopig) geen og:image");
+  assert.match(read("sitemap.xml"), /<loc>https:\/\/jaardle\.com\/nl\/duels\/<\/loc>/);
 });
