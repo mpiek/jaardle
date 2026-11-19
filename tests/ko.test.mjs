@@ -70,8 +70,10 @@ test("ko.js — de ronde-uitslag: verschil × factor = schade, bij gelijk geen s
   const g = { code: "KABCDE", state: "live", round: 4, round_at: new Date(Date.now() + 5000).toISOString(), hp: 66, opp_hp: 92, opp_name: "Sanne", mine: [92, 81, 81], theirs: [84, 89, 98],
     my_years: [1911, 1920, 1917], their_years: [1915, 1913, 1912], my_hints: [0, 0, 20], their_hints: [0, 0, 0], answers: [1912, 1912, 1912] };
   const r = KO._.resultHtml(h, g, 3);
-  assert.match(r, /98 − 81 = 17, × 1,5 in ronde 3 = 26/);
-  assert.match(r, /<em>−26<\/em>/);
+  assert.match(r, /<span class="ko-hitc to-me"><b>◀ −26<\/b><small>17 × 1,5<\/small><\/span>/, "schade in het midden, pijl naar jou (links)");
+  assert.match(r, /Ronde 3 voor Sanne/);
+  // de cap: 100 tegen 0 in ronde 3 = 150 → hooguit 100, pijl naar de ander (rechts)
+  assert.match(KO._.resultHtml(h, { ...g, mine: [92, 81, 100], theirs: [84, 89, 0] }, 3), /<b>−100 ▶<\/b><small>100 × 1,5 · max 100<\/small>/);
   assert.match(r, /Ronde 4 begint over/);
   assert.match(r, /<b>Jij<\/b> 1917 · 5 jaar ernaast · hints −20/, "jouw gok, de afstand en je hints");
   assert.match(r, /<b>Sanne<\/b> 1912 · precies goed/);

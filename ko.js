@@ -99,7 +99,18 @@ html[data-theme="light"] { --ko-lag: #d9a21b; }
 #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 46%); display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 0.2rem 0.55rem;
   padding: 0.55rem 0.7rem 0.5rem; margin-bottom: 0.6rem; border-radius: 12px; background: var(--card); overflow: hidden; }
 html[data-theme="light"] #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 42%); }
-.ko-side { --col: var(--ko-me); min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.ko-side { --col: var(--ko-me); position: relative; min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.ko-fly { position: absolute; bottom: -1.35rem; right: 0.15rem; font-size: 1.15rem; font-weight: 900; line-height: 1; color: var(--duel-loss); pointer-events: none;
+  text-shadow: 0 0 6px var(--card), 0 0 2px var(--card); animation: ko-fly 1.9s ease-out 0.4s both; }   /* de schade springt op bij de balk die leegloopt */
+.ko-side.op .ko-fly { right: auto; left: 0.15rem; }
+.ko-sc { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
+.ko-sc .jr-box, .ko-sc .jr-box.op { flex-direction: column; gap: 0.15rem; padding: 0.45rem 0.4rem; }   /* naam boven, score eronder: past naast de schade */
+.ko-sc .jr-box.op .jr-who { flex-direction: row; }
+.ko-sc .jr-box > strong { font-size: 1.7rem; }
+.ko-hitc { display: flex; flex-direction: column; align-items: center; gap: 0.05rem; min-width: 3.4rem; line-height: 1.1; }
+.ko-hitc b { font-size: 1.15rem; font-weight: 900; color: var(--duel-loss); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ko-hitc small { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.ko-hitc:not(.to-me):not(.to-op) b { color: var(--muted); }
 .ko-side.op { --col: var(--ko-op); }
 .ko-who { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
 .ko-side.op .ko-who { flex-direction: row-reverse; }
@@ -176,7 +187,7 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
   background: color-mix(in srgb, var(--duel-arena-on) 16%, transparent); animation: ko-tick 0.6s ease-in-out infinite alternate; }
 .duel-inv .ko-count { margin: 0; font-size: 3.2rem; font-weight: 900; line-height: 1; color: var(--duel-arena); font-variant-numeric: tabular-nums; }
 .dl-opt.ko-opt b { color: var(--duel-arena); }
-body[data-ko] #live-score, body[data-ko] #hint-count, body[data-ko] #hint-btn-direction, body[data-ko] #guesses .guess-row:nth-child(n+2) { display: none; }   /* één gok per ronde */
+body[data-ko] #guesses .penalty, body[data-ko] #live-score, body[data-ko] #hint-count, body[data-ko] #hint-btn-direction, body[data-ko] #guesses .guess-row:nth-child(n+2) { display: none; }   /* één gok per ronde */
 #ko-hintnote { margin: -0.15rem 0 0.5rem; font-size: 0.76rem; color: var(--muted); text-align: center; }
 .ko-years { margin: -0.2rem 0 0; display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.84rem; color: var(--muted); }
 .ko-years b { color: var(--fg); }
@@ -188,9 +199,10 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
 @keyframes ko-dot { 0%, 60%, 100% { opacity: 0.3; transform: none; } 30% { opacity: 1; transform: translateY(-2px); } }
 @keyframes ko-tick { to { transform: scale(1.12); } }
 @keyframes ko-low { to { opacity: 0.55; } }
+@keyframes ko-fly { 0% { opacity: 0; transform: translateY(6px) scale(0.8); } 15% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px); } }
 @keyframes ko-drop { from { width: calc(var(--was) * 1%); } to { width: calc(var(--hp) * 1%); } }
 @media (prefers-reduced-motion: reduce) {
-  .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want { animation: none; }
+  .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want, .ko-fly { animation: none; }
   .ko-side.drain .ko-fill, .ko-side.drain .ko-lag { animation-duration: 0.01s; }
 }`;
 
@@ -201,6 +213,8 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   const now = () => Date.now() + skew;
   const at = (iso) => (iso ? Date.parse(iso) : 0);
   const mult = (r) => (r <= 2 ? 1 : r === 3 ? 1.5 : r === 4 ? 2 : r === 5 ? 2.5 : 3);
+  const CAP = 100;   // db/210: schade per ronde hooguit 100, ná de factor (zelfde als _ko_dmg)
+  const dmgOf = (a, b, r) => Math.min(CAP, Math.round(Math.abs(a - b) * mult(r)));
   const fmtM = (m) => m.toLocaleString(H?.intl || "en");
   const oppName = (g) => g?.opp_name || "?";
   const hue = (g) => (H?.faceHue ? H.faceHue(oppName(g)) : 30);
@@ -357,8 +371,10 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     const max = g.hp_max || HP, pc = (v) => Math.round((v / max) * 1000) / 10;   // de balk in procenten van de levens
     const side = (who, name, av, hp, was) => {
       const cls = ["ko-side", who, hp <= max / 4 ? "low" : "", was != null && was !== hp ? "drain" : ""].filter(Boolean).join(" ");
+      const hit = was != null && was !== hp;
       return `<div class="${cls}" style="--hp:${pc(hp)};--was:${pc(was ?? hp)}"><span class="ko-who">${av}<b>${esc(name)}</b>` +
-        `<b class="ko-n${was != null && was !== hp ? " hit" : ""}">${hp}</b></span><span class="ko-bar"><i class="ko-lag"></i><i class="ko-fill"></i></span></div>`;
+        `<b class="ko-n${hit ? " hit" : ""}">${hp}</b></span><span class="ko-bar"><i class="ko-lag"></i><i class="ko-fill"></i></span>` +
+        (hit ? `<span class="ko-fly" aria-hidden="true">−${was - hp}</span>` : "") + `</div>`;
     };
     const me = K.dbAv(K.meFlair(), K.meNameOr(T, T.you)), op = K.dbAv(g.opp_flair, n);
     const pips = (k) => `<span class="ko-pips" aria-hidden="true">${[0, 1, 2, 3, 4, 5].map((i) => `<i${i < k ? ' class="on"' : ""}></i>`).join("")}</span>`;
@@ -449,16 +465,17 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   }
   // de uitslag van ronde r in de uitslagkaart; daarna begint de volgende vanzelf (of de K.O.)
   function resultHtml(g, r) {
-    const T = tx(), n = oppName(g), a = g.mine[r - 1], b = g.theirs[r - 1], d = Math.abs(a - b), x = Math.round(d * mult(r));
+    const T = tx(), n = oppName(g), a = g.mine[r - 1], b = g.theirs[r - 1], d = Math.abs(a - b), x = dmgOf(a, b, r);
     const box = (side, av, name, v, won) => `<span class="jr-box ${side}${won ? " win" : ""}"><span class="jr-who">${av}<b>${esc(name)}</b></span><strong>${v}</strong></span>`;
-    const head = a === b ? esc(T.rTie(r))   // "Ronde 3 voor Sanne · jij −26"
-      : a > b ? `<span class="me">${esc(T.rForMe(r))}</span> · <span class="op">${esc(n)}</span> <em>−${x}</em>`
-      : `<span class="op">${esc(T.rFor(r, n))}</span> · <span class="me">${esc(T.youL)}</span> <em>−${x}</em>`;
+    // zoals GeoGuessr: jij links, de ander rechts, in het midden de schade met een pijl naar wie hem krijgt
+    const mid = a === b ? `<span class="ko-hitc"><b>0</b><small>${esc(T.tieMath)}</small></span>`
+      : `<span class="ko-hitc ${a > b ? "to-op" : "to-me"}"><b>${a > b ? "" : "◀ "}−${x}${a > b ? " ▶" : ""}</b>` +
+        `<small>${d} × ${esc(fmtM(mult(r)))}${x === CAP && Math.round(d * mult(r)) > CAP ? ` · max ${CAP}` : ""}</small></span>`;
+    const head = a === b ? esc(T.rTie(r)) : a > b ? `<span class="me">${esc(T.rForMe(r))}</span>` : `<span class="op">${esc(T.rFor(r, n))}</span>`;
     const st = H.state(), rt = H.els.resultText, yp = rt?.querySelector(".year-pill");
-    let html = `<div class="ko-res jr" style="--h:${hue(g)}"><div class="jr-sc">${box("me", K.dbAv(K.meFlair(), K.meNameOr(T, T.you)), T.you, a, a > b)}` +
-      `${box("op", K.dbAv(g.opp_flair, n), n, b, b > a)}</div><p class="ko-dmg">${head}</p>` +
-      yearsHtml(g, r) +
-      `<p class="ko-math">${a === b ? esc(T.tieMath) : esc(T.math(Math.max(a, b), Math.min(a, b), d, fmtM(mult(r)), r, x))}${yp ? ` · ${esc(T.itWas)} ${yp.outerHTML}` : ""}</p>`;
+    let html = `<div class="ko-res jr" style="--h:${hue(g)}"><div class="jr-sc ko-sc">${box("me", K.dbAv(K.meFlair(), K.meNameOr(T, T.you)), T.you, a, a > b)}` +
+      `${mid}${box("op", K.dbAv(g.opp_flair, n), n, b, b > a)}</div><p class="ko-dmg">${head}</p>` +
+      yearsHtml(g, r) + (yp ? `<p class="ko-math">${esc(T.itWas)} ${yp.outerHTML}</p>` : "");
     if (g.state === "live") html += `<div class="ko-next" style="--dur:${Math.max(0, at(g.round_at) - now())}ms"><span>${esc(T.next(g.round, "…", fmtM(mult(g.round))))}</span></div>`;
     return html + `</div>`;
   }
@@ -483,7 +500,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   function showResult(g, r) {
     if (shownRes === `${g.code}:${r}`) return;
     shownRes = `${g.code}:${r}`;
-    const a = g.mine[r - 1], b = g.theirs[r - 1], x = Math.round(Math.abs(a - b) * mult(r));
+    const a = g.mine[r - 1], b = g.theirs[r - 1], x = dmgOf(a, b, r);
     const drain = { r, who: a > b ? "me" : a < b ? "opp" : null, me: a < b ? g.hp + x : g.hp, op: a > b ? g.opp_hp + x : g.opp_hp };
     drawStrip({ drain });
     if (a !== b) sfx(`res:${g.code}:${r}`, "hit", x, a < b);   // bij gelijk geen schade, geen klap
@@ -502,7 +519,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     const gave = g.mine.length === g.theirs.length && r > 0 && g.hp > 0 && g.opp_hp > 0 && g.winner;   // opgegeven
     const chips = g.mine.map((a, i) => {
       const b = g.theirs[i]; if (b == null || a === b) return "";
-      const x = Math.round(Math.abs(a - b) * mult(i + 1));
+      const x = dmgOf(a, b, i + 1);
       return a > b ? `<span class="op">R${i + 1} <b>${esc(n)} −${x}</b></span>` : `<span class="me">R${i + 1} <b>${esc(T.youL)} −${x}</b></span>`;
     }).join("");
     const p = gave ? (won ? T.gaveUp(n) : T.youGaveUp) : !g.winner ? T.drawP : won ? T.koPWin(n, r, g.hp) : T.koPLoss(n, r, g.opp_hp);
