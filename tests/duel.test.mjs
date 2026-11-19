@@ -132,7 +132,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 241500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 19/11: +duel-geluid (Web Audio, geen bestanden); 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 243500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -1006,4 +1006,13 @@ test("game.js — ⚔️ Duel-geluid in ⚙️: vinkje bij de andere, standaard 
   assert.match(GAME, /if \(on\) \{ if \(window\.Duel\) window\.Duel\.sfxTest\?\.\(\); else loadDuel\(\)/, "aanzetten = één keer de botsing, binnen de tik");
   assert.match(GAME, /syncDuelSfxUi\(\);\s+\/\/ ⚔️ Duel-geluid/, "renderMenu zet hem goed");
   for (const p of ["duel-sfx-on", "duel-sfx-off"]) assert.ok(GAME.includes(`"${p}"`), `meetpunt ${p}`);
+});
+
+test("duel.js — ⚔️ Duel-geluid ook als knop naast de ? op de Duels-pagina: hetzelfde vinkje", () => {
+  assert.match(SRC, /<div class="dl-tools"><button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="false">\$\{SND\}<\/button>` \+\n\s+`<button type="button" class="dl-help-btn" data-act="help"/, "links naast de ?");
+  assert.match(SRC, /sb\.setAttribute\("aria-label", T\.sound\); sb\.title = T\.sound; sb\.setAttribute\("aria-pressed", String\(sfxOn\(\)\)\);/, "stand bij het openen");
+  assert.match(SRC, /if \(act === "sfx"\) \{[^]*?if \(H\.setSfx\) H\.setSfx\(on\);[^]*?if \(on\) sfxTest\(\);/, "game.js bewaart hem; aan = meteen de klang");
+  assert.match(D.css, /\.dl-snd-btn\[aria-pressed="true"\] \.on \{ display: inline; \}/);
+  assert.match(GAME, /setSfx: setDuelSfx,/);
+  assert.match(GAME, /document\.querySelectorAll\('#modal-duels \.dl-snd-btn'\)\.forEach\(\(b\) => b\.setAttribute\("aria-pressed", String\(duelSfxOn\(\)\)\)\);/, "vinkje in ⚙️ verandert → knop ook");
 });

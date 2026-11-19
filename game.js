@@ -5007,6 +5007,7 @@ function duelHost() {
     duelBoard: (code, r) => { try { return JSON.parse(localStorage.getItem(DUEL_BOARD_KEY(code, r)) || "null"); } catch (e) { return null; } },
     // db/189: kleur per persoon (zoals de gezichtjes in het histogram) en de duel-seintjes
     faceHue, remindSupport, remindOn: () => !!remindState().on, openInstall: () => openInstall(), onPushChange: () => syncDuelPushUi(),
+    setSfx: setDuelSfx,   // ⚔️ Duel-geluid: de knop naast de ? op de Duels-pagina is hetzelfde vinkje
     vondstImage,   // db/190: een vondst-tekening als plaatje (stil), voor het deelplaatje
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
     playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
@@ -5253,6 +5254,7 @@ function syncDuelSfxUi() {
   let seen = false; try { seen = duelKnown() || localStorage.getItem(DUEL_SFX_KEY) != null || !!localStorage.getItem("jaardle:duel-name"); } catch (e) {}
   item.hidden = !seen;
   item.setAttribute("aria-checked", String(duelSfxOn()));
+  document.querySelectorAll('#modal-duels .dl-snd-btn').forEach((b) => b.setAttribute("aria-pressed", String(duelSfxOn())));   // de knop naast de ? (/duel.js)
 }
 const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft remind.js
 const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
