@@ -5011,6 +5011,8 @@ function duelHost() {
     vondstImage,   // db/190: een vondst-tekening als plaatje (stil), voor het deelplaatje
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
     playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
+    ko: () => loadKo(),   // ⚡ Knock-out (db/208, /ko.js)
+    koTimeout: () => { if (state?.duel?.ko && !state.done) finishGame(false, true); },   // de klok liep af: verloren (0–10 op je dichtste gok)
   };
 }
 // Vlak vóór duel_submit (door /duel.js): de gegevens van het potje. done(id) komt na het antwoord: id = de nieuwe plays-rij,
@@ -5220,6 +5222,10 @@ function liveSync() {
   if (window.Live) go(); else if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 5000 }); else setTimeout(go, 2500);
 }
 window.addEventListener?.("jaardle:duel-rt", (e) => loadDuel().then((D) => D.pushed(duelHost(), e.detail || null)).catch(() => {}));
+// ⚡ Knock-out (db/208): /ko.js bouwt op /duel.js; een seintje (uitnodiging, ronde klaar, gok van de ander …) laadt beide
+const loadKo = () => loadDuel().then(loadKoFile);
+const loadKoFile = fxLoader("/ko.js", "KO");
+window.addEventListener?.("jaardle:ko-rt", (e) => loadKo().then((K) => K.event(duelHost(), e.detail)).catch(() => {}));
 // db/189: een teamgenoot kan je direct uitdagen. Wie nog geen duels op dit toestel heeft (dan kijkt checkNews niet), vraagt met
 // een account hooguit eens per kwartier één klein getal op (duel_inbox, geen duel.js); iets binnen = het rode stipje op ⋮.
 const DUEL_INBOX_AT = "jaardle:duelInboxAt";
@@ -14462,6 +14468,7 @@ function submitGuess() {
   state.anchorHash = state.hashes?.[anchorFactSlot] || state.hashes?.[0] || null;
   clearYear();
   renderGuesses();
+  if (state.duel?.ko) window.KO?.guessed?.(state);   // ⚡ Knock-out (db/208): de ander ziet hoeveel gokken je gebruikte
   // Pop-animatie op de zojuist toegevoegde penalty (zelfde double-rAF
   // truc als bij de richting-pijl).
   const rows = els.guesses.querySelectorAll(".guess-row");

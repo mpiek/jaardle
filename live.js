@@ -1,5 +1,6 @@
 // /live.js (19/11/2026, db/206): Realtime voor ingelogde spelers. Lui geladen door game.js (liveSync) als de browser niets te doen heeft.
-// - u:<uid>  je eigen privé-kanaal: de server meldt {code} als een duel van jou verandert (aangenomen, gespeeld, ingetrokken …).
+// - u:<uid>  je eigen privé-kanaal: de server meldt {code} als een duel van jou verandert (aangenomen, gespeeld, ingetrokken …),
+//            en (event 'ko', db/208) alles over een ⚡ knock-out → "jaardle:ko-rt" → /ko.js.
 //            Dat gaat als "jaardle:duel-rt" naar game.js, dezelfde route als een duel-seintje uit sw.js (Duel.pushed).
 // - online   aanwezigheid: wie er nu op Jaardle is, onder md5(uid) = dezelfde sleutel k als de gezichtjes in duel_list.
 //            Live.isOn(k) → groen stipje; bij elke wijziging "jaardle:online".
@@ -74,6 +75,10 @@
       .on("broadcast", { event: "duel" }, (m) => {
         const code = m?.payload?.code;
         try { window.dispatchEvent(new CustomEvent("jaardle:duel-rt", { detail: typeof code === "string" ? code : null })); } catch (e) {}
+      })
+      .on("broadcast", { event: "ko" }, (m) => {   // ⚡ Knock-out (db/208): {code, k[, n|next]}
+        const p = m?.payload;
+        if (p && typeof p.code === "string") try { window.dispatchEvent(new CustomEvent("jaardle:ko-rt", { detail: p })); } catch (e) {}
       })
       .subscribe();
     onl = RT.channel("online", { config: { private: true, presence: { key: myK } } });   // eerst vastleggen: SUBSCRIBED kan meteen komen
