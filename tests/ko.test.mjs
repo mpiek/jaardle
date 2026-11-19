@@ -38,7 +38,7 @@ test("ko.js — teksten in vijf talen met dezelfde sleutels, niets leeg of kapot
     }
   }
   // de keuze in het ▾-menu staat in duel.js (dat laadt eerst), ook in vijf talen
-  for (const l of langs) assert.ok(W.Duel.copy(l).koOpt && W.Duel.copy(l).koSub("Tim").includes("Tim"), `duel.js ${l}: koOpt/koSub`);
+  for (const l of langs) { const c = W.Duel.copy(l); assert.ok(c.turnBtn && c.liveBtn && c.koSub("Tim").includes("Tim") && c.liveOff("Tim").includes("Tim"), `duel.js ${l}: turnBtn/liveBtn/koSub/liveOff`); }
 });
 
 test("ko.js — ronde-factor ×1 ×1 ×1,5 ×2 ×2,5 ×3, zelfde als _ko_mult in db/208", () => {
@@ -96,7 +96,9 @@ test("game.js / duel.js / live.js ↔ ko.js — lui geladen, rondes en seintjes 
   assert.match(GAME, /koTimeout: \(\) => \{ if \(state\?\.duel\?\.ko && !state\.done\) finishGame\(false, true\); \}/);
   assert.match(DUEL, /if \(st\?\.duel\?\.ko\) \{ H\.ko\?\.\(\)\.then\(\(K\) => K\.sync\(H\)\)/);
   assert.match(DUEL, /if \(dl\.ko\) return H\.ko\?\.\(\)\.then\(\(K\) => K\.roundDone\(H, st\)\)/);
-  assert.match(DUEL, /isOn\(t\.k\) \? koOptHtml\(T, t\) : ""/, "Live alleen bij een vriend die online is");
+  assert.match(DUEL, /goHtml\(T, `data-act="challenge" data-k="\$\{esc\(t\.k\)\}"`, T\.turnBtn, liveBtnHtml\(T, t\)\)/, "Om de beurt | Live na het kiezen van een vriend");
+  assert.doesNotMatch(DUEL, /class="dl-live"[^`]*disabled/, "Live altijd tikbaar (wie niet online is krijgt een minuut)");
+  assert.match(LIVE, /replay: \{ since: Date\.now\(\) - 60000/, "een uitnodiging van de laatste minuut komt bij het openen alsnog binnen");
   assert.match(LIVE, /\.on\("broadcast", \{ event: "ko" \}/);
   assert.ok(!/ko\.js/.test(read("index.template.html")), "ko.js staat niet in de pagina zelf (lui)");
 });

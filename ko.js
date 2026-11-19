@@ -12,7 +12,7 @@
 
   const TXT = {
     nl: { live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 100 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
-      waitH: (n) => `Wachten op ${n}…`, waitP: "Neemt die binnen 30 s aan, dan begint het meteen.", left: (s) => `nog ${s} s`, cancel: "Annuleer",
+      waitH: (n) => `Wachten op ${n}…`, waitP: "Neemt die binnen een minuut aan, dan begint het meteen.", left: (s) => `nog ${s} s`, cancel: "Annuleer",
       lateH: (n) => `${n} reageert niet`, declH: (n) => `${n} kan nu niet`, lateP: "Misschien zit die niet achter de telefoon.", again: "⚡ Nog eens vragen",
       turn: "⚔️ Speel om de beurt", turnSub: (n) => `5 rondes, ${n} speelt wanneer het uitkomt`, never: "Laat maar",
       invH: (n) => `${n} wil nú een knock-out`, lives: "levens", same: "dezelfde vraag, tegelijk", mins: "±5 min", join: "Doe mee", notNow: "Niet nu",
@@ -28,7 +28,7 @@
       isKo: (n) => `${n} is knock-out`, youKo: "Jij bent knock-out", gone: "Deze knock-out is gestopt.", err: "Dat lukte niet. Probeer het nog eens.", close: "Sluiten",
       itWas: "Het was" },
     en: { live: "Live · knockout", liveSub: (n) => `Right now, 100 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
-      waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within 30 s, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
+      waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within a minute, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
       lateH: (n) => `${n} isn't answering`, declH: (n) => `${n} can't right now`, lateP: "Maybe they're away from their phone.", again: "⚡ Ask again",
       turn: "⚔️ Play in turns", turnSub: (n) => `5 rounds, ${n} plays whenever it suits`, never: "Never mind",
       invH: (n) => `${n} wants a knockout now`, lives: "lives", same: "same question, same time", mins: "±5 min", join: "Join", notNow: "Not now",
@@ -44,7 +44,7 @@
       isKo: (n) => `${n} is knocked out`, youKo: "You're knocked out", gone: "This knockout has stopped.", err: "That didn't work. Please try again.", close: "Close",
       itWas: "It was" },
     de: { live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 100 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
-      waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb von 30 s an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
+      waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb einer Minute an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
       lateH: (n) => `${n} antwortet nicht`, declH: (n) => `${n} kann gerade nicht`, lateP: "Vielleicht ist das Handy gerade weg.", again: "⚡ Noch mal fragen",
       turn: "⚔️ Abwechselnd spielen", turnSub: (n) => `5 Runden, ${n} spielt, wann es passt`, never: "Lass gut sein",
       invH: (n) => `${n} will jetzt einen Knock-out`, lives: "Leben", same: "gleiche Frage, gleichzeitig", mins: "±5 Min.", join: "Mitmachen", notNow: "Nicht jetzt",
@@ -60,7 +60,7 @@
       isKo: (n) => `${n} ist knock-out`, youKo: "Du bist knock-out", gone: "Dieser Knock-out wurde beendet.", err: "Das hat nicht geklappt. Versuch es noch mal.", close: "Schließen",
       itWas: "Es war" },
     es: { live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 100 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
-      waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en 30 s, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
+      waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en un minuto, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} no responde`, declH: (n) => `${n} no puede ahora`, lateP: "Quizá no está con el móvil.", again: "⚡ Volver a preguntar",
       turn: "⚔️ Jugar por turnos", turnSub: (n) => `5 rondas, ${n} juega cuando le venga bien`, never: "Déjalo",
       invH: (n) => `${n} quiere un K.O. ahora`, lives: "vidas", same: "la misma pregunta, a la vez", mins: "±5 min", join: "Jugar", notNow: "Ahora no",
@@ -76,7 +76,7 @@
       isKo: (n) => `${n} está K.O.`, youKo: "Estás K.O.", gone: "Este K.O. se ha detenido.", err: "No ha funcionado. Inténtalo otra vez.", close: "Cerrar",
       itWas: "Era" },
     pt: { live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 100 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
-      waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em 30 s, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
+      waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em um minuto, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} não responde`, declH: (n) => `${n} não pode agora`, lateP: "Talvez esteja longe do celular.", again: "⚡ Perguntar de novo",
       turn: "⚔️ Jogar por turnos", turnSub: (n) => `5 rodadas, ${n} joga quando puder`, never: "Deixa pra lá",
       invH: (n) => `${n} quer um nocaute agora`, lives: "vidas", same: "a mesma pergunta, ao mesmo tempo", mins: "±5 min", join: "Jogar", notNow: "Agora não",
@@ -335,7 +335,7 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
         if (act !== "yes") return closePop();
         if (r.ok && r.v) apply(r.v); else closePop();
       });
-    countdown(el.querySelector(".ko-left"), at(g.invite_until), (s) => `0:${String(s).padStart(2, "0")}`, () => closePop());
+    countdown(el.querySelector(".ko-left"), at(g.invite_until), (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`, () => closePop());
   }
   // Ronde 1 (of de revanche) begint: kort aftellen, dan het rondescherm
   function showCount(g, rev) {

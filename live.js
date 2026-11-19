@@ -71,7 +71,8 @@
     if (!RT || !uid || own) return;
     try { await RT.setAuth(); } catch (e) {}
     if (!uid || own) return;   // intussen uitgelogd of al verbonden
-    own = RT.channel("u:" + uid, { config: { private: true } })
+    // replay: wat er in de laatste minuut voor jou was (een ⚡-uitnodiging terwijl je Jaardle nog niet open had) komt alsnog binnen
+    own = RT.channel("u:" + uid, { config: { private: true, broadcast: { replay: { since: Date.now() - 60000, limit: 25 } } } })
       .on("broadcast", { event: "duel" }, (m) => {
         const code = m?.payload?.code;
         try { window.dispatchEvent(new CustomEvent("jaardle:duel-rt", { detail: typeof code === "string" ? code : null })); } catch (e) {}
