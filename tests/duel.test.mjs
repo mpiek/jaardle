@@ -61,24 +61,33 @@ test("duel.js — uitslag: hoogste score per ronde, niet gespeeld verliest, geli
   assert.deepEqual(plain(X.stand([95, 52], [])), { w: 0, l: 0, n: 0 });
 });
 
-test("duel.js — tegels: de score van de ander pas na je eigen ronde; klaar = alles; onthulling klapt elke ronde om", () => {
-  const active = { status: "active", mine: [95, 52], theirs: [87], their_done: 5 };
-  const h = X.tilesHtml(active, { fresh: 1 });
-  assert.equal((h.match(/class="duel-rd /g) || []).length, 5);
-  assert.match(h, /class="duel-rd w"><small>R1<\/small><b>95<\/b><span>87<\/span>/);
-  assert.match(h, /class="duel-rd mine new"><small>R2<\/small><b>52<\/b><span>\?<\/span>/, "de ander speelde R2 al, maar die score kwam (nog) niet mee: ?");
-  assert.equal((h.match(/<span>\?<\/span>/g) || []).length, 4, "rondes die de ander al speelde: ?");
-  const wait = X.tilesHtml({ status: "active", mine: [95, 52, 87, 92, 85], theirs: [87, 74], their_done: 2 });
-  assert.equal((wait.match(/<span>–<\/span>/g) || []).length, 3, "je wacht op de ander: rondes die die nog niet speelde, –");
-  const notYet = X.tilesHtml({ status: "active", mine: [95], theirs: [], their_done: 0 });
-  assert.ok(!notYet.includes("?"), "de ander speelde nog niets: geen ?");
-  const done = X.tilesHtml({ status: "done", mine: [87, 74, 6, 100, 72], theirs: [95, 52, 38, 92, 85] });
-  assert.match(done, /duel-rd l"><small>R1<\/small><b>87<\/b><span>95<\/span>/);
-  const timeout = X.tilesHtml({ status: "done", mine: [87], theirs: [] });
-  assert.match(timeout, /duel-rd w"><small>R1<\/small><b>87<\/b><span>–<\/span>/); assert.equal((timeout.match(/duel-rd todo/g) || []).length, 4);
-  const flip = X.tilesHtml({ status: "done", mine: [95, 52, 38, 92, 85], theirs: [87, 74, 6, 100, 72] }, { flip: true });
-  assert.equal((flip.match(/class="fv"/g) || []).length, 5); assert.match(flip, /data-r="w" style="--i:0"/); assert.match(flip, /data-r="l" style="--i:1"/);
-  assert.equal((flip.match(/<span>\?<\/span><i class="fv">/g) || []).length, 5, "vóór het omklappen: ?");
+test("duel.js — scorebord (19/11): de score van de ander pas na je eigen ronde (slotje), klaar = alles, rondes in de kleur van de winnaar, onthulling klapt om", () => {
+  const T = D.copy("nl");
+  X.setHost(host());
+  const active = { status: "active", me: "c", c_name: "Noor", o_name: "Bram", mine: [95, 52], theirs: [87], their_done: 5 };
+  const h = X.boardHtml(T, active, { cur: 2, fresh: 1, meta: "nog 21 u", peek: false });
+  assert.equal((h.match(/class="db-c/g) || []).length, 10, "twee regels van vijf rondes");
+  assert.match(h, /<span class="db-c w">95<\/span>/, "R1: jij won, in jouw kleur");
+  assert.match(h, /<span class="db-c l">87<\/span>/, "R1: de ander verloor");
+  assert.match(h, /<span class="db-c p new">52<\/span>/, "R2: gespeeld, uitslag nog niet bekend; net gespeeld = klapt om");
+  assert.match(h, /<span class="db-c">\?<\/span>/, "de ander speelde R2 al, maar die score kwam (nog) niet mee: ?");
+  assert.equal((h.match(/db-c seal/g) || []).length, 3, "rondes die de ander al speelde en jij nog niet: slotje");
+  assert.match(h, /<span class="db-c seal cur">/, "de ronde die je nu speelt");
+  assert.match(h, /<b class="db-n lead">1<\/b><\/div><div class="db-rw op">/, "jij staat voor: 1–0");
+  const wait = X.boardHtml(T, { status: "active", mine: [95, 52, 87, 92, 85], theirs: [87, 74], their_done: 2 });
+  assert.ok(!wait.includes("seal"), "de ander speelde nog niet verder: geen slotje");
+  assert.equal((wait.match(/<span class="db-c p">/g) || []).length, 3, "jouw rondes waar de ander nog niet speelde: nog geen kleur");
+  const notYet = X.boardHtml(T, { status: "active", mine: [95], theirs: [], their_done: 0 });
+  assert.ok(!/<span class="db-c">\?<\/span>/.test(notYet) && !notYet.includes("seal"), "de ander speelde nog niets: geen ? en geen slotje");
+  const done = X.boardHtml(T, { status: "done", mine: [87, 74, 6, 100, 72], theirs: [95, 52, 38, 92, 85] });
+  assert.match(done, /<div class="db-rw op">[^]*<span class="db-c w">95<\/span>/, "R1 voor de ander: in zijn kleur");
+  assert.match(done, /<b class="db-n lead champ">3<\/b><\/div><\/div>$/, "de winnaar: het eindcijfer met een gouden rand");
+  const timeout = X.boardHtml(T, { status: "done", mine: [87], theirs: [] });
+  assert.match(timeout, /<span class="db-c w">87<\/span>/); assert.equal((timeout.match(/>–</g) || []).length, 9, "niet gespeeld: –");
+  const flip = X.boardHtml(T, { status: "done", mine: [95, 52, 38, 92, 85], theirs: [87, 74, 6, 100, 72] }, { flip: true });
+  assert.equal((flip.match(/class="fv/g) || []).length, 12, "tien cellen en de twee eindcijfers klappen om");
+  assert.match(flip, /<span class="db-c" style="--i:0">95<i class="fv w">95<\/i><\/span>/); assert.match(flip, /<span class="db-c" style="--i:0">\?<i class="fv l">87<\/i><\/span>/, "vóór het omklappen: ?");
+  assert.match(flip, /<b class="db-n">\?<i class="fv lead">3<\/i><\/b>/); assert.ok(!flip.includes("champ"), "de gouden rand verklapt niets vóór het omdraaien");
 });
 
 test("duel.js — tijd, groeperen per tegenstander, link", () => {
@@ -123,7 +132,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 215000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 232000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -180,18 +189,16 @@ test("db/185 + 189 + 200 ↔ duel.js — elke RPC die duel.js aanroept bestaat, 
 test("duel.js v2 — duelscherm, eindstand, uitleg, link, flair en account-moment", () => {
   X.setHost(host({ flairHtml: (f) => `<span class="fl">${f}</span>`, myFlair: () => "🦊", loggedIn: true, myName: () => "Noor" }));
   const T = D.copy("nl");
-  const vs = X.vsInner(T, { me: "c", c_name: "Noor", o_name: "Bram", o_flair: "🐢", mine: [95, 52], theirs: [87], their_done: 3, status: "active" }, { big: "1–0", small: "nog 21 u", cells: ["w", "p", "cur", "", ""] });
-  assert.match(vs, /<span class="side me"><span class="dl-av fl" aria-hidden="true"><span class="fl">🦊<\/span><\/span><span><b>Jij<\/b><small>147 pt<\/small>/, "jij: je flair en je punten");
-  assert.match(vs, /<span class="side op"><span class="dl-av fl" aria-hidden="true"><span class="fl">🐢<\/span><\/span><span><b>Bram<\/b><small>87 pt<\/small>/, "de ander: flair en alleen de zichtbare punten");
-  assert.equal((vs.match(/duel-cell/g) || []).length, 6);
+  const vs = X.boardHtml(T, { me: "c", c_name: "Noor", o_name: "Bram", o_flair: "🐢", mine: [95, 52], theirs: [87], their_done: 3, status: "active" });
+  assert.match(vs, /<div class="db-rw me"><span class="db-who"><span class="db-av fl" aria-hidden="true"><span class="fl">🦊<\/span><\/span><b>Jij<\/b>/, "jij: je flair");
+  assert.match(vs, /<div class="db-rw op"><span class="db-who"><span class="db-av fl" aria-hidden="true"><span class="fl">🐢<\/span><\/span><b>Bram<\/b>/, "de ander: zijn flair");
   X.setHost(host());
-  const noFlair = X.vsInner(T, { me: "o", c_name: "Noor", o_name: "Bram", mine: [], theirs: [], their_done: 0, status: "active" }, { big: "0–0", small: "" });
-  assert.match(noFlair, /<span class="side op"><span class="dl-av" aria-hidden="true">N<\/span>/, "zonder flair: de beginletter");
-  assert.match(noFlair, /0\/5 gespeeld/);
+  const noFlair = X.boardHtml(T, { me: "o", c_name: "Noor", o_name: "Bram", mine: [], theirs: [], their_done: 0, status: "active" });
+  assert.match(noFlair, /<div class="db-rw op"><span class="db-who"><span class="db-av" aria-hidden="true">N<\/span><b>Noor<\/b>/, "zonder flair: de beginletter");
   // de uitnodiging zonder account: "Al een account? Log in"; met account niet
   const inv = { code: "K7QX2M", c_name: "Noor", c_flair: "🦊", me: null, status: "open", can_accept: true, deadline: new Date(Date.now() + 5e7).toISOString() };
   X.setHost(host({ flairHtml: (f) => `<i>${f}</i>` }));
-  assert.match(X.popBody(T, inv), /<h2><i>🦊<\/i> Noor daagt je uit<\/h2>/); assert.match(X.popBody(T, inv), /data-act="login"[^>]*>Al een account\? Log in</);
+  assert.match(X.popBody(T, inv), /^<div class="vb vbf"[^]*<span class="vb-side op"><span class="vb-av fl" aria-hidden="true"><i>🦊<\/i><\/span><b>Noor<\/b>[^]*<span class="vbf-tag">5 rondes<\/span><\/div><h2>Noor daagt je uit<\/h2>/, "de uitnodiging: de twee kanten groot (zoals de opening), daaronder de titel"); assert.match(X.popBody(T, inv), /data-act="login"[^>]*>Al een account\? Log in</);
   assert.match(X.popBody(T, { ...inv, rematch: true }), /Noor wil revanche/);
   X.setHost(host({ loggedIn: true, myName: () => "Bram" }));
   assert.ok(!X.popBody(T, inv).includes('data-act="login"'));
@@ -600,23 +607,25 @@ test("duel.js — een uitgespeeld duel via seintje of link: eindstand-pop-up bov
 
 test("duel.js — de vraag van een ronde terugzien: alleen rondes die je speelde (alles als het duel klaar is), tip dooft uit", () => {
   X.setHost(host({ t: (k) => ({ bc: "v.Chr.", source: "Bron:" })[k] }));
-  const q = (h) => [...h.matchAll(/data-q="([A-Z2-9]{6})\.(\d)"/g)].map((m) => Number(m[2]));
+  const T = D.copy("nl");
+  const q = (h) => [...new Set([...h.matchAll(/data-q="([A-Z2-9]{6})\.(\d)"/g)].map((m) => Number(m[2])))];
   // lopend: R1 en R2 gespeeld, de rest dicht (ook al speelde de ander verder)
   const act = { code: "ABCDEF", me: "c", status: "active", mine: [95, 52], theirs: [87], their_done: 5, c_name: "Noor", o_name: "Bram" };
-  assert.deepEqual(q(X.tilesHtml(act)), [0, 1]);
-  assert.match(X.tilesHtml(act), /class="duel-rd w" data-q="ABCDEF\.0" role="button" tabindex="0" aria-haspopup="dialog"><small>R1/);
+  assert.deepEqual(q(X.boardHtml(T, act)), [0, 1]);
+  assert.match(X.boardHtml(T, act), /<span class="db-c w" data-q="ABCDEF\.0" role="button" tabindex="0" aria-haspopup="dialog">95<\/span>/);
+  assert.deepEqual(q(X.boardHtml(T, act, { peek: false })), [], "een kaart in de lijst is zelf de knop: geen vraag-tik op het bord");
   // klaar (ook na een time-out): alle vijf, ook in de onthulling
   const done = { ...act, status: "done", mine: [87], theirs: [] };
-  assert.deepEqual(q(X.tilesHtml(done)), [0, 1, 2, 3, 4]);
-  assert.deepEqual(q(X.tilesHtml({ ...done, mine: [1, 2, 3, 4, 5], theirs: [5, 4, 3, 2, 1] }, { flip: true })), [0, 1, 2, 3, 4]);
+  assert.deepEqual(q(X.boardHtml(T, done)), [0, 1, 2, 3, 4]);
+  assert.deepEqual(q(X.boardHtml(T, { ...done, mine: [1, 2, 3, 4, 5], theirs: [5, 4, 3, 2, 1] }, { flip: true })), [0, 1, 2, 3, 4]);
   // geen deelnemer (buitenstaander) of geen code: niets tikbaar
-  assert.deepEqual(q(X.tilesHtml({ ...done, me: null })), []);
+  assert.deepEqual(q(X.boardHtml(T, { ...done, me: null })), []);
   assert.equal(X.canPeek({ status: "done", mine: [] }, 0), false);
   // de tip alleen op verzoek (eindstand, Duels-scherm), en bij de onthulling pas ná het omdraaien
-  assert.match(X.tilesHtml(done, { hint: true }), /<p class="duel-tip">Tik op een ronde om de vraag terug te zien<\/p>$/);
-  assert.ok(!X.tilesHtml(done).includes("duel-tip"));
-  assert.match(X.tilesHtml(done, { hint: true, flip: true }), /class="duel-tip after"/);
-  assert.ok(!X.tilesHtml({ status: "done", mine: [1], theirs: [] }, { hint: true }).includes("duel-tip"), "niets tikbaar → geen tip");
+  assert.match(X.boardHtml(T, done, { hint: true }), /<p class="duel-tip">Tik op een ronde om de vraag terug te zien<\/p>$/);
+  assert.ok(!X.boardHtml(T, done).includes("duel-tip"));
+  assert.match(X.boardHtml(T, done, { hint: true, flip: true }), /class="duel-tip after"/);
+  assert.ok(!X.boardHtml(T, { status: "done", mine: [1], theirs: [] }, { hint: true }).includes("duel-tip"), "niets tikbaar → geen tip");
 });
 
 test("duel.js — pop-up van een ronde: feit in jouw taal, jaartal (v.Chr.), beide scores, wie de ronde won, bron alleen als http(s)", () => {
@@ -868,4 +877,27 @@ test("sw.js (db/204) — geen systeemmelding voor een duel als Jaardle open en i
   assert.match(GAME, /if \(e\.data\?\.jaardle === "duel-push"\) loadDuel\(\)\.then\(\(D\) => D\.pushed\(duelHost\(\), e\.data\.code\)\)/);
   assert.match(SRC, /if \(m && !m\.hidden\) return syncList\(tx\(H\.lang\), true, code \|\| null\);\n    return checkNews\(H\);/);
   assert.match(SRC, /\(openWait\.has\(d\.code\) \|\| d\.code === focus\) && was\.get\(d\.code\) === "active"/);
+});
+
+test("duel.js — mix (19/11): logo bovenin een ronde = Duels-scherm, kaarten in de lijst zijn zelf de knop, uitslag van de ronde i.p.v. het gewone kopje", () => {
+  const T = D.copy("nl");
+  assert.match(SRC, /class="duel-title duel-home"/, "het ⚔️ DUEL-logo bovenin een ronde is een knop");
+  assert.match(SRC, /if \(e\.target\.closest\("\.duel-home"\)\) \{ gc\("duel-home", "[^"]*"\); H\.switchMode\("daily"\); openList\(H, \{\}\); \}/, "… naar het Duels-scherm");
+  assert.match(D.css, /#result\.dv-res #result-text \{ display: none; \}/, "het gewone kopje gaat weg zodra de uitslag van de ronde er staat");
+  assert.match(SRC, /placeCard\(html, "jr-card"\);/);
+  X.setHost(host());
+  const later = new Date(Date.now() + 5e7).toISOString();
+  const turn = { code: "TURN22", me: "o", status: "active", c_name: "Sanne", o_name: "Noor", mine: [100, 61], theirs: [95, 88], their_done: 5, deadline: later };
+  const inc = { code: "INC333", me: null, status: "open", can_accept: true, c_name: "Lotte", deadline: later };
+  const h = X.listBody(T, [inc, turn], "", null);
+  assert.match(h, /<div class="dl-card turn" data-act="play" data-code="TURN22">/, "tik op het bord = Speel");
+  assert.match(h, /<div class="dl-card inc" data-act="accept" data-code="INC333"><div class="vb"/, "tik op de uitdaging = Neem aan (met de twee kanten)");
+  assert.match(h, /data-act="decline" data-code="INC333"/, "✕ blijft apart");
+  assert.ok(!/data-q=/.test(h), "in de lijst geen vraag-tik op het bord");
+  assert.match(SRC, /const card = b\.closest\?\.\("\.dl-card"\) \|\| b, btn = /, "aannemen vanaf de kaart: de knop erin, niet twee keer");
+  for (const l of ["nl", "en", "de", "es", "pt"]) {
+    const t = D.copy(l);
+    assert.ok(t.rWin(3).includes("3") && t.rLoss(3, "Xq").includes("Xq") && t.rTie(3).includes("3") && t.barSub("Xq", "97", 3).includes("97"), l);
+    assert.ok(t.bar && t.yet && t.itWas && t.decider && t.toDuels && t.fiveR, l);
+  }
 });

@@ -63,38 +63,12 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .duel-note { margin: 0.55rem 0 0; color: var(--muted); font-size: 0.75rem; line-height: 1.35; }
 .duel-note b { color: var(--fg); font-weight: 700; }
 .duel-err { color: var(--danger); }
-/* vijf tegels: groot jouw score, klein die van de ander (stipje in de kleur van de ander) */
-.duel-rds { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; margin-top: 0.5rem; font-variant-numeric: tabular-nums; }
-.duel-rd { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.05rem; padding: 0.3rem 0 0.35rem; border-radius: 8px; background: var(--card); border: 1.5px solid transparent; }
-.duel-rd small { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
-.duel-rd b { font-size: 1.1rem; font-weight: 800; line-height: 1.15; }
-.duel-rd span { display: flex; align-items: center; gap: 0.2rem; font-size: 0.72rem; color: var(--muted); }
-.duel-rd span::before { content: ""; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--duel-op); }
-.duel-rd.w { background: color-mix(in srgb, var(--duel-win) 26%, var(--card)); }
-.duel-rd.l { background: color-mix(in srgb, var(--duel-loss) 18%, var(--card)); }
-.duel-rd.l b { color: var(--muted); }
-.duel-rd.d { background: color-mix(in srgb, var(--gray) 22%, var(--card)); }
-.duel-rd.todo { background: transparent; border: 1.5px dashed color-mix(in srgb, var(--muted) 45%, transparent); }
-.duel-rd.todo b { color: var(--muted); font-weight: 600; }
-.duel-rd.mine { background: color-mix(in srgb, var(--duel-me) 14%, var(--card)); }
-.duel-card .new { animation: duel-pop 0.6s cubic-bezier(0.2, 1.5, 0.4, 1) 0.3s both; }
 @keyframes duel-pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.18); opacity: 1; } 100% { transform: none; } }
 /* de onthulling (wie als eerste klaar was, eerste keer openen): per ronde klapt de uitslag om (.fv), daarna stand en oordeel (.after) */
-.duel-rd.flip > .fv { position: absolute; inset: -1.5px; display: flex; flex-direction: column; align-items: center; gap: 0.05rem; padding-top: calc(0.3rem + 1.5px);
-  box-sizing: border-box; border-radius: inherit; font-style: normal; background: var(--card); animation: duel-flip 0.45s ease-out calc(0.5s + var(--i) * 0.65s) both; }
-.duel-rd.flip[data-r="w"] > .fv { background: color-mix(in srgb, var(--duel-win) 26%, var(--card)); }
-.duel-rd.flip[data-r="l"] > .fv { background: color-mix(in srgb, var(--duel-loss) 18%, var(--card)); }
-.duel-rd.flip[data-r="l"] > .fv b { color: var(--muted); }
-.duel-rd.flip[data-r="d"] > .fv { background: color-mix(in srgb, var(--gray) 22%, var(--card)); }
 .duel-card .after, .dl .after { animation: duel-in 0.4s ease-out 3.75s both; }
 @keyframes duel-flip { 0% { transform: rotateX(90deg); } 100% { transform: none; } }
 @keyframes duel-in { 0% { opacity: 0; transform: translateY(0.3rem); } 100% { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .duel-card .new, .duel-rd.flip > .fv, .duel-card .after, .dl .after { animation: none; } }
-/* een tegel van een ronde die je speelde: tik = de vraag terugzien (pop-up bóven wat er open is) */
-.duel-rd[data-q] { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.12s ease, border-color 0.12s ease; }
-.duel-rd[data-q]:hover { border-color: color-mix(in srgb, var(--fg) 28%, transparent); }
-.duel-rd[data-q]:active { transform: scale(0.94); }
-.duel-rd[data-q]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .duel-card .after, .dl .after { animation: none; } }
 .duel-tip { margin: 0.4rem 0 0; font-size: 0.72rem; color: var(--muted); text-align: center; }
 .rq { max-width: 22rem; }
 .rq-body { display: flex; flex-direction: column; gap: 0.7rem; padding: 1.2rem 1rem 1rem; text-align: center; }
@@ -317,7 +291,6 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .ep .ep-eyebrow { margin: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--duel-arena); }
 .ep h2 { margin: 0; font-size: 1.35rem; line-height: 1.2; text-wrap: balance; }
 .ep .duel-vs { margin: 0; text-align: left; }
-.ep .duel-rds { margin-top: 0; }
 .ep-note { margin: 0; font-size: 0.8rem; color: var(--muted); }
 .ep-note b { color: var(--fg); }
 .ep-btns { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.2rem; }
@@ -503,6 +476,137 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
    dezelfde regelhoogte als de cijfers, anders krimpt het vak na elke gok (leeg) en groeit het bij het eerste cijfer (19/11: 14 px) */
 [data-era] #year-input:empty::before { content: attr(data-ph); font-size: 0.6em; line-height: 2.5; letter-spacing: 0.02em; }
 @media (prefers-reduced-motion: reduce) { .dl-more svg { transition: none; } }
+/* ═══ 19/11/2026 (mockup v9 "mix", zijn keuze: "gewoon jaardle stijl, niet too much"): het scorebord en de uitslag van een ronde
+   als gewone Jaardle-kaarten; de twee kanten (zoals de opening) alleen bij een uitdaging. Een ronde krijgt de kleur van wie hem won:
+   jij blauw (--db-me), de ander de tint van zijn gezichtje (--h, faceHue in game.js); niet meer groen/rood. ═══ */
+:root { --db-me: hsl(222 64% 50%); --db-gold: #f2c14e; }
+html[data-theme="light"] { --db-me: hsl(222 64% 46%); --db-gold: #9a7410; }
+.db { --cw: 2.05rem; --rh: 1.75rem; --db-op: hsl(var(--h, 30) 58% 44%); display: grid; grid-template-columns: minmax(0, 1fr) repeat(5, var(--cw)) calc(var(--cw) + 0.2rem);
+  gap: 3px; align-items: center; box-sizing: border-box; width: 100%; padding: 0.35rem 0.4rem 0.42rem 0.55rem; border-radius: 12px; color: var(--fg);
+  background: var(--card); box-shadow: inset 0 0 0 1px var(--border); font-variant-numeric: tabular-nums; text-align: left; }
+html[data-theme="light"] .db { --db-op: hsl(var(--h, 30) 58% 40%); }
+.db-hd, .db-rw { display: contents; }
+.db-rw.me { --col: var(--db-me); }
+.db-rw.op { --col: var(--db-op); }
+.db-hd > * { font-style: normal; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: center;
+  line-height: 1; padding: 0.05rem 0 0.12rem; white-space: nowrap; }
+.db-hd .db-meta { text-align: left; overflow: hidden; text-overflow: ellipsis; }
+.db-hd .db-meta.hot { color: var(--duel-arena); }
+.db-hd .on { color: var(--fg); }
+.db-who { display: flex; align-items: center; gap: 0.42rem; min-width: 0; }
+.db-who b { min-width: 0; font-size: 0.86rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.db-av { flex: none; width: 1.5rem; height: 1.5rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.82rem; font-weight: 800; color: #fff; background: var(--col); }
+.db-av.fl { font-size: 0.92rem; background: var(--card-soft); box-shadow: inset 0 0 0 2px var(--col); }
+.db-c { position: relative; height: var(--rh); display: grid; place-items: center; border-radius: 5px; font-size: 0.9rem; font-weight: 800; color: var(--muted); background: var(--card-soft); }
+.db-c.w { color: #fff; background: var(--col); }
+.db-c.l { font-weight: 700; }
+.db-c.d { color: var(--fg); background: color-mix(in srgb, var(--gray) 40%, var(--card-soft)); }
+.db-c.p { color: var(--fg); }
+.db-c.cur { box-shadow: inset 0 0 0 1.5px var(--fg); }
+.db-c.seal { background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--fg) 13%, transparent) 0 3px, transparent 3px 6px), var(--card-soft); }
+.db-c svg { width: 0.72rem; height: 0.72rem; }
+.db-n { position: relative; height: var(--rh); display: grid; place-items: center; margin-left: 0.2rem; border-radius: 6px; font-size: 1.12rem; font-weight: 900; color: var(--fg); background: var(--card-soft); }
+.db-n.lead { color: #fff; background: var(--col); }
+.db-n.champ { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--db-gold); }
+.db.mini { --cw: 1.75rem; --rh: 1.5rem; padding: 0.3rem 0.35rem 0.35rem 0.5rem; border-radius: 10px; }
+.db.mini .db-c { font-size: 0.78rem; border-radius: 4px; }
+.db.mini .db-n { font-size: 0.95rem; }
+.db.mini .db-av { width: 1.3rem; height: 1.3rem; font-size: 0.72rem; }
+.db.mini .db-who b { font-size: 0.8rem; }
+.db.big { --cw: 2.1rem; --rh: 2.15rem; padding: 0.5rem 0.5rem 0.55rem 0.65rem; gap: 4px; }
+.db.big .db-c { font-size: 1rem; }
+.db.big .db-n { font-size: 1.4rem; }
+.db.big .db-av { width: 1.6rem; height: 1.6rem; font-size: 0.95rem; }
+.db.big .db-who b { font-size: 0.82rem; }
+@media (max-width: 370px) { .db.big { --cw: 1.75rem; } .db.big .db-c { font-size: 0.85rem; } }
+/* een ronde die je speelde (of elke, als het duel klaar is): tik = de vraag terugzien */
+.db-c[data-q] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.db-c[data-q]:active { transform: scale(0.94); }
+.db-c[data-q]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* de onthulling (wie als eerste klaar was): per ronde klappen beide cellen om, daarna de stand */
+.db-c > .fv, .db-n > .fv { position: absolute; inset: 0; display: grid; place-items: center; border-radius: inherit; font-style: normal; color: var(--muted);
+  background: var(--card-soft); }
+.db-c > .fv { animation: duel-flip 0.45s ease-out calc(0.5s + var(--i, 0) * 0.65s) both; }
+.db-c > .fv.w, .db-n > .fv.lead { color: #fff; background: var(--col); }
+.db-c > .fv.d { color: var(--fg); background: color-mix(in srgb, var(--gray) 40%, var(--card-soft)); }
+.db-n > .fv { color: var(--fg); animation: duel-flip 0.45s ease-out 3.75s both; }   /* eigen regel: zonder --i was de hele animatie ongeldig (stond meteen open) */
+/* in een ronde: het bord op de plek van de VS-kop; het ⚔️ DUEL-logo bovenin = naar het Duels-scherm */
+.duel-hud { margin: 0 0 0.55rem; }
+button.duel-title { justify-self: center; appearance: none; min-height: 2.75rem; margin: 0; padding: 0 0.4rem; font-family: inherit; background: transparent; border: 0; border-radius: 10px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button.duel-title:hover { filter: none; opacity: 0.85; }
+button.duel-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* de uitslag van een ronde in de gewone uitslagkaart: beide scores naast elkaar, die van de winnaar in zijn kleur */
+#result.dv-res #result-text { display: none; }
+[data-duelpage] #help-btn, [data-duelpage] #day-label { display: none !important; }
+.duel-card.jr-card { margin: 0 0 0.75rem; padding: 0; background: transparent; border: 0; }
+.jr { display: flex; flex-direction: column; gap: 0.55rem; text-align: center; }
+.jr-sc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.45rem; }
+.jr-box { --col: var(--db-me); display: flex; align-items: center; justify-content: space-between; gap: 0.45rem; min-width: 0; padding: 0.5rem 0.7rem; border-radius: 10px;
+  background: var(--card-soft); font-variant-numeric: tabular-nums; }
+.jr-box.op { --col: hsl(var(--h, 30) 58% 46%); flex-direction: row-reverse; }
+.jr-box.win { background: color-mix(in srgb, var(--col) 26%, var(--card)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col) 75%, transparent); }
+.jr-box.todo { background: transparent; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--muted) 45%, transparent); }
+.jr-who { display: flex; align-items: center; gap: 0.4rem; min-width: 0; font-size: 0.84rem; }
+.jr-box.op .jr-who { flex-direction: row-reverse; }
+.jr-who > b { min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jr-who .db-av { width: 1.55rem; height: 1.55rem; font-size: 0.85rem; }
+.jr-box > strong { flex: none; font-size: 1.85rem; font-weight: 800; line-height: 1; }
+.jr-box:not(.win) > strong { color: var(--muted); }
+.jr-box > strong.wait { font-size: 0.8rem; font-weight: 700; line-height: 1.2; }
+.jr-box.op > strong.wait { text-align: left; }
+.jr-v { margin: 0; font-size: 1.05rem; font-weight: 800; }
+.jr-v .me { color: var(--duel-me); }
+.jr-v .op { color: hsl(var(--h, 30) 72% 66%); }
+html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
+.jr-sub { margin: -0.2rem 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4; text-wrap: pretty; }
+.jr-sub b { color: var(--fg); }
+.jr-ans { margin: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.3rem 0.45rem; font-size: 0.86rem; color: var(--muted); }
+.jr-ans .nw { white-space: nowrap; }
+.jr-card .duel-note { margin-top: 0.15rem; text-align: center; }
+.jr.fresh .jr-box.op > strong { animation: duel-flip 0.4s ease-out 0.35s both; }
+.jr.fresh .jr-box.win { animation: jr-lit 0.35s ease-out 0.85s both; }
+.jr.fresh .jr-v { animation: duel-in 0.35s ease-out 1.1s both; }
+@keyframes jr-lit { from { background: var(--card-soft); box-shadow: none; } }
+@media (max-width: 370px) { .jr-box { padding: 0.5rem 0.55rem; } .jr-box > strong { font-size: 1.6rem; } }
+/* Duels-scherm: een lopend duel is één tikbare kaart (bord + regel), tik = Speel; een uitdaging aan jou ook (tik = Neem aan, ✕ apart);
+   een duel dat op de ander wacht klapt open (19/11: "je wilt gewoon dat het werkt als je op die dingen klikt") */
+.dl-card { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.45rem; border-radius: 12px; background: var(--card-soft); cursor: pointer;
+  -webkit-tap-highlight-color: transparent; }
+.dl-card.turn, .dl-card.inc { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.dl-card:active { transform: scale(0.99); }
+.dl-item > .dl-card { background: transparent; }
+.dl-card-f { display: flex; align-items: center; gap: 0.5rem; min-height: 2.5rem; padding: 0 0.15rem; }
+.dl-card-f > small { flex: 1; min-width: 0; font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
+.dl-card-f > small b { color: var(--fg); font-size: 0.9rem; }
+.dl-card-f > small em { font-style: normal; color: var(--fg); font-weight: 600; }
+.dl-card.sync .dl-card-f > small { animation: dl-sync 0.7s ease-in-out infinite alternate; }
+/* de twee kanten bij een uitdaging (zoals de opening): jij blauw, de ander in zijn kleur, ⚔️ op de schuine naad */
+.vb { --p: 50%; --tilt: 0.7rem; --ang: 24.3deg; position: relative; flex: none; height: 3.1rem; border-radius: 10px; overflow: hidden; color: #fff; isolation: isolate; }
+.vb-op, .vb-me { position: absolute; inset: 0; }
+.vb-op { background: linear-gradient(270deg, hsl(var(--h, 30) 58% 24%) 0%, hsl(var(--h, 30) 58% 42%) 75%); }
+.vb-me { background: linear-gradient(90deg, hsl(222 66% 26%) 0%, hsl(222 64% 46%) 75%); clip-path: polygon(0 0, calc(var(--p) + var(--tilt)) 0, calc(var(--p) - var(--tilt)) 100%, 0 100%); }
+.vb-op::after, .vb-me::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(-66deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 15px); }
+.vb-line { position: absolute; z-index: 1; top: -25%; height: 150%; left: var(--p); width: 3px; margin-left: -1.5px; background: #fff; transform: rotate(var(--ang));
+  box-shadow: 0 0 6px #f08a52, 0 0 14px rgba(240, 138, 82, 0.75); }
+.vb-badge { position: absolute; z-index: 3; left: var(--p); top: 50%; width: 1.9rem; height: 1.9rem; margin: -0.95rem 0 0 -0.95rem; border-radius: 50%; display: grid; place-items: center;
+  font-size: 0.9rem; line-height: 1; background: #131317; box-shadow: 0 0 0 2px #f08a52, 0 0 12px rgba(240, 138, 82, 0.6); }
+.vb-in { position: absolute; z-index: 2; inset: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0 0.6rem; }
+.vb-side { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.vb-side.op { flex-direction: row-reverse; }
+.vb-side b { min-width: 0; font-size: 0.8rem; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vb-av { flex: none; width: 1.75rem; height: 1.75rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.95rem; font-weight: 800; color: #fff;
+  background: rgba(255, 255, 255, 0.14); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92); }
+.dl-hero > .vb, .duel-inv > .vb { align-self: stretch; }
+/* de uitnodiging: de twee kanten groot, met de ⚔️ en "5 rondes" op de naad */
+.vb.vbf { height: 8.5rem; --tilt: 1.6rem; --ang: 20.6deg; border-radius: 14px; }
+.vbf .vb-in { padding: 0 1rem; }
+.vbf .vb-side { flex-direction: column; gap: 0.35rem; }
+.vbf .vb-av { width: 3.2rem; height: 3.2rem; font-size: 1.6rem; }
+.vbf .vb-badge { top: 42%; width: 2.5rem; height: 2.5rem; margin: -1.25rem 0 0 -1.25rem; font-size: 1.2rem; }
+.vbf-tag { position: absolute; z-index: 3; left: var(--p); top: calc(42% + 1.6rem); transform: translateX(-50%); padding: 0.18rem 0.65rem; border-radius: 999px; font-size: 0.66rem;
+  font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; color: #fff; background: #131317; box-shadow: 0 0 0 1.5px #f08a52; }
+@media (prefers-reduced-motion: reduce) { .db-c > .fv, .db-n > .fv, .jr.fresh .jr-box.op > strong, .jr.fresh .jr-box.win, .jr.fresh .jr-v, .dl-card.sync .dl-card-f > small { animation: none; } }
 `;
 
   const TXT = {
@@ -559,6 +663,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       keepVs: (n) => `Met een account daag je ${n} uit zonder link`, keepList: "<u>Log in</u>, dan staan je tegenstanders hier en daag je ze uit met één tik",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tik op een ronde om de vraag terug te zien",
+      // 19/11 (mockup v9 "mix"): de uitslag van een ronde, het scorebord, het logo bovenin een ronde, de uitnodiging
+      rWin: (r) => `Ronde ${r} is voor jou`, rLoss: (r, n) => `Ronde ${r} is voor ${n}`, rTie: (r) => `Ronde ${r}: gelijkspel`, bar: "Jij legt de lat",
+      barSub: (n, s, r) => `${n} ziet jouw ${s} pas na het spelen van ronde ${r}.`, yet: "moet<br>nog", itWas: "Het was", decider: "Beslissend", toDuels: "Naar Duels", fiveR: "5 rondes",
     },
     en: {
       help: "How does it work?", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
@@ -612,6 +719,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       keepVs: (n) => `With an account, you can challenge ${n} without a link`, keepList: "<u>Log in</u> and your opponents appear here: challenge them with one tap",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tap a round to see its question again",
+      rWin: (r) => `Round ${r} is yours`, rLoss: (r, n) => `Round ${r} goes to ${n}`, rTie: (r) => `Round ${r}: a tie`, bar: "You set the bar",
+      barSub: (n, s, r) => `${n} only sees your ${s} after playing round ${r}.`, yet: "yet to<br>play", itWas: "It was", decider: "Decider", toDuels: "To Duels", fiveR: "5 rounds",
     },
     de: {
       help: "Wie funktioniert das?", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", duelTitle: "Duell", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
@@ -666,6 +775,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       keepVs: (n) => `Mit einem Konto forderst du ${n} ohne Link heraus`, keepList: "<u>Melde dich an</u>, dann forderst du deine Gegner hier mit einem Tipp heraus",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tippe auf eine Runde, um die Frage noch mal zu sehen",
+      rWin: (r) => `Runde ${r} geht an dich`, rLoss: (r, n) => `Runde ${r} geht an ${n}`, rTie: (r) => `Runde ${r}: unentschieden`, bar: "Du legst die Latte",
+      barSub: (n, s, r) => `${n} sieht deine ${s} erst nach Runde ${r}.`, yet: "noch<br>offen", itWas: "Es war", decider: "Entscheidung", toDuels: "Zu den Duellen", fiveR: "5 Runden",
     },
     es: {
       help: "¿Cómo funciona?", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
@@ -719,6 +830,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       keepVs: (n) => `Con una cuenta retas a ${n} sin enlace`, keepList: "<u>Inicia sesión</u> y tus rivales aparecerán aquí: rétalos con un toque",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Toca una ronda para volver a ver la pregunta",
+      rWin: (r) => `La ronda ${r} es tuya`, rLoss: (r, n) => `La ronda ${r} es para ${n}`, rTie: (r) => `Ronda ${r}: empate`, bar: "Tú pones el listón",
+      barSub: (n, s, r) => `${n} verá tu ${s} solo después de jugar la ronda ${r}.`, yet: "aún no<br>juega", itWas: "Era", decider: "Decisiva", toDuels: "A Duelos", fiveR: "5 rondas",
     },
     pt: {
       help: "Como funciona?", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
@@ -772,6 +885,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       keepVs: (n) => `Com uma conta, você desafia ${n} sem link`, keepList: "<u>Entre</u> e seus adversários aparecem aqui: desafie com um toque",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Toque em uma rodada para ver a pergunta de novo",
+      rWin: (r) => `A rodada ${r} é sua`, rLoss: (r, n) => `A rodada ${r} é de ${n}`, rTie: (r) => `Rodada ${r}: empate`, bar: "Você define a marca",
+      barSub: (n, s, r) => `${n} só vê o seu ${s} depois de jogar a rodada ${r}.`, yet: "ainda<br>não", itWas: "Era", decider: "Decisiva", toDuels: "Para Duelos", fiveR: "5 rodadas",
     },
   };
   const tx = (l) => TXT[l] || TXT.en;
@@ -955,44 +1070,56 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
   const meAv = (T, cls = " me") => avHtml(H?.loggedIn ? H.myFlair?.() : null, myName() || T.you, cls, false);
 
-  // Vijf tegels. fresh = index van de net gespeelde ronde (plopt); flip = onthulling (alles bekend, per ronde omdraaien).
-  // 18/11 (gevraagd door spelers): een tegel van een ronde die je speelde (of elke ronde, als het duel klaar is) opent de vraag
-  // (openPeek); hint = de tip eronder, die uitdooft (peekHint). Een ronde die je nog moet spelen, blijft dicht.
-  function tilesHtml(d, { fresh = -1, flip = false, hint = false } = {}) {
-    const mine = d.mine || [], theirs = d.theirs || [], done = d.status === "done";
-    const their = d.their_done ?? theirs.length, o = outcome(mine, theirs);
-    const qa = (i) => (canPeek(d, i) ? ` data-q="${esc(d.code)}.${i}" role="button" tabindex="0" aria-haspopup="dialog"` : "");
-    if (d.code && d.me) peekSrc.set(d.code, d);   // de stand zoals je hem ziet: de pop-up toont dezelfde scores
-    let h = `<div class="duel-rds">`;
-    for (let i = 0; i < 5; i++) {
-      const lab = `<small>R${i + 1}</small>`, x = mine[i], y = theirs[i], nw = i === fresh ? " new" : "";
-      if (flip) {
-        h += `<div class="duel-rd mine flip" data-r="${o.per[i]}" style="--i:${i}"${qa(i)}>${lab}<b>${x ?? "–"}</b><span>?</span>` +
-          `<i class="fv">${lab}<b>${x ?? "–"}</b><span>${y ?? "–"}</span></i></div>`;
-      } else if (done) {
-        const r = o.per[i];
-        h += `<div class="duel-rd ${r === "n" ? "todo" : r}${nw}"${qa(i)}>${lab}<b>${x ?? "–"}</b><span>${y ?? "–"}</span></div>`;
-      } else if (x == null) {
-        h += `<div class="duel-rd todo">${lab}<b>–</b><span>${i < their ? "?" : "–"}</span></div>`;
-      } else if (y == null) {
-        h += `<div class="duel-rd mine${nw}"${qa(i)}>${lab}<b>${x}</b><span>${i < their ? "?" : "–"}</span></div>`;
-      } else {
-        h += `<div class="duel-rd ${x > y ? "w" : x < y ? "l" : "d"}${nw}"${qa(i)}>${lab}<b>${x}</b><span>${y}</span></div>`;
+  // ── het scorebord (19/11/2026, mockup v9 "mix"; vervangt de vijf tegels en de VS-kop) ──
+  // Twee regels (jij en de ander) × vijf rondes, rechts het aantal gewonnen rondes. Een ronde krijgt de kleur van wie hem won (jij blauw,
+  // de ander de tint van zijn gezichtje); een slotje = de ander speelde die ronde al (zijn score zie je pas na jouw ronde, zoals altijd);
+  // cur = de ronde die je nu speelt. Een ronde die je speelde (of elke ronde als het duel klaar is) opent de vraag (openPeek), behalve
+  // met peek: false (een kaart in de lijst is zelf de knop). fresh = de net gespeelde ronde (klapt om), flip = de onthulling.
+  const LOCK = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.1 7.2V5.4a2.9 2.9 0 0 1 5.8 0v1.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><rect x="3.3" y="7.1" width="9.4" height="7" rx="1.6" fill="currentColor"/></svg>`;
+  function dbAv(flair, name, cls = "db-av") {
+    const f = flair && H?.flairHtml ? H.flairHtml(flair) : "";
+    return `<span class="${cls}${f ? " fl" : ""}" aria-hidden="true">${f || esc(initial(name))}</span>`;
+  }
+  const meFlair = () => (H?.loggedIn ? H.myFlair?.() : null);
+  const meNameOr = (T, d = "?") => (H ? myName() : null) || d;
+  function boardHtml(T, d, { size = "", meta = "", hot = false, cur = -1, fresh = -1, flip = false, hint = false, peek = true } = {}) {
+    const mine = d.mine || [], theirs = d.theirs || [], done = d.status === "done", n = oppName(d);
+    const their = d.their_done ?? theirs.length, o = outcome(mine, theirs), s = done ? o : stand(mine, theirs);
+    const per = (i) => (done ? o.per[i] : mine[i] != null && theirs[i] != null ? (mine[i] > theirs[i] ? "w" : mine[i] < theirs[i] ? "l" : "d") : null);
+    const can = (i) => peek && canPeek(d, i);
+    if (peek && d.code && d.me) peekSrc.set(d.code, d);   // de stand zoals je hem ziet: de pop-up toont dezelfde scores
+    const cell = (i, side) => {
+      const me = side === "me", r = per(i), x = mine[i], v = me ? x : theirs[i];
+      const cls = r === (me ? "w" : "l") ? "w" : r === "d" ? "d" : r && r !== "n" ? "l" : "";
+      const qa = can(i) ? ` data-q="${esc(d.code)}.${i}"` + (me ? ` role="button" tabindex="0" aria-haspopup="dialog"` : "") : "";
+      if (flip) return `<span class="db-c" style="--i:${i}"${qa}>${me ? x ?? "–" : "?"}<i class="fv${cls ? " " + cls : ""}">${v ?? "–"}</i></span>`;
+      if (v == null) {
+        if (!me && !done && i < their) return x == null ? `<span class="db-c seal${i === cur ? " cur" : ""}">${LOCK}</span>` : `<span class="db-c"${qa}>?</span>`;   // de ander speelde al
+        return `<span class="db-c${me && i === cur ? " cur" : ""}"${done ? qa : ""}>${done ? "–" : ""}</span>`;   // klaar: ook een ronde die niemand speelde heeft een vraag
       }
-    }
-    h += `</div>`;
-    if (hint && [0, 1, 2, 3, 4].some((i) => canPeek(d, i)) && peekHint(d.code)) h += `<p class="duel-tip${flip ? " after" : ""}">${esc(tx(H?.lang).peekTip)}</p>`;
+      return `<span class="db-c ${cls || "p"}${i === fresh ? " new" : ""}"${qa}>${v}</span>`;
+    };
+    const lead = s.w > s.l ? "me" : s.l > s.w ? "op" : "", champ = done && !flip && o.res !== "d" ? (o.res === "w" ? "me" : "op") : "";
+    const num = (side) => {
+      const v = side === "me" ? s.w : s.l;
+      if (flip) return `<b class="db-n">?<i class="fv${lead === side ? " lead" : ""}">${v}</i></b>`;
+      return `<b class="db-n${lead === side ? " lead" : ""}${champ === side ? " champ" : ""}">${v}</b>`;
+    };
+    const row = (side) => `<div class="db-rw ${side}"><span class="db-who">${side === "me" ? dbAv(meFlair(), meNameOr(T, T.you)) : dbAv(oppFlair(d), n)}` +
+      `<b>${esc(side === "me" ? T.you : n)}</b></span>${[0, 1, 2, 3, 4].map((i) => cell(i, side)).join("")}${num(side)}</div>`;
+    const hd = size === "mini" ? "" : `<div class="db-hd" aria-hidden="true"><span class="db-meta${hot ? " hot" : ""}">${esc(meta)}</span>` +
+      [0, 1, 2, 3, 4].map((i) => `<i${i === cur || i === fresh ? ' class="on"' : ""}>${i + 1}</i>`).join("") + `<i></i></div>`;
+    let h = `<div class="db${size ? " " + size : ""}" style="--h:${H?.faceHue ? H.faceHue(n) : 30}">${hd}${row("me")}${row("op")}</div>`;
+    if (hint && [0, 1, 2, 3, 4].some(can) && peekHint(d.code)) h += `<p class="duel-tip${flip ? " after" : ""}">${esc(T.peekTip)}</p>`;
     return h;
   }
-
-  // De VS-kop: jij links, de ander rechts, in het midden de stand. big/small = het midden; cells = een vakje per ronde.
-  function vsInner(T, d, { big, small, cells }) {
-    const mine = d.mine || [], theirs = d.theirs || [], n = oppName(d);
-    const opSub = d.status === "done" || theirs.length ? T.pts(sum(theirs)) : T.played5(d.their_done || 0);
-    return `<span class="side me">${meAv(T, "")}<span><b>${esc(T.you)}</b><small>${esc(T.pts(sum(mine)))}</small></span></span>` +
-      `<span class="mid"><b>${esc(big)}</b><small>${esc(small)}</small></span>` +
-      `<span class="side op">${avHtml(oppFlair(d), n)}<span><b>${esc(n)}</b><small>${esc(opSub)}</small></span></span>` +
-      (cells ? `<span class="duel-cells" aria-hidden="true">${cells.map((c) => `<i class="duel-cell${c ? " " + c : ""}"></i>`).join("")}</span>` : "");
+  // De twee kanten (zoals de opening van een ronde): alleen bij een uitdaging (19/11: "als dat alleen voor uitdaging aannemen is").
+  // poster = groot (de uitnodiging), met tag op de naad ("5 rondes").
+  function bandHtml(T, n, flair, { poster = false, tag = "" } = {}) {
+    return `<div class="vb${poster ? " vbf" : ""}" style="--h:${H?.faceHue ? H.faceHue(n) : 30}" aria-hidden="true"><div class="vb-op"></div><div class="vb-me"></div><span class="vb-line"></span>` +
+      `<div class="vb-in"><span class="vb-side me">${dbAv(meFlair(), meNameOr(T), "vb-av")}<b>${esc(T.you)}</b></span>` +
+      `<span class="vb-side op">${dbAv(flair, n, "vb-av")}${n === "?" ? "" : `<b>${esc(n)}</b>`}</span></div>` +
+      `<span class="vb-badge">${ICON}</span>${tag ? `<span class="vbf-tag">${esc(tag)}</span>` : ""}</div>`;
   }
 
   // ── delen (zoals doShare in game.js: deelvenster op een telefoon, anders klembord) ──
@@ -1555,6 +1682,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const st = H.state(), body = document.body;
     if (!st || !st.duel) {
       document.querySelectorAll("#duel-top, #duel-vs, #duel-bar").forEach((e) => e.remove());
+      document.getElementById("result")?.classList.remove("dv-res");
       body.removeAttribute("data-duelpage");
       body.removeAttribute("data-arena");
       body.removeAttribute("data-era");
@@ -1575,21 +1703,26 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       top = document.createElement("div");
       top.id = "duel-top"; top.className = "duel-top";
       tabs.before(top);
-      top.addEventListener("click", (e) => { if (e.target.closest(".duel-exit")) { gc("duel-exit", "Duel: left duel screen"); H.switchMode("daily"); } });
+      top.addEventListener("click", (e) => {
+        if (e.target.closest(".duel-exit")) { gc("duel-exit", "Duel: left duel screen"); H.switchMode("daily"); return; }
+        // 19/11 (zijn vraag): het ⚔️ DUEL-logo bovenin = naar het Duels-scherm (de ronde blijft bewaard, zoals bij ‹; Speel = verder)
+        if (e.target.closest(".duel-home")) { gc("duel-home", "Duel: logo tapped (to Duels)"); H.switchMode("daily"); openList(H, {}); }
+      });
     }
     const mine = (d.mine || []).slice(0, st.done ? 5 : dl.round), theirs = d.theirs || [];
     const shown = st.done ? Math.max(1, mine.length) : dl.round + 1;
     const era = themeOf({ theme: d.theme || dl.theme }), inp = document.getElementById("year-input");   // db/202
     body.toggleAttribute("data-era", !!era);
     if (inp) { if (era) inp.dataset.ph = T.eraPh(era.from); else delete inp.dataset.ph; }
-    if (top) top.innerHTML = `<button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button><span class="duel-title">${ICON} ${esc(T.duelTitle)}${era ? thHtml({ theme: d.theme || dl.theme }) : ""}</span>` +
+    if (top) top.innerHTML = `<button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button><button type="button" class="duel-title duel-home" aria-label="${esc(T.toDuels)}" title="${esc(T.toDuels)}">${ICON} ${esc(T.duelTitle)}${era ? thHtml({ theme: d.theme || dl.theme }) : ""}</button>` +
       `<span class="duel-round">${esc(T.roundN(Math.min(5, shown)))}</span>`;
     let vs = document.getElementById("duel-vs");
-    if (!vs && card) { vs = document.createElement("div"); vs.id = "duel-vs"; vs.className = "duel-vs"; vs.setAttribute("role", "status"); card.before(vs); }
+    if (!vs && card) { vs = document.createElement("div"); vs.id = "duel-vs"; vs.setAttribute("role", "status"); card.before(vs); }
+    if (vs) vs.className = "duel-hud";
     const s = stand(mine, theirs), cur = st.done ? -1 : dl.round;
-    const cells = [0, 1, 2, 3, 4].map((i) => (i < s.n ? (mine[i] > theirs[i] ? "w" : mine[i] < theirs[i] ? "l" : "d") : i < mine.length ? "p" : i === cur ? "cur" : ""));
     const dd = { ...d, mine, theirs: theirs.slice(0, Math.max(s.n, d.status === "done" ? 5 : 0)) };
-    if (vs) vs.innerHTML = vsInner(T, dd, { big: `${s.w}–${s.l}`, small: d.status === "done" ? T.final : leftText(T, d.deadline || dl.deadline), cells });
+    const decider = cur === 4 && s.n === 4 && s.w === 2 && s.l === 2;   // 2–2 en de laatste ronde: de beslissende
+    if (vs) vs.innerHTML = boardHtml(T, dd, { cur, hot: decider, meta: d.status === "done" ? T.final : decider ? T.decider : leftText(T, d.deadline || dl.deadline) });
     if (!cache[dl.code] && !vsFetching) {   // na herladen: de stand nog niet in het geheugen
       vsFetching = call("duel_get", { p_code: dl.code }).then((r) => { vsFetching = null; if (r.ok && r.v) { keep(r.v); sync(); } });
     }
@@ -1630,10 +1763,11 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     sync();
   }
 
-  function placeCard(html) {
+  function placeCard(html, cls = "") {
     H.els.result.querySelectorAll(".duel-card").forEach((e) => e.remove());
+    H.els.result.classList.toggle("dv-res", !!cls);   // met de uitslag van de ronde: het gewone kopje ("Goed geraden!") gaat weg (CSS)
     const el = document.createElement("div");
-    el.className = "duel-card";
+    el.className = "duel-card" + (cls ? " " + cls : "");
     el.innerHTML = html;
     el.addEventListener("click", (e) => { const b = e.target.closest('[data-act="push"]'); if (b) onBell(b); });   // db/189
     H.els.resultText.after(el);
@@ -1653,31 +1787,38 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   function renderEnd(T, st, d, fresh) {
     const opp = oppName(d), mine = d.mine || [], theirs = d.theirs || [], r = st.duel.round;
     const late = fresh && mine.length <= r;   // te laat ingestuurd: niet meer opgeslagen
-    let head, note;
+    // 19/11 (mockup v9 "mix"): de uitslag van deze ronde in de uitslagkaart, beide scores naast elkaar (die van de winnaar in zijn
+    // kleur), daaronder het jaartal en je score (uit het gewone kopje, dat in een duelronde verdwijnt). Speelde de ander deze ronde
+    // nog niet: "Jij legt de lat". Het scorebord bovenin laat alle rondes zien; een tik daarop toont de vraag.
+    const x = mine[r], y = theirs[r], known = x != null && y != null, s = stand(mine, theirs);
+    const box = (side, av, name, num, won, extra = "") => `<span class="jr-box ${side}${won ? " win" : ""}${extra}"><span class="jr-who">${av}<b>${esc(name)}</b></span>${num}</span>`;
+    const boxes = box("me", dbAv(meFlair(), meNameOr(T, T.you)), T.you, `<strong>${x ?? "–"}</strong>`, known && x > y) +
+      box("op", dbAv(oppFlair(d), opp), opp, known ? `<strong>${y}</strong>` : `<strong class="wait">${T.yet}</strong>`, known && y > x, known ? "" : " todo");
+    let v, sub = "";
+    if (late) v = esc(T.late);
+    else if (known) v = `<span class="${x > y ? "me" : x < y ? "op" : ""}">${esc(x > y ? T.rWin(r + 1) : x < y ? T.rLoss(r + 1, opp) : T.rTie(r + 1))}</span>${s.n ? ` · ${s.w}–${s.l}` : ""}`;
+    else { v = esc(T.bar); sub = T.barSub(esc(opp), `<b>${x}</b>`, r + 1); }
+    const rt = H.els.resultText, yp = rt?.querySelector(".year-pill"), sl = rt?.querySelector(".score-line");
+    const ans = yp ? `<p class="jr-ans"><span>${esc(T.itWas)} ${yp.outerHTML}</span>${sl ? `<span class="nw">${sl.innerHTML}</span>` : ""}</p>` : "";
+    let html = `<div class="jr${fresh ? " fresh" : ""}" style="--h:${H?.faceHue ? H.faceHue(opp) : 30}"><div class="jr-sc">${boxes}</div><p class="jr-v">${v}</p>` +
+      (sub ? `<p class="jr-sub">${sub}</p>` : "") + `</div>` + ans;
     if (d.status === "done") {
       const o = outcome(mine, theirs);
-      head = `${icoHtml(o.res === "w" ? "🏆" : ICON)}<span class="duel-verdict">${esc(verdict(T, o, opp))}</span>`;
-      note = (late ? esc(T.late) + " " : "") + esc(T.totalNote(o.a, o.b));
+      html += `<p class="duel-note"><span class="duel-verdict">${o.res === "w" ? "🏆 " : ""}${esc(verdict(T, o, opp))}</span> ${esc(T.totalNote(o.a, o.b))}</p>`;
       setButtons({ kind: "rematch", code: d.code, html: `${icoHtml()} ${esc(T.revenge)}`, icon: true }, { kind: "result", d, label: T.shareRes });
       prepShare(d);
     } else if (mine.length < 5) {
-      const s = stand(mine, theirs);
-      head = `${icoHtml()}<b>${esc(T.duelWith(opp))}</b>` + (s.n ? `<span class="duel-big">${s.w}–${s.l}</span>` : `<span class="duel-r">${esc(T.roundOf(mine.length))}</span>`);
-      if (theirs.length > r && mine[r] != null) {
-        const x = mine[r], y = theirs[r];
-        note = T.theyHad(esc(opp), y) + " " + esc(x > y ? T.rYours : x < y ? T.rTheirs(opp) : T.rDraw);
-      } else note = esc(T.notYet(opp));
       setButtons({ kind: "round", code: d.code, html: esc(T.nextRound(mine.length + 1)) }, null);
     } else {   // jij bent klaar, de ander nog niet
-      head = `${icoHtml()}<b>${esc(T.youDone(opp))}</b><span class="duel-r">${esc(T.pts(sum(mine)))}</span>`;
-      note = esc(T.waitNote(opp, leftText(T, d.deadline)));
+      let note = `<b>${esc(T.youDone(opp))}</b> ${esc(T.waitNote(opp, leftText(T, d.deadline)))}`;
       // db/189: krijgt de ander zelf een seintje, dan hoef je het niet te laten weten; zelf een seintje als de ander klaar is
       const bell = bellHtml(T.bellDone(opp), T.onDone(opp));
       if (d.opp_push || bell) note += `<span class="duel-pushes">${d.opp_push ? `<span class="dl-push">${BELL} ${esc(T.pushThem(opp))}</span>` : ""}${bell}</span>`;
+      html += `<p class="duel-note">${note}</p>`;
       const after = H.dailyDone() ? { kind: "free", html: esc(H.t("next")) } : { kind: "daily", html: esc(T.toDaily) };
       setButtons(after, d.opp_push ? null : { kind: "turn", d, label: T.tell(opp) });
     }
-    placeCard(`<div class="duel-head">${head}</div>` + tilesHtml(d, { fresh: late ? -1 : r }) + `<p class="duel-note">${note}</p>`);
+    placeCard(html, "jr-card");
     // Na je vijfde ronde: de eindstand als eigen pop-up (alleen direct na het spelen, niet bij herladen).
     if (fresh && mine.length >= 5) showEndPop(T, d, { fresh: true, wonLast: st.won });
     // Wacht er nog een duel op jou? Dan gaat de knop daarheen (en in de pop-up ook). De lijst geeft ook je stand tegen deze tegenstander.
@@ -1781,7 +1922,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
     dots.forEach((b) => b.addEventListener("click", () => vp.scrollTo({ left: Number(b.dataset.i) * vp.clientWidth, behavior: smooth ? "smooth" : "auto" })));
   }
-  function peekTarget(e) { const t = e.target?.closest?.(".duel-rd[data-q]"); return t && /^(.+)\.([0-4])$/.exec(t.dataset.q); }
+  function peekTarget(e) { const t = e.target?.closest?.(".db-c[data-q]"); return t && /^(.+)\.([0-4])$/.exec(t.dataset.q); }
   document.addEventListener?.("click", (e) => { const m = peekTarget(e); if (m) openPeek(m[1], Number(m[2])); });
   document.addEventListener?.("keydown", (e) => {
     if (e.key !== "Enter" && e.key !== " ") return;
@@ -1801,14 +1942,13 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       prepShare(d);
       const h = verdict(T, o, opp);
       inner += `<h2 class="${af.trim()}">${o.res === "w" ? "🏆 " : ""}${esc(h)}</h2>` +
-        `<div class="duel-vs">${vsInner(T, d, { big: flip ? "?–?" : `${o.w}–${o.l}`, small: T.final })}</div>` +
-        tilesHtml(d, { flip, hint: true }) +
+        boardHtml(T, d, { size: "big", meta: T.final, flip, hint: true }) +
         `<p class="ep-note${af}">${esc(T.totalNote(o.a, o.b))}<span class="ep-h2h"></span></p>` +
         `<div class="ep-btns${af}"><button type="button" class="duel-btn" data-act="rematch" data-code="${d.code}">${icoHtml()} ${esc(T.revenge)}</button>` +
         `<button type="button" class="duel-btn ep-ghost" data-act="share-result">${esc(T.shareRes)}</button></div>`;
     } else {
       inner += `<h2>${esc(T.youDone(opp))}</h2>` +
-        `<div class="duel-vs">${vsInner(T, d, { big: `${s.w}–${s.l}`, small: T.busy })}</div>` + tilesHtml(d) +
+        boardHtml(T, d, { size: "big", meta: T.busy }) +
         `<p class="ep-note">${esc(T.waitNote(opp, leftText(T, d.deadline)))}</p>`;
       // db/189: het lokkertje (zelf een seintje als de ander klaar is); "Laat X het weten" alleen als X zelf geen seintje krijgt
       const meOn = pushOn(), sup = pushSupport();
@@ -1850,11 +1990,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (done && (ha || hb) && ha + hb > 1) { const x = el.querySelector(".ep-h2h"); if (x) x.textContent = ` · ${T.h2hNow(ha, hb)}`; }   // pas vanaf je tweede duel tegen deze speler
     if (!done) return;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const opPts = flip ? el.querySelector(".duel-vs .side.op small") : null;   // het totaal van de ander verklapt de uitslag: pas na het omdraaien
-    if (opPts && !reduced) opPts.textContent = T.pts("?");
-    setTimeout(() => {
-      if (flip) { const big = el.querySelector(".duel-vs .mid b"); if (big) big.textContent = `${o.w}–${o.l}`; }
-      if (opPts) opPts.textContent = T.pts(sum(theirs));
+    setTimeout(() => {   // het bord draait zelf om (CSS): pas daarna confetti
       if (o.res === "w" && !again && !(fresh && wonLast)) H.showConfetti();   // gewonnen: feest (had de laatste ronde al confetti, of zag je hem al: niet nog eens)
       if (!d.seen) markSeen(d.code);
     }, flip && !reduced ? FLIP_MS : 0);
@@ -2052,7 +2188,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const newBtn = goHtml(T, `data-act="new"`, T.newBtn);
     const err = msg ? `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>` : "";
     if (!items.length && !top) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
-      return err + `<div class="dl-hero"><div class="dl-vs">${meAv(T)}<b>VS</b><span class="dl-av op" aria-hidden="true">?</span></div>` +
+      return err + `<div class="dl-hero">${bandHtml(T, "?", null)}` +
         `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${newBtn}</div>`;
     }
     let h = "";
@@ -2078,17 +2214,18 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     if (turn.length || inc.length) {
       const nT = turn.length + inc.length;
       h += `<h3 class="dl-h">${esc(T.secTurn)}${nT > 1 ? ` · ${nT}` : ""}</h3>`;
-      for (const d of inc) {
+      for (const d of inc) {   // 19/11: de hele kaart = Neem aan (✕ apart); de twee kanten, zoals de opening
         const n = d.c_name || "?", rec = h2hTxt(d);
-        h += rowHtml({ av: avHtml(d.c_flair, n), name: (d.rematch ? T.invRematch : T.invTitle)(n), tag: thHtml(d), sub: `${rec ? esc(cap(rec)) + " · " : ""}<em>${esc(leftText(T, d.deadline))}</em>`,
-          cls: " turn has-new", right: `<button type="button" class="dl-go" data-act="accept" data-code="${d.code}">${esc(T.acceptShort)}</button>` +
-            `<button type="button" class="dl-x" data-act="decline" data-code="${d.code}" aria-label="${esc(T.decline)}">✕</button>` });
+        h += `<div class="dl-card inc" data-act="accept" data-code="${d.code}">${bandHtml(T, n, d.c_flair)}` +
+          `<div class="dl-card-f"><small><b>${esc((d.rematch ? T.invRematch : T.invTitle)(n))}</b>${thHtml(d)}<br>${rec ? esc(cap(rec)) + " · " : ""}<em>${esc(leftText(T, d.deadline))}</em></small>` +
+          `<button type="button" class="dl-go" data-act="accept" data-code="${d.code}">${esc(T.acceptShort)}</button>` +
+          `<button type="button" class="dl-x" data-act="decline" data-code="${d.code}" aria-label="${esc(T.decline)}">✕</button></div></div>`;
       }
-      for (const d of turn) {
-        const n = oppName(d), k = d.their_done || 0;
+      for (const d of turn) {   // 19/11: het bord + één regel, de hele kaart = Speel
+        const n = oppName(d), k = d.their_done || 0, h2 = h2hTxt(d);
         const who = k >= 5 ? T.oppDone(n) : k > 0 ? T.oppPlays(n, k) : d.me === "c" ? T.accepted(n) : T.oppNotYet(n);   // "nam aan" alleen als jij uitdaagde
-        h += rowHtml({ av: avHtml(oppFlair(d), n), name: n, h2h: h2hTxt(d), tag: thHtml(d), sub: `${esc(who)} · <em>${esc(leftText(T, d.deadline))}</em>`, cls: " turn",
-          right: `<button type="button" class="dl-go" data-act="play" data-code="${d.code}">${esc(T.play)}</button>` });
+        h += `<div class="dl-card turn" data-act="play" data-code="${d.code}">` + boardHtml(T, d, { cur: (d.mine || []).length, meta: leftText(T, d.deadline), peek: false }) +
+          `<div class="dl-card-f"><small>${esc(who)}${h2 ? ` · ${esc(h2)}` : ""}${thHtml(d)}</small><button type="button" class="dl-go" data-act="play" data-code="${d.code}">${esc(T.play)}</button></div></div>`;
       }
     }
     if (!top.startsWith("<form")) h += pickHtml(T, newBtn, items);   // met het naamveld open is "Daag uit" de knop
@@ -2148,18 +2285,16 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   }
 
   // Een duel dat op de ander wacht: tik = je eigen vijf scores, en die van de ander voor de rondes die jullie allebei speelden.
-  function waitItemHtml(T, d, h2h) {
-    const n = oppName(d), k = d.their_done || 0, s = stand(d.mine, d.theirs), open = openWait.has(d.code);
-    const row = rowHtml({ av: avHtml(oppFlair(d), n), name: n, h2h, tag: thHtml(d), sub: `${esc(k > 0 ? T.oppPlays(n, k) : T.oppNotYet(n))} · ${esc(leftText(T, d.deadline))}`,
-      right: (s.n ? `<span class="dl-stand">${s.w}–${s.l}</span>` : "") + `<span class="dl-chev" aria-hidden="true">▾</span>`,
-      cls: listSync && syncCode === d.code ? " sync" : "",   // syncList: even vers kijken
-      attrs: ` data-wait="${d.code}" role="button" tabindex="0" aria-expanded="${open}"` });
-    const det = open ? `<div class="dl-detail"><div class="duel-card"><div class="duel-head"><b>${esc(T.yourRounds)}</b><span class="duel-r">${esc(T.pts(sum(d.mine)))}</span></div>` +
-      tilesHtml(d) + `<p class="dl-wait-note">${esc(T.waitDetail(n, k))}</p></div>` +
+  function waitItemHtml(T, d, h2h) {   // 19/11: een klein bord; tik = open/dicht (de regel om het te laten weten)
+    const n = oppName(d), k = d.their_done || 0, open = openWait.has(d.code);
+    const card = `<div class="dl-card wait${listSync && syncCode === d.code ? " sync" : ""}" data-wait="${d.code}" role="button" tabindex="0" aria-expanded="${open}">` +
+      boardHtml(T, d, { size: "mini", peek: false }) +
+      `<div class="dl-card-f"><small>${esc(k > 0 ? T.oppPlays(n, k) : T.oppNotYet(n))} · <em>${esc(leftText(T, d.deadline))}</em>${h2h ? ` · ${esc(h2h)}` : ""}${thHtml(d)}</small>` +
+      `<span class="dl-chev" aria-hidden="true">▾</span></div></div>`;
+    const det = open ? `<div class="dl-detail"><p class="dl-wait-note">${esc(T.waitDetail(n, k))}</p>` +
       `<button type="button" class="dl-mini dl-rev" data-act="turn" data-code="${d.code}">${esc(T.tell(n))}</button></div>` : "";
-    return `<div class="dl-item${open ? " open" : ""}">${row}${det}</div>`;
+    return `<div class="dl-item${open ? " open" : ""}">${card}${det}</div>`;
   }
-
   function groupHtml(T, g) {
     const latest = g.ds[0], n = oppName(latest), isOpen = openGrp === g.k;
     const known = g.ds.filter((d) => !unrevealed(d));   // stand, blokjes en details alleen van uitslagen die je al zag
@@ -2193,7 +2328,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
       }
       det = `<div class="dl-detail">${vs}<div class="duel-card"><div class="duel-head"><b>${esc(cap(whenText(T, sel.finished_at)))}, ${esc(clockText(sel.finished_at))}</b>` +
         `<span class="duel-r">${esc(T.total(so.a, so.b))}</span>` +
-        `<button type="button" class="dl-endb" data-act="end" data-code="${sel.code}" aria-label="${esc(cap(T.final))}" title="${esc(cap(T.final))}">🏁<span aria-hidden="true">›</span></button></div>` + tilesHtml(sel, { hint: true }) +
+        `<button type="button" class="dl-endb" data-act="end" data-code="${sel.code}" aria-label="${esc(cap(T.final))}" title="${esc(cap(T.final))}">🏁<span aria-hidden="true">›</span></button></div>` + boardHtml(T, sel, { hint: true }) +
         `<span class="duel-verdict">${esc(verdict(T, so, n))}</span></div>` +
         (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const o = outcome(d.mine, d.theirs);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${o.res}">${esc(resText(T, o))}</span></button>`; }).join("")}</div>` : "") +
@@ -2284,8 +2419,11 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     const d = (listItems || []).find((x) => x.code === code);
     const name = myName();
     if (!name) return showPop(T, popBody(T, d), d);
-    b.disabled = true;
-    b.textContent = T.loading;
+    const card = b.closest?.(".dl-card") || b, btn = b.matches?.("button") ? b : card.querySelector?.('button[data-act="accept"]') || b;   // 19/11: de kaart zelf is ook de knop
+    if (card.dataset.busy) return;
+    card.dataset.busy = "1";
+    btn.disabled = true;
+    btn.textContent = T.loading;
     const r = await call("duel_accept", { p_code: code, p_name: name });
     if (!r.ok) {
       // db/203: al 3 duels met deze speler: zeg dat, in plaats van stil de lijst te verversen (de uitnodiging blijft 24 uur staan)
@@ -2414,10 +2552,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
     }
     if (d.can_accept) {
       const needName = !(H.loggedIn && H.myName && H.myName());
-      const fl = d.c_flair && H.flairHtml ? H.flairHtml(d.c_flair) : "";
       const [ha, hb] = recOf(d.opp || "");
       const chip = ha || hb ? `<p class="duel-h2h">${esc(T.h2hChip)} <b>${ha}–${hb}</b>${formHtml(formOf(d.opp || ""))}</p>` : "";   // db/189
-      return `${icoHtml()}<h2>${fl ? fl + " " : ""}${esc((d.rematch ? T.invRematch : T.invTitle)(c))}</h2>${thHtml(d)}${chip}<ul><li>${themeOf(d) ? T.inv1Era : T.inv1}</li><li>${T.inv2}</li><li>${T.inv3}</li></ul>` +
+      return `${bandHtml(T, c, d.c_flair, { poster: true, tag: T.fiveR })}<h2>${esc((d.rematch ? T.invRematch : T.invTitle)(c))}</h2>${thHtml(d)}${chip}<ul><li>${themeOf(d) ? T.inv1Era : T.inv1}</li><li>${T.inv2}</li><li>${T.inv3}</li></ul>` +
         (needName ? `<label for="duel-name-acc">${esc(T.invName(c))}<input id="duel-name-acc" maxlength="20" autocomplete="nickname" placeholder="${esc(T.namePh)}" value="${esc(storedName() || "")}"></label>` : "") +
         `<button type="button" class="duel-go" data-act="accept" data-code="${d.code}">${esc(T.accept)}</button>` +
         `<button type="button" class="duel-no" data-act="decline" data-code="${d.code}">${esc(T.decline)}</button>` +
@@ -2534,7 +2671,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   return {
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
-    _: { outcome, stand, tilesHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, vsInner, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
+    _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
