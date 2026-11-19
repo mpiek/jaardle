@@ -587,6 +587,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 .dl-card-f > small em { font-style: normal; color: var(--fg); font-weight: 600; }
 .dl-card.sync .dl-card-f > small { animation: dl-sync 0.7s ease-in-out infinite alternate; }
 .dl-card.out > .dl-link { margin: 0; }   /* je eigen uitdaging onder Wacht: de band zoals bij een uitdaging aan jou, zonder blauwe rand (niet jouw beurt) */
+.dl-card.out .vb-me, .dl-card.out .vb-op { filter: saturate(0.4) brightness(0.72); }   /* 19/11: wachten = gedempt t.o.v. wat jouw beurt is */
 /* de twee kanten bij een uitdaging (zoals de opening): jij blauw, de ander in zijn kleur, ⚔️ op de schuine naad */
 .vb { --p: 50%; --tilt: 0.7rem; --ang: 24.3deg; position: relative; flex: none; height: 3.1rem; border-radius: 10px; overflow: hidden; color: #fff; isolation: isolate; }
 .vb-op, .vb-me { position: absolute; inset: 0; }
