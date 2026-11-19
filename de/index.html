@@ -29,9 +29,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-M/adwh28vSJIhi7yhj+heKBUkgwVCqQv36tuwQuPzvE=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-BeA3R4ljLDMmpT4rj5E+kAtwkEMqb8P3bP9lRv7OFmE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
-     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=448 = de src van de game.js-tag onderaan (build). -->
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=449 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
-<link rel="preload" as="script" href="/game.js?v=448">
+<link rel="preload" as="script" href="/game.js?v=449">
 <script>
   // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
   window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -204,6 +204,8 @@
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="remind" data-i18n="menu_remind" hidden>🔔 Tägliche Erinnerung</button>
             <!-- ⏩ Check (db/180): staat per account op de server, dus alleen ingelogd; game.js (syncLaterCheckUi) toont en zet hem. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="later-check" data-i18n="menu_later_check" hidden>⏩ Check</button>
+            <!-- 🎯 Strenge check: elke onmogelijke gok weigeren, ook de eerste. Voor iedereen, alleen op dit toestel; zonder eigen keuze aan met een account. game.js (syncStrictGuardUi) zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="strict-guard" data-i18n="menu_strict_guard">🎯 Strenge Prüfung</button>
             <!-- ⚔️ Duel-seintjes (db/189): los van het dagelijkse seintje; alleen voor wie duels heeft en push kan. game.js (syncDuelPushUi) toont en zet hem. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-push" data-i18n="menu_duel_push" hidden>⚔️ Duell-Benachrichtigungen</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>🎃 Halloween-Look</button>
@@ -328,7 +330,7 @@
         <li>Farben pro Versuch: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hinweise: ⏩ <span data-penalty="later-clue"></span> je Stück · 🧭 <span data-penalty="dir-hint"></span> je Stück · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
         <li>Stufen: <span data-help="tiers"></span></li>
-        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch, den deine eigenen früheren Versuche schon ausschließen (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer), wird abgelehnt, ohne einen Versuch zu kosten. Du siehst dann, welcher Versuch ihn ausschließt und welche Jahre dieser zulässt; tippe auf einen Versuch, um das jederzeit zu sehen.</li>
+        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch außerhalb deines bekannten Bereichs (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer) wird abgelehnt, ohne einen Versuch zu kosten. Diese Prüfung bleibt nachsichtig, bis du einen Versuch machst, den dein eigenes Feld schon ausgeschlossen hat; danach wird sie streng und nennt die noch möglichen Jahre. Mit 🎯 Strenge Prüfung in ⚙️ (mit Konto standardmäßig an) ist sie sofort streng und zeigt, welcher Versuch ihn ausschließt; tippe auf einen Versuch, um das jederzeit zu sehen.</li>
         <li>Tasten: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>↑</kbd> holt deinen letzten Versuch zurück, <kbd>←</kbd>/<kbd>→</kbd> durchs Karussell, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> für die Hinweise, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>
       </ul>
     </details>
@@ -563,7 +565,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=448"></script>
+  <script src="/game.js?v=449"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

@@ -79,7 +79,7 @@ const HELP_NL = `
         <li>Kleuren bij elke gok: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Strafpunten per misgok: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> per stuk · 🧭 <span data-penalty="dir-hint"></span> per stuk · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, op basis van je dichtste gok.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
-        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok die je eigen eerdere gokken al uitsluiten (of die buiten een gekochte eeuw/cijfer valt) wordt geweigerd zonder een poging te kosten. Je ziet dan welke gok hem uitsluit en welke jaartallen die toelaat; tik op een gok om dat altijd te zien.</li>
+        <li>🧭 verschijnt na je eerste gok en toont de pijl alleen bij je laatste gok, max <span data-help="max-dir-hints"></span> per puzzel. Een gok buiten je bekende bereik (of buiten een gekochte eeuw/cijfer) wordt geweigerd zonder een poging te kosten. Die controle is soepel tot je één gok doet die je eigen bord al uitsloot; daarna gaat hij op scherp en noemt hij de jaartallen die nog kunnen. Met 🎯 Strenge check in ⚙️ (standaard aan met een account) is hij meteen op scherp en zie je welke gok hem uitsluit; tik op een gok om dat altijd te zien.</li>
         <li>Toetsen: cijfers + Enter om te gokken, <kbd>−</kbd> voor v.Chr., <kbd>↑</kbd> haalt je laatste gok terug, <kbd>←</kbd>/<kbd>→</kbd> door de carrousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> voor de hints, <kbd>D</kbd>/<kbd>N</kbd> om te wisselen.</li>
       </ul>
     </details>
@@ -97,7 +97,7 @@ const HELP_EN = `
         <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
         <li>Tiers: <span data-help="tiers"></span></li>
-        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess your own earlier guesses already rule out (or outside a purchased century/digit) is rejected without costing a guess. You then see which guess rules it out and which years that one allows; tap a guess to see this any time.</li>
+        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess. That check stays lenient until you make one guess your own board already ruled out; after that it tightens up and names the years still possible. With 🎯 Strict check in ⚙️ (on by default with an account) it is strict from the start and shows which guess rules it out; tap a guess to see this any time.</li>
         <li>Keys: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>↑</kbd> recalls your last guess, <kbd>←</kbd>/<kbd>→</kbd> through the carousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> for the hints, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>
       </ul>
     </details>
@@ -115,7 +115,7 @@ const HELP_DE = `
         <li>Farben pro Versuch: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Abzug pro Fehlversuch: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hinweise: ⏩ <span data-penalty="later-clue"></span> je Stück · 🧭 <span data-penalty="dir-hint"></span> je Stück · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Verloren = 0–10, basierend auf deinem besten Versuch.</li>
         <li>Stufen: <span data-help="tiers"></span></li>
-        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch, den deine eigenen früheren Versuche schon ausschließen (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer), wird abgelehnt, ohne einen Versuch zu kosten. Du siehst dann, welcher Versuch ihn ausschließt und welche Jahre dieser zulässt; tippe auf einen Versuch, um das jederzeit zu sehen.</li>
+        <li>🧭 erscheint nach deinem ersten Versuch und zeigt den Pfeil nur bei deinem letzten Versuch, max. <span data-help="max-dir-hints"></span> pro Rätsel. Ein Versuch außerhalb deines bekannten Bereichs (oder außerhalb eines gekauften Jahrhunderts/einer Ziffer) wird abgelehnt, ohne einen Versuch zu kosten. Diese Prüfung bleibt nachsichtig, bis du einen Versuch machst, den dein eigenes Feld schon ausgeschlossen hat; danach wird sie streng und nennt die noch möglichen Jahre. Mit 🎯 Strenge Prüfung in ⚙️ (mit Konto standardmäßig an) ist sie sofort streng und zeigt, welcher Versuch ihn ausschließt; tippe auf einen Versuch, um das jederzeit zu sehen.</li>
         <li>Tasten: Ziffern + Enter zum Raten, <kbd>−</kbd> für v. Chr., <kbd>↑</kbd> holt deinen letzten Versuch zurück, <kbd>←</kbd>/<kbd>→</kbd> durchs Karussell, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> für die Hinweise, <kbd>D</kbd>/<kbd>N</kbd> zum Wechseln.</li>
       </ul>
     </details>
@@ -133,7 +133,7 @@ const HELP_ES = `
         <li>Colores por intento: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalización por fallo: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Pistas: ⏩ <span data-penalty="later-clue"></span> cada una · 🧭 <span data-penalty="dir-hint"></span> cada una · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdida = 0–10, según tu intento más cercano.</li>
         <li>Niveles: <span data-help="tiers"></span></li>
-        <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento que tus propios intentos anteriores ya descartan (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento. Verás qué intento lo descarta y qué años permite ese; toca un intento para verlo cuando quieras.</li>
+        <li>🧭 aparece tras tu primer intento y solo revela la flecha en tu último intento, máx. <span data-help="max-dir-hints"></span> por puzle. Un intento fuera de tu rango conocido (o fuera de un siglo/cifra comprados) se rechaza sin gastar un intento. Esa comprobación es indulgente hasta que haces un intento que tu propio tablero ya descartaba; a partir de ahí se vuelve estricta y nombra los años aún posibles. Con 🎯 Control estricto en ⚙️ (activado por defecto con una cuenta) es estricta desde el principio y muestra qué intento lo descarta; toca un intento para verlo cuando quieras.</li>
         <li>Teclas: cifras + Enter para adivinar, <kbd>−</kbd> para a. C., <kbd>↑</kbd> recupera tu último intento, <kbd>←</kbd>/<kbd>→</kbd> por el carrusel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para las pistas, <kbd>D</kbd>/<kbd>N</kbd> para cambiar.</li>
       </ul>
     </details>
@@ -151,7 +151,7 @@ const HELP_PT = `
         <li>Cores por tentativa: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
         <li>Penalidade por erro: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Dicas: ⏩ <span data-penalty="later-clue"></span> cada · 🧭 <span data-penalty="dir-hint"></span> cada · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Perdido = 0–10, conforme sua tentativa mais próxima.</li>
         <li>Níveis: <span data-help="tiers"></span></li>
-        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa que suas próprias tentativas anteriores já descartam (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa. Você vê qual tentativa a descarta e quais anos ela permite; toque numa tentativa para ver isso a qualquer momento.</li>
+        <li>🧭 aparece depois da sua primeira tentativa e só revela a seta na sua última tentativa, máx. <span data-help="max-dir-hints"></span> por quebra-cabeça. Uma tentativa fora do seu intervalo conhecido (ou fora de um século/algarismo comprado) é rejeitada sem custar uma tentativa. Essa verificação é tolerante até você fazer uma tentativa que seu próprio tabuleiro já descartava; depois disso ela fica rigorosa e indica os anos ainda possíveis. Com 🎯 Checagem rigorosa em ⚙️ (ativada por padrão com uma conta) ela é rigorosa desde o início e mostra qual tentativa a descarta; toque numa tentativa para ver isso a qualquer momento.</li>
         <li>Teclas: algarismos + Enter para adivinhar, <kbd>−</kbd> para a.C., <kbd>↑</kbd> recupera sua última tentativa, <kbd>←</kbd>/<kbd>→</kbd> pelo carrossel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> para as dicas, <kbd>D</kbd>/<kbd>N</kbd> para alternar.</li>
       </ul>
     </details>
@@ -230,7 +230,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
-    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
+    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_strict_guard: "🎯 Strenge check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
@@ -359,6 +359,8 @@ const I18N = {
     copy_prompt: "Kopieer dit:",
     cal_solved: (g, max) => `opgelost (${g}/${max})`,
     range_or: " of ",
+    band_warn: (jaren) => `🎯 ${jaren} jaar buiten het bereik van je gokken`,
+    range_warn: (bereiken) => `🎯 Je eigen gokken laten alleen ${bereiken} nog toe`,
     row_ranges: (gok, band, bereiken) => `📏 ${gok} ${band} jaar\n${bereiken}`,
     century_warn: (band) => `🏛️ Buiten het tijdvak (${band})`,
     digit_warn: (d) => `🔢 Eindigt niet op ${d}`,
@@ -584,7 +586,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
-    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
+    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_strict_guard: "🎯 Strict check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
@@ -713,6 +715,8 @@ const I18N = {
     copy_prompt: "Copy this:",
     cal_solved: (g, max) => `solved (${g}/${max})`,
     range_or: " or ",
+    band_warn: (years) => `🎯 ${years} years outside your guess range`,
+    range_warn: (ranges) => `🎯 Your own guesses leave only ${ranges}`,
     row_ranges: (guess, band, ranges) => `📏 ${guess} ${band} years\n${ranges}`,
     century_warn: (band) => `🏛️ Outside the era (${band})`,
     digit_warn: (d) => `🔢 Doesn't end in ${d}`,
@@ -931,7 +935,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
-    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
+    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_strict_guard: "🎯 Strenge Prüfung", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
@@ -1060,6 +1064,8 @@ const I18N = {
     copy_prompt: "Kopiere das:",
     cal_solved: (g, max) => `gelöst (${g}/${max})`,
     range_or: " oder ",
+    band_warn: (jahre) => `🎯 ${jahre} Jahre außerhalb deiner Spanne`,
+    range_warn: (spannen) => `🎯 Deine eigenen Versuche lassen nur noch ${spannen} zu`,
     row_ranges: (versuch, band, spannen) => `📏 ${versuch} ${band} Jahre\n${spannen}`,
     century_warn: (band) => `🏛️ Außerhalb der Epoche (${band})`,
     digit_warn: (d) => `🔢 Endet nicht auf ${d}`,
@@ -1282,7 +1288,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
-    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_strict_guard: "🎯 Control estricto", menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
@@ -1411,6 +1417,8 @@ const I18N = {
     copy_prompt: "Copia esto:",
     cal_solved: (g, max) => `resuelto (${g}/${max})`,
     range_or: " o ",
+    band_warn: (anos) => `🎯 ${anos} años fuera de tu margen`,
+    range_warn: (rangos) => `🎯 Tus propios intentos solo dejan ${rangos}`,
     row_ranges: (intento, band, rangos) => `📏 ${intento} ${band} años\n${rangos}`,
     century_warn: (band) => `🏛️ Fuera de la época (${band})`,
     digit_warn: (d) => `🔢 No termina en ${d}`,
@@ -1633,7 +1641,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
-    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_strict_guard: "🎯 Checagem rigorosa", menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
@@ -1762,6 +1770,8 @@ const I18N = {
     copy_prompt: "Copie isto:",
     cal_solved: (g, max) => `resolvido (${g}/${max})`,
     range_or: " ou ",
+    band_warn: (anos) => `🎯 ${anos} anos fora da sua faixa`,
+    range_warn: (faixas) => `🎯 Seus próprios palpites deixam apenas ${faixas}`,
     row_ranges: (palpite, band, faixas) => `📏 ${palpite} ${band} anos\n${faixas}`,
     century_warn: (band) => `🏛️ Fora da era (${band})`,
     digit_warn: (d) => `🔢 Não termina em ${d}`,
@@ -2543,10 +2553,7 @@ function guessRanges(g, dirKnown) {
 // Ligt `year` buiten wat een eerdere rij al toeliet? Geeft de rij-index terug die 'm uitsluit, anders -1. Sluiten meerdere
 // rijen hem uit, dan de rij met het smalste venster (die zegt het meest; bij gelijkspel de laatste). Een 🧭 wordt altijd op
 // de op dat moment laatste rij gekocht, dus voor elke eerdere rij j < i was die pijl toen al bekend.
-//
-// Elke gok die zo'n rij uitsluit wordt geweigerd, ook de eerste (tot 12/11 mocht die ene nog: in 48% van de daily's kostte
-// hij een beurt, en 91% van de verliezen had hem). Wie foutloos kruist merkt hier niets van. Afgeleid uit het bord,
-// geen opslag, dus na F5 of op een tweede apparaat gelijk.
+// Afgeleid uit het bord, geen opslag, dus na F5 of op een tweede apparaat gelijk.
 function guessImpossibleAt(guesses, year, revealedSet) {
   let idx = -1, best = Infinity;
   (guesses || []).forEach((g, i) => {
@@ -2556,6 +2563,84 @@ function guessImpossibleAt(guesses, year, revealedSet) {
     if (width <= best) { best = width; idx = i; }
   });
   return idx;
+}
+
+// ── De gok-guard: soepel of 🎯 streng ──
+// 🎯 Strenge check (12/11): elke gok die een eerdere rij uitsluit wordt geweigerd, ook de eerste; de bubble noemt alleen de
+// rij die hem uitsluit (het kruisen blijft je eigen werk). Sinds 19/11 een schakelaar in ⚙️, standaard AAN met een account
+// en UIT zonder: met de strenge guard maakten nieuwkomers de daily veel minder af (daily-done-new ÷ guess-1-daily-new, per
+// band 1/2/3: 84/76/76% vóór 12/11 → 67/65/40% erna; terugkerende spelers bleven ±95%). Een eigen keuze wint altijd van
+// de standaard. Alleen op dit toestel (set_my_prefs kent de sleutel nog niet).
+//
+// Soepel (de guard van 22/9–12/11): eerst alleen een vangnet tegen typefouten (outOfBand: verder van je dichtste gok dan
+// die kleur toelaat, + 30 jaar speelruimte). Doe je één gok die je eigen bord al uitsloot (die kost dus nog een beurt),
+// dan gaat hij voor de rest van het potje op scherp (strictGuardOn) en noemt hij wat alle rijen samen nog toelaten.
+const STRICT_GUARD_KEY = "jaardle:strictguard";   // "1" = aan, "0" = uit, leeg = nooit gekozen (dan: aan met een account)
+function strictGuardChoice() {
+  try { const v = localStorage.getItem(STRICT_GUARD_KEY); return v === "1" ? true : v === "0" ? false : null; } catch (e) { return null; }
+}
+function strictGuardPref() {
+  const c = strictGuardChoice();
+  return c ?? !!auth.user;
+}
+function setStrictGuard(on) {
+  try { localStorage.setItem(STRICT_GUARD_KEY, on ? "1" : "0"); } catch (e) {}
+  gcCount(on ? "strict-guard-on" : "strict-guard-off", on ? "Strict check on" : "Strict check off");
+  syncStrictGuardUi();
+}
+function syncStrictGuardUi() {
+  document.querySelector('#menu-pop [data-action="strict-guard"]')?.setAttribute("aria-checked", String(strictGuardPref()));
+}
+
+// Speelruimte bovenop de band-bovengrens voor het typefout-vangnet: pas weigeren als de gok er duidelijk buiten valt.
+const BAND_SLACK = 30;
+
+// Typefout-vangnet (soepel): je dichtste eerdere gok geeft via z'n badge het smalste bereik waarin het antwoord moet liggen.
+// Ligt `year` daar verder vandaan dan die bovengrens + speelruimte, dan geeft hij die afstand (jaren) terug, anders 0.
+// De bovengrens is nooit kleiner dan de echte afstand (een dagbord met de oude banden), dus nooit het antwoord zelf.
+function outOfBand(guesses, year) {
+  const closest = (guesses || []).reduce(
+    (b, g) => (b === null || Math.abs(g.diff) < Math.abs(b.diff)) ? g : b, null);
+  if (!closest || BAND_OUTER[closest.cls] === undefined) return 0;   // farthest → geen bovengrens, geen guard
+  const outer = Math.max(BAND_OUTER[closest.cls], Math.abs(closest.diff));
+  const jump = Math.abs(year - closest.year);
+  return jump > outer + BAND_SLACK ? jump : 0;
+}
+
+// Doorsnede van twee lijsten intervallen; beide oplopend en niet-overlappend.
+function intersectRanges(a, b) {
+  const out = [];
+  for (const [al, ah] of a) {
+    for (const [bl, bh] of b) {
+      const lo = Math.max(al, bl), hi = Math.min(ah, bh);
+      if (lo <= hi) out.push([lo, hi]);
+    }
+  }
+  return out.sort((x, y) => x[0] - y[0]);
+}
+
+// Wat er na alle gokken nog overblijft (soepel, na je eerste fout): de vensters van elke rij over elkaar heen, plus een
+// gekochte 🏛️-eeuw. Alleen info van je eigen bord, uitgerekend. 🔢 houdt z'n eigen regel.
+function remainingRanges(guesses, revealedSet, century) {
+  let acc = [[MIN_YEAR, MAX_YEAR]];
+  (guesses || []).forEach((g, i) => {
+    const rs = guessRanges(g, revealedSet.has(i));
+    if (rs.length) acc = intersectRanges(acc, rs);
+  });
+  if (century != null) {
+    const start = Math.floor(century / 100) * 100;
+    acc = intersectRanges(acc, [[Math.max(MIN_YEAR, start), Math.min(MAX_YEAR, start + 99)]]);
+  }
+  return acc;
+}
+
+// Soepel: heeft de speler dit potje al een gok gedaan die zijn eigen bord toen al uitsloot? Dan staat de guard op scherp.
+function strictGuardOn(guesses, revealedSet) {
+  const gs = guesses || [];
+  for (let i = 1; i < gs.length; i++) {
+    if (guessImpossibleAt(gs.slice(0, i), gs[i].year, revealedSet) >= 0) return true;
+  }
+  return false;
 }
 
 // "1250–1399", "1925–39", "753–200 v.Chr.", "50 v.Chr.–120", of één jaartal als het bereik tot
@@ -2584,9 +2669,10 @@ function rowRangeText(g, dirKnown) {
 
 // Redenen waarom een gok logisch niet kan kloppen — puur uit info die de speler
 // zélf al heeft, dus verklapt niets. Drie vangnetten:
-//   📏 een eerdere rij sluit hem uit (guessImpossibleAt): de bubble noemt de jaartallen van alleen DIE rij, net als een
-//      tik op de rij, en die rij licht op. Bewust niet wat alle rijen samen nog toelaten: dan zou een onzinjaar intikken
-//      het kruisen voor je doen.
+//   📏/🎯 je bord sluit hem uit. 🎯 Strenge check (strictGuardPref): elke gok die een eerdere rij uitsluit; de bubble noemt
+//      de jaartallen van alleen DIE rij, net als een tik op de rij, en die rij licht op (bewust niet wat alle rijen samen
+//      nog toelaten: dan zou een onzinjaar intikken het kruisen voor je doen). Soepel: eerst alleen het typefout-vangnet
+//      (outOfBand), na je eerste fout wél alles wat je bord uitsluit, met wat alle rijen samen nog toelaten (zie hierboven).
 //   🏛️ buiten het betaalde eeuw-tijdvak,
 //   🔢 eindigt niet op het betaalde laatste cijfer.
 // Is er één, dan weigeren we de gok (rood + bubble) i.p.v. een poging +
@@ -2594,8 +2680,21 @@ function rowRangeText(g, dirKnown) {
 function guessBlockReason(year) {
   const lines = [];
   const revealed = new Set(state.directionsRevealed || []);
-  const row = guessImpossibleAt(state.guesses, year, revealed);
-  if (row >= 0) lines.push(...rowRangeText(state.guesses[row], revealed.has(row)).split("\n"));
+  let row = -1;
+  if (strictGuardPref()) {
+    row = guessImpossibleAt(state.guesses, year, revealed);
+    if (row >= 0) lines.push(...rowRangeText(state.guesses[row], revealed.has(row)).split("\n"));
+  } else if (strictGuardOn(state.guesses, revealed)) {
+    if (guessImpossibleAt(state.guesses, year, revealed) >= 0) {
+      const left = remainingRanges(state.guesses, revealed, state.centuryRevealed && state.event ? state.event.year : null);
+      lines.push(left.length
+        ? t("range_warn")(left.map(([a, b]) => rangeLabel(a, b)).join(t("range_or")))
+        : t("band_warn")(Math.abs(year - state.guesses[state.guesses.length - 1].year)));
+    }
+  } else {
+    const oob = outOfBand(state.guesses, year);
+    if (oob) lines.push(t("band_warn")(oob));
+  }
   if (state && state.event) {
     const answer = state.event.year;
     if (state.centuryRevealed && !lines.length) {
@@ -13497,6 +13596,7 @@ function renderMenu() {
   syncRemindUi();   // 🔔 Dagelijks seintje: alleen als deze browser kan pushen (of een iPhone is), schakelaar aan als het aanstaat
   syncInstallUi();  // 📲 Zet op beginscherm: alleen als het kan en Jaardle nog niet als app draait
   syncLaterCheckUi();   // ⏩ Check: alleen ingelogd (staat op de server)
+  syncStrictGuardUi();  // 🎯 Strenge check: voor iedereen; zonder eigen keuze aan met een account
   // Verwijder de dynamische Inloggen-regel maar laat statische knoppen (stats) staan;
   // Uitloggen zit in de kop (renderMenuAccount).
   items.querySelectorAll('.menu-item[data-action="login"]').forEach((b) => b.remove());
@@ -14857,6 +14957,10 @@ async function init() {
     }
     if (action === "duel-push") {   // db/189: in-place, het menu blijft open; aanzetten vraagt (pas nu) om toestemming
       loadDuel().then((D) => D.pushToggle(duelHost())).then(syncDuelPushUi).catch(() => {});
+      return;
+    }
+    if (action === "strict-guard") {   // 🎯 Strenge check: in-place, het menu blijft open (zoals het thema)
+      setStrictGuard(!strictGuardPref());
       return;
     }
     if (action === "later-check") {   // in-place, het menu blijft open (zoals het thema)

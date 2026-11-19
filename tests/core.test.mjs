@@ -48,7 +48,7 @@ src += `
 ;globalThis.__T = {
   classify, scoreTier, closestMiss, shareText, NEAR_TIERS, distChip, parseShareToken, emojiFor, t, computeScore, I18N, guessBlockReason,
   BAND_OUTER, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
-  BAND_INNER, guessRanges, guessImpossibleAt,
+  BAND_INNER, guessRanges, guessImpossibleAt, outOfBand, BAND_SLACK, strictGuardOn, remainingRanges, intersectRanges, strictGuardPref, setStrictGuard, STRICT_GUARD_KEY,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
   rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
@@ -1093,8 +1093,9 @@ test("guessImpossibleAt — vangt 'te dicht bij de vorige gok' en kiest de rij m
   assert.equal(T.guessImpossibleAt([g1450, g1520], 1700, rev), 1);
 });
 
-test("guessBlockReason — ook de eerste onmogelijke gok wordt geweigerd, met de jaartallen van alleen die rij", () => {
+test("guessBlockReason — 🎯 streng: ook de eerste onmogelijke gok wordt geweigerd, met de jaartallen van alleen die rij", () => {
   T.setLang("nl");
+  localStorage.setItem(T.STRICT_GUARD_KEY, "1");
   const g1450 = { year: 1450, diff: 51, cls: "far" };
   const g1520 = { year: 1520, diff: 8, cls: "close" };
   T.setState({ guesses: [g1450], directionsRevealed: [], event: { year: 1501 } });
@@ -1110,6 +1111,88 @@ test("guessBlockReason — ook de eerste onmogelijke gok wordt geweigerd, met de
   T.setState({ guesses: [g1450, g1520], directionsRevealed: [], event: { year: 1528 }, lastDigitRevealed: true, centuryRevealed: true });
   assert.equal(T.guessBlockReason(1600).lines.length, 3);
   assert.deepEqual(T.guessBlockReason(1527), { lines: [T.t("digit_warn")(8)], row: -1 });
+  localStorage.removeItem(T.STRICT_GUARD_KEY);
+});
+
+test("🎯 Strenge check — zonder eigen keuze aan met een account en uit zonder; een keuze wint altijd", () => {
+  const prev = T.auth.user;
+  try {
+    localStorage.removeItem(T.STRICT_GUARD_KEY);
+    T.auth.user = null;
+    assert.equal(T.strictGuardPref(), false);
+    T.auth.user = { uid: "u1" };
+    assert.equal(T.strictGuardPref(), true);
+    T.setStrictGuard(false);
+    assert.equal(localStorage.getItem(T.STRICT_GUARD_KEY), "0");
+    assert.equal(T.strictGuardPref(), false);   // account, maar zelf uitgezet
+    T.auth.user = null;
+    T.setStrictGuard(true);
+    assert.equal(T.strictGuardPref(), true);    // geen account, maar zelf aangezet
+  } finally { T.auth.user = prev; localStorage.removeItem(T.STRICT_GUARD_KEY); }
+});
+
+test("guessBlockReason — soepel: eerst alleen het typefout-vangnet, na je eerste fout op scherp met wat er nog kan", () => {
+  T.setLang("nl");
+  const prev = T.auth.user;
+  try {
+    T.auth.user = null;
+    localStorage.removeItem(T.STRICT_GUARD_KEY);
+    const g1450 = { year: 1450, diff: 51, cls: "far" };   // 1250–1399 of 1501–1650
+    T.setState({ guesses: [g1450], directionsRevealed: [], event: { year: 1501 } });
+    assert.deepEqual(T.guessBlockReason(1500), { lines: [], row: -1 });   // eerste fout mag (kost een beurt)
+    assert.deepEqual(T.guessBlockReason(1700), { lines: [T.t("band_warn")(250)], row: -1 });   // > 200 + 30: typefout-vangnet
+    // na de fout (1500 terwijl het bord ≥ 1501 zei) op scherp: wat alle rijen samen nog toelaten
+    const g1500 = { year: 1500, diff: 1, cls: "veryclose" };   // 1498–1499 of 1501–1502
+    T.setState({ guesses: [g1450, g1500], directionsRevealed: [], event: { year: 1501 } });
+    assert.deepEqual(T.guessBlockReason(1499), { lines: [T.t("range_warn")("1501–02")], row: -1 });
+    assert.deepEqual(T.guessBlockReason(1502), { lines: [], row: -1 });
+    // dezelfde stand met 🎯 aan: de uitsluitende rij, die licht op
+    T.setStrictGuard(true);
+    assert.deepEqual(T.guessBlockReason(1499), { lines: ["📏 1450 ± 51–200 jaar", "1250–1399 of 1501–1650"], row: 0 });
+  } finally { T.auth.user = prev; localStorage.removeItem(T.STRICT_GUARD_KEY); }
+});
+
+test("outOfBand — weigert pas als de gok duidelijk buiten het bereik van je dichtste gok valt", () => {
+  const close = { year: 1850, diff: 8, cls: "close" };   // bovengrens 10 (+ speelruimte 30 = 40)
+  assert.equal(T.outOfBand([], 1800), 0);
+  assert.equal(T.outOfBand([close], 1800), 50);
+  assert.equal(T.outOfBand([close], 1885), 0);
+  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + T.BAND_SLACK), 0);
+  assert.equal(T.outOfBand([close], 1850 + T.BAND_OUTER.close + T.BAND_SLACK + 1), 41);
+  assert.equal(T.outOfBand([{ year: 1850, diff: 700, cls: "farthest" }], 0), 0);   // 600+ is onbegrensd
+  assert.equal(T.outOfBand([close, { year: 1700, diff: 150, cls: "far" }], 1790), 60);   // de DICHTSTE gok telt
+  // vangnet: de bovengrens wordt nooit kleiner dan de echte afstand van die rij (dagbord met andere banden)
+  assert.equal(T.outOfBand([{ year: 1850, diff: 45, cls: "close" }], 1895), 0);
+});
+
+test("strictGuardOn + remainingRanges — soepele guard", () => {
+  const rev = new Set();
+  const g1450 = { year: 1450, diff: 51, cls: "far" };
+  assert.equal(T.strictGuardOn([], rev), false);
+  assert.equal(T.strictGuardOn([g1450], rev), false);
+  assert.equal(T.strictGuardOn([g1450, { year: 1550, diff: -49, cls: "cool" }], rev), false);
+  assert.equal(T.strictGuardOn([g1450, { year: 1500, diff: 1, cls: "veryclose" }], rev), true);
+  const gs = [g1450, { year: 1555, diff: -54, cls: "far" }];
+  assert.deepEqual(T.remainingRanges(gs, rev, null), [[1355, 1399], [1501, 1504], [1606, 1650]]);
+  assert.deepEqual(T.remainingRanges(gs, rev, 1501), [[1501, 1504]]);
+  assert.deepEqual(T.intersectRanges([[1, 10]], [[20, 30]]), []);
+});
+
+test("soepele guard blokkeert NOOIT het juiste antwoord", () => {
+  const rev = new Set();
+  for (const blue of [true, false]) {
+    for (let answer = -753; answer <= 2026; answer += 7) {
+      const gs = [];
+      for (const g of [answer - 900, answer + 340, answer - 77, answer + 31, answer - 4, answer + 1]) {
+        const year = Math.max(T.MIN_YEAR, Math.min(T.MAX_YEAR, g));
+        if (year === answer) continue;
+        gs.push({ year, diff: answer - year, cls: T.classify(answer - year, blue) });
+        assert.equal(T.outOfBand(gs, answer), 0, `vangnet weigert antwoord ${answer} na gok ${year}`);
+        const left = T.remainingRanges(gs, rev, answer);
+        assert.ok(left.some(([a, b]) => answer >= a && answer <= b), `antwoord ${answer} valt buiten de resterende bereiken`);
+      }
+    }
+  }
 });
 
 test("guard blokkeert NOOIT het juiste antwoord", () => {
