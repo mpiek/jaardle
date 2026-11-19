@@ -2882,8 +2882,9 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   return {
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
     sfxTest,
-    // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS
-    kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, flairEmoji, gc, create: (h, o) => create(h, o), openList: (h, o) => openList(h, o), setHost: (h) => { H = h; } },
+    // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS, en het geluid (au: de bus, de bouwstenen, "hit")
+    kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, flairEmoji, gc, create: (h, o) => create(h, o), openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
+           au: { bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud } },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, SFX, INTRO_MS, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },

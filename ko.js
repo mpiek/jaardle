@@ -210,6 +210,51 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
   }
   function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; }
 
+  // ── geluid (19/11): alleen met ⚙️ ⚔️ Duel-geluid aan. De motor (bus, wakker maken, bouwstenen, de ⚔️-klang "hit") staat in duel.js
+  // (K.au), de klanken van de knock-out hier. Elk moment klinkt één keer (heard: code:ronde:…), want apply() en drawStrip() lopen bij
+  // elk seintje en elk antwoord opnieuw. Geen bus (uit, tab weg, geen Web Audio) = stil; een fout = stil.
+  const A = K.au || {}, heard = new Set();
+  function beep(b, at, f, g, dur) {   // een korte zuivere piep (driehoek: zacht, maar hij draagt op een telefoon)
+    const x = b.context, t = x.currentTime + at, o = x.createOscillator(), e = x.createGain();
+    o.type = "triangle"; o.frequency.value = f;
+    e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.006); e.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(e); e.connect(b); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function gong(b, at, f, g, len) {   // de grote klang van de K.O.: als ring in duel.js, maar lager en langer uitzingend
+    const x = b.context, t = x.currentTime + at;
+    for (const [r, a, d] of [[1, 1, 1], [1.47, 0.7, 0.8], [2.09, 0.5, 0.62], [2.76, 0.4, 0.5], [3.62, 0.28, 0.36], [4.95, 0.16, 0.24]]) {
+      for (const det of [-6, 6]) {
+        const o = x.createOscillator(), e = x.createGain();
+        o.frequency.value = f * r; o.detune.value = det;
+        e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g * a / 2, t + 0.004); e.gain.exponentialRampToValueAtTime(0.0001, t + len * d);
+        o.connect(e); e.connect(b); o.start(t); o.stop(t + len * d + 0.02);
+      }
+    }
+  }
+  const SFX = {
+    invite: (b) => { A.ring(b, 0, 1320, 0.14); A.ring(b, 0.16, 1760, 0.18); },   // je wordt uitgedaagd: ting-TING, omhoog
+    count: (b) => beep(b, 0, 880, 0.2, 0.12),   // 3, 2, 1
+    go: (b) => A.play(b, "hit"),   // ⚡: de ⚔️-klang van de opening van een duel
+    clock: (b) => { beep(b, 0, 1397, 0.16, 0.08); beep(b, 0.12, 1397, 0.16, 0.12); },   // de ander is klaar, jouw klok loopt: piep-piep
+    tick: (b, s) => A.tick(b, 0, s % 2 ? 2600 : 3400, 0.06 + (5 - s) * 0.02, 0.04),   // de laatste 5 s: tik-tak, steeds iets harder
+    // schade: een doffe klap als de balk begint te zakken (ko-drop wacht 0,5 s), harder bij meer schade, aan de kant van wie hem krijgt
+    hit: (b, x, me) => { const k = Math.min(1, x / 60), p = me ? -0.4 : 0.4; A.thud(b, 0.5, me ? 170 : 220, 45, 0.4 + 0.45 * k, 0.22 + 0.2 * k); A.swish(b, 0.5, 0.14, 1200, 260, 0.12 + 0.2 * k, 0.08, p, p); },
+    ko: (b, won) => {   // K.O.: klap + gong (winst hoger, met de ⚔️-klang erbovenop; verlies lager en kaal), daarna een vallende zwiep
+      A.thud(b, 0, 140, 36, 0.95, 0.6); A.tick(b, 0, 2400, 0.3, 0.09); gong(b, 0, won ? 247 : 175, 0.42, 2.6);
+      if (won) A.ring(b, 0.01, 1180, 0.24);
+      A.swish(b, 0.03, 0.9, 1600, 160, 0.14, 0.06, 0, 0);
+    },
+    draw: (b) => A.ring(b, 0, 1180, 0.16),   // gelijkspel: alleen een zachte klang
+    want: (b, at = 0) => { A.ring(b, at, 2349, 0.09); A.ring(b, at + 0.09, 2794, 0.08); },   // de ander wil revanche: belletje
+  };
+  function sfx(key, kind, ...a) {   // true = dit moment is nieuw (ook met het geluid uit; dan blijft het gewoon stil)
+    if (heard.has(key)) return false;
+    heard.add(key);
+    if (heard.size > 200) heard.delete(heard.values().next().value);
+    try { const b = A.bus?.(); if (b) { SFX[kind](b, ...a); A.nap?.(15000); } } catch (e) {}
+    return true;
+  }
+
   // ── de pop-ups (uitnodiging, wachten, geen reactie, aftellen, K.O.) ──
   function band(g, tag, cls = "") {
     K.setHost(H);
@@ -278,6 +323,7 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
   function showInvite(g) {
     const T = tx();
     const left = Math.max(0, at(g.invite_until) - now());
+    sfx(`inv:${g.code}`, "invite");
     const el = pop(band(g, T.tag) + `<h2>${esc(T.invH(oppName(g)))}</h2>` +
       `<div class="ko-rules"><span>❤️ <b>${HP}</b> ${esc(T.lives)}</span><span>${esc(T.same)}</span><span>${esc(T.mins)}</span></div>` +
       `<button type="button" class="duel-go ko-go" data-ko="yes" style="--dur:${left}ms">${esc(T.join)}<span class="ko-left"></span></button>` +
@@ -295,7 +341,7 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
   function showCount(g, rev) {
     const T = tx();
     const el = pop(band(g, rev ? T.revH : T.tag) + `<h2>${esc(rev ? T.revH : T.startH)}</h2><p class="ko-count">3</p><p>${esc(T.startP)}</p>`, () => {});
-    countdown(el.querySelector(".ko-count"), at(g.round_at), (s) => (s > 0 ? String(s) : "⚡"));
+    countdown(el.querySelector(".ko-count"), at(g.round_at), (s) => { if (s > 0) sfx(`c:${g.code}:${s}`, "count"); return s > 0 ? String(s) : "⚡"; });
   }
 
   // ── het rondescherm ──
@@ -358,11 +404,13 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     clearInterval(tClock); tClock = null;
     const g = cur, st = H.state();
     if (!g || g.state !== "live" || !g.deadline || st?.duel?.round !== g.round) return;
-    const end = at(g.deadline), span = 15000;
+    const end = at(g.deadline), span = 15000, rk = `${g.code}:${g.round}`;
+    if (!st.done && end - now() > 1000) sfx(`dl:${rk}`, "clock");   // de ander is klaar en jij speelt nog
     const tick = () => {
       const ms = Math.max(0, end - now()), s = Math.ceil(ms / 1000);
       const t = document.querySelector("#duel-vs .ko-t"), bar = document.querySelector("#duel-vs .ko-clock > i");
       if (t) { t.textContent = String(s); t.classList.toggle("last", s > 0 && s <= 5); }
+      if (s > 0 && s <= 5 && !H.state()?.done) sfx(`t:${rk}:${s}`, "tick", s);   // wie al klaar is en wacht, hoort niets
       if (bar) bar.style.transform = `scaleX(${Math.min(1, ms / span)})`;
       if (ms <= 0) {
         clearInterval(tClock); tClock = null;
@@ -417,6 +465,7 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     const a = g.mine[r - 1], b = g.theirs[r - 1], x = Math.round(Math.abs(a - b) * mult(r));
     const drain = { r, who: a > b ? "me" : a < b ? "opp" : null, me: a < b ? g.hp + x : g.hp, op: a > b ? g.opp_hp + x : g.opp_hp };
     drawStrip({ drain });
+    if (a !== b) sfx(`res:${g.code}:${r}`, "hit", x, a < b);   // bij gelijk geen schade, geen klap
     const el = placeCard(resultHtml(g, r));
     if (g.state === "live") {
       const lab = el.querySelector(".ko-next span");
@@ -438,6 +487,8 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     const p = gave ? (won ? T.gaveUp(n) : T.youGaveUp) : !g.winner ? T.drawP : won ? T.koPWin(n, r, g.hp) : T.koPLoss(n, r, g.opp_hp);
     const want = g.re_opp ? `<span class="ko-want"><span aria-hidden="true">${K.flairEmoji?.(g.opp_flair) || "⚡"}</span> ${esc(T.wantsToo)}</span>` : "";
     const fresh = at(g.finished_at) > now() - 120000;
+    const big = fresh && sfx(`ko:${g.code}`, g.winner ? "ko" : "draw", won);   // één keer per spel, niet bij een oude K.O.
+    if (fresh && g.re_opp && !g.re_me && !g.next) sfx(`want:${g.code}`, "want", big ? 1.2 : 0);   // samen met de gong: na de gong
     pop(band(g, "K.O.", ` ko-end${won ? "" : " lost"}`) + `<h2>${esc(!g.winner ? T.draw : won ? T.koWin : T.koLoss(n))}</h2><p>${esc(p)}</p>` +
       (chips ? `<div class="ko-rounds" style="--h:${hue(g)}">${chips}</div>` : "") +
       (fresh && !g.next ? (g.re_me ? `<button type="button" class="duel-go" disabled>${esc(T.rematchWait(n))}</button>`
@@ -495,7 +546,7 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     if (now() < at(g.round_at) - 400) {
       counting = g.code;
       showCount(g, g.code === revNext);
-      tStart = setTimeout(() => startRound(g), Math.max(0, at(g.round_at) - now()));
+      tStart = setTimeout(() => { sfx(`go:${g.code}`, "go"); startRound(g); }, Math.max(0, at(g.round_at) - now()));   // ⚡ (de 0 haalt het scherm zelden)
     } else startRound(g);
   }
   // je score naar de server (na je laatste gok, of verloren op de klok)
@@ -549,6 +600,6 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
         `<span><b>${esc(T.live)}</b><small>${esc(T.liveSub(name))}</small></span></button>`;
     },
     css: CSS, copy: (l) => TXT[l], langs: () => Object.keys(TXT),
-    _: { mult, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); }, resultHtml: (h, g, r) => { H = h; return resultHtml(g, r); } },
+    _: { mult, SFX, sfx, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); }, resultHtml: (h, g, r) => { H = h; return resultHtml(g, r); } },
   };
 })();
