@@ -131,6 +131,10 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .dl-sent > .dl-x { position: absolute; top: 0.15rem; right: 0.15rem; }
 .dl-sent .dl-mini { margin-top: 0.3rem; }
 .dl-empty, .dl-msg { margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
+.dl-hb { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; }
+.dl-hc { font-size: 0.8em; transition: transform 0.15s; }
+.dl-hb[aria-expanded="false"] .dl-hc { transform: rotate(-90deg); }
+.dl-hb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .dl-h { margin: 0.45rem 0 -0.15rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
 .dl-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.6rem; background: var(--card-soft); border-radius: 10px; min-height: 2.9rem; }
 .dl-row.turn { box-shadow: inset 0 0 0 1.5px var(--accent); }
@@ -931,6 +935,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   let listItems = null, listTop = "", openGrp = null, showAll = false;
   let listTargets = [], listH2h = {}, pickSel = null;   // db/189: wie je direct kunt uitdagen, je stand per tegenstander (alle duels), het gekozen gezichtje
   const selInGrp = {}, openWait = new Set();
+  let shut = new Set(); try { shut = new Set(JSON.parse(localStorage.getItem("jaardle:duelShut") || "[]")); } catch (e) {}   // 19/11: ingeklapte koppen
+  const secH = (k, txt) => `<h3 class="dl-h"><button type="button" class="dl-hb" data-act="sec" data-sec="${k}" aria-expanded="${!shut.has(k)}">${txt}<span class="dl-hc" aria-hidden="true">▾</span></button></h3>`;
   let listAt = 0, listSync = null, syncCode = null, visHooked = false;   // verversen bij kijken (syncList)
 
   function ensureCss() {
@@ -2247,15 +2253,15 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const inc = items.filter(incoming);   // db/189: een uitdaging aan jou (een teamgenoot, of een revanche)
     if (turn.length || inc.length) {
       const nT = turn.length + inc.length;
-      h += `<h3 class="dl-h">${esc(T.secTurn)}${nT > 1 ? ` · ${nT}` : ""}</h3>`;
-      for (const d of inc) {   // 19/11: de hele kaart = Neem aan (✕ apart); de twee kanten, zoals de opening
+      h += secH("turn", `${esc(T.secTurn)}${nT > 1 ? ` · ${nT}` : ""}`);
+      if (!shut.has("turn")) for (const d of inc) {   // 19/11: de hele kaart = Neem aan (✕ apart); de twee kanten, zoals de opening
         const n = d.c_name || "?", rec = h2hTxt(d);
         h += `<div class="dl-card inc" data-act="accept" data-code="${d.code}">${bandHtml(T, n, d.c_flair)}` +
           `<div class="dl-card-f"><small><b>${esc((d.rematch ? T.invRematch : T.invTitle)(n))}</b>${thHtml(d)}<br>${rec ? esc(cap(rec)) + " · " : ""}<em>${esc((rec ? String : cap)(leftText(T, d.deadline)))}</em></small>` +
           `<button type="button" class="dl-go" data-act="accept" data-code="${d.code}">${esc(T.acceptShort)}</button>` +
           `<button type="button" class="dl-x" data-act="decline" data-code="${d.code}" aria-label="${esc(T.decline)}">✕</button></div></div>`;
       }
-      for (const d of turn) {   // 19/11: het bord + één regel, de hele kaart = Speel
+      if (!shut.has("turn")) for (const d of turn) {   // 19/11: het bord + één regel, de hele kaart = Speel
         const n = oppName(d), k = d.their_done || 0, h2 = h2hTxt(d);
         const who = k >= 5 ? T.oppDone(n) : k > 0 ? T.oppPlays(n, k) : d.me === "c" ? T.accepted(n) : T.oppNotYet(n);   // "nam aan" alleen als jij uitdaagde
         h += `<div class="dl-card turn" data-act="play" data-code="${d.code}">` + boardHtml(T, d, { cur: (d.mine || []).length, meta: leftText(T, d.deadline), peek: false }) +
@@ -2264,11 +2270,13 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     if (!top.startsWith("<form")) h += pickHtml(T, newBtn, items);   // met het naamveld open is "Daag uit" de knop
     if (wait.length) {
-      h += `<h3 class="dl-h">${esc(T.secWait)}${wait.length > 1 ? ` · ${wait.length}` : ""}</h3>`;
-      for (const d of wait) h += d.status === "open" ? openLinkHtml(T, d) : waitItemHtml(T, d, h2hTxt(d));
+      h += secH("wait", `${esc(T.secWait)}${wait.length > 1 ? ` · ${wait.length}` : ""}`);
+      if (!shut.has("wait")) for (const d of wait) h += d.status === "open" ? openLinkHtml(T, d) : waitItemHtml(T, d, h2hTxt(d));
     }
     if (groups.length || gone.length) {
-      h += `<h3 class="dl-h">${esc(T.secDone)}</h3>`;
+      h += secH("done", esc(T.secDone));
+    }
+    if ((groups.length || gone.length) && !shut.has("done")) {
       const shown = showAll ? groups : groups.slice(0, 3);
       for (const g of shown) h += groupHtml(T, g);
       if (!showAll && groups.length > 3) h += `<button type="button" class="dl-moreb" data-act="more">${esc(T.moreOpp(groups.length - 3))}</button>`;
@@ -2420,6 +2428,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     if (act === "help") { gc("duel-help", "Duel: how it works"); return openHowto(T); }
     if (act === "reload") return openList(H, { keepTop: true });
+    if (act === "sec") { const k = b.dataset.sec; shut.has(k) ? shut.delete(k) : shut.add(k); try { localStorage.setItem("jaardle:duelShut", JSON.stringify([...shut])); } catch (e) {} return renderList(T, null); }
     if (act === "more") { showAll = true; return renderList(T, null); }
     if (act === "play") return play(H, code);
     if (act === "rematch") return create(H, { rematch: code });
