@@ -126,6 +126,9 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .dl-sent { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.6rem 0.75rem; background: color-mix(in srgb, var(--green) 10%, var(--card-soft));
   border: 1px solid color-mix(in srgb, var(--green) 35%, var(--border)); border-radius: 10px; font-size: 0.85rem; line-height: 1.35; }
 .dl-sent b { color: var(--green-text); }
+/* 19/11 (zijn vraag): het groene vak kun je wegklikken; het ✕ rechtsboven, de tekst houdt er ruimte voor */
+.dl-sent { position: relative; padding-right: 2.6rem; }
+.dl-sent > .dl-x { position: absolute; top: 0.15rem; right: 0.15rem; }
 .dl-sent .dl-mini { margin-top: 0.3rem; }
 .dl-empty, .dl-msg { margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
 .dl-h { margin: 0.45rem 0 -0.15rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
@@ -1460,6 +1463,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     return !!H?.remindOn?.();
   }
   // De knop (nog geen seintjes) of de regel (staan aan); niets als deze browser het niet kan.
+  // het ✕ van het groene vak na het uitdagen (weg = alleen het vak; de uitdaging zelf staat onder Wacht, met daar het ✕ om in te trekken)
+  const sentX = (T) => `<button type="button" class="dl-x" data-act="sent-x" aria-label="${esc(T.close)}" title="${esc(T.close)}">✕</button>`;
   function bellHtml(label, onText, cls = "") {
     if (!pushSupport()) return "";
     if (pushOn()) return `<span class="dl-push">${BELL} ${esc(onText)}</span>`;
@@ -2400,6 +2405,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     const act = b.dataset.act, code = b.dataset.code;
     if (act === "sync") { gc("duel-sync", "Duel: Duels logo tapped (refresh)"); return syncList(T, true); }
+    if (act === "sent-x") { listTop = ""; return renderList(T, null); }
     if (act === "modes") { modesOpen = !modesOpen; if (modesOpen) gc("duel-modes-open", "Duel: more duel types opened"); return renderList(T, null); }
     if (act === "new") { pickSel = null; return create(H, { theme: b.dataset.theme || null }); }
     if (act === "login") { gc("duel-login-list", "Duel: log in from the Duels screen"); parkLogin(code); return H.openLogin?.(); }   // het login-paneel sluit dit scherm
@@ -2510,7 +2516,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     // hem in zijn lijst. De link kan er los bij ("Stuur ook een link").
     if (forK || (rematch && d.opp_push)) {
       const nm = d.for_name || forName || "?";
-      listTop = `<div class="dl-sent"><b>✓ ${esc(T.challenged(nm))}${thHtml(d)}</b><span>${esc(d.opp_push ? T.pushYes(nm) : T.pushNo(nm))}</span>` +
+      listTop = `<div class="dl-sent">${sentX(T)}<b>✓ ${esc(T.challenged(nm))}${thHtml(d)}</b><span>${esc(d.opp_push ? T.pushYes(nm) : T.pushNo(nm))}</span>` +
         `<div class="dl-sent-acts">${bellHtml(T.bellAcc(nm), T.onAcc(nm))}<button type="button" class="dl-mini" data-act="send" data-code="${d.code}">${esc(T.alsoLink)}</button></div></div>`;
       await opened;
       openList(H, { keepTop: true });
@@ -2521,7 +2527,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const head = how === "shared" ? T.sent : how === "copied" ? T.copied : T.ready;
     const sub = d.for_name ? T.onlyFor(d.for_name) : T.sentSub;
     const bell = d.for_name ? bellHtml(T.bellAcc(d.for_name), T.onAcc(d.for_name)) : bellHtml(T.bellAccAny, T.onAccAny);
-    listTop = `<div class="dl-sent"><b>✓ ${esc(head)}${thHtml(d)}</b><span>${esc(sub)}</span>${linkField(T, d.code)}` +
+    listTop = `<div class="dl-sent">${sentX(T)}<b>✓ ${esc(head)}${thHtml(d)}</b><span>${esc(sub)}</span>${linkField(T, d.code)}` +
       (how === "shared" || how === "copied" ? "" : `<button type="button" class="dl-mini" data-act="send" data-code="${d.code}">${esc(T.sendLink)}</button>`) +
       (bell ? `<div class="dl-sent-acts">${bell}</div>` : "") + `</div>`;
     await opened;

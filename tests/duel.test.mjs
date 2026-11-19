@@ -907,3 +907,10 @@ test("duel.js — mix (19/11): logo bovenin een ronde = Duels-scherm, kaarten in
     assert.ok(t.bar && t.yet && t.itWas && t.decider && t.toDuels && t.fiveR, l);
   }
 });
+
+test("duel.js — het groene vak na het uitdagen kun je wegklikken (19/11): ✕ rechtsboven, weg = alleen het vak", () => {
+  assert.match(SRC, /const sentX = \(T\) => `<button type="button" class="dl-x" data-act="sent-x" aria-label="\$\{esc\(T\.close\)\}"/);
+  assert.equal((SRC.match(/<div class="dl-sent">\$\{sentX\(T\)\}/g) || []).length, 2, "beide groene vakken (directe uitdaging en link) hebben het ✕");
+  assert.match(SRC, /if \(act === "sent-x"\) \{ listTop = ""; return renderList\(T, null\); \}/, "weg = alleen het vak, de uitdaging blijft");
+  assert.match(D.css, /\.dl-sent > \.dl-x \{ position: absolute;/);
+});
