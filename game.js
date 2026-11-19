@@ -5209,6 +5209,17 @@ function duelsAfterLogin() {
     claimed.then(() => loadDuel()).then((D) => D.openInvite(duelHost(), p.code, { afterLogin: true })).catch(() => {});
   }
 }
+// db/206 (19/11/2026): Realtime voor ingelogde spelers via /live.js (lui, pas als de browser niets te doen heeft). Hij luistert op je eigen
+// kanaal (een duel van jou veranderde: zelfde route als een duel-seintje uit sw.js) en meldt wie er online is (groen stipje bij de
+// gezichtjes in Duels). Zonder account niets: privé-kanalen werken alleen ingelogd.
+const loadLive = fxLoader("/live.js", "Live");
+function liveSync() {
+  const uid = auth.user?.uid || null;
+  if (!uid && !window.Live) return;
+  const go = () => loadLive().then((L) => L.setUser(uid)).catch(() => {});
+  if (window.Live) go(); else if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 5000 }); else setTimeout(go, 2500);
+}
+window.addEventListener?.("jaardle:duel-rt", (e) => loadDuel().then((D) => D.pushed(duelHost(), e.detail || null)).catch(() => {}));
 // db/189: een teamgenoot kan je direct uitdagen. Wie nog geen duels op dit toestel heeft (dan kijkt checkNews niet), vraagt met
 // een account hooguit eens per kwartier één klein getal op (duel_inbox, geen duel.js); iets binnen = het rode stipje op ⋮.
 const DUEL_INBOX_AT = "jaardle:duelInboxAt";
@@ -15179,6 +15190,7 @@ async function init() {
       : null;
     auth.resolved = true;  // historie-bron is nu bekend (ook bij anon: detail=null)
     authResolvedNow();
+    liveSync();   // db/206: Realtime aan (ingelogd) of uit; zelfde speler = niets
     if (sameUser) {
       if (!auth.user) return;
       if (prev.avatar !== auth.user.avatar || prev.email !== auth.user.email || prev.name !== auth.user.name) renderMenu();

@@ -524,6 +524,13 @@
         },
       };
 
+      // db/206: Realtime (alleen voor /live.js): je eigen privé-kanaal en de aanwezigheid. supabase-js zet het token zelf bij in- en uitloggen.
+      window.sbRealtime = {
+        channel: (name, opts) => client.channel(name, opts),
+        remove: (ch) => client.removeChannel(ch),
+        setAuth: () => client.realtime.setAuth(),
+      };
+
       const emit = (session) => {
         const u = session?.user;
         const m = u?.user_metadata || {};
@@ -546,7 +553,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=457"></script>
+  <script src="/game.js?v=458"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

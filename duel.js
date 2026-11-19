@@ -352,6 +352,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .dl-face.busy .dl-av { opacity: 0.55; }
 .dl-face[aria-pressed="true"] .dl-av { box-shadow: 0 0 0 2px var(--card), 0 0 0 4.5px var(--duel-arena); }
 .dl-face[aria-pressed="true"] b { color: var(--duel-arena); font-weight: 800; }
+.dl-face .dl-av { position: relative; }
+.dl-face .dl-av.on::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 0.72rem; height: 0.72rem; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2px var(--card); }   /* db/206: nu online */
 /* je stand tegen wie je koos, net boven de knop */
 .dl-vsline { display: flex; align-items: center; gap: 0.5rem; min-height: 2.4rem; box-sizing: border-box; padding: 0.35rem 0.7rem; font-size: 0.8rem; color: var(--muted);
   background: var(--card-soft); border-radius: 10px; }
@@ -2422,6 +2424,13 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     return h;
   }
 
+  // db/206: wie er nu op Jaardle is (/live.js, alleen ingelogd): een groen stipje op het gezichtje. Verandert het, dan alleen de stipjes
+  // bijwerken (geen nieuwe lijst: een open naamveld of keuze blijft staan).
+  const isOn = (k) => !!(k && window.Live?.isOn?.(k));
+  function syncOnline() {
+    document.querySelectorAll("#modal-duels .dl-face[data-face]").forEach((f) => f.querySelector(".dl-av")?.classList.toggle("on", isOn(f.dataset.face)));
+  }
+  window.addEventListener?.("jaardle:online", syncOnline);
   // db/189: je teamgenoten (en eerdere tegenstanders met een account) als gezichtjes, met jullie stand eronder. Tik = kiezen;
   // dan wordt de grote knop "Daag X uit" (geen link nodig, X krijgt een seintje). Zonder keuze blijft het de link.
   function pickHtml(T, newBtn, items = listItems) {
@@ -2432,7 +2441,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       const lab = busy ? `<small class="run">${esc(T.faceRun)}</small>`
         : a || b ? `<small class="${a > b ? "up" : a < b ? "down" : ""}">${a}–${b}</small>` : `<small class="new">${esc(T.faceNew)}</small>`;
       return `<button type="button" class="dl-face${busy ? " busy" : ""}" data-face="${esc(t.k)}" aria-pressed="${t.k === pickSel}">` +
-        `${avHtml(t.flair, t.name)}<b>${esc(t.name)}</b>${lab}</button>`;
+        `${avHtml(t.flair, t.name, isOn(t.k) ? " on" : "")}<b>${esc(t.name)}</b>${lab}</button>`;
     }).join("");
     const t = listTargets.find((x) => x.k === pickSel && !x.busy);
     let tail = newBtn;
@@ -2841,8 +2850,12 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // Het rode stipje: alleen voor wie duels heeft (game.js roept dit pas aan als jaardle:duels iets bevat).
   // sw.js (db/204): een duel-seintje terwijl je in de app zit, zonder systeemmelding. Duels-scherm open: vers kijken (zoals een tik op het
   // logo; is dat duel net klaar, dan de eindstand). Anders de lijst voor het rode stipje.
+  let lastPush = { code: null, t: 0 };
   function pushed(host, code) {
     H = host || H;
+    const now = Date.now();
+    if (code && code === lastPush.code && now - lastPush.t < 4000) return;   // db/206: Realtime én het sw-seintje over hetzelfde duel
+    lastPush = { code: code || null, t: now };
     const m = document.getElementById("modal-duels");
     if (m && !m.hidden) return syncList(tx(H.lang), true, code || null);
     return checkNews(H);
