@@ -581,6 +581,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 .dl-card-f > small b { color: var(--fg); font-size: 0.9rem; }
 .dl-card-f > small em { font-style: normal; color: var(--fg); font-weight: 600; }
 .dl-card.sync .dl-card-f > small { animation: dl-sync 0.7s ease-in-out infinite alternate; }
+.dl-card.out > .dl-link { margin: 0; }   /* je eigen uitdaging onder Wacht: de band zoals bij een uitdaging aan jou, zonder blauwe rand (niet jouw beurt) */
 /* de twee kanten bij een uitdaging (zoals de opening): jij blauw, de ander in zijn kleur, ⚔️ op de schuine naad */
 .vb { --p: 50%; --tilt: 0.7rem; --ang: 24.3deg; position: relative; flex: none; height: 3.1rem; border-radius: 10px; overflow: hidden; color: #fff; isolation: isolate; }
 .vb-op, .vb-me { position: absolute; inset: 0; }
@@ -620,7 +621,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       secTurn: "Jouw beurt", secWait: "Wacht", secDone: "Stand per tegenstander",
       left: (h, m) => (h >= 1 ? `nog ${h} u` : `nog ${m} min`),
       accepted: (n) => `${n} nam aan`, oppDone: (n) => `${n} is klaar`, oppPlays: (n, k) => `${n} speelt · ${k}/5`, oppNotYet: (n) => `${n} begon nog niet`,
-      yourLink: "Je link", linkLeft: (l) => `${l} om aan te nemen`, resend: "Stuur opnieuw", withdraw: "Intrekken", play: "Speel",
+      yourLink: "Je link", resend: "Stuur opnieuw", withdraw: "Intrekken", play: "Speel",
       h2h: (a, b) => `jullie ${a}–${b}`, won: (a, b) => `gewonnen ${a}–${b}`, lost: (a, b) => `verloren ${a}–${b}`, drawn: (a, b) => `gelijk ${a}–${b}`,
       nobody: "Niemand nam hem aan", declined: (n) => `${n} wees af`, gone: "Verlopen",
       today: "vandaag", yesterday: "gisteren", moreOpp: (n) => `Nog ${n} ${n === 1 ? "tegenstander" : "tegenstanders"} ›`,
@@ -645,7 +646,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // db/189: teamgenoten direct uitdagen, seintjes, stand per tegenstander
       pickH: "Daag iemand uit", faceNew: "nieuw", faceRun: "loopt", vsLine: (n) => `Jij tegen ${n}:`, linkInstead: "Liever een link sturen",
       challenged: (n) => `${n} is uitgedaagd`, pushYes: (n) => `${n} krijgt meteen een seintje. Nog 24 uur om aan te nemen.`, pushNo: (n) => `${n} ziet hem bij het openen van Jaardle. Nog 24 uur om aan te nemen.`,
-      alsoLink: "Stuur ook een link", sendLinkShort: "Stuur link", invited: "Uitgedaagd", acceptShort: "Neem aan", errRunning: (n) => `Je hebt al 3 duels met ${n} lopen.`,
+      alsoLink: "Stuur ook een link", sendLinkShort: "Stuur link", acceptShort: "Neem aan", errRunning: (n) => `Je hebt al 3 duels met ${n} lopen.`,
       errRecent: "Je hebt net al 3 uitnodigingen verstuurd. Over een uurtje kan het weer.", errIncoming: (n) => `${n} daagt je al uit: neem die hieronder aan.`,
       eraSub: "Alle 5 rondes uit 1900 tot nu", modes: "Meer duelvormen", inv1Era: "<b>5 rondes</b> uit <b>1900 tot nu</b>, van makkelijk naar moeilijk", eraPh: (y) => `${y} – nu`, eraRefuse: (y) => `📻 Dit duel gaat over ${y} tot nu`,
       bellAcc: (n) => `Seintje als ${n} begint`, bellAccAny: "Seintje als iemand begint", bellDone: (n) => `Seintje als ${n} klaar is`,
@@ -677,7 +678,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       secTurn: "Your turn", secWait: "Waiting", secDone: "Head-to-head",
       left: (h, m) => (h >= 1 ? `${h} h left` : `${m} min left`),
       accepted: (n) => `${n} accepted`, oppDone: (n) => `${n} is done`, oppPlays: (n, k) => `${n} is playing · ${k}/5`, oppNotYet: (n) => `${n} hasn't started`,
-      yourLink: "Your link", linkLeft: (l) => `${l} to accept`, resend: "Send again", withdraw: "Withdraw", play: "Play",
+      yourLink: "Your link", resend: "Send again", withdraw: "Withdraw", play: "Play",
       h2h: (a, b) => `${a}–${b} overall`, won: (a, b) => `won ${a}–${b}`, lost: (a, b) => `lost ${a}–${b}`, drawn: (a, b) => `tied ${a}–${b}`,
       nobody: "Nobody accepted it", declined: (n) => `${n} declined`, gone: "Expired",
       today: "today", yesterday: "yesterday", moreOpp: (n) => `${n} more ${n === 1 ? "opponent" : "opponents"} ›`,
@@ -702,7 +703,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // db/189: challenge teammates directly, notifications, head-to-head
       pickH: "Challenge someone", faceNew: "new", faceRun: "live", vsLine: (n) => `You vs ${n}:`, linkInstead: "Send a link instead",
       challenged: (n) => `You challenged ${n}`, pushYes: (n) => `${n} gets a notification right away. 24 hours to accept.`, pushNo: (n) => `${n} will see it when opening Jaardle. 24 hours to accept.`,
-      alsoLink: "Also send a link", sendLinkShort: "Send link", invited: "Challenged", acceptShort: "Accept", errRunning: (n) => `You already have 3 duels going with ${n}.`,
+      alsoLink: "Also send a link", sendLinkShort: "Send link", acceptShort: "Accept", errRunning: (n) => `You already have 3 duels going with ${n}.`,
       errRecent: "You just sent 3 invitations. You can send more in about an hour.", errIncoming: (n) => `${n} already challenged you: accept it below.`,
       eraSub: "All 5 rounds from 1900 or later", modes: "More duel types", inv1Era: "<b>5 rounds</b>, all <b>1900 or later</b>, from easy to hard", eraPh: (y) => `${y} – now`, eraRefuse: (y) => `📻 This duel only covers ${y} or later`,
       bellAcc: (n) => `Notify me when ${n} starts`, bellAccAny: "Notify me when someone starts", bellDone: (n) => `Notify me when ${n} is done`,
@@ -732,7 +733,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       secTurn: "Du bist dran", secWait: "Wartet", secDone: "Stand pro Gegner",
       left: (h, m) => (h >= 1 ? `noch ${h} Std.` : `noch ${m} Min.`),
       accepted: (n) => `${n} hat angenommen`, oppDone: (n) => `${n} ist fertig`, oppPlays: (n, k) => `${n} spielt · ${k}/5`, oppNotYet: (n) => `${n} hat noch nicht angefangen`,
-      yourLink: "Dein Link", linkLeft: (l) => `${l} zum Annehmen`, resend: "Nochmal senden", withdraw: "Zurückziehen", play: "Spielen",
+      yourLink: "Dein Link", resend: "Nochmal senden", withdraw: "Zurückziehen", play: "Spielen",
       h2h: (a, b) => `insgesamt ${a}–${b}`, won: (a, b) => `gewonnen ${a}–${b}`, lost: (a, b) => `verloren ${a}–${b}`, drawn: (a, b) => `unentschieden ${a}–${b}`,
       nobody: "Niemand hat angenommen", declined: (n) => `${n} hat abgelehnt`, gone: "Abgelaufen",
       today: "heute", yesterday: "gestern", moreOpp: (n) => `${n} weitere ›`,
@@ -758,7 +759,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // db/189: Teammitglieder direkt herausfordern, Benachrichtigungen, Stand pro Gegner
       pickH: "Fordere jemanden heraus", faceNew: "neu", faceRun: "läuft", vsLine: (n) => `Du gegen ${n}:`, linkInstead: "Lieber einen Link schicken",
       challenged: (n) => `${n} ist herausgefordert`, pushYes: (n) => `${n} bekommt sofort eine Benachrichtigung. 24 Stunden zum Annehmen.`, pushNo: (n) => `${n} sieht sie beim Öffnen von Jaardle. 24 Stunden zum Annehmen.`,
-      alsoLink: "Auch einen Link schicken", sendLinkShort: "Link schicken", invited: "Herausgefordert", acceptShort: "Annehmen", errRunning: (n) => `Du hast schon 3 laufende Duelle mit ${n}.`,
+      alsoLink: "Auch einen Link schicken", sendLinkShort: "Link schicken", acceptShort: "Annehmen", errRunning: (n) => `Du hast schon 3 laufende Duelle mit ${n}.`,
       errRecent: "Du hast gerade 3 Einladungen verschickt. In etwa einer Stunde geht es wieder.", errIncoming: (n) => `${n} hat dich schon herausgefordert: nimm unten an.`,
       eraSub: "Alle 5 Runden ab 1900", modes: "Weitere Duellarten", inv1Era: "<b>5 Runden</b>, alle <b>ab 1900</b>, von leicht bis schwer", eraPh: (y) => `${y} – heute`, eraRefuse: (y) => `📻 In diesem Duell geht es nur um ${y} bis heute`,
       bellAcc: (n) => `Benachrichtigen, wenn ${n} anfängt`, bellAccAny: "Benachrichtigen, wenn jemand anfängt", bellDone: (n) => `Benachrichtigen, wenn ${n} fertig ist`,
@@ -788,7 +789,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       secTurn: "Tu turno", secWait: "En espera", secDone: "Marcador por rival",
       left: (h, m) => (h >= 1 ? `quedan ${h} h` : `quedan ${m} min`),
       accepted: (n) => `${n} aceptó`, oppDone: (n) => `${n} ha terminado`, oppPlays: (n, k) => `${n} está jugando · ${k}/5`, oppNotYet: (n) => `${n} aún no ha empezado`,
-      yourLink: "Tu enlace", linkLeft: (l) => `${l} para aceptar`, resend: "Reenviar", withdraw: "Retirar", play: "Jugar",
+      yourLink: "Tu enlace", resend: "Reenviar", withdraw: "Retirar", play: "Jugar",
       h2h: (a, b) => `en total ${a}–${b}`, won: (a, b) => `ganado ${a}–${b}`, lost: (a, b) => `perdido ${a}–${b}`, drawn: (a, b) => `empate ${a}–${b}`,
       nobody: "Nadie lo aceptó", declined: (n) => `${n} lo rechazó`, gone: "Caducado",
       today: "hoy", yesterday: "ayer", moreOpp: (n) => `${n} ${n === 1 ? "rival" : "rivales"} más ›`,
@@ -813,7 +814,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // db/189: retar directamente a compañeros, avisos, marcador por rival
       pickH: "Reta a alguien", faceNew: "nuevo", faceRun: "en curso", vsLine: (n) => `Tú contra ${n}:`, linkInstead: "Mejor enviar un enlace",
       challenged: (n) => `Has retado a ${n}`, pushYes: (n) => `${n} recibe un aviso ahora mismo. 24 horas para aceptar.`, pushNo: (n) => `${n} lo verá al abrir Jaardle. 24 horas para aceptar.`,
-      alsoLink: "Enviar también un enlace", sendLinkShort: "Enviar enlace", invited: "Retado", acceptShort: "Aceptar", errRunning: (n) => `Ya tienes 3 duelos en curso con ${n}.`,
+      alsoLink: "Enviar también un enlace", sendLinkShort: "Enviar enlace", acceptShort: "Aceptar", errRunning: (n) => `Ya tienes 3 duelos en curso con ${n}.`,
       errRecent: "Acabas de enviar 3 invitaciones. Podrás enviar más dentro de una hora.", errIncoming: (n) => `${n} ya te ha retado: acéptalo abajo.`,
       eraSub: "Las 5 rondas, de 1900 en adelante", modes: "Más tipos de duelo", inv1Era: "<b>5 rondas</b>, todas <b>de 1900 en adelante</b>, de fácil a difícil", eraPh: (y) => `${y} – hoy`, eraRefuse: (y) => `📻 Este duelo solo va de ${y} en adelante`,
       bellAcc: (n) => `Avísame cuando ${n} empiece`, bellAccAny: "Avísame cuando alguien empiece", bellDone: (n) => `Avísame cuando ${n} termine`,
@@ -843,7 +844,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       secTurn: "Sua vez", secWait: "Aguardando", secDone: "Placar por adversário",
       left: (h, m) => (h >= 1 ? `faltam ${h} h` : `faltam ${m} min`),
       accepted: (n) => `${n} aceitou`, oppDone: (n) => `${n} terminou`, oppPlays: (n, k) => `${n} está jogando · ${k}/5`, oppNotYet: (n) => `${n} ainda não começou`,
-      yourLink: "Seu link", linkLeft: (l) => `${l} para aceitar`, resend: "Enviar de novo", withdraw: "Retirar", play: "Jogar",
+      yourLink: "Seu link", resend: "Enviar de novo", withdraw: "Retirar", play: "Jogar",
       h2h: (a, b) => `no total ${a}–${b}`, won: (a, b) => `venceu ${a}–${b}`, lost: (a, b) => `perdeu ${a}–${b}`, drawn: (a, b) => `empate ${a}–${b}`,
       nobody: "Ninguém aceitou", declined: (n) => `${n} recusou`, gone: "Expirado",
       today: "hoje", yesterday: "ontem", moreOpp: (n) => `Mais ${n} ${n === 1 ? "adversário" : "adversários"} ›`,
@@ -868,7 +869,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // db/189: desafiar colegas de equipe diretamente, avisos, placar por adversário
       pickH: "Desafie alguém", faceNew: "novo", faceRun: "em curso", vsLine: (n) => `Você contra ${n}:`, linkInstead: "Prefiro enviar um link",
       challenged: (n) => `Você desafiou ${n}`, pushYes: (n) => `${n} recebe um aviso agora mesmo. 24 horas para aceitar.`, pushNo: (n) => `${n} verá ao abrir o Jaardle. 24 horas para aceitar.`,
-      alsoLink: "Enviar também um link", sendLinkShort: "Enviar link", invited: "Desafiado", acceptShort: "Aceitar", errRunning: (n) => `Você já tem 3 duelos em andamento com ${n}.`,
+      alsoLink: "Enviar também um link", sendLinkShort: "Enviar link", acceptShort: "Aceitar", errRunning: (n) => `Você já tem 3 duelos em andamento com ${n}.`,
       errRecent: "Você acabou de enviar 3 convites. Poderá enviar mais em cerca de uma hora.", errIncoming: (n) => `${n} já te desafiou: aceite abaixo.`,
       eraSub: "As 5 rodadas, de 1900 em diante", modes: "Mais tipos de duelo", inv1Era: "<b>5 rodadas</b>, todas <b>de 1900 em diante</b>, da mais fácil à mais difícil", eraPh: (y) => `${y} – hoje`, eraRefuse: (y) => `📻 Este duelo só vai de ${y} em diante`,
       bellAcc: (n) => `Avise-me quando ${n} começar`, bellAccAny: "Avise-me quando alguém começar", bellDone: (n) => `Avise-me quando ${n} terminar`,
@@ -2240,7 +2241,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       for (const d of inc) {   // 19/11: de hele kaart = Neem aan (✕ apart); de twee kanten, zoals de opening
         const n = d.c_name || "?", rec = h2hTxt(d);
         h += `<div class="dl-card inc" data-act="accept" data-code="${d.code}">${bandHtml(T, n, d.c_flair)}` +
-          `<div class="dl-card-f"><small><b>${esc((d.rematch ? T.invRematch : T.invTitle)(n))}</b>${thHtml(d)}<br>${rec ? esc(cap(rec)) + " · " : ""}<em>${esc(leftText(T, d.deadline))}</em></small>` +
+          `<div class="dl-card-f"><small><b>${esc((d.rematch ? T.invRematch : T.invTitle)(n))}</b>${thHtml(d)}<br>${rec ? esc(cap(rec)) + " · " : ""}<em>${esc((rec ? String : cap)(leftText(T, d.deadline)))}</em></small>` +
           `<button type="button" class="dl-go" data-act="accept" data-code="${d.code}">${esc(T.acceptShort)}</button>` +
           `<button type="button" class="dl-x" data-act="decline" data-code="${d.code}" aria-label="${esc(T.decline)}">✕</button></div></div>`;
       }
@@ -2292,19 +2293,18 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     return `<h3 class="dl-h">${esc(T.pickH)}</h3><div class="dl-pick"><div class="dl-faces">${faces}</div>${tail}</div>`;
   }
 
-  // Je openstaande link: opnieuw sturen, intrekken, en de link zelf (te selecteren, Kopieer).
+  // Je openstaande uitdaging (19/11: "bij waiting is die nog grijs en saai"): dezelfde kaart als een uitdaging aan jou, met de twee
+  // kanten. Tik = de link nog eens sturen (de knop is het label), ✕ = intrekken. db/189: een directe uitdaging of een revanche krijgt
+  // geen linkveld (die ander krijgt een seintje en ziet hem in zijn lijst); een gewone link (wie hem als eerste aanneemt) heeft ? als
+  // tegenstander en het veld met Kopieer, want de link is de enige weg (net verstuurd: dan staat hij al in het groene vak).
   function openLinkHtml(T, d) {
-    if (d.for_name) {   // db/189: een directe uitdaging of een revanche: die ander krijgt een seintje en ziet hem in zijn lijst, dus geen linkveld (de link kan er los bij)
-      return rowHtml({ av: avHtml(d.for_flair, d.for_name), name: d.for_name, tag: thHtml(d), h2h: (() => { const [a, b] = recOf(d.opp); return a || b ? T.h2h(a, b) : ""; })(),
-        sub: `${esc(d.rematch ? T.revenge : T.invited)} · ${esc(cap(T.linkLeft(leftText(T, d.deadline))))}`, cls: " wrap",
-        right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.sendLinkShort)}</button>` +
-          `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` });
-    }
-    return rowHtml({ av: qAv, name: T.yourLink, tag: thHtml(d),   // een gewone link (wie hem als eerste aanneemt): de link is de enige weg, dus het veld met Kopieer erbij
-      sub: esc(cap(T.linkLeft(leftText(T, d.deadline)))), cls: " wrap",
-      right: `<span class="dl-acts"><button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(T.resend)}</button>` +
-        `<button type="button" class="dl-mini" data-act="withdraw" data-code="${d.code}">${esc(T.withdraw)}</button></span>` +
-        (listTop.includes(d.code) ? "" : `<span class="dl-acts">${linkField(T, d.code)}</span>`) });   // net verstuurd: de link staat al in het groene vak
+    const n = d.for_name || "", [a, b] = n ? recOf(d.opp) : [0, 0];
+    const sub = [n && d.rematch ? T.revenge : "", a || b ? cap(T.h2h(a, b)) : ""].filter(Boolean).map((s) => esc(s) + " · ").join("");
+    return `<div class="dl-card out" data-act="resend" data-code="${d.code}">${bandHtml(T, n || "?", n ? d.for_flair : null)}` +
+      `<div class="dl-card-f"><small><b>${esc(n ? T.challenged(n) : T.yourLink)}</b>${thHtml(d)}<br>${sub}<em>${esc((sub ? String : cap)(leftText(T, d.deadline)))}</em></small>` +
+      `<button type="button" class="dl-mini" data-act="resend" data-code="${d.code}">${esc(n ? T.sendLinkShort : T.resend)}</button>` +
+      `<button type="button" class="dl-x" data-act="withdraw" data-code="${d.code}" aria-label="${esc(T.withdraw)}" title="${esc(T.withdraw)}">✕</button></div>` +
+      (n || listTop.includes(d.code) ? "" : linkField(T, d.code)) + `</div>`;
   }
 
   // Een duel dat op de ander wacht: tik = je eigen vijf scores, en die van de ander voor de rondes die jullie allebei speelden.
@@ -2422,9 +2422,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (act === "copy") return copyLink(T, code, b);
     if (act === "turn") { const d = (listItems || []).find((x) => x.code === code); if (d) share(H, b, { kind: "turn", d }); return; }
     if (act === "resend" || act === "send") {
+      if (e.target.closest(".dl-link")) return;   // het linkveld in de kaart: selecteren, niet delen
       gc("duel-resend", "Duel: invite sent again");
       const d = (listItems || []).find((x) => x.code === code) || cache[code];
-      if (d) shareText(T, (d.rematch ? T.shRematch : T.shInvite)(d.c_name), LINK(code), b);
+      const btn = b.matches("button") ? b : b.querySelector('button[data-act="resend"]') || b;   // tik op de kaart: "Gekopieerd!" op de knop, niet over de hele kaart
+      if (d) shareText(T, (d.rematch ? T.shRematch : T.shInvite)(d.c_name), LINK(code), btn);
       return;
     }
     if (act === "withdraw") {

@@ -278,7 +278,8 @@ test("duel.js v3 — een uitdaging aan jou bovenaan (Neem aan / ✕), je directe
   X.applyList({ items: [inc, out], h2h: { kl: { w: 1, l: 1, n: 2 }, kb: { w: 4, l: 2, n: 6 } }, targets: [] });
   const h = X.listBody(T, [inc, out], "", null);
   assert.match(h, /Jouw beurt[^]*Lotte daagt je uit[^]*Jullie 1–1[^]*data-act="accept" data-code="IIIIII"[^]*data-act="decline" data-code="IIIIII"/);
-  assert.match(h, /Wacht[^]*<b>Bram <small>· jullie 4–2<\/small><\/b><small>Uitgedaagd · Nog \d+ u om aan te nemen<\/small>[^]*data-act="withdraw" data-code="OOOOOO"/);
+  assert.match(h, /Wacht[^]*<div class="dl-card out" data-act="resend" data-code="OOOOOO"><div class="vb"[^]*<b>Bram<\/b>[^]*<b>Bram is uitgedaagd<\/b><br>Jullie 4–2 · <em>nog \d+ u<\/em>[^]*data-act="withdraw" data-code="OOOOOO" aria-label="Intrekken"/,
+    "je eigen uitdaging: dezelfde kaart met de twee kanten als een uitdaging aan jou (19/11), ✕ = intrekken");
   assert.ok(h.indexOf("Lotte daagt je uit") < h.indexOf("Daag een vriend uit"), "eerst wat op je wacht");
   assert.match(h, /<div class="dl-stat w"><b>5<\/b>[^]*<div class="dl-stat l"><b>3<\/b>/, "je stand bovenin: over alle duels (server)");
   X.applyList({ items: [], h2h: {}, targets: [] });
@@ -404,12 +405,15 @@ test("duel.js — onder Wacht: een revanche staat er net als een directe uitdagi
   const open = (o) => ({ code: "K7QX2M", status: "open", me: "c", c_name: "Matthijs", deadline: soon, mine: [], ...o });
   const html = (d) => X.listBody(T, [d], "", null);
   const rem = html(open({ for_name: "Maarten", for_flair: "🦫", rematch: true, locked: true, opp: "ko" }));
-  assert.match(rem, /Maarten/); assert.match(rem, /Revanche · Nog \d+ u om aan te nemen/); assert.match(rem, /jullie 3–1/);
+  assert.match(rem, /<b>Maarten is uitgedaagd<\/b><br>Revanche · Jullie 3–1 · <em>nog \d+ u<\/em>/);
   assert.match(rem, /data-act="resend"[^>]*>Stuur link</); assert.ok(!/class="dl-link"/.test(rem), "geen linkveld bij een revanche");
   const dir = html(open({ for_name: "Tosti Tim", locked: true, opp: "kt" }));
-  assert.match(dir, /Uitgedaagd · Nog \d+ u om aan te nemen/); assert.ok(!/class="dl-link"/.test(dir));
+  assert.match(dir, /<b>Tosti Tim is uitgedaagd<\/b><br><em>Nog \d+ u<\/em>/); assert.ok(!/class="dl-link"/.test(dir));
+  for (const x of [rem, dir]) assert.match(x, /class="dl-card out"[^]*class="vb"/, "de band met de twee kanten");
   const link = html(open({}));
-  assert.match(link, /Je link/); assert.match(link, /class="dl-link"/, "een gewone link houdt het linkveld met Kopieer");
+  assert.match(link, /<div class="dl-card out"[^]*<b>Je link<\/b>/); assert.match(link, /class="dl-link"/, "een gewone link houdt het linkveld met Kopieer");
+  assert.match(link, /class="vb-side op"><span class="vb-av"[^>]*>\?<\/span><\/span>/, "een gewone link: ? aan de andere kant, zonder naam");
+  assert.match(SRC, /if \(e\.target\.closest\("\.dl-link"\)\) return;/, "tik in het linkveld deelt niet");
 });
 
 test("duel.js — een ingetrokken link staat niet in de Duels-lijst; verlopen en afgewezen wel (grijze rij onder Stand per tegenstander)", () => {
