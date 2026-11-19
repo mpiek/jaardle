@@ -2434,6 +2434,50 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     return h;
   }
 
+  // 19/11 (zijn "op computer kan je niet naar rechts swipen bij gezichtjes en carousel"): met een muis slepen in de gezichtjesrij en het
+  // carrouselletje van "vraag terugzien"; het wiel scrolt de gezichtjes zijwaarts. Na slepen geen klik (geen per ongeluk gekozen gezichtje),
+  // en de carrousel klikt vast op het dichtstbijzijnde feit. Vingers doen dit al zelf (alleen pointerType "mouse").
+  (() => {
+    let drag = null;
+    const SEL = ".dl-faces, .rq-vp";
+    try {
+      document.addEventListener("pointerdown", (e) => {
+        const el = e.pointerType === "mouse" && e.button === 0 && e.target.closest?.(SEL);
+        if (!el || el.scrollWidth <= el.clientWidth + 2) return;
+        drag = { el, x: e.clientX, left: el.scrollLeft, moved: false, id: e.pointerId };
+      }, true);
+      document.addEventListener("pointermove", (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.x;
+        if (!drag.moved && Math.abs(dx) < 6) return;
+        if (!drag.moved) { drag.moved = true; drag.el.style.scrollSnapType = "none"; drag.el.style.cursor = "grabbing"; try { drag.el.setPointerCapture(e.pointerId); } catch (err) {} }
+        drag.el.scrollLeft = drag.left - dx;
+      }, true);
+      const end = () => {
+        if (!drag) return;
+        const d = drag; drag = null;
+        if (!d.moved) return;
+        d.el.style.cursor = "";
+        if (d.el.matches(".rq-vp")) {   // vastklikken op een feit, dan het vastklikken van de browser terug
+          const w = d.el.clientWidth || 1;
+          d.el.scrollTo({ left: Math.round(d.el.scrollLeft / w) * w, behavior: "smooth" });
+          setTimeout(() => { d.el.style.scrollSnapType = ""; }, 400);
+        } else d.el.style.scrollSnapType = "";
+        const stop = (ev) => { ev.stopPropagation(); ev.preventDefault(); };   // de klik na het slepen telt niet
+        document.addEventListener("click", stop, { capture: true, once: true });
+        setTimeout(() => document.removeEventListener("click", stop, true), 50);
+      };
+      document.addEventListener("pointerup", end, true);
+      document.addEventListener("pointercancel", end, true);
+      document.addEventListener("wheel", (e) => {
+        const el = e.target.closest?.(".dl-faces");
+        if (!el || el.scrollWidth <= el.clientWidth + 2 || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        const max = el.scrollWidth - el.clientWidth;
+        if ((e.deltaY < 0 && el.scrollLeft <= 0) || (e.deltaY > 0 && el.scrollLeft >= max - 1)) return;   // aan het eind: gewoon de pagina
+        el.scrollLeft += e.deltaY; e.preventDefault();
+      }, { passive: false });
+    } catch (e) {}
+  })();
   // db/206: wie er nu op Jaardle is (/live.js, alleen ingelogd): een groen stipje op het gezichtje. Verandert het, dan alleen de stipjes
   // bijwerken (geen nieuwe lijst: een open naamveld of keuze blijft staan).
   const isOn = (k) => !!(k && window.Live?.isOn?.(k));
