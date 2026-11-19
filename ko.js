@@ -8,14 +8,14 @@
 (() => {
   if (window.KO) return;
   const D = window.Duel, K = D.kit;
-  const ID = "modal-ko", HP = 100;
+  const ID = "modal-ko", HP = 150;   // db/210: 150 levens (één ronde haalt je nooit van vol naar 0)
 
   const TXT = {
     nl: { live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 100 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
       waitH: (n) => `Wachten op ${n}…`, waitP: "Neemt die binnen een minuut aan, dan begint het meteen.", left: (s) => `nog ${s} s`, cancel: "Annuleer",
       lateH: (n) => `${n} reageert niet`, declH: (n) => `${n} kan nu niet`, lateP: "Misschien zit die niet achter de telefoon.", again: "⚡ Nog eens vragen",
       turn: "⚔️ Speel om de beurt", turnSub: (n) => `5 rondes, ${n} speelt wanneer het uitkomt`, never: "Laat maar",
-      invH: (n) => `${n} wil nú een knock-out`, lives: "levens", same: "dezelfde vraag, tegelijk", mins: "±5 min", join: "Doe mee", notNow: "Niet nu",
+      invH: (n) => `${n} wil nú een knock-out`, lives: "levens", same: "1 gok per ronde", mins: "±3 min", join: "Doe mee", notNow: "Niet nu",
       startH: "Knock-out!", revH: "Revanche!", startP: "Ronde 1 begint zo", roundN: (r) => `Ronde ${r}`,
       guessing: (n) => `${n} gokt`, thinking: (n) => `${n} denkt na`, oppDone: (n) => `${n} is klaar ✓`, waitOpp: (n) => `Wachten op ${n}`,
       rFor: (r, n) => `Ronde ${r} voor ${n}`, rForMe: (r) => `Ronde ${r} voor jou`, rTie: (r) => `Ronde ${r}: gelijk`, you: "Jij", youL: "jij",
@@ -26,12 +26,12 @@
       gaveUp: (n) => `${n} stopte.`, youGaveUp: "Je stopte.", drawP: "Na 12 rondes even veel levens.",
       rematch: "⚡ Revanche", wantsToo: "wil ook", rematchWait: (n) => `Wacht op ${n}…`, rematchHint: "Druk je allebei, dan begint hij meteen", toDuels: "Naar Duels",
       isKo: (n) => `${n} is knock-out`, youKo: "Jij bent knock-out", gone: "Deze knock-out is gestopt.", err: "Dat lukte niet. Probeer het nog eens.", close: "Sluiten",
-      itWas: "Het was" },
+      itWas: "Het was", oppGuessed: (n) => `${n} heeft gegokt ✓`, off: (d) => (d === 0 ? "precies goed" : `${d} jaar ernaast`), noGuess: "geen gok", hintsCost: (x) => `hints −${x}`, hintNote: (n) => `Een hint geeft ${n} de punten die hij kost` },
     en: { live: "Live · knockout", liveSub: (n) => `Right now, 100 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
       waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within a minute, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
       lateH: (n) => `${n} isn't answering`, declH: (n) => `${n} can't right now`, lateP: "Maybe they're away from their phone.", again: "⚡ Ask again",
       turn: "⚔️ Play in turns", turnSub: (n) => `5 rounds, ${n} plays whenever it suits`, never: "Never mind",
-      invH: (n) => `${n} wants a knockout now`, lives: "lives", same: "same question, same time", mins: "±5 min", join: "Join", notNow: "Not now",
+      invH: (n) => `${n} wants a knockout now`, lives: "lives", same: "1 guess per round", mins: "±3 min", join: "Join", notNow: "Not now",
       startH: "Knockout!", revH: "Rematch!", startP: "Round 1 starts in a moment", roundN: (r) => `Round ${r}`,
       guessing: (n) => `${n} is guessing`, thinking: (n) => `${n} is thinking`, oppDone: (n) => `${n} is done ✓`, waitOpp: (n) => `Waiting for ${n}`,
       rFor: (r, n) => `Round ${r} to ${n}`, rForMe: (r) => `Round ${r} to you`, rTie: (r) => `Round ${r}: a tie`, you: "You", youL: "you",
@@ -42,12 +42,12 @@
       gaveUp: (n) => `${n} stopped.`, youGaveUp: "You stopped.", drawP: "Same lives after 12 rounds.",
       rematch: "⚡ Rematch", wantsToo: "wants one too", rematchWait: (n) => `Waiting for ${n}…`, rematchHint: "If you both tap, it starts right away", toDuels: "To Duels",
       isKo: (n) => `${n} is knocked out`, youKo: "You're knocked out", gone: "This knockout has stopped.", err: "That didn't work. Please try again.", close: "Close",
-      itWas: "It was" },
+      itWas: "It was", oppGuessed: (n) => `${n} has guessed ✓`, off: (d) => (d === 0 ? "spot on" : `${d} year${d === 1 ? "" : "s"} off`), noGuess: "no guess", hintsCost: (x) => `hints −${x}`, hintNote: (n) => `A hint gives ${n} the points it costs` },
     de: { live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 100 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
       waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb einer Minute an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
       lateH: (n) => `${n} antwortet nicht`, declH: (n) => `${n} kann gerade nicht`, lateP: "Vielleicht ist das Handy gerade weg.", again: "⚡ Noch mal fragen",
       turn: "⚔️ Abwechselnd spielen", turnSub: (n) => `5 Runden, ${n} spielt, wann es passt`, never: "Lass gut sein",
-      invH: (n) => `${n} will jetzt einen Knock-out`, lives: "Leben", same: "gleiche Frage, gleichzeitig", mins: "±5 Min.", join: "Mitmachen", notNow: "Nicht jetzt",
+      invH: (n) => `${n} will jetzt einen Knock-out`, lives: "Leben", same: "1 Tipp pro Runde", mins: "±3 Min.", join: "Mitmachen", notNow: "Nicht jetzt",
       startH: "Knock-out!", revH: "Revanche!", startP: "Runde 1 beginnt gleich", roundN: (r) => `Runde ${r}`,
       guessing: (n) => `${n} rät`, thinking: (n) => `${n} überlegt`, oppDone: (n) => `${n} ist fertig ✓`, waitOpp: (n) => `Warte auf ${n}`,
       rFor: (r, n) => `Runde ${r} für ${n}`, rForMe: (r) => `Runde ${r} für dich`, rTie: (r) => `Runde ${r}: unentschieden`, you: "Du", youL: "du",
@@ -58,12 +58,12 @@
       gaveUp: (n) => `${n} hat aufgehört.`, youGaveUp: "Du hast aufgehört.", drawP: "Nach 12 Runden gleich viele Leben.",
       rematch: "⚡ Revanche", wantsToo: "will auch", rematchWait: (n) => `Warte auf ${n}…`, rematchHint: "Tippt ihr beide, geht es sofort los", toDuels: "Zu den Duellen",
       isKo: (n) => `${n} ist knock-out`, youKo: "Du bist knock-out", gone: "Dieser Knock-out wurde beendet.", err: "Das hat nicht geklappt. Versuch es noch mal.", close: "Schließen",
-      itWas: "Es war" },
+      itWas: "Es war", oppGuessed: (n) => `${n} hat getippt ✓`, off: (d) => (d === 0 ? "genau richtig" : `${d} Jahr${d === 1 ? "" : "e"} daneben`), noGuess: "kein Tipp", hintsCost: (x) => `Hinweise −${x}`, hintNote: (n) => `Ein Hinweis gibt ${n} die Punkte, die er kostet` },
     es: { live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 100 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
       waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en un minuto, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} no responde`, declH: (n) => `${n} no puede ahora`, lateP: "Quizá no está con el móvil.", again: "⚡ Volver a preguntar",
       turn: "⚔️ Jugar por turnos", turnSub: (n) => `5 rondas, ${n} juega cuando le venga bien`, never: "Déjalo",
-      invH: (n) => `${n} quiere un K.O. ahora`, lives: "vidas", same: "la misma pregunta, a la vez", mins: "±5 min", join: "Jugar", notNow: "Ahora no",
+      invH: (n) => `${n} quiere un K.O. ahora`, lives: "vidas", same: "1 intento por ronda", mins: "±3 min", join: "Jugar", notNow: "Ahora no",
       startH: "¡K.O.!", revH: "¡Revancha!", startP: "La ronda 1 empieza enseguida", roundN: (r) => `Ronda ${r}`,
       guessing: (n) => `${n} está adivinando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} ha terminado ✓`, waitOpp: (n) => `Esperando a ${n}`,
       rFor: (r, n) => `Ronda ${r} para ${n}`, rForMe: (r) => `Ronda ${r} para ti`, rTie: (r) => `Ronda ${r}: empate`, you: "Tú", youL: "tú",
@@ -74,12 +74,12 @@
       gaveUp: (n) => `${n} lo dejó.`, youGaveUp: "Lo dejaste.", drawP: "Mismas vidas tras 12 rondas.",
       rematch: "⚡ Revancha", wantsToo: "también quiere", rematchWait: (n) => `Esperando a ${n}…`, rematchHint: "Si pulsáis los dos, empieza enseguida", toDuels: "A Duelos",
       isKo: (n) => `${n} está K.O.`, youKo: "Estás K.O.", gone: "Este K.O. se ha detenido.", err: "No ha funcionado. Inténtalo otra vez.", close: "Cerrar",
-      itWas: "Era" },
+      itWas: "Era", oppGuessed: (n) => `${n} ya ha respondido ✓`, off: (d) => (d === 0 ? "exacto" : `${d} año${d === 1 ? "" : "s"} de diferencia`), noGuess: "sin respuesta", hintsCost: (x) => `pistas −${x}`, hintNote: (n) => `Una pista le da a ${n} los puntos que cuesta` },
     pt: { live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 100 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
       waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em um minuto, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} não responde`, declH: (n) => `${n} não pode agora`, lateP: "Talvez esteja longe do celular.", again: "⚡ Perguntar de novo",
       turn: "⚔️ Jogar por turnos", turnSub: (n) => `5 rodadas, ${n} joga quando puder`, never: "Deixa pra lá",
-      invH: (n) => `${n} quer um nocaute agora`, lives: "vidas", same: "a mesma pergunta, ao mesmo tempo", mins: "±5 min", join: "Jogar", notNow: "Agora não",
+      invH: (n) => `${n} quer um nocaute agora`, lives: "vidas", same: "1 chute por rodada", mins: "±3 min", join: "Jogar", notNow: "Agora não",
       startH: "Nocaute!", revH: "Revanche!", startP: "A rodada 1 já vai começar", roundN: (r) => `Rodada ${r}`,
       guessing: (n) => `${n} está chutando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} terminou ✓`, waitOpp: (n) => `Esperando ${n}`,
       rFor: (r, n) => `Rodada ${r} para ${n}`, rForMe: (r) => `Rodada ${r} para você`, rTie: (r) => `Rodada ${r}: empate`, you: "Você", youL: "você",
@@ -90,7 +90,7 @@
       gaveUp: (n) => `${n} parou.`, youGaveUp: "Você parou.", drawP: "Mesmas vidas após 12 rodadas.",
       rematch: "⚡ Revanche", wantsToo: "também quer", rematchWait: (n) => `Esperando ${n}…`, rematchHint: "Se os dois tocarem, começa na hora", toDuels: "Para Duelos",
       isKo: (n) => `${n} levou nocaute`, youKo: "Você levou nocaute", gone: "Este nocaute parou.", err: "Não deu certo. Tente de novo.", close: "Fechar",
-      itWas: "Era" },
+      itWas: "Era", oppGuessed: (n) => `${n} já chutou ✓`, off: (d) => (d === 0 ? "exato" : `${d} ano${d === 1 ? "" : "s"} de diferença`), noGuess: "sem chute", hintsCost: (x) => `dicas −${x}`, hintNote: (n) => `Uma dica dá a ${n} os pontos que custa` },
   };
 
   const CSS = String.raw`/* ═══ ⚡ Knock-out (/ko.js, db/208) ═══ */
@@ -176,6 +176,13 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
   background: color-mix(in srgb, var(--duel-arena-on) 16%, transparent); animation: ko-tick 0.6s ease-in-out infinite alternate; }
 .duel-inv .ko-count { margin: 0; font-size: 3.2rem; font-weight: 900; line-height: 1; color: var(--duel-arena); font-variant-numeric: tabular-nums; }
 .dl-opt.ko-opt b { color: var(--duel-arena); }
+body[data-ko] #live-score, body[data-ko] #hint-count, body[data-ko] #hint-btn-direction, body[data-ko] #guesses .guess-row:nth-child(n+2) { display: none; }   /* één gok per ronde */
+#ko-hintnote { margin: -0.15rem 0 0.5rem; font-size: 0.76rem; color: var(--muted); text-align: center; }
+.ko-years { margin: -0.2rem 0 0; display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.84rem; color: var(--muted); }
+.ko-years b { color: var(--fg); }
+.ko-years .me b { color: var(--duel-me); }
+.ko-years .op b { color: hsl(var(--h, 30) 72% 66%); }
+html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
 @keyframes ko-run { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @keyframes ko-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes ko-dot { 0%, 60%, 100% { opacity: 0.3; transform: none; } 30% { opacity: 1; transform: translateY(-2px); } }
@@ -347,9 +354,10 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
   // ── het rondescherm ──
   function stripHtml(g, { drain = null } = {}) {
     const T = tx(), st = H.state(), n = oppName(g), r = g.round;
+    const max = g.hp_max || HP, pc = (v) => Math.round((v / max) * 1000) / 10;   // de balk in procenten van de levens
     const side = (who, name, av, hp, was) => {
-      const cls = ["ko-side", who, hp <= 25 ? "low" : "", was != null && was !== hp ? "drain" : ""].filter(Boolean).join(" ");
-      return `<div class="${cls}" style="--hp:${hp};--was:${was ?? hp}"><span class="ko-who">${av}<b>${esc(name)}</b>` +
+      const cls = ["ko-side", who, hp <= max / 4 ? "low" : "", was != null && was !== hp ? "drain" : ""].filter(Boolean).join(" ");
+      return `<div class="${cls}" style="--hp:${pc(hp)};--was:${pc(was ?? hp)}"><span class="ko-who">${av}<b>${esc(name)}</b>` +
         `<b class="ko-n${was != null && was !== hp ? " hit" : ""}">${hp}</b></span><span class="ko-bar"><i class="ko-lag"></i><i class="ko-fill"></i></span></div>`;
     };
     const me = K.dbAv(K.meFlair(), K.meNameOr(T, T.you)), op = K.dbAv(g.opp_flair, n);
@@ -360,9 +368,9 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     if (g.state === "done") status = g.winner === "me" ? esc(T.isKo(n)) : g.winner === "opp" ? esc(T.youKo) : esc(T.draw);
     else if (drain) status = drain.who ? esc(drain.who === "me" ? T.rForMe(drain.r) : T.rFor(drain.r, n)) : esc(T.rTie(drain.r));
     else if (playing && g.deadline) {
-      status = st.done ? `<span>${esc(T.waitOpp(n))}</span>${pips(oppN)}<span class="ko-t">…</span>` : `<span>${esc(T.oppDone(n))}</span><span class="ko-t">…</span>`;
+      status = st.done ? `<span>${esc(T.waitOpp(n))}</span><span class="ko-t">…</span>` : `<span>${esc(T.oppGuessed(n))}</span><span class="ko-t">…</span>`;
       clock = `<div class="ko-clock"><i></i></div>`;
-    } else if (playing) status = oppN ? `<span class="ko-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc(T.guessing(n))}</span>${pips(oppN)}` : `<span>${esc(T.thinking(n))}</span>`;
+    } else if (playing) status = `<span class="ko-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc(T.thinking(n))}</span>`;
     return side("me", T.you, me, g.hp, drain?.me) + `<span class="ko-mid"><b>R${rr}</b><span class="${mult(rr) > 1 ? "up" : ""}">×${esc(fmtM(mult(rr)))}</span></span>` +
       side("op", n, op, g.opp_hp, drain?.op) + `<div class="ko-st${clock ? " clock" : ""}">${status}</div>${clock}`;
   }
@@ -370,6 +378,11 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     const T = tx(), dt = K.tx(H.lang), tabs = document.getElementById("mode-tabs"), card = document.getElementById("event-card");
     document.body.setAttribute("data-duelpage", "");
     document.body.setAttribute("data-arena", "");
+    document.body.setAttribute("data-ko", "");   // CSS: één gokregel, geen puntenteller
+    const hr = document.getElementById("hint-row");
+    let hn = document.getElementById("ko-hintnote");
+    if (!hn && hr) { hn = document.createElement("p"); hn.id = "ko-hintnote"; hr.after(hn); }
+    if (hn) hn.textContent = T.hintNote(g ? oppName(g) : H.state()?.duel?.opp || "?");
     let top = document.getElementById("duel-top");
     if (!top && tabs) {
       top = document.createElement("div");
@@ -444,9 +457,17 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     const st = H.state(), rt = H.els.resultText, yp = rt?.querySelector(".year-pill");
     let html = `<div class="ko-res jr" style="--h:${hue(g)}"><div class="jr-sc">${box("me", K.dbAv(K.meFlair(), K.meNameOr(T, T.you)), T.you, a, a > b)}` +
       `${box("op", K.dbAv(g.opp_flair, n), n, b, b > a)}</div><p class="ko-dmg">${head}</p>` +
+      yearsHtml(g, r) +
       `<p class="ko-math">${a === b ? esc(T.tieMath) : esc(T.math(Math.max(a, b), Math.min(a, b), d, fmtM(mult(r)), r, x))}${yp ? ` · ${esc(T.itWas)} ${yp.outerHTML}` : ""}</p>`;
     if (g.state === "live") html += `<div class="ko-next" style="--dur:${Math.max(0, at(g.round_at) - now())}ms"><span>${esc(T.next(g.round, "…", fmtM(mult(g.round))))}</span></div>`;
     return html + `</div>`;
+  }
+  // "Jij 1915 · 3 jaar ernaast · hints −20" en hetzelfde voor de ander (db/210)
+  function yearsHtml(g, r) {
+    const T = tx(), ans = g.answers?.[r - 1];
+    const line = (y, h) => (y == null ? T.noGuess : ans == null ? String(y) : `${y} · ${T.off(Math.abs(y - ans))}`) + (h ? ` · ${T.hintsCost(h)}` : "");
+    return `<p class="ko-years"><span class="me"><b>${esc(T.you)}</b> ${esc(line(g.my_years?.[r - 1], g.my_hints?.[r - 1]))}</span>` +
+      `<span class="op"><b>${esc(oppName(g))}</b> ${esc(line(g.their_years?.[r - 1], g.their_hints?.[r - 1]))}</span></p>`;
   }
   function placeCard(html) {
     const res = H.els.result;
@@ -556,7 +577,7 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
     if (!dl?.ko) return;
     sentRound = `${dl.code}:${dl.round}`;
     placeCard(`<p class="duel-note">${esc(tx().waitOpp(cur && cur.code === dl.code ? oppName(cur) : dl.opp || "?"))}…</p>`);
-    const r = await call("ko_submit", { p_code: dl.code, p_round: dl.round, p_score: H.score() });
+    const r = await call("ko_submit", { p_code: dl.code, p_round: dl.round, p_year: st.guesses?.[0]?.year ?? null, p_hints: H.koHints?.() || 0 });
     if (H.state() !== st) return;
     if (r.ok && r.v) apply(r.v); else { sentRound = null; setTimeout(() => refresh(dl.code), 1500); }
   }
@@ -588,11 +609,6 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
       if (cur && cur.code === st.duel.code) drawStrip(); else refresh(st.duel.code);
     },
     roundDone,   // duel.js roundDone() bij een knock-out-ronde
-    // game.js na elke gok in een knock-out-ronde: de ander ziet je stipjes
-    guessed(st) {
-      if (!st?.duel?.ko || !H) return;
-      call("ko_guess", { p_code: st.duel.code, p_round: st.duel.round, p_n: (st.guesses || []).length });
-    },
     // het ▾-menu van Duels: de Live-keuze bij een vriend die online is
     optHtml(lang, k, name) {
       const T = TXT[lang] || TXT.en;

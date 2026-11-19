@@ -5012,7 +5012,9 @@ function duelHost() {
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
     playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
     ko: () => loadKo(),   // ⚡ Knock-out (db/208, /ko.js)
-    koTimeout: () => { if (state?.duel?.ko && !state.done) finishGame(false, true); },   // de klok liep af: verloren (0–10 op je dichtste gok)
+    koTimeout: () => { if (state?.duel?.ko && !state.done) finishGame(false, true); },   // de klok liep af: geen gok = 0 punten
+    // db/210: wat je hints in deze ronde kosten; in een knock-out gaan die punten naar de ander
+    koHints: () => (state?.centuryRevealed ? CENTURY_HINT_PENALTY : 0) + (state?.lastDigitRevealed ? LAST_DIGIT_PENALTY : 0) + (state?.laterCluesShown || 0) * LATER_CLUE_PENALTY,
   };
 }
 // Vlak vóór duel_submit (door /duel.js): de gegevens van het potje. done(id) komt na het antwoord: id = de nieuwe plays-rij,
@@ -14468,7 +14470,6 @@ function submitGuess() {
   state.anchorHash = state.hashes?.[anchorFactSlot] || state.hashes?.[0] || null;
   clearYear();
   renderGuesses();
-  if (state.duel?.ko) window.KO?.guessed?.(state);   // ⚡ Knock-out (db/208): de ander ziet hoeveel gokken je gebruikte
   // Pop-animatie op de zojuist toegevoegde penalty (zelfde double-rAF
   // truc als bij de richting-pijl).
   const rows = els.guesses.querySelectorAll(".guess-row");
@@ -14484,7 +14485,7 @@ function submitGuess() {
   window.SeasonCat?.guess?.();   // het katje spitst zijn oren: bij elke geaccepteerde gok hetzelfde, nooit op warm of koud (dat zou de Richting-hint weggeven)
   if (cls === "correct") {
     finishGame(true, true);
-  } else if (state.guesses.length >= MAX_GUESSES) {
+  } else if (state.guesses.length >= MAX_GUESSES || state.duel?.ko) {   // ⚡ Knock-out (db/210): één gok per ronde, zoals GeoGuessr
     finishGame(false, true);
   } else {
     maybeShowHintNudge();   // gok 5, ver mis, hintloos → eenmalig duwtje
