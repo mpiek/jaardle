@@ -263,9 +263,13 @@ test("duel.js v3 (db/189) — gezichtjes met jullie stand, kiezen → 'Daag X ui
   X.setPick("kb");
   h = X.pickHtml(T, "<NEW>");
   assert.ok(!h.includes("<NEW>"));
-  assert.match(h, /Jij tegen Bram: <b>4–2<\/b>/); assert.match(h, /data-act="challenge" data-k="kb"[^>]*>[^]*Om de beurt/);
-  assert.match(h, /<button type="button" class="dl-live" data-act="ko" data-k="kb">⚡ Live<\/button>/, "⚡ Live naast Om de beurt, ook als Bram niet online is");
-  assert.match(h, /Bram krijgt een seintje en heeft 1 minuut om mee te doen/); assert.match(h, /data-act="new">Liever een link sturen/);
+  assert.match(h, /Jij tegen Bram: <b>4–2<\/b>/); assert.match(h, /class="dl-new dl-pickgo" data-act="modes" aria-expanded="false">[^]*Daag Bram uit/, "één grote knop die de vormen uitklapt");
+  X.setModes(true);
+  const hm = X.pickHtml(T, "<NEW>");
+  X.setModes(false);
+  assert.match(hm, /data-act="ko" data-k="kb"><span class="mo-e" aria-hidden="true">⚡<\/span><span><b>Knock-out · live<\/b><small>Bram krijgt een seintje en heeft 1 minuut om mee te doen/, "⚡ Knock-out, ook als Bram niet online is");
+  assert.match(hm, /data-act="challenge" data-k="kb">[^]*<b>Om de beurt<\/b>/);
+  assert.match(hm, /data-act="challenge" data-k="kb" data-theme="1900">/); assert.match(h, /data-act="new">Liever een link sturen/);
   X.setHost(host({ loggedIn: false }));
   assert.equal(X.pickHtml(T, "<NEW>"), "<NEW>", "zonder account geen gezichtjes");
   X.setPick(null);
