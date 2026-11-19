@@ -434,12 +434,12 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     const g = cur, st = H.state();
     if (!g || g.state !== "live" || !g.deadline || st?.duel?.round !== g.round) return;
     const end = at(g.deadline), span = 15000, rk = `${g.code}:${g.round}`;
-    if (!st.done && end - now() > 1000) sfx(`dl:${rk}`, "clock");   // de ander is klaar en jij speelt nog
+    if (end - now() > 1000) sfx(`dl:${rk}`, "clock");   // de klok begint: allebei hetzelfde geluid (ook wie al gokte en wacht)
     const tick = () => {
       const ms = Math.max(0, end - now()), s = Math.ceil(ms / 1000);
       const t = document.querySelector("#duel-vs .ko-t"), bar = document.querySelector("#duel-vs .ko-clock > i");
       if (t) { t.textContent = String(s); t.classList.toggle("last", s > 0 && s <= 5); }
-      if (s > 0 && s <= 5 && !H.state()?.done) sfx(`t:${rk}:${s}`, "tick", s);   // wie al klaar is en wacht, hoort niets
+      if (s > 0 && s <= 5) sfx(`t:${rk}:${s}`, "tick", s);   // de laatste 5 s: allebei de tik-tak
       if (bar) bar.style.transform = `scaleX(${Math.min(1, ms / span)})`;
       if (ms <= 0) {
         clearInterval(tClock); tClock = null;

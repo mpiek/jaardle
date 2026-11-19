@@ -221,10 +221,10 @@ test("ko.js — knock-out-geluid in het spel: uitnodiging, aftellen, K.O. en 'wi
   K3._.apply(h, { ...done, code: "KOLD", finished_at: new Date(Date.now() - 600000).toISOString() });
   assert.equal(count() - n, 0, "oude K.O.: stil");
   assert.deepEqual(log.errs, []);
-  // de haakjes in de code: ⚡ bij de start van ronde 1, de klok alleen als jij nog speelt, tikken alleen als je niet klaar bent
+  // de haakjes in de code: ⚡ bij de start van ronde 1; de klok en de tik-tak voor allebei (19/11: "zorgen dat beide spelers zelfde sfx krijgen")
   assert.match(KOSRC, /tStart = setTimeout\(\(\) => \{ sfx\(`go:\$\{g\.code\}`, "go"\); startRound\(g\); \}/);
-  assert.match(KOSRC, /if \(!st\.done && end - now\(\) > 1000\) sfx\(`dl:\$\{rk\}`, "clock"\);/);
-  assert.match(KOSRC, /if \(s > 0 && s <= 5 && !H\.state\(\)\?\.done\) sfx\(`t:\$\{rk\}:\$\{s\}`, "tick", s\);/);
+  assert.match(KOSRC, /if \(end - now\(\) > 1000\) sfx\(`dl:\$\{rk\}`, "clock"\);/);
+  assert.match(KOSRC, /if \(s > 0 && s <= 5\) sfx\(`t:\$\{rk\}:\$\{s\}`, "tick", s\);/);
   assert.match(KOSRC, /if \(a !== b\) sfx\(`res:\$\{g\.code\}:\$\{r\}`, "hit", x, a < b\);/);
   assert.match(DUEL, /au: \{ bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud \}/, "de motor blijft in duel.js");
 });
