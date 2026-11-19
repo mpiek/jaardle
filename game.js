@@ -232,6 +232,7 @@ const I18N = {
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
     remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_strict_guard: "🎯 Strenge check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
+    nx_duel: "Duel", nx_turn: (n) => `Jouw beurt tegen ${n}`, nx_many: (k) => `Jouw beurt in ${k} duels`, nx_inv: (n) => `${n} daagt je uit`, nx_aria: "Daag een vriend uit",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
@@ -588,6 +589,7 @@ const I18N = {
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
     remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_strict_guard: "🎯 Strict check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
+    nx_duel: "Duel", nx_turn: (n) => `Your turn vs ${n}`, nx_many: (k) => `Your turn in ${k} duels`, nx_inv: (n) => `${n} challenges you`, nx_aria: "Challenge a friend",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
@@ -937,6 +939,7 @@ const I18N = {
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
     remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_strict_guard: "🎯 Strenge Prüfung", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
+    nx_duel: "Duell", nx_turn: (n) => `Du bist dran gegen ${n}`, nx_many: (k) => `Du bist dran: ${k} Duelle`, nx_inv: (n) => `${n} fordert dich heraus`, nx_aria: "Fordere jemanden heraus",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
@@ -1290,6 +1293,7 @@ const I18N = {
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
     remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_strict_guard: "🎯 Control estricto", menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
+    nx_duel: "Duelo", nx_turn: (n) => `Tu turno contra ${n}`, nx_many: (k) => `Tu turno en ${k} duelos`, nx_inv: (n) => `${n} te reta`, nx_aria: "Reta a un amigo",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
@@ -1643,6 +1647,7 @@ const I18N = {
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
     remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_strict_guard: "🎯 Checagem rigorosa", menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
+    nx_duel: "Duelo", nx_turn: (n) => `Sua vez contra ${n}`, nx_many: (k) => `Sua vez em ${k} duelos`, nx_inv: (n) => `${n} desafia você`, nx_aria: "Desafie um amigo",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
@@ -2047,6 +2052,8 @@ const els = {
   shareBtn: document.getElementById("share-btn"),
   recapBtn: document.getElementById("recap-btn"),
   nextBtn: document.getElementById("next-btn"),
+  duelBtn: document.getElementById("duel-btn"),
+  nextWrap: document.getElementById("next-wrap"),
   dayLabel: document.getElementById("day-label"),
   tabs: Array.from(document.querySelectorAll("#mode-tabs .tab")),
 };
@@ -4652,7 +4659,8 @@ function finishGame(won, fresh = false) {
   els.shareBtn.hidden = false;
   { const sl = els.shareBtn.querySelector(".share-label"); if (sl) sl.textContent = t("share"); }
   if (state.mode === "free") {
-    els.nextBtn.textContent = t("next");
+    els.nextBtn.innerHTML = nextLabelHtml(t("next"));   // 19/11: ook hier met 🎲, zodat het stukje links overblijft als de naad schuift
+    armEmojiFallbacks(els.nextBtn);
   } else if (isMakeup(state)) {
     // Inhaalpot afgerond. Zolang het gat openstaat is de oranje balk de enige weg
     // vooruit (één oppervlak) — dus hier géén knop die naar vrij spel wegleidt.
@@ -4661,17 +4669,18 @@ function finishGame(won, fresh = false) {
     els.nextBtn.hidden = true;
     catchupPending().then((info) => {
       if (!state || !state.done || !isMakeup(state) || !info.closed) return;
-      els.nextBtn.innerHTML = withAnimEmoji(escHtml(t(won ? "free_again" : "free_revenge")));
+      els.nextBtn.innerHTML = nextLabelHtml(t(won ? "free_again" : "free_revenge"));
       armEmojiFallbacks(els.nextBtn);
       els.nextBtn.hidden = false;
     });
   } else {
-    els.nextBtn.innerHTML = withAnimEmoji(escHtml(t(won ? "free_again" : "free_revenge")));
+    els.nextBtn.innerHTML = nextLabelHtml(t(won ? "free_again" : "free_revenge"));
     armEmojiFallbacks(els.nextBtn);
   }
   // De recap (verdeling + teamstand) is daily-only en blijft herbereikbaar via deze
   // knop — maar niet bij een inhaalpot (die telt niet mee op het dagbord van gisteren).
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily" || isMakeup(state);
+  renderNx(true);
   renderHintStatus();
   // Vieren. Hooguit één schermvullend effect (twee door elkaar is rommel): de
   // exclusieve win-fx (gouden jaartallen = capstone-goud, bier = potjes-diamant)
@@ -4986,6 +4995,7 @@ function duelHost() {
     lang, intl: LANGS[lang]?.intl, rpc, clientId, get loggedIn() { return !!auth.user; }, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
     authReady: () => Promise.race([authResolvedP, new Promise((r) => setTimeout(r, 4000))]),
     openModal, closeModal, renderMenuDot, isMobile: isMobileDevice, showConfetti, toEvent, t, els,
+    duelsChanged: () => renderNx(),   // 19/11: /duel.js heeft een verse lijst → het duel-stuk van de verder-spelen-knop bijwerken
     flairHtml: flairStaticHtml, myFlair: () => myFlair, openLogin: () => openModal("modal-login"), gc: gcCount,
     state: () => state, score: computeScore,
     startRound: (rec) => {   // een duelronde is een vrij potje: het tabblad gaat mee (zoals bij een gedeelde link)
@@ -5048,6 +5058,48 @@ function duelKnown() {
 // Een nog onbeantwoorde uitnodiging (zie INVITE_KEY in /duel.js)
 function duelInviteWaiting() {
   try { const v = JSON.parse(localStorage.getItem("jaardle:duelInvite") || "null"); return v && v.c && v.u > Date.now() ? v : null; } catch (e) { return null; }
+}
+
+// ── 🎲 + ⚔️: de verder-spelen-knop met een duel-stuk (19/11/2026, mockup v10 "Schuin") ───────────────────────────────────────
+// Na de daily en na elk rondje vrij spel krijgt "Nog een potje?" rechts een ⚔️-stuk met een schuine naad (CSS bij #next-wrap).
+// 🎲 doet wat hij altijd deed. Wacht er een duel op jou, dan schuift de naad naar links en noemt het duel-stuk wie ("Jouw beurt
+// tegen Bram", "Lotte daagt je uit", "Jouw beurt in 3 duels"). Dat weet /duel.js (waiting) uit de lijst die het bij het laden al
+// ophaalt voor het rode stipje (alleen wie op dit toestel duels heeft): geen extra aanroep. Niet in een duelronde (daar regelt
+// /duel.js de knoppen) en niet bij een inhaal-daily (daar is de oranje balk de weg vooruit).
+// "Duel" naast de zwaarden alleen de eerste NX_LABEL_N eindschermen en zolang je nog nooit een duel had. Eenmalig: het duel-stuk
+// glijdt één keer per toestel los, en de naad schuift één keer per wachtend duel. Meetpunten: end-duel(-turn|-inv|-many).
+const NX_KEY = "jaardle:nx", NX_LABEL_N = 5;
+function nxRec() { try { return JSON.parse(localStorage.getItem(NX_KEY) || "{}") || {}; } catch (e) { return {}; } }
+function nxSave(r) { try { localStorage.setItem(NX_KEY, JSON.stringify(r)); } catch (e) {} }
+// "🎲 Nog een potje?" → 🎲 + <span class="nx-l">: zo kan de naad de tekst wegschuiven en blijft de 🎲 staan
+function nextLabelHtml(s) { return `${withAnimEmoji("🎲")} <span class="nx-l">${escHtml(String(s).replace(/^🎲\s*/u, ""))}</span>`; }
+function nxWaiting() { try { return window.Duel?.waiting?.() || null; } catch (e) { return null; } }
+function renderNx(pot = false) {   // pot = een eindscherm dat net getekend is (telt mee voor het uitdoven van "Duel")
+  const wrap = els.nextWrap, b = els.duelBtn;
+  if (!wrap || !b) return;
+  const show = !!(state && state.done && !state.duel && !els.result.hidden && !els.nextBtn.hidden && !isMakeup(state));
+  wrap.classList.toggle("on", show);
+  b.hidden = !show;
+  if (!show) { wrap.classList.remove("duel", "tight", "nx-fresh"); return; }
+  const rec = nxRec(), w = nxWaiting(), waiting = !!(w && w.n > 0);
+  if (pot) rec.n = (rec.n || 0) + 1;
+  let ever = !!rec.used || duelKnown();
+  try { ever = ever || !!localStorage.getItem("jaardle:duel-name"); } catch (e) {}
+  let lab = "";
+  if (waiting) lab = w.n > 1 ? t("nx_many")(w.n) : w.kind === "inv" ? t("nx_inv")(w.name) : t("nx_turn")(w.name);
+  else if (!ever && (rec.n || 0) <= NX_LABEL_N) lab = t("nx_duel");
+  b.innerHTML = `<span class="nx-i" aria-hidden="true">⚔️</span>` + (lab ? `<span class="nx-l">${escHtml(lab)}</span>` : "");
+  b.setAttribute("aria-label", waiting ? lab : t("nx_aria"));
+  b.title = waiting ? lab : t("nx_aria");
+  wrap.classList.toggle("duel", waiting);
+  let fresh = false;
+  if (waiting) { if (rec.wait !== w.code) { rec.wait = w.code; fresh = true; } }
+  else if (!rec.intro) { rec.intro = 1; fresh = true; }
+  nxSave(rec);
+  // Past de tekst niet (smal scherm, lange taal of naam): .tight. Gemeten zonder het moment, want daarin groeien de teksten juist.
+  wrap.classList.remove("nx-fresh", "tight");
+  if ([...wrap.querySelectorAll(".nx-l")].some((l) => !(waiting && l.closest("#next-btn")) && l.scrollWidth > l.clientWidth + 1)) wrap.classList.add("tight");
+  if (fresh) { void wrap.offsetWidth; wrap.classList.add("nx-fresh"); }
 }
 
 // ── Nieuws-balk (16/11/2026): een nieuwe feature een paar dagen aankondigen boven de feitenkaart. Nieuwe aankondiging = alleen een rij:
@@ -14892,6 +14944,13 @@ async function init() {
   els.shareBtn.addEventListener("click", () => {
     if (state?.duel && window.Duel) { window.Duel.share(duelHost(), els.shareBtn); return; }   // "Laat … het weten" / "Deel uitslag"
     gcCountNew("end-share", "End: share"); doShare(els.shareBtn);
+  });
+  // 19/11: het ⚔️-stuk van de verder-spelen-knop (renderNx): één wachtend duel → meteen je ronde of de uitnodiging, anders het Duels-scherm.
+  if (els.duelBtn) els.duelBtn.addEventListener("click", () => {
+    const w = nxWaiting(), r = nxRec();
+    if (!r.used) nxSave({ ...r, used: 1 });
+    gcCountNew(!w || !w.n ? "end-duel" : w.n > 1 ? "end-duel-many" : w.kind === "inv" ? "end-duel-inv" : "end-duel-turn", "End: duel");
+    loadDuel().then((D) => D.fromEnd(duelHost(), w)).catch(() => {});
   });
   els.nextBtn.addEventListener("click", () => {
     if (state?.duel && state.done && window.Duel) { window.Duel.next(duelHost()); return; }   // volgende ronde, revanche, volgend duel of de daily

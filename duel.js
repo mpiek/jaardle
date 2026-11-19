@@ -116,7 +116,7 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .duel-no:hover { color: var(--fg); filter: none; }
 .duel-fine { font-size: 0.72rem !important; }
 .duel-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; }
-#result-actions #next-btn.duel-btn { order: -1; }   /* Revanche vóór "Deel uitslag" (zoals de mockup) */
+#result-actions #next-btn.duel-btn, #result-actions .nx:has(> #next-btn.duel-btn) { order: -1; }   /* Revanche vóór "Deel uitslag" (zoals de mockup) */
 /* ⚔️ Duels (⋮-menu) */
 .dl { gap: 0.55rem; }
 .dl-new { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; width: 100%; }
@@ -2125,7 +2125,30 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     writeJson(LIST_KEY, listItems.filter((d) => d.status === "open" || d.status === "active" || (d.status === "done" && !d.seen))
       .map((d) => ({ c: d.code, u: Date.parse(d.deadline || "") || Date.now() })));
     for (const d of all) if (cache[d.code]) keep(d);
+    H?.duelsChanged?.();   // 19/11: de verder-spelen-knop op het eindscherm leest waiting()
     return listItems;
+  }
+
+  // 19/11 (mockup v10 "Schuin"): wat er op jou wacht, voor het duel-stuk van "🎲 Nog een potje? / ⚔️" op het eindscherm. Uit de lijst die
+  // er al is (checkNews bij het laden of het Duels-scherm), met de versere kopie uit cache (een net gespeelde ronde); geen aanroep.
+  // null = nog niets bekend; { n: 0 } = niets; anders het eerstvolgende duel (uitdagingen aan jou eerst, dan jouw beurt op deadline).
+  function waiting() {
+    if (!listItems) return null;
+    const cur = (d) => cache[d.code] || d;
+    const inc = listItems.map(cur).filter(incoming);
+    const turn = listItems.map(cur).filter((d) => d.status === "active" && (d.mine || []).length < 5)
+      .sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
+    const all = [...inc, ...turn];
+    if (!all.length) return { n: 0 };
+    const d = all[0], inv = incoming(d);
+    return { n: all.length, code: d.code, kind: inv ? "inv" : "turn", name: inv ? (d.c_name || "?") : oppName(d) };
+  }
+  // Tik op het duel-stuk: één duel → meteen je ronde of de uitnodiging; meer, of niets → het Duels-scherm (daar staat "Daag een vriend uit").
+  function fromEnd(host, w) {
+    H = host;
+    if (w && w.n === 1 && w.kind === "turn") return play(H, w.code);
+    if (w && w.n === 1 && w.kind === "inv") return openInvite(H, w.code);
+    return openList(H, {});
   }
 
   // 18/11 (zijn vraag): spelers tikken op een lopend duel, of komen terug in de app, om te zien of de ander al speelde. Dan haalt het
@@ -2669,7 +2692,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   }
 
   return {
-    openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, pushOn: (host) => { H = host || H; return pushOn(); },
+    openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },

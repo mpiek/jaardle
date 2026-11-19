@@ -1893,6 +1893,39 @@ button.vd-stamp:focus-visible { outline: 2px solid var(--accent); outline-offset
 }
 #recap-btn[hidden] { display: none; }   /* hidden wint van inline-flex */
 
+/* ── Verder spelen: 🎲 en ⚔️ in één knop (19/11/2026, mockup v10 "Schuin") ─────────────────────────────────────
+   #next-wrap (.nx) houdt #next-btn (🎲: vrij spel, doet wat hij altijd deed) en #duel-btn (⚔️). Zonder duel-stuk (duelronde,
+   inhaal-daily) is #next-btn een gewone knop; .nx.on = twee stukken met een schuine naad. Wacht er een duel op jou (.nx.duel),
+   dan schuift de naad naar links: 🎲 wordt een stukje en het duel-stuk noemt wie. .nx-fresh = het eenmalige moment (game.js
+   renderNx); .tight = de tekst past niet (game.js meet). De duelkleur staat hier zelf: /duel.js laadt pas bij een duel. */
+:root { --nx-duel: #e8794a; --nx-duel-on: #1d0f05; }
+html[data-theme="light"], html[data-theme="parchment"] { --nx-duel: #b5531c; --nx-duel-on: #fff; }
+.nx { --nx-s: 0.8rem; --nx-g: 2px; display: inline-flex; align-items: stretch; max-width: 100%; min-width: 0; isolation: isolate; }
+.nx:not(:has(> button:not([hidden]))) { display: none; }   /* niets te tonen: geen lege plek (met gap) in de actierij */
+.nx.on > button { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 0; min-height: 2.75rem; white-space: nowrap; }
+.nx.on > button:focus-visible { outline: 3px solid var(--fg); outline-offset: -6px; }
+.nx.on > #next-btn { z-index: 2; flex: 0 1 auto; border-radius: 8px 0 0 8px; padding-left: 1rem; padding-right: calc(0.8rem + var(--nx-s));
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--nx-s)) 100%, 0 100%); }
+#duel-btn { z-index: 1; flex: 0 1 auto; border-radius: 0 8px 8px 0; margin-left: calc(var(--nx-g) - var(--nx-s));
+  padding-left: calc(0.55rem + var(--nx-s)); padding-right: 0.9rem; background: var(--nx-duel); color: var(--nx-duel-on);
+  clip-path: polygon(var(--nx-s) 0, 100% 0, 100% 100%, 0 100%); }
+.nx.on .nx-l { display: block; min-width: 0; max-width: 16em; overflow: hidden; text-overflow: ellipsis; margin-left: 0.35em; }
+.nx-i { flex: none; line-height: 1; }
+.nx.duel { width: 100%; }
+.nx.duel > #next-btn { padding-left: 0.95rem; }
+.nx.duel > #next-btn .nx-l { max-width: 0; margin-left: 0; opacity: 0; }
+.nx.duel > #duel-btn { flex: 1 1 auto; justify-content: flex-start; padding-left: calc(0.7rem + var(--nx-s)); }
+.nx.duel > #duel-btn .nx-l { margin-left: 0.5em; }
+.nx.tight:not(.duel) > #duel-btn .nx-l { display: none; }   /* past "Duel" er niet naast: alleen de zwaarden */
+.nx.duel.tight > #duel-btn .nx-l { font-size: 0.9em; }
+@keyframes nx-out { from { transform: translateX(-75%); } to { transform: none; } }
+@keyframes nx-shrink { from { max-width: 9em; margin-left: 0.35em; opacity: 1; } to { max-width: 0; margin-left: 0; opacity: 0; } }
+@keyframes nx-grow { from { max-width: 0; opacity: 0; } to { max-width: 16em; opacity: 1; } }
+.nx.nx-fresh:not(.duel) > #duel-btn { animation: nx-out 0.5s 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.12) both; }
+.nx.duel.nx-fresh > #next-btn .nx-l { animation: nx-shrink 0.5s 0.55s ease-in-out both; }
+.nx.duel.nx-fresh > #duel-btn .nx-l { animation: nx-grow 0.6s 0.7s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .nx.nx-fresh > button, .nx.nx-fresh .nx-l { animation: none !important; } }
+
 /* Duimpje na een potje ("Leuk potje?"): direct onder de knoppen, boven bron en aftelklok; dooft zichzelf en klapt dan zacht
    dicht (game.js renderFunPrompt). De tikvlakken zijn 44px, het zichtbare deel is klein; de marge erboven houdt ze uit de
    buurt van "Nog een potje?". */
