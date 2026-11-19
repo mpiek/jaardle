@@ -106,7 +106,7 @@ test("game.js / duel.js / live.js ↔ ko.js — lui geladen, rondes en seintjes 
   assert.match(GAME, /koTimeout: \(\) => \{ if \(state\?\.duel\?\.ko && !state\.done\) finishGame\(false, true\); \}/);
   assert.match(DUEL, /if \(st\?\.duel\?\.ko\) \{ H\.ko\?\.\(\)\.then\(\(K\) => K\.sync\(H\)\)/);
   assert.match(DUEL, /if \(dl\.ko\) return H\.ko\?\.\(\)\.then\(\(K\) => K\.roundDone\(H, st\)\)/);
-  assert.match(DUEL, /opt\("⚡", "ko", T\.koName, isOn\(t\.k\) \? T\.koSub\(t\.name\) : T\.liveOff\(t\.name\)/, "⚡ Knock-out in de uitklapkeuze, ook als die vriend niet online is");
+  assert.match(DUEL, /class="dl-opt ko-opt" data-act="ko"[^]*?\$\{esc\(isOn\(t\.k\) \? T\.koSub\(t\.name\) : T\.liveOff\(t\.name\)\)\}/, "⚡ Knock-out in de uitklapkeuze, ook als die vriend niet online is");
   assert.match(LIVE, /replay: \{ since: Date\.now\(\) - 60000/, "een uitnodiging van de laatste minuut komt bij het openen alsnog binnen");
   assert.match(LIVE, /\.on\("broadcast", \{ event: "ko" \}/);
   assert.ok(!/ko\.js/.test(read("index.template.html")), "ko.js staat niet in de pagina zelf (lui)");

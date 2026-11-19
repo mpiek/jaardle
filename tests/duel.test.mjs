@@ -237,11 +237,11 @@ test("duel.js — de Duels-lijst verklapt geen ongeziene uitslag; jouw beurt en 
   assert.match(seen, /Vandaag: verloren 2–3/); assert.match(seen, /<b>0–1<\/b>/);
   assert.deepEqual(plain(X.h2hOf([{ ...lost, seen: true }], "b")), [0, 1]);
   // volgorde: jouw beurt vóór de grote knop; net verstuurd: het groene vak vóór de grote knop; naamveld: geen grote knop
-  assert.ok(h.indexOf('data-act="play"') < h.indexOf('class="dl-new"'), "Speel boven Daag een vriend uit");
+  assert.ok(h.indexOf('data-act="play"') < h.indexOf('class="dl-new dl-pickgo"'), "Speel boven Daag een vriend uit");
   const sent = X.listBody(T, [turn], `<div class="dl-sent">✓</div>`, null);
-  assert.ok(sent.indexOf("dl-sent") < sent.indexOf('data-act="play"') && sent.indexOf('data-act="play"') < sent.indexOf('class="dl-new"'));
-  assert.ok(!X.listBody(T, [turn], `<form class="dl-name"></form>`, null).includes('class="dl-new"'));
-  assert.match(X.listBody(T, [], "", null), /dl-hero[^]*class="dl-new"/, "lege staat ongewijzigd");
+  assert.ok(sent.indexOf("dl-sent") < sent.indexOf('data-act="play"') && sent.indexOf('data-act="play"') < sent.indexOf('class="dl-new dl-pickgo"'));
+  assert.ok(!X.listBody(T, [turn], `<form class="dl-name"></form>`, null).includes('class="dl-new dl-pickgo"'));
+  assert.match(X.listBody(T, [], "", null), /dl-hero[^]*class="dl-new dl-pickgo"/, "lege staat: dezelfde knop");
 });
 
 test("duel.js v3 (db/189) — gezichtjes met jullie stand, kiezen → 'Daag X uit', loopt = geen keuze; zonder account alleen de link", () => {
@@ -263,12 +263,12 @@ test("duel.js v3 (db/189) — gezichtjes met jullie stand, kiezen → 'Daag X ui
   X.setPick("kb");
   h = X.pickHtml(T, "<NEW>");
   assert.ok(!h.includes("<NEW>"));
-  assert.match(h, /Jij tegen Bram: <b>4–2<\/b>/); assert.match(h, /class="dl-new dl-pickgo" data-act="modes" aria-expanded="false">[^]*Daag Bram uit/, "één grote knop die de vormen uitklapt");
+  assert.match(h, /Jij tegen Bram: <b>4–2<\/b>/); assert.match(h, /class="dl-new dl-pickgo" data-act="modes" aria-expanded="false"[^>]*>[^]*Daag Bram uit/, "één grote knop die de vormen uitklapt");
   X.setModes(true);
   const hm = X.pickHtml(T, "<NEW>");
   X.setModes(false);
-  assert.match(hm, /data-act="ko" data-k="kb"><span class="mo-e" aria-hidden="true">⚡<\/span><span><b>Knock-out · live<\/b><small>Bram krijgt een seintje en heeft 1 minuut om mee te doen/, "⚡ Knock-out, ook als Bram niet online is");
-  assert.match(hm, /data-act="challenge" data-k="kb">[^]*<b>Om de beurt<\/b>/);
+  assert.match(hm, /data-act="ko" data-k="kb"><span class="mo-e" aria-hidden="true">⚡<\/span><span><b>Knock-out · live<\/b><small>Bram krijgt een seintje en 1 minuut<\/small>/, "⚡ Knock-out, ook als Bram niet online is");
+  assert.match(hm, /data-act="challenge" data-k="kb">[^]*<b>Normaal<\/b>/);
   assert.match(hm, /data-act="challenge" data-k="kb" data-theme="1900">/); assert.match(h, /data-act="new">Liever een link sturen/);
   X.setHost(host({ loggedIn: false }));
   assert.equal(X.pickHtml(T, "<NEW>"), "<NEW>", "zonder account geen gezichtjes");
@@ -453,7 +453,7 @@ test("duel.js — account-momenten zonder account: bij de uitslag wat je er met 
   for (const l of D.langs()) assert.ok(D.copy(l).keepVs("Bram").includes("Bram") && /^<u>[^<]+<\/u>/.test(D.copy(l).keepList), `${l}: naam in de regel, het werkwoord onderstreept`);
   // het Duels-scherm: de regel onder de knop, zodra je een uitslag zag van een duel tegen iemand met een account
   const withAcc = X.listBody(T, [{ ...done, opp_acc: true }], "", null);
-  assert.match(withAcc, /class="dl-new"[^]*?<\/button><\/div><button type="button" class="dl-linkb dl-acct" data-act="login" data-code="AAAAAA"><u>Log in<\/u>, dan staan je tegenstanders hier en daag je ze uit met één tik<\/button>/);
+  assert.match(withAcc, /class="dl-new dl-pickgo"[^]*?<\/button><button type="button" class="dl-linkb dl-acct" data-act="login" data-code="AAAAAA"><u>Log in<\/u>, dan staan je tegenstanders hier en daag je ze uit met één tik<\/button>/);
   assert.ok(withAcc.indexOf("dl-acct") < withAcc.indexOf("Stand per tegenstander"), "boven je stand, direct onder de knop");
   assert.ok(!X.listBody(T, [done], "", null).includes("dl-acct"), "tegenstander zonder account (of een oudere server): geen regel");
   assert.ok(!X.listBody(T, [{ ...done, opp_acc: true, seen: false }], "", null).includes("dl-acct"), "een uitslag die je nog niet zag: de onthulling heeft haar eigen regel");
@@ -756,12 +756,13 @@ test("duel.js — duelmodus 1900+ (db/202): ▾ naast de grote knop, pilletje, u
   // dicht: de grote knop met rechts de ▾, geen lijstje; open: één regel 1900+ die met dezelfde actie meteen uitdaagt
   X.setModes(false);
   let h = X.goHtml(T, `data-act="new"`, T.newBtn);
-  assert.match(h, /^<div class="dl-split"><button type="button" class="dl-new" data-act="new">[^]*?Daag een vriend uit<\/button><button type="button" class="dl-more" data-act="modes" aria-expanded="false" aria-label="Meer duelvormen">/);
+  assert.match(h, /^<button type="button" class="dl-new dl-pickgo" data-act="modes" aria-expanded="false" aria-label="Meer duelvormen">[^]*?Daag een vriend uit/, "één knop die uitklapt, ook zonder gekozen vriend");
   assert.ok(!h.includes("dl-menu"));
   X.setModes(true);
   h = X.goHtml(T, `data-act="challenge" data-k="kb"`, T.challengeX("Bram"));
   assert.match(h, /aria-expanded="true"/);
-  assert.match(h, /<div class="dl-menu"><button type="button" class="dl-opt" data-act="challenge" data-k="kb" data-theme="1900">[^]*?<b>1900\+<\/b><small>Alle 5 rondes uit 1900 tot nu<\/small>/);
+  assert.match(h, /<div class="dl-menu">[^]*<button type="button" class="dl-opt" data-act="challenge" data-k="kb" data-theme="1900">[^]*?<b>1900\+<\/b><small>Alle 5 rondes uit 1900 tot nu<\/small>/);
+  assert.match(h, /<button type="button" class="dl-opt" data-act="challenge" data-k="kb"><span class="mo-e" aria-hidden="true">⚔️<\/span><span><b>Normaal<\/b><small>5 rondes, om de beurt<\/small>/, "Normaal staat er ook tussen");
   X.setModes(false);
   // pilletje alleen bij een bekend thema (een oudere server stuurt geen theme)
   assert.equal(X.thHtml({ theme: "1900" }), `<span class="dl-th"><span aria-hidden="true">📻</span>1900+</span>`);
