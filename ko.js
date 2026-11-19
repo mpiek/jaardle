@@ -111,6 +111,11 @@ html[data-theme="light"] #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 42%); }
 .ko-hitc b { font-size: 1.15rem; font-weight: 900; color: var(--duel-loss); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .ko-hitc small { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
 .ko-hitc:not(.to-me):not(.to-op) b { color: var(--muted); }
+.ko-hitc.wait { visibility: hidden; }   /* de uitslag speelt af (playResult): eerst tellen de scores op */
+.ko-hitc.dif b { color: var(--fg); }
+.ko-hitc.pop b { animation: ko-pop 0.34s ease-out both; }
+.ko-ghost { position: fixed; z-index: 60; display: flex; align-items: center; justify-content: center; pointer-events: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ko-ghost.dmg { font-size: 1.3rem; font-weight: 900; color: var(--duel-loss); text-shadow: 0 0 6px var(--card), 0 0 2px var(--card); }
 .ko-side.op { --col: var(--ko-op); }
 .ko-who { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
 .ko-side.op .ko-who { flex-direction: row-reverse; }
@@ -200,6 +205,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
 @keyframes ko-tick { to { transform: scale(1.12); } }
 @keyframes ko-low { to { opacity: 0.55; } }
 @keyframes ko-fly { 0% { opacity: 0; transform: translateY(6px) scale(0.8); } 15% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px); } }
+@keyframes ko-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.25); } 100% { transform: none; } }
 @keyframes ko-drop { from { width: calc(var(--was) * 1%); } to { width: calc(var(--hp) * 1%); } }
 @media (prefers-reduced-motion: reduce) {
   .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want, .ko-fly { animation: none; }
@@ -229,7 +235,9 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   async function call(fn, args) {
     try { return { ok: true, v: await H.rpc(fn, args) }; } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
-  function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; }
+  function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; stopAnim(); }
+  let anim = [], animGen = 0;   // de stappen van playResult
+  function stopAnim() { anim.forEach(clearTimeout); anim = []; animGen++; document.querySelectorAll(".ko-ghost").forEach((e) => e.remove()); }
 
   // ── geluid (19/11): alleen met ⚙️ ⚔️ Duel-geluid aan. De motor (bus, wakker maken, bouwstenen, de ⚔️-klang "hit") staat in duel.js
   // (K.au), de klanken van de knock-out hier. Elk moment klinkt één keer (heard: code:ronde:…), want apply() en drawStrip() lopen bij
@@ -387,8 +395,9 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       status = st.done ? `<span>${esc(T.waitOpp(n))}</span><span class="ko-t">…</span>` : `<span>${esc(T.oppGuessed(n))}</span><span class="ko-t">…</span>`;
       clock = `<div class="ko-clock"><i></i></div>`;
     } else if (playing) status = `<span class="ko-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc(T.thinking(n))}</span>`;
-    return side("me", T.you, me, g.hp, drain?.me) + `<span class="ko-mid"><b>R${rr}</b><span class="${mult(rr) > 1 ? "up" : ""}">×${esc(fmtM(mult(rr)))}</span></span>` +
-      side("op", n, op, g.opp_hp, drain?.op) + `<div class="ko-st${clock ? " clock" : ""}">${status}</div>${clock}`;
+    const hold = drain?.hold;   // playResult: de balk wacht op de schade die eraan komt
+    return side("me", T.you, me, hold ? drain.me : g.hp, hold ? null : drain?.me) + `<span class="ko-mid"><b>R${rr}</b><span class="${mult(rr) > 1 ? "up" : ""}">×${esc(fmtM(mult(rr)))}</span></span>` +
+      side("op", n, op, hold ? drain.op : g.opp_hp, hold ? null : drain?.op) + `<div class="ko-st${clock ? " clock" : ""}">${status}</div>${clock}`;
   }
   function drawTop(g) {
     const T = tx(), dt = K.tx(H.lang), tabs = document.getElementById("mode-tabs"), card = document.getElementById("event-card");
@@ -498,13 +507,12 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     return el;
   }
   function showResult(g, r) {
-    if (shownRes === `${g.code}:${r}`) return;
+    if (shownRes === `${g.code}:${r}`) return 0;
     shownRes = `${g.code}:${r}`;
     const a = g.mine[r - 1], b = g.theirs[r - 1], x = dmgOf(a, b, r);
     const drain = { r, who: a > b ? "me" : a < b ? "opp" : null, me: a < b ? g.hp + x : g.hp, op: a > b ? g.opp_hp + x : g.opp_hp };
-    drawStrip({ drain });
-    if (a !== b) sfx(`res:${g.code}:${r}`, "hit", x, a < b);   // bij gelijk geen schade, geen klap
     const el = placeCard(resultHtml(g, r));
+    const wait = playResult(el, g, r, drain);
     if (g.state === "live") {
       const lab = el.querySelector(".ko-next span");
       const T = tx();
@@ -513,6 +521,54 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       clearInterval(tStart);
       tStart = setInterval(() => { tick(); if (now() >= at(g.round_at)) { clearInterval(tStart); tStart = null; startRound(g); } }, 250);
     }
+    return wait;
+  }
+  // zoals GeoGuessr: de twee scores tellen op, vliegen in het midden samen tot het verschil, dat wordt × de factor de schade, en die
+  // vliegt naar de levensbalk van wie hem krijgt; pas dan zakt die balk (met de klap). Geeft terug hoe lang het duurt tot de balk zakt.
+  // Te weinig tijd tot de volgende ronde (laat binnen) of minder beweging aan: meteen de eindstand, zoals eerst.
+  function playResult(el, g, r, drain) {
+    const a = g.mine[r - 1], b = g.theirs[r - 1], x = dmgOf(a, b, r);
+    const hit = () => { drawStrip({ drain }); if (a !== b) sfx(`res:${g.code}:${r}`, "hit", x, a < b); };   // bij gelijk geen schade, geen klap
+    const sc = el.querySelector(".ko-sc"), mid = sc?.querySelector(".ko-hitc"), [na, nb] = sc ? sc.querySelectorAll(".jr-box > strong") : [];
+    const left = g.state === "live" ? at(g.round_at) - now() : Infinity;
+    if (!mid || !nb || left < 3600 || matchMedia("(prefers-reduced-motion: reduce)").matches) { hit(); return 0; }
+    stopAnim();
+    const gen = animGen, later = (ms, fn) => anim.push(setTimeout(() => { if (gen === animGen && el.isConnected) fn(); }, ms));
+    drawStrip({ drain: { ...drain, hold: true } });
+    const fin = [mid.className, mid.innerHTML], wins = [...sc.querySelectorAll(".jr-box.win")];
+    wins.forEach((w) => w.classList.remove("win"));
+    mid.className = "ko-hitc wait";
+    const count = (n, v) => {   // 0 → v in 0,7 s (ease-out)
+      const t0 = performance.now();
+      const step = (t) => { if (gen !== animGen) return; const k = Math.min(1, (t - t0) / 700); n.textContent = String(Math.round(v * (1 - (1 - k) ** 3))); if (k < 1) requestAnimationFrame(step); };
+      n.textContent = "0"; requestAnimationFrame(step);
+    };
+    count(na, a); count(nb, b);
+    later(850, () => { ghost(na, mid, String(a), 450); ghost(nb, mid, String(b), 450); wins.forEach((w) => w.classList.add("win")); });
+    if (a === b) { later(1300, () => { [mid.className, mid.innerHTML] = fin; mid.classList.add("pop"); hit(); }); return 1300; }
+    const hi = Math.max(a, b), lo = Math.min(a, b), neg = (v) => (v < 0 ? `(−${-v})` : String(v));
+    later(1300, () => { mid.className = "ko-hitc dif pop"; mid.innerHTML = `<b>${hi - lo}</b><small>${neg(hi)} − ${neg(lo)}</small>`; });
+    later(1950, () => { [mid.className, mid.innerHTML] = fin; mid.classList.add("pop"); });
+    later(2600, () => {
+      const bar = document.querySelector(`#duel-vs .ko-side.${a > b ? "op" : "me"} .ko-bar`), src = mid.querySelector("b");
+      if (bar && src) ghost(src, bar, `−${x}`, 500, "dmg");
+      hit();   // de balk zakt 0,5 s later (ko-drop), net als de schade aankomt
+    });
+    return 2600;
+  }
+  // een getal dat van from naar to vliegt (vast op het scherm, los van scrollen); niet als een van beide niet in beeld is
+  function ghost(from, to, text, ms, cls = "") {
+    const p = from.getBoundingClientRect(), q = to.getBoundingClientRect();
+    const seen = (r) => r.width && r.bottom > 0 && r.top < innerHeight;
+    if (!seen(p) || !seen(q) || !document.body.animate) return;
+    const el = document.createElement("span"), cs = getComputedStyle(from);
+    el.className = `ko-ghost ${cls}`; el.textContent = text; el.setAttribute("aria-hidden", "true");
+    if (!cls) { el.style.font = cs.font; el.style.color = cs.color; }
+    Object.assign(el.style, { left: `${p.left}px`, top: `${p.top}px`, width: `${p.width}px`, height: `${p.height}px` });
+    document.body.appendChild(el);
+    const dx = q.left + q.width / 2 - (p.left + p.width / 2), dy = q.top + q.height / 2 - (p.top + p.height / 2), end = `translate(${dx}px, ${dy}px)`;
+    el.animate([{ transform: "none", opacity: 1 }, { transform: `${end} scale(0.75)`, opacity: 1, offset: 0.85 }, { transform: `${end} scale(0.5)`, opacity: 0 }],
+      { duration: ms, easing: "cubic-bezier(0.55, 0, 0.7, 0.4)", fill: "forwards" }).onfinish = () => el.remove();
   }
   function showEnd(g) {
     const T = tx(), n = oppName(g), r = Math.max(g.mine.length, g.theirs.length), won = g.winner === "me";
@@ -559,9 +615,9 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       if (here) {
         const r = g.mine.length;
         if (r && st.done && shownRes !== `${g.code}:${r}` && g.theirs.length >= r) {   // eerst de laatste ronde (de balk loopt leeg), dan de K.O.
-          showResult(g, r);
+          const wait = showResult(g, r) || 0;
           clearTimeout(tStart);
-          tStart = setTimeout(() => { if (cur && cur.code === g.code) showEnd(cur); }, 2400);
+          tStart = setTimeout(() => { if (cur && cur.code === g.code) showEnd(cur); }, 2400 + wait);
           return;
         }
         drawStrip();
