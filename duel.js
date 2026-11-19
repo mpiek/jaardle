@@ -499,8 +499,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .duel-inv .dl-th { font-size: 0.85rem; padding: 0.2rem 0.7rem 0.2rem 0.55rem; margin-top: -0.15rem; }
 .duel-title .dl-th, .ep-eyebrow .dl-th { margin-left: 0.35rem; font-size: 0.7rem; vertical-align: 0.1em; }
 .dl-main b .dl-th, .dl-sent b .dl-th { margin-left: 0.35rem; font-size: 0.68rem; padding: 0 0.4rem 0 0.3rem; vertical-align: 0.1em; }
-/* in een ronde met een thema zegt het lege invoervak welk stuk tijd (i.p.v. "—") */
-[data-era] #year-input:empty::before { content: attr(data-ph); font-size: 0.6em; letter-spacing: 0.02em; }
+/* in een ronde met een thema zegt het lege invoervak welk stuk tijd (i.p.v. "—"). line-height 1.5 / 0.6 = 2.5: de kleine tekst krijgt
+   dezelfde regelhoogte als de cijfers, anders krimpt het vak na elke gok (leeg) en groeit het bij het eerste cijfer (19/11: 14 px) */
+[data-era] #year-input:empty::before { content: attr(data-ph); font-size: 0.6em; line-height: 2.5; letter-spacing: 0.02em; }
 @media (prefers-reduced-motion: reduce) { .dl-more svg { transition: none; } }
 `;
 
