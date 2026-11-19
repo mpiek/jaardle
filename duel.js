@@ -262,7 +262,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .dx-chev { font-size: 1.35rem; line-height: 1; margin-top: -0.1em; }
 .dx-logo { display: block; width: 30px; height: 30px; border-radius: 8px; }
 .duel-title { font-size: 1rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; color: var(--duel-arena); white-space: nowrap; }
-.duel-round { justify-self: end; font-size: 0.8rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.duel-round { justify-self: end; display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; font-size: 0.8rem; font-weight: 600; color: var(--muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* de Duels-pagina (/duels/, 18/11/2026): het Duels-scherm op de plek van het spel, met dezelfde kop als een duelronde
    (‹ Jaardle · ⚔️ DUELS · ?). game.js zet body[data-duelshome] en het adres; het spel en de voet-knoppen gaan zolang weg. */
 [data-duelshome] main > :not(#modal-duels), [data-duelshome] #help-btn, [data-duelshome] #day-label { display: none !important; }
@@ -470,7 +471,8 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
   letter-spacing: 0; text-transform: none; white-space: nowrap; color: var(--fg); background: color-mix(in srgb, var(--duel-arena) 16%, var(--card-soft));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--duel-arena) 45%, transparent); }
 .duel-inv .dl-th { font-size: 0.85rem; padding: 0.2rem 0.7rem 0.2rem 0.55rem; margin-top: -0.15rem; }
-.duel-title .dl-th, .ep-eyebrow .dl-th { margin-left: 0.35rem; font-size: 0.7rem; vertical-align: 0.1em; }
+.ep-eyebrow .dl-th { margin-left: 0.35rem; font-size: 0.7rem; vertical-align: 0.1em; }
+.duel-round .dl-th { font-size: 0.68rem; padding: 0 0.4rem 0 0.3rem; }
 .dl-main b .dl-th, .dl-sent b .dl-th { margin-left: 0.35rem; font-size: 0.68rem; padding: 0 0.4rem 0 0.3rem; vertical-align: 0.1em; }
 /* in een ronde met een thema zegt het lege invoervak welk stuk tijd (i.p.v. "—"). line-height 1.5 / 0.6 = 2.5: de kleine tekst krijgt
    dezelfde regelhoogte als de cijfers, anders krimpt het vak na elke gok (leeg) en groeit het bij het eerste cijfer (19/11: 14 px) */
@@ -530,7 +532,7 @@ html[data-theme="light"] .db { --db-op: hsl(var(--h, 30) 58% 40%); }
 .db-c > .fv.w, .db-n > .fv.lead { color: #fff; background: var(--col); }
 .db-c > .fv.d { color: var(--fg); background: color-mix(in srgb, var(--gray) 40%, var(--card-soft)); }
 .db-n > .fv { color: var(--fg); animation: duel-flip 0.45s ease-out 3.75s both; }   /* eigen regel: zonder --i was de hele animatie ongeldig (stond meteen open) */
-/* in een ronde: het bord op de plek van de VS-kop; het ⚔️ DUEL-logo bovenin = naar het Duels-scherm */
+/* in een ronde: het bord op de plek van de VS-kop; het ⚔️ DUELS-logo bovenin (hetzelfde als op de Duels-pagina) = naar het Duels-scherm */
 .duel-hud { margin: 0 0 0.55rem; }
 button.duel-title { justify-self: center; appearance: none; min-height: 2.75rem; margin: 0; padding: 0 0.4rem; font-family: inherit; background: transparent; border: 0; border-radius: 10px;
   cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -612,7 +614,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   const TXT = {
     nl: {
-      help: "Hoe werkt het?", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", statW: "Gewonnen", statL: "Verloren", statO: "Lopend", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
+      help: "Hoe werkt het?", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", statW: "Gewonnen", statL: "Verloren", statO: "Lopend", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
       title: "Duels", close: "Sluiten", newBtn: "Daag een vriend uit", nameLabel: "Je naam (die ziet je tegenstander)", namePh: "Naam", go: "Daag uit",
       ready: "Je uitdaging staat klaar", sent: "Link verstuurd", copied: "Link gekopieerd", sentSub: "Wie hem als eerste aanneemt, speelt tegen je.", onlyFor: (n) => `Alleen ${n} kan hem aannemen.`,  sendLink: "Stuur de link",
       copyPrompt: "Kopieer de link:", empty: "Nog geen duels. Daag iemand uit: jullie spelen dezelfde 5 rondes en per ronde wint de hoogste score.",
@@ -669,7 +671,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} ziet jouw ${s} pas na het spelen van ronde ${r}.`, yet: "moet<br>nog", itWas: "Het was", decider: "Beslissend", toDuels: "Naar Duels", fiveR: "5 rondes",
     },
     en: {
-      help: "How does it work?", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", duelTitle: "Duel", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
+      help: "How does it work?", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
       title: "Duels", close: "Close", newBtn: "Challenge a friend", nameLabel: "Your name (your opponent sees it)", namePh: "Name", go: "Challenge",
       ready: "Your challenge is ready", sent: "Link sent", copied: "Link copied", sentSub: "Whoever accepts it first plays against you.", onlyFor: (n) => `Only ${n} can accept it.`,  sendLink: "Send the link",
       copyPrompt: "Copy the link:", empty: "No duels yet. Challenge someone: you both play the same 5 rounds and the highest score wins each round.",
@@ -724,7 +726,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} only sees your ${s} after playing round ${r}.`, yet: "yet to<br>play", itWas: "It was", decider: "Decider", toDuels: "To Duels", fiveR: "5 rounds",
     },
     de: {
-      help: "Wie funktioniert das?", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", duelTitle: "Duell", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
+      help: "Wie funktioniert das?", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
       title: "Duelle", close: "Schließen", newBtn: "Fordere jemanden heraus", nameLabel: "Dein Name (sieht dein Gegenüber)", namePh: "Name", go: "Herausfordern",
       ready: "Deine Herausforderung ist bereit", sent: "Link verschickt", copied: "Link kopiert", sentSub: "Wer ihn zuerst annimmt, spielt gegen dich.", onlyFor: (n) => `Nur ${n} kann sie annehmen.`,  sendLink: "Link senden",
       copyPrompt: "Kopiere den Link:", empty: "Noch keine Duelle. Fordere jemanden heraus: Ihr spielt dieselben 5 Runden, und pro Runde gewinnt die höchste Punktzahl.",
@@ -780,7 +782,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} sieht deine ${s} erst nach Runde ${r}.`, yet: "noch<br>offen", itWas: "Es war", decider: "Entscheidung", toDuels: "Zu den Duellen", fiveR: "5 Runden",
     },
     es: {
-      help: "¿Cómo funciona?", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
+      help: "¿Cómo funciona?", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
       title: "Duelos", close: "Cerrar", newBtn: "Reta a un amigo", nameLabel: "Tu nombre (lo verá tu rival)", namePh: "Nombre", go: "Retar",
       ready: "Tu reto está listo", sent: "Enlace enviado", copied: "Enlace copiado", sentSub: "Quien lo acepte primero juega contra ti.", onlyFor: (n) => `Solo ${n} puede aceptarlo.`,  sendLink: "Enviar el enlace",
       copyPrompt: "Copia el enlace:", empty: "Aún no hay duelos. Reta a alguien: jugáis las mismas 5 rondas y en cada ronda gana la puntuación más alta.",
@@ -835,7 +837,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} verá tu ${s} solo después de jugar la ronda ${r}.`, yet: "aún no<br>juega", itWas: "Era", decider: "Decisiva", toDuels: "A Duelos", fiveR: "5 rondas",
     },
     pt: {
-      help: "Como funciona?", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", duelTitle: "Duelo", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
+      help: "Como funciona?", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
       title: "Duelos", close: "Fechar", newBtn: "Desafie um amigo", nameLabel: "Seu nome (seu adversário vai ver)", namePh: "Nome", go: "Desafiar",
       ready: "Seu desafio está pronto", sent: "Link enviado", copied: "Link copiado", sentSub: "Quem aceitar primeiro joga contra você.", onlyFor: (n) => `Só ${n} pode aceitar.`,  sendLink: "Enviar o link",
       copyPrompt: "Copie o link:", empty: "Ainda não há duelos. Desafie alguém: vocês jogam as mesmas 5 rodadas e em cada rodada vence a maior pontuação.",
@@ -897,6 +899,9 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const icoHtml = (ch = ICON) => `<span class="duel-ico" aria-hidden="true">${ch}</span>`;
   const themeOf = (d) => (d && d.theme && THEMES[d.theme]) || null;
   const thHtml = (d) => { const m = themeOf(d); return m ? `<span class="dl-th"><span aria-hidden="true">${m.ico}</span>${esc(m.label)}</span>` : ""; };
+  // het ⚔️ DUELS-logo: de zwaarden áchter het woord. Eén bron voor de kop van de Duels-pagina én die van een ronde (19/11: "niet overal
+  // is duel logo nog hetzelfde": de ronde had nog ⚔️ DUEL naast elkaar)
+  const logoHtml = (T) => `<span class="dl-logo-sw" aria-hidden="true">${ICON}</span><span class="dl-logo-txt">${esc(T.title)}</span>`;
   // De grote knop met rechts een ▾ (18/11, zijn ontwerp: "een v die uitklapt voor meer opties als je alleen die kant drukt"): alleen dat
   // stuk klapt de andere duelvormen uit, een keuze daar daagt meteen uit (zelfde data-act als de grote knop, plus data-theme).
   let modesOpen = false;
@@ -1675,7 +1680,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     } finally { intro?.open(); }
   }
 
-  // Het duelscherm (zolang state.duel): de duelkop in plaats van de tabbladen (‹ Jaardle · ⚔️ DUEL · ronde), de VS-kop boven
+  // Het duelscherm (zolang state.duel): de duelkop in plaats van de tabbladen (‹ Jaardle · ⚔️ DUELS · ronde), de VS-kop boven
   // het feit, en de duelkleur (body[data-arena]). Zonder duel: alles weer weg.
   let vsFetching = null, idAsked = false;
   function sync(host) {
@@ -1706,7 +1711,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       tabs.before(top);
       top.addEventListener("click", (e) => {
         if (e.target.closest(".duel-exit")) { gc("duel-exit", "Duel: left duel screen"); H.switchMode("daily"); return; }
-        // 19/11 (zijn vraag): het ⚔️ DUEL-logo bovenin = naar het Duels-scherm (de ronde blijft bewaard, zoals bij ‹; Speel = verder)
+        // 19/11 (zijn vraag): het ⚔️ DUELS-logo bovenin = naar het Duels-scherm (de ronde blijft bewaard, zoals bij ‹; Speel = verder)
         if (e.target.closest(".duel-home")) { gc("duel-home", "Duel: logo tapped (to Duels)"); H.switchMode("daily"); openList(H, {}); }
       });
     }
@@ -1715,8 +1720,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const era = themeOf({ theme: d.theme || dl.theme }), inp = document.getElementById("year-input");   // db/202
     body.toggleAttribute("data-era", !!era);
     if (inp) { if (era) inp.dataset.ph = T.eraPh(era.from); else delete inp.dataset.ph; }
-    if (top) top.innerHTML = `<button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button><button type="button" class="duel-title duel-home" aria-label="${esc(T.toDuels)}" title="${esc(T.toDuels)}">${ICON} ${esc(T.duelTitle)}${era ? thHtml({ theme: d.theme || dl.theme }) : ""}</button>` +
-      `<span class="duel-round">${esc(T.roundN(Math.min(5, shown)))}</span>`;
+    if (top) top.innerHTML = `<button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button><button type="button" class="duel-title duel-home dl-logo" aria-label="${esc(T.toDuels)}" title="${esc(T.toDuels)}">${logoHtml(T)}</button>` +
+      `<span class="duel-round">${era ? thHtml({ theme: d.theme || dl.theme }) : ""}<span>${esc(T.roundN(Math.min(5, shown)))}</span></span>`;
     let vs = document.getElementById("duel-vs");
     if (!vs && card) { vs = document.createElement("div"); vs.id = "duel-vs"; vs.setAttribute("role", "status"); card.before(vs); }
     if (vs) vs.className = "duel-hud";
@@ -2084,8 +2089,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     ensureCss();
     const T = tx(H.lang), el = ensureListModal();
     // Het logo is ook de ververs-knop (18/11): spelers tikken erop om te zien of de ander al speelde (syncList).
-    el.querySelector("#duels-title").innerHTML = `<button type="button" class="dl-logo-btn" data-act="sync" title="${esc(T.refresh)}">` +
-      `<span class="dl-logo-sw" aria-hidden="true">${ICON}</span><span class="dl-logo-txt">${esc(T.title)}</span></button>`;
+    el.querySelector("#duels-title").innerHTML = `<button type="button" class="dl-logo-btn" data-act="sync" title="${esc(T.refresh)}">${logoHtml(T)}</button>`;
     const ex = el.querySelector(".duel-exit");
     ex.innerHTML = exitHtml(); ex.setAttribute("aria-label", T.exit);
     const hb = el.querySelector(".dl-help-btn");

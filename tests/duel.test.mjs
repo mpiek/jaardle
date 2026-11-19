@@ -885,7 +885,9 @@ test("sw.js (db/204) — geen systeemmelding voor een duel als Jaardle open en i
 
 test("duel.js — mix (19/11): logo bovenin een ronde = Duels-scherm, kaarten in de lijst zijn zelf de knop, uitslag van de ronde i.p.v. het gewone kopje", () => {
   const T = D.copy("nl");
-  assert.match(SRC, /class="duel-title duel-home"/, "het ⚔️ DUEL-logo bovenin een ronde is een knop");
+  assert.match(SRC, /<button type="button" class="duel-title duel-home dl-logo" [^>]*>\$\{logoHtml\(T\)\}<\/button>/, "het ⚔️ DUELS-logo bovenin een ronde is een knop, met hetzelfde logo als de Duels-pagina");
+  assert.match(SRC, /class="dl-logo-btn" data-act="sync" title="\$\{esc\(T\.refresh\)\}">\$\{logoHtml\(T\)\}<\/button>/, "… en de Duels-pagina gebruikt hetzelfde stukje");
+  assert.ok(!/duelTitle/.test(SRC), "geen los ⚔️ DUEL-woord meer");
   assert.match(SRC, /if \(e\.target\.closest\("\.duel-home"\)\) \{ gc\("duel-home", "[^"]*"\); H\.switchMode\("daily"\); openList\(H, \{\}\); \}/, "… naar het Duels-scherm");
   assert.match(D.css, /#result\.dv-res #result-text \{ display: none; \}/, "het gewone kopje gaat weg zodra de uitslag van de ronde er staat");
   assert.match(SRC, /placeCard\(html, "jr-card"\);/);
