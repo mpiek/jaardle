@@ -76,6 +76,10 @@
       .on("broadcast", { event: "duel" }, (m) => {
         const code = m?.payload?.code;
         try { window.dispatchEvent(new CustomEvent("jaardle:duel-rt", { detail: typeof code === "string" ? code : null })); } catch (e) {}
+        // db/212: je ziet het al live (Jaardle in beeld): de pushmelding over dit duel hoeft niet meer (anders trilt je telefoon erbij)
+        if (typeof code === "string" && visible() && !m?.meta?.replayed) {
+          try { window.sb?.rpc?.("duel_push_skip", { p_code: code })?.catch?.(() => {}); } catch (e) {}
+        }
       })
       .on("broadcast", { event: "ko" }, (m) => {   // ⚡ Knock-out (db/208): {code, k[, n|next]}
         const p = m?.payload;

@@ -76,6 +76,20 @@ test("seintje op het eigen kanaal → jaardle:duel-rt met de code", async () => 
   assert.deepEqual(rt, ["ABC123", null]);
 });
 
+test("db/212: een duel-seintje terwijl Jaardle in beeld is → duel_push_skip (geen pushmelding meer); verborgen of nageleverd: niet", async () => {
+  const { Live, chans, win, setVis } = setup();
+  const calls = [];
+  win.sb = { rpc: (fn, a) => { calls.push([fn, a.p_code]); return Promise.resolve(1); } };
+  Live.setUser("u1");
+  await flush();
+  const h = chans[0].handlers.find((x) => x.type === "broadcast" && x.filter.event === "duel");
+  h.fn({ payload: { code: "ABC123" } });
+  h.fn({ payload: { code: "OLD111" }, meta: { replayed: true } });   // nageleverd bij het verbinden: die zag je niet live
+  setVis("hidden");
+  h.fn({ payload: { code: "HID222" } });
+  assert.deepEqual(calls, [["duel_push_skip", "ABC123"]]);
+});
+
 test("aanwezigheid: anderen online (niet jezelf), event alleen bij een verandering", async () => {
   const { Live, chans, events } = setup();
   Live.setUser("me");
