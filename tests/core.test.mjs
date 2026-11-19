@@ -1065,14 +1065,21 @@ test("instellingen die meereizen (db/180) — één win-keuze uit vijf sleutels,
     };
     for (const [k, vs] of Object.entries(values)) for (const v of vs) assert.match(v, SERVER, `${k}=${v}`);
     for (const v of values.winfx) assert.match(v, T.WINFX_RE, v);
-    assert.deepEqual(Object.keys(T.SYNCED_PREFS).sort(), ["frame", "obxsound", "theme", "vtfx", "winfx"]);
+    assert.deepEqual(Object.keys(T.SYNCED_PREFS).sort(), ["duelsfx", "frame", "obxsound", "theme", "vtfx", "winfx"]);   // elke sleutel moet in de allow-list van set_my_prefs (duelsfx: db/205)
     T.SYNCED_PREFS.winfx.set("<script>");   // onzin van buiten: genegeerd
     assert.equal(T.explicitWinFx(), "beer");
     localStorage.removeItem("jaardle:obxsound");
     assert.equal(T.SYNCED_PREFS.obxsound.get(), undefined);
     T.SYNCED_PREFS.obxsound.set(true);
     assert.equal(T.SYNCED_PREFS.obxsound.get(), true);
-  } finally { T.auth.user = prev; clear(); localStorage.removeItem("jaardle:obxsound"); }
+    localStorage.removeItem("jaardle:duelsfx");
+    assert.equal(T.SYNCED_PREFS.duelsfx.get(), undefined);   // nooit gekozen: niet naar de server (en uit)
+    T.SYNCED_PREFS.duelsfx.set(true);
+    assert.equal(T.SYNCED_PREFS.duelsfx.get(), true);
+    assert.equal(localStorage.getItem("jaardle:duelsfx"), "1");   // de sleutel die /duel.js leest
+    T.SYNCED_PREFS.duelsfx.set(false);
+    assert.equal(T.SYNCED_PREFS.duelsfx.get(), false);
+  } finally { T.auth.user = prev; clear(); localStorage.removeItem("jaardle:obxsound"); localStorage.removeItem("jaardle:duelsfx"); }
 });
 
 test("achvTrophyHtml — elke trofee-tegel draagt zijn sleutel (tik = munt draait om, NIEUW gezien)", () => {

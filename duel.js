@@ -1539,6 +1539,117 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
 
+  // ════ geluid bij de opening (19/11, zijn vraag: "sfx voor duels, standaard uit, vinkje onder instellingen"; vooral het openen en
+  // wegschuiven) ════
+  // Alleen met ⚙️ ⚔️ Duel-geluid aan (jaardle:duelsfx = "1"; game.js zet hem, db/205 laat hem met een account meereizen). Geen
+  // bestanden: alles komt uit Web Audio, zoals bij de obsidiaan-onthulling. Schuiven = ruis door een meeschuivend bandfilter, links of
+  // rechts (stereo), net als de helften; de botsing = een paar onharmonische tonen (het zingen van metaal) met een tik en een doffe klap
+  // eronder (het scherm schudt). De tijden komen uit INTRO_MS, dus beeld en geluid botsen tegelijk. Een browser laat geluid pas toe na
+  // een tik: elke tik maakt het geluid wakker (binnen de tik, zoals iOS eist). Komt de opening zonder tik (seintje, link), dan blijft
+  // hij stil tot je tikt. Na een tijdje stilte gaat het weer slapen (scheelt batterij).
+  const SFX_KEY = "jaardle:duelsfx";
+  const sfxOn = () => { try { return localStorage.getItem(SFX_KEY) === "1"; } catch (e) { return false; } };
+  const AU = { x: null, out: null, noise: null, nap: 0 };
+  function auNap(ms) {
+    clearTimeout(AU.nap);
+    AU.nap = setTimeout(() => { try { if (AU.x?.state === "running") AU.x.suspend(); } catch (e) {} }, ms);
+  }
+  function auWake() {
+    if (!sfxOn()) return null;
+    try {
+      if (!AU.x) {
+        const C = window.AudioContext || window.webkitAudioContext;
+        if (!C) return null;
+        const x = new C(), comp = x.createDynamicsCompressor(), out = x.createGain();
+        comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.2;
+        out.gain.value = 0.6;
+        out.connect(comp); comp.connect(x.destination);
+        const nb = x.createBuffer(1, x.sampleRate * 2, x.sampleRate), nd = nb.getChannelData(0);
+        for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+        Object.assign(AU, { x, out, noise: nb });
+      }
+      if (AU.x.state !== "running") { AU.x.resume()?.catch?.(() => {}); auNap(15000); }
+    } catch (e) { AU.x = null; }
+    return AU.x;
+  }
+  try {
+    for (const ev of ["pointerup", "touchend", "click", "keydown"]) window.addEventListener?.(ev, () => { if (AU.x?.state !== "running") auWake(); }, { capture: true, passive: true });
+  } catch (e) {}
+  // Bouwstenen; at = seconden vanaf nu, alles via de bus van één opening.
+  function swish(bus, at, dur, f0, f1, g, peak, pan0, pan1) {   // peak = waar (0–1) de zwiep het hardst is
+    const x = AU.x, t = x.currentTime + at, s = x.createBufferSource(), bp = x.createBiquadFilter(), e = x.createGain();
+    s.buffer = AU.noise;
+    bp.type = "bandpass"; bp.Q.value = 1.1;
+    bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + dur * peak); e.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(bp); bp.connect(e);
+    let last = e;
+    if (x.createStereoPanner) { const p = x.createStereoPanner(); p.pan.setValueAtTime(pan0, t); p.pan.linearRampToValueAtTime(pan1, t + dur); e.connect(p); last = p; }
+    last.connect(bus);
+    s.start(t, Math.random() * 0.8); s.stop(t + dur + 0.02);
+  }
+  function ring(bus, at, base, g) {   // het zingen van metaal: onharmonische boventonen, elk twee keer iets verstemd (zweving)
+    const x = AU.x, t = x.currentTime + at;
+    for (const [r, a, d] of [[1, 1, 1.1], [1.51, 0.55, 0.8], [2.43, 0.4, 0.55], [3.19, 0.28, 0.4], [4.67, 0.18, 0.25]]) {
+      for (const det of [-7, 7]) {
+        const o = x.createOscillator(), e = x.createGain();
+        o.frequency.value = base * r; o.detune.value = det;
+        e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g * a / 2, t + 0.003); e.gain.exponentialRampToValueAtTime(0.0001, t + d);
+        o.connect(e); e.connect(bus); o.start(t); o.stop(t + d + 0.02);
+      }
+    }
+  }
+  function tick(bus, at, f, g, dur) {   // de tik van het raken: korte hoge ruis
+    const x = AU.x, t = x.currentTime + at, s = x.createBufferSource(), hp = x.createBiquadFilter(), e = x.createGain();
+    s.buffer = AU.noise; hp.type = "highpass"; hp.frequency.value = f;
+    e.gain.setValueAtTime(g, t); e.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(hp); hp.connect(e); e.connect(bus);
+    s.start(t, Math.random()); s.stop(t + dur + 0.02);
+  }
+  function thud(bus, at, f0, f1, g, dur) {   // de doffe klap eronder
+    const x = AU.x, t = x.currentTime + at, o = x.createOscillator(), e = x.createGain();
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.8);
+    e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.006); e.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(e); e.connect(bus); o.start(t); o.stop(t + dur + 0.02);
+  }
+  // De geluiden, op de tijden van INTRO_MS (die staat hieronder; deze worden pas bij een opening aangeroepen).
+  const SFX = {
+    // de volle opening: de helften schuiven van links en rechts naar de naad en botsen op de ⚔️; daarna schuiven ze weer weg
+    in: (b) => { const d = INTRO_MS.hit / 1000; swish(b, 0, d, 280, 2300, 0.5, 0.92, -0.85, -0.1); swish(b, 0.015, d - 0.015, 330, 2000, 0.45, 0.92, 0.85, 0.1); },
+    hit: (b, at) => { ring(b, at, 1180, 0.32); tick(b, at, 3500, 0.35, 0.06); thud(b, at, 150, 46, 0.7, 0.28); swish(b, at + 0.03, 0.7, 1800, 220, 0.12, 0.08, 0, 0); },
+    out: (b) => { const d = INTRO_MS.out / 1000; swish(b, 0, d, 1900, 380, 0.4, 0.3, -0.1, -0.9); swish(b, 0.01, d - 0.01, 2100, 420, 0.36, 0.3, 0.1, 0.9); },
+    // de band tussen twee rondes: van links erin met een lichte tik van de ⚔️, naar rechts eruit
+    bandIn: (b) => { const d = INTRO_MS.bandIn / 1000; swish(b, 0, d, 450, 2600, 0.36, 0.9, -0.85, 0); ring(b, d - 0.02, 1760, 0.1); },
+    bandOut: (b) => swish(b, 0, INTRO_MS.bandOut / 1000, 2400, 600, 0.3, 0.3, 0, 0.85),
+    skip: (b) => swish(b, 0, 0.16, 1600, 500, 0.22, 0.25, 0, 0),   // overgeslagen: alles vervaagt in 140 ms
+    still: (b) => ring(b, 0, 1180, 0.22),   // "minder beweging": geen zwiepen, alleen het zwaard, zacht
+  };
+  // Eén bus per opening, zodat overslaan of weghalen kan dempen wat nog klinkt of nog moet komen. null = (nu) geen geluid.
+  function sfxBus() {
+    if (!sfxOn() || document.hidden) return null;
+    const x = auWake();
+    if (!x) return null;
+    try {
+      const bus = x.createGain();
+      bus.connect(AU.out);
+      // Niet wakker te krijgen zonder tik (Safari): ontkoppelen, anders klinkt alles in één keer bij de volgende tik.
+      if (x.state !== "running") setTimeout(() => { if (x.state !== "running") try { bus.disconnect(); } catch (e) {} }, 300);
+      return bus;
+    } catch (e) { return null; }
+  }
+  function sfx(bus, kind, at = 0) {
+    if (!bus || !AU.x) return;
+    try { SFX[kind](bus, at); } catch (e) {}
+    auNap(15000);
+  }
+  function sfxHush(bus, tc = 0.03) {
+    if (!bus || !AU.x) return;
+    try { bus.gain.setTargetAtTime(0, AU.x.currentTime, tc); } catch (e) {}
+    setTimeout(() => { try { bus.disconnect(); } catch (e) {} }, 1000);
+  }
+  // ⚙️: bij het aanzetten één keer de botsing, zodat je hoort wat je aanzet (game.js roept dit binnen de tik aan)
+  function sfxTest() { sfx(sfxBus(), "hit"); }
+
   // ════ de opening van een duelronde (17/11, mockup v7 richting B "Twee kanten") ════
   // Jouw kant schuift van links binnen, die van je tegenstander van rechts; ze botsen op de ⚔️ (flits, schokgolf), eronder de ronde
   // met de stand. Daarna schuiven de helften weg en sta je in de ronde. Tussen twee rondes (na "Ronde 4 ›") alleen een korte band
@@ -1611,6 +1722,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       anim($(".dix-wrap"), [[HIT, { transform: "translate(0px,0px)" }], [HIT + 40, { transform: "translate(5px,-3px)" }], [HIT + 95, { transform: "translate(-4px,2px)" }], [HIT + 150, { transform: "translate(2px,-1px)" }], [HIT + 210, { transform: "translate(0px,0px)" }]]);
       coverAt = HIT; holdTo = HIT + INTRO_MS.hold;
     }
+    // ⚙️ ⚔️ Duel-geluid (19/11): zwiepen tot de botsing en de klang op de ⚔️; bij de band alleen erin met een lichte tik
+    const bus = sfxBus();
+    if (still) sfx(bus, "still");
+    else if (short) sfx(bus, "bandIn");
+    else { sfx(bus, "in"); sfx(bus, "hit", HIT / 1000); }
     const t0 = performance.now();
     let ready = false, gone = false;
     function off() { window.removeEventListener("keydown", onKey, true); window.removeEventListener("pointerdown", skip, true); if (introNow === api) introNow = null; }
@@ -1620,6 +1736,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       off();
       el.style.pointerEvents = "none";
       let ms;
+      if (fast) { sfxHush(bus); sfx(sfxBus(), "skip"); }   // overgeslagen: wat nog moest komen (de botsing) valt weg
+      else if (!still) sfx(bus, short ? "bandOut" : "out");   // het wegschuiven
       if (fast || still) { ms = fast ? 140 : 200; anim(el, [[0, { opacity: 1 }], [ms, { opacity: 0 }]]); }
       else if (short) {
         ms = INTRO_MS.bandOut;
@@ -1658,7 +1776,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
         if (wait > 0) await new Promise((res) => setTimeout(res, wait));
         exit(false);
       },
-      kill() { gone = true; off(); el.remove(); },
+      kill() { gone = true; off(); sfxHush(bus, 0.01); el.remove(); },
     };
     introNow = api;
     return api;
@@ -2715,9 +2833,10 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   return {
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
+    sfxTest,
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
-         spectateBody, duelSides, flairEmoji, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
+         spectateBody, duelSides, flairEmoji, SFX, INTRO_MS, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; } },   // voor de tests
   };
 })();

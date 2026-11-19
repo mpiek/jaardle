@@ -132,7 +132,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 233500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 241500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 19/11: +duel-geluid (Web Audio, geen bestanden); 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -913,4 +913,97 @@ test("duel.js — het groene vak na het uitdagen kun je wegklikken (19/11): ✕ 
   assert.equal((SRC.match(/<div class="dl-sent">\$\{sentX\(T\)\}/g) || []).length, 2, "beide groene vakken (directe uitdaging en link) hebben het ✕");
   assert.match(SRC, /if \(act === "sent-x"\) \{ listTop = ""; return renderList\(T, null\); \}/, "weg = alleen het vak, de uitdaging blijft");
   assert.match(D.css, /\.dl-sent > \.dl-x \{ position: absolute;/);
+});
+
+// ── ⚔️ Duel-geluid (19/11): standaard uit, vinkje in ⚙️, reist mee (db/205) ──
+function fakeAudio() {
+  const log = { nodes: 0, errs: [], src: [] };
+  const param = (name) => {
+    let last = -Infinity;
+    const chk = (v, t, exp) => {
+      if (!Number.isFinite(v) || !Number.isFinite(t) || t < 0) log.errs.push(`${name}: ${v}@${t}`);
+      if (exp && !(v > 0)) log.errs.push(`${name}: exponentieel naar ${v} (gooit in een browser)`);
+      if (t < last - 1e-9) log.errs.push(`${name}: tijd terug (${t} < ${last})`);
+      last = t;
+    };
+    return { value: 1, setValueAtTime: (v, t) => chk(v, t, false), linearRampToValueAtTime: (v, t) => chk(v, t, false),
+      exponentialRampToValueAtTime: (v, t) => chk(v, t, true), setTargetAtTime: (v, t, c) => { if (!(t >= 0 && c > 0)) log.errs.push(`${name}: setTarget`); } };
+  };
+  const node = (x = {}) => { log.nodes++; return { connect() {}, disconnect() {}, ...x }; };
+  const source = (kind, x) => { const r = { kind }; log.src.push(r); return node({ ...x, start: (t, off = 0) => Object.assign(r, { t, off }), stop: (t) => { r.end = t; } }); };
+  class Ctx {
+    constructor() { this.currentTime = 10; this.sampleRate = 8000; this.state = "running"; this.destination = node(); }
+    createGain() { return node({ gain: param("gain") }); }
+    createDynamicsCompressor() { return node({ threshold: param("thr"), knee: param("knee"), ratio: param("ratio"), attack: param("att"), release: param("rel") }); }
+    createBuffer(ch, n, rate) { const d = new Float32Array(n); return { duration: n / rate, getChannelData: () => d }; }
+    createBufferSource() { return source("noise", { buffer: null }); }
+    createOscillator() { return source("osc", { frequency: param("osc-f"), detune: param("det") }); }
+    createBiquadFilter() { return node({ type: "", Q: param("Q"), frequency: param("filter-f") }); }
+    createStereoPanner() { return node({ pan: param("pan") }); }
+    resume() { return Promise.resolve(); }
+    suspend() { return Promise.resolve(); }
+  }
+  return { Ctx, log };
+}
+function loadDuelAudio(on) {
+  const A = fakeAudio(), win = { AudioContext: A.Ctx, addEventListener() {} };
+  const doc = { hidden: false, head: { appendChild() {} }, getElementById: () => null, querySelector: () => null, createElement: () => ({ setAttribute() {}, textContent: "" }) };
+  const localStorage = { getItem: (k) => (k === "jaardle:duelsfx" && on ? "1" : null) };
+  vm.runInContext(SRC, vm.createContext({ window: win, document: doc, localStorage, performance: { now: () => 0 }, Float32Array, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL,
+    encodeURIComponent, setTimeout: () => 0, clearTimeout: () => {} }));
+  return { D: win.Duel, log: A.log };
+}
+
+test("duel.js — duel-geluid: standaard uit, Web Audio zonder bestanden, op de tijden van de opening", () => {
+  const off = loadDuelAudio(false);
+  off.D.sfxTest();
+  assert.equal(off.log.nodes, 0, "zonder vinkje: geen AudioContext, geen geluid");
+  assert.match(SRC, /const sfxOn = \(\) => \{ try \{ return localStorage\.getItem\(SFX_KEY\) === "1"; \} catch \(e\) \{ return false; \} \};/, "alleen een expliciete 1 zet hem aan");
+  assert.ok(!/new Audio\(|\.mp3|\.ogg|\.wav/.test(SRC), "geen geluidsbestanden");
+
+  const { D: DA, log } = loadDuelAudio(true);
+  DA.sfxTest();
+  assert.ok(log.src.length > 0, "met vinkje: de botsing klinkt");
+  const XA = DA._, bus = { connect() {}, disconnect() {}, gain: { setTargetAtTime() {} } };
+  assert.deepEqual(plain(Object.keys(XA.SFX).sort()), ["bandIn", "bandOut", "hit", "in", "out", "skip", "still"]);
+  for (const k of Object.keys(XA.SFX)) XA.SFX[k](bus, 0);
+  assert.deepEqual(plain(log.errs), [], "geen ramp naar 0, geen tijd terug, geen NaN");
+  for (const r of log.src) {
+    assert.ok(r.t >= 10 && r.end > r.t, `${r.kind}: start en stop kloppen`);
+    if (r.kind === "noise") assert.ok(r.off + (r.end - r.t) <= 2, "de ruis past in de buffer van 2 s");
+    assert.ok(r.end - 10 < 2.5, "alles is binnen 2,5 s uitgeklonken");
+  }
+  // "in" eindigt op de botsing (INTRO_MS.hit), en "hit" begint daar
+  log.src.length = 0;
+  XA.SFX.in(bus);
+  const hit = XA.INTRO_MS.hit / 1000;
+  assert.ok(log.src.every((r) => Math.abs(r.end - (10 + hit + 0.02)) < 1e-6), "de zwiepen lopen tot de botsing");
+  log.src.length = 0;
+  XA.SFX.hit(bus, hit);
+  assert.ok(log.src.every((r) => r.t >= 10 + hit - 1e-9) && log.src.some((r) => Math.abs(r.t - (10 + hit)) < 1e-9), "de klang valt op de botsing");
+});
+
+test("duel.js — duel-geluid in de opening: één bus per opening, wegschuiven klinkt, overslaan/weghalen dempt", () => {
+  assert.equal((SRC.match(/const bus = sfxBus\(\);/g) || []).length, 1);
+  assert.match(SRC, /if \(still\) sfx\(bus, "still"\);\n\s+else if \(short\) sfx\(bus, "bandIn"\);\n\s+else \{ sfx\(bus, "in"\); sfx\(bus, "hit", HIT \/ 1000\); \}/);
+  assert.match(SRC, /if \(fast\) \{ sfxHush\(bus\); sfx\(sfxBus\(\), "skip"\); \}/);
+  assert.match(SRC, /else if \(!still\) sfx\(bus, short \? "bandOut" : "out"\);/);
+  assert.match(SRC, /kill\(\) \{ gone = true; off\(\); sfxHush\(bus, 0\.01\); el\.remove\(\); \}/);
+  assert.match(SRC, /if \(!sfxOn\(\) \|\| document\.hidden\) return null;/, "uit of tabblad op de achtergrond: stil");
+  assert.match(SRC, /if \(x\.state !== "running"\) setTimeout\(\(\) => \{ if \(x\.state !== "running"\) try \{ bus\.disconnect\(\); \} catch \(e\) \{\} \}, 300\);/, "niet wakker zonder tik: geen uitgestelde salvo");
+  assert.match(SRC, /for \(const ev of \["pointerup", "touchend", "click", "keydown"\]\) window\.addEventListener\?\.\(ev,/, "een tik maakt het geluid wakker (iOS)");
+});
+
+test("game.js — ⚔️ Duel-geluid in ⚙️: vinkje bij de andere, standaard uit, reist mee als duelsfx (db/205)", () => {
+  assert.match(TPL, /data-action="duel-push" data-i18n="menu_duel_push" hidden>\{\{i18n:menu_duel_push\}\}<\/button>\n\s+<!--[^\n]*-->\n\s+<button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-sfx" data-i18n="menu_duel_sfx" hidden>\{\{i18n:menu_duel_sfx\}\}<\/button>/);
+  assert.equal((GAME.match(/menu_duel_sfx: "⚔️ /g) || []).length, 5, "vijf talen");
+  assert.match(GAME, /const DUEL_SFX_KEY = "jaardle:duelsfx";/);
+  assert.ok(SRC.includes('const SFX_KEY = "jaardle:duelsfx";'), "dezelfde sleutel in duel.js");
+  assert.match(GAME, /function duelSfxOn\(\) \{ try \{ return localStorage\.getItem\(DUEL_SFX_KEY\) === "1"; \}/, "leeg = uit");
+  assert.match(GAME, /prefChanged\("duelsfx", !!on\);/);
+  assert.match(GAME, /duelsfx: \{ get: \(\) => \{ const v = lsGet\(DUEL_SFX_KEY\); return v == null \? undefined : v === "1"; \},/);
+  assert.match(GAME, /if \(action === "duel-sfx"\) \{/);
+  assert.match(GAME, /if \(on\) \{ if \(window\.Duel\) window\.Duel\.sfxTest\?\.\(\); else loadDuel\(\)/, "aanzetten = één keer de botsing, binnen de tik");
+  assert.match(GAME, /syncDuelSfxUi\(\);\s+\/\/ ⚔️ Duel-geluid/, "renderMenu zet hem goed");
+  for (const p of ["duel-sfx-on", "duel-sfx-off"]) assert.ok(GAME.includes(`"${p}"`), `meetpunt ${p}`);
 });
