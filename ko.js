@@ -515,7 +515,24 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     vs.className = "ko";
     vs.style.setProperty("--h", hue(cur));
     vs.innerHTML = stripHtml(cur, opts);
+    if (opts?.drain && !opts.drain.hold) tickDown(vs);
     armClock();
+  }
+  // de levens bij de balk tellen razendsnel af, gelijk met de balk die zakt (ko-drop: 0,5 s wachten, dan 0,35 s), geen sprong (20/11)
+  function tickDown(vs) {
+    if (typeof requestAnimationFrame !== "function") return;
+    vs.querySelectorAll(".ko-side.drain").forEach((sd) => {
+      const n = sd.querySelector(".ko-n"), max = cur?.hp_max || HP;
+      const from = Math.round((parseFloat(sd.style.getPropertyValue("--was")) / 100) * max), to = Number(n?.textContent);
+      if (!n || !(from > to)) return;
+      n.textContent = String(from);
+      const g0 = animGen;
+      setTimeout(() => {
+        const t0 = performance.now();
+        const f = (t) => { if (g0 !== animGen || !n.isConnected) return; const k = Math.min(1, (t - t0) / 350); n.textContent = String(Math.round(from + (to - from) * k)); if (k < 1) requestAnimationFrame(f); };
+        requestAnimationFrame(f);
+      }, 500);
+    });
   }
   // de klok (alleen als iemand klaar is): tekst + balk; op 0 zelf klaar (verloren), daarna laat de server afrekenen
   function armClock() {
@@ -678,9 +695,12 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const C = { me: S.me.querySelector("small"), op: S.op.querySelector("small") }, P = { me: q.a, op: q.b };
     const pop = (els) => els.forEach((e) => { if (!e) return; e.classList.remove("ks-wait", "ks-pop"); void e.offsetWidth; e.classList.add("ks-pop"); });
     const shake = (e, cls = "ks-shake") => { e.classList.remove("ks-shake", "ks-bam"); void e.offsetWidth; e.classList.add(cls); };
-    const count = (n, from, to, ms, step) => {   // from → to (ease-out), met het echte minteken
+    // from → to, met het echte minteken. Optellen remt af; aftellen gaat lineair en razendsnel, zodat je elk getal ziet langskomen
+    // (20/11, zijn "opeens veranderende getallen houd ik niet van, liever extreem snel omlaag tellen"): 18 ms per punt, 300–cap ms
+    const down = (d, cap = 700) => Math.min(cap, Math.max(300, Math.abs(d) * 18));
+    const count = (n, from, to, ms, step, lin = to < from) => {
       const g0 = animGen, t0 = performance.now();
-      const f = (t) => { if (g0 !== animGen) return; const k = Math.min(1, (t - t0) / ms), v = Math.round(from + (to - from) * (1 - (1 - k) ** 3)); n.textContent = fmtN(v); step?.(v); if (k < 1) requestAnimationFrame(f); };
+      const f = (t) => { if (g0 !== animGen) return; const k = Math.min(1, (t - t0) / ms), v = Math.round(from + (to - from) * (lin ? k : 1 - (1 - k) ** 3)); n.textContent = fmtN(v); step?.(v); if (k < 1) requestAnimationFrame(f); };
       requestAnimationFrame(f);
     };
     // beginstand: alles nog weg, de getallen op 0
@@ -701,7 +721,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
         later(t + 450, () => {
           const from = v; v -= c;
           burst(ov, N[k], ["var(--duel-loss)", "#fff"], 8, 0.6); shake(S[k]); sfx(`hint:${g.code}:${q.r}:${k}:${i}`, "clash");
-          count(N[k], from, v, 260);
+          count(N[k], from, v, down(c, 360));
         });
       });
     }
@@ -718,12 +738,12 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       burst(ov, N[lo], [getComputedStyle(S[wi]).getPropertyValue("--col").trim() || "#6ea8ff", "var(--ko-lag)", "#fff"]);
       sfx(`clash:${g.code}:${q.r}`, "clash");
       N[lo].className = "hit"; shake(S[lo]);
-      count(N[lo], P[lo].pts, P[lo].pts - P[wi].pts, 650, (v) => N[lo].classList.toggle("neg", v < 0));
+      count(N[lo], P[lo].pts, P[lo].pts - P[wi].pts, down(P[wi].pts), (v) => N[lo].classList.toggle("neg", v < 0));
     });
-    later(T0 + 2200, () => { pop([$(".ks-f")]); if (q.x !== q.d) count(N[lo], -q.d, -q.x, 450); });   // × de factor
+    later(T0 + 2200, () => { pop([$(".ks-f")]); if (q.x !== q.d) count(N[lo], -q.d, -q.x, down(q.x - q.d, 500)); });   // × de factor: verder aftellen
     later(T0 + 2700, () => {   // = de schade; de max (goud) met een harde klap
       N[lo].className = q.max ? "dmg max" : "dmg";
-      if (q.max) { shake(S[lo], "ks-bam"); sfx(`bam:${g.code}:${q.r}`, "bam"); } else pop([N[lo]]);
+      if (q.max) { shake(S[lo], "ks-bam"); sfx(`bam:${g.code}:${q.r}`, "bam"); }   // geen plop bij gewone schade: het getal telde al af
     });
     later(T0 + 3100, () => {   // naar de levensbalk, die dan zakt
       const bar = document.querySelector(`#duel-vs .ko-side.${lo} .ko-bar`);
