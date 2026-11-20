@@ -2407,7 +2407,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   function listBody(T, items, top, msg) {
     const newBtn = goHtml(T, `data-act="new"`, T.newBtn);
     const err = msg ? `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>` : "";
-    if (!items.length && !listKo.length && !top) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
+    const koLive = (koNow() && window.KO.liveHtml?.(H)) || "";   // ⚡ een knock-out die nu loopt (20/11): de kaart terug naar het spel
+    if (!items.length && !listKo.length && !top && !koLive) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
       return err + `<div class="dl-hero">${bandHtml(T, "?", null)}` +
         `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${newBtn}</div>`;
     }
@@ -2431,9 +2432,10 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const gone = items.filter((d) => d.me === "c" && ["expired", "declined"].includes(d.status) && recent(d)).slice(0, 3);
     const h2hTxt = (d) => { const [a, b] = recOf(d.opp || oppName(d)); return a || b ? T.h2h(a, b) : ""; };
     const inc = items.filter(incoming);   // db/189: een uitdaging aan jou (een teamgenoot, of een revanche)
-    if (turn.length || inc.length) {
-      const nT = turn.length + inc.length;
+    if (turn.length || inc.length || koLive) {
+      const nT = turn.length + inc.length + (koLive ? 1 : 0);
       h += secH("turn", `${esc(T.secTurn)}${nT > 1 ? ` · ${nT}` : ""}`);
+      if (!shut.has("turn")) h += koLive;   // live gaat voor: de klok loopt
       if (!shut.has("turn")) for (const d of inc) {   // 19/11: de hele kaart = Neem aan (✕ apart); de twee kanten, zoals de opening
         const n = d.c_name || "?", rec = h2hTxt(d);
         h += `<div class="dl-card inc" data-act="accept" data-code="${d.code}">${bandHtml(T, n, d.c_flair)}` +
@@ -2515,6 +2517,14 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // db/206: wie er nu op Jaardle is (/live.js, alleen ingelogd): een groen stipje op het gezichtje. Verandert het, dan alleen de stipjes
   // bijwerken (geen nieuwe lijst: een open naamveld of keuze blijft staan).
   const isOn = (k) => !!(k && window.Live?.isOn?.(k));
+  // ⚡ de knock-out die nu loopt (al afgelopen in de lijst = ko.js miste het seintje) en met wie: kaart + gezichtje "loopt", tik = terug
+  const koNow = () => { const g = H?.ko && window.KO?.live?.(); return g && !listKo.some((d) => d.code === g.code) ? g : null; };
+  const koOpp = () => koNow()?.opp || null;
+  const koResume = () => { H?.ko?.().then((K) => K.resume?.(H)).catch(() => {}); };
+  window.addEventListener?.("jaardle:ko-live", () => {   // begint of stopt er een: de kaart erbij of eraf
+    const m = document.getElementById("modal-duels");
+    if (H && listItems && m && !m.hidden) renderList(tx(H.lang), null);
+  });
   function syncOnline() {
     const m = document.getElementById("modal-duels");
     if (H && pickSel && m && !m.hidden) return renderList(tx(H.lang), null);
@@ -2526,14 +2536,16 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   function pickHtml(T, newBtn, items = listItems) {
     if (!H.loggedIn) return newBtn + acctHtml(T, items);   // zonder account: de link, en (na een duel tegen een account) de account-regel
     if (!listTargets.length) return newBtn;
+    const koK = koOpp();
+    if (koK && pickSel === koK) pickSel = null;   // zoals busy in applyList
     const faces = listTargets.map((t) => {
-      const [a, b] = recOf(t.k), busy = !!t.busy;
+      const [a, b] = recOf(t.k), busy = !!t.busy || t.k === koK;
       const lab = busy ? `<small class="run">${esc(T.faceRun)}</small>`
         : a || b ? `<small class="${a > b ? "up" : a < b ? "down" : ""}">${a}–${b}</small>` : `<small class="new">${esc(T.faceNew)}</small>`;
       return `<button type="button" class="dl-face${busy ? " busy" : ""}" data-face="${esc(t.k)}" aria-pressed="${t.k === pickSel}">` +
         `${avHtml(t.flair, t.name, isOn(t.k) ? " on" : "")}<b>${esc(t.name)}</b>${lab}</button>`;
     }).join("");
-    const t = listTargets.find((x) => x.k === pickSel && !x.busy);
+    const t = listTargets.find((x) => x.k === pickSel && !x.busy && x.k !== koK);
     let tail = newBtn;
     if (t) {
       const [a, b] = recOf(t.k);
@@ -2647,6 +2659,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (b.dataset.face) {   // db/189: een gezichtje kiezen (nog eens = weer de link); loopt er al een duel, dan dat duel
       const t = listTargets.find((x) => x.k === b.dataset.face);
       if (!t) return;
+      if (t.k === koOpp()) return koResume();
       if (t.busy) {
         const d = (listItems || []).find((x) => x.code === t.busy);
         if (d && incoming(d)) return showPop(T, popBody(T, d), d);
@@ -2682,6 +2695,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       H?.ko?.().then((K) => (act === "koend" ? d && K.review?.(H, d) : K.invite?.(H, b.dataset.k, b.dataset.name))).catch(() => {});
       return;
     }
+    if (act === "kolive") return koResume();   // ⚡ terug in de knock-out die loopt
     if (act === "sync") { gc("duel-sync", "Duel: Duels logo tapped (refresh)"); return syncList(T, true); }
     if (act === "sfx") return toggleSfx(b);   // ⚔️ Duel-geluid aan/uit (de knop naast de ?)
     if (act === "sent-x") { listTop = ""; return renderList(T, null); }

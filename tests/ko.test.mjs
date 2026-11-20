@@ -202,7 +202,7 @@ function loadAudio(on, withAudio = true) {
     encodeURIComponent, setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {} });
   vm.runInContext(DUEL, ctx);
   vm.runInContext(KOSRC, ctx);
-  return { KO: win.KO, log, els };
+  return { KO: win.KO, Duel: win.Duel, log, els };
 }
 const ARGS = { tick: [3], hit: [26, true], ko: [true], want: [0] };
 
@@ -409,4 +409,61 @@ test("ko.js — opgave (db/216: twee rondes op rij weg): het eindscherm zegt 'Sa
   const { KO: KB, els: e2 } = loadAudio(false);
   KB._.apply(host({ state: () => null, openModal: (id) => { e2[id].hidden = false; }, closeModal() {} }), { ...g, me: "b", mine: [0, 0], theirs: [80, 30], hp: 40, opp_hp: 150, winner: "opp" });
   assert.match(e2["modal-ko"].innerHTML, /Je stopte\./);
+});
+
+test("ko.js — terug in een lopende knock-out vanaf Duels (20/11): kaart bovenaan, gezichtje 'loopt', tik = de verse stand en dezelfde ronde met je bord", async () => {
+  const { KO: KC, Duel: D } = loadAudio(false);
+  const started = [], rpc = [];
+  const board = { guesses: [{ year: 1917, diff: 5 }], done: true, won: false, centuryRevealed: true };
+  const g = { code: "KBACK1", state: "live", me: "a", opp: "k-sanne", now: new Date().toISOString(), round: 3, round_at: new Date(Date.now() - 5000).toISOString(),
+    opp_name: "Sanne", opp_flair: null, hp: 112, opp_hp: 87, hp_max: 150, mine: [80, 70], theirs: [60, 90], opp_done: false, puzzle: { hashes: ["h1"] } };
+  let st = { duel: { code: "KBACK1", round: 3, ko: true }, done: false };   // eerst in de ronde
+  const h = host({ state: () => st, openModal() {}, closeModal() {}, toEvent: (p) => ({ p }), gc() {}, ko: async () => KC,
+    duelBoard: (c, r) => (c === "KBACK1" && r === 3 ? board : null),
+    startRound: (rec) => { started.push(rec); st = { duel: rec.duel, done: false }; },
+    rpc: async (fn, a) => { rpc.push([fn, a.p_code]); return g; } });
+  KC._.apply(h, { ...g, opp_done: true });
+  assert.match(KC.liveHtml(h), /<br><em>Sanne heeft gegokt ✓<\/em><\/small>/, "de ander gokte al: dat in plaats van de levens");
+  KC._.apply(h, g);
+  assert.equal(started.length, 0, "in de ronde: niets opnieuw starten");
+  st = { duel: null, done: false };   // op het duel-logo getikt: naar Duels (daily op de achtergrond)
+  assert.equal(KC.live()?.code, "KBACK1");
+  const card = KC.liveHtml(h);
+  assert.match(card, /<div class="dl-card turn ko-live" data-act="kolive">/, "de hele kaart = terug");
+  assert.match(card, /<span class="vb-badge ko-z">⚡<\/span>/);
+  assert.match(card, /<b>⚡ Knock-out · Ronde 3<\/b><br>Levens: jij 112, Sanne 87<\/small>/);
+  assert.match(card, /<button type="button" class="dl-go" data-act="kolive">Terug<\/button>/);
+  // Duels: de kaart onder Jouw beurt (ook zonder andere duels), het gezichtje van Sanne "loopt" en kan niet opnieuw uitgedaagd worden
+  D._.setHost(h);
+  D._.applyList({ items: [], targets: [{ k: "k-sanne", name: "Sanne", flair: null }, { k: "k-tim", name: "Tim", flair: null }], ko: [] });
+  D._.setPick("k-sanne");
+  const T = D.copy("nl");
+  const body = D._.listBody(T, [], "", null);
+  assert.ok(body.includes(card), "de kaart staat op Duels");
+  assert.match(body, /Jouw beurt/);
+  assert.doesNotMatch(body, /dl-hero/, "geen lege staat");
+  assert.match(body, /class="dl-face busy" data-face="k-sanne" aria-pressed="false">.*?<small class="run">loopt<\/small>/s);
+  assert.doesNotMatch(body, /data-act="challenge" data-k="k-sanne"/, "geen 'Daag Sanne uit' tijdens het spel");
+  // tik op de kaart of op Sanne: de verse stand ophalen, dan dezelfde ronde met je bord (al gegokt = niet nog eens)
+  for (const target of [{ dataset: { act: "kolive" } }, { dataset: { face: "k-sanne" } }]) {
+    started.length = 0; rpc.length = 0; st = { duel: null, done: false };
+    D._.onListClick({ target: { closest: () => target } });
+    for (let i = 0; i < 6; i++) await new Promise((r) => setImmediate(r));
+    assert.deepEqual(rpc, [["ko_get", "KBACK1"]]);
+    assert.equal(started.length, 1, `terug in de ronde (${JSON.stringify(target.dataset)})`);
+    assert.equal(started[0].board, board, "je bord zoals je het achterliet");
+    assert.equal(started[0].duel.round, 3); assert.equal(started[0].duel.ko, true);
+  }
+  // afgelopen: geen kaart meer, Sanne weer gewoon
+  KC._.apply(h, { ...g, state: "done", finished_at: new Date().toISOString(), winner: "me", opp_hp: 0 });
+  assert.equal(KC.live(), null);
+  assert.equal(KC.liveHtml(h), "");
+  assert.doesNotMatch(D._.listBody(T, [], "", null), /ko-live|class="dl-face busy"/);
+  // ko.js miste het einde (geen seintje), maar de lijst kent hem al als afgelopen: ook geen kaart
+  const { KO: KD, Duel: D2 } = loadAudio(false);
+  const h2 = host({ state: () => ({ duel: null }), openModal() {}, closeModal() {}, toEvent: (p) => ({ p }), gc() {}, ko: async () => KD, startRound() {}, rpc: async () => g });
+  KD._.apply(h2, g);
+  D2._.setHost(h2);
+  D2._.applyList({ items: [], targets: [], ko: [{ ...g, state: "done", finished_at: new Date().toISOString(), winner: "opp" }] });
+  assert.doesNotMatch(D2._.listBody(D2.copy("nl"), [], "", null), /ko-live/);
 });

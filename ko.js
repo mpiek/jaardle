@@ -26,7 +26,8 @@
       gaveUp: (n) => `${n} stopte.`, youGaveUp: "Je stopte.", drawP: "Na 12 rondes even veel levens.",
       rematch: "⚡ Revanche", wantsToo: "wil ook", rematchWait: (n) => `Wacht op ${n}…`, rematchHint: "Druk je allebei, dan begint hij meteen", toDuels: "Naar Duels",
       isKo: (n) => `${n} is knock-out`, youKo: "Jij bent knock-out", gone: "Deze knock-out is gestopt.", err: "Dat lukte niet. Probeer het nog eens.", close: "Sluiten",
-      oppGuessed: (n) => `${n} heeft gegokt ✓` },
+      oppGuessed: (n) => `${n} heeft gegokt ✓`,
+      back: "Terug", hpLine: (a, n, b) => `Levens: jij ${a}, ${n} ${b}` },
     en: { react: "React", rxL: "Laugh|Wow|Nice|Oof|Good game|Got to go", resultOf: (r) => `Round ${r} result`, replay: "Watch again", start: "Start", lifeAria: (n, m, a, b) => `Lives per round: you from ${m} to ${a}, ${n} from ${m} to ${b}`,
       live: "Live · knockout", liveSub: (n) => `Right now, 150 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
       waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within a minute, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
@@ -42,7 +43,8 @@
       gaveUp: (n) => `${n} stopped.`, youGaveUp: "You stopped.", drawP: "Same lives after 12 rounds.",
       rematch: "⚡ Rematch", wantsToo: "wants one too", rematchWait: (n) => `Waiting for ${n}…`, rematchHint: "If you both tap, it starts right away", toDuels: "To Duels",
       isKo: (n) => `${n} is knocked out`, youKo: "You're knocked out", gone: "This knockout has stopped.", err: "That didn't work. Please try again.", close: "Close",
-      oppGuessed: (n) => `${n} has guessed ✓` },
+      oppGuessed: (n) => `${n} has guessed ✓`,
+      back: "Rejoin", hpLine: (a, n, b) => `Lives: you ${a}, ${n} ${b}` },
     de: { react: "Reagieren", rxL: "Lachen|Wow|Stark|Autsch|Gut gespielt|Muss los", resultOf: (r) => `Ergebnis Runde ${r}`, replay: "Noch mal ansehen", start: "Start", lifeAria: (n, m, a, b) => `Leben pro Runde: du von ${m} auf ${a}, ${n} von ${m} auf ${b}`,
       live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 150 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
       waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb einer Minute an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
@@ -58,7 +60,8 @@
       gaveUp: (n) => `${n} hat aufgehört.`, youGaveUp: "Du hast aufgehört.", drawP: "Nach 12 Runden gleich viele Leben.",
       rematch: "⚡ Revanche", wantsToo: "will auch", rematchWait: (n) => `Warte auf ${n}…`, rematchHint: "Tippt ihr beide, geht es sofort los", toDuels: "Zu den Duellen",
       isKo: (n) => `${n} ist knock-out`, youKo: "Du bist knock-out", gone: "Dieser Knock-out wurde beendet.", err: "Das hat nicht geklappt. Versuch es noch mal.", close: "Schließen",
-      oppGuessed: (n) => `${n} hat getippt ✓` },
+      oppGuessed: (n) => `${n} hat getippt ✓`,
+      back: "Zurück", hpLine: (a, n, b) => `Leben: du ${a}, ${n} ${b}` },
     es: { react: "Reaccionar", rxL: "Risa|Guau|Genial|Uf|Buena partida|Me tengo que ir", resultOf: (r) => `Resultado de la ronda ${r}`, replay: "Ver otra vez", start: "Inicio", lifeAria: (n, m, a, b) => `Vidas por ronda: tú de ${m} a ${a}, ${n} de ${m} a ${b}`,
       live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 150 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
       waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en un minuto, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
@@ -74,7 +77,8 @@
       gaveUp: (n) => `${n} lo dejó.`, youGaveUp: "Lo dejaste.", drawP: "Mismas vidas tras 12 rondas.",
       rematch: "⚡ Revancha", wantsToo: "también quiere", rematchWait: (n) => `Esperando a ${n}…`, rematchHint: "Si pulsáis los dos, empieza enseguida", toDuels: "A Duelos",
       isKo: (n) => `${n} está K.O.`, youKo: "Estás K.O.", gone: "Este K.O. se ha detenido.", err: "No ha funcionado. Inténtalo otra vez.", close: "Cerrar",
-      oppGuessed: (n) => `${n} ya ha respondido ✓` },
+      oppGuessed: (n) => `${n} ya ha respondido ✓`,
+      back: "Volver", hpLine: (a, n, b) => `Vidas: tú ${a}, ${n} ${b}` },
     pt: { react: "Reagir", rxL: "Risada|Uau|Boa|Ops|Bom jogo|Preciso ir", resultOf: (r) => `Resultado da rodada ${r}`, replay: "Ver de novo", start: "Início", lifeAria: (n, m, a, b) => `Vidas por rodada: você de ${m} para ${a}, ${n} de ${m} para ${b}`,
       live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 150 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
       waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em um minuto, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
@@ -90,7 +94,8 @@
       gaveUp: (n) => `${n} parou.`, youGaveUp: "Você parou.", drawP: "Mesmas vidas após 12 rodadas.",
       rematch: "⚡ Revanche", wantsToo: "também quer", rematchWait: (n) => `Esperando ${n}…`, rematchHint: "Se os dois tocarem, começa na hora", toDuels: "Para Duelos",
       isKo: (n) => `${n} levou nocaute`, youKo: "Você levou nocaute", gone: "Este nocaute parou.", err: "Não deu certo. Tente de novo.", close: "Fechar",
-      oppGuessed: (n) => `${n} já chutou ✓` },
+      oppGuessed: (n) => `${n} já chutou ✓`,
+      back: "Voltar", hpLine: (a, n, b) => `Vidas: você ${a}, ${n} ${b}` },
   };
 
   const CSS = String.raw`/* ═══ ⚡ Knock-out (/ko.js, db/208) ═══ */
@@ -685,7 +690,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const p = g.puzzle;
     if (!p) return refresh(g.code);
     K.gc("ko-round-" + Math.min(g.round, 6), "Knockout: round " + Math.min(g.round, 6));
-    H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: null, potId: `k${g.code}${g.round}`,
+    // terug in een ronde die je al open had (via Duels, 20/11): je bord zoals je het achterliet (de gok, de hints), anders kon je opnieuw
+    // gokken en waren je hints gratis; al gegokt = meteen weer "Wachten op …" (ko_submit nog eens geeft gewoon de stand)
+    H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(g.code, g.round) || null, potId: `k${g.code}${g.round}`,
                    duel: { code: g.code, round: g.round, opp: oppName(g), ko: true } });
   }
   // ── de uitslag van een ronde: een laag over het hele scherm (20/11, zijn "superimposed, net als confetti"; referentie GeoGuessr-duels,
@@ -953,6 +960,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     skew = at(g.now) - Date.now();
     const prev = cur;
     cur = g;
+    // het Duels-scherm toont een spel dat loopt (KO.liveHtml): begint of stopt er een, dan tekent duel.js de lijst opnieuw
+    if (prev?.code !== g.code || (prev?.state === "live") !== (g.state === "live")) try { window.dispatchEvent(new CustomEvent("jaardle:ko-live")); } catch (e) {}
     const st = H.state(), here = !!(st?.duel?.ko && st.duel.code === g.code);
     if (g.state === "invite") return g.me === "b" ? showInvite(g) : showWait(g);
     if (g.state === "declined" || g.state === "expired" || g.state === "cancelled") {
@@ -1068,6 +1077,27 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // Duels (terugzien, punt 8): het levensverloop van een afgelopen knock-out, en zijn eindscherm (zonder revanche als hij oud is)
     lifeHtml(host, g) { H = host; ensureCss(); return lifeHtml(g); },
     review(host, g) { H = host; ensureCss(); showEnd(g); },
+    // Duels (20/11, zijn melding: "live op het duel-logo gedrukt, dan kun je niet meer terug in de game"): het spel dat nu loopt, als kaart
+    // bovenaan (de hele kaart = terug) en als gezichtje dat "loopt"; resume = de verse stand ophalen, apply zet je terug in de ronde
+    live: () => (cur && cur.state === "live" ? cur : null),
+    liveHtml(host) {
+      H = host; ensureCss();
+      const g = cur;
+      if (!g || g.state !== "live") return "";
+      const T = tx(), n = oppName(g);
+      K.setHost(H);
+      const bandH = K.bandHtml(T, n, g.opp_flair).replace('<span class="vb-badge">⚔️</span>', '<span class="vb-badge ko-z">⚡</span>');
+      const sub = g.opp_done ? `<em>${esc(T.oppGuessed(n))}</em>` : esc(T.hpLine(g.hp, n, g.opp_hp));
+      return `<div class="dl-card turn ko-live" data-act="kolive">${bandH}<div class="dl-card-f"><small><b>⚡ ${esc(T.tag)} · ${esc(T.roundN(g.round))}</b><br>${sub}</small>` +
+        `<button type="button" class="dl-go" data-act="kolive">${esc(T.back)}</button></div></div>`;
+    },
+    resume(host) {
+      H = host; ensureCss();
+      const g = cur;
+      if (!g || g.state !== "live") return;
+      K.gc("ko-resume", "Knockout: back into the game from Duels");
+      call("ko_get", { p_code: g.code }).then((r) => apply(r.ok && r.v ? r.v : g));
+    },
     css: CSS, copy: (l) => TXT[l], langs: () => Object.keys(TXT),
     _: { mult, SFX, sfx, hintParts, roundOf, hpPath, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); },
          showHtml: (h, g, r) => { H = h; return showHtml(g, roundOf(g, r)); }, lineHtml: (h, g, r) => { H = h; return lineHtml(g, roundOf(g, r)); }, lifeHtml: (h, g) => { H = h; return lifeHtml(g); } },
