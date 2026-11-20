@@ -398,3 +398,15 @@ test("ko.js — reacties (db/214): zes vaste, een reactie van de ander geeft een
   assert.match(read("tools/build-emoji-font.py"), /SCAN = \[ROOT \/ "game\.js", ROOT \/ "index\.template\.html", ROOT \/ "ko\.js"\]/);
   assert.match(read("style.css"), /U\+1F602/i, "😂 in de unicode-range");
 });
+
+test("ko.js — opgave (db/216: twee rondes op rij weg): het eindscherm zegt 'Sanne stopte.' / 'Je stopte.', geen K.O.-zin", () => {
+  const { KO: KA, els } = loadAudio(false);
+  const h = host({ state: () => null, openModal: (id) => { els[id].hidden = false; }, closeModal: (id) => { els[id].hidden = true; } });
+  const g = { code: "KSTOP1", state: "done", me: "a", now: new Date().toISOString(), finished_at: new Date().toISOString(), opp_name: "Sanne", hp_max: 150,
+    mine: [80, 30], theirs: [0, 0], hp: 150, opp_hp: 40, winner: "me" };
+  KA._.apply(h, g);
+  assert.match(els["modal-ko"].innerHTML, /Sanne stopte\./);
+  const { KO: KB, els: e2 } = loadAudio(false);
+  KB._.apply(host({ state: () => null, openModal: (id) => { e2[id].hidden = false; }, closeModal() {} }), { ...g, me: "b", mine: [0, 0], theirs: [80, 30], hp: 40, opp_hp: 150, winner: "opp" });
+  assert.match(e2["modal-ko"].innerHTML, /Je stopte\./);
+});
