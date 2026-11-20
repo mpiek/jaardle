@@ -361,3 +361,13 @@ test("ko.js — nageleverde seintjes (replay bij het verbinden) over een ander s
   K8.event(h, { code: "KNEW03", k: "end" });
   assert.deepEqual(rpc, [["ko_get", "KINV02"], ["ko_get", "KNEW03"]], "uitnodiging (daarvoor is de replay) en live seintjes gaan gewoon door");
 });
+
+test("ko.js — de hints één voor één tegen je eigen getal, daarna pas de ander; past in de pauze van 8 s (zijn idee 20/11)", () => {
+  assert.match(KOSRC, /const T0 = hn \? 1700 \+ hn \* HS : 1650, left = o\.left \?\? Infinity;/);
+  assert.match(KOSRC, /HS = hn >= 3 \? 450 : 600;/);
+  assert.match(KOSRC, /if \(reduced\(\) \|\| left < T0 \+ 3600 \+ 500\) return fin\(/, "past het niet: meteen het eindbeeld");
+  // de rekensom: met 3 hints (🏛️ 🔢 ⏩) moet de hele laag passen in wat er van 8 s over is als de uitslag ±0,4 s later binnenkomt
+  const T0 = (hn) => (hn ? 1700 + hn * (hn >= 3 ? 450 : 600) : 1650);
+  for (const hn of [0, 1, 2, 3]) assert.ok(T0(hn) + 3600 + 500 <= 7600, `${hn} hints: ${T0(hn) + 4100} ms`);
+  assert.doesNotMatch(KOSRC, /hintNote/, "de zin 'een hint geeft … de punten' is weg");
+});
