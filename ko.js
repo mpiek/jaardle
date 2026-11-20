@@ -11,91 +11,91 @@
   const ID = "modal-ko", HP = 150;   // db/210: 150 levens (één ronde haalt je nooit van vol naar 0)
 
   const TXT = {
-    nl: { live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 150 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
+    nl: { resultOf: (r) => `Uitslag ronde ${r}`, replay: "Nog eens zien", start: "Start", lifeAria: (n, m, a, b) => `Levens per ronde: jij van ${m} naar ${a}, ${n} van ${m} naar ${b}`,
+      live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 150 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
       waitH: (n) => `Wachten op ${n}…`, waitP: "Neemt die binnen een minuut aan, dan begint het meteen.", left: (s) => `nog ${s} s`, cancel: "Annuleer",
       lateH: (n) => `${n} reageert niet`, declH: (n) => `${n} kan nu niet`, lateP: "Misschien zit die niet achter de telefoon.", busyH: (n) => `${n} speelt nu een knock-out`, busyP: "Probeer het zo nog eens, of speel om de beurt.", coolP: "Over een paar minuten kun je het weer vragen.", again: "⚡ Nog eens vragen",
       turn: "⚔️ Speel om de beurt", turnSub: (n) => `5 rondes, ${n} speelt wanneer het uitkomt`, never: "Laat maar",
       invH: (n) => `${n} wil nú een knock-out`, lives: "levens", same: "1 gok per ronde", mins: "±3 min", join: "Doe mee", notNow: "Niet nu",
       startH: "Knock-out!", revH: "Revanche!", startP: "Ronde 1 begint zo", roundN: (r) => `Ronde ${r}`,
       guessing: (n) => `${n} gokt`, thinking: (n) => `${n} denkt na`, oppDone: (n) => `${n} is klaar ✓`, waitOpp: (n) => `Wachten op ${n}`,
-      rFor: (r, n) => `Ronde ${r} voor ${n}`, rForMe: (r) => `Ronde ${r} voor jou`, rTie: (r) => `Ronde ${r}: gelijk`, you: "Jij", youL: "jij",
-      math: (a, b, d, m, r, x) => `${a} − ${b} = ${d}, × ${m} in ronde ${r} = ${x}`, tieMath: "Geen schade",
-      next: (r, s, m) => `Ronde ${r} begint over ${s} s · ×${m}`,
+      rFor: (r, n) => `Ronde ${r} voor ${n}`, rForMe: (r) => `Ronde ${r} voor jou`, rTie: (r) => `Ronde ${r}: gelijk`, you: "Jij",
+      
       koWin: "K.O.! Jij wint", koLoss: (n) => `K.O. ${n} wint`, draw: "Gelijkspel",
       koPWin: (n, r, hp) => `${n} ging in ronde ${r} naar 0. Jij hield ${hp} levens over.`, koPLoss: (n, r, hp) => `Jij ging in ronde ${r} naar 0. ${n} hield ${hp} levens over.`,
       gaveUp: (n) => `${n} stopte.`, youGaveUp: "Je stopte.", drawP: "Na 12 rondes even veel levens.",
       rematch: "⚡ Revanche", wantsToo: "wil ook", rematchWait: (n) => `Wacht op ${n}…`, rematchHint: "Druk je allebei, dan begint hij meteen", toDuels: "Naar Duels",
       isKo: (n) => `${n} is knock-out`, youKo: "Jij bent knock-out", gone: "Deze knock-out is gestopt.", err: "Dat lukte niet. Probeer het nog eens.", close: "Sluiten",
-      itWas: "Het was", oppGuessed: (n) => `${n} heeft gegokt ✓`, off: (d) => (d === 0 ? "precies goed" : `${d} jaar ernaast`), noGuess: "geen gok", hintsCost: (x) => `hints −${x}`, hintNote: (n) => `Een hint geeft ${n} de punten die hij kost` },
-    en: { live: "Live · knockout", liveSub: (n) => `Right now, 150 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
+      oppGuessed: (n) => `${n} heeft gegokt ✓`, hintNote: (n) => `Een hint geeft ${n} de punten die hij kost` },
+    en: { resultOf: (r) => `Round ${r} result`, replay: "Watch again", start: "Start", lifeAria: (n, m, a, b) => `Lives per round: you from ${m} to ${a}, ${n} from ${m} to ${b}`,
+      live: "Live · knockout", liveSub: (n) => `Right now, 150 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
       waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within a minute, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
       lateH: (n) => `${n} isn't answering`, declH: (n) => `${n} can't right now`, lateP: "Maybe they're away from their phone.", busyH: (n) => `${n} is in a knockout right now`, busyP: "Try again in a bit, or play in turns.", coolP: "You can ask again in a few minutes.", again: "⚡ Ask again",
       turn: "⚔️ Play in turns", turnSub: (n) => `5 rounds, ${n} plays whenever it suits`, never: "Never mind",
       invH: (n) => `${n} wants a knockout now`, lives: "lives", same: "1 guess per round", mins: "±3 min", join: "Join", notNow: "Not now",
       startH: "Knockout!", revH: "Rematch!", startP: "Round 1 starts in a moment", roundN: (r) => `Round ${r}`,
       guessing: (n) => `${n} is guessing`, thinking: (n) => `${n} is thinking`, oppDone: (n) => `${n} is done ✓`, waitOpp: (n) => `Waiting for ${n}`,
-      rFor: (r, n) => `Round ${r} to ${n}`, rForMe: (r) => `Round ${r} to you`, rTie: (r) => `Round ${r}: a tie`, you: "You", youL: "you",
-      math: (a, b, d, m, r, x) => `${a} − ${b} = ${d}, × ${m} in round ${r} = ${x}`, tieMath: "No damage",
-      next: (r, s, m) => `Round ${r} starts in ${s} s · ×${m}`,
+      rFor: (r, n) => `Round ${r} to ${n}`, rForMe: (r) => `Round ${r} to you`, rTie: (r) => `Round ${r}: a tie`, you: "You",
+      
       koWin: "K.O.! You win", koLoss: (n) => `K.O. ${n} wins`, draw: "A draw",
       koPWin: (n, r, hp) => `${n} hit 0 in round ${r}. You had ${hp} lives left.`, koPLoss: (n, r, hp) => `You hit 0 in round ${r}. ${n} had ${hp} lives left.`,
       gaveUp: (n) => `${n} stopped.`, youGaveUp: "You stopped.", drawP: "Same lives after 12 rounds.",
       rematch: "⚡ Rematch", wantsToo: "wants one too", rematchWait: (n) => `Waiting for ${n}…`, rematchHint: "If you both tap, it starts right away", toDuels: "To Duels",
       isKo: (n) => `${n} is knocked out`, youKo: "You're knocked out", gone: "This knockout has stopped.", err: "That didn't work. Please try again.", close: "Close",
-      itWas: "It was", oppGuessed: (n) => `${n} has guessed ✓`, off: (d) => (d === 0 ? "spot on" : `${d} year${d === 1 ? "" : "s"} off`), noGuess: "no guess", hintsCost: (x) => `hints −${x}`, hintNote: (n) => `A hint gives ${n} the points it costs` },
-    de: { live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 150 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
+      oppGuessed: (n) => `${n} has guessed ✓`, hintNote: (n) => `A hint gives ${n} the points it costs` },
+    de: { resultOf: (r) => `Ergebnis Runde ${r}`, replay: "Noch mal ansehen", start: "Start", lifeAria: (n, m, a, b) => `Leben pro Runde: du von ${m} auf ${a}, ${n} von ${m} auf ${b}`,
+      live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 150 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
       waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb einer Minute an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
       lateH: (n) => `${n} antwortet nicht`, declH: (n) => `${n} kann gerade nicht`, lateP: "Vielleicht ist das Handy gerade weg.", busyH: (n) => `${n} spielt gerade einen Knock-out`, busyP: "Versuch es gleich noch mal oder spielt abwechselnd.", coolP: "In ein paar Minuten kannst du wieder fragen.", again: "⚡ Noch mal fragen",
       turn: "⚔️ Abwechselnd spielen", turnSub: (n) => `5 Runden, ${n} spielt, wann es passt`, never: "Lass gut sein",
       invH: (n) => `${n} will jetzt einen Knock-out`, lives: "Leben", same: "1 Tipp pro Runde", mins: "±3 Min.", join: "Mitmachen", notNow: "Nicht jetzt",
       startH: "Knock-out!", revH: "Revanche!", startP: "Runde 1 beginnt gleich", roundN: (r) => `Runde ${r}`,
       guessing: (n) => `${n} rät`, thinking: (n) => `${n} überlegt`, oppDone: (n) => `${n} ist fertig ✓`, waitOpp: (n) => `Warte auf ${n}`,
-      rFor: (r, n) => `Runde ${r} für ${n}`, rForMe: (r) => `Runde ${r} für dich`, rTie: (r) => `Runde ${r}: unentschieden`, you: "Du", youL: "du",
-      math: (a, b, d, m, r, x) => `${a} − ${b} = ${d}, × ${m} in Runde ${r} = ${x}`, tieMath: "Kein Schaden",
-      next: (r, s, m) => `Runde ${r} beginnt in ${s} s · ×${m}`,
+      rFor: (r, n) => `Runde ${r} für ${n}`, rForMe: (r) => `Runde ${r} für dich`, rTie: (r) => `Runde ${r}: unentschieden`, you: "Du",
+      
       koWin: "K.O.! Du gewinnst", koLoss: (n) => `K.O. ${n} gewinnt`, draw: "Unentschieden",
       koPWin: (n, r, hp) => `${n} fiel in Runde ${r} auf 0. Du hattest noch ${hp} Leben.`, koPLoss: (n, r, hp) => `Du fielst in Runde ${r} auf 0. ${n} hatte noch ${hp} Leben.`,
       gaveUp: (n) => `${n} hat aufgehört.`, youGaveUp: "Du hast aufgehört.", drawP: "Nach 12 Runden gleich viele Leben.",
       rematch: "⚡ Revanche", wantsToo: "will auch", rematchWait: (n) => `Warte auf ${n}…`, rematchHint: "Tippt ihr beide, geht es sofort los", toDuels: "Zu den Duellen",
       isKo: (n) => `${n} ist knock-out`, youKo: "Du bist knock-out", gone: "Dieser Knock-out wurde beendet.", err: "Das hat nicht geklappt. Versuch es noch mal.", close: "Schließen",
-      itWas: "Es war", oppGuessed: (n) => `${n} hat getippt ✓`, off: (d) => (d === 0 ? "genau richtig" : `${d} Jahr${d === 1 ? "" : "e"} daneben`), noGuess: "kein Tipp", hintsCost: (x) => `Hinweise −${x}`, hintNote: (n) => `Ein Hinweis gibt ${n} die Punkte, die er kostet` },
-    es: { live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 150 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
+      oppGuessed: (n) => `${n} hat getippt ✓`, hintNote: (n) => `Ein Hinweis gibt ${n} die Punkte, die er kostet` },
+    es: { resultOf: (r) => `Resultado de la ronda ${r}`, replay: "Ver otra vez", start: "Inicio", lifeAria: (n, m, a, b) => `Vidas por ronda: tú de ${m} a ${a}, ${n} de ${m} a ${b}`,
+      live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 150 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
       waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en un minuto, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} no responde`, declH: (n) => `${n} no puede ahora`, lateP: "Quizá no está con el móvil.", busyH: (n) => `${n} está jugando un K.O. ahora`, busyP: "Inténtalo dentro de un rato o jugad por turnos.", coolP: "Podrás volver a preguntar en unos minutos.", again: "⚡ Volver a preguntar",
       turn: "⚔️ Jugar por turnos", turnSub: (n) => `5 rondas, ${n} juega cuando le venga bien`, never: "Déjalo",
       invH: (n) => `${n} quiere un K.O. ahora`, lives: "vidas", same: "1 intento por ronda", mins: "±3 min", join: "Jugar", notNow: "Ahora no",
       startH: "¡K.O.!", revH: "¡Revancha!", startP: "La ronda 1 empieza enseguida", roundN: (r) => `Ronda ${r}`,
       guessing: (n) => `${n} está adivinando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} ha terminado ✓`, waitOpp: (n) => `Esperando a ${n}`,
-      rFor: (r, n) => `Ronda ${r} para ${n}`, rForMe: (r) => `Ronda ${r} para ti`, rTie: (r) => `Ronda ${r}: empate`, you: "Tú", youL: "tú",
-      math: (a, b, d, m, r, x) => `${a} − ${b} = ${d}, × ${m} en la ronda ${r} = ${x}`, tieMath: "Sin daño",
-      next: (r, s, m) => `La ronda ${r} empieza en ${s} s · ×${m}`,
+      rFor: (r, n) => `Ronda ${r} para ${n}`, rForMe: (r) => `Ronda ${r} para ti`, rTie: (r) => `Ronda ${r}: empate`, you: "Tú",
+      
       koWin: "¡K.O.! Ganas tú", koLoss: (n) => `K.O. Gana ${n}`, draw: "Empate",
       koPWin: (n, r, hp) => `${n} llegó a 0 en la ronda ${r}. Te quedaban ${hp} vidas.`, koPLoss: (n, r, hp) => `Llegaste a 0 en la ronda ${r}. A ${n} le quedaban ${hp} vidas.`,
       gaveUp: (n) => `${n} lo dejó.`, youGaveUp: "Lo dejaste.", drawP: "Mismas vidas tras 12 rondas.",
       rematch: "⚡ Revancha", wantsToo: "también quiere", rematchWait: (n) => `Esperando a ${n}…`, rematchHint: "Si pulsáis los dos, empieza enseguida", toDuels: "A Duelos",
       isKo: (n) => `${n} está K.O.`, youKo: "Estás K.O.", gone: "Este K.O. se ha detenido.", err: "No ha funcionado. Inténtalo otra vez.", close: "Cerrar",
-      itWas: "Era", oppGuessed: (n) => `${n} ya ha respondido ✓`, off: (d) => (d === 0 ? "exacto" : `${d} año${d === 1 ? "" : "s"} de diferencia`), noGuess: "sin respuesta", hintsCost: (x) => `pistas −${x}`, hintNote: (n) => `Una pista le da a ${n} los puntos que cuesta` },
-    pt: { live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 150 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
+      oppGuessed: (n) => `${n} ya ha respondido ✓`, hintNote: (n) => `Una pista le da a ${n} los puntos que cuesta` },
+    pt: { resultOf: (r) => `Resultado da rodada ${r}`, replay: "Ver de novo", start: "Início", lifeAria: (n, m, a, b) => `Vidas por rodada: você de ${m} para ${a}, ${n} de ${m} para ${b}`,
+      live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 150 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
       waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em um minuto, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} não responde`, declH: (n) => `${n} não pode agora`, lateP: "Talvez esteja longe do celular.", busyH: (n) => `${n} está em um nocaute agora`, busyP: "Tente de novo daqui a pouco ou jogue por turnos.", coolP: "Você pode perguntar de novo em alguns minutos.", again: "⚡ Perguntar de novo",
       turn: "⚔️ Jogar por turnos", turnSub: (n) => `5 rodadas, ${n} joga quando puder`, never: "Deixa pra lá",
       invH: (n) => `${n} quer um nocaute agora`, lives: "vidas", same: "1 chute por rodada", mins: "±3 min", join: "Jogar", notNow: "Agora não",
       startH: "Nocaute!", revH: "Revanche!", startP: "A rodada 1 já vai começar", roundN: (r) => `Rodada ${r}`,
       guessing: (n) => `${n} está chutando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} terminou ✓`, waitOpp: (n) => `Esperando ${n}`,
-      rFor: (r, n) => `Rodada ${r} para ${n}`, rForMe: (r) => `Rodada ${r} para você`, rTie: (r) => `Rodada ${r}: empate`, you: "Você", youL: "você",
-      math: (a, b, d, m, r, x) => `${a} − ${b} = ${d}, × ${m} na rodada ${r} = ${x}`, tieMath: "Sem dano",
-      next: (r, s, m) => `A rodada ${r} começa em ${s} s · ×${m}`,
+      rFor: (r, n) => `Rodada ${r} para ${n}`, rForMe: (r) => `Rodada ${r} para você`, rTie: (r) => `Rodada ${r}: empate`, you: "Você",
+      
       koWin: "K.O.! Você venceu", koLoss: (n) => `K.O. ${n} venceu`, draw: "Empate",
       koPWin: (n, r, hp) => `${n} chegou a 0 na rodada ${r}. Você ficou com ${hp} vidas.`, koPLoss: (n, r, hp) => `Você chegou a 0 na rodada ${r}. ${n} ficou com ${hp} vidas.`,
       gaveUp: (n) => `${n} parou.`, youGaveUp: "Você parou.", drawP: "Mesmas vidas após 12 rodadas.",
       rematch: "⚡ Revanche", wantsToo: "também quer", rematchWait: (n) => `Esperando ${n}…`, rematchHint: "Se os dois tocarem, começa na hora", toDuels: "Para Duelos",
       isKo: (n) => `${n} levou nocaute`, youKo: "Você levou nocaute", gone: "Este nocaute parou.", err: "Não deu certo. Tente de novo.", close: "Fechar",
-      itWas: "Era", oppGuessed: (n) => `${n} já chutou ✓`, off: (d) => (d === 0 ? "exato" : `${d} ano${d === 1 ? "" : "s"} de diferença`), noGuess: "sem chute", hintsCost: (x) => `dicas −${x}`, hintNote: (n) => `Uma dica dá a ${n} os pontos que custa` },
+      oppGuessed: (n) => `${n} já chutou ✓`, hintNote: (n) => `Uma dica dá a ${n} os pontos que custa` },
   };
 
   const CSS = String.raw`/* ═══ ⚡ Knock-out (/ko.js, db/208) ═══ */
-:root { --ko-me: var(--db-me); --ko-lag: #f2c14e; }
-html[data-theme="light"] { --ko-lag: #d9a21b; }
+:root { --ko-me: var(--db-me); --ko-lag: #f2c14e; --ko-max: #ffb020; }
+html[data-theme="light"] { --ko-lag: #d9a21b; --ko-max: #a86400; }
 #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 46%); display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 0.2rem 0.55rem;
   padding: 0.55rem 0.7rem 0.5rem; margin-bottom: 0.6rem; border-radius: 12px; background: var(--card); overflow: hidden; }
 html[data-theme="light"] #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 42%); }
@@ -103,19 +103,9 @@ html[data-theme="light"] #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 42%); }
 .ko-fly { position: absolute; bottom: -1.35rem; right: 0.15rem; font-size: 1.15rem; font-weight: 900; line-height: 1; color: var(--duel-loss); pointer-events: none;
   text-shadow: 0 0 6px var(--card), 0 0 2px var(--card); animation: ko-fly 1.9s ease-out 0.4s both; }   /* de schade springt op bij de balk die leegloopt */
 .ko-side.op .ko-fly { right: auto; left: 0.15rem; }
-.ko-sc { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
-.ko-sc .jr-box, .ko-sc .jr-box.op { flex-direction: column; gap: 0.15rem; padding: 0.45rem 0.4rem; }   /* naam boven, score eronder: past naast de schade */
-.ko-sc .jr-box.op .jr-who { flex-direction: row; }
-.ko-sc .jr-box > strong { font-size: 1.7rem; }
-.ko-hitc { display: flex; flex-direction: column; align-items: center; gap: 0.05rem; min-width: 3.4rem; line-height: 1.1; }
-.ko-hitc b { font-size: 1.15rem; font-weight: 900; color: var(--duel-loss); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.ko-hitc small { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
-.ko-hitc:not(.to-me):not(.to-op) b { color: var(--muted); }
-.ko-hitc.wait { visibility: hidden; }   /* de uitslag speelt af (playResult): eerst tellen de scores op */
-.ko-hitc.dif b { color: var(--fg); }
-.ko-hitc.pop b { animation: ko-pop 0.34s ease-out both; }
-.ko-ghost { position: fixed; z-index: 60; display: flex; align-items: center; justify-content: center; pointer-events: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ko-ghost { position: fixed; z-index: 62; display: flex; align-items: center; justify-content: center; pointer-events: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .ko-ghost.dmg { font-size: 1.3rem; font-weight: 900; color: var(--duel-loss); text-shadow: 0 0 6px var(--card), 0 0 2px var(--card); }
+.ko-ghost.dmg.max { font-size: 1.6rem; color: var(--ko-max); text-shadow: 0 0 14px color-mix(in srgb, var(--ko-max) 60%, transparent), 0 0 2px var(--card); }
 .ko-side.op { --col: var(--ko-op); }
 .ko-who { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
 .ko-side.op .ko-who { flex-direction: row-reverse; }
@@ -150,18 +140,6 @@ html[data-theme="light"] #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 42%); }
 .ko-t.last { animation: ko-tick 0.5s ease-in-out infinite alternate; }
 .ko-clock { grid-column: 1 / -1; height: 3px; margin: 0 -0.7rem -0.5rem; background: color-mix(in srgb, var(--muted) 18%, transparent); }
 .ko-clock > i { display: block; height: 100%; background: var(--duel-arena); transform-origin: left; }
-.ko-res { display: flex; flex-direction: column; gap: 0.55rem; text-align: center; }
-.ko-dmg { margin: 0; font-size: 1.05rem; font-weight: 800; }
-.ko-dmg .me { color: var(--duel-me); }
-.ko-dmg .op { color: hsl(var(--h, 30) 72% 66%); }
-html[data-theme="light"] .ko-dmg .op { color: hsl(var(--h, 30) 62% 38%); }
-.ko-dmg em { font-style: normal; color: var(--duel-loss); }
-.ko-math { margin: -0.3rem 0 0; font-size: 0.82rem; color: var(--muted); }
-.ko-math b { color: var(--fg); }
-.ko-next { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 2.75rem; border-radius: 10px;
-  font-size: 0.9rem; font-weight: 700; color: var(--fg); background: var(--card-soft); }
-.ko-next::before { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--duel-arena) 22%, transparent); transform-origin: left; animation: ko-fill var(--dur, 5s) linear both; }
-.ko-next > * { position: relative; }
 .ko-wait { position: relative; align-self: stretch; display: flex; align-items: center; justify-content: center; min-height: 2.75rem; border-radius: 10px; overflow: hidden;
   font-size: 0.9rem; color: var(--muted); background: var(--card-soft); }
 .ko-wait > i { position: absolute; inset: 0; background: color-mix(in srgb, var(--duel-arena) 22%, transparent); transform-origin: left; animation: ko-run var(--dur, 30s) linear both; }
@@ -181,12 +159,6 @@ html[data-theme="light"] .ko-dmg .op { color: hsl(var(--h, 30) 62% 38%); }
 .vb.ko-end.lost { --p: 36%; }
 .vb.ko-end:not(.lost) .vb-op, .vb.ko-end.lost .vb-me, .vb.ko-idle .vb-op { filter: grayscale(0.85) brightness(0.6); }
 .vb.ko-end:not(.lost) .vb-side.op, .vb.ko-end.lost .vb-side.me, .vb.ko-idle .vb-side.op { filter: grayscale(1); opacity: 0.6; }
-.ko-rounds { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.3rem; }
-.ko-rounds span { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.76rem; font-variant-numeric: tabular-nums;
-  background: var(--card-soft); color: var(--muted); }
-.ko-rounds span.me b { color: var(--duel-me); }
-.ko-rounds span.op b { color: hsl(var(--h, 30) 72% 66%); }
-html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%); }
 .duel-go.ko-rev { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
 .ko-want { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.1rem 0.55rem 0.1rem 0.35rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700;
   background: color-mix(in srgb, var(--duel-arena-on) 16%, transparent); animation: ko-tick 0.6s ease-in-out infinite alternate; }
@@ -194,11 +166,105 @@ html[data-theme="light"] .ko-rounds span.op b { color: hsl(var(--h, 30) 62% 38%)
 .dl-opt.ko-opt b { color: var(--duel-arena); }
 body[data-ko] #guesses .penalty, body[data-ko] #live-score, body[data-ko] #hint-count, body[data-ko] #hint-btn-direction, body[data-ko] #guesses .guess-row:nth-child(n+2) { display: none; }   /* één gok per ronde */
 #ko-hintnote { margin: -0.15rem 0 0.5rem; font-size: 0.76rem; color: var(--muted); text-align: center; }
-.ko-years { margin: -0.2rem 0 0; display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.84rem; color: var(--muted); }
-.ko-years b { color: var(--fg); }
-.ko-years .me b { color: var(--duel-me); }
-.ko-years .op b { color: hsl(var(--h, 30) 72% 66%); }
-html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
+/* ── de uitslag van een ronde: een laag over het hele scherm (20/11, zijn "superimposed, net als confetti"). Zo min mogelijk tekst:
+   bovenaan het echte jaar (groen) tussen jullie gokken (kleur van de afstand, zoals de gokregels), daaronder groot de punten met alleen de
+   hint-chips, in het midden de factor, onderin de namen. De levens blijven boven de laag (body.ko-showing): daar landt de schade. ±40
+   elementen + 14 deeltjes (spans, geen canvas). Max-schade = goud (--ko-max), geen tekst. */
+.ko-show { --op: hsl(var(--h, 30) 72% 66%); position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; justify-content: center; gap: 1.6rem;
+  padding: var(--top, 9rem) max(1rem, env(safe-area-inset-right, 0px)) max(1.6rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
+  overflow: hidden; text-align: center; background: color-mix(in srgb, var(--bg) 76%, transparent); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  cursor: pointer; animation: ko-show-in 0.25s ease-out both; }
+html[data-theme="light"] .ko-show { --op: hsl(var(--h, 30) 62% 38%); }
+.ko-show.out { animation: ko-show-out 0.4s ease-in both; pointer-events: none; }
+body.ko-showing #duel-vs.ko { position: relative; z-index: 61; }
+.ks-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0 0.5rem; }
+.ks-g { display: flex; justify-content: center; min-width: 0; }
+.ks-yr { min-width: 0; padding: 0.22rem 0.7rem; font-size: 1.3rem; font-weight: 900; line-height: 1.15; }
+.ks-yr.none { border-radius: 999px; color: var(--muted); background: var(--card-soft); }
+.ks-yr.ks-ans { font-size: 1.55rem; padding: 0.25rem 0.85rem; box-shadow: 0 0 18px color-mix(in srgb, var(--green) 45%, transparent); }
+.ks-f { font-size: 1.9rem; font-weight: 900; line-height: 1; color: var(--duel-arena); font-variant-numeric: tabular-nums; }
+.ks-s { --col: var(--duel-me); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; min-width: 0; min-height: 6rem; }
+.ks-s.op { --col: var(--op); }
+.ks-s strong { font-size: 3.4rem; font-weight: 900; line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--fg); white-space: nowrap;
+  transition: opacity 0.3s, color 0.3s, text-shadow 0.3s; }
+.ks-s.win strong { color: var(--col); text-shadow: 0 0 22px color-mix(in srgb, var(--col) 60%, transparent), 0 0 3px color-mix(in srgb, var(--col) 45%, transparent); }
+.ks-s.lose strong { opacity: 0.4; }
+.ks-s strong.hit, .ks-s strong.neg, .ks-s strong.dmg { opacity: 1; text-shadow: none; }
+.ks-s strong.neg, .ks-s strong.dmg { color: var(--duel-loss); }
+.ks-s strong.dmg { text-shadow: 0 0 18px color-mix(in srgb, var(--duel-loss) 50%, transparent); }
+.ks-s strong.dmg.max { font-size: 4rem; color: var(--ko-max); text-shadow: 0 0 26px color-mix(in srgb, var(--ko-max) 65%, transparent), 0 0 4px color-mix(in srgb, var(--ko-max) 50%, transparent); }
+.ks-s small { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.3rem; min-height: 1.45rem; }
+.ks-hint { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.08rem 0.45rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; line-height: 1.2;
+  color: var(--duel-loss); background: color-mix(in srgb, var(--duel-loss) 15%, transparent); font-variant-numeric: tabular-nums; }
+/* de namen, in de banden van de duelopening (eigen kleur, streepjes, schuine kant); de verliezer van de ronde wordt grijs */
+.ks-names { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-inline: calc(-1 * max(1rem, env(safe-area-inset-left, 0px))); }
+.ks-nb { position: relative; display: flex; align-items: center; gap: 0.5rem; min-width: 0; height: 2.9rem; padding: 0 1.4rem 0 0.9rem; overflow: hidden; color: #fff;
+  background: linear-gradient(90deg, hsl(222 66% 26%), hsl(222 64% 46%)); clip-path: polygon(0 0, 100% 0, calc(100% - 1.1rem) 100%, 0 100%);
+  transition: filter 0.3s; animation: ks-in-l 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.ks-nb.op { justify-content: flex-end; padding: 0 0.9rem 0 1.4rem; background: linear-gradient(270deg, hsl(var(--h, 30) 58% 24%), hsl(var(--h, 30) 58% 42%));
+  clip-path: polygon(1.1rem 0, 100% 0, 100% 100%, 0 100%); animation-name: ks-in-r; animation-delay: 0.08s; }
+.ks-nb::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(-66deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 15px); }
+.ks-nb b { position: relative; z-index: 1; min-width: 0; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.ks-nb .db-av { position: relative; z-index: 1; flex: none; width: 1.9rem; height: 1.9rem; font-size: 1.05rem; background: rgba(255, 255, 255, 0.16); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85); }
+.ks-nb.lose { filter: grayscale(0.75) brightness(0.7); }
+.ks-bit { position: absolute; z-index: 63; margin: -0.25rem 0 0 -0.25rem; border-radius: 50%; pointer-events: none; }
+.ks-shake { animation: ks-shake 0.36s ease-out both; }
+.ks-bam { animation: ks-bam 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.ks-wait { visibility: hidden; }
+.ks-pop { animation: ko-pop 0.34s ease-out both; }
+/* na de laag: één regel in de pagina (tik = nog eens zien); in een lopend spel loopt hij vol tot de volgende ronde */
+.ko-after { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; width: 100%; min-height: 2.75rem;
+  margin: 0.6rem 0 0; padding: 0.35rem 0.85rem; border: 0; border-radius: 10px; font: inherit; font-size: 0.9rem; color: var(--muted); text-align: left;
+  background: var(--card-soft); cursor: pointer; }
+.ko-after::before { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--duel-arena) 20%, transparent); transform-origin: left; animation: ko-fill var(--dur, 3s) linear both; }
+.ko-after.still::before { display: none; }
+.ko-after > * { position: relative; }
+.ka-l { display: inline-flex; align-items: center; gap: 0.55rem; }
+.ka-l > b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.ka-who { display: inline-flex; align-items: center; gap: 0.35rem; }
+.ka-who .db-av { width: 1.5rem; height: 1.5rem; font-size: 0.85rem; }
+.ko-after em { font-style: normal; font-weight: 900; color: var(--duel-loss); font-variant-numeric: tabular-nums; }
+.ko-after em.max { color: var(--ko-max); }
+.ko-after em.tie { color: var(--muted); }
+.ko-after .n { flex: none; font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+/* ── het K.O.-eindscherm (A, zijn keuze 20/11): het levensverloop, onder elke ronde de factor en de schade ── */
+.ko-life { --op: hsl(var(--h, 30) 72% 66%); --opl: hsl(var(--h, 30) 62% 56%); align-self: stretch; display: flex; flex-direction: column; gap: 0.2rem; }
+html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(var(--h, 30) 58% 46%); }
+.kl-key { display: flex; justify-content: center; gap: 1rem; font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+.kl-key span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.kl-key i { width: 0.9rem; height: 3px; border-radius: 2px; background: var(--duel-me); }
+.kl-key i.op { background: var(--opl); }
+.ko-life svg { display: block; width: 100%; height: auto; overflow: visible; }
+.ko-life .kl-ax { stroke: color-mix(in srgb, var(--muted) 35%, transparent); stroke-width: 1; stroke-dasharray: 3 4; }
+.ko-life polyline { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ko-life polyline.me { stroke: var(--duel-me); }
+.ko-life polyline.op { stroke: var(--opl); }
+.ko-life circle.me { fill: var(--duel-me); }
+.ko-life circle.op { fill: var(--opl); }
+.ko-life circle.me, .ko-life circle.op { stroke: var(--card); stroke-width: 2; }
+.ko-life circle.out { fill: var(--card); stroke: var(--duel-loss); stroke-width: 2.5; }
+.ko-life text { font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ko-life text.me { fill: var(--duel-me); }
+.ko-life text.op { fill: var(--op); }
+.ko-life text.out { fill: var(--duel-loss); }
+.kl-x { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+.kl-c { display: flex; flex-direction: column; align-items: center; gap: 0.05rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.kl-c b { font-size: 0.74rem; color: var(--fg); }
+.kl-c small { font-size: 0.7rem; color: var(--muted); }
+.kl-c em { font-style: normal; font-size: 0.78rem; font-weight: 800; color: var(--muted); }
+.kl-c em.me { color: var(--duel-me); }
+.kl-c em.op { color: var(--op); }
+.kl-c em.max { color: var(--ko-max); }
+.ko-life.many .kl-c small { display: none; }   /* veel rondes: alleen ronde en schade */
+.ko-life.many .kl-c b, .ko-life.many .kl-c em { font-size: 0.64rem; }
+@keyframes ko-show-in { from { opacity: 0; } }
+@keyframes ko-show-out { to { opacity: 0; } }
+@keyframes ks-in-l { from { transform: translateX(-105%); } }
+@keyframes ks-in-r { from { transform: translateX(105%); } }
+@keyframes ks-shake { 0%, 100% { transform: none; } 20% { transform: translateX(-7px) rotate(-3deg); } 45% { transform: translateX(6px) rotate(2deg); } 70% { transform: translateX(-3px); } }
+@keyframes ks-bam { 0% { transform: scale(1.5); } 25% { transform: scale(0.92) translateX(-9px) rotate(-4deg); } 45% { transform: scale(1.06) translateX(8px) rotate(3deg); }
+  65% { transform: translateX(-4px); } 100% { transform: none; } }
 @keyframes ko-run { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @keyframes ko-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes ko-dot { 0%, 60%, 100% { opacity: 0.3; transform: none; } 30% { opacity: 1; transform: translateY(-2px); } }
@@ -208,7 +274,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
 @keyframes ko-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.25); } 100% { transform: none; } }
 @keyframes ko-drop { from { width: calc(var(--was) * 1%); } to { width: calc(var(--hp) * 1%); } }
 @media (prefers-reduced-motion: reduce) {
-  .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want, .ko-fly { animation: none; }
+  .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want, .ko-fly, .ko-show, .ko-show.out, .ks-nb, .ks-pop, .ks-shake, .ks-bam { animation: none; }
   .ko-side.drain .ko-fill, .ko-side.drain .ko-lag { animation-duration: 0.01s; }
 }`;
 
@@ -238,7 +304,11 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   }
   function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; endWait = null; stopAnim(); }
   let anim = [], animGen = 0;   // de stappen van playResult
-  function stopAnim() { anim.forEach(clearTimeout); anim = []; animGen++; document.querySelectorAll(".ko-ghost").forEach((e) => e.remove()); }
+  function stopAnim() {
+    anim.forEach(clearTimeout); anim = []; animGen++;
+    document.querySelectorAll(".ko-ghost, .ks-bit, .ko-show").forEach((e) => e.remove());
+    document.body.classList?.remove("ko-showing");
+  }
 
   // ── geluid (19/11): alleen met ⚙️ ⚔️ Duel-geluid aan. De motor (bus, wakker maken, bouwstenen, de ⚔️-klang "hit") staat in duel.js
   // (K.au), de klanken van de knock-out hier. Elk moment klinkt één keer (heard: code:ronde:…), want apply() en drawStrip() lopen bij
@@ -275,6 +345,8 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       A.swish(b, 0.03, 0.9, 1600, 160, 0.14, 0.06, 0, 0);
     },
     draw: (b) => A.ring(b, 0, 1180, 0.16),   // gelijkspel: alleen een zachte klang
+    clash: (b) => { A.thud(b, 0, 260, 70, 0.32, 0.16); A.tick(b, 0, 3000, 0.1, 0.03); },   // de uitslag: het hoogste getal botst op het lagere
+    bam: (b) => { A.thud(b, 0, 150, 38, 0.85, 0.42); A.swish(b, 0, 0.3, 1800, 220, 0.2, 0.06, 0, 0); },   // de max: een harde klap
     want: (b, at = 0) => { A.ring(b, at, 2349, 0.09); A.ring(b, at + 0.09, 2794, 0.08); },   // de ander wil revanche: belletje
   };
   function sfx(key, kind, ...a) {   // true = dit moment is nieuw (ook met het geluid uit; dan blijft het gewoon stil)
@@ -480,28 +552,58 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: null, potId: `k${g.code}${g.round}`,
                    duel: { code: g.code, round: g.round, opp: oppName(g), ko: true } });
   }
-  // de uitslag van ronde r in de uitslagkaart; daarna begint de volgende vanzelf (of de K.O.)
-  function resultHtml(g, r) {
-    const T = tx(), n = oppName(g), a = g.mine[r - 1], b = g.theirs[r - 1], d = Math.abs(a - b), x = dmgOf(a, b, r);
-    const box = (side, av, name, v, won) => `<span class="jr-box ${side}${won ? " win" : ""}"><span class="jr-who">${av}<b>${esc(name)}</b></span><strong>${v}</strong></span>`;
-    // zoals GeoGuessr: jij links, de ander rechts, in het midden de schade met een pijl naar wie hem krijgt
-    const mid = a === b ? `<span class="ko-hitc"><b>0</b><small>${esc(T.tieMath)}</small></span>`
-      : `<span class="ko-hitc ${a > b ? "to-op" : "to-me"}"><b>${a > b ? "" : "◀ "}−${x}${a > b ? " ▶" : ""}</b>` +
-        `<small>${d} × ${esc(fmtM(mult(r)))}${x === CAP && Math.round(d * mult(r)) > CAP ? ` · max ${CAP}` : ""}</small></span>`;
-    const head = a === b ? esc(T.rTie(r)) : a > b ? `<span class="me">${esc(T.rForMe(r))}</span>` : `<span class="op">${esc(T.rFor(r, n))}</span>`;
-    const st = H.state(), rt = H.els.resultText, yp = rt?.querySelector(".year-pill");
-    let html = `<div class="ko-res jr" style="--h:${hue(g)}"><div class="jr-sc ko-sc">${box("me", K.dbAv(K.meFlair(), K.meNameOr(T, T.you)), T.you, a, a > b)}` +
-      `${mid}${box("op", K.dbAv(g.opp_flair, n), n, b, b > a)}</div><p class="ko-dmg">${head}</p>` +
-      yearsHtml(g, r) + (yp ? `<p class="ko-math">${esc(T.itWas)} ${yp.outerHTML}</p>` : "");
-    if (g.state === "live") html += `<div class="ko-next" style="--dur:${Math.max(0, at(g.round_at) - now())}ms"><span>${esc(T.next(g.round, "…", fmtM(mult(g.round))))}</span></div>`;
-    return html + `</div>`;
+  // ── de uitslag van een ronde: een laag over het hele scherm (20/11, zijn "superimposed, net als confetti"; referentie GeoGuessr-duels,
+  // in Jaardle-stijl). Zo min mogelijk tekst (zijn wens): bovenaan het echte jaar (groen) tussen jullie gokken (in de kleur van de afstand,
+  // zoals de gokregels), daaronder groot de punten met alleen de hints als chips, in het midden de factor. Het hoogste getal vliegt op het
+  // lagere en botst; dat telt door naar minpunten (het verschil), dan × de factor tot de schade (de max: goud, geen tekst), en die vliegt
+  // naar de levensbalk, die boven de laag blijft. Tik = meteen het eindbeeld. Daarna blijft in de pagina één regel (tik = nog eens zien).
+  const band5 = (d) => (d === 0 ? "correct" : d <= 2 ? "veryclose" : d <= 5 ? "near" : d <= 10 ? "close" : d <= 25 ? "warm" : d <= 50 ? "cool"
+    : d <= 200 ? "far" : d <= 599 ? "distant" : "farthest");   // = classify() in game.js
+  const fmtN = (v) => (v < 0 ? `−${-v}` : String(v));
+  // het hinttotaal van de server (ko_submit p_hints) terug in losse hints: 🏛️ 20, 🔢 10, ⏩ 3 per stuk (hooguit 6). Die som is eenduidig
+  // (rest bij delen door 3: 2 = 🏛️, 1 = 🔢, 0 = geen van beide of allebei vanaf 30); klopt hij niet, dan één chip met het totaal.
+  function hintParts(t) {
+    if (!(t > 0)) return [];
+    const m = t % 3, both = m === 0 && t >= 30, c = m === 2 || both, d = m === 1 || both, l = (t - (c ? 20 : 0) - (d ? 10 : 0)) / 3;
+    if (!(l >= 0 && l <= 6 && Number.isInteger(l))) return [["", t]];
+    return [...(c ? [["🏛️", 20]] : []), ...(d ? [["🔢", 10]] : []), ...(l ? [["⏩", 3 * l]] : [])];
   }
-  // "Jij 1915 · 3 jaar ernaast · hints −20" en hetzelfde voor de ander (db/210)
-  function yearsHtml(g, r) {
-    const T = tx(), ans = g.answers?.[r - 1];
-    const line = (y, h) => (y == null ? T.noGuess : ans == null ? String(y) : `${y} · ${T.off(Math.abs(y - ans))}`) + (h ? ` · ${T.hintsCost(h)}` : "");
-    return `<p class="ko-years"><span class="me"><b>${esc(T.you)}</b> ${esc(line(g.my_years?.[r - 1], g.my_hints?.[r - 1]))}</span>` +
-      `<span class="op"><b>${esc(oppName(g))}</b> ${esc(line(g.their_years?.[r - 1], g.their_hints?.[r - 1]))}</span></p>`;
+  // ronde r van g: beide kanten (punten, gok, hints, afstand), het verschil, de schade, en wie hem krijgt (who: "me" = jij, "op" = de ander)
+  function roundOf(g, r) {
+    const a = g.mine[r - 1], b = g.theirs[r - 1], m = mult(r), d = Math.abs(a - b), raw = Math.round(d * m), ans = g.answers?.[r - 1];
+    const side = (pts, y, h) => ({ pts, y: y ?? null, h: h || 0, off: y == null || ans == null ? null : Math.abs(y - ans) });
+    return { r, m, d, x: Math.min(CAP, raw), max: d > 0 && raw >= CAP, ans, who: a > b ? "op" : a < b ? "me" : null,
+             a: side(a, g.my_years?.[r - 1], g.my_hints?.[r - 1]), b: side(b, g.their_years?.[r - 1], g.their_hints?.[r - 1]) };
+  }
+  // de levens na elke ronde, vanaf de start (zoals de server: de schade eraf, niet onder 0)
+  function hpPath(g) {
+    const max = g.hp_max || HP, out = [[max, max]];
+    let a = max, b = max;
+    for (let i = 0; i < Math.min(g.mine.length, g.theirs.length); i++) {
+      const x = dmgOf(g.mine[i], g.theirs[i], i + 1);
+      if (g.mine[i] < g.theirs[i]) a = Math.max(0, a - x); else if (g.mine[i] > g.theirs[i]) b = Math.max(0, b - x);
+      out.push([a, b]);
+    }
+    return out;
+  }
+  const chipsHtml = (p) => hintParts(p.h).map(([e, v]) => `<span class="ks-hint">${e ? `<span aria-hidden="true">${e}</span>` : ""}−${v}</span>`).join("");
+  // het eindbeeld van de laag (afspelen zet alles eerst terug op het begin)
+  function showHtml(g, q) {
+    const T = tx(), n = oppName(g), lo = q.who;
+    const yr = (p) => (p.y == null ? `<b class="ks-yr none">—</b>` : `<b class="ks-yr delta-badge ${p.off == null ? "" : band5(p.off)}">${esc(fmtN(p.y))}</b>`);
+    const sc = (p, who) => `<div class="ks-s ${who}${lo ? (lo === who ? " lose" : " win") : ""}">` +
+      (lo === who ? `<strong class="dmg${q.max ? " max" : ""}">−${q.x}</strong>` : `<strong>${fmtN(p.pts)}</strong>`) + `<small>${chipsHtml(p)}</small></div>`;
+    return `<div class="ks-row ks-top"><div class="ks-g me">${yr(q.a)}</div><b class="ks-yr ks-ans delta-badge correct">${q.ans == null ? "?" : esc(fmtN(q.ans))}</b>` +
+      `<div class="ks-g op">${yr(q.b)}</div></div><div class="ks-row ks-mid">${sc(q.a, "me")}<b class="ks-f">×${esc(fmtM(q.m))}</b>${sc(q.b, "op")}</div>` +
+      `<div class="ks-names"><div class="ks-nb me${lo === "me" ? " lose" : ""}">${K.dbAv(K.meFlair(), K.meNameOr(T, T.you))}<b>${esc(T.you)}</b></div>` +
+      `<div class="ks-nb op${lo === "op" ? " lose" : ""}"><b>${esc(n)}</b>${K.dbAv(g.opp_flair, n)}</div></div>`;
+  }
+  // wat er na de laag in de pagina blijft: één regel (tik = nog eens zien); tijdens de pauze loopt hij vol tot de volgende ronde
+  function lineHtml(g, q) {
+    const T = tx(), n = oppName(g), live = g.state === "live" && g.round > q.r;
+    const hit = q.who ? `<span class="ka-who">${q.who === "op" ? K.dbAv(g.opp_flair, n) : K.dbAv(K.meFlair(), K.meNameOr(T, T.you))}<em class="${q.max ? "max" : ""}">−${q.x}</em></span>` : `<em class="tie">0</em>`;
+    return `<button type="button" class="ko-after${live ? "" : " still"}" style="--h:${hue(g)}${live ? `;--dur:${Math.max(0, at(g.round_at) - now())}ms` : ""}" title="${esc(T.replay)}">` +
+      `<span class="ka-l"><b>R${q.r}</b>${hit}</span>${live ? `<span class="n">R${g.round} · ×${esc(fmtM(mult(g.round)))}</span>` : ""}</button>`;
   }
   function placeCard(html) {
     const res = H.els.result;
@@ -514,85 +616,164 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     H.els.resultText.after(el);
     return el;
   }
-  function showResult(g, r) {
-    if (shownRes === `${g.code}:${r}`) return 0;
+  const reduced = () => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
+  // ronde r is afgerekend: de laag (of meteen het eindbeeld als er te weinig tijd is), de regel in de pagina, en in een lopend spel de
+  // volgende ronde op round_at. gone() = de laag is weg (bij de laatste ronde komt dan de K.O.).
+  function showResult(g, r, gone) {
+    if (shownRes === `${g.code}:${r}`) return false;
     shownRes = `${g.code}:${r}`;
-    const a = g.mine[r - 1], b = g.theirs[r - 1], x = dmgOf(a, b, r);
-    const drain = { r, who: a > b ? "me" : a < b ? "opp" : null, me: a < b ? g.hp + x : g.hp, op: a > b ? g.opp_hp + x : g.opp_hp };
-    const el = placeCard(resultHtml(g, r));
-    const wait = playResult(el, g, r, drain);
-    if (g.state === "live") {
-      const lab = el.querySelector(".ko-next span");
-      const T = tx();
-      const tick = () => { const s = Math.max(0, Math.ceil((at(g.round_at) - now()) / 1000)); if (lab) lab.textContent = T.next(g.round, s, fmtM(mult(g.round))); };
-      tick();
-      clearInterval(tStart);
-      tStart = setInterval(() => { tick(); if (now() >= at(g.round_at)) { clearInterval(tStart); tStart = null; startRound(g); } }, 250);
-    }
-    return wait;
-  }
-  // zoals GeoGuessr: de twee scores tellen op, vliegen in het midden samen tot het verschil, dat wordt × de factor de schade, en die
-  // vliegt naar de levensbalk van wie hem krijgt; pas dan zakt die balk (met de klap). Geeft terug hoe lang het duurt tot de balk zakt.
-  // Te weinig tijd tot de volgende ronde (laat binnen) of minder beweging aan: meteen de eindstand, zoals eerst.
-  function playResult(el, g, r, drain) {
-    const a = g.mine[r - 1], b = g.theirs[r - 1], x = dmgOf(a, b, r);
-    const hit = () => { drawStrip({ drain }); if (a !== b) sfx(`res:${g.code}:${r}`, "hit", x, a < b); };   // bij gelijk geen schade, geen klap
-    const sc = el.querySelector(".ko-sc"), mid = sc?.querySelector(".ko-hitc"), [na, nb] = sc ? sc.querySelectorAll(".jr-box > strong") : [];
+    const q = roundOf(g, r), was = hpPath(g)[r - 1] || [g.hp, g.opp_hp];
+    const drain = { r, who: q.who === "op" ? "me" : q.who === "me" ? "opp" : null, me: was[0], op: was[1] };   // who = wie de ronde won
+    const el = placeCard(lineHtml(g, q));
+    const again = el.querySelector(".ko-after");
+    if (again) again.onclick = () => { if (!document.querySelector(".ko-show")) overlay(g, q, { hit() {} }); };   // nog eens zien (de balk blijft staan)
+    let hitDone = false;
+    const hit = () => { if (hitDone) return; hitDone = true; drawStrip({ drain }); if (q.who) sfx(`res:${g.code}:${r}`, "hit", q.x, q.who === "me"); };
     const left = g.state === "live" ? at(g.round_at) - now() : Infinity;
-    if (!mid || !nb || left < 3600 || matchMedia("(prefers-reduced-motion: reduce)").matches) { hit(); return 0; }
-    stopAnim();
-    const gen = animGen, later = (ms, fn) => anim.push(setTimeout(() => { if (gen === animGen && el.isConnected) fn(); }, ms));
-    drawStrip({ drain: { ...drain, hold: true } });
-    const fin = [mid.className, mid.innerHTML], wins = [...sc.querySelectorAll(".jr-box.win")];
-    wins.forEach((w) => w.classList.remove("win"));
-    mid.className = "ko-hitc wait";
-    const count = (n, v) => {   // 0 → v in 0,7 s (ease-out)
-      const t0 = performance.now();
-      const step = (t) => { if (gen !== animGen) return; const k = Math.min(1, (t - t0) / 700); n.textContent = String(Math.round(v * (1 - (1 - k) ** 3))); if (k < 1) requestAnimationFrame(step); };
-      n.textContent = "0"; requestAnimationFrame(step);
-    };
-    count(na, a); count(nb, b);
-    later(850, () => { ghost(na, mid, String(a), 450); ghost(nb, mid, String(b), 450); wins.forEach((w) => w.classList.add("win")); });
-    if (a === b) { later(1300, () => { [mid.className, mid.innerHTML] = fin; mid.classList.add("pop"); hit(); }); return 1300; }
-    const hi = Math.max(a, b), lo = Math.min(a, b), neg = (v) => (v < 0 ? `(−${-v})` : String(v));
-    later(1300, () => { mid.className = "ko-hitc dif pop"; mid.innerHTML = `<b>${hi - lo}</b><small>${neg(hi)} − ${neg(lo)}</small>`; });
-    later(1950, () => { [mid.className, mid.innerHTML] = fin; mid.classList.add("pop"); });
-    later(2600, () => {
-      const bar = document.querySelector(`#duel-vs .ko-side.${a > b ? "op" : "me"} .ko-bar`), src = mid.querySelector("b");
-      if (bar && src) ghost(src, bar, `−${x}`, 500, "dmg");
-      hit();   // de balk zakt 0,5 s later (ko-drop), net als de schade aankomt
-    });
-    return 2600;
+    if (left < 2200) { hit(); gone?.(); }
+    else {
+      drawStrip({ drain: { ...drain, hold: true } });   // de balk wacht op de schade die eraan komt
+      overlay(g, q, { hit, gone, quick: left < 6600 || reduced() ? Math.max(800, Math.min(2500, left - 1500)) : 0 });
+    }
+    if (g.state === "live") {
+      clearInterval(tStart);
+      tStart = setInterval(() => { if (now() >= at(g.round_at)) { clearInterval(tStart); tStart = null; startRound(g); } }, 250);
+    }
+    return true;
   }
-  // een getal dat van from naar to vliegt (vast op het scherm, los van scrollen); niet als een van beide niet in beeld is
+  // de laag zelf. o.hit() = de levensbalk zakt (één keer), o.gone() = de laag is weg, o.quick = meteen het eindbeeld en zoveel ms lezen
+  function overlay(g, q, o) {
+    stopAnim();
+    const vs = document.getElementById("duel-vs");
+    if (vs && vs.getBoundingClientRect().top < 0) scrollTo(0, Math.max(0, scrollY + vs.getBoundingClientRect().top - 8));   // de levens in beeld: daar landt de schade
+    const ov = document.createElement("div");
+    ov.className = "ko-show"; ov.setAttribute("role", "status"); ov.setAttribute("aria-label", tx().resultOf(q.r));
+    ov.style.setProperty("--h", hue(g));
+    if (vs) ov.style.setProperty("--top", `${Math.round(vs.getBoundingClientRect().bottom + 14)}px`);
+    ov.innerHTML = showHtml(g, q);
+    document.body.appendChild(ov);
+    document.body.classList.add("ko-showing");
+    const later = (ms, fn) => { const g0 = animGen; anim.push(setTimeout(() => { if (g0 === animGen && ov.isConnected) fn(); }, ms)); };
+    const onKey = (e) => { if (e.key === "Escape") fin(800); };
+    const leave = () => { ov.classList.add("out"); later(400, () => { ov.remove(); document.body.classList.remove("ko-showing"); document.removeEventListener("keydown", onKey); o.gone?.(); }); };
+    function fin(read) {   // het eindbeeld (tik, Escape, minder beweging, te weinig tijd); daarna nog even lezen en weg
+      anim.forEach(clearTimeout); anim = []; animGen++;
+      document.querySelectorAll(".ko-ghost, .ks-bit").forEach((e) => e.remove());
+      ov.innerHTML = showHtml(g, q);
+      o.hit();
+      later(read, leave);
+    }
+    ov.onclick = () => fin(1200);
+    document.addEventListener("keydown", onKey);
+    if (o.quick) return fin(o.quick);
+    const $ = (sel) => ov.querySelector(sel), lo = q.who, wi = lo === "op" ? "me" : lo === "me" ? "op" : null;
+    const S = { me: $(".ks-s.me"), op: $(".ks-s.op") }, N = { me: S.me.querySelector("strong"), op: S.op.querySelector("strong") };
+    const C = { me: S.me.querySelector("small"), op: S.op.querySelector("small") }, P = { me: q.a, op: q.b };
+    const pop = (els) => els.forEach((e) => { if (!e) return; e.classList.remove("ks-wait", "ks-pop"); void e.offsetWidth; e.classList.add("ks-pop"); });
+    const shake = (e, cls = "ks-shake") => { e.classList.remove("ks-shake", "ks-bam"); void e.offsetWidth; e.classList.add(cls); };
+    const count = (n, from, to, ms, step) => {   // from → to (ease-out), met het echte minteken
+      const g0 = animGen, t0 = performance.now();
+      const f = (t) => { if (g0 !== animGen) return; const k = Math.min(1, (t - t0) / ms), v = Math.round(from + (to - from) * (1 - (1 - k) ** 3)); n.textContent = fmtN(v); step?.(v); if (k < 1) requestAnimationFrame(f); };
+      requestAnimationFrame(f);
+    };
+    // beginstand: alles nog weg, de getallen op 0
+    [$(".ks-ans"), ...ov.querySelectorAll(".ks-g > *"), $(".ks-f"), C.me, C.op].forEach((e) => e?.classList.add("ks-wait"));
+    for (const k of ["me", "op"]) { S[k].classList.remove("win", "lose"); N[k].className = ""; N[k].textContent = "0"; }
+    ov.querySelectorAll(".ks-nb").forEach((e) => e.classList.remove("lose"));
+    later(250, () => pop([$(".ks-ans")]));   // het echte jaar
+    later(520, () => pop([...ov.querySelectorAll(".ks-g.me > *")]));   // jouw gok
+    later(680, () => pop([...ov.querySelectorAll(".ks-g.op > *"), $(".ks-f")]));   // die van de ander, en de factor
+    later(950, () => { for (const k of ["me", "op"]) count(N[k], 0, P[k].pts + P[k].h, 650); });   // de punten tellen op
+    later(1650, () => { for (const k of ["me", "op"]) if (P[k].h) { pop([C[k]]); count(N[k], P[k].pts + P[k].h, P[k].pts, 400); } });   // de hints eraf
+    later(2200, () => { if (!lo) return; S[wi].classList.add("win"); S[lo].classList.add("lose"); ov.querySelector(`.ks-nb.${lo}`)?.classList.add("lose"); });
+    if (!lo) {   // gelijk: ze botsen in het midden, geen schade
+      later(2550, () => { for (const k of ["me", "op"]) ghost(N[k], $(".ks-f"), N[k].textContent, 480, "shot"); });
+      later(3030, () => { burst(ov, $(".ks-f"), ["var(--muted)", "var(--ko-lag)"]); sfx(`clash:${g.code}:${q.r}`, "clash"); o.hit(); });
+      later(4300, leave);
+      return;
+    }
+    later(2550, () => { N[wi].style.opacity = "0.35"; ghost(N[wi], N[lo], N[wi].textContent, 520, "shot"); });   // het hoogste getal vliegt op het lagere
+    later(3070, () => {   // de botsing: het lagere getal telt door naar minpunten (het verschil)
+      N[wi].style.opacity = "";
+      burst(ov, N[lo], [getComputedStyle(S[wi]).getPropertyValue("--col").trim() || "#6ea8ff", "var(--ko-lag)", "#fff"]);
+      sfx(`clash:${g.code}:${q.r}`, "clash");
+      N[lo].className = "hit"; shake(S[lo]);
+      count(N[lo], P[lo].pts, P[lo].pts - P[wi].pts, 650, (v) => N[lo].classList.toggle("neg", v < 0));
+    });
+    later(3850, () => { pop([$(".ks-f")]); if (q.x !== q.d) count(N[lo], -q.d, -q.x, 450); });   // × de factor
+    later(4350, () => {   // = de schade; de max (goud) met een harde klap
+      N[lo].className = q.max ? "dmg max" : "dmg";
+      if (q.max) { shake(S[lo], "ks-bam"); sfx(`bam:${g.code}:${q.r}`, "bam"); } else pop([N[lo]]);
+    });
+    later(4750, () => {   // naar de levensbalk, die dan zakt
+      const bar = document.querySelector(`#duel-vs .ko-side.${lo} .ko-bar`);
+      if (bar) ghost(N[lo], bar, `−${q.x}`, 500, q.max ? "dmg max" : "dmg");
+      o.hit();
+    });
+    later(5800, leave);
+  }
+  // de botsing: 14 deeltjes (spans in de laag, geen canvas)
+  function burst(ov, at0, cols) {
+    if (!at0 || !document.body.animate) return;
+    const r = at0.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    for (let k = 0; k < 14; k++) {
+      const el = document.createElement("i"), ang = (k / 14) * Math.PI * 2 + Math.random() * 0.4, dist = 34 + Math.random() * 46, sz = 5 + Math.random() * 6;
+      el.className = "ks-bit";
+      Object.assign(el.style, { left: `${cx}px`, top: `${cy}px`, width: `${sz}px`, height: `${sz}px`, background: cols[k % cols.length] });
+      ov.appendChild(el);
+      el.animate([{ transform: "translate(0, 0) scale(1)", opacity: 1 }, { transform: `translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist}px) scale(0.3)`, opacity: 0 }],
+        { duration: 520 + Math.random() * 260, easing: "cubic-bezier(0.1, 0.7, 0.3, 1)", fill: "forwards" }).onfinish = () => el.remove();
+    }
+  }
+  // een getal dat van from naar to vliegt (vast op het scherm, los van scrollen); niet als een van beide niet in beeld is.
+  // "shot" = het hoogste getal dat op het lagere afgaat (met een aanloopje); anders krimpt het onderweg en verdwijnt bij aankomst
   function ghost(from, to, text, ms, cls = "") {
+    if (!from || !to) return;
     const p = from.getBoundingClientRect(), q = to.getBoundingClientRect();
     const seen = (r) => r.width && r.bottom > 0 && r.top < innerHeight;
     if (!seen(p) || !seen(q) || !document.body.animate) return;
-    const el = document.createElement("span"), cs = getComputedStyle(from);
+    const el = document.createElement("span"), cs = getComputedStyle(from), shot = cls === "shot";
     el.className = `ko-ghost ${cls}`; el.textContent = text; el.setAttribute("aria-hidden", "true");
-    if (!cls) { el.style.font = cs.font; el.style.color = cs.color; }
+    if (!cls || shot) { el.style.font = cs.font; el.style.color = cs.color; el.style.textShadow = cs.textShadow; }
     Object.assign(el.style, { left: `${p.left}px`, top: `${p.top}px`, width: `${p.width}px`, height: `${p.height}px` });
     document.body.appendChild(el);
     const dx = q.left + q.width / 2 - (p.left + p.width / 2), dy = q.top + q.height / 2 - (p.top + p.height / 2), end = `translate(${dx}px, ${dy}px)`;
-    el.animate([{ transform: "none", opacity: 1 }, { transform: `${end} scale(0.75)`, opacity: 1, offset: 0.85 }, { transform: `${end} scale(0.5)`, opacity: 0 }],
-      { duration: ms, easing: "cubic-bezier(0.55, 0, 0.7, 0.4)", fill: "forwards" }).onfinish = () => el.remove();
+    const frames = shot ? [{ transform: "none" }, { transform: `translate(${dx * 0.15}px, -6px) scale(1.12)`, offset: 0.25 }, { transform: `${end} scale(1.05)` }]
+      : [{ transform: "none", opacity: 1 }, { transform: `${end} scale(0.75)`, opacity: 1, offset: 0.85 }, { transform: `${end} scale(0.5)`, opacity: 0 }];
+    el.animate(frames, { duration: ms, easing: shot ? "cubic-bezier(0.5, 0, 0.9, 0.5)" : "cubic-bezier(0.55, 0, 0.7, 0.4)", fill: "forwards" }).onfinish = () => el.remove();
+  }
+  // het levensverloop (eindscherm A, zijn keuze 20/11): twee lijnen van de start naar het eind, onder elke ronde de factor en de schade
+  // (in de kleur van wie hem kreeg; de max in goud). Ook voor Duels (KO.lifeHtml).
+  function lifeHtml(g) {
+    const T = tx(), n = oppName(g), max = g.hp_max || HP, hp = hpPath(g), N = hp.length, W = 300, Hh = 104;
+    const y = (v) => 8 + (1 - v / max) * (Hh - 16), x = (i) => ((i + 0.5) * W) / N;
+    const pts = (k) => hp.map((h, i) => `${x(i).toFixed(1)},${y(h[k]).toFixed(1)}`).join(" ");
+    const last = hp[N - 1], lx = x(N - 1);
+    let ya = y(last[0]), yb = y(last[1]);
+    if (Math.abs(ya - yb) < 14) { const m = (ya + yb) / 2; ya = m + (last[0] >= last[1] ? -7 : 7); yb = m + (last[0] >= last[1] ? 7 : -7); }   // eindgetallen niet op elkaar
+    const dot = (k, cls) => `<circle class="${last[k] === 0 ? "out" : cls}" cx="${lx.toFixed(1)}" cy="${y(last[k]).toFixed(1)}" r="${last[k] === 0 ? 5 : 4.5}"/>`;
+    const lab = (k, cls, yy) => `<text class="${last[k] === 0 ? "out" : cls}" x="${(lx + 9).toFixed(1)}" y="${(yy + 4).toFixed(1)}">${last[k]}</text>`;
+    const svg = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(T.lifeAria(n, max, last[0], last[1]))}">` +
+      `<line class="kl-ax" x1="0" x2="${W}" y1="${y(max)}" y2="${y(max)}"/><line class="kl-ax" x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}"/>` +
+      `<polyline class="op" points="${pts(1)}"/><polyline class="me" points="${pts(0)}"/>${dot(1, "op")}${dot(0, "me")}${lab(0, "me", ya)}${lab(1, "op", yb)}</svg>`;
+    const cols = hp.map((h, i) => {
+      if (!i) return `<span class="kl-c"><b>${esc(T.start)}</b><small>❤️ ${max}</small></span>`;
+      const q = roundOf(g, i);
+      return `<span class="kl-c"><b>R${i}</b><small>×${esc(fmtM(q.m))}</small><em class="${q.who || ""}${q.max ? " max" : ""}">${q.who ? "−" + q.x : "0"}</em></span>`;
+    }).join("");
+    return `<div class="ko-life${N > 8 ? " many" : ""}" style="--h:${hue(g)};--n:${N}"><div class="kl-key"><span><i></i>${esc(T.you)}</span><span><i class="op"></i>${esc(n)}</span></div>` +
+      `${svg}<div class="kl-x">${cols}</div></div>`;
   }
   function showEnd(g) {
     const T = tx(), n = oppName(g), r = Math.max(g.mine.length, g.theirs.length), won = g.winner === "me";
     const gave = g.mine.length === g.theirs.length && r > 0 && g.hp > 0 && g.opp_hp > 0 && g.winner;   // opgegeven
-    const chips = g.mine.map((a, i) => {
-      const b = g.theirs[i]; if (b == null || a === b) return "";
-      const x = dmgOf(a, b, i + 1);
-      return a > b ? `<span class="op">R${i + 1} <b>${esc(n)} −${x}</b></span>` : `<span class="me">R${i + 1} <b>${esc(T.youL)} −${x}</b></span>`;
-    }).join("");
     const p = gave ? (won ? T.gaveUp(n) : T.youGaveUp) : !g.winner ? T.drawP : won ? T.koPWin(n, r, g.hp) : T.koPLoss(n, r, g.opp_hp);
     const want = g.re_opp ? `<span class="ko-want"><span aria-hidden="true">${K.flairEmoji?.(g.opp_flair) || "⚡"}</span> ${esc(T.wantsToo)}</span>` : "";
     const fresh = at(g.finished_at) > now() - 120000;
     const big = fresh && sfx(`ko:${g.code}`, g.winner ? "ko" : "draw", won);   // één keer per spel, niet bij een oude K.O.
     if (fresh && g.re_opp && !g.re_me && !g.next) sfx(`want:${g.code}`, "want", big ? 1.2 : 0);   // samen met de gong: na de gong
     pop(band(g, "K.O.", ` ko-end${won ? "" : " lost"}`) + `<h2>${esc(!g.winner ? T.draw : won ? T.koWin : T.koLoss(n))}</h2><p>${esc(p)}</p>` +
-      (chips ? `<div class="ko-rounds" style="--h:${hue(g)}">${chips}</div>` : "") +
+      (Math.min(g.mine.length, g.theirs.length) ? lifeHtml(g) : "") +
       (fresh && !g.next ? (g.re_me ? `<button type="button" class="duel-go" disabled>${esc(T.rematchWait(n))}</button>`
         : `<button type="button" class="duel-go ko-rev" data-ko="re">${esc(T.rematch)}${want}</button>`) + `<p class="ko-alt-sub">${esc(T.rematchHint)}</p>` : "") +
       `<button type="button" class="duel-no" data-ko="duels">${esc(T.toDuels)}</button>`,
@@ -626,11 +807,12 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
         // de laatste ronde speelt nog af: een tweede "klaar" (het seintje én het antwoord op je gok) wacht gewoon mee; showEnd neemt
         // dan de nieuwste stand (cur). Zonder dit sprong het scherm meteen naar de K.O. (feedback 20/11)
         if (endWait === g.code) return;
-        if (r && st.done && shownRes !== `${g.code}:${r}` && g.theirs.length >= r) {   // eerst de laatste ronde (de balk loopt leeg), dan de K.O.
-          const wait = showResult(g, r) || 0;
+        if (r && st.done && shownRes !== `${g.code}:${r}` && g.theirs.length >= r) {   // eerst de laatste ronde (de laag, de balk), dan de K.O.
           clearTimeout(tStart);
           endWait = g.code;
-          tStart = setTimeout(() => { endWait = null; if (cur && cur.code === g.code) showEnd(cur); }, 2400 + wait);
+          const end = () => { endWait = null; if (cur && cur.code === g.code) showEnd(cur); };
+          const fb = setTimeout(() => { if (endWait === g.code) end(); }, 9000);   // vangnet: de laag werd onderbroken
+          showResult(g, r, () => { clearTimeout(fb); clearTimeout(tStart); tStart = setTimeout(() => { if (endWait === g.code) end(); }, 500); });
           return;
         }
         drawStrip();
@@ -716,7 +898,11 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       return `<button type="button" class="dl-opt ko-opt" data-act="ko" data-k="${esc(k)}"><span class="mo-e" aria-hidden="true">⚡</span>` +
         `<span><b>${esc(T.live)}</b><small>${esc(T.liveSub(name))}</small></span></button>`;
     },
+    // Duels (terugzien, punt 8): het levensverloop van een afgelopen knock-out, en zijn eindscherm (zonder revanche als hij oud is)
+    lifeHtml(host, g) { H = host; ensureCss(); return lifeHtml(g); },
+    review(host, g) { H = host; ensureCss(); showEnd(g); },
     css: CSS, copy: (l) => TXT[l], langs: () => Object.keys(TXT),
-    _: { mult, SFX, sfx, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); }, resultHtml: (h, g, r) => { H = h; return resultHtml(g, r); } },
+    _: { mult, SFX, sfx, hintParts, roundOf, hpPath, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); },
+         showHtml: (h, g, r) => { H = h; return showHtml(g, roundOf(g, r)); }, lineHtml: (h, g, r) => { H = h; return lineHtml(g, roundOf(g, r)); }, lifeHtml: (h, g) => { H = h; return lifeHtml(g); } },
   };
 })();
