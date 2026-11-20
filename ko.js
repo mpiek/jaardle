@@ -185,14 +185,14 @@ body.ko-showing #duel-vs.ko { position: relative; z-index: 61; }
 .ks-f { font-size: 1.9rem; font-weight: 900; line-height: 1; color: var(--duel-arena); font-variant-numeric: tabular-nums; }
 .ks-s { --col: var(--duel-me); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; min-width: 0; min-height: 6rem; }
 .ks-s.op { --col: var(--op); }
-.ks-s strong { font-size: 3.4rem; font-weight: 900; line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--fg); white-space: nowrap;
+.ks-s strong { font-size: clamp(2.3rem, 12.6vw, 3.4rem); font-weight: 900; line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--fg); white-space: nowrap;
   transition: opacity 0.3s, color 0.3s, text-shadow 0.3s; }
 .ks-s.win strong { color: var(--col); text-shadow: 0 0 22px color-mix(in srgb, var(--col) 60%, transparent), 0 0 3px color-mix(in srgb, var(--col) 45%, transparent); }
 .ks-s.lose strong { opacity: 0.4; }
 .ks-s strong.hit, .ks-s strong.neg, .ks-s strong.dmg { opacity: 1; text-shadow: none; }
 .ks-s strong.neg, .ks-s strong.dmg { color: var(--duel-loss); }
 .ks-s strong.dmg { text-shadow: 0 0 18px color-mix(in srgb, var(--duel-loss) 50%, transparent); }
-.ks-s strong.dmg.max { font-size: 4rem; color: var(--ko-max); text-shadow: 0 0 26px color-mix(in srgb, var(--ko-max) 65%, transparent), 0 0 4px color-mix(in srgb, var(--ko-max) 50%, transparent); }
+.ks-s strong.dmg.max { color: var(--ko-max); text-shadow: 0 0 26px color-mix(in srgb, var(--ko-max) 65%, transparent), 0 0 4px color-mix(in srgb, var(--ko-max) 50%, transparent); }
 .ks-s small { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.3rem; min-height: 1.45rem; }
 .ks-hint { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.08rem 0.45rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; line-height: 1.2;
   color: var(--duel-loss); background: color-mix(in srgb, var(--duel-loss) 15%, transparent); font-variant-numeric: tabular-nums; }
@@ -222,7 +222,8 @@ body.ko-showing #duel-vs.ko { position: relative; z-index: 61; }
 .ko-after > * { position: relative; }
 .ka-l { display: inline-flex; align-items: center; gap: 0.55rem; }
 .ka-l > b { color: var(--fg); font-variant-numeric: tabular-nums; }
-.ka-who { display: inline-flex; align-items: center; gap: 0.35rem; }
+.ka-who { --col: var(--duel-me); display: inline-flex; align-items: center; gap: 0.35rem; }
+.ka-who.op { --col: hsl(var(--h, 30) 58% 46%); }
 .ka-who .db-av { width: 1.5rem; height: 1.5rem; font-size: 0.85rem; }
 .ko-after em { font-style: normal; font-weight: 900; color: var(--duel-loss); font-variant-numeric: tabular-nums; }
 .ko-after em.max { color: var(--ko-max); }
@@ -255,7 +256,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
 .kl-c em { font-style: normal; font-size: 0.78rem; font-weight: 800; color: var(--muted); }
 .kl-c em.me { color: var(--duel-me); }
 .kl-c em.op { color: var(--op); }
-.kl-c em.max { color: var(--ko-max); }
+.kl-c em.max { color: var(--ko-max); text-shadow: 0 0 8px color-mix(in srgb, var(--ko-max) 70%, transparent); }
 .ko-life.many .kl-c small { display: none; }   /* veel rondes: alleen ronde en schade */
 .ko-life.many .kl-c b, .ko-life.many .kl-c em { font-size: 0.64rem; }
 @keyframes ko-show-in { from { opacity: 0; } }
@@ -274,7 +275,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
 @keyframes ko-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.25); } 100% { transform: none; } }
 @keyframes ko-drop { from { width: calc(var(--was) * 1%); } to { width: calc(var(--hp) * 1%); } }
 @media (prefers-reduced-motion: reduce) {
-  .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want, .ko-fly, .ko-show, .ko-show.out, .ks-nb, .ks-pop, .ks-shake, .ks-bam { animation: none; }
+  .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want, .ko-show, .ko-show.out, .ks-nb, .ks-pop, .ks-shake, .ks-bam { animation: none; }
+  .ko-fly { display: none; }   /* zonder animatie bleef het getal onder de balk staan, over de status heen */
   .ko-side.drain .ko-fill, .ko-side.drain .ko-lag { animation-duration: 0.01s; }
 }`;
 
@@ -468,8 +470,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     let status = "", clock = "";
     const playing = g.state === "live" && st?.duel?.ko && st.duel.code === g.code && st.duel.round === r;
     const rr = drain ? drain.r : r;
-    if (g.state === "done") status = g.winner === "me" ? esc(T.isKo(n)) : g.winner === "opp" ? esc(T.youKo) : esc(T.draw);
-    else if (drain) status = drain.who ? esc(drain.who === "me" ? T.rForMe(drain.r) : T.rFor(drain.r, n)) : esc(T.rTie(drain.r));
+    if (drain?.hold) status = "";   // de laag speelt nog: niets verklappen (ook de K.O. niet)
+    else if (g.state === "done") status = g.winner === "me" ? esc(T.isKo(n)) : g.winner === "opp" ? esc(T.youKo) : esc(T.draw);
+    else if (drain) status = drain.who ? esc(drain.who === "me" ? T.rForMe(drain.r) : T.rFor(drain.r, n)) : esc(T.rTie(drain.r));   // hold: de laag speelt nog, niets verklappen
     else if (playing && g.deadline) {
       status = st.done ? `<span>${esc(T.waitOpp(n))}</span><span class="ko-t">…</span>` : `<span>${esc(T.oppGuessed(n))}</span><span class="ko-t">…</span>`;
       clock = `<div class="ko-clock"><i></i></div>`;
@@ -601,7 +604,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   // wat er na de laag in de pagina blijft: één regel (tik = nog eens zien); tijdens de pauze loopt hij vol tot de volgende ronde
   function lineHtml(g, q) {
     const T = tx(), n = oppName(g), live = g.state === "live" && g.round > q.r;
-    const hit = q.who ? `<span class="ka-who">${q.who === "op" ? K.dbAv(g.opp_flair, n) : K.dbAv(K.meFlair(), K.meNameOr(T, T.you))}<em class="${q.max ? "max" : ""}">−${q.x}</em></span>` : `<em class="tie">0</em>`;
+    const hit = q.who ? `<span class="ka-who ${q.who}">${q.who === "op" ? K.dbAv(g.opp_flair, n) : K.dbAv(K.meFlair(), K.meNameOr(T, T.you))}<em class="${q.max ? "max" : ""}">−${q.x}</em></span>` : `<em class="tie">0</em>`;
     return `<button type="button" class="ko-after${live ? "" : " still"}" style="--h:${hue(g)}${live ? `;--dur:${Math.max(0, at(g.round_at) - now())}ms` : ""}" title="${esc(T.replay)}">` +
       `<span class="ka-l"><b>R${q.r}</b>${hit}</span>${live ? `<span class="n">R${g.round} · ×${esc(fmtM(mult(g.round)))}</span>` : ""}</button>`;
   }
@@ -734,7 +737,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     if (!seen(p) || !seen(q) || !document.body.animate) return;
     const el = document.createElement("span"), cs = getComputedStyle(from), shot = cls === "shot";
     el.className = `ko-ghost ${cls}`; el.textContent = text; el.setAttribute("aria-hidden", "true");
-    if (!cls || shot) { el.style.font = cs.font; el.style.color = cs.color; el.style.textShadow = cs.textShadow; }
+    // los per eigenschap: Chrome geeft de afkorting font leeg terug bij font-variant-numeric (dan vloog er een klein getal)
+    if (!cls || shot) for (const k of ["fontSize", "fontWeight", "fontFamily", "lineHeight", "letterSpacing", "color", "textShadow"]) el.style[k] = cs[k];
     Object.assign(el.style, { left: `${p.left}px`, top: `${p.top}px`, width: `${p.width}px`, height: `${p.height}px` });
     document.body.appendChild(el);
     const dx = q.left + q.width / 2 - (p.left + p.width / 2), dy = q.top + q.height / 2 - (p.top + p.height / 2), end = `translate(${dx}px, ${dy}px)`;

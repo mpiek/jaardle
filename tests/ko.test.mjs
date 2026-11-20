@@ -87,7 +87,7 @@ test("ko.js — de ronde-uitslag als laag (20/11): jaartallen als chips in de kl
   assert.match(t, /<div class="ks-s me"><strong>90<\/strong>/); assert.doesNotMatch(t, /dmg|win|lose/);
   // de regel daarna: wie de klap kreeg (gezichtje) en hoeveel, rechts de volgende ronde; afgelopen = zonder volgende ronde
   const l = KO._.lineHtml(h, g, 3);
-  assert.match(l, /<span class="ka-l"><b>R3<\/b><span class="ka-who"><span class="db-av[^"]*"[^>]*>[^<]*<\/span><em class="">−26<\/em><\/span><\/span><span class="n">R4 · ×2<\/span>/);
+  assert.match(l, /<span class="ka-l"><b>R3<\/b><span class="ka-who me"><span class="db-av[^"]*"[^>]*>[^<]*<\/span><em class="">−26<\/em><\/span><\/span><span class="n">R4 · ×2<\/span>/);
   assert.match(KO._.lineHtml(h, { ...g, state: "done" }, 3), /class="ko-after still"/);
   assert.doesNotMatch(KO._.lineHtml(h, { ...g, state: "done" }, 3), /class="n"/);
 });
