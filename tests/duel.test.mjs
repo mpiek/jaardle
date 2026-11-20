@@ -132,7 +132,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 251500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 258500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -1033,4 +1033,49 @@ test("duel.js + ko.js — 🔈 ook in de kop van een ronde (20/11: altijd kunnen
   assert.match(SRC, /kit: \{[^}]*\bsndHtml, armSnd\b/);
   assert.match(SRC, /b\.onmousedown = \(e\) => e\.preventDefault\(\);/, "muisklik laat de focus in het jaartal-vak");
   assert.match(SRC, /b\.onclick = \(\) => toggleSfx\(b\);/, "eigen klik: niet dubbel via de luisteraars van de kop");
+});
+
+test("duel.js (db/215) — knock-outs terugzien: tussen de gewone duels met ⚡, tellen mee in de stand, kaartje met het verloop via ko.js", async () => {
+  const T = D.copy("nl"), now = new Date().toISOString(), earlier = new Date(Date.now() - 3600e3).toISOString();
+  const calls = [];
+  const K = { lifeHtml: (h, g) => `<div class="ko-life">${g.code}</div>`, review: (h, g) => calls.push(["review", g.code]), invite: (h, k, n) => calls.push(["invite", k, n]) };
+  X.setHost(host({ loggedIn: true, myName: () => "Noor", ko: () => Promise.resolve(K) }));
+  const duel = { code: "AAAAAA", status: "done", seen: true, opp: "kb", me: "c", c_name: "Noor", o_name: "Bram", finished_at: earlier, mine: [95, 100, 92, 90, 63], theirs: [100, 95, 100, 82, 76] };
+  const ko = { code: "KWIN01", state: "done", me: "a", opp: "kb", opp_name: "Bram", opp_flair: null, hp: 40, opp_hp: 0, hp_max: 150, winner: "me", finished_at: now,
+    mine: [90, 80, 70, 60, 50], theirs: [40, 30, 20, 10, 0], my_years: [], their_years: [], my_hints: [], their_hints: [], answers: [] };
+  const quit = { ...ko, code: "KQUIT1", winner: "opp", hp: 120, opp_hp: 90, mine: [50, 50], theirs: [60, 60], finished_at: earlier };
+  X.applyList({ items: [duel], h2h: { kb: { w: 0, l: 1, n: 1, rw: 2, rl: 3, a: 440, b: 453, kw: 1, kl: 1, kn: 2 }, kz: { kw: 1, kl: 0, kn: 1 } }, targets: [], ko: [ko, quit, { ...ko, code: "KLIVE1", state: "live" }] });
+  assert.deepEqual(plain(X.listKo().map((d) => d.code)), ["KWIN01", "KQUIT1"], "alleen afgelopen knock-outs");
+  // de stand: 0–1 in gewone duels + 1–1 in knock-outs = 1–2; boven: gewonnen 1+1 (kz alleen knock-outs), verloren 1+1
+  assert.deepEqual(plain(X.recOf("kb")), [1, 2]);
+  assert.deepEqual(plain(X.recOf("kz")), [1, 0], "een tegenstander met alleen knock-outs");
+  const h = X.listBody(T, [duel], "", null);
+  assert.match(h, /dl-stats[^]*<b>2<\/b><small>Gewonnen[^]*<b>2<\/b><small>Verloren/);
+  assert.match(h, /<b>Bram<\/b><small>Vandaag: ⚡ K\.O\. gewonnen<\/small>/, "de nieuwste is de knock-out");
+  assert.match(h, /<b>1–2<\/b>/);
+  // openklappen: het kaartje van de knock-out, de knock-outs apart in de cijfers, ⚡ in de lijst eronder, ⚡ Revanche
+  X.setGrp("kb");
+  const o = X.listBody(T, [duel], "", null);
+  assert.match(o, /class="duel-card dl-ko"[^]*· ⚡ Knock-out<\/b><span class="duel-r">5 rondes<\/span>[^]*data-act="koend" data-code="KWIN01"/);
+  assert.match(o, /data-ko-life="KWIN01"[^]*Jij wint, K\.O\. in ronde 5/);
+  assert.match(o, /Rondes <b>2–3<\/b>[^]*⚡ Knock-outs <b>1–1<\/b>/);
+  assert.match(o, /<mid>|<span class="mid"><b>1–2<\/b><small>3 duels<\/small>/);
+  assert.match(o, /<i class="ko-mk" aria-hidden="true">⚡<\/i> Vandaag[^]*gewonnen · ronde 5[^]*verloren · ronde 2/);
+  assert.match(o, /data-act="korev" data-k="kb" data-name="Bram">⚡ Revanche/);
+  assert.match(X.koCardHtml(T, X.listKo()[1], "Bram"), /Je stopte/, "opgegeven");
+  // het verloop komt van ko.js (lui), in de lege houder
+  const box = { dataset: { koLife: "KWIN01" }, isConnected: true, innerHTML: "" };
+  X.fillKo({ querySelectorAll: () => [box] });
+  await new Promise((r) => setImmediate(r));
+  assert.equal(box.innerHTML, '<div class="ko-life">KWIN01</div>');
+  // 🏁› = het eindscherm (ko.js review), ⚡ Revanche = een live uitnodiging
+  const click = (ds) => X.onListClick({ target: { closest: () => ({ dataset: ds }) } });
+  click({ act: "koend", code: "KWIN01" }); click({ act: "korev", k: "kb", name: "Bram" });
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(plain(calls), [["review", "KWIN01"], ["invite", "kb", "Bram"]]);
+  // geen knock-outs van de server (oude server, anoniem): niets anders dan eerst
+  X.applyList({ items: [duel], h2h: { kb: { w: 0, l: 1, n: 1 } }, targets: [] });
+  assert.equal(X.listKo().length, 0);
+  assert.deepEqual(plain(X.recOf("kb")), [0, 1]);
+  X.setGrp(null);
 });
