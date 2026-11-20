@@ -105,6 +105,17 @@ test("db/213: een ⚡-uitnodiging die je in beeld krijgt → duel_push_skip; and
   assert.deepEqual(calls, [["duel_push_skip", "KINV01"]]);
 });
 
+test("ko-seintjes: nageleverd bij het verbinden krijgt replayed: true mee (ko.js doet daar alleen iets mee bij een uitnodiging of je eigen spel)", async () => {
+  const { Live, chans, events } = setup();
+  Live.setUser("u1");
+  await flush();
+  const h = chans[0].handlers.find((x) => x.type === "broadcast" && x.filter.event === "ko");
+  h.fn({ payload: { code: "KEND01", k: "end" } });
+  h.fn({ payload: { code: "KEND02", k: "end" }, meta: { replayed: true } });
+  const ko = events.filter((e) => e.type === "jaardle:ko-rt").map((e) => [e.detail.code, !!e.detail.replayed]);
+  assert.deepEqual(ko, [["KEND01", false], ["KEND02", true]]);
+});
+
 test("aanwezigheid: anderen online (niet jezelf), event alleen bij een verandering", async () => {
   const { Live, chans, events } = setup();
   Live.setUser("me");

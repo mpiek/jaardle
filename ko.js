@@ -212,7 +212,8 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   .ko-side.drain .ko-fill, .ko-side.drain .ko-lag { animation-duration: 0.01s; }
 }`;
 
-  let H = null, cur = null, skew = 0, oppN = 0, shownRes = null, sentRound = null, revNext = null, counting = null, endWait = null;
+  let H = null, cur = null, skew = 0, oppN = 0, shownRes = null, sentRound = null, revNext = null, counting = null, endWait = null, endFor = null;
+  const endSeen = new Set();   // K.O.-eindschermen die al in beeld waren: weggeklikt = niet terug (feedback 20/11: Tim kreeg ze steeds opnieuw)
   let tClock = null, tTick = null, tStart = null, tPop = null;
   const tx = () => TXT[H?.lang] || TXT.en;
   const esc = K.esc;
@@ -292,7 +293,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       .replace('class="vbf-tag"', 'class="vbf-tag ko-tag"');
   }
   function pop(inner, onClick) {
-    clearInterval(tPop); tPop = null;
+    clearInterval(tPop); tPop = null; endFor = null;
     let el = document.getElementById(ID);
     if (!el) {
       el = document.createElement("div");
@@ -307,7 +308,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     return el;
   }
   function closePop() {
-    clearInterval(tPop); tPop = null;
+    clearInterval(tPop); tPop = null; endFor = null;
     const el = document.getElementById(ID);
     if (el && !el.hidden) H.closeModal(ID);
   }
@@ -599,6 +600,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
         if (act === "re") { b.disabled = true; K.gc("ko-rematch", "Knockout: rematch"); const r2 = await call("ko_rematch", { p_code: g.code }); if (r2.ok && r2.v) apply(r2.v); return; }
         closePop(); H.switchMode("daily"); K.openList(H, {});
       });
+    endFor = g.code; endSeen.add(g.code);
   }
 
   // ── de stand van de server op het scherm ──
@@ -633,6 +635,11 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
         }
         drawStrip();
       }
+      // Al gezien en weggeklikt: niet opnieuw (een revanche-knop van de ander, een nageleverd seintje, een laat bericht). Alleen wie nog
+      // op het spelscherm staat krijgt hem één keer terug als de ander net om revanche vraagt, zolang dat kan (2 min)
+      const el = document.getElementById(ID), open = !!(el && !el.hidden && endFor === g.code);
+      const reNew = here && g.re_opp && !g.re_me && !(prev && prev.code === g.code && prev.re_opp) && at(g.finished_at) > now() - 120000;
+      if (endSeen.has(g.code) && !open && !reNew) return;
       return showEnd(g);
     }
     // live
@@ -679,6 +686,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       if (!p || typeof p.code !== "string") return;
       const st = H.state();
       if (cur && cur.code !== p.code && cur.state === "live" && st?.duel?.ko && st.duel.code === cur.code) return;   // je speelt nu: niet storen
+      if (p.replayed && p.k !== "invite" && !(cur && cur.code === p.code)) return;   // nageleverd over een ander (oud) spel: niets mee doen
       if (p.k === "g") {   // de ander gokte: alleen de stipjes
         if (cur && cur.code === p.code && Number.isInteger(p.n)) { oppN = Math.min(6, p.n); drawStrip(); }
         return;

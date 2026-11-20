@@ -150,7 +150,7 @@ function loadAudio(on, withAudio = true) {
     encodeURIComponent, setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {} });
   vm.runInContext(DUEL, ctx);
   vm.runInContext(KOSRC, ctx);
-  return { KO: win.KO, log };
+  return { KO: win.KO, log, els };
 }
 const ARGS = { tick: [3], hit: [26, true], ko: [true], want: [0] };
 
@@ -184,9 +184,9 @@ test("ko.js — knock-out-geluid: negen klanken, stil en zonder fout zonder vink
 });
 
 test("ko.js — knock-out-geluid in het spel: uitnodiging, aftellen, K.O. en 'wil ook' één keer, ook als apply() vaker loopt", () => {
-  const { KO: K3, log } = loadAudio(true);
+  const { KO: K3, log, els } = loadAudio(true);
   const opened = [];
-  const h = host({ state: () => null, openModal: (id) => opened.push(id), closeModal() {} });
+  const h = host({ state: () => null, openModal: (id) => { opened.push(id); els[id].hidden = false; }, closeModal: (id) => { els[id].hidden = true; } });
   const nowIso = () => new Date().toISOString(), soon = (ms) => new Date(Date.now() + ms).toISOString();
   const base = { code: "KSOUND", opp_name: "Sanne", opp_flair: null, hp: 100, opp_hp: 100, mine: [], theirs: [], round: 1 };
   const count = () => log.src.length;
@@ -264,4 +264,47 @@ test("ko.js — bezet of net nee gezegd (db/213): eigen tekst, geen 'nog eens vr
   assert.match(KOSRC, /const why = !r\.ok && \/busy\|cooldown\/\.exec\(r\.e \|\| ""\);/);
   assert.match(KOSRC, /\(s === "expired" \? `<button type="button" class="duel-go" data-ko="again">/, "nog eens vragen alleen als die niet reageerde");
   for (const l of K6.langs()) { const c = K6.copy(l); assert.ok(c.busyH("Tim").includes("Tim") && c.busyP && c.coolP, `${l}: busyH/busyP/coolP`); }
+});
+
+test("ko.js — een weggeklikt K.O.-eindscherm komt niet terug (feedback 20/11: Tim kreeg ze na afloop steeds opnieuw)", () => {
+  const { KO: K7, els } = loadAudio(false);
+  const opened = [];
+  let st = null;
+  const h = host({ state: () => st, openModal: (id) => { opened.push(id); els[id].hidden = false; }, closeModal: (id) => { els[id].hidden = true; } });
+  const iso = () => new Date().toISOString();
+  const done = { code: "KTIM01", state: "done", me: "b", now: iso(), finished_at: iso(), winner: "opp", opp_name: "Matthijs", hp: 0, opp_hp: 40, mine: [40, 30], theirs: [90, 80] };
+  // je bent al weg (Duels of daily): eerst het eindscherm, weggeklikt = weg, ook als de ander daarna op Revanche drukt
+  K7._.apply(h, done);
+  assert.equal(opened.length, 1, "het eindscherm komt één keer");
+  K7._.apply(h, { ...done, re_opp: true });
+  assert.equal(opened.length, 1, "nog open: alleen bijgewerkt (wil ook), niet opnieuw geopend");
+  els["modal-ko"].hidden = true;   // weggeklikt
+  K7._.apply(h, { ...done, re_opp: true, now: iso() });
+  K7._.apply(h, { ...done, now: iso() });
+  assert.equal(opened.length, 1, "weggeklikt: komt niet terug");
+  // nog op het spelscherm: één keer terug als de ander net om revanche vraagt (nieuw nieuws), daarna niet meer
+  st = { duel: { code: "KTIM02", round: 2, ko: true }, done: false };
+  const d2 = { ...done, code: "KTIM02" };
+  K7._.apply(h, d2);
+  assert.equal(opened.length, 2);
+  els["modal-ko"].hidden = true;
+  K7._.apply(h, { ...d2, now: iso() });
+  assert.equal(opened.length, 2, "zelfde stand: niet terug");
+  K7._.apply(h, { ...d2, re_opp: true, now: iso() });
+  assert.equal(opened.length, 3, "de ander vraagt om revanche: één keer terug");
+  els["modal-ko"].hidden = true;
+  K7._.apply(h, { ...d2, re_opp: true, now: iso() });
+  assert.equal(opened.length, 3, "en daarna niet meer");
+});
+
+test("ko.js — nageleverde seintjes (replay bij het verbinden) over een ander spel: niets ophalen; een uitnodiging wel", () => {
+  const { KO: K8 } = loadAudio(false);
+  const rpc = [];
+  const h = host({ state: () => null, openModal() {}, closeModal() {}, rpc: async (fn, a) => { rpc.push([fn, a.p_code]); return null; } });
+  K8.event(h, { code: "KOUD01", k: "end", replayed: true });
+  K8.event(h, { code: "KOUD01", k: "rematch", replayed: true });
+  assert.deepEqual(rpc, [], "oud spel: niets");
+  K8.event(h, { code: "KINV02", k: "invite", replayed: true });
+  K8.event(h, { code: "KNEW03", k: "end" });
+  assert.deepEqual(rpc, [["ko_get", "KINV02"], ["ko_get", "KNEW03"]], "uitnodiging (daarvoor is de replay) en live seintjes gaan gewoon door");
 });
