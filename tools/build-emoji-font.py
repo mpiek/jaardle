@@ -69,7 +69,7 @@ SUBSET_OPTS = [
     "--name-IDs=0,13,14",
     "--drop-tables+=DSIG",
 ]
-SCAN = [ROOT / "game.js", ROOT / "index.template.html"]
+SCAN = [ROOT / "game.js", ROOT / "index.template.html", ROOT / "ko.js"]   # ko.js: de reacties (😂, 20/11)
 
 VS16 = 0xFE0F   # variatieselector-16: dwingt emoji-presentatie af
 ZWJ = 0x200D    # zero-width joiner: koppelt emoji tot één (bv. 🐦‍🔥)

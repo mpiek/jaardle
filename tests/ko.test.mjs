@@ -134,11 +134,11 @@ test("ko.js — rondes, levensverloop en het eindscherm (A): schade, max, levens
   assert.equal(typeof KO.lifeHtml, "function"); assert.equal(typeof KO.review, "function");
 });
 
-test("db/208 + 210 ↔ ko.js — elke RPC die ko.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "210_ko_one_guess.sql")) }, () => {
+test("db/208 + 210 + 214 ↔ ko.js — elke RPC die ko.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "214_ko_react.sql")) }, () => {
   // de laatste definitie telt (db/210 maakt ko_submit opnieuw: jaar + hints in plaats van een score)
-  const sql = ["208_ko.sql", "210_ko_one_guess.sql"].map((f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8")).join("\n");
+  const sql = ["208_ko.sql", "210_ko_one_guess.sql", "214_ko_react.sql"].map((f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8")).join("\n");
   const calls = [...KOSRC.matchAll(/call\("(ko_[a-z]+)", \{([^}]*)\}/g)].map((m) => [m[1], [...m[2].matchAll(/(p_[a-z]+):/g)].map((x) => x[1])]);
-  assert.deepEqual([...new Set(calls.map((c) => c[0]))].sort(), ["ko_answer", "ko_cancel", "ko_get", "ko_invite", "ko_rematch", "ko_submit"]);
+  assert.deepEqual([...new Set(calls.map((c) => c[0]))].sort(), ["ko_answer", "ko_cancel", "ko_get", "ko_invite", "ko_react", "ko_rematch", "ko_submit"]);
   for (const [fn, args] of calls) {
     const defs = [...sql.matchAll(new RegExp(`create (?:or replace )?function public\\.${fn}\\(([^)]*)\\)`, "gi"))], def = defs[defs.length - 1];
     assert.ok(def, `${fn} bestaat niet in db/208`);
@@ -206,9 +206,9 @@ function loadAudio(on, withAudio = true) {
 }
 const ARGS = { tick: [3], hit: [26, true], ko: [true], want: [0] };
 
-test("ko.js — knock-out-geluid: elf klanken, stil en zonder fout zonder vinkje of zonder Web Audio, elk moment één keer", () => {
+test("ko.js — knock-out-geluid: twaalf klanken, stil en zonder fout zonder vinkje of zonder Web Audio, elk moment één keer", () => {
   const { KO: K1, log } = loadAudio(true);
-  assert.deepEqual([...Object.keys(K1._.SFX)].sort(), ["bam", "clash", "clock", "count", "draw", "go", "hit", "invite", "ko", "tick", "want"]);
+  assert.deepEqual([...Object.keys(K1._.SFX)].sort(), ["bam", "clash", "clock", "count", "draw", "go", "hit", "invite", "ko", "rx", "tick", "want"]);
   for (const k of Object.keys(K1._.SFX)) {
     const n = log.src.length;
     assert.equal(K1._.sfx(`t:${k}`, k, ...(ARGS[k] || [])), true);
@@ -370,4 +370,31 @@ test("ko.js — de hints één voor één tegen je eigen getal, daarna pas de an
   const T0 = (hn) => (hn ? 1700 + hn * (hn >= 3 ? 450 : 600) : 1650);
   for (const hn of [0, 1, 2, 3]) assert.ok(T0(hn) + 3600 + 500 <= 7600, `${hn} hints: ${T0(hn) + 4100} ms`);
   assert.doesNotMatch(KOSRC, /hintNote/, "de zin 'een hint geeft … de punten' is weg");
+});
+
+test("ko.js — reacties (db/214): zes vaste, een reactie van de ander geeft een bubbel en een zacht tikje; nageleverd of ander spel: niets", () => {
+  const { KO: K9, log } = loadAudio(true);
+  const rpc = [];
+  const h = host({ state: () => ({ duel: { code: "KRX001", round: 2, ko: true }, done: false }), openModal() {}, closeModal() {}, rpc: async (fn, a) => { rpc.push([fn, a.p_code]); return null; } });
+  K9._.apply(h, { code: "KRX001", state: "live", me: "a", now: new Date().toISOString(), round: 2, round_at: new Date().toISOString(), opp_name: "Sanne", hp: 150, opp_hp: 150, mine: [80], theirs: [70] });
+  let n = log.src.length;
+  K9.event(h, { code: "KRX001", k: "rx", i: 1 });
+  assert.ok(log.src.length > n, "een reactie van de ander: tikje");
+  n = log.src.length;
+  K9.event(h, { code: "KRX001", k: "rx", i: 1, replayed: true });
+  K9.event(h, { code: "KOTHER", k: "rx", i: 1 });
+  K9.event(h, { code: "KRX001", k: "rx", i: 9 });
+  assert.equal(log.src.length, n, "nageleverd, ander spel of onzin: stil");
+  assert.deepEqual(rpc, [], "een reactie haalt niets op");
+  // de zes en de limieten (zelfde als db/214)
+  assert.match(KOSRC, /const RX = \["😂", "🤯", "🔥", "😬", "gg", "g2g"\], RXGAP = 2000, RXMAX = 6, RXLIFE = 2500;/);
+  const f = join(dir, "..", "..", "jaardle-tools", "db", "214_ko_react.sql");
+  if (existsSync(f)) {
+    const sql = readFileSync(f, "utf8");
+    assert.match(sql, /p_i < 0 or p_i > 5/); assert.match(sql, /v_n >= 6/); assert.match(sql, /interval '1\.8 seconds'/); assert.match(sql, /interval '5 minutes'/);
+  }
+  for (const l of K9.langs()) assert.equal(K9.copy(l).rxL.split("|").length, 6, `${l}: zes labels`);
+  // 😂 zit in het eigen emoji-lettertype (ko.js wordt gescand)
+  assert.match(read("tools/build-emoji-font.py"), /SCAN = \[ROOT \/ "game\.js", ROOT \/ "index\.template\.html", ROOT \/ "ko\.js"\]/);
+  assert.match(read("style.css"), /U\+1F602/i, "😂 in de unicode-range");
 });

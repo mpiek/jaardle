@@ -11,7 +11,7 @@
   const ID = "modal-ko", HP = 150;   // db/210: 150 levens (één ronde haalt je nooit van vol naar 0)
 
   const TXT = {
-    nl: { resultOf: (r) => `Uitslag ronde ${r}`, replay: "Nog eens zien", start: "Start", lifeAria: (n, m, a, b) => `Levens per ronde: jij van ${m} naar ${a}, ${n} van ${m} naar ${b}`,
+    nl: { react: "Reageer", rxL: "Lachen|Wow|Mooi|Oef|Goed gespeeld|Ik moet gaan", resultOf: (r) => `Uitslag ronde ${r}`, replay: "Nog eens zien", start: "Start", lifeAria: (n, m, a, b) => `Levens per ronde: jij van ${m} naar ${a}, ${n} van ${m} naar ${b}`,
       live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 150 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
       waitH: (n) => `Wachten op ${n}…`, waitP: "Neemt die binnen een minuut aan, dan begint het meteen.", left: (s) => `nog ${s} s`, cancel: "Annuleer",
       lateH: (n) => `${n} reageert niet`, declH: (n) => `${n} kan nu niet`, lateP: "Misschien zit die niet achter de telefoon.", busyH: (n) => `${n} speelt nu een knock-out`, busyP: "Probeer het zo nog eens, of speel om de beurt.", coolP: "Over een paar minuten kun je het weer vragen.", again: "⚡ Nog eens vragen",
@@ -27,7 +27,7 @@
       rematch: "⚡ Revanche", wantsToo: "wil ook", rematchWait: (n) => `Wacht op ${n}…`, rematchHint: "Druk je allebei, dan begint hij meteen", toDuels: "Naar Duels",
       isKo: (n) => `${n} is knock-out`, youKo: "Jij bent knock-out", gone: "Deze knock-out is gestopt.", err: "Dat lukte niet. Probeer het nog eens.", close: "Sluiten",
       oppGuessed: (n) => `${n} heeft gegokt ✓` },
-    en: { resultOf: (r) => `Round ${r} result`, replay: "Watch again", start: "Start", lifeAria: (n, m, a, b) => `Lives per round: you from ${m} to ${a}, ${n} from ${m} to ${b}`,
+    en: { react: "React", rxL: "Laugh|Wow|Nice|Oof|Good game|Got to go", resultOf: (r) => `Round ${r} result`, replay: "Watch again", start: "Start", lifeAria: (n, m, a, b) => `Lives per round: you from ${m} to ${a}, ${n} from ${m} to ${b}`,
       live: "Live · knockout", liveSub: (n) => `Right now, 150 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
       waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within a minute, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
       lateH: (n) => `${n} isn't answering`, declH: (n) => `${n} can't right now`, lateP: "Maybe they're away from their phone.", busyH: (n) => `${n} is in a knockout right now`, busyP: "Try again in a bit, or play in turns.", coolP: "You can ask again in a few minutes.", again: "⚡ Ask again",
@@ -43,7 +43,7 @@
       rematch: "⚡ Rematch", wantsToo: "wants one too", rematchWait: (n) => `Waiting for ${n}…`, rematchHint: "If you both tap, it starts right away", toDuels: "To Duels",
       isKo: (n) => `${n} is knocked out`, youKo: "You're knocked out", gone: "This knockout has stopped.", err: "That didn't work. Please try again.", close: "Close",
       oppGuessed: (n) => `${n} has guessed ✓` },
-    de: { resultOf: (r) => `Ergebnis Runde ${r}`, replay: "Noch mal ansehen", start: "Start", lifeAria: (n, m, a, b) => `Leben pro Runde: du von ${m} auf ${a}, ${n} von ${m} auf ${b}`,
+    de: { react: "Reagieren", rxL: "Lachen|Wow|Stark|Autsch|Gut gespielt|Muss los", resultOf: (r) => `Ergebnis Runde ${r}`, replay: "Noch mal ansehen", start: "Start", lifeAria: (n, m, a, b) => `Leben pro Runde: du von ${m} auf ${a}, ${n} von ${m} auf ${b}`,
       live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 150 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
       waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb einer Minute an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
       lateH: (n) => `${n} antwortet nicht`, declH: (n) => `${n} kann gerade nicht`, lateP: "Vielleicht ist das Handy gerade weg.", busyH: (n) => `${n} spielt gerade einen Knock-out`, busyP: "Versuch es gleich noch mal oder spielt abwechselnd.", coolP: "In ein paar Minuten kannst du wieder fragen.", again: "⚡ Noch mal fragen",
@@ -59,7 +59,7 @@
       rematch: "⚡ Revanche", wantsToo: "will auch", rematchWait: (n) => `Warte auf ${n}…`, rematchHint: "Tippt ihr beide, geht es sofort los", toDuels: "Zu den Duellen",
       isKo: (n) => `${n} ist knock-out`, youKo: "Du bist knock-out", gone: "Dieser Knock-out wurde beendet.", err: "Das hat nicht geklappt. Versuch es noch mal.", close: "Schließen",
       oppGuessed: (n) => `${n} hat getippt ✓` },
-    es: { resultOf: (r) => `Resultado de la ronda ${r}`, replay: "Ver otra vez", start: "Inicio", lifeAria: (n, m, a, b) => `Vidas por ronda: tú de ${m} a ${a}, ${n} de ${m} a ${b}`,
+    es: { react: "Reaccionar", rxL: "Risa|Guau|Genial|Uf|Buena partida|Me tengo que ir", resultOf: (r) => `Resultado de la ronda ${r}`, replay: "Ver otra vez", start: "Inicio", lifeAria: (n, m, a, b) => `Vidas por ronda: tú de ${m} a ${a}, ${n} de ${m} a ${b}`,
       live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 150 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
       waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en un minuto, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} no responde`, declH: (n) => `${n} no puede ahora`, lateP: "Quizá no está con el móvil.", busyH: (n) => `${n} está jugando un K.O. ahora`, busyP: "Inténtalo dentro de un rato o jugad por turnos.", coolP: "Podrás volver a preguntar en unos minutos.", again: "⚡ Volver a preguntar",
@@ -75,7 +75,7 @@
       rematch: "⚡ Revancha", wantsToo: "también quiere", rematchWait: (n) => `Esperando a ${n}…`, rematchHint: "Si pulsáis los dos, empieza enseguida", toDuels: "A Duelos",
       isKo: (n) => `${n} está K.O.`, youKo: "Estás K.O.", gone: "Este K.O. se ha detenido.", err: "No ha funcionado. Inténtalo otra vez.", close: "Cerrar",
       oppGuessed: (n) => `${n} ya ha respondido ✓` },
-    pt: { resultOf: (r) => `Resultado da rodada ${r}`, replay: "Ver de novo", start: "Início", lifeAria: (n, m, a, b) => `Vidas por rodada: você de ${m} para ${a}, ${n} de ${m} para ${b}`,
+    pt: { react: "Reagir", rxL: "Risada|Uau|Boa|Ops|Bom jogo|Preciso ir", resultOf: (r) => `Resultado da rodada ${r}`, replay: "Ver de novo", start: "Início", lifeAria: (n, m, a, b) => `Vidas por rodada: você de ${m} para ${a}, ${n} de ${m} para ${b}`,
       live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 150 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
       waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em um minuto, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} não responde`, declH: (n) => `${n} não pode agora`, lateP: "Talvez esteja longe do celular.", busyH: (n) => `${n} está em um nocaute agora`, busyP: "Tente de novo daqui a pouco ou jogue por turnos.", coolP: "Você pode perguntar de novo em alguns minutos.", again: "⚡ Perguntar de novo",
@@ -259,6 +259,48 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
 .kl-c em.max { color: var(--ko-max); text-shadow: 0 0 8px color-mix(in srgb, var(--ko-max) 70%, transparent); }
 .ko-life.many .kl-c small { display: none; }   /* veel rondes: alleen ronde en schade */
 .ko-life.many .kl-c b, .ko-life.many .kl-c em { font-size: 0.64rem; }
+/* ── reacties: het knopje rechts in de levensstrook, de rij (zwevend onder de strook, of open op het eindscherm), de bubbels ── */
+#duel-vs.ko { position: relative; overflow: visible; }   /* de bubbel mag boven de strook uit; de klokbalk rondt zelf af */
+#duel-vs.ko .ko-clock { border-radius: 0 0 12px 12px; overflow: hidden; }
+#duel-vs.ko .ko-st { padding-inline: 2.4rem; min-height: 2.2rem; }   /* ruimte voor het knopje; de status blijft in het midden */
+.ko-rx-btn { position: absolute; right: 0.3rem; bottom: 0.25rem; display: grid; place-items: center; width: 2.6rem; height: 2.6rem; padding: 0; border: 0; border-radius: 50%;
+  color: var(--muted); background: transparent; cursor: pointer; }
+.ko-rx-btn svg { width: 1.4rem; height: 1.4rem; }
+.ko-rx-btn:hover { color: var(--fg); filter: none; }
+.ko-rx-btn[aria-expanded="true"] { color: var(--duel-arena); background: var(--card-soft); }
+.ko-rx-btn:disabled { opacity: 0.35; cursor: default; }
+.ko-rx-btn:focus-visible, .ko-rx button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ko-rx { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.3rem; align-self: stretch; }
+.ko-rx button { height: 2.75rem; min-width: 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 10px; font: inherit; font-size: 1.35rem; line-height: 1;
+  color: var(--fg); background: var(--card-soft); cursor: pointer; }
+.ko-rx button.w { font-size: 0.92rem; font-weight: 800; letter-spacing: 0.02em; }
+.ko-rx button:hover { filter: none; background: color-mix(in srgb, var(--fg) 10%, var(--card-soft)); }
+.ko-rx.cool button, .ko-rx.out button { opacity: 0.38; pointer-events: none; }
+.ko-rx.cool button.sent { opacity: 1; box-shadow: inset 0 0 0 2px var(--duel-me); }
+.ko-rx.cool::after { content: ""; position: absolute; left: 0.2rem; right: 0.2rem; bottom: -0.3rem; height: 3px; border-radius: 2px; background: var(--duel-me); transform-origin: left;
+  animation: ko-run 2s linear both; }
+.ko-rx.float { position: absolute; z-index: 6; top: calc(100% + 0.4rem); left: 0; right: 0; padding: 0.4rem; border-radius: 14px; background: var(--card);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32), 0 0 0 1px var(--border); }
+.ko-rx.float::before { content: ""; position: absolute; top: -0.4rem; right: 1.2rem; width: 0.8rem; height: 0.42rem; background: var(--card); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.ko-bub { --col: var(--duel-me); position: absolute; z-index: 7; bottom: calc(100% + 0.5rem); display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.6rem;
+  border-radius: 14px; font-size: 1.5rem; font-weight: 900; line-height: 1.05; white-space: nowrap; color: var(--fg); background: var(--card);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 0 0 2px var(--col); pointer-events: none; animation: ko-bub 2.5s ease-out both; }
+.ko-bub::after { content: ""; position: absolute; top: calc(100% - 1px); width: 0.8rem; height: 0.5rem; background: var(--col); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.ko-side.me .ko-bub { left: -0.15rem; }
+.ko-side.me .ko-bub::after { left: 0.55rem; }
+.ko-side.op .ko-bub { --col: var(--ko-op); right: -0.15rem; }
+.ko-side.op .ko-bub::after { right: 0.55rem; }
+.ko-bub.w { font-size: 1.05rem; padding-block: 0.45rem; }
+.ko-bub i { font-style: normal; font-size: 0.74rem; font-weight: 900; padding: 0.08rem 0.38rem; border-radius: 999px; color: #fff; background: var(--col); }
+.ko-bub i.bump { animation: ko-pop 0.34s ease-out both; }
+.ko-bandw { position: relative; align-self: stretch; }   /* het eindscherm: de bubbel komt onder de band uit, bij het gezichtje van wie hem stuurde */
+.ko-bandw .ko-bub { top: calc(100% - 0.7rem); bottom: auto; }
+.ko-bandw .ko-bub::after { top: auto; bottom: calc(100% - 1px); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.ko-bandw .ko-bub.me { left: 1rem; }
+.ko-bandw .ko-bub.me::after { left: 0.9rem; }
+.ko-bandw .ko-bub.op { --col: hsl(var(--h, 30) 58% 46%); right: 1rem; }
+.ko-bandw .ko-bub.op::after { right: 0.9rem; }
+@keyframes ko-bub { 0% { opacity: 0; transform: translateY(6px) scale(0.6); } 10% { opacity: 1; transform: none; } 88% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-4px); } }
 @keyframes ko-show-in { from { opacity: 0; } }
 @keyframes ko-show-out { to { opacity: 0; } }
 @keyframes ks-in-l { from { transform: translateX(-105%); } }
@@ -277,6 +319,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
 @media (prefers-reduced-motion: reduce) {
   .ko-dots i, .ko-t.last, .ko-side.low .ko-fill, .ko-want, .ko-show, .ko-show.out, .ks-nb, .ks-pop, .ks-shake, .ks-bam { animation: none; }
   .ko-fly { display: none; }   /* zonder animatie bleef het getal onder de balk staan, over de status heen */
+  .ko-bub, .ko-bub i.bump { animation: none; }
+  .ko-rx.cool::after { animation-duration: 0.01s; }
   .ko-side.drain .ko-fill, .ko-side.drain .ko-lag { animation-duration: 0.01s; }
 }`;
 
@@ -350,6 +394,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     clash: (b) => { A.thud(b, 0, 260, 70, 0.32, 0.16); A.tick(b, 0, 3000, 0.1, 0.03); },   // de uitslag: het hoogste getal botst op het lagere
     bam: (b) => { A.thud(b, 0, 150, 38, 0.85, 0.42); A.swish(b, 0, 0.3, 1800, 220, 0.2, 0.06, 0, 0); },   // de max: een harde klap
     want: (b, at = 0) => { A.ring(b, at, 2349, 0.09); A.ring(b, at + 0.09, 2794, 0.08); },   // de ander wil revanche: belletje
+    rx: (b) => A.ring(b, 0, 1568, 0.06),   // een reactie van de ander: een zacht tikje
   };
   function sfx(key, kind, ...a) {   // true = dit moment is nieuw (ook met het geluid uit; dan blijft het gewoon stil)
     if (heard.has(key)) return false;
@@ -454,6 +499,66 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     countdown(el.querySelector(".ko-count"), at(g.round_at), (s) => { if (s > 0) sfx(`c:${g.code}:${s}`, "count"); return s > 0 ? String(s) : "⚡"; });
   }
 
+  // ── reacties (20/11, mockup Reacties; zijn "die reacties waren leuk"): zes vaste, geen vrije tekst; gg en g2g zijn in elke taal hetzelfde.
+  // Sturen kan in de ronde (het knopje rechts in de levensstrook, ook tijdens de uitslag-laag) en op het K.O.-eindscherm (de rij onder
+  // Revanche). De ander ziet een bubbel uit jouw gezichtje (2,5 s); dezelfde reactie binnen die tijd = ×2, ×3. Limiet (ook op de server,
+  // db/214 ko_react): 1 per 2 s, hooguit 6 per ronde; na het spel nog 5 minuten. Niets wordt opgeslagen.
+  const RX = ["😂", "🤯", "🔥", "😬", "gg", "g2g"], RXGAP = 2000, RXMAX = 6, RXLIFE = 2500;
+  const RXI = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/>` +
+    `<circle cx="7.8" cy="11.6" r="1.15" fill="currentColor"/><circle cx="13.2" cy="11.6" r="1.15" fill="currentColor"/>` +
+    `<path d="M7.2 15.2a3.9 3.9 0 0 0 6.6 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>` +
+    `<path d="M20 2v5M17.5 4.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  const isW = (e) => /^[a-z0-9]+$/.test(e);
+  let rxOpen = false, rxN = 0, rxKey = null, rxAt = 0;
+  const rxCounted = new Set();
+  const rxKeyOf = (g) => `${g.code}:${g.state === "live" ? g.round : 0}`;
+  const rxOk = (g) => !!g && (g.state === "live" || (g.state === "done" && at(g.finished_at) > now() - 300000));
+  const rxWait = (g) => Date.now() - rxAt < RXGAP || (rxKey === rxKeyOf(g) && rxN >= RXMAX);   // net gestuurd, of op (tot de volgende ronde)
+  const rxRow = (T, cls = "") => `<div class="ko-rx${cls}" role="group" aria-label="${esc(T.react)}">` +
+    RX.map((e, i) => `<button type="button"${isW(e) ? ' class="w"' : ""} data-ko="rx" data-rx="${i}" aria-label="${esc(T.rxL.split("|")[i])}" title="${esc(T.rxL.split("|")[i])}">${e}</button>`).join("") + `</div>`;
+  // jij stuurt reactie i (vanaf het knopje in de strook, of de rij op het eindscherm: row)
+  function react(i, row) {
+    const g = cur;
+    if (!g || !rxOk(g) || !(i >= 0 && i < RX.length)) return;
+    const key = rxKeyOf(g);
+    if (rxKey !== key) { rxKey = key; rxN = 0; }
+    if (rxWait(g)) return;
+    rxAt = Date.now(); rxN++;
+    if (!rxCounted.has(g.code)) { rxCounted.add(g.code); K.gc("ko-rx", "Knockout: reaction sent"); }
+    bubble("me", i);
+    if (row) {   // de rij op het eindscherm: 2 s grijs met een lijntje dat leegloopt; na 6 grijs
+      row.classList.add("cool"); row.querySelector(`[data-rx="${i}"]`)?.classList.add("sent");
+      setTimeout(() => { row.classList.remove("cool"); row.querySelectorAll(".sent").forEach((b) => b.classList.remove("sent")); if (rxN >= RXMAX && rxKey === key) row.classList.add("out"); }, RXGAP);
+    } else {   // het knopje in de strook: dicht, 2 s grijs (na 6: tot de volgende ronde)
+      rxOpen = false;
+      const btn = document.querySelector("#duel-vs .ko-rx-btn");
+      document.querySelector("#duel-vs .ko-rx.float")?.remove();
+      if (btn) { btn.setAttribute("aria-expanded", "false"); btn.disabled = true; if (rxN < RXMAX) setTimeout(() => { if (btn.isConnected) btn.disabled = false; }, RXGAP); }
+    }
+    call("ko_react", { p_code: g.code, p_i: i });   // te snel, op of dicht: de server zegt nee, de ander ziet dan niets
+  }
+  // een bubbel uit het gezichtje van wie hem stuurde: op het eindscherm onder de band, anders in de levensstrook
+  function bubble(who, i) {
+    const el = document.getElementById(ID), end = el && !el.hidden && endFor === cur?.code ? el.querySelector(".ko-bandw") : null;
+    const host = end || document.querySelector(`#duel-vs .ko-side.${who}`);
+    if (!host) return;
+    const old = [...host.children].find((x) => x.classList.contains("ko-bub") && (!end || x.classList.contains(who)));
+    if (old && +old.dataset.rx === i && Date.now() - (+old.dataset.t || 0) < RXLIFE) {   // dezelfde nog eens: ×n
+      const n = +old.dataset.n + 1;
+      old.dataset.n = n; old.dataset.t = Date.now();
+      old.querySelector("i")?.remove();
+      old.insertAdjacentHTML("beforeend", `<i class="bump">×${n}</i>`);
+      old.style.animation = "none"; void old.offsetWidth; old.style.animation = "";
+      return;
+    }
+    old?.remove();
+    const b = document.createElement("span");
+    b.className = `ko-bub${isW(RX[i]) ? " w" : ""}${end ? " " + who : ""}`; b.dataset.rx = i; b.dataset.n = 1; b.dataset.t = Date.now();
+    b.setAttribute("aria-hidden", "true"); b.textContent = RX[i];
+    host.appendChild(b);
+    setTimeout(() => { if (+b.dataset.t + RXLIFE <= Date.now() + 30) b.remove(); }, RXLIFE + 50);
+  }
+
   // ── het rondescherm ──
   function stripHtml(g, { drain = null } = {}) {
     const T = tx(), st = H.state(), n = oppName(g), r = g.round;
@@ -479,7 +584,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     } else if (playing) status = `<span class="ko-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc(T.thinking(n))}</span>`;
     const hold = drain?.hold;   // playResult: de balk wacht op de schade die eraan komt
     return side("me", T.you, me, hold ? drain.me : g.hp, hold ? null : drain?.me) + `<span class="ko-mid"><b>R${rr}</b><span class="${mult(rr) > 1 ? "up" : ""}">×${esc(fmtM(mult(rr)))}</span></span>` +
-      side("op", n, op, hold ? drain.op : g.opp_hp, hold ? null : drain?.op) + `<div class="ko-st${clock ? " clock" : ""}">${status}</div>${clock}`;
+      side("op", n, op, hold ? drain.op : g.opp_hp, hold ? null : drain?.op) + `<div class="ko-st${clock ? " clock" : ""}">${status}</div>${clock}` +
+      (rxOk(g) ? `<button type="button" class="ko-rx-btn" aria-expanded="${rxOpen}" aria-label="${esc(T.react)}"${rxWait(g) ? " disabled" : ""}>${RXI}</button>` +
+        (rxOpen && !rxWait(g) ? rxRow(T, " float") : "") : "");
   }
   function drawTop(g) {
     const T = tx(), dt = K.tx(H.lang), tabs = document.getElementById("mode-tabs"), card = document.getElementById("event-card");
@@ -515,6 +622,18 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     vs.className = "ko";
     vs.style.setProperty("--h", hue(cur));
     vs.innerHTML = stripHtml(cur, opts);
+    vs.onmousedown = (e) => { if (e.target.closest(".ko-rx-btn, .ko-rx")) e.preventDefault(); };   // de focus blijft waar hij was (Enter = gok)
+    vs.onclick = (e) => {
+      const b = e.target.closest(".ko-rx button[data-rx]");
+      if (b) return react(+b.dataset.rx);
+      const t = e.target.closest(".ko-rx-btn");
+      if (!t || t.disabled) return;
+      rxOpen = !rxOpen;
+      t.setAttribute("aria-expanded", String(rxOpen));
+      vs.querySelector(".ko-rx.float")?.remove();
+      if (rxOpen) t.insertAdjacentHTML("afterend", rxRow(tx(), " float"));
+    };
+    if (rxWait(cur) && !(rxKey === rxKeyOf(cur) && rxN >= RXMAX)) setTimeout(() => { const t = vs.querySelector(".ko-rx-btn"); if (t && !rxWait(cur)) t.disabled = false; }, RXGAP - (Date.now() - rxAt) + 20);
     if (opts?.drain && !opts.drain.hold) tickDown(vs);
     armClock();
   }
@@ -562,7 +681,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   function startRound(g) {
     clearTimers(); closePop();
     ["modal-duels", "modal-duel-pop", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
-    oppN = 0; shownRes = null; sentRound = null; counting = null;
+    oppN = 0; shownRes = null; sentRound = null; counting = null; rxOpen = false;
     const p = g.puzzle;
     if (!p) return refresh(g.code);
     K.gc("ko-round-" + Math.min(g.round, 6), "Knockout: round " + Math.min(g.round, 6));
@@ -813,12 +932,15 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const fresh = at(g.finished_at) > now() - 120000;
     const big = fresh && sfx(`ko:${g.code}`, g.winner ? "ko" : "draw", won);   // één keer per spel, niet bij een oude K.O.
     if (fresh && g.re_opp && !g.re_me && !g.next) sfx(`want:${g.code}`, "want", big ? 1.2 : 0);   // samen met de gong: na de gong
-    pop(band(g, "K.O.", ` ko-end${won ? "" : " lost"}`) + `<h2>${esc(!g.winner ? T.draw : won ? T.koWin : T.koLoss(n))}</h2><p>${esc(p)}</p>` +
+    pop(`<div class="ko-bandw" style="--h:${hue(g)}">${band(g, "K.O.", ` ko-end${won ? "" : " lost"}`)}</div>` +
+      `<h2>${esc(!g.winner ? T.draw : won ? T.koWin : T.koLoss(n))}</h2><p>${esc(p)}</p>` +
       (Math.min(g.mine.length, g.theirs.length) ? lifeHtml(g) : "") +
       (fresh && !g.next ? (g.re_me ? `<button type="button" class="duel-go" disabled>${esc(T.rematchWait(n))}</button>`
         : `<button type="button" class="duel-go ko-rev" data-ko="re">${esc(T.rematch)}${want}</button>`) + `<p class="ko-alt-sub">${esc(T.rematchHint)}</p>` : "") +
+      (rxOk(g) ? rxRow(T, rxKey === rxKeyOf(g) && rxN >= RXMAX ? " out" : "") : "") +
       `<button type="button" class="duel-no" data-ko="duels">${esc(T.toDuels)}</button>`,
       async (act, b) => {
+        if (act === "rx") return react(+b.dataset.rx, b.closest(".ko-rx"));
         if (act === "re") { b.disabled = true; K.gc("ko-rematch", "Knockout: rematch"); const r2 = await call("ko_rematch", { p_code: g.code }); if (r2.ok && r2.v) apply(r2.v); return; }
         closePop(); H.switchMode("daily"); K.openList(H, {});
       });
@@ -910,6 +1032,10 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       const st = H.state();
       if (cur && cur.code !== p.code && cur.state === "live" && st?.duel?.ko && st.duel.code === cur.code) return;   // je speelt nu: niet storen
       if (p.replayed && p.k !== "invite" && !(cur && cur.code === p.code)) return;   // nageleverd over een ander (oud) spel: niets mee doen
+      if (p.k === "rx") {   // een reactie van de ander (db/214): alleen een bubbel; nageleverd (replay) of over een ander spel: niets
+        if (!p.replayed && cur && cur.code === p.code && Number.isInteger(p.i) && p.i >= 0 && p.i < RX.length) { bubble("op", p.i); sfx(`rx:${p.code}:${Date.now()}`, "rx"); }
+        return;
+      }
       if (p.k === "g") {   // de ander gokte: alleen de stipjes
         if (cur && cur.code === p.code && Number.isInteger(p.n)) { oppN = Math.min(6, p.n); drawStrip(); }
         return;
