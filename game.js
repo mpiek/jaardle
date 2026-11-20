@@ -15362,10 +15362,13 @@ async function init() {
   // ?duel=CODE: een duel-uitnodiging (of je eigen duel). De daily laadt gewoon; /duel.js zet de pop-up erboven, of start je ronde.
   const duelCode = (lbParams.get("duel") || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
   if (lbParams.has("duel")) lbParams.delete("duel");
+  // ?ko=CODE (db/213): de pushmelding van een ⚡-uitnodiging. De daily laadt gewoon; /ko.js haalt de stand op en zet de pop-up erboven.
+  const koCode = (lbParams.get("ko") || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+  if (lbParams.has("ko")) lbParams.delete("ko");
   // /duels/ (de Duels-pagina): het adres gaat eerst terug naar de basis; openList zet het weer zodra de pagina er staat. Met een
   // ?duel= erbij (de deellink sinds 18/11) gaat de uitnodiging voor, net als op de gewone pagina.
   const duelsLand = onDuelsPath();
-  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap || duelCode || duelsLand) {
+  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap || duelCode || koCode || duelsLand) {
     const qs = lbParams.toString();
     history.replaceState(null, "", (duelsLand ? pathBase() : window.location.pathname) + (qs ? "?" + qs : "") + window.location.hash);
   }
@@ -15395,6 +15398,7 @@ async function init() {
   // Rode stip voor duels (jouw beurt, een nieuwe uitslag): alleen wie op dit toestel duels heeft vraagt het na, in een rustig moment.
   else if (duelKnown()) setTimeout(() => loadDuel().then((D) => D.checkNews(duelHost())).catch(() => {}), 2500);
   if (!duelCode && !duelsLand) uncoverDuel();
+  if (koCode) loadKo().then((K) => K.open(duelHost(), koCode)).catch(() => {});
 
   // Open de login-modal als /login of /register is bezocht (tenzij al ingelogd).
   // Login en registreren zitten in dezelfde modal.

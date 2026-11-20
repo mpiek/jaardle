@@ -227,3 +227,41 @@ test("ko.js — knock-out-geluid in het spel: uitnodiging, aftellen, K.O. en 'wi
   assert.match(KOSRC, /if \(a !== b\) sfx\(`res:\$\{g\.code\}:\$\{r\}`, "hit", x, a < b\);/);
   assert.match(DUEL, /au: \{ bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud \}/, "de motor blijft in duel.js");
 });
+
+test("ko.js — de laatste ronde speelt eerst af: een tweede 'klaar' (seintje + antwoord) springt niet meteen naar de K.O. (feedback 20/11)", () => {
+  const { KO: K4 } = loadAudio(false);
+  const opened = [];
+  const card = { querySelectorAll: () => [], classList: { add() {} } };
+  const h = host({ state: () => ({ duel: { code: "KLAST", round: 2, ko: true }, done: true }), openModal: (id) => opened.push(id), closeModal() {},
+    els: { result: card, resultText: { after() {}, querySelector: () => null }, nextBtn: {}, shareBtn: {} } });
+  const done = { code: "KLAST", state: "done", me: "a", now: new Date().toISOString(), finished_at: new Date().toISOString(), winner: "me", opp_name: "Sanne",
+    hp: 40, opp_hp: 0, mine: [90, 80], theirs: [40, 30], answers: [1912, 1950], my_years: [1910, 1950], their_years: [1930, 1980] };
+  K4._.apply(h, done);
+  assert.deepEqual(opened, [], "eerst de uitslag van de laatste ronde, geen K.O.-pop-up");
+  K4._.apply(h, { ...done, now: new Date().toISOString() });
+  assert.deepEqual(opened, [], "het tweede bericht wacht mee");
+  assert.match(KOSRC, /tStart = setTimeout\(\(\) => \{ endWait = null; if \(cur && cur\.code === g\.code\) showEnd\(cur\); \}, 2400 \+ wait\);/, "daarna de K.O. met de nieuwste stand");
+});
+
+test("ko.js — tijdens een knock-out geen andere uitnodigingen; buiten een spel wel (feedback 20/11)", () => {
+  const { KO: K5 } = loadAudio(false);
+  const rpc = [];
+  const h = host({ state: () => ({ duel: { code: "KLIVE", round: 1, ko: true }, done: false }), openModal() {}, closeModal() {}, rpc: async (fn, a) => { rpc.push([fn, a.p_code]); return null; } });
+  K5._.apply(h, { code: "KLIVE", state: "live", me: "a", now: new Date().toISOString(), round: 1, round_at: new Date().toISOString(), opp_name: "Sanne", hp: 150, opp_hp: 150, mine: [], theirs: [] });
+  K5.event(h, { code: "KSPAM1", k: "invite" });
+  K5.event(h, { code: "KSPAM1", k: "cancelled" });
+  assert.deepEqual(rpc, [], "uitnodiging van een ander tijdens het spel: niets ophalen, geen pop-up");
+  K5.event(h, { code: "KLIVE", k: "round" });
+  assert.deepEqual(rpc, [["ko_get", "KLIVE"]], "je eigen spel gaat gewoon door");
+});
+
+test("ko.js — bezet of net nee gezegd (db/213): eigen tekst, geen 'nog eens vragen', wel om de beurt", async () => {
+  const { KO: K6 } = loadAudio(false);
+  for (const err of ["busy", "cooldown"]) {   // de server zegt nee: geen fout naar boven, gewoon de pop-up
+    const h = host({ state: () => null, closeModal() {}, openModal() {}, rpc: async () => { throw new Error(err); } });
+    await K6.invite(h, "k1", "Tim");
+  }
+  assert.match(KOSRC, /const why = !r\.ok && \/busy\|cooldown\/\.exec\(r\.e \|\| ""\);/);
+  assert.match(KOSRC, /\(s === "expired" \? `<button type="button" class="duel-go" data-ko="again">/, "nog eens vragen alleen als die niet reageerde");
+  for (const l of K6.langs()) { const c = K6.copy(l); assert.ok(c.busyH("Tim").includes("Tim") && c.busyP && c.coolP, `${l}: busyH/busyP/coolP`); }
+});

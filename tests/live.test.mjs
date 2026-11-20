@@ -90,6 +90,21 @@ test("db/212: een duel-seintje terwijl Jaardle in beeld is → duel_push_skip (g
   assert.deepEqual(calls, [["duel_push_skip", "ABC123"]]);
 });
 
+test("db/213: een ⚡-uitnodiging die je in beeld krijgt → duel_push_skip; andere knock-out-seintjes, verborgen of nageleverd: niet", async () => {
+  const { Live, chans, win, setVis } = setup();
+  const calls = [];
+  win.sb = { rpc: (fn, a) => { calls.push([fn, a.p_code]); return Promise.resolve(1); } };
+  Live.setUser("u1");
+  await flush();
+  const h = chans[0].handlers.find((x) => x.type === "broadcast" && x.filter.event === "ko");
+  h.fn({ payload: { code: "KINV01", k: "invite" } });
+  h.fn({ payload: { code: "KRND01", k: "round" } });
+  h.fn({ payload: { code: "KOLD01", k: "invite" }, meta: { replayed: true } });
+  setVis("hidden");
+  h.fn({ payload: { code: "KHID01", k: "invite" } });
+  assert.deepEqual(calls, [["duel_push_skip", "KINV01"]]);
+});
+
 test("aanwezigheid: anderen online (niet jezelf), event alleen bij een verandering", async () => {
   const { Live, chans, events } = setup();
   Live.setUser("me");

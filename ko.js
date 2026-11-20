@@ -11,9 +11,9 @@
   const ID = "modal-ko", HP = 150;   // db/210: 150 levens (één ronde haalt je nooit van vol naar 0)
 
   const TXT = {
-    nl: { live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 100 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
+    nl: { live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 150 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
       waitH: (n) => `Wachten op ${n}…`, waitP: "Neemt die binnen een minuut aan, dan begint het meteen.", left: (s) => `nog ${s} s`, cancel: "Annuleer",
-      lateH: (n) => `${n} reageert niet`, declH: (n) => `${n} kan nu niet`, lateP: "Misschien zit die niet achter de telefoon.", again: "⚡ Nog eens vragen",
+      lateH: (n) => `${n} reageert niet`, declH: (n) => `${n} kan nu niet`, lateP: "Misschien zit die niet achter de telefoon.", busyH: (n) => `${n} speelt nu een knock-out`, busyP: "Probeer het zo nog eens, of speel om de beurt.", coolP: "Over een paar minuten kun je het weer vragen.", again: "⚡ Nog eens vragen",
       turn: "⚔️ Speel om de beurt", turnSub: (n) => `5 rondes, ${n} speelt wanneer het uitkomt`, never: "Laat maar",
       invH: (n) => `${n} wil nú een knock-out`, lives: "levens", same: "1 gok per ronde", mins: "±3 min", join: "Doe mee", notNow: "Niet nu",
       startH: "Knock-out!", revH: "Revanche!", startP: "Ronde 1 begint zo", roundN: (r) => `Ronde ${r}`,
@@ -27,9 +27,9 @@
       rematch: "⚡ Revanche", wantsToo: "wil ook", rematchWait: (n) => `Wacht op ${n}…`, rematchHint: "Druk je allebei, dan begint hij meteen", toDuels: "Naar Duels",
       isKo: (n) => `${n} is knock-out`, youKo: "Jij bent knock-out", gone: "Deze knock-out is gestopt.", err: "Dat lukte niet. Probeer het nog eens.", close: "Sluiten",
       itWas: "Het was", oppGuessed: (n) => `${n} heeft gegokt ✓`, off: (d) => (d === 0 ? "precies goed" : `${d} jaar ernaast`), noGuess: "geen gok", hintsCost: (x) => `hints −${x}`, hintNote: (n) => `Een hint geeft ${n} de punten die hij kost` },
-    en: { live: "Live · knockout", liveSub: (n) => `Right now, 100 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
+    en: { live: "Live · knockout", liveSub: (n) => `Right now, 150 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
       waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within a minute, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
-      lateH: (n) => `${n} isn't answering`, declH: (n) => `${n} can't right now`, lateP: "Maybe they're away from their phone.", again: "⚡ Ask again",
+      lateH: (n) => `${n} isn't answering`, declH: (n) => `${n} can't right now`, lateP: "Maybe they're away from their phone.", busyH: (n) => `${n} is in a knockout right now`, busyP: "Try again in a bit, or play in turns.", coolP: "You can ask again in a few minutes.", again: "⚡ Ask again",
       turn: "⚔️ Play in turns", turnSub: (n) => `5 rounds, ${n} plays whenever it suits`, never: "Never mind",
       invH: (n) => `${n} wants a knockout now`, lives: "lives", same: "1 guess per round", mins: "±3 min", join: "Join", notNow: "Not now",
       startH: "Knockout!", revH: "Rematch!", startP: "Round 1 starts in a moment", roundN: (r) => `Round ${r}`,
@@ -43,9 +43,9 @@
       rematch: "⚡ Rematch", wantsToo: "wants one too", rematchWait: (n) => `Waiting for ${n}…`, rematchHint: "If you both tap, it starts right away", toDuels: "To Duels",
       isKo: (n) => `${n} is knocked out`, youKo: "You're knocked out", gone: "This knockout has stopped.", err: "That didn't work. Please try again.", close: "Close",
       itWas: "It was", oppGuessed: (n) => `${n} has guessed ✓`, off: (d) => (d === 0 ? "spot on" : `${d} year${d === 1 ? "" : "s"} off`), noGuess: "no guess", hintsCost: (x) => `hints −${x}`, hintNote: (n) => `A hint gives ${n} the points it costs` },
-    de: { live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 100 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
+    de: { live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 150 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
       waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb einer Minute an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
-      lateH: (n) => `${n} antwortet nicht`, declH: (n) => `${n} kann gerade nicht`, lateP: "Vielleicht ist das Handy gerade weg.", again: "⚡ Noch mal fragen",
+      lateH: (n) => `${n} antwortet nicht`, declH: (n) => `${n} kann gerade nicht`, lateP: "Vielleicht ist das Handy gerade weg.", busyH: (n) => `${n} spielt gerade einen Knock-out`, busyP: "Versuch es gleich noch mal oder spielt abwechselnd.", coolP: "In ein paar Minuten kannst du wieder fragen.", again: "⚡ Noch mal fragen",
       turn: "⚔️ Abwechselnd spielen", turnSub: (n) => `5 Runden, ${n} spielt, wann es passt`, never: "Lass gut sein",
       invH: (n) => `${n} will jetzt einen Knock-out`, lives: "Leben", same: "1 Tipp pro Runde", mins: "±3 Min.", join: "Mitmachen", notNow: "Nicht jetzt",
       startH: "Knock-out!", revH: "Revanche!", startP: "Runde 1 beginnt gleich", roundN: (r) => `Runde ${r}`,
@@ -59,9 +59,9 @@
       rematch: "⚡ Revanche", wantsToo: "will auch", rematchWait: (n) => `Warte auf ${n}…`, rematchHint: "Tippt ihr beide, geht es sofort los", toDuels: "Zu den Duellen",
       isKo: (n) => `${n} ist knock-out`, youKo: "Du bist knock-out", gone: "Dieser Knock-out wurde beendet.", err: "Das hat nicht geklappt. Versuch es noch mal.", close: "Schließen",
       itWas: "Es war", oppGuessed: (n) => `${n} hat getippt ✓`, off: (d) => (d === 0 ? "genau richtig" : `${d} Jahr${d === 1 ? "" : "e"} daneben`), noGuess: "kein Tipp", hintsCost: (x) => `Hinweise −${x}`, hintNote: (n) => `Ein Hinweis gibt ${n} die Punkte, die er kostet` },
-    es: { live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 100 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
+    es: { live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 150 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
       waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en un minuto, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
-      lateH: (n) => `${n} no responde`, declH: (n) => `${n} no puede ahora`, lateP: "Quizá no está con el móvil.", again: "⚡ Volver a preguntar",
+      lateH: (n) => `${n} no responde`, declH: (n) => `${n} no puede ahora`, lateP: "Quizá no está con el móvil.", busyH: (n) => `${n} está jugando un K.O. ahora`, busyP: "Inténtalo dentro de un rato o jugad por turnos.", coolP: "Podrás volver a preguntar en unos minutos.", again: "⚡ Volver a preguntar",
       turn: "⚔️ Jugar por turnos", turnSub: (n) => `5 rondas, ${n} juega cuando le venga bien`, never: "Déjalo",
       invH: (n) => `${n} quiere un K.O. ahora`, lives: "vidas", same: "1 intento por ronda", mins: "±3 min", join: "Jugar", notNow: "Ahora no",
       startH: "¡K.O.!", revH: "¡Revancha!", startP: "La ronda 1 empieza enseguida", roundN: (r) => `Ronda ${r}`,
@@ -75,9 +75,9 @@
       rematch: "⚡ Revancha", wantsToo: "también quiere", rematchWait: (n) => `Esperando a ${n}…`, rematchHint: "Si pulsáis los dos, empieza enseguida", toDuels: "A Duelos",
       isKo: (n) => `${n} está K.O.`, youKo: "Estás K.O.", gone: "Este K.O. se ha detenido.", err: "No ha funcionado. Inténtalo otra vez.", close: "Cerrar",
       itWas: "Era", oppGuessed: (n) => `${n} ya ha respondido ✓`, off: (d) => (d === 0 ? "exacto" : `${d} año${d === 1 ? "" : "s"} de diferencia`), noGuess: "sin respuesta", hintsCost: (x) => `pistas −${x}`, hintNote: (n) => `Una pista le da a ${n} los puntos que cuesta` },
-    pt: { live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 100 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
+    pt: { live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 150 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
       waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em um minuto, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
-      lateH: (n) => `${n} não responde`, declH: (n) => `${n} não pode agora`, lateP: "Talvez esteja longe do celular.", again: "⚡ Perguntar de novo",
+      lateH: (n) => `${n} não responde`, declH: (n) => `${n} não pode agora`, lateP: "Talvez esteja longe do celular.", busyH: (n) => `${n} está em um nocaute agora`, busyP: "Tente de novo daqui a pouco ou jogue por turnos.", coolP: "Você pode perguntar de novo em alguns minutos.", again: "⚡ Perguntar de novo",
       turn: "⚔️ Jogar por turnos", turnSub: (n) => `5 rodadas, ${n} joga quando puder`, never: "Deixa pra lá",
       invH: (n) => `${n} quer um nocaute agora`, lives: "vidas", same: "1 chute por rodada", mins: "±3 min", join: "Jogar", notNow: "Agora não",
       startH: "Nocaute!", revH: "Revanche!", startP: "A rodada 1 já vai começar", roundN: (r) => `Rodada ${r}`,
@@ -212,7 +212,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   .ko-side.drain .ko-fill, .ko-side.drain .ko-lag { animation-duration: 0.01s; }
 }`;
 
-  let H = null, cur = null, skew = 0, oppN = 0, shownRes = null, sentRound = null, revNext = null, counting = null;
+  let H = null, cur = null, skew = 0, oppN = 0, shownRes = null, sentRound = null, revNext = null, counting = null, endWait = null;
   let tClock = null, tTick = null, tStart = null, tPop = null;
   const tx = () => TXT[H?.lang] || TXT.en;
   const esc = K.esc;
@@ -235,7 +235,7 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
   async function call(fn, args) {
     try { return { ok: true, v: await H.rpc(fn, args) }; } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
-  function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; stopAnim(); }
+  function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; endWait = null; stopAnim(); }
   let anim = [], animGen = 0;   // de stappen van playResult
   function stopAnim() { anim.forEach(clearTimeout); anim = []; animGen++; document.querySelectorAll(".ko-ghost").forEach((e) => e.remove()); }
 
@@ -327,6 +327,8 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     H = host; ensureCss();
     K.gc("ko-invite", "Knockout: invited");
     const r = await call("ko_invite", { p_k: k });
+    const why = !r.ok && /busy|cooldown/.exec(r.e || "");   // db/213: die speelt nu een knock-out, of zei net nee
+    if (why) return showLate({ state: why[0], opp: k, opp_name: name });
     if (!r.ok || !r.v) return pop(`<h2>${esc(tx().err)}</h2><button type="button" class="duel-no" data-ko="close">${esc(tx().close)}</button>`, () => closePop());
     apply(r.v);
   }
@@ -338,9 +340,13 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     countdown(el.querySelector(".ko-s"), at(g.invite_until), (s) => T.left(s), () => setTimeout(() => refresh(g.code), 1200));
   }
   function showLate(g) {
-    const T = tx(), n = oppName(g);
-    pop(band(g, T.noResp, " ko-idle") + `<h2>${esc(g.state === "declined" ? T.declH(n) : T.lateH(n))}</h2><p>${esc(T.lateP)}</p>` +
-      `<button type="button" class="duel-go" data-ko="again">${esc(T.again)}</button><button type="button" class="duel-go ko-alt" data-ko="turn">${esc(T.turn)}</button>` +
+    const T = tx(), n = oppName(g), s = g.state;
+    // nog eens vragen alleen als die niet reageerde (bij "Niet nu", bezet of te vaak gevraagd zegt de server toch nee: db/213)
+    const h = s === "busy" ? T.busyH(n) : s === "declined" || s === "cooldown" ? T.declH(n) : T.lateH(n);
+    const p = s === "busy" ? T.busyP : s === "declined" || s === "cooldown" ? T.coolP : T.lateP;
+    pop(band(g, T.noResp, " ko-idle") + `<h2>${esc(h)}</h2><p>${esc(p)}</p>` +
+      (s === "expired" ? `<button type="button" class="duel-go" data-ko="again">${esc(T.again)}</button><button type="button" class="duel-go ko-alt" data-ko="turn">${esc(T.turn)}</button>`
+        : `<button type="button" class="duel-go" data-ko="turn">${esc(T.turn)}</button>`) +
       `<p class="ko-alt-sub">${esc(T.turnSub(n))}</p><button type="button" class="duel-no" data-ko="close">${esc(T.never)}</button>`,
       (act) => {
         if (act === "again") return invite(H, g.opp, n);
@@ -615,10 +621,14 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       if (prev?.next !== g.next && g.next) return refresh(g.next);
       if (here) {
         const r = g.mine.length;
+        // de laatste ronde speelt nog af: een tweede "klaar" (het seintje én het antwoord op je gok) wacht gewoon mee; showEnd neemt
+        // dan de nieuwste stand (cur). Zonder dit sprong het scherm meteen naar de K.O. (feedback 20/11)
+        if (endWait === g.code) return;
         if (r && st.done && shownRes !== `${g.code}:${r}` && g.theirs.length >= r) {   // eerst de laatste ronde (de balk loopt leeg), dan de K.O.
           const wait = showResult(g, r) || 0;
           clearTimeout(tStart);
-          tStart = setTimeout(() => { if (cur && cur.code === g.code) showEnd(cur); }, 2400 + wait);
+          endWait = g.code;
+          tStart = setTimeout(() => { endWait = null; if (cur && cur.code === g.code) showEnd(cur); }, 2400 + wait);
           return;
         }
         drawStrip();
@@ -667,6 +677,8 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
     event(host, p) {
       H = host; ensureCss();
       if (!p || typeof p.code !== "string") return;
+      const st = H.state();
+      if (cur && cur.code !== p.code && cur.state === "live" && st?.duel?.ko && st.duel.code === cur.code) return;   // je speelt nu: niet storen
       if (p.k === "g") {   // de ander gokte: alleen de stipjes
         if (cur && cur.code === p.code && Number.isInteger(p.n)) { oppN = Math.min(6, p.n); drawStrip(); }
         return;
@@ -683,6 +695,13 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       if (cur && cur.code === st.duel.code) drawStrip(); else refresh(st.duel.code);
     },
     roundDone,   // duel.js roundDone() bij een knock-out-ronde
+    // ?ko=CODE (de pushmelding van een uitnodiging, db/213): de stand ophalen; net na het laden is de sessie soms nog niet terug
+    async open(host, code, tries = 4) {
+      H = host; ensureCss();
+      const r = await call("ko_get", { p_code: code });
+      if (r.ok && r.v) return apply(r.v);
+      if (tries > 1 && !/not_found|not_yours/.test(r.e || "")) setTimeout(() => window.KO.open(host, code, tries - 1), 1500);
+    },
     // het ▾-menu van Duels: de Live-keuze bij een vriend die online is
     optHtml(lang, k, name) {
       const T = TXT[lang] || TXT.en;

@@ -84,6 +84,10 @@
       .on("broadcast", { event: "ko" }, (m) => {   // ⚡ Knock-out (db/208): {code, k[, n|next]}
         const p = m?.payload;
         if (p && typeof p.code === "string") try { window.dispatchEvent(new CustomEvent("jaardle:ko-rt", { detail: p })); } catch (e) {}
+        // db/213: een ⚡-uitnodiging die je in beeld krijgt: de pushmelding (duel-push wacht er 4 s op) hoeft niet meer
+        if (p?.k === "invite" && typeof p.code === "string" && visible() && !m?.meta?.replayed) {
+          try { window.sb?.rpc?.("duel_push_skip", { p_code: p.code })?.catch?.(() => {}); } catch (e) {}
+        }
       })
       .subscribe();
     onl = RT.channel("online", { config: { private: true, presence: { key: myK } } });   // eerst vastleggen: SUBSCRIBED kan meteen komen
