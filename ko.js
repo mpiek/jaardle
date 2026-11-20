@@ -415,9 +415,10 @@ html[data-theme="light"] .ko-years .op b { color: hsl(var(--h, 30) 62% 38%); }
       tabs.before(top);
     }
     if (top) {
-      top.innerHTML = `<button type="button" class="duel-exit" aria-label="${esc(dt.exit)}">${K.exitHtml()}</button>` +
+      top.innerHTML = `<div class="duel-left"><button type="button" class="duel-exit" aria-label="${esc(dt.exit)}">${K.exitHtml()}</button>${K.sndHtml(dt)}</div>` +
         `<button type="button" class="duel-title duel-home dl-logo" aria-label="${esc(dt.toDuels)}">${K.logoHtml(dt)}</button>` +
         `<span class="duel-round"><span class="dl-th">⚡ ${esc(T.tag)}</span><span>${esc(T.roundN(g ? g.round : H.state()?.duel?.round || 1))}</span></span>`;
+      K.setHost(H); K.armSnd(top);   // 🔈 ook hier (20/11): dezelfde knop als op de Duels-pagina (H: game.js bewaart de keuze)
       top.onclick = (e) => {   // eigen klik (de kop van duel.js heeft zijn luisteraar alleen als duel.js hem maakte)
         if (e.target.closest(".duel-exit")) { H.switchMode("daily"); return; }
         if (e.target.closest(".duel-home")) { H.switchMode("daily"); K.openList(H, {}); }

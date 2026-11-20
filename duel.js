@@ -301,6 +301,9 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 .dl-snd-btn .on, .dl-snd-btn[aria-pressed="true"] .off { display: none; }
 .dl-snd-btn[aria-pressed="true"] .on { display: inline; }
 .dl-snd-btn[aria-pressed="true"] { color: var(--fg); }
+/* in de kop van een ronde (20/11): links naast het Jaardle-icoontje. Rechts paste hij niet: daar staan de ronde en het pilletje (⚡ Knock-out,
+   📻 1900+), en op 360 px schoof dat dan over het logo */
+.duel-left { justify-self: start; display: flex; align-items: center; gap: 0.25rem; min-width: 0; }
 .dl-page .modal-body { padding: 0 0 1.5rem; }
 
 /* eindstand-pop-up: na je vijfde ronde (ook als de ander nog moet), en bij een uitslag die je nog niet zag (dan draaien de rondes om) */
@@ -1571,6 +1574,22 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     `<g class="on" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 9.3a3.9 3.9 0 0 1 0 5.4"/><path d="M17.7 6.7a7.6 7.6 0 0 1 0 10.6"/></g>` +
     `<g class="off" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8"/></g></svg>`;
   const sfxOn = () => { try { return localStorage.getItem(SFX_KEY) === "1"; } catch (e) { return false; } };
+  // De luidspreker als knop: op de Duels-pagina naast de ?, en sinds 20/11 ook links in de kop van een ronde (zijn vraag: "altijd de
+  // geluidsknop kunnen indrukken, ook als je in een duel zit"); ⚡ Knock-out (/ko.js) gebruikt dezelfde. Hetzelfde als het vinkje in ⚙️:
+  // game.js bewaart hem (ook op de server) en zet het vinkje en elke knop; aan = meteen de klang, binnen de tik.
+  const sndHtml = (T) => `<button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="${sfxOn()}" aria-label="${esc(T.sound)}" title="${esc(T.sound)}">${SND}</button>`;
+  function toggleSfx(b) {
+    const on = !sfxOn();
+    if (H?.setSfx) H.setSfx(on); else try { localStorage.setItem(SFX_KEY, on ? "1" : "0"); } catch (e) {}
+    b.setAttribute("aria-pressed", String(on));
+    if (on) sfxTest();
+  }
+  function armSnd(root) {   // de knop in de kop van een ronde: eigen klik (de kop wordt telkens opnieuw getekend)
+    const b = root?.querySelector(".dl-snd-btn");
+    if (!b) return;
+    b.onmousedown = (e) => e.preventDefault();   // een muisklik laat de focus in het jaartal-vak: doortypen en Enter = gokken, niet nog eens de knop
+    b.onclick = () => toggleSfx(b);
+  }
   const AU = { x: null, out: null, noise: null, nap: 0 };
   function auNap(ms) {
     clearTimeout(AU.nap);
@@ -1874,8 +1893,9 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const era = themeOf({ theme: d.theme || dl.theme }), inp = document.getElementById("year-input");   // db/202
     body.toggleAttribute("data-era", !!era);
     if (inp) { if (era) inp.dataset.ph = T.eraPh(era.from); else delete inp.dataset.ph; }
-    if (top) top.innerHTML = `<button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button><button type="button" class="duel-title duel-home dl-logo" aria-label="${esc(T.toDuels)}" title="${esc(T.toDuels)}">${logoHtml(T)}</button>` +
+    if (top) top.innerHTML = `<div class="duel-left"><button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button>${sndHtml(T)}</div><button type="button" class="duel-title duel-home dl-logo" aria-label="${esc(T.toDuels)}" title="${esc(T.toDuels)}">${logoHtml(T)}</button>` +
       `<span class="duel-round">${era ? thHtml({ theme: d.theme || dl.theme }) : ""}<span>${esc(T.roundN(Math.min(5, shown)))}</span></span>`;
+    armSnd(top);
     let vs = document.getElementById("duel-vs");
     if (!vs && card) { vs = document.createElement("div"); vs.id = "duel-vs"; vs.setAttribute("role", "status"); card.before(vs); }
     if (vs) vs.className = "duel-hud";
@@ -2615,13 +2635,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     const act = b.dataset.act, code = b.dataset.code;
     if (act === "sync") { gc("duel-sync", "Duel: Duels logo tapped (refresh)"); return syncList(T, true); }
-    if (act === "sfx") {   // ⚔️ Duel-geluid aan/uit: game.js bewaart hem (ook op de server) en zet het vinkje; aan = meteen de klang, binnen de tik
-      const on = !sfxOn();
-      if (H.setSfx) H.setSfx(on); else try { localStorage.setItem(SFX_KEY, on ? "1" : "0"); } catch (e) {}
-      b.setAttribute("aria-pressed", String(on));
-      if (on) sfxTest();
-      return;
-    }
+    if (act === "sfx") return toggleSfx(b);   // ⚔️ Duel-geluid aan/uit (de knop naast de ?)
     if (act === "sent-x") { listTop = ""; return renderList(T, null); }
     if (act === "modes") { modesOpen = !modesOpen; if (modesOpen) gc("duel-modes-open", "Duel: more duel types opened"); return renderList(T, null); }
     if (act === "new") { pickSel = null; modesOpen = false; return create(H, { theme: b.dataset.theme || null }); }
@@ -2934,7 +2948,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
     sfxTest,
     // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS, en het geluid (au: de bus, de bouwstenen, "hit")
-    kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, flairEmoji, gc, create: (h, o) => create(h, o), openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
+    kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, sndHtml, armSnd, flairEmoji, gc, create: (h, o) => create(h, o), openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
            au: { bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud } },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,

@@ -5268,12 +5268,13 @@ function setDuelSfx(on) {
   syncDuelSfxUi();
 }
 function syncDuelSfxUi() {
+  // de luidspreker-knoppen van /duel.js: naast de ? op de Duels-pagina en in de kop van een ronde (ook ⚡ Knock-out)
+  document.querySelectorAll(".dl-snd-btn").forEach((b) => b.setAttribute("aria-pressed", String(duelSfxOn())));
   const item = document.querySelector('#menu-pop [data-action="duel-sfx"]');
   if (!item) return;
   let seen = false; try { seen = duelKnown() || localStorage.getItem(DUEL_SFX_KEY) != null || !!localStorage.getItem("jaardle:duel-name"); } catch (e) {}
   item.hidden = !seen;
   item.setAttribute("aria-checked", String(duelSfxOn()));
-  document.querySelectorAll('#modal-duels .dl-snd-btn').forEach((b) => b.setAttribute("aria-pressed", String(duelSfxOn())));   // de knop naast de ? (/duel.js)
 }
 const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft remind.js
 const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
