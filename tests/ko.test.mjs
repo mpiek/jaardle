@@ -467,3 +467,43 @@ test("ko.js — terug in een lopende knock-out vanaf Duels (20/11): kaart bovena
   D2._.applyList({ items: [], targets: [], ko: [{ ...g, state: "done", finished_at: new Date().toISOString(), winner: "opp" }] });
   assert.doesNotMatch(D2._.listBody(D2.copy("nl"), [], "", null), /ko-live/);
 });
+
+test("ko.js — de start: de opening van een duel met ⚡ en de pil die aftelt, geen pop-up; iets anders te zien = weg (21/11)", () => {
+  const els = {};
+  const mk = () => {
+    const q = {};
+    const e = { hidden: true, textContent: "", innerHTML: "", dataset: {}, style: { setProperty() {} }, classList: { add() {}, remove() {}, toggle() {} },
+      setAttribute() {}, addEventListener() {}, removeEventListener() {}, remove() { e.removed = true; }, querySelector: (s) => (q[s] ||= mk()), querySelectorAll: () => [] };
+    return e;
+  };
+  const doc = { hidden: false, documentElement: { hasAttribute: () => false, removeAttribute() {} }, head: { appendChild() {} },
+    body: { setAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
+    getElementById: (id) => els[id] || null, querySelector: () => null, querySelectorAll: () => [], createElement: mk, addEventListener() {}, removeEventListener() {} };
+  const win = { addEventListener() {}, removeEventListener() {}, innerWidth: 390 };
+  const ctx = vm.createContext({ window: win, document: doc, localStorage: { getItem: () => null }, performance: { now: () => 0 }, String, Object, Array, Math, Date, Number, JSON, Intl,
+    Set, Map, URL, encodeURIComponent, setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {} });
+  vm.runInContext(DUEL, ctx);
+  vm.runInContext(KOSRC, ctx);
+  const K = win.KO, opened = [];
+  const h = host({ state: () => null, openModal: (id) => opened.push(id), closeModal() {} });
+  const soon = (ms) => new Date(Date.now() + ms).toISOString();
+  K._.apply(h, { code: "KSTART", state: "live", me: "b", now: new Date().toISOString(), round: 1, round_at: soon(2600), opp_name: "Sanne", opp_flair: null,
+    hp: 150, opp_hp: 150, hp_max: 150, mine: [], theirs: [] });
+  const it = els["duel-intro"];
+  assert.ok(it, "de opening van een duel ligt over het scherm");
+  assert.deepEqual(opened, [], "geen aftel-pop-up meer");
+  assert.match(it.innerHTML, /<div class="dix-badge">⚡<\/div>/, "⚡ op de naad");
+  assert.doesNotMatch(it.innerHTML, /⚔️/);
+  assert.match(it.innerHTML, /<b class="dix-nm">Noor<\/b>/);
+  assert.match(it.innerHTML, /<b class="dix-nm">Sanne<\/b><small class="dix-tag">❤️ 150 levens<\/small>/);
+  assert.equal(it.querySelector(".dix-rd").textContent, "Ronde 1 · 3", "de pil telt af");
+  assert.ok(!it.removed);
+  // iets anders te zien (hier een uitnodiging van een ander): de opening weg, anders ligt hij erover
+  K._.apply(h, { code: "KOTHER", state: "invite", me: "b", now: new Date().toISOString(), invite_until: soon(30000), opp_name: "Tim", round: 1, mine: [], theirs: [] });
+  assert.ok(it.removed, "de opening is weg");
+  assert.deepEqual(opened, ["modal-ko"]);
+  // de helften schuiven pas weg als ronde 1 eronder klaarstaat; zonder opening (oude kit) het aftel-pop-up
+  assert.match(KOSRC, /if \(it\) Promise\.resolve\(run\)\.then\(\(\) => it\.open\(\), \(\) => it\.open\(\)\);/);
+  assert.match(KOSRC, /if \(!it\) return showCount\(g, rev\);/);
+  assert.match(DUEL, /intro: \(h, d, o\) => \{ H = h; return introStart\(d, 0, false, o\); \}/);
+});

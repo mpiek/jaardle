@@ -1720,12 +1720,13 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     try { el.animate(steps.map(([t, k]) => ({ ...k, offset: (t - t0) / dur })), { delay: t0, duration: dur, fill: "both" }); } catch (e) {}
   }
   let introNow = null;
-  function introStart(d, r, short) {
+  // o (⚡ Knock-out, 21/11): icon op de naad, label in de pil, tag onder de naam van de ander, gc = de telling bij overslaan
+  function introStart(d, r, short, o = {}) {
     ensureCss();
     introNow?.kill();
     const T = tx(H.lang), curtain = document.documentElement.hasAttribute("data-duelload");
     let still = false; try { still = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
-    const label = introLabel(T, d, r), mine = myName(), opName = oppName(d), played = d.their_done ?? (d.theirs || []).length;
+    const label = o.label || introLabel(T, d, r), icon = o.icon || ICON, mine = myName(), opName = oppName(d), played = d.their_done ?? (d.theirs || []).length;
     let hue = 28; try { const h = H.faceHue?.(opName); if (h != null) hue = h; } catch (e) {}
     const av = (flair, name) => { const f = flair && H.flairHtml ? H.flairHtml(flair) : ""; return `<span class="dix-av${f ? " fl" : ""}">${f || esc(initial(name))}</span>`; };
     const meAv = av(H.loggedIn ? H.myFlair?.() : null, mine || T.you), opAv = av(oppFlair(d), opName);
@@ -1738,11 +1739,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     // donkere rondje erachter en wordt hij het zwaard op de naad.
     const cur = curtain && !short;
     el.innerHTML = (short ? "" : `<div class="dix-bg"></div>`) + (short
-      ? `<div class="dix-band"><div class="dix-bin">${meAv}<span class="dix-bmid"><span class="dix-x">${ICON}</span><b>${esc(label)}</b></span>${opAv}</div></div>`
+      ? `<div class="dix-band"><div class="dix-bin">${meAv}<span class="dix-bmid"><span class="dix-x">${icon}</span><b>${esc(label)}</b></span>${opAv}</div></div>`
       : `<div class="dix-wrap"><div class="dix-half me"><div class="dix-in">${meAv}${mine ? `<small class="dix-tag">${esc(T.you)}</small>` : ""}<b class="dix-nm">${esc(mine || T.you)}</b></div></div>` +
-        `<div class="dix-half op"><div class="dix-in">${opAv}<b class="dix-nm">${esc(opName)}</b><small class="dix-tag">${esc(T.played5(played))}</small></div></div>` +
+        `<div class="dix-half op"><div class="dix-in">${opAv}<b class="dix-nm">${esc(opName)}</b><small class="dix-tag">${esc(o.tag ?? T.played5(played))}</small></div></div>` +
         `<svg class="dix-seam" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="0" y1="58" x2="100" y2="42" vector-effect="non-scaling-stroke"/></svg></div>` +
-        `<div class="dix-ring"></div><div class="dix-flash"></div><div class="dix-badge">${cur ? "" : ICON}</div>${cur ? `<div class="dix-cur">${ICON}</div>` : ""}<div class="dix-rd">${esc(label)}</div>`);
+        `<div class="dix-ring"></div><div class="dix-flash"></div><div class="dix-badge">${cur ? "" : icon}</div>${cur ? `<div class="dix-cur">${icon}</div>` : ""}<div class="dix-rd">${esc(label)}</div>`);
     document.body.appendChild(el);
     uncover();   // het laadscherm en de opening hebben dezelfde achtergrond: de wissel is niet te zien
     const avail = Math.min(window.innerWidth || 390, 560) - 48;   // namen zo groot als past (hoofdletters, ±0,74 em per teken)
@@ -1807,7 +1808,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     function skip() {
       if (gone) return;
-      if (!short) gc("duel-intro-skip", "Duel: intro skipped");   // de band gaat bij elke toets of tik weg: dat is gewoon spelen
+      if (!short) gc(...(o.gc || ["duel-intro-skip", "Duel: intro skipped"]));   // de band gaat bij elke toets of tik weg: dat is gewoon spelen
       if (ready) exit(true); else el.dataset.skip = "1";   // de ronde staat er nog niet: zodra hij er is (open) meteen weg
     }
     function onKey(e) {
@@ -1828,6 +1829,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
         exit(false);
       },
       kill() { gone = true; off(); sfxHush(bus, 0.01); el.remove(); },
+      setLabel(t) { const p = el.querySelector(short ? ".dix-bmid b" : ".dix-rd"); if (p) p.textContent = t; },   // de pil (⚡: het aftellen)
     };
     introNow = api;
     return api;
@@ -3010,7 +3012,9 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
     sfxTest,
     // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS, en het geluid (au: de bus, de bouwstenen, "hit")
-    kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, sndHtml, armSnd, flairEmoji, gc, create: (h, o) => create(h, o), openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
+    kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, sndHtml, armSnd, flairEmoji, gc, create: (h, o) => create(h, o),
+           openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
+           intro: (h, d, o) => { H = h; return introStart(d, 0, false, o); },   // de opening van een ronde (⚡: bij de start van ronde 1)
            au: { bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud } },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,

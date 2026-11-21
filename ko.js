@@ -331,7 +331,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
 
   let H = null, cur = null, skew = 0, oppN = 0, shownRes = null, sentRound = null, revNext = null, counting = null, endWait = null, endFor = null;
   const endSeen = new Set();   // K.O.-eindschermen die al in beeld waren: weggeklikt = niet terug (feedback 20/11: Tim kreeg ze steeds opnieuw)
-  let tClock = null, tTick = null, tStart = null, tPop = null;
+  let tClock = null, tTick = null, tStart = null, tPop = null, tIntro = null, koIntro = null;   // koIntro = de opening bij de start: { code, it }
   const tx = () => TXT[H?.lang] || TXT.en;
   const esc = K.esc;
   const now = () => Date.now() + skew;
@@ -353,7 +353,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   async function call(fn, args) {
     try { return { ok: true, v: await H.rpc(fn, args) }; } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
-  function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; endWait = null; stopAnim(); }
+  function clearTimers() { [tClock, tTick, tStart, tPop, tIntro].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = tIntro = null; endWait = null; stopAnim(); dropIntro(); }
+  function dropIntro() { const x = koIntro; koIntro = null; try { x?.it.kill(); } catch (e) {} }
   let anim = [], animGen = 0;   // de stappen van playResult
   function stopAnim() {
     anim.forEach(clearTimeout); anim = []; animGen++;
@@ -418,6 +419,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   }
   function pop(inner, onClick) {
     clearInterval(tPop); tPop = null; endFor = null;
+    dropIntro();   // iets anders te zien (een uitnodiging, de K.O.): de opening weg
     let el = document.getElementById(ID);
     if (!el) {
       el = document.createElement("div");
@@ -497,7 +499,30 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       });
     countdown(el.querySelector(".ko-left"), at(g.invite_until), (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`, () => closePop());
   }
-  // Ronde 1 (of de revanche) begint: kort aftellen, dan het rondescherm
+  // Ronde 1 (of de revanche) begint: de opening van een duel (21/11, zijn vraag "bij knock-out bij start ook de animatie van de 5 rondes"):
+  // de twee kanten botsen op ⚡, eronder de pil "Ronde 1 · 3" die aftelt, en als de ronde begint schuiven de helften weg (startRound).
+  // Wat eronder stond (de uitnodiging, het wachten, de vorige K.O.) gaat weg zodra de helften het bedekken. Geen opening: het aftel-pop-up.
+  async function showStart(g, rev) {
+    // je naam en flair in de opening (zoals duel.js play); meestal al opgehaald tijdens de uitnodiging, anders hooguit 0,6 s wachten
+    if (H.loggedIn && H.ensureIdentity) await Promise.race([Promise.resolve(H.ensureIdentity()).catch(() => {}), new Promise((res) => setTimeout(res, 600))]);
+    if (counting !== g.code) return;   // intussen begonnen of iets anders
+    const T = tx();
+    let it = null;
+    try { it = K.intro?.(H, { ...g, ko: true }, { icon: "⚡", label: T.roundN(1), tag: `❤️ ${g.hp_max || HP} ${T.lives}`, gc: ["ko-intro-skip", "Knockout: intro skipped"] }) || null; }
+    catch (e) { it = null; try { document.getElementById("duel-intro")?.remove(); } catch (e2) {} }
+    if (!it) return showCount(g, rev);
+    koIntro = { code: g.code, it };
+    it.covered.then(() => { if (koIntro?.it === it) closePop(); });
+    const until = at(g.round_at);
+    const tick = () => {
+      const s = Math.max(0, Math.ceil((until - now()) / 1000));
+      if (s > 0) sfx(`c:${g.code}:${s}`, "count");
+      it.setLabel(s > 0 ? `${T.roundN(1)} · ${s}` : T.roundN(1));
+      if (s <= 0) { clearInterval(tIntro); tIntro = null; }
+    };
+    tick();
+    tIntro = setInterval(tick, 250);
+  }
   function showCount(g, rev) {
     const T = tx();
     const el = pop(band(g, rev ? T.revH : T.tag) + `<h2>${esc(rev ? T.revH : T.startH)}</h2><p class="ko-count">3</p><p>${esc(T.startP)}</p>`, () => {});
@@ -684,16 +709,19 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   }
 
   function startRound(g) {
+    const it = koIntro?.code === g.code ? koIntro.it : null;   // de opening van ronde 1 blijft liggen tot de ronde eronder klaarstaat
+    if (it) koIntro = null;
     clearTimers(); closePop();
     ["modal-duels", "modal-duel-pop", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
     oppN = 0; shownRes = null; sentRound = null; counting = null; rxOpen = false;
     const p = g.puzzle;
-    if (!p) return refresh(g.code);
+    if (!p) { it?.kill(); return refresh(g.code); }
     K.gc("ko-round-" + Math.min(g.round, 6), "Knockout: round " + Math.min(g.round, 6));
     // terug in een ronde die je al open had (via Duels, 20/11): je bord zoals je het achterliet (de gok, de hints), anders kon je opnieuw
     // gokken en waren je hints gratis; al gegokt = meteen weer "Wachten op …" (ko_submit nog eens geeft gewoon de stand)
-    H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(g.code, g.round) || null, potId: `k${g.code}${g.round}`,
-                   duel: { code: g.code, round: g.round, opp: oppName(g), ko: true } });
+    const run = H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(g.code, g.round) || null, potId: `k${g.code}${g.round}`,
+                               duel: { code: g.code, round: g.round, opp: oppName(g), ko: true } });
+    if (it) Promise.resolve(run).then(() => it.open(), () => it.open());
   }
   // ── de uitslag van een ronde: een laag over het hele scherm (20/11, zijn "superimposed, net als confetti"; referentie GeoGuessr-duels,
   // in Jaardle-stijl). Zo min mogelijk tekst (zijn wens): bovenaan het echte jaar (groen) tussen jullie gokken (in de kleur van de afstand,
@@ -963,7 +991,10 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // het Duels-scherm toont een spel dat loopt (KO.liveHtml): begint of stopt er een, dan tekent duel.js de lijst opnieuw
     if (prev?.code !== g.code || (prev?.state === "live") !== (g.state === "live")) try { window.dispatchEvent(new CustomEvent("jaardle:ko-live")); } catch (e) {}
     const st = H.state(), here = !!(st?.duel?.ko && st.duel.code === g.code);
-    if (g.state === "invite") return g.me === "b" ? showInvite(g) : showWait(g);
+    if (g.state === "invite") {
+      if (H.loggedIn) Promise.resolve(H.ensureIdentity?.()).catch(() => {});   // je naam en flair voor de opening straks
+      return g.me === "b" ? showInvite(g) : showWait(g);
+    }
     if (g.state === "declined" || g.state === "expired" || g.state === "cancelled") {
       const el = document.getElementById(ID);
       if (g.me === "a" && g.state !== "cancelled" && el && !el.hidden) return showLate(g);
@@ -1011,7 +1042,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     clearTimers();
     if (now() < at(g.round_at) - 400) {
       counting = g.code;
-      showCount(g, g.code === revNext);
+      showStart(g, g.code === revNext);
       tStart = setTimeout(() => { sfx(`go:${g.code}`, "go"); startRound(g); }, Math.max(0, at(g.round_at) - now()));   // ⚡ (de 0 haalt het scherm zelden)
     } else startRound(g);
   }
