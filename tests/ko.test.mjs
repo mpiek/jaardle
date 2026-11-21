@@ -508,7 +508,7 @@ test("ko.js — de start: eerst het aftel-pop-up (3, 2, 1), dan de opening van e
   assert.match(els["modal-ko"].innerHTML, /<p class="ko-count">3<\/p>/);
   assert.ok(!els["duel-intro"], "nog geen opening");
   // op 0 (round_at): de opening
-  const t0 = timers.find((t) => t.ms > 2000 && t.ms <= 2600);
+  const t0 = timers.find((t) => t.ms > 2000 && t.ms <= 2700);   // marge: g.now wordt vóór round_at gemaakt, onder belasting kan het 2601 ms worden
   assert.ok(t0, "een timer tot round_at");
   t0.f();
   const it = els["duel-intro"];
@@ -528,7 +528,7 @@ test("ko.js — de start: eerst het aftel-pop-up (3, 2, 1), dan de opening van e
   assert.ok(!it.removed, "de opening schuift nog weg");
   // iets anders te zien (een uitnodiging van een ander) tijdens een volgende start: de opening weg
   K._.apply(h, { ...g, code: "KTWEE", round_at: soon(2600) });
-  timers.filter((t) => t.ms > 2000 && t.ms <= 2600).pop().f();
+  timers.filter((t) => t.ms > 2000 && t.ms <= 2700).pop().f();
   const it2 = els["duel-intro"];
   K._.apply(h, { code: "KOTHER", state: "invite", me: "b", now: new Date().toISOString(), invite_until: soon(30000), opp_name: "Tim", round: 1, mine: [], theirs: [] });
   assert.ok(it2.removed, "de opening is weg");
