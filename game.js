@@ -164,7 +164,6 @@ const I18N = {
   nl: {
     tab_daily: "Daily", tab_free: "Nieuw spel",
     menu_stats: "📊 Statistieken", menu_login: "🔑 Inloggen", menu_logout: "Uitloggen",
-    menu_login_short: "Inloggen",
     menu_theme: "☀️ Licht thema",
     menu_season_halloween: "\u{1F383} Halloween-look",   // aan/uit-regel voor de seizoens-skin in het ⋮-menu, alleen tijdens het event (emoji als \u-escape: geen glyph erbij in het emoji-font)
     menu_season_sinterklaas: "\u{1F381} Sinterklaas-look",
@@ -236,7 +235,7 @@ const I18N = {
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
     fun_r: { too_hard: "Te moeilijk", too_easy: "Te makkelijk", boring: "Saai", unclear: "Onduidelijk" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
-    menu_duels: "⚔️ Duels",
+    door_duels: "Duels",   // de deur naar Duels naast 🌐 (aria-label)
     lb_daily: "Daily", lb_overall: "Aller tijden",
     lb_tab_podium: "Weekpodium", lb_tab_stats: "Stats", lb_tab_aria: "Kies bord", lb_pool_switch: "Wissel van team",
     lb_wk_title: "Weekpodium", lb_wk_prev: "Vorige week", lb_wk_next: "Volgende week", lb_wk_recap: "Recap van vorige week",
@@ -516,7 +515,6 @@ const I18N = {
   en: {
     tab_daily: "Daily", tab_free: "New game",
     menu_stats: "📊 Statistics", menu_login: "🔑 Sign in", menu_logout: "Sign out",
-    menu_login_short: "Sign in",
     menu_theme: "☀️ Light theme",
     menu_season_halloween: "\u{1F383} Halloween look",
     menu_season_sinterklaas: "\u{1F381} Sinterklaas look",
@@ -593,7 +591,7 @@ const I18N = {
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
     fun_r: { too_hard: "Too hard", too_easy: "Too easy", boring: "Boring", unclear: "Unclear" },
     menu_leaderboard: "🏆 Leaderboard", lb_title: "🏆 Leaderboard",
-    menu_duels: "⚔️ Duels",
+    door_duels: "Duels",   // de deur naar Duels naast 🌐 (aria-label)
     lb_daily: "Daily", lb_overall: "All-time",
     lb_tab_podium: "Podium", lb_tab_stats: "Stats", lb_tab_aria: "Choose board", lb_pool_switch: "Switch team",
     lb_wk_title: "Week podium", lb_wk_prev: "Previous week", lb_wk_next: "Next week", lb_wk_recap: "Last week's recap",
@@ -871,7 +869,6 @@ const I18N = {
   de: {
     tab_daily: "Täglich", tab_free: "Neues Spiel",
     menu_stats: "📊 Statistiken", menu_login: "🔑 Anmelden", menu_logout: "Abmelden",
-    menu_login_short: "Anmelden",
     menu_theme: "☀️ Helles Design",
     menu_season_halloween: "\u{1F383} Halloween-Look",
     menu_season_sinterklaas: "\u{1F381} Sinterklaas-Look",
@@ -943,7 +940,7 @@ const I18N = {
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
     fun_r: { too_hard: "Zu schwer", too_easy: "Zu leicht", boring: "Langweilig", unclear: "Unklar" },
     menu_leaderboard: "🏆 Bestenliste", lb_title: "🏆 Bestenliste",
-    menu_duels: "⚔️ Duelle",
+    door_duels: "Duelle",   // de deur naar Duels naast 🌐 (aria-label)
     lb_daily: "Daily", lb_overall: "Allzeit",
     lb_tab_podium: "Podest", lb_tab_stats: "Werte", lb_tab_aria: "Tabelle wählen", lb_pool_switch: "Team wechseln",
     lb_wk_title: "Wochenpodest", lb_wk_prev: "Vorige Woche", lb_wk_next: "Nächste Woche", lb_wk_recap: "Rückblick auf die letzte Woche",
@@ -1220,7 +1217,6 @@ const I18N = {
   es: {
     tab_daily: "Diario", tab_free: "Partida nueva",
     menu_stats: "📊 Estadísticas", menu_login: "🔑 Iniciar sesión", menu_logout: "Cerrar sesión",
-    menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
     menu_season_halloween: "\u{1F383} Aspecto de Halloween",
     menu_season_sinterklaas: "\u{1F381} Aspecto de Sinterklaas",
@@ -1297,7 +1293,7 @@ const I18N = {
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
     fun_r: { too_hard: "Muy difícil", too_easy: "Muy fácil", boring: "Aburrida", unclear: "Poco claro" },
     menu_leaderboard: "🏆 Clasificación", lb_title: "🏆 Clasificación",
-    menu_duels: "⚔️ Duelos",
+    door_duels: "Duelos",   // de deur naar Duels naast 🌐 (aria-label)
     lb_daily: "Diario", lb_overall: "Histórico",
     lb_tab_podium: "Podio", lb_tab_stats: "Datos", lb_tab_aria: "Elegir tabla", lb_pool_switch: "Cambiar de equipo",
     lb_wk_title: "Podio semanal", lb_wk_prev: "Semana anterior", lb_wk_next: "Semana siguiente", lb_wk_recap: "Resumen de la semana pasada",
@@ -1574,7 +1570,6 @@ const I18N = {
   pt: {
     tab_daily: "Diário", tab_free: "Jogo novo",
     menu_stats: "📊 Estatísticas", menu_login: "🔑 Entrar", menu_logout: "Sair",
-    menu_login_short: "Entrar",
     menu_theme: "☀️ Tema claro",
     menu_season_halloween: "\u{1F383} Visual de Halloween",
     menu_season_sinterklaas: "\u{1F381} Visual de Sinterklaas",
@@ -1651,7 +1646,7 @@ const I18N = {
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
     fun_r: { too_hard: "Muito difícil", too_easy: "Muito fácil", boring: "Chata", unclear: "Pouco claro" },
     menu_leaderboard: "🏆 Classificação", lb_title: "🏆 Classificação",
-    menu_duels: "⚔️ Duelos",
+    door_duels: "Duelos",   // de deur naar Duels naast 🌐 (aria-label)
     lb_daily: "Diário", lb_overall: "Geral",
     lb_tab_podium: "Pódio", lb_tab_stats: "Dados", lb_tab_aria: "Escolher tabela", lb_pool_switch: "Trocar de equipe",
     lb_wk_title: "Pódio da semana", lb_wk_prev: "Semana anterior", lb_wk_next: "Próxima semana", lb_wk_recap: "Resumo da semana passada",
@@ -2007,6 +2002,7 @@ function setLang(code) {
   const duels = document.body.hasAttribute("data-duelshome");   // de Duels-pagina: /nl/duels/ → /de/duels/
   try { history.replaceState(null, "", "/" + LANGS[lang].path + (duels ? (LANGS[lang].path ? "/" : "") + "duels/" : location.search)); }
   catch (e) {}
+  if (duels && window.Duel) window.Duel.openList(duelHost(), { keepTop: true });   // 21/11: 🌐 staat ook op de Duels-pagina
 }
 
 // Debug-flag onthult WIP-features (account-menu, stats) zonder ze voor
@@ -5009,6 +5005,7 @@ function duelHost() {
     // db/189: kleur per persoon (zoals de gezichtjes in het histogram) en de duel-seintjes
     faceHue, remindSupport, remindOn: () => !!remindState().on, openInstall: () => openInstall(), onPushChange: () => syncDuelPushUi(),
     setSfx: setDuelSfx,   // ⚔️ Duel-geluid: de knop naast de ? op de Duels-pagina is hetzelfde vinkje
+    swap: kopSwap,   // 21/11: de Jaardle-deur op de Duels-pagina schuift terug (zie kopSwap)
     vondstImage,   // db/190: een vondst-tekening als plaatje (stil), voor het deelplaatje
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
     playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
@@ -5036,9 +5033,23 @@ function duelPlayStart(st) {
     },
   };
 }
-function openDuels() {   // ⋮ → Duels (meetpunt duel-list; de rest van de duel-trechter telt /duel.js)
-  gcCount("duel-list", "Duel: Duels screen opened (menu)");
-  loadDuel().then((D) => D.openList(duelHost(), {})).catch(() => {});
+function openDuels(src = "menu") {   // de deur naast 🌐 of de nieuws-balk → Duels (meetpunt duel-list; de rest van de trechter telt /duel.js)
+  gcCount("duel-list", src === "door" ? "Duel: Duels screen opened (door)" : "Duel: Duels screen opened (menu)");
+  // eerst laden, dan pas wisselen: de overgang wacht niet op het netwerk (anders staat het beeld zolang stil)
+  loadDuel().then((D) => kopSwap("in", () => { D.openList(duelHost(), {}); })).catch(() => {});
+}
+// ⚔️ Wisselen tussen Jaardle en Duels (21/11/2026, zijn "kop blijft + inhoud schuift"): profiel, 🌐 en de deur blijven staan
+// (#mode-tabs heeft een eigen view-transition-name), de rest schuift opzij (CSS bij .kop-door). dir "in" = naar Duels, "out" = terug.
+// update() moet het scherm meteen wisselen (geen promise teruggeven: dan wacht de overgang op de server). Geen View Transitions
+// (oudere browser) of minder beweging: gewoon in één keer.
+function kopSwap(dir, update) {
+  const root = document.documentElement;
+  if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) { update(); return; }
+  try {
+    root.dataset.kop = dir;
+    const vt = document.startViewTransition(() => { update(); });
+    vt.finished.finally(() => { if (root.dataset.kop === dir) delete root.dataset.kop; });
+  } catch (e) { delete root.dataset.kop; update(); }
 }
 // ⚔️ De Duels-pagina (18/11/2026): een eigen scherm met een eigen adres, /duels/ (build-html.mjs: eigen titel + deelplaatje). Open =
 // dat adres + body[data-duelshome] (verbergt het spel, CSS in /duel.js). Voor game.js blijft het een .modal (toetsen, wachtende
@@ -10436,10 +10447,10 @@ function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith
 // Stipje als CSS-klasse i.p.v. een element: de menuknop (renderMenuButton) en de
 // menu-items (data-i18n) worden elders volledig herschreven — een class met
 // ::after overleeft dat, een kind-element niet.
-function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties, weekpodium, event of een duel)
+function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties, weekpodium, event); een duel op de deur ernaast
   const duel = duelNews() > 0;   // jouw beurt of een uitslag die je nog niet zag (bijgehouden door /duel.js)
-  document.querySelector('.menu-item[data-action="duels"]')?.classList?.toggle("has-new", duel);
-  const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew() || duel;
+  document.getElementById("duels-door")?.classList?.toggle("has-new", duel);   // 21/11: de deur naar Duels naast 🌐 (geen menu-regel meer)
+  const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew();
   document.getElementById("menu-btn")?.classList.toggle("has-new", has);
 }
 function renderAchvDot() {
@@ -13662,7 +13673,7 @@ function renderMenuButton() {
   } else {
     // Twee labels: CSS toont het korte onder 480px (i.p.v. helemaal geen —
     // een naamloos silhouet verstopte de hele login/pool-funnel op mobiel).
-    btn.innerHTML = `<span class="avatar">${guest}</span><span class="menu-label">${t("menu_login")}</span><span class="menu-label-short">${t("menu_login_short")}</span>` + caret;
+    btn.innerHTML = `<span class="avatar">${guest}</span><span class="menu-label">${t("menu_login")}</span>` + caret;
     btn.setAttribute("aria-label", t("menu_login"));
   }
 }
@@ -15049,6 +15060,12 @@ async function init() {
   const menuBtn = document.getElementById("menu-btn");
   const menuPop = document.getElementById("menu-pop");
   menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleLangMenu(false); toggleMenu(); });
+  // ⚔️ De deur naar Duels naast 🌐 (21/11/2026; daarvoor ⋮ → Duels).
+  document.getElementById("duels-door")?.addEventListener("click", () => {
+    toggleMenu(false); toggleLangMenu(false);
+    newsSeen("duels");
+    openDuels("door");
+  });
   menuPop.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-action]");
     if (!btn) return;

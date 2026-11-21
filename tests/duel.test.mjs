@@ -132,15 +132,22 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 266500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 271000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
-test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
+test("game.js ↔ duel.js — lui geladen, de deur naast 🌐, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
   assert.match(GAME, /const loadDuel = fxLoader\("\/duel\.js", "Duel"\);/);
   assert.ok(!/<script[^>]+duel\.js/.test(TPL), "duel.js staat niet in de pagina: alleen lui");
-  assert.match(TPL, /<button class="menu-item" role="menuitem" data-action="duels" data-i18n="menu_duels">\{\{i18n:menu_duels\}\}<\/button>/);
-  assert.equal((GAME.match(/menu_duels: "⚔️ /g) || []).length, 5, "menu-label in vijf talen");
-  assert.match(GAME, /else if \(action === "duels"\) openDuels\(\);/);
+  // 21/11: geen menu-regel meer, maar de deur naast 🌐 (het Duels-icoon in de vorm van het Jaardle-icoontje: DU/EL, zwaarden erachter)
+  assert.ok(!/data-action="duels"/.test(TPL), "geen ⚔️ Duels meer in het ⋮-menu");
+  assert.match(TPL, /<\/div>\n\s+<!--[^]*?-->\n\s+<button id="duels-door" class="kop-door" type="button" aria-label="\{\{i18n:door_duels\}\}" data-i18n-aria="door_duels"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#e8794a"\/>/, "direct na 🌐, vóór de tabs");
+  assert.ok(TPL.indexOf('id="duels-door"') > TPL.indexOf('id="lang-wrap"') && TPL.indexOf('id="duels-door"') < TPL.indexOf('class="tab" data-mode="daily"'));
+  assert.ok(!/menu_duels|menu_login_short/.test(GAME), "oude teksten weg");
+  assert.equal((GAME.match(/door_duels: "Duel(s|le|os)",/g) || []).length, 5, "de deur in vijf talen");
+  assert.match(GAME, /else if \(action === "duels"\) openDuels\(\);/, "de nieuws-balk opent Duels nog steeds");
+  assert.match(GAME, /document\.getElementById\("duels-door"\)\?\.addEventListener\("click", \(\) => \{[^}]*?openDuels\("door"\);/);
+  assert.match(GAME, /document\.getElementById\("duels-door"\)\?\.classList\?\.toggle\("has-new", duel\);/, "het stipje voor een duel staat op de deur");
+  assert.match(GAME, /const has = achvNewLoad\(\)\.length > 0 \|\| podiumHasNew\(\) \|\| eventHasNew\(\);/, "⋮ zonder duel-stipje");
   assert.match(GAME, /"modal-leaderboard", "modal-recap", "modal-login"\];/, "één paneel tegelijk; de Duels-pagina is geen paneel (die blijft eronder staan)");
   assert.match(GAME, /if \(!hash \|\| state\.duel\) return Promise\.resolve\(\);/, "geen record_play voor een duelronde (duel_submit schrijft de rij)");
   // db/200: een duelronde telt als een vrij potje, zonder rating. Dezelfde gegevens als record_play (playFields) gaan mee als
@@ -148,7 +155,7 @@ test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar 
   // eens zonder p_play. Geen ⚡-regel: de server schrijft het potje ongewaardeerd.
   assert.match(GAME, /p_fact_hash: hash,\n    \.\.\.playFields\(\),/, "record_play en duel_submit krijgen dezelfde gegevens");
   assert.match(GAME, /function duelPlayStart\(st\) \{\n  if \(st !== state \|\| !st\.done\) return null;/);
-  { const fn = GAME.slice(GAME.indexOf("function duelPlayStart(st)"), GAME.indexOf("function openDuels()"));
+  { const fn = GAME.slice(GAME.indexOf("function duelPlayStart(st)"), GAME.indexOf("function openDuels("));
     assert.ok(!/ratingLineStart|showLiveRating|refreshMyRating/.test(fn), "een duelronde raakt de rating niet: geen ⚡-regel");
     assert.match(fn, /checkAchievements\(\)/, "wel een unlock-kaartje");
     assert.match(fn, /ANON_PLAYED_KEY/, "en na inloggen gaan de duelpotjes mee (claimDevicePlays)"); }
@@ -699,8 +706,18 @@ test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de 
   // duel.js: het scherm staat in <main>, met de kop van een duelronde, en de CSS verbergt het spel zolang
   assert.match(SRC, /el\.className = "modal dl-page";/);
   assert.match(SRC, /\(document\.querySelector\("main"\) \|\| document\.body\)\.appendChild\(el\);/);
-  assert.match(SRC, /<div class="duel-top dl-top"><button type="button" class="duel-exit" data-close><\/button>/);
-  assert.match(SRC, /\[data-duelshome\] main > :not\(#modal-duels\)/);
+  assert.match(SRC, /el\.innerHTML = `<div class="modal-body dl"><\/div><div class="dl-foot" hidden><button type="button" class="dl-how" data-act="help" aria-haspopup="dialog">\$\{HELPI\}<span><\/span><\/button><\/div>`;/, "\"Hoe werkt het?\" onderaan (21/11)");
+  assert.match(SRC, /\[data-duelshome\] main > :not\(#modal-duels\):not\(#mode-tabs\)/, "de kop (#mode-tabs) blijft staan");
+  // 21/11: de kop = die van Jaardle (profiel, 🌐), met op de plek van de deur het Jaardle-icoontje (terug, met de schuifovergang)
+  assert.match(SRC, /const nav = document\.getElementById\("mode-tabs"\);[^]*?k\.id = "kop-duels"; k\.className = "kop-d";[^]*?nav\.appendChild\(k\);/);
+  assert.match(SRC, /<button type="button" class="kop-door kd-home"><\/button><h2 id="duels-title" class="duel-title dl-logo"><\/h2>/);
+  assert.match(SRC, /if \(H\.swap\) H\.swap\("out", close\); else close\(\);/);
+  assert.match(SRC, /body\[data-duelshome\] #mode-tabs \{ display: flex; \}/, "ook als een duelronde (data-duelpage) hem verborg");
+  assert.match(SRC, /\[data-duelshome\] #mode-tabs > \.tab, \[data-duelshome\] #duels-door \{ display: none; \}/);
+  assert.match(GAME, /swap: kopSwap,/);
+  assert.match(GAME, /function kopSwap\(dir, update\) \{[^]*?if \(!document\.startViewTransition \|\| matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches\) \{ update\(\); return; \}/, "zonder View Transitions of met minder beweging: in één keer");
+  assert.match(GAME, /loadDuel\(\)\.then\(\(D\) => kopSwap\("in", \(\) => \{ D\.openList\(duelHost\(\), \{\}\); \}\)\)/, "eerst laden, dan wisselen; geen promise naar de overgang");
+  assert.match(GAME, /if \(duels && window\.Duel\) window\.Duel\.openList\(duelHost\(\), \{ keepTop: true \}\);/, "🌐 op de Duels-pagina: opnieuw in de nieuwe taal");
   assert.ok(!/modal-backdrop" data-close><\/div><div class="modal-card"><header class="modal-header"><h2 id="duels-title"/.test(SRC), "geen pop-up meer");
   // de kop: logo (de ⚔️ áchter het woord), thuisknop = ‹ + het Jaardle-icoontje (van de skin), "?" = een pop-up boven de pagina
   assert.match(SRC, /<span class="dl-logo-sw" aria-hidden="true">\$\{ICON\}<\/span><span class="dl-logo-txt">\$\{esc\(T\.title\)\}<\/span>/);
@@ -1019,7 +1036,7 @@ test("game.js — ⚔️ Duel-geluid in ⚙️: vinkje bij de andere, standaard 
 });
 
 test("duel.js — ⚔️ Duel-geluid ook als knop naast de ? op de Duels-pagina: hetzelfde vinkje", () => {
-  assert.match(SRC, /<div class="dl-tools"><button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="false">\$\{SND\}<\/button>` \+\n\s+`<button type="button" class="dl-help-btn" data-act="help"/, "links naast de ?");
+  assert.match(SRC, /`<div class="dl-tools"><button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="false">\$\{SND\}<\/button><\/div>`;\n\s+nav\.appendChild\(k\);/, "rechts in de kop van de Duels-pagina (het ? staat sinds 21/11 onderaan)");
   assert.match(SRC, /sb\.setAttribute\("aria-label", T\.sound\); sb\.title = T\.sound; sb\.setAttribute\("aria-pressed", String\(sfxOn\(\)\)\);/, "stand bij het openen");
   assert.match(SRC, /if \(act === "sfx"\) return toggleSfx\(b\);/);
   assert.match(SRC, /function toggleSfx\(b\) \{[^]*?if \(H\?\.setSfx\) H\.setSfx\(on\);[^]*?if \(on\) sfxTest\(\);/, "game.js bewaart hem; aan = meteen de klang");
@@ -1113,4 +1130,17 @@ test("duel.js — 🤖 bots (db/218): één gezichtje vooraan (ook zonder accoun
   for (const l of D.langs()) { const c = D.copy(l); assert.equal(c.botLvl.split("|").length, 3, l); assert.ok(c.botsH && c.botsNote && c.botYou && c.botNext && c.botsFace, l); }
   assert.match(GAME, /myRating: \(\) => \(auth\.user && Number\.isFinite\(auth\.rating\) \? Math\.round\(auth\.rating\) : null\)/);
   X.applyList({ items: [], h2h: {}, targets: [] });
+});
+
+test("style.css — één kop Jaardle ↔ Duels (21/11): deur, tabs naar hun woord, poppetje zonder account, schuifovergang", () => {
+  const CSS = readFileSync(join(dir, "..", "style.css"), "utf8");
+  assert.match(CSS, /\.kop-door \.kd-logo \{ display: block; width: 28px; height: 28px; border-radius: 7px; \}/, "even groot als het Jaardle-icoontje op Duels");
+  assert.match(CSS, /\.kop-door\.has-new::after \{/, "het stipje op de deur");
+  assert.match(CSS, /\.tab \{\n  flex: 1 1 auto;/, "tabs zo breed als hun woord (met de deur erbij past \"Nieuw spel\" zo op één regel)");
+  assert.match(CSS, /@media \(max-width: 380px\) \{\n  \.tab \{ padding-inline: 0\.45rem; gap: 0\.3rem; font-size: 0\.88rem; \}\n\}/);
+  assert.match(CSS, /@media \(max-width: 480px\) \{\n  #menu-btn \.menu-label \{ display: none; \}\n\}/, "telefoon zonder account: alleen het poppetje");
+  assert.ok(!/menu-label-short/.test(CSS + GAME), "geen kort label meer");
+  assert.match(CSS, /#mode-tabs \{ view-transition-name: kop; \}/, "de kop blijft staan tijdens het wisselen");
+  for (const k of ["kop-out-l", "kop-in-r", "kop-out-r", "kop-in-l"]) assert.match(CSS, new RegExp(`@keyframes ${k} \\{`), k);
+  assert.match(CSS, /html\[data-kop="in"\]::view-transition-old\(root\) \{ animation-name: kop-out-l; \}/);
 });

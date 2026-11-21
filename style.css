@@ -416,12 +416,11 @@ main {
   font-size: 0.95rem;
 }
 #menu-btn .menu-label { font-size: 0.9rem; padding-right: 0.55rem; }
-#menu-btn .menu-label-short { display: none; font-size: 0.8rem; padding-right: 0.5rem; }
-/* Smal scherm: wissel naar het korte label i.p.v. helemaal geen — een naamloos
-   silhouet verstopte de hele login/pool-funnel voor mobiele spelers. */
+/* Smal scherm zonder account: alleen het poppetje + ▾, net als je avatar met een account (21/11/2026, zijn keuze "poppetje"; in juli
+   was dat teruggedraaid omdat het inloggen zo minder opviel). Met de deur naar Duels erbij was "Inloggen" (126 px) te breed: de tabs
+   werden 55–70 px en op de Duels-pagina botste het logo. Inloggen staat nog als eerste, gekleurde regel in het menu. */
 @media (max-width: 480px) {
   #menu-btn .menu-label { display: none; }
-  #menu-btn .menu-label-short { display: inline; }
 }
 #menu-btn .menu-caret {
   font-size: 0.7rem;
@@ -630,7 +629,8 @@ main {
 .lang-item.active { font-weight: 600; }
 
 .tab {
-  flex: 1;
+  flex: 1 1 auto;   /* zo breed als het woord (21/11; was allebei de helft): met de deur naar Duels erbij past "Nieuw spel" zo op één regel */
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -639,11 +639,61 @@ main {
   color: var(--muted);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.45rem 0.8rem; /* 0,6 → 0,45: kalender-icoontje (24 px) past zo binnen de 41 px van #23 */
+  padding: 0.45rem 0.6rem; /* 0,6 → 0,45: kalender-icoontje (24 px) past zo binnen de 41 px van #23 */
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
 }
+@media (max-width: 380px) {
+  .tab { padding-inline: 0.45rem; gap: 0.3rem; font-size: 0.88rem; }
+}
+
+/* De deur naar de andere kant (21/11/2026): op Jaardle het Duels-icoon, op de Duels-pagina het Jaardle-icoontje (/duel.js), steeds
+   op dezelfde plek naast 🌐. Even groot als de avatar. Het rode stipje (jouw beurt / nieuwe uitslag) staat hier, niet meer op ⋮. */
+.kop-door {
+  position: relative;
+  flex: none;
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.kop-door:hover { filter: none; background: var(--card-soft); }
+.kop-door:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.kop-door .kd-logo { display: block; width: 28px; height: 28px; border-radius: 7px; }
+.kop-door.has-new::after {
+  content: "";
+  position: absolute;
+  top: 0.2rem;
+  right: 0.1rem;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--achv-new, #e5484d);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+/* Wisselen tussen Jaardle en Duels (kopSwap in game.js, View Transitions): de kop blijft staan, de inhoud schuift opzij. Naar Duels =
+   Jaardle naar links en Duels van rechts, terug = andersom. Zonder View Transitions of met minder beweging: in één keer, zoals eerst. */
+#mode-tabs { view-transition-name: kop; }
+html[data-kop]::view-transition-old(root), html[data-kop]::view-transition-new(root) { animation-duration: 0.26s; animation-timing-function: cubic-bezier(0.22, 0.8, 0.24, 1); animation-fill-mode: both; mix-blend-mode: normal; }
+html[data-kop]::view-transition-group(kop) { animation-duration: 0.26s; }
+html[data-kop="in"]::view-transition-old(root) { animation-name: kop-out-l; }
+html[data-kop="in"]::view-transition-new(root) { animation-name: kop-in-r; }
+html[data-kop="out"]::view-transition-old(root) { animation-name: kop-out-r; }
+html[data-kop="out"]::view-transition-new(root) { animation-name: kop-in-l; }
+/* een telefoon schuift de hele breedte; op een groot scherm hoogstens 32rem, met vervagen (anders vliegt de kolom over het hele scherm) */
+@keyframes kop-out-l { to { transform: translateX(calc(-1 * min(100%, 32rem))); opacity: 0; } }
+@keyframes kop-in-r { from { transform: translateX(min(100%, 32rem)); opacity: 0; } }
+@keyframes kop-out-r { to { transform: translateX(min(100%, 32rem)); opacity: 0; } }
+@keyframes kop-in-l { from { transform: translateX(calc(-1 * min(100%, 32rem))); opacity: 0; } }
 .tab-icon {
   flex: none;
   font-size: 1em;
