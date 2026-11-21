@@ -621,3 +621,23 @@ test("ko.js — 🤖 K.O. tegen een bot: Revanche begint meteen een nieuw spel, 
   assert.doesNotMatch(els["modal-ko"].innerHTML, /bot-next/, "Prof is de sterkste: geen volgende");
 });
 function plainKo(x) { return JSON.parse(JSON.stringify(x)); }
+
+test("ko.js — 🎵 de muziek begint met de ronde, niet pas na de eerste gok (21/11, zijn melding)", async () => {
+  const { KO: KM, Duel: D } = loadAudio(true);   // effecten aan, muziek nooit gekozen = alles
+  const calls = [];
+  const M = { on: false, start() { this.on = true; calls.push("start"); }, stop() { this.on = false; calls.push("stop"); }, tense(t) { calls.push(`tense:${t}`); } };
+  let st = { duel: null, done: false };   // nog niet in het spel (aftellen, opening)
+  const h = host({ state: () => st, music: () => Promise.resolve(M), openModal() {}, closeModal() {}, toEvent: (p) => ({ p }), gc() {},
+    startRound: (rec) => { st = { duel: rec.duel, done: false }; return Promise.resolve(); } });
+  D._.setHost(h);
+  const g = { code: "KMUS01", state: "live", me: "a", opp: "k-sanne", now: new Date().toISOString(), round: 1, round_at: new Date(Date.now() - 500).toISOString(),
+    opp_name: "Sanne", opp_flair: null, hp: 150, opp_hp: 150, hp_max: 150, mine: [], theirs: [], opp_done: false, deadline: null, puzzle: { hashes: ["h1"] } };
+  KM._.apply(h, g);   // round_at is voorbij: meteen de ronde
+  for (let i = 0; i < 6; i++) await new Promise((r) => setImmediate(r));
+  assert.deepEqual(calls, ["start", "tense:false"], "de muziek speelt zodra de ronde klaarstaat, nog zonder klok");
+  // de ander gokt: de klok loopt (15 s), de muziek bouwt op
+  KM._.apply(h, { ...g, opp_done: true, deadline: new Date(Date.now() + 15000).toISOString() });
+  for (let i = 0; i < 6; i++) await new Promise((r) => setImmediate(r));
+  const last = calls.at(-1);
+  assert.ok(/^tense:\d+$/.test(last) && +last.slice(6) > 14000, `de klok gaat door: ${last}`);
+});

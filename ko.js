@@ -801,6 +801,17 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const run = H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(g.code, g.round) || null, potId: `k${g.code}${g.round}`,
                                duel: { code: g.code, round: g.round, opp: oppName(g), ko: true } });
     if (it) Promise.resolve(run).then(() => it.open(), () => it.open());
+    // 🎵 de muziek begint met de ronde. Eerder kwam hij pas bij het eerstvolgende seintje, dus na de eerste gok (zijn melding 21/11:
+    // "muziek gaat pas spelen nadat 1 iemand gegokt heeft? ipv als match begint"). cur = de nieuwste stand van dit spel
+    Promise.resolve(run).then(() => { if (cur?.code === g.code) musicFor(cur); }, () => {});
+  }
+  // 🎵 achtergrondmuziek (stand "alles"): het hele spel zolang je erin zit; loopt de klok, dan de hartslag eronder. Bij elk seintje (apply)
+  // en zodra een ronde klaarstaat (startRound)
+  function musicFor(g) {
+    const st = H.state(), here = !!(st?.duel?.ko && st.duel.code === g.code), live = here && g.state === "live";
+    // bij de K.O. speelt de laatste uitslag nog af: de muziek loopt door (zonder hartslag) tot het K.O.-scherm (showEnd); zijn melding 21/11
+    if (here && g.state === "done") A.music?.(null, false);
+    else A.music?.(live, live && g.deadline && st.duel.round === g.round ? Math.max(0, at(g.deadline) - now()) : 0);   // de klok: hoe lang nog (de muziek bouwt op)
   }
   // ── de uitslag van een ronde: een laag over het hele scherm (20/11, zijn "superimposed, net als confetti"; referentie GeoGuessr-duels,
   // in Jaardle-stijl). Zo min mogelijk tekst (zijn wens): bovenaan het echte jaar (groen) tussen jullie gokken (in de kleur van de afstand,
@@ -1108,11 +1119,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       }, Math.max(400, at(g.bot_at) - now() + 250));
     }
     const st = H.state(), here = !!(st?.duel?.ko && st.duel.code === g.code);
-    // 🎵 achtergrondmuziek (stand "alles"): het hele spel zolang je erin zit; loopt de klok, dan de hartslag eronder
-    const live = here && g.state === "live";
-    // bij de K.O. speelt de laatste uitslag nog af: de muziek loopt door (zonder hartslag) tot het K.O.-scherm (showEnd); zijn melding 21/11
-    if (here && g.state === "done") A.music?.(null, false);
-    else A.music?.(live, live && g.deadline && st.duel.round === g.round ? Math.max(0, at(g.deadline) - now()) : 0);   // de klok: hoe lang nog (de muziek bouwt op)
+    musicFor(g);
     if (g.state === "invite") return g.me === "b" ? showInvite(g) : showWait(g);
     if (g.state === "declined" || g.state === "expired" || g.state === "cancelled") {
       const el = document.getElementById(ID);
