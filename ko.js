@@ -452,7 +452,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       if (was > 0 && max > 0) drop(b, 0.5, was, Math.max(0, was - x), max, p);
     },
     // K.O. (21/11, zijn keuze "ko gewonnen muzikaal" op de luisterpagina): winst = klap, dan D – F♯ – A omhoog als glinsternoten (de klank
-    // van de achtergrondmuziek) en een open D-akkoord dat uitklinkt; ×1,96 = even hard als de gong van hiervoor. Verlies: nog de klap + gong.
+    // van de achtergrondmuziek) en een open D-akkoord dat uitklinkt; ×1,96 = even hard als de gong van hiervoor. Verlies blijft de klap + gong (zijn keuze), met langere galm.
     ko: (b, won) => {
       if (won) {
         const g = sub(b, 1.96);
@@ -462,7 +462,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
         A.ring(g, 0.35, 1760, 0.1);
         return;
       }
-      A.thud(b, 0, 140, 36, 0.95, 0.6); A.tick(b, 0, 2400, 0.3, 0.09); gong(b, 0, 175, 0.42, 2.6);
+      A.thud(b, 0, 140, 36, 0.95, 0.6); A.tick(b, 0, 2400, 0.3, 0.09); gong(b, 0, 175, 0.42, 4.5);   // verlies: de gong, sinds 21/11 met langere galm (4,5 s i.p.v. 2,6; zijn "galm wat langer door")
       A.swish(b, 0.03, 0.9, 1600, 160, 0.14, 0.06, 0, 0);
     },
     // gelijkspel (21/11, muzikaal): een zachte klap en D + G samen, dat blijft hangen en lost niet op

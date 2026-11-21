@@ -224,7 +224,7 @@ test("ko.js — knock-out-geluid: veertien klanken (21/11: + de zap bij ⚡ en d
   for (const r of log.src) {
     assert.ok(r.t >= 10 && r.end > r.t, `${r.kind}: start en stop kloppen`);
     if (r.kind === "noise") assert.ok(r.off + (r.end - r.t) <= 2, "de ruis past in de buffer van 2 s");
-    assert.ok(r.end - 10 < 3, "alles is binnen 3 s uitgeklonken");
+    assert.ok(r.end - 10 < 5, "alles is binnen 5 s uitgeklonken (21/11: de verlies-gong zingt 4,5 s)");
   }
   // schade: de klap valt als de balk zakt (ko-drop wacht 0,5 s) en is harder bij meer schade
   assert.ok(/ko-drop 0\.35s ease-out 0\.5s both/.test(KOSRC) && /crunch\(b, 0\.5,/.test(KOSRC) && /bwop\(b, 0\.5,/.test(KOSRC) && /drop\(b, 0\.5,/.test(KOSRC), "klap en noot op 0,5 s, gelijk met ko-drop");
