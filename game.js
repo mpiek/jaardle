@@ -5281,11 +5281,11 @@ function setDuelSfx(on) {
   prefChanged("duelsfx", !!on);
   syncDuelSfxUi();
 }
-// 🎵 Duel-muziek (21/11, zijn "3-way: sfx, uit, alles"; standaard alleen effecten): de luidspreker van /duel.js heeft drie standen,
+// 🎵 Duel-muziek (21/11, zijn "3-way: sfx, uit, alles"; sinds 21/11 middag standaard alles = effecten + muziek): de luidspreker van /duel.js heeft drie standen,
 // 0 = uit, 1 = effecten, 2 = effecten + achtergrondmuziek (/duel-music.js). De muziek blijft op dit toestel (geen serverkolom); de effecten
 // reizen mee (db/205). In ⚙️ is het een tweede vinkje onder ⚔️ Duel-geluid; aanzetten zet de effecten ook aan.
-const DUEL_MUSIC_KEY = "jaardle:duelmusic";   // "1" = aan; anders uit
-function duelMusicOn() { try { return duelSfxOn() && localStorage.getItem(DUEL_MUSIC_KEY) === "1"; } catch (e) { return false; } }
+const DUEL_MUSIC_KEY = "jaardle:duelmusic";   // "0" = uit; "1" of leeg (nooit gekozen) = aan (sinds 21/11 middag: standaard alles)
+function duelMusicOn() { try { return duelSfxOn() && localStorage.getItem(DUEL_MUSIC_KEY) !== "0"; } catch (e) { return false; } }
 function setDuelSnd(n) {
   const was = duelMusicOn();
   if (n > 0) try { localStorage.setItem(DUEL_MUSIC_KEY, n === 2 ? "1" : "0"); } catch (e) {}

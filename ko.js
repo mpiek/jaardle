@@ -419,9 +419,26 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       o.connect(e); o.start(t); o.stop(t + 0.85);
     }
   }
+  const sub = (b, v) => { const g = b.context.createGain(); g.gain.value = v; g.connect(b); return g; };   // eigen volume voor één klank
+  function pluck(b, at, f, g, dec) {   // een glinsternoot zoals in de muziek (/duel-music.js): grondtoon + twee boventonen
+    const x = b.context, t = x.currentTime + at, e = x.createGain();
+    e.gain.value = 0; e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.004); e.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+    e.connect(b);
+    for (const [r, a] of [[1, 1], [2, 0.25], [3, 0.08]]) {
+      const o = x.createOscillator(), og = x.createGain();
+      o.frequency.value = f * r; og.gain.value = a; o.connect(og); og.connect(e); o.start(t); o.stop(t + dec + 0.02);
+    }
+  }
   const SFX = {
     invite: (b) => { A.ring(b, 0, 1320, 0.14); A.ring(b, 0.16, 1760, 0.18); },   // je wordt uitgedaagd: ting-TING, omhoog
     count: (b) => beep(b, 0, 880, 0.2, 0.12),   // 3, 2, 1
+    // de ⚡ bij 0 (21/11, zijn "heeft die bliksemschicht een apart geluidje? die hoorde ik niet"): hoge 8-bit-knetter, een paar losse vonkjes
+    // en een korte blokgolf die van hoog naar laag schiet; daarna schuiven de helften binnen en botsen (de opening)
+    zap: (b) => {
+      crunch(b, 0, 0.22, 14000, 2500, 0.16, 0);
+      for (const [at, g] of [[0, 0.3], [0.025, 0.18], [0.06, 0.22], [0.1, 0.12], [0.15, 0.08]]) A.tick(b, at, 3600, g, 0.025);
+      bwop(b, 0, 1700, 220, 0.16, 0.08, 0.22, 0);
+    },
     go: (b) => A.play(b, "hit"),   // ⚡: de ⚔️-klang van de opening van een duel
     clock: (b) => { beep(b, 0, 1397, 0.16, 0.08); beep(b, 0.12, 1397, 0.16, 0.12); },   // de ander is klaar, jouw klok loopt: piep-piep
     // de laatste 5 s: steeds iets harder (21/11: de opname, tot die er is de synth tik-tak)
@@ -434,12 +451,29 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       bwop(b, 0.5, 300, 90, 0.12, 0.14 * g, 0.16, p);
       if (was > 0 && max > 0) drop(b, 0.5, was, Math.max(0, was - x), max, p);
     },
-    ko: (b, won) => {   // K.O.: klap + gong (winst hoger, met de ⚔️-klang erbovenop; verlies lager en kaal), daarna een vallende zwiep
-      A.thud(b, 0, 140, 36, 0.95, 0.6); A.tick(b, 0, 2400, 0.3, 0.09); gong(b, 0, won ? 247 : 175, 0.42, 2.6);
-      if (won) A.ring(b, 0.01, 1180, 0.24);
+    // K.O. (21/11, zijn keuze "ko gewonnen muzikaal" op de luisterpagina): winst = klap, dan D – F♯ – A omhoog als glinsternoten (de klank
+    // van de achtergrondmuziek) en een open D-akkoord dat uitklinkt; ×1,96 = even hard als de gong van hiervoor. Verlies: nog de klap + gong.
+    ko: (b, won) => {
+      if (won) {
+        const g = sub(b, 1.96);
+        A.thud(g, 0, 140, 36, 0.8, 0.5); A.tick(g, 0, 2400, 0.25, 0.08);
+        [587.33, 739.99, 880].forEach((f, i) => pluck(g, 0.08 + i * 0.09, f, 0.1, 0.7));
+        [1174.66, 880, 739.99, 587.33].forEach((f) => pluck(g, 0.35, f, 0.06, 2.2));
+        A.ring(g, 0.35, 1760, 0.1);
+        return;
+      }
+      A.thud(b, 0, 140, 36, 0.95, 0.6); A.tick(b, 0, 2400, 0.3, 0.09); gong(b, 0, 175, 0.42, 2.6);
       A.swish(b, 0.03, 0.9, 1600, 160, 0.14, 0.06, 0, 0);
     },
-    draw: (b) => A.ring(b, 0, 1180, 0.16),   // gelijkspel: alleen een zachte klang
+    // gelijkspel (21/11, muzikaal): een zachte klap en D + G samen, dat blijft hangen en lost niet op
+    draw: (b) => { const g = sub(b, 0.58); A.thud(g, 0, 160, 50, 0.5, 0.3); pluck(g, 0.05, 587.33, 0.07, 1.5); pluck(g, 0.05, 783.99, 0.07, 1.5); },
+    // de verdubbelaar (21/11, zijn "die verdubbelaar is ook goed"): het ×-blokje licht op met zoveel opstapjes als de factor hoog is
+    // (×1,5 = 2 … ×3 = 5, D-pentatonisch, blokgolf) en een glinster erachter
+    power: (b, m) => {
+      const n = Math.round((m - 1) * 2) + 1, P = [587.33, 659.25, 739.99, 880, 987.77, 1174.66, 1318.51];
+      for (let i = 0; i < n; i++) bwop(b, i * 0.055, P[i], P[i], 0.05, 0.07, 0.09, 0);
+      pluck(b, n * 0.055, P[n], 0.06, 0.6);
+    },
     clash: (b) => { A.thud(b, 0, 260, 70, 0.32, 0.16); A.tick(b, 0, 3000, 0.1, 0.03); },   // de uitslag: het hoogste getal botst op het lagere
     bam: (b) => { if (!A.smp?.(b, "ko-bam")) { A.thud(b, 0, 150, 38, 0.85, 0.42); A.swish(b, 0, 0.3, 1800, 220, 0.2, 0.06, 0, 0); } },   // de max: een harde klap (21/11: de opname)
     want: (b, at = 0) => { A.ring(b, at, 2349, 0.09); A.ring(b, at + 0.09, 2794, 0.08); },   // de ander wil revanche: belletje
@@ -559,7 +593,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const T = tx();
     if (H.loggedIn) Promise.resolve(H.ensureIdentity?.()).catch(() => {});   // je naam en flair in de opening straks
     const el = pop(band(g, rev ? T.revH : T.tag) + `<h2>${esc(rev ? T.revH : T.startH)}</h2><p class="ko-count">3</p><p>${esc(T.startP)}</p>`, () => {});
-    countdown(el.querySelector(".ko-count"), at(g.round_at), (s) => { if (s > 0) sfx(`c:${g.code}:${s}`, "count"); return s > 0 ? String(s) : "⚡"; });
+    countdown(el.querySelector(".ko-count"), at(g.round_at), (s) => { sfx(`c:${g.code}:${s}`, s > 0 ? "count" : "zap"); return s > 0 ? String(s) : "⚡"; });   // 21/11: de ⚡ bij 0 met een eigen zap
   }
   async function openRound(g) {
     const T = tx();
@@ -955,7 +989,12 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       N[lo].className = "hit"; shake(S[lo]);
       count(N[lo], P[lo].pts, P[lo].pts - P[wi].pts, down(P[wi].pts), (v) => N[lo].classList.toggle("neg", v < 0));
     });
-    later(T0 + 2200, () => { pop([$(".ks-f")]); if (q.x !== q.d) count(N[lo], -q.d, -q.x, down(q.x - q.d, 500)); });   // × de factor: verder aftellen
+    later(T0 + 2200, () => {   // × de factor: het blokje licht op (bij ×1,5 en hoger met de power-up), daarna verder aftellen
+      pop([$(".ks-f")]);
+      const m = mult(q.r), w = m > 1 ? Math.round((m - 1) * 2) * 55 + 115 : 0;
+      if (m > 1) sfx(`pw:${g.code}:${q.r}`, "power", m);
+      if (q.x !== q.d) later(w, () => count(N[lo], -q.d, -q.x, down(q.x - q.d, 500)));   // later() telt vanaf nu
+    });
     later(T0 + 2700, () => {   // = de schade; de max (goud) met een harde klap
       N[lo].className = q.max ? "dmg max" : "dmg";
       if (q.max) { shake(S[lo], "ks-bam"); sfx(`bam:${g.code}:${q.r}`, "bam"); }   // geen plop bij gewone schade: het getal telde al af

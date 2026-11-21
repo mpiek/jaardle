@@ -209,11 +209,11 @@ function loadAudio(on, withAudio = true) {
   vm.runInContext(KOSRC, ctx);
   return { KO: win.KO, Duel: win.Duel, log, els };
 }
-const ARGS = { tick: [3], hit: [26, true], ko: [true], want: [0] };
+const ARGS = { tick: [3], hit: [26, true], ko: [true], want: [0], power: [3] };
 
-test("ko.js — knock-out-geluid: twaalf klanken, stil en zonder fout zonder vinkje of zonder Web Audio, elk moment één keer", () => {
+test("ko.js — knock-out-geluid: veertien klanken (21/11: + de zap bij ⚡ en de power-up van de verdubbelaar), stil en zonder fout zonder vinkje of zonder Web Audio, elk moment één keer", () => {
   const { KO: K1, log } = loadAudio(true);
-  assert.deepEqual([...Object.keys(K1._.SFX)].sort(), ["bam", "clash", "clock", "count", "draw", "go", "hit", "invite", "ko", "rx", "tick", "want"]);
+  assert.deepEqual([...Object.keys(K1._.SFX)].sort(), ["bam", "clash", "clock", "count", "draw", "go", "hit", "invite", "ko", "power", "rx", "tick", "want", "zap"]);
   for (const k of Object.keys(K1._.SFX)) {
     const n = log.src.length;
     assert.equal(K1._.sfx(`t:${k}`, k, ...(ARGS[k] || [])), true);
@@ -234,6 +234,7 @@ test("ko.js — knock-out-geluid: twaalf klanken, stil en zonder fout zonder vin
   assert.equal(nSrc([30, true, 120, 150]) - nSrc([30, true]), 2, "de noot klinkt alleen met de levens erbij");
   assert.match(KOSRC, /if \(here && g\.state === "done"\) A\.music\?\.\(null, false\);/, "21/11: bij de K.O. loopt de muziek door tot het K.O.-scherm");
   assert.match(KOSRC, /A\.music\?\.\(false\);   \/\/ 🎵 de muziek weg zodra het K\.O\.-scherm er is/);
+  assert.match(KOSRC, /if \(m > 1\) sfx\(`pw:\$\{g\.code\}:\$\{q\.r\}`, "power", m\);\n\s+if \(q\.x !== q\.d\) later\(w, \(\) => count\(/, "21/11: power-up bij ×1,5+, daarna aftellen (later() telt vanaf nu)");
   assert.match(KOSRC, /if \(v !== last\) \{ last = v; ping\(k, to > from\); \}/, "21/11: een ping per stap van de getallen");
   assert.match(KOSRC, /if \(t - pingAt < 40\) return;/, "hooguit 25 per seconde");
   assert.match(KOSRC, /f = \(v\) => 130\.81 \* 2 \*\* \(\(2 \* Math\.max\(0, v\)\) \/ max\)/, "leeg C3 (131 Hz), vol twee octaven hoger (C5)");

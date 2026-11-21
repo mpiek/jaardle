@@ -1628,10 +1628,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // De luidspreker als knop: op de Duels-pagina naast de ?, en sinds 20/11 ook links in de kop van een ronde (zijn vraag: "altijd de
   // geluidsknop kunnen indrukken, ook als je in een duel zit"); ⚡ Knock-out (/ko.js) gebruikt dezelfde. Hetzelfde als het vinkje in ⚙️:
   // game.js bewaart hem (ook op de server) en zet het vinkje en elke knop; aan = meteen de klang, binnen de tik.
-  // 🎵 21/11: drie standen (zijn "3-way: sfx, uit, alles"; standaard effecten): 0 = uit, 1 = effecten, 2 = effecten + achtergrondmuziek.
+  // 🎵 21/11: drie standen (zijn "3-way: sfx, uit, alles"): 0 = uit, 1 = effecten, 2 = effecten + achtergrondmuziek. Standaard (nooit
+  // gekozen) sinds 21/11 middag "alles" (zijn "toch change of plans: standaard alles aan sfx+muziek"); wie zelf koos, houdt dat.
   // De muziek is een eigen sleutel, alleen op dit toestel (de effecten reizen mee als duelsfx, db/205). Tik: effecten → uit → alles → effecten.
   const MUS_KEY = "jaardle:duelmusic";
-  const sndState = () => { if (!sfxOn()) return 0; try { return localStorage.getItem(MUS_KEY) === "1" ? 2 : 1; } catch (e) { return 1; } };
+  const sndState = () => { if (!sfxOn()) return 0; try { return localStorage.getItem(MUS_KEY) === "0" ? 1 : 2; } catch (e) { return 1; } };
   const sndLbl = (T, s = sndState()) => `${T.sound}: ${T[`snd${s}`]}`;
   function sndSet(b, T = tx(H?.lang)) {
     const s = sndState(), l = sndLbl(T, s);

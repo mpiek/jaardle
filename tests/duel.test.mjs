@@ -1169,7 +1169,9 @@ function loadDuelSnd() {
 
 test("duel.js — 🎵 drie standen: effecten (standaard) → uit → alles → effecten; elke knop volgt, met de stand in het label", () => {
   const { D, store, btn } = loadDuelSnd(), X = D._, b = btn(), b2 = btn();
-  assert.equal(X.sndState(), 1, "nooit gekozen = alleen effecten (zijn \"default is dan sfx only\")");
+  assert.equal(X.sndState(), 2, "nooit gekozen = alles (21/11 middag, zijn \"standaard alles aan sfx+muziek\")");
+  store.set("jaardle:duelmusic", "0");
+  assert.equal(X.sndState(), 1, "wie effecten koos, houdt effecten");
   X.toggleSfx(b);
   assert.equal(X.sndState(), 0); assert.equal(store.get("jaardle:duelsfx"), "0");
   assert.equal(b2.a["data-snd"], "0"); assert.equal(b2.a["aria-pressed"], "false"); assert.equal(b2.a["aria-label"], "Duel sounds: off");
@@ -1185,10 +1187,11 @@ test("duel.js — 🎵 muziek alleen op 'alles', alleen in een ronde; de knock-o
   const { D, store } = loadDuelSnd(), X = D._, calls = [];
   const M = { on: false, start() { this.on = true; calls.push("start"); }, stop() { this.on = false; calls.push("stop"); }, tense(t) { calls.push(`tense:${t}`); } };
   X.setHost({ lang: "nl", music: () => Promise.resolve(M), state: () => null });
+  store.set("jaardle:duelmusic", "0");   // stand effecten
   X.music(true);
   await Promise.resolve(); await Promise.resolve();
   assert.deepEqual(calls, [], "stand effecten: geen muziek (het bestand laadt niet eens)");
-  store.set("jaardle:duelmusic", "1");
+  store.delete("jaardle:duelmusic");   // nooit gekozen = alles
   X.music(true, true);
   await new Promise((r) => setImmediate(r));
   assert.deepEqual(calls, ["start", "tense:true"]);
