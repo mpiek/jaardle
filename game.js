@@ -5257,11 +5257,12 @@ function syncDuelPushUi() {
   item.hidden = remindSupport() !== "push" || !(duelKnown() || set);
   item.setAttribute("aria-checked", String(duelPushOn()));
 }
-// ⚔️ Duel-geluid (19/11/2026, zijn vraag: "sfx voor duels, standaard uit, vinkje onder instellingen"): geluid bij de opening van een
-// duelronde en de band tussen rondes (/duel.js maakt en speelt het). Standaard uit; met een account reist hij mee (db/205: duelsfx).
+// ⚔️ Duel-geluid (19/11/2026, zijn vraag: "sfx voor duels, vinkje onder instellingen"): geluid bij de opening van een duelronde en de
+// band tussen rondes (/duel.js maakt en speelt het). Sinds 21/11 standaard AAN (zijn "zonder geluid is het lastiger te spelen"); wie hem
+// zelf uitzette houdt "0". Met een account reist een eigen keuze mee (db/205: duelsfx); nooit gekozen gaat niet naar de server.
 // Zichtbaar voor wie ooit duelleerde (zoals de duel-seintjes) of hem al eens zette.
-const DUEL_SFX_KEY = "jaardle:duelsfx";   // "1" = aan, "0" = uit, leeg = nooit gekozen (= uit)
-function duelSfxOn() { try { return localStorage.getItem(DUEL_SFX_KEY) === "1"; } catch (e) { return false; } }
+const DUEL_SFX_KEY = "jaardle:duelsfx";   // "1" = aan, "0" = uit, leeg = nooit gekozen (= aan)
+function duelSfxOn() { try { return localStorage.getItem(DUEL_SFX_KEY) !== "0"; } catch (e) { return false; } }
 function setDuelSfx(on) {
   try { localStorage.setItem(DUEL_SFX_KEY, on ? "1" : "0"); } catch (e) {}
   gcCount(on ? "duel-sfx-on" : "duel-sfx-off", on ? "Duel sounds on" : "Duel sounds off");

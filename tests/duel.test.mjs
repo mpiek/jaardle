@@ -955,17 +955,20 @@ function fakeAudio() {
 function loadDuelAudio(on) {
   const A = fakeAudio(), win = { AudioContext: A.Ctx, addEventListener() {} };
   const doc = { hidden: false, head: { appendChild() {} }, getElementById: () => null, querySelector: () => null, createElement: () => ({ setAttribute() {}, textContent: "" }) };
-  const localStorage = { getItem: (k) => (k === "jaardle:duelsfx" && on ? "1" : null) };
+  const localStorage = { getItem: (k) => (k === "jaardle:duelsfx" ? (on === null ? null : on ? "1" : "0") : null) };
   vm.runInContext(SRC, vm.createContext({ window: win, document: doc, localStorage, performance: { now: () => 0 }, Float32Array, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL,
     encodeURIComponent, setTimeout: () => 0, clearTimeout: () => {} }));
   return { D: win.Duel, log: A.log };
 }
 
-test("duel.js — duel-geluid: standaard uit, Web Audio zonder bestanden, op de tijden van de opening", () => {
+test("duel.js — duel-geluid: standaard aan (21/11), Web Audio zonder bestanden, op de tijden van de opening", () => {
   const off = loadDuelAudio(false);
   off.D.sfxTest();
-  assert.equal(off.log.nodes, 0, "zonder vinkje: geen AudioContext, geen geluid");
-  assert.match(SRC, /const sfxOn = \(\) => \{ try \{ return localStorage\.getItem\(SFX_KEY\) === "1"; \} catch \(e\) \{ return false; \} \};/, "alleen een expliciete 1 zet hem aan");
+  assert.equal(off.log.nodes, 0, "zelf uitgezet (\"0\"): geen AudioContext, geen geluid");
+  assert.match(SRC, /const sfxOn = \(\) => \{ try \{ return localStorage\.getItem\(SFX_KEY\) !== "0"; \} catch \(e\) \{ return false; \} \};/, "alleen een expliciete 0 zet hem uit");
+  const fresh = loadDuelAudio(null);
+  fresh.D.sfxTest();
+  assert.ok(fresh.log.nodes > 0, "nooit gekozen (leeg): geluid aan");
   assert.ok(!/new Audio\(|\.mp3|\.ogg|\.wav/.test(SRC), "geen geluidsbestanden");
 
   const { D: DA, log } = loadDuelAudio(true);
@@ -1001,12 +1004,12 @@ test("duel.js — duel-geluid in de opening: één bus per opening, wegschuiven 
   assert.match(SRC, /for \(const ev of \["pointerup", "touchend", "click", "keydown"\]\) window\.addEventListener\?\.\(ev,/, "een tik maakt het geluid wakker (iOS)");
 });
 
-test("game.js — ⚔️ Duel-geluid in ⚙️: vinkje bij de andere, standaard uit, reist mee als duelsfx (db/205)", () => {
+test("game.js — ⚔️ Duel-geluid in ⚙️: vinkje bij de andere, standaard aan (21/11), reist mee als duelsfx (db/205)", () => {
   assert.match(TPL, /data-action="duel-push" data-i18n="menu_duel_push" hidden>\{\{i18n:menu_duel_push\}\}<\/button>\n\s+<!--[^\n]*-->\n\s+<button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-sfx" data-i18n="menu_duel_sfx" hidden>\{\{i18n:menu_duel_sfx\}\}<\/button>/);
   assert.equal((GAME.match(/menu_duel_sfx: "⚔️ /g) || []).length, 5, "vijf talen");
   assert.match(GAME, /const DUEL_SFX_KEY = "jaardle:duelsfx";/);
   assert.ok(SRC.includes('const SFX_KEY = "jaardle:duelsfx";'), "dezelfde sleutel in duel.js");
-  assert.match(GAME, /function duelSfxOn\(\) \{ try \{ return localStorage\.getItem\(DUEL_SFX_KEY\) === "1"; \}/, "leeg = uit");
+  assert.match(GAME, /function duelSfxOn\(\) \{ try \{ return localStorage\.getItem\(DUEL_SFX_KEY\) !== "0"; \}/, "leeg = aan (21/11)");
   assert.match(GAME, /prefChanged\("duelsfx", !!on\);/);
   assert.match(GAME, /duelsfx: \{ get: \(\) => \{ const v = lsGet\(DUEL_SFX_KEY\); return v == null \? undefined : v === "1"; \},/);
   assert.match(GAME, /if \(action === "duel-sfx"\) \{/);

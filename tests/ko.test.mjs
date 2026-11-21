@@ -202,7 +202,7 @@ function loadAudio(on, withAudio = true) {
   const mk = () => ({ hidden: true, textContent: "", setAttribute() {}, querySelector: () => mk(), querySelectorAll: () => [], classList: { add() {}, remove() {}, toggle() {} }, style: { setProperty() {} } });
   const doc = { hidden: false, head: { appendChild() {} }, body: { setAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
     getElementById: (id) => els[id] || null, querySelector: () => null, querySelectorAll: () => [], createElement: mk, addEventListener() {}, removeEventListener() {} };
-  const localStorage = { getItem: (k) => (k === "jaardle:duelsfx" && on ? "1" : null) };
+  const localStorage = { getItem: (k) => (k === "jaardle:duelsfx" ? (on === null ? null : on ? "1" : "0") : null) };
   const ctx = vm.createContext({ window: win, document: doc, localStorage, performance: { now: () => 0 }, Float32Array, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL,
     encodeURIComponent, setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {} });
   vm.runInContext(DUEL, ctx);

@@ -50,7 +50,7 @@ src += `
   BAND_OUTER, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
   BAND_INNER, guessRanges, guessImpossibleAt, outOfBand, BAND_SLACK, strictGuardOn, remainingRanges, intersectRanges, strictGuardPref, setStrictGuard, STRICT_GUARD_KEY,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
-  rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
+  rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, duelSfxOn, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx, STROOIGOED_FX_IDS, loadStrooigoedFx, loadFxOf,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
@@ -1073,7 +1073,8 @@ test("instellingen die meereizen (db/180) — één win-keuze uit vijf sleutels,
     T.SYNCED_PREFS.obxsound.set(true);
     assert.equal(T.SYNCED_PREFS.obxsound.get(), true);
     localStorage.removeItem("jaardle:duelsfx");
-    assert.equal(T.SYNCED_PREFS.duelsfx.get(), undefined);   // nooit gekozen: niet naar de server (en uit)
+    assert.equal(T.SYNCED_PREFS.duelsfx.get(), undefined);   // nooit gekozen: niet naar de server (en aan, sinds 21/11)
+    assert.equal(T.duelSfxOn(), true);
     T.SYNCED_PREFS.duelsfx.set(true);
     assert.equal(T.SYNCED_PREFS.duelsfx.get(), true);
     assert.equal(localStorage.getItem("jaardle:duelsfx"), "1");   // de sleutel die /duel.js leest

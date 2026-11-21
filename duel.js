@@ -1597,9 +1597,9 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
 
-  // ════ geluid bij de opening (19/11, zijn vraag: "sfx voor duels, standaard uit, vinkje onder instellingen"; vooral het openen en
-  // wegschuiven) ════
-  // Alleen met ⚙️ ⚔️ Duel-geluid aan (jaardle:duelsfx = "1"; game.js zet hem, db/205 laat hem met een account meereizen). Geen
+  // ════ geluid bij de opening (19/11, zijn vraag: "sfx voor duels, vinkje onder instellingen"; vooral het openen en wegschuiven) ════
+  // Sinds 21/11 standaard AAN (zijn "zonder geluid is het lastiger te spelen"): stil alleen als je ⚙️ ⚔️ Duel-geluid of de luidspreker
+  // zelf uitzette (jaardle:duelsfx = "0"; game.js zet hem, db/205 laat hem met een account meereizen). Geen
   // bestanden: alles komt uit Web Audio, zoals bij de obsidiaan-onthulling. Schuiven = ruis door een meeschuivend bandfilter, links of
   // rechts (stereo), net als de helften; de botsing = een paar onharmonische tonen (het zingen van metaal) met een tik en een doffe klap
   // eronder (het scherm schudt). De tijden komen uit INTRO_MS, dus beeld en geluid botsen tegelijk. Een browser laat geluid pas toe na
@@ -1609,7 +1609,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const SND = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 9.3h3.4l4.6-3.9v13.2l-4.6-3.9H3.5z" fill="currentColor"/>` +
     `<g class="on" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 9.3a3.9 3.9 0 0 1 0 5.4"/><path d="M17.7 6.7a7.6 7.6 0 0 1 0 10.6"/></g>` +
     `<g class="off" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8"/></g></svg>`;
-  const sfxOn = () => { try { return localStorage.getItem(SFX_KEY) === "1"; } catch (e) { return false; } };
+  const sfxOn = () => { try { return localStorage.getItem(SFX_KEY) !== "0"; } catch (e) { return false; } };   // leeg = nooit gekozen = aan
   // De luidspreker als knop: op de Duels-pagina naast de ?, en sinds 20/11 ook links in de kop van een ronde (zijn vraag: "altijd de
   // geluidsknop kunnen indrukken, ook als je in een duel zit"); ⚡ Knock-out (/ko.js) gebruikt dezelfde. Hetzelfde als het vinkje in ⚙️:
   // game.js bewaart hem (ook op de server) en zet het vinkje en elke knop; aan = meteen de klang, binnen de tik.
