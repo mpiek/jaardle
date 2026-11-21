@@ -1829,7 +1829,6 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
         exit(false);
       },
       kill() { gone = true; off(); sfxHush(bus, 0.01); el.remove(); },
-      setLabel(t) { const p = el.querySelector(short ? ".dix-bmid b" : ".dix-rd"); if (p) p.textContent = t; },   // de pil (⚡: het aftellen)
     };
     introNow = api;
     return api;
