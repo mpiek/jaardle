@@ -76,7 +76,7 @@ test("ko.js — de ronde-uitslag als laag (20/11): jaartallen als chips in de kl
   assert.match(r, /<div class="ks-s me lose"><strong class="dmg">−26<\/strong>/, "jij krijgt de schade (17 × 1,5 = 26)");
   assert.match(r, /<div class="ks-s op win"><strong>98<\/strong>/);
   assert.match(r, /<b class="ks-f">×1,5<\/b>/);
-  assert.match(r, /<span class="ks-hint"><span aria-hidden="true">🏛️<\/span>−20<\/span><span class="ks-hint"><span aria-hidden="true">⏩<\/span>−3<\/span>/, "hints als losse chips, geen extra getal");
+  assert.match(r, /<span class="ks-hint" data-v="-20"><span aria-hidden="true">🏛️<\/span>−20<\/span><span class="ks-hint" data-v="-3"><span aria-hidden="true">⏩<\/span>−3<\/span>/, "hints als losse chips, geen extra getal");
   assert.doesNotMatch(r, /ernaast|Het was|punten|max|×\s*1,5 =|17 ×/, "geen zinnen, geen max-tekst, geen som");
   // de max: goud (klasse max), geen tekst
   assert.match(KO._.showHtml(h, { ...g, mine: [92, 81, 100], theirs: [84, 89, 0] }, 3), /<div class="ks-s op lose"><strong class="dmg max">−100<\/strong>/);
@@ -291,7 +291,7 @@ test("ko.js — knock-out-geluid in het spel: uitnodiging, aftellen, K.O. en 'wi
   assert.match(KOSRC, /if \(!it\) \{ sfx\(`go:\$\{g\.code\}`, "go"\); return startRound\(g\); \}/, "zonder opening: de ⚡-klang bij de start van ronde 1");
   assert.match(KOSRC, /if \(end - now\(\) > 1000\) sfx\(`dl:\$\{rk\}`, "clock"\);/);
   assert.match(KOSRC, /if \(s > 0 && s <= 5\) sfx\(`t:\$\{rk\}:\$\{s\}`, "tick", s\);/);
-  assert.match(KOSRC, /if \(q\.who\) sfx\(`res:\$\{g\.code\}:\$\{r\}`, "hit", q\.x, q\.who === "me", q\.who === "me" \? drain\.me : drain\.op, g\.hp_max \|\| HP\);/, "met de levens van vóór de klap: de dalende noot");
+  assert.match(KOSRC, /if \(q\.who\) sfx\(`res:\$\{g\.code\}:\$\{r\}`, "hit", q\.x, q\.who === "me", q\.who === "me" \? drain\.me : drain\.op, hpMax\(g\)\);/, "met de levens van vóór de klap: de dalende noot");
   assert.match(DUEL, /au: \{ bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud, smp, music \}/, "de motor blijft in duel.js (21/11: + opnames en muziek)");
 });
 
@@ -378,12 +378,15 @@ test("ko.js — nageleverde seintjes (replay bij het verbinden) over een ander s
 });
 
 test("ko.js — de hints één voor één tegen je eigen getal, daarna pas de ander; past in de pauze van 8 s (zijn idee 20/11)", () => {
-  assert.match(KOSRC, /const T0 = hn \? 1700 \+ hn \* HS : 1650, left = o\.left \?\? Infinity;/);
-  assert.match(KOSRC, /HS = hn >= 3 \? 450 : 600;/);
+  assert.match(KOSRC, /const T0 = hn \? CH0 \+ hn \* HS \+ \(two \? 100 : 0\) : two \? 1250 : 1650, left = o\.left \?\? Infinity;/);
+  assert.match(KOSRC, /HS = hn >= 3 \? 450 : 600, CH0 = two \? 950 : 1700;/);
   assert.match(KOSRC, /if \(reduced\(\) \|\| left < T0 \+ 3600 \+ 500\) return fin\(/, "past het niet: meteen het eindbeeld");
   // de rekensom: met 3 hints (🏛️ 🔢 ⏩) moet de hele laag passen in wat er van 8 s over is als de uitslag ±0,4 s later binnenkomt
   const T0 = (hn) => (hn ? 1700 + hn * (hn >= 3 ? 450 : 600) : 1650);
   for (const hn of [0, 1, 2, 3]) assert.ok(T0(hn) + 3600 + 500 <= 7600, `${hn} hints: ${T0(hn) + 4100} ms`);
+  // regels 2: hooguit twee chips (strafpunten + 🎯 +1) vanaf 950 ms
+  const T2 = (hn) => (hn ? 950 + hn * 600 + 100 : 1250);
+  for (const hn of [0, 1, 2]) assert.ok(T2(hn) + 3600 + 500 <= 7600, `regels 2, ${hn} chips: ${T2(hn) + 4100} ms`);
   assert.doesNotMatch(KOSRC, /hintNote/, "de zin 'een hint geeft … de punten' is weg");
 });
 
@@ -640,4 +643,48 @@ test("ko.js — 🎵 de muziek begint met de ronde, niet pas na de eerste gok (2
   for (let i = 0; i < 6; i++) await new Promise((r) => setImmediate(r));
   const last = calls.at(-1);
   assert.ok(/^tense:\d+$/.test(last) && +last.slice(6) > 14000, `de klok gaat door: ${last}`);
+});
+
+test("ko.js — regels 2 (db/220, 21/11): gewone strafpunten, 🎯 +1 bij dezelfde kleur, ×5 t/m ronde 4 en daarna +5, max 150, 250 levens", () => {
+  const two = { rules: 2 };
+  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 13].map((r) => KO._.mult(r, two)), [5, 5, 5, 5, 10, 15, 20, 25, 50]);
+  assert.deepEqual([1, 3, 5, 9].map((r) => KO._.mult(r)), [1, 1.5, 2.5, 3], "zonder rules: de regels van vóór 21/11");
+  assert.equal(KO._.dmgOf(98, 97, 1, two), 5); assert.equal(KO._.dmgOf(100, 85, 13, two), 150, "max 150"); assert.equal(KO._.dmgOf(100, 0, 3), 100, "regels 1: max 100");
+  const f = join(dir, "..", "..", "jaardle-tools", "db", "220_ko_rules2.sql");
+  if (existsSync(f)) { const sql = readFileSync(f, "utf8"); assert.match(sql, /least\(150/); assert.match(sql, /\b85\b/); }
+  const h = host({ els: { resultText: null } });
+  // jouw ronde 1 tegen Prof: 1 en 4 jaar ernaast → 🟪 −2 en 🟦 −3 → 98 tegen 97, × 5 = −5
+  const g = { code: "KABCDE", rules: 2, hp_max: 250, state: "live", round: 2, round_at: new Date(Date.now() + 5000).toISOString(), hp: 250, opp_hp: 245, opp_name: "Prof",
+    mine: [98], theirs: [97], my_years: [1944], their_years: [1941], my_hints: [0], their_hints: [0], answers: [1945] };
+  const r = KO._.showHtml(h, g, 1);
+  assert.match(r, /<div class="ks-s me win"><strong>98<\/strong><small><span class="ks-pen delta-badge veryclose" data-v="-2">−2<\/span><\/small>/);
+  assert.match(r, /<div class="ks-s op lose"><strong class="dmg">−5<\/strong><small><span class="ks-pen delta-badge near" data-v="-3">−3<\/span><\/small>/);
+  assert.match(r, /<b class="ks-f">×5<\/b>/);
+  assert.doesNotMatch(r, /ks-hint|ks-tb/);
+  // zelfde kleur: 1 en 2 jaar → allebei 🟪 −2; de server gaf wie dichterbij zat +1 (99 tegen 98)
+  const t = KO._.showHtml(h, { ...g, mine: [99], theirs: [98], my_years: [1611], their_years: [1608], answers: [1610] }, 1);
+  assert.match(t, /<strong>99<\/strong><small><span class="ks-pen delta-badge veryclose" data-v="-2">−2<\/span><span class="ks-tb" data-v="1"><span aria-hidden="true">🎯<\/span>\+1<\/span><\/small>/);
+  assert.match(t, /<strong class="dmg">−5<\/strong><small><span class="ks-pen delta-badge veryclose" data-v="-2">−2<\/span><\/small>/);
+  // precies goed: geen chip; geen gok: een streepje en ⬛ −15 (85)
+  const x = KO._.showHtml(h, { ...g, mine: [100], theirs: [85], my_years: [1945], their_years: [null] }, 1);
+  assert.match(x, /<div class="ks-s me win"><strong>100<\/strong><small><\/small>/);
+  assert.match(x, /<div class="ks-g op"><b class="ks-yr none">—<\/b><\/div>/);
+  assert.match(x, /<strong class="dmg">−75<\/strong><small><span class="ks-pen delta-badge farthest" data-v="-15">−15<\/span>/);
+  // de levens vanaf 250; de strook: ×5 is gewoon, ×10 (ronde 5) licht op
+  assert.deepEqual(JSON.parse(JSON.stringify(KO._.hpPath({ ...g, mine: [98, 99], theirs: [97, 98] }))), [[250, 250], [250, 245], [250, 240]]);
+  assert.match(KO._.stripHtml(host(), { ...g, round: 4 }), /<b>R4<\/b><span class="">×5<\/span>/);
+  assert.match(KO._.stripHtml(host(), { ...g, round: 5 }), /<b>R5<\/b><span class="up">×10<\/span>/);
+  // het verloop bij veel rondes: kleiner
+  const n = 13, many = { ...g, state: "done", mine: Array(n).fill(98), theirs: Array(n).fill(97), my_years: Array(n).fill(1944), their_years: Array(n).fill(1941), answers: Array(n).fill(1945) };
+  assert.match(KO._.lifeHtml(h, many), /class="ko-life many lots"/);
+  assert.match(KO._.lifeHtml(h, many), /❤️ 250/);
+  // teksten: minuten en levens
+  assert.equal(KO.copy("nl").mins(5), "±5 min"); assert.equal(KO.copy("de").mins(5), "±5 Min.");
+  assert.match(KO.copy("nl").liveSub("Tim"), /250 levens/);
+  // geen betaalde hints: de ronde krijgt noHints mee, game.js zet de knoppen én de toetsen uit, en ko_submit stuurt 0
+  assert.match(KOSRC, /duel: \{ code: g\.code, round: g\.round, opp: oppName\(g\), ko: true, noHints: !rulesOf\(g\)\.hints \}/);
+  assert.match(KOSRC, /p_hints: rulesOf\(cur\?\.code === dl\.code \? cur : null\)\.hints \? H\.koHints\?\.\(\) \|\| 0 : 0/);
+  for (const fn of ["requestCenturyHint", "requestLastDigit", "requestLaterClue", "requestDirectionHint"]) assert.match(GAME, new RegExp(`function ${fn}\\(\\) \\{\\n  if \\([^\\n]*state\\.duel\\?\\.noHints\\) return;`), `${fn}: uit bij noHints`);
+  assert.match(GAME, /els\.hintBtnCentury\.hidden = noHints \|\| state\.done/);
+  assert.match(KOSRC, /body\[data-ko="2"\] #hint-row \{ display: none; \}/);
 });

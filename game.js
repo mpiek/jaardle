@@ -2997,15 +2997,17 @@ function renderHintStatus() {
     state.guesses.length > 0 &&
     !state.directionsRevealed.includes(state.guesses.length - 1);
   const availLater = availableLaterClues();
+  // ⚡ knock-out met de regels van 21/11 (db/220, state.duel.noHints): geen betaalde hints, ook niet via de toetsen
+  const noHints = !!state.duel?.noHints;
   if (els.hintBtnLater) {
-    els.hintBtnLater.hidden = !canBuyLaterClue();
+    els.hintBtnLater.hidden = noHints || !canBuyLaterClue();
     // Het label volgt de vólgende onthulling: eerst "100 jaar later", daarna "250".
     const laterLbl = els.hintBtnLater.querySelector("[data-i18n]");
     if (laterLbl) laterLbl.textContent = t("hint_later_n")(laterWindow(state.laterCluesShown));
   }
-  els.hintBtnDir.hidden = state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
-  if (els.hintBtnCentury) els.hintBtnCentury.hidden = state.done || state.centuryRevealed;
-  if (els.hintBtnDigit) els.hintBtnDigit.hidden = state.done || state.lastDigitRevealed;
+  els.hintBtnDir.hidden = noHints || state.done || dirsLeft <= 0 || !hasUnrevealedGuess;
+  if (els.hintBtnCentury) els.hintBtnCentury.hidden = noHints || state.done || state.centuryRevealed;
+  if (els.hintBtnDigit) els.hintBtnDigit.hidden = noHints || state.done || state.lastDigitRevealed;
   // Gekochte 🏛️/🔢 morpht naar een waarde-chip op de knop-plek: de band/het cijfer
   // blijft in beeld tijdens het gokken (het "welke eeuw was het ook alweer?"-gat).
   // Chip = écht gekocht — de verlies-onthulling in de carrousel voegt er geen toe.
@@ -3163,7 +3165,7 @@ function resetLaterAsk() {
 // Onthul de volgende ⏩-clue (kost punten): voeg 'm als nieuwe oranje slide toe en
 // schuif erheen.
 function requestLaterClue() {
-  if (!canBuyLaterClue()) return;
+  if (!canBuyLaterClue() || state.duel?.noHints) return;
   state.laterCluesShown += 1;
   if (!laterSlotFuture(state.laterCluesShown - 1)) laterAsk = laterWindow(state.laterCluesShown - 1);
   syncPrefs("day");   // ⏩ Check aan? Meestal al lokaal bekend; anders is hij binnen voordat je het feit gelezen hebt
@@ -3219,7 +3221,7 @@ function chooseLaterPicks() {
 }
 
 function requestDirectionHint() {
-  if (state.done) return;
+  if (state.done || state.duel?.noHints) return;
   if (state.directionsRevealed.length >= MAX_DIRECTION_HINTS) return;
   if (state.guesses.length === 0) return;
   const latestIdx = state.guesses.length - 1;
@@ -3245,7 +3247,7 @@ function requestDirectionHint() {
 }
 
 function requestCenturyHint() {
-  if (state.done || state.centuryRevealed) return;
+  if (state.done || state.centuryRevealed || state.duel?.noHints) return;
   state.centuryRevealed = true;
   markPaidHintUsed();
   renderEvent();
@@ -3257,7 +3259,7 @@ function requestCenturyHint() {
 }
 
 function requestLastDigit() {
-  if (state.done || state.lastDigitRevealed) return;
+  if (state.done || state.lastDigitRevealed || state.duel?.noHints) return;
   state.lastDigitRevealed = true;
   markPaidHintUsed();
   renderEvent();
