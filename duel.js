@@ -285,7 +285,7 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 body[data-duelshome] #mode-tabs { display: flex; }
 [data-duelshome] #mode-tabs > .tab, [data-duelshome] #duels-door { display: none; }
 [data-duelshome] .kop-d { flex: 1; min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
-.kop-d .duel-title { justify-self: center; margin: 0; }
+.kop-d .duel-title { justify-self: center; margin: 0; transform: translateX(var(--kd-dx, 0px)); }   /* echt in het midden: centerLogo() */
 .kop-d .dl-tools { gap: 0.25rem; }
 /* "Hoe werkt het?" onderaan (21/11: het ? paste in de kop niet meer naast het logo), zoals onder de daily */
 .dl-foot { display: flex; justify-content: center; margin: 1rem 0 0.25rem; }
@@ -2325,7 +2325,20 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       const close = () => H.closeModal("modal-duels");
       if (H.swap) H.swap("out", close); else close();
     });
+    if (window.ResizeObserver) { const ro = new ResizeObserver(() => centerLogo()); ro.observe(k); ro.observe(k.querySelector("#duels-title")); }
     return k;
+  }
+  // Het logo echt in het midden van de kop als er ruimte is (21/11, zijn vraag "kan duel logo echt in het midden als er ruimte is"):
+  // de grid zet het tussen het Jaardle-icoontje en 🔈; dit schuift het naar het midden van de hele kop, maar nooit dichter dan 6 px bij
+  // die twee (smal scherm, lange taal: dan zo dicht bij het midden als past). Opnieuw bij elke maatwissel (ResizeObserver).
+  function centerLogo() {
+    const k = document.getElementById("kop-duels"), nav = document.getElementById("mode-tabs"), lg = k?.querySelector("#duels-title");
+    if (!k || !nav || !lg || !k.offsetParent) return;   // niet op de Duels-pagina: niets te meten
+    const cur = parseFloat(lg.style.getPropertyValue("--kd-dx")) || 0, r = lg.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    const lo = k.querySelector(".kd-home").getBoundingClientRect().right + 6, hi = k.querySelector(".dl-tools").getBoundingClientRect().left - 6 - r.width;
+    const left0 = r.left - cur, want = n.left + (n.width - r.width) / 2;
+    const dx = hi < lo ? 0 : Math.round(Math.min(hi, Math.max(lo, want)) - left0);
+    if (dx !== cur) lg.style.setProperty("--kd-dx", dx + "px");
   }
 
   async function openList(host, opts = {}) {
@@ -2344,6 +2357,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     el.querySelector(".dl-how span").textContent = T.help;
     if (!opts.keepTop) listTop = "";
     H.openModal("modal-duels");
+    centerLogo();
     if (!visHooked) {   // terug in de app met het Duels-scherm open: even vers kijken (syncList); verder kost terugkomen niets
       visHooked = true;
       document.addEventListener("visibilitychange", () => {

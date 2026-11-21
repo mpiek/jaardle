@@ -712,6 +712,10 @@ test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de 
   assert.match(SRC, /const nav = document\.getElementById\("mode-tabs"\);[^]*?k\.id = "kop-duels"; k\.className = "kop-d";[^]*?nav\.appendChild\(k\);/);
   assert.match(SRC, /<button type="button" class="kop-door kd-home"><\/button><h2 id="duels-title" class="duel-title dl-logo"><\/h2>/);
   assert.match(SRC, /if \(H\.swap\) H\.swap\("out", close\); else close\(\);/);
+  // het logo echt in het midden van de kop als er ruimte is, anders zo dichtbij als past (nooit over het icoontje of 🔈)
+  assert.match(SRC, /\.kop-d \.duel-title \{ justify-self: center; margin: 0; transform: translateX\(var\(--kd-dx, 0px\)\); \}/);
+  assert.match(SRC, /const dx = hi < lo \? 0 : Math\.round\(Math\.min\(hi, Math\.max\(lo, want\)\) - left0\);/);
+  assert.match(SRC, /H\.openModal\("modal-duels"\);\n\s+centerLogo\(\);/);
   assert.match(SRC, /body\[data-duelshome\] #mode-tabs \{ display: flex; \}/, "ook als een duelronde (data-duelpage) hem verborg");
   assert.match(SRC, /\[data-duelshome\] #mode-tabs > \.tab, \[data-duelshome\] #duels-door \{ display: none; \}/);
   assert.match(GAME, /swap: kopSwap,/);
