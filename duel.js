@@ -1706,7 +1706,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // in een ronde (om de beurt: tot je klaar bent, zie sync; ⚡ knock-out: het hele spel, ko.js), stil zodra het tabblad weg is. De muziek
   // zelf (Web Audio, geen bestand) staat in /duel-music.js en laadt pas als hij moet klinken. tense = de klok van een knock-out loopt.
   const MUS = { want: false, tense: false, m: null };
-  function music(want, tense = false) { if (want != null) MUS.want = !!want; MUS.tense = !!tense; musicKick(); }   // want null = laten zoals het is (alleen de spanning)
+  // want null = laten zoals het is; tense = hoe lang de klok van een knock-out nog loopt (ms; true = een hele klok), 0/false = geen klok
+  function music(want, tense = false) { if (want != null) MUS.want = !!want; MUS.tense = tense || false; musicKick(); }
   function musicKick() {
     if (!(MUS.want && sndState() === 2 && !document.hidden)) { if (MUS.m?.on) { MUS.m.stop(); auNap(15000); } return; }
     const x = auWake();

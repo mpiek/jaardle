@@ -11,6 +11,7 @@ const dir = dirname(fileURLToPath(import.meta.url));
 const SRC = readFileSync(join(dir, "..", "duel.js"), "utf8");
 const GAME = readFileSync(join(dir, "..", "game.js"), "utf8");
 const TPL = readFileSync(join(dir, "..", "index.template.html"), "utf8");
+const KO_SRC_FOR_MUSIC = readFileSync(join(dir, "..", "ko.js"), "utf8");
 
 function loadDuel() {
   const head = { kids: [], appendChild(e) { this.kids.push(e); } };
@@ -1208,6 +1209,9 @@ test("duel.js — 🎵 muziek alleen op 'alles', alleen in een ronde; de knock-o
 test("duel-music.js — 🎵 de muziek zelf: alleen Web Audio, start/tense/stop zonder fouten", () => {
   const MSRC = readFileSync(join(dir, "..", "duel-music.js"), "utf8");
   assert.ok(!/fetch\(|\.mp3|new Audio\(/.test(MSRC), "geen bestanden");
+  assert.match(MSRC, /nextStep \+= L \? 0\.25 - 0\.1 \* k5 : 0\.25;/, "21/11 zijn keuze: de laatste 5 s versnellen (120 → ±200 bpm)");
+  assert.match(MSRC, /if \(on\) padG\.gain\.setTargetAtTime\(last \? 0\.3 : 0\.6,/, "de bodem zakt weg, het loopje neemt het over");
+  assert.match(KO_SRC_FOR_MUSIC, /A\.music\?\.\(live, live && g\.deadline && st\.duel\.round === g\.round \? Math\.max\(0, at\(g\.deadline\) - now\(\)\) : 0\);/, "ko.js geeft de resterende tijd van de klok door");
   const A = fakeAudio(), ivs = [], win = {};
   class C2 extends A.Ctx {
     createDelay() { return { delayTime: { value: 0 }, connect() {}, disconnect() {} }; }
@@ -1217,7 +1221,12 @@ test("duel-music.js — 🎵 de muziek zelf: alleen Web Audio, start/tense/stop 
   const M = win.DuelMusic, x = new C2();
   M.start(x, { connect() {} });
   assert.equal(M.on, true);
-  ivs[0](); M.tense(true); x.currentTime = 19; ivs[0](); x.currentTime = 30; ivs[0]();
+  ivs[0](); M.tense(15000);   // de klok begint nu (10 s) en loopt tot 25 s
+  for (let t = 10.1; t < 26; t += 0.1) { x.currentTime = t; ivs[0](); }   // de tijd loopt in stapjes, zoals in de browser
+  const at = (a, b) => new Set(A.log.src.filter((r) => r.kind === "osc" && r.t >= a && r.t < b).map((r) => r.t.toFixed(3))).size / (b - a);
+  assert.ok(at(12, 18) >= 3.5, `de klok loopt: het loopje in achtsten (${at(12, 18).toFixed(1)} per s)`);
+  assert.ok(at(23, 25) > at(12, 18) * 1.2, `de laatste 5 s sneller (${at(23, 25).toFixed(1)} tegen ${at(12, 18).toFixed(1)} per s)`);
+  M.tense(0);
   assert.deepEqual(plain(A.log.errs), [], "geen ramp naar 0, geen tijd terug, geen NaN");
   M.stop();
   assert.equal(M.on, false);

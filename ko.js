@@ -1112,7 +1112,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const live = here && g.state === "live";
     // bij de K.O. speelt de laatste uitslag nog af: de muziek loopt door (zonder hartslag) tot het K.O.-scherm (showEnd); zijn melding 21/11
     if (here && g.state === "done") A.music?.(null, false);
-    else A.music?.(live, live && !!g.deadline && st.duel.round === g.round && at(g.deadline) > now());
+    else A.music?.(live, live && g.deadline && st.duel.round === g.round ? Math.max(0, at(g.deadline) - now()) : 0);   // de klok: hoe lang nog (de muziek bouwt op)
     if (g.state === "invite") return g.me === "b" ? showInvite(g) : showWait(g);
     if (g.state === "declined" || g.state === "expired" || g.state === "cancelled") {
       const el = document.getElementById(ID);
