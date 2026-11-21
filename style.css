@@ -681,8 +681,10 @@ main {
   box-shadow: 0 0 0 2px var(--bg);
 }
 /* Wisselen tussen Jaardle en Duels (kopSwap in game.js, View Transitions): de kop blijft staan, de inhoud schuift opzij. Naar Duels =
-   Jaardle naar links en Duels van rechts, terug = andersom. Zonder View Transitions of met minder beweging: in één keer, zoals eerst. */
-#mode-tabs { view-transition-name: kop; }
+   Jaardle naar links en Duels van rechts, terug = andersom. Zonder View Transitions of met minder beweging: in één keer, zoals eerst.
+   De naam alleen tijdens het wisselen (html[data-kop]): een view-transition-name maakt van de kop een eigen stapel, en dan viel het
+   ⋮-menu dat eruit openklapt onder de inhoud eronder (zijn melding 21/11: "als je profiel openklapt staan items onder de duels images"). */
+html[data-kop] #mode-tabs { view-transition-name: kop; }
 html[data-kop]::view-transition-old(root), html[data-kop]::view-transition-new(root) { animation-duration: 0.26s; animation-timing-function: cubic-bezier(0.22, 0.8, 0.24, 1); animation-fill-mode: both; mix-blend-mode: normal; }
 html[data-kop]::view-transition-group(kop) { animation-duration: 0.26s; }
 html[data-kop="in"]::view-transition-old(root) { animation-name: kop-out-l; }
