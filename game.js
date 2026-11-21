@@ -15103,8 +15103,10 @@ async function init() {
       window.Duel?.musicKick?.();
       return;
     }
-    if (action === "duel-music") {   // 🎵 Duel-muziek: in-place; aan = de stand "alles" (de effecten gaan dan ook aan)
-      setDuelSnd(duelMusicOn() ? 1 : 2);
+    if (action === "duel-music") {   // 🎵 Duel-muziek: in-place; aan = de stand "alles" (de effecten gaan dan ook aan) en de drie noten
+      const on = !duelMusicOn();
+      setDuelSnd(on ? 2 : 1);
+      if (on) { if (window.Duel) window.Duel.musTest?.(); else loadDuel().then((D) => D.musTest?.()).catch(() => {}); }
       window.Duel?.musicKick?.();
       return;
     }

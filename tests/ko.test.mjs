@@ -232,6 +232,10 @@ test("ko.js — knock-out-geluid: twaalf klanken, stil en zonder fout zonder vin
   // 21/11: met de levens van vóór de klap komt de dalende noot erbij (twee oscillatoren); vol C5 … leeg C3
   const nSrc = (args) => { const n = log.src.length; K1._.sfx(`n:${args.join()}`, "hit", ...args); return log.src.length - n; };
   assert.equal(nSrc([30, true, 120, 150]) - nSrc([30, true]), 2, "de noot klinkt alleen met de levens erbij");
+  assert.match(KOSRC, /if \(here && g\.state === "done"\) A\.music\?\.\(null, false\);/, "21/11: bij de K.O. loopt de muziek door tot het K.O.-scherm");
+  assert.match(KOSRC, /A\.music\?\.\(false\);   \/\/ 🎵 de muziek weg zodra het K\.O\.-scherm er is/);
+  assert.match(KOSRC, /if \(v !== last\) \{ last = v; ping\(k, to > from\); \}/, "21/11: een ping per stap van de getallen");
+  assert.match(KOSRC, /if \(t - pingAt < 40\) return;/, "hooguit 25 per seconde");
   assert.match(KOSRC, /f = \(v\) => 130\.81 \* 2 \*\* \(\(2 \* Math\.max\(0, v\)\) \/ max\)/, "leeg C3 (131 Hz), vol twee octaven hoger (C5)");
   assert.ok(peak(60) > peak(5), "meer schade = hardere klap");
 

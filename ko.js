@@ -897,9 +897,25 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // from → to, met het echte minteken. Optellen remt af; aftellen gaat lineair en razendsnel, zodat je elk getal ziet langskomen
     // (20/11, zijn "opeens veranderende getallen houd ik niet van, liever extreem snel omlaag tellen"): 18 ms per punt, 300–cap ms
     const down = (d, cap = 700) => Math.min(cap, Math.max(300, Math.abs(d) * 18));
+    // elke stap een klein pingetje (21/11, zijn "alsof die met kleine pings per increment omhoog gaan"): optellen = steeds hoger, aftellen =
+    // steeds lager; hooguit 25 per seconde voor beide kanten samen (anders wordt het een zoem)
+    let pingAt = -1e9;
+    const ping = (k, up) => {
+      const t = performance.now();
+      if (t - pingAt < 40) return;
+      pingAt = t;
+      try { const b = A.bus?.(); if (b) { beep(b, 0, up ? 990 * 2 ** k : 1320 * 2 ** -k, 0.05, 0.05); A.nap?.(15000); } } catch (e) {}
+    };
     const count = (n, from, to, ms, step, lin = to < from) => {
       const g0 = animGen, t0 = performance.now();
-      const f = (t) => { if (g0 !== animGen) return; const k = Math.min(1, (t - t0) / ms), v = Math.round(from + (to - from) * (lin ? k : 1 - (1 - k) ** 3)); n.textContent = fmtN(v); step?.(v); if (k < 1) requestAnimationFrame(f); };
+      let last = from;
+      const f = (t) => {
+        if (g0 !== animGen) return;
+        const k = Math.min(1, (t - t0) / ms), v = Math.round(from + (to - from) * (lin ? k : 1 - (1 - k) ** 3));
+        n.textContent = fmtN(v); step?.(v);
+        if (v !== last) { last = v; ping(k, to > from); }
+        if (k < 1) requestAnimationFrame(f);
+      };
       requestAnimationFrame(f);
     };
     // beginstand: alles nog weg, de getallen op 0
@@ -1013,6 +1029,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const bots = g.bot ? (K.bots?.() || []) : [], bi = bots.findIndex((b) => b.key === g.bot), nb = won && bi >= 0 ? bots[bi + 1] : null;
     const nextBot = nb && K.botOptHtml ? `<div class="bot-next">${K.botOptHtml(K.tx(H.lang), nb, bi + 1, { next: true, attrs: 'data-ko="bot"' })}</div>` : "";
     const fresh = at(g.finished_at) > now() - 120000;
+    A.music?.(false);   // 🎵 de muziek weg zodra het K.O.-scherm er is (samen met de gong)
     const big = fresh && sfx(`ko:${g.code}`, g.winner ? "ko" : "draw", won);   // één keer per spel, niet bij een oude K.O.
     if (fresh && g.re_opp && !g.re_me && !g.next) sfx(`want:${g.code}`, "want", big ? 1.2 : 0);   // samen met de gong: na de gong
     pop(`<div class="ko-bandw" style="--h:${hue(g)}">${band(g, "K.O.", ` ko-end${won ? "" : " lost"}`)}</div>` +
@@ -1054,7 +1071,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const st = H.state(), here = !!(st?.duel?.ko && st.duel.code === g.code);
     // 🎵 achtergrondmuziek (stand "alles"): het hele spel zolang je erin zit; loopt de klok, dan de hartslag eronder
     const live = here && g.state === "live";
-    A.music?.(live, live && !!g.deadline && st.duel.round === g.round && at(g.deadline) > now());
+    // bij de K.O. speelt de laatste uitslag nog af: de muziek loopt door (zonder hartslag) tot het K.O.-scherm (showEnd); zijn melding 21/11
+    if (here && g.state === "done") A.music?.(null, false);
+    else A.music?.(live, live && !!g.deadline && st.duel.round === g.round && at(g.deadline) > now());
     if (g.state === "invite") return g.me === "b" ? showInvite(g) : showWait(g);
     if (g.state === "declined" || g.state === "expired" || g.state === "cancelled") {
       const el = document.getElementById(ID);

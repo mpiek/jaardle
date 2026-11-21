@@ -1642,7 +1642,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const n = [2, 0, 1][sndState()];
     if (H?.setSnd) H.setSnd(n); else try { localStorage.setItem(SFX_KEY, n ? "1" : "0"); if (n) localStorage.setItem(MUS_KEY, n === 2 ? "1" : "0"); } catch (e) {}
     document.querySelectorAll(".dl-snd-btn").forEach((e) => sndSet(e));
-    if (n) sfxTest();   // aan = meteen de klang, binnen de tik
+    if (n === 2) musTest(); else if (n) sfxTest();   // aan = meteen de klang (op "alles" de drie noten), binnen de tik
     musicKick();
   }
   function armSnd(root) {   // de knop in de kop van een ronde: eigen klik (de kop wordt telkens opnieuw getekend)
@@ -1705,7 +1705,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // in een ronde (om de beurt: tot je klaar bent, zie sync; ⚡ knock-out: het hele spel, ko.js), stil zodra het tabblad weg is. De muziek
   // zelf (Web Audio, geen bestand) staat in /duel-music.js en laadt pas als hij moet klinken. tense = de klok van een knock-out loopt.
   const MUS = { want: false, tense: false, m: null };
-  function music(want, tense = false) { MUS.want = !!want; MUS.tense = !!tense; musicKick(); }
+  function music(want, tense = false) { if (want != null) MUS.want = !!want; MUS.tense = !!tense; musicKick(); }   // want null = laten zoals het is (alleen de spanning)
   function musicKick() {
     if (!(MUS.want && sndState() === 2 && !document.hidden)) { if (MUS.m?.on) { MUS.m.stop(); auNap(15000); } return; }
     const x = auWake();
@@ -1744,6 +1744,15 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     s.connect(hp); hp.connect(e); e.connect(bus);
     s.start(t, Math.random()); s.stop(t + dur + 0.02);
   }
+  function note(bus, at, f, g) {   // een glinsternoot zoals in de muziek (/duel-music.js): grondtoon + twee boventonen, 0,7 s
+    const x = AU.x, t = x.currentTime + at, e = x.createGain();
+    e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.004); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    e.connect(bus);
+    for (const [r, a] of [[1, 1], [2, 0.25], [3, 0.08]]) {
+      const o = x.createOscillator(), og = x.createGain();
+      o.frequency.value = f * r; og.gain.value = a; o.connect(og); og.connect(e); o.start(t); o.stop(t + 0.72);
+    }
+  }
   function thud(bus, at, f0, f1, g, dur) {   // de doffe klap eronder
     const x = AU.x, t = x.currentTime + at, o = x.createOscillator(), e = x.createGain();
     o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.8);
@@ -1761,6 +1770,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     bandOut: (b) => swish(b, 0, INTRO_MS.bandOut / 1000, 2400, 600, 0.3, 0.3, 0, 0.85),
     skip: (b) => swish(b, 0, 0.16, 1600, 500, 0.22, 0.25, 0, 0),   // overgeslagen: alles vervaagt in 140 ms
     still: (b) => ring(b, 0, 1180, 0.22),   // "minder beweging": geen zwiepen, alleen het zwaard, zacht
+    // de muziek aanzetten (21/11, zijn "aparte kleine sound voor muziek, 3 noten ofzo"): D – F♯ – A, de glinsternoot van /duel-music.js
+    mus: (b, at = 0) => [587.33, 739.99, 880].forEach((f, i) => note(b, at + i * 0.11, f, 0.09 + i * 0.015)),
   };
   // Eén bus per opening, zodat overslaan of weghalen kan dempen wat nog klinkt of nog moet komen. null = (nu) geen geluid.
   function sfxBus() {
@@ -1787,6 +1798,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   }
   // ⚙️: bij het aanzetten één keer de botsing, zodat je hoort wat je aanzet (game.js roept dit binnen de tik aan)
   function sfxTest() { sfx(sfxBus(), "hit"); }
+  function musTest() { sfx(sfxBus(), "mus"); }   // 🎵 op "alles": drie noten in plaats van de botsing
 
   // ════ de opening van een duelronde (17/11, mockup v7 richting B "Twee kanten") ════
   // Jouw kant schuift van links binnen, die van je tegenstander van rechts; ze botsen op de ⚔️ (flits, schokgolf), eronder de ronde
@@ -3184,7 +3196,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   return {
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
-    sfxTest, musicKick, sndSync: () => document.querySelectorAll(".dl-snd-btn").forEach((b) => sndSet(b)),
+    sfxTest, musTest, musicKick, sndSync: () => document.querySelectorAll(".dl-snd-btn").forEach((b) => sndSet(b)),
     // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS, en het geluid (au: de bus, de bouwstenen, "hit")
     kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, sndHtml, armSnd, flairEmoji, gc, create: (h, o) => create(h, o),
            openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
