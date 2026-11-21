@@ -3547,7 +3547,7 @@ function renderGuesses() {
       const showDir = revealedSet.has(idx);
       renderDeltaBadge(badge, g.diff, g.cls, showDir);
       row.append(yr, badge);
-      const penalty = GUESS_PENALTIES[g.cls] || 0;
+      const penalty = (state.duel?.pen || GUESS_PENALTIES)[g.cls] || 0;   // ⚡ knock-out (db/221): eigen tabel, ⬜ −20 en ⬛ −25
       if (penalty > 0) {
         const pen = document.createElement("span");
         pen.className = "penalty";

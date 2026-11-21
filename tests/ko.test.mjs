@@ -669,7 +669,16 @@ test("ko.js — regels 2 (db/220, 21/11): gewone strafpunten, 🎯 +1 bij dezelf
   const x = KO._.showHtml(h, { ...g, mine: [100], theirs: [85], my_years: [1945], their_years: [null] }, 1);
   assert.match(x, /<div class="ks-s me win"><strong>100<\/strong><small><\/small>/);
   assert.match(x, /<div class="ks-g op"><b class="ks-yr none">—<\/b><\/div>/);
-  assert.match(x, /<strong class="dmg">−75<\/strong><small><span class="ks-pen delta-badge farthest" data-v="-15">−15<\/span>/);
+  assert.match(x, /<strong class="dmg">−75<\/strong><small><span class="ks-pen delta-badge farthest" data-v="-15">−15<\/span>/, "een spel van vóór db/221: −15 uit de opgeslagen score (85)");
+  // sinds db/221: ⬜ −20, ⬛ −25, geen gok = ⬛ (75)
+  const far = KO._.showHtml(h, { ...g, mine: [80], theirs: [75], my_years: [1645], their_years: [null] }, 1);
+  assert.match(far, /<strong>80<\/strong><small><span class="ks-pen delta-badge distant" data-v="-20">−20<\/span><\/small>/);
+  assert.match(far, /<strong class="dmg">−25<\/strong><small><span class="ks-pen delta-badge farthest" data-v="-25">−25<\/span>/);
+  assert.match(KO._.showHtml(h, { ...g, mine: [95], theirs: [75], my_years: [1940], their_years: [3000] }, 1), /delta-badge farthest" data-v="-25">−25/);
+  assert.match(KOSRC, /pen: rulesOf\(g\)\.hints \? null : PEN \}/);
+  assert.match(GAME, /const penalty = \(state\.duel\?\.pen \|\| GUESS_PENALTIES\)\[g\.cls\] \|\| 0;/);
+  const f2 = join(dir, "..", "..", "jaardle-tools", "db", "221_ko_far.sql");
+  if (existsSync(f2)) assert.match(readFileSync(f2, "utf8"), /<= 599 then 20 else 25 end/);
   // de levens vanaf 250; de strook: ×5 is gewoon, ×10 (ronde 5) licht op
   assert.deepEqual(JSON.parse(JSON.stringify(KO._.hpPath({ ...g, mine: [98, 99], theirs: [97, 98] }))), [[250, 250], [250, 245], [250, 240]]);
   assert.match(KO._.stripHtml(host(), { ...g, round: 4 }), /<b>R4<\/b><span class="">×5<\/span>/);
@@ -682,7 +691,7 @@ test("ko.js — regels 2 (db/220, 21/11): gewone strafpunten, 🎯 +1 bij dezelf
   assert.equal(KO.copy("nl").mins(5), "±5 min"); assert.equal(KO.copy("de").mins(5), "±5 Min.");
   assert.match(KO.copy("nl").liveSub("Tim"), /250 levens/);
   // geen betaalde hints: de ronde krijgt noHints mee, game.js zet de knoppen én de toetsen uit, en ko_submit stuurt 0
-  assert.match(KOSRC, /duel: \{ code: g\.code, round: g\.round, opp: oppName\(g\), ko: true, noHints: !rulesOf\(g\)\.hints \}/);
+  assert.match(KOSRC, /duel: \{ code: g\.code, round: g\.round, opp: oppName\(g\), ko: true, noHints: !rulesOf\(g\)\.hints, pen: /);
   assert.match(KOSRC, /p_hints: rulesOf\(cur\?\.code === dl\.code \? cur : null\)\.hints \? H\.koHints\?\.\(\) \|\| 0 : 0/);
   for (const fn of ["requestCenturyHint", "requestLastDigit", "requestLaterClue", "requestDirectionHint"]) assert.match(GAME, new RegExp(`function ${fn}\\(\\) \\{\\n  if \\([^\\n]*state\\.duel\\?\\.noHints\\) return;`), `${fn}: uit bij noHints`);
   assert.match(GAME, /els\.hintBtnCentury\.hidden = noHints \|\| state\.done/);

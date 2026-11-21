@@ -357,7 +357,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   const hpMax = (g) => g?.hp_max || rulesOf(g).hp;
   const mult = (r, g) => rulesOf(g).mult(r);
   const dmgOf = (a, b, r, g) => Math.min(rulesOf(g).cap, Math.round(Math.abs(a - b) * mult(r, g)));   // = _ko_dmg
-  const PEN = { correct: 0, veryclose: 2, near: 3, close: 5, warm: 8, cool: 11, far: 13, distant: 15, farthest: 15 };   // = GUESS_PENALTIES (game.js)
+  // = GUESS_PENALTIES (game.js), maar ver weg zwaarder: ⬜ −20, ⬛ −25 (db/221, 21/11, zijn "doe maar zwaarder maken" na 1251 jaar ernaast
+  // = maar 50 schade: met één gok is er geen tweede kans). Geen gok telt als ⬛.
+  const PEN = { correct: 0, veryclose: 2, near: 3, close: 5, warm: 8, cool: 11, far: 13, distant: 20, farthest: 25 };
   const fmtM = (m) => m.toLocaleString(H?.intl || "en");
   const oppName = (g) => g?.opp_name || "?";
   const hue = (g) => (H?.faceHue ? H.faceHue(oppName(g)) : 30);
@@ -818,7 +820,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // terug in een ronde die je al open had (via Duels, 20/11): je bord zoals je het achterliet (de gok, de hints), anders kon je opnieuw
     // gokken en waren je hints gratis; al gegokt = meteen weer "Wachten op …" (ko_submit nog eens geeft gewoon de stand)
     const run = H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(g.code, g.round) || null, potId: `k${g.code}${g.round}`,
-                               duel: { code: g.code, round: g.round, opp: oppName(g), ko: true, noHints: !rulesOf(g).hints } });
+                               duel: { code: g.code, round: g.round, opp: oppName(g), ko: true, noHints: !rulesOf(g).hints, pen: rulesOf(g).hints ? null : PEN } });
     if (it) Promise.resolve(run).then(() => it.open(), () => it.open());
     // 🎵 de muziek begint met de ronde. Eerder kwam hij pas bij het eerstvolgende seintje, dus na de eerste gok (zijn melding 21/11:
     // "muziek gaat pas spelen nadat 1 iemand gegokt heeft? ipv als match begint"). cur = de nieuwste stand van dit spel
@@ -853,8 +855,10 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   function roundOf(g, r) {
     const R = rulesOf(g), a = g.mine[r - 1], b = g.theirs[r - 1], m = mult(r, g), d = Math.abs(a - b), raw = Math.round(d * m), ans = g.answers?.[r - 1];
     const side = (pts, y, h) => {
-      const off = y == null || ans == null ? null : Math.abs(y - ans), band = R.hints ? null : y == null ? "farthest" : off == null ? null : band5(off), pen = band ? PEN[band] : 0;
-      return { pts, y: y ?? null, h: R.hints ? h || 0 : 0, off, band, pen, tb: band && pts === 100 - pen + 1 ? 1 : 0 };
+      const off = y == null || ans == null ? null : Math.abs(y - ans), band = R.hints ? null : y == null ? "farthest" : off == null ? null : band5(off);
+      // de strafpunten uit de opgeslagen score (spellen van vóór db/221 hadden ⬜/⬛ −15); 🎯 +1 = één boven 100 − de tabel
+      const tb = band && pts === 100 - PEN[band] + 1 ? 1 : 0, pen = !band ? 0 : tb ? PEN[band] : Math.max(0, 100 - pts);
+      return { pts, y: y ?? null, h: R.hints ? h || 0 : 0, off, band, pen, tb };
     };
     return { r, m, d, x: Math.min(R.cap, raw), max: d > 0 && raw >= R.cap, ans, who: a > b ? "op" : a < b ? "me" : null,
              a: side(a, g.my_years?.[r - 1], g.my_hints?.[r - 1]), b: side(b, g.their_years?.[r - 1], g.their_hints?.[r - 1]) };
