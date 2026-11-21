@@ -132,7 +132,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 259500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 266500, `het lui geladen bestand blijft klein (${SRC.length})`);   // 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, menu-item, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -1078,4 +1078,36 @@ test("duel.js (db/215) — knock-outs terugzien: tussen de gewone duels met ⚡,
   assert.equal(X.listKo().length, 0);
   assert.deepEqual(plain(X.recOf("kb")), [0, 1]);
   X.setGrp(null);
+});
+
+test("duel.js — 🤖 bots (db/218): één gezichtje vooraan (ook zonder account en in de lege staat), de pop-up met drie, je stand bovenaan alleen tegen mensen", () => {
+  const T = D.copy("nl");
+  const BOTS = [{ key: "pip", k: "kp", name: "Pip", flair: "🐣", elo: 1100, w: 3, l: 0 }, { key: "robo", k: "kr", name: "Robo", flair: "🤖", elo: 1500, w: 1, l: 2 },
+                { key: "prof", k: "kf", name: "Prof", flair: "🧠", elo: 1800, w: 0, l: 0 }];
+  X.setHost(host({ loggedIn: true, myName: () => "Noor", faceHue: () => 330, flairHtml: (f) => `<i>${f}</i>`, myRating: () => 1560 }));
+  X.applyList({ items: [], h2h: { kb: { w: 4, l: 2, n: 6 }, kr: { kw: 1, kl: 2, kn: 3 } }, targets: [{ k: "kb", name: "Bram", flair: null, team: true, busy: null }], bots: BOTS });
+  let h = X.pickHtml(T, "<NEW>");
+  assert.match(h, /<div class="dl-faces"><button type="button" class="dl-face bot" data-act="bots" aria-haspopup="dialog"><span class="dl-av on fl" aria-hidden="true"><i>🤖<\/i><\/span><b>Bots<\/b><small class="up">4–2<\/small><\/button><button type="button" class="dl-face" data-face="kb"/,
+    "de bots vooraan, met je stand tegen alle bots samen (3–0 + 1–2)");
+  // zonder vrienden en zonder account: alleen de bot, boven de grote knop
+  X.applyList({ items: [], h2h: {}, targets: [], bots: BOTS });
+  assert.match(X.pickHtml(T, "<NEW>"), /Daag iemand uit<\/h3><div class="dl-pick"><div class="dl-faces"><button type="button" class="dl-face bot"[^]*<\/div><NEW><\/div>/);
+  X.setHost(host({ loggedIn: false, faceHue: () => 330 }));
+  X.applyList({ items: [], h2h: {}, targets: [], bots: BOTS.map((b) => ({ ...b, w: 0, l: 0 })) });
+  assert.match(X.pickHtml(T, "<NEW>"), /class="dl-face bot"[^]*<small class="new">nieuw<\/small>/, "anoniem: de bot staat er ook");
+  assert.match(X.listBody(T, [], "", null), /dl-hero[^]*<div class="dl-pick bot-only"><div class="dl-faces"><button type="button" class="dl-face bot"[^]*class="dl-new dl-pickgo"/, "lege staat: bot boven de knop");
+  // geen bots van de server (oude server): alles zoals het was
+  X.applyList({ items: [], h2h: {}, targets: [] });
+  assert.equal(X.pickHtml(T, "<NEW>"), "<NEW>");
+  // een regel in de pop-up: niveau + rating, je stand, "≈ jij"; als volgende bot op het eindscherm zonder stand
+  X.setHost(host({ loggedIn: true, faceHue: () => 330, flairHtml: (f) => `<i>${f}</i>` }));
+  assert.match(X.botOptHtml(T, BOTS[1], 1, { you: true }), /data-bot="robo"><span class="dl-av fl hue" style="--h:330" aria-hidden="true"><i>🤖<\/i><\/span><span class="bo-t"><b>Robo <span class="bo-you">≈ jij<\/span><\/b><small>Gemiddeld · 1500<\/small><\/span><span class="bo-rec down">1–2<\/span><\/button>/);
+  assert.match(X.botOptHtml(T, BOTS[2], 2, { next: true, attrs: 'data-ko="bot"' }), /data-bot="prof" data-ko="bot">[^]*<small>Volgende: Sterk · 1800<\/small><\/span><\/button>/);
+  // je stand bovenaan telt de bots niet mee
+  const done = { code: "AAAAAA", status: "done", seen: true, opp: "kb", me: "c", c_name: "Noor", o_name: "Bram", finished_at: new Date().toISOString(), mine: [9, 9, 9, 9, 9], theirs: [1, 1, 1, 1, 1] };
+  X.applyList({ items: [done], h2h: { kb: { w: 4, l: 2, n: 6 }, kr: { kw: 5, kl: 7, kn: 12 } }, targets: [], bots: BOTS });
+  assert.match(X.listBody(T, [done], "", null), /<div class="dl-stat w"><b>4<\/b>[^]*<div class="dl-stat l"><b>2<\/b>/, "alleen tegen mensen");
+  for (const l of D.langs()) { const c = D.copy(l); assert.equal(c.botLvl.split("|").length, 3, l); assert.ok(c.botsH && c.botsNote && c.botYou && c.botNext && c.botsFace, l); }
+  assert.match(GAME, /myRating: \(\) => \(auth\.user && Number\.isFinite\(auth\.rating\) \? Math\.round\(auth\.rating\) : null\)/);
+  X.applyList({ items: [], h2h: {}, targets: [] });
 });

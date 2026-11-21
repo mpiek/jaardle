@@ -640,6 +640,26 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 .vbf-tag { position: absolute; z-index: 3; left: var(--p); top: calc(42% + 1.6rem); transform: translateX(-50%); padding: 0.18rem 0.65rem; border-radius: 999px; font-size: 0.66rem;
   font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; color: #fff; background: #131317; box-shadow: 0 0 0 1.5px #f08a52; }
 @media (prefers-reduced-motion: reduce) { .db-c > .fv, .db-n > .fv, .jr.fresh .jr-box.op > strong, .jr.fresh .jr-box.win, .jr.fresh .jr-v, .dl-card.sync .dl-card-f > small { animation: none; } }
+/* 🤖 Bots (db/218, 21/11): één gezichtje vooraan in de rij van "Daag iemand uit" (altijd online), tik = een pop-up met de bots in de
+   vorm van het ▾-menu (.dl-menu / .dl-opt), de hele regel = beginnen; na winst op het K.O.-eindscherm de volgende bot als één regel. */
+.dl-face.bot .dl-av { background: color-mix(in srgb, var(--duel-arena) 24%, var(--card-soft)); }
+.dl-pick.bot-only .dl-faces { justify-content: center; }   /* de lege staat: alleen de bot, gecentreerd boven de grote knop */
+.bot-pop .duel-inv { gap: 0.7rem; }
+.bot-menu { margin-top: 0.15rem; gap: 4px; }
+.bot-opt { min-height: 3.5rem; gap: 0.7rem; padding: 0.45rem 0.6rem; }
+.bot-opt .dl-av { width: 2.5rem; height: 2.5rem; font-size: 1.3rem; }
+.bot-opt .bo-t { display: flex; flex-direction: column; align-items: flex-start; gap: 0.05rem; }
+.bot-opt .bo-t b { font-size: 0.98rem; display: flex; align-items: center; gap: 0.4rem; }
+.bot-opt .bo-t small { margin-left: 0; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.bot-opt .bo-you { padding: 0.05rem 0.4rem; border-radius: 999px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em;
+  color: var(--duel-arena); background: color-mix(in srgb, var(--duel-arena) 16%, transparent); }
+.bot-opt .bo-rec { margin-left: auto; font-size: 0.78rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--muted); }
+.bot-opt .bo-rec.up { color: var(--green-text); }
+.bot-opt .bo-rec.down { color: var(--duel-loss); }
+.bot-opt:has(.bo-rec)::after { margin-left: 0; padding-left: 0.6rem; }   /* de stand rechts, dan de › */
+.bot-note { margin: -0.1rem 0 0; font-size: 0.76rem; color: var(--muted); }
+.bot-next { align-self: stretch; margin-top: -0.1rem; }
+.bot-next .dl-opt { background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; }
 `;
 
   const TXT = {
@@ -676,6 +696,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} Ik ben klaar met ons Jaardle-duel, jouw beurt ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Jaardle-duel tegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "gelijk"}, ${a}–${b}`, shTotals: (a, b) => `${a} tegen ${b}`,
       // db/189: teamgenoten direct uitdagen, seintjes, stand per tegenstander
+      botsFace: "Bots", botsH: "Knock-out tegen een bot", botLvl: "Makkelijk|Gemiddeld|Sterk", botsNote: "Begint meteen · telt niet voor je rating", botYou: "≈ jij", botNext: "Volgende",
       pickH: "Daag iemand uit", faceNew: "nieuw", faceRun: "loopt", vsLine: (n) => `Jij tegen ${n}:`, linkInstead: "Liever een link sturen",
       challenged: (n) => `${n} is uitgedaagd`, pushYes: (n) => `${n} krijgt meteen een seintje. Nog 24 uur om aan te nemen.`, pushNo: (n) => `${n} ziet hem bij het openen van Jaardle. Nog 24 uur om aan te nemen.`,
       alsoLink: "Stuur ook een link", sendLinkShort: "Stuur link", acceptShort: "Neem aan", errRunning: (n) => `Je hebt al 3 duels met ${n} lopen.`,
@@ -733,6 +754,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} I've finished our Jaardle duel, your turn ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Jaardle duel vs ${n}: ${r === "w" ? "won" : r === "l" ? "lost" : "tied"} ${a}–${b}`, shTotals: (a, b) => `${a} vs ${b}`,
       // db/189: challenge teammates directly, notifications, head-to-head
+      botsFace: "Bots", botsH: "Knockout against a bot", botLvl: "Easy|Medium|Hard", botsNote: "Starts right away · doesn't count toward your rating", botYou: "≈ you", botNext: "Next",
       pickH: "Challenge someone", faceNew: "new", faceRun: "running", vsLine: (n) => `You vs ${n}:`, linkInstead: "Send a link instead",
       challenged: (n) => `You challenged ${n}`, pushYes: (n) => `${n} gets a notification right away. 24 hours to accept.`, pushNo: (n) => `${n} will see it when opening Jaardle. 24 hours to accept.`,
       alsoLink: "Also send a link", sendLinkShort: "Send link", acceptShort: "Accept", errRunning: (n) => `You already have 3 duels going with ${n}.`,
@@ -789,6 +811,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} Ich bin mit unserem Jaardle-Duell fertig, du bist dran, ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Jaardle-Duell gegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "unentschieden"}, ${a}–${b}`, shTotals: (a, b) => `${a} zu ${b}`,
       // db/189: Teammitglieder direkt herausfordern, Benachrichtigungen, Stand pro Gegner
+      botsFace: "Bots", botsH: "Knock-out gegen einen Bot", botLvl: "Leicht|Mittel|Schwer", botsNote: "Startet sofort · zählt nicht für dein Rating", botYou: "≈ du", botNext: "Nächster",
       pickH: "Fordere jemanden heraus", faceNew: "neu", faceRun: "läuft", vsLine: (n) => `Du gegen ${n}:`, linkInstead: "Lieber einen Link schicken",
       challenged: (n) => `${n} ist herausgefordert`, pushYes: (n) => `${n} bekommt sofort eine Benachrichtigung. 24 Stunden zum Annehmen.`, pushNo: (n) => `${n} sieht sie beim Öffnen von Jaardle. 24 Stunden zum Annehmen.`,
       alsoLink: "Auch einen Link schicken", sendLinkShort: "Link schicken", acceptShort: "Annehmen", errRunning: (n) => `Du hast schon 3 laufende Duelle mit ${n}.`,
@@ -844,6 +867,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} He terminado nuestro duelo de Jaardle, ¡te toca, ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Duelo de Jaardle contra ${n}: ${r === "w" ? "ganado" : r === "l" ? "perdido" : "empate"}, ${a}–${b}`, shTotals: (a, b) => `${a} contra ${b}`,
       // db/189: retar directamente a compañeros, avisos, marcador por rival
+      botsFace: "Bots", botsH: "K.O. contra un bot", botLvl: "Fácil|Medio|Difícil", botsNote: "Empieza al instante · no cuenta para tu rating", botYou: "≈ tú", botNext: "Siguiente",
       pickH: "Reta a alguien", faceNew: "nuevo", faceRun: "en curso", vsLine: (n) => `Tú contra ${n}:`, linkInstead: "Mejor enviar un enlace",
       challenged: (n) => `Has retado a ${n}`, pushYes: (n) => `${n} recibe un aviso ahora mismo. 24 horas para aceptar.`, pushNo: (n) => `${n} lo verá al abrir Jaardle. 24 horas para aceptar.`,
       alsoLink: "Enviar también un enlace", sendLinkShort: "Enviar enlace", acceptShort: "Aceptar", errRunning: (n) => `Ya tienes 3 duelos en curso con ${n}.`,
@@ -899,6 +923,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} Terminei nosso duelo de Jaardle, sua vez, ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Duelo de Jaardle contra ${n}: ${r === "w" ? "venci" : r === "l" ? "perdi" : "empate"}, ${a}–${b}`, shTotals: (a, b) => `${a} contra ${b}`,
       // db/189: desafiar colegas de equipe diretamente, avisos, placar por adversário
+      botsFace: "Bots", botsH: "Nocaute contra um bot", botLvl: "Fácil|Médio|Difícil", botsNote: "Começa na hora · não conta para o seu rating", botYou: "≈ você", botNext: "Próximo",
       pickH: "Desafie alguém", faceNew: "novo", faceRun: "em curso", vsLine: (n) => `Você contra ${n}:`, linkInstead: "Prefiro enviar um link",
       challenged: (n) => `Você desafiou ${n}`, pushYes: (n) => `${n} recebe um aviso agora mesmo. 24 horas para aceitar.`, pushNo: (n) => `${n} verá ao abrir o Jaardle. 24 horas para aceitar.`,
       alsoLink: "Enviar também um link", sendLinkShort: "Enviar link", acceptShort: "Aceitar", errRunning: (n) => `Você já tem 3 duelos em andamento com ${n}.`,
@@ -958,6 +983,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const cache = {};        // code → laatste antwoord van de server (met de puzzels, als we die kregen)
   let endNext = null, endShare = null;   // wat de knoppen op het eindscherm (en in de eindstand-pop-up) doen
   let listItems = null, listTop = "", openGrp = null, showAll = false;
+  let listBots = [];   // 🤖 db/218: de bots uit duel_list (key, k, name, flair, elo, w, l), ook zonder account
   let listTargets = [], listH2h = {}, pickSel = null, listKo = [];   // listKo (db/215): je afgelopen ⚡ knock-outs (laatste 30 van 90 dagen)   // db/189: wie je direct kunt uitdagen, je stand per tegenstander (alle duels), het gekozen gezichtje
   const selInGrp = {}, openWait = new Set();
   let shut = new Set(); try { shut = new Set(JSON.parse(localStorage.getItem("jaardle:duelShut") || "[]")); } catch (e) {}   // 19/11: ingeklapte koppen
@@ -2313,6 +2339,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     listItems = all.filter((d) => d.status !== "withdrawn");   // een link die je zelf introk hoeft niet in de lijst (ook niet als "Ingetrokken" onder Stand per tegenstander)
     listTargets = Array.isArray(v?.targets) ? v.targets : [];
     listH2h = v?.h2h && typeof v.h2h === "object" && !Array.isArray(v.h2h) ? v.h2h : {};
+    listBots = (Array.isArray(v?.bots) ? v.bots : []).filter((b) => b && typeof b.key === "string" && typeof b.name === "string");
     // db/215: je afgelopen knock-outs (vorm van ko_get); in de lijst als een afgelopen, geziene uitslag
     listKo = (Array.isArray(v?.ko) ? v.ko : []).filter((g) => g && typeof g.code === "string" && g.state === "done" && g.finished_at)
       .map((g) => ({ ...g, ko: true, status: "done", seen: true, created_at: g.finished_at }));
@@ -2410,13 +2437,15 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const err = msg ? `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>` : "";
     const koLive = (koNow() && window.KO.liveHtml?.(H)) || "";   // ⚡ een knock-out die nu loopt (20/11): de kaart terug naar het spel
     if (!items.length && !listKo.length && !top && !koLive) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
+      const bf = botFaceHtml(T);
       return err + `<div class="dl-hero">${bandHtml(T, "?", null)}` +
-        `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${newBtn}</div>`;
+        `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${bf ? `<div class="dl-pick bot-only"><div class="dl-faces">${bf}</div></div>` : ""}${newBtn}</div>`;
     }
     let h = "";
     const groups = groupsOf(items.concat(listKo));   // db/215: knock-outs tussen de gewone duels
     const known = items.filter((d) => d.status === "done" && !unrevealed(d));
-    const hs = Object.values(listH2h);
+    const botK = new Set(listBots.map((b) => b.k));   // 🤖 tegen een bot telt niet in je stand bovenaan
+    const hs = Object.entries(listH2h).filter(([k]) => !botK.has(k)).map(([, x]) => x);
     if (known.length || hs.length) {   // je stand: gewonnen, verloren, lopend (zodra je een uitslag zag; een ongeziene telt nog niet mee)
       let w = 0, l = 0;
       if (hs.length) for (const x of hs) { w += (x.w || 0) + (x.kw || 0); l += (x.l || 0) + (x.kl || 0); }   // db/189: over alle duels (db/215: ook knock-outs)
@@ -2535,8 +2564,10 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // db/189: je teamgenoten (en eerdere tegenstanders met een account) als gezichtjes, met jullie stand eronder. Tik = kiezen;
   // dan wordt de grote knop "Daag X uit" (geen link nodig, X krijgt een seintje). Zonder keuze blijft het de link.
   function pickHtml(T, newBtn, items = listItems) {
-    if (!H.loggedIn) return newBtn + acctHtml(T, items);   // zonder account: de link, en (na een duel tegen een account) de account-regel
-    if (!listTargets.length) return newBtn;
+    const bf = botFaceHtml(T);   // 🤖 (db/218, zijn "voorraan"): de bots altijd vooraan, ook zonder account
+    const only = () => `<h3 class="dl-h">${esc(T.pickH)}</h3><div class="dl-pick"><div class="dl-faces">${bf}</div>${newBtn}</div>`;
+    if (!H.loggedIn) return (bf ? only() : newBtn) + acctHtml(T, items);   // zonder account: de link, en (na een duel tegen een account) de account-regel
+    if (!listTargets.length) return bf ? only() : newBtn;
     const koK = koOpp();
     if (koK && pickSel === koK) pickSel = null;   // zoals busy in applyList
     const faces = listTargets.map((t) => {
@@ -2556,7 +2587,53 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
           `<span><b>${esc(T.koName)}</b><small>${esc(isOn(t.k) ? T.koSub(t.name) : T.liveOff(t.name))}</small></span></button>`) +
         `<button type="button" class="dl-linkb" data-act="new">${esc(T.linkInstead)}</button>`;
     }
-    return `<h3 class="dl-h">${esc(T.pickH)}</h3><div class="dl-pick"><div class="dl-faces">${faces}</div>${tail}</div>`;
+    return `<h3 class="dl-h">${esc(T.pickH)}</h3><div class="dl-pick"><div class="dl-faces">${bf}${faces}</div>${tail}</div>`;
+  }
+  // 🤖 Bots (db/218, 21/11, mockup "Knock-out bots"): één gezichtje, altijd online; eronder je stand tegen alle bots samen. Tik = de keuze
+  // (pop-up). Loopt er een spel tegen een bot: "loopt", tik = terug.
+  function botFaceHtml(T) {
+    if (!listBots.length) return "";
+    const busy = !!koNow()?.bot;
+    let w = 0, l = 0;
+    for (const b of listBots) { w += b.w || 0; l += b.l || 0; }
+    const lab = busy ? `<small class="run">${esc(T.faceRun)}</small>`
+      : w || l ? `<small class="${w > l ? "up" : w < l ? "down" : ""}">${w}–${l}</small>` : `<small class="new">${esc(T.faceNew)}</small>`;
+    return `<button type="button" class="dl-face bot${busy ? " busy" : ""}" data-act="${busy ? "kolive" : "bots"}"${busy ? "" : ' aria-haspopup="dialog"'}>` +
+      `${avHtml("🤖", T.botsFace, " on", false)}<b>${esc(T.botsFace)}</b>${lab}</button>`;
+  }
+  // één bot als regel (de pop-up, en na winst op het K.O.-eindscherm: next). Het niveau komt uit de volgorde (botLvl), de rating eronder.
+  function botOptHtml(T, b, i, { you = false, next = false, attrs = "" } = {}) {
+    const lvl = (T.botLvl || "").split("|")[i] || "", w = b.w || 0, l = b.l || 0;
+    const rec = !next && (w || l) ? `<span class="bo-rec${w > l ? " up" : w < l ? " down" : ""}">${w}–${l}</span>` : "";
+    return `<button type="button" class="dl-opt bot-opt" data-bot="${esc(b.key)}"${attrs ? " " + attrs : ""}>${avHtml(b.flair, b.name)}` +
+      `<span class="bo-t"><b>${esc(b.name)}${you ? ` <span class="bo-you">${esc(T.botYou)}</span>` : ""}</b>` +
+      `<small>${next ? esc(T.botNext) + ": " : ""}${esc([lvl, b.elo].filter((x) => x !== "" && x != null).join(" · "))}</small></span>${rec}</button>`;
+  }
+  const BOTS_ID = "modal-duel-bots";
+  function openBots(T) {
+    let el = document.getElementById(BOTS_ID);
+    if (!el) {
+      el = document.createElement("div");
+      el.id = BOTS_ID; el.className = "modal"; el.hidden = true;
+      el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "duel-bots-title");
+      document.body.appendChild(el);
+      el.addEventListener("click", (e) => {
+        if (e.target.closest("[data-close]")) return H.closeModal(BOTS_ID);
+        const b = e.target.closest("[data-bot]");
+        if (!b) return;
+        H.closeModal(BOTS_ID);
+        H.ko?.().then((K) => K.botStart?.(H, b.dataset.bot)).catch(() => {});
+      });
+    }
+    const me = H.loggedIn ? H.myRating?.() : null;   // "≈ jij": de bot die het dichtst bij jouw rating zit
+    const near = me != null && listBots.length ? listBots.reduce((a, b) => (Math.abs(b.elo - me) < Math.abs(a.elo - me) ? b : a)) : null;
+    el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card duel-pop bot-pop">` +
+      `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button>` +
+      `<div class="duel-inv"><span class="duel-ico" aria-hidden="true">⚡</span><h2 id="duel-bots-title">${esc(T.botsH)}</h2>` +
+      `<div class="dl-menu bot-menu">${listBots.map((b, i) => botOptHtml(T, b, i, { you: b === near })).join("")}</div>` +
+      `<p class="bot-note">${esc(T.botsNote)}</p></div></div>`;
+    H.openModal(BOTS_ID, { over: true });
+    el.querySelector(".modal-close")?.focus();   // zoals de ?-pop-up: geen bot die al gekozen lijkt
   }
 
   // Je openstaande uitdaging (19/11: "bij waiting is die nog grijs en saai"): dezelfde kaart als een uitdaging aan jou, met de twee
@@ -2626,7 +2703,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       det = `<div class="dl-detail">${vs}${card}` +
         (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const [r, txt] = pastRes(d);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${d.ko ? `<i class="ko-mk" aria-hidden="true">⚡</i> ` : ""}${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${r}">${esc(txt)}</span></button>`; }).join("")}</div>` : "") +
-        (sel.ko ? `<button type="button" class="dl-mini dl-rev" data-act="korev" data-k="${esc(sel.opp || "")}" data-name="${esc(n)}">⚡ ${esc(T.revenge)}</button></div>`
+        (sel.ko ? `<button type="button" class="dl-mini dl-rev" data-act="korev" data-k="${esc(sel.opp || "")}" data-name="${esc(n)}"${sel.bot ? ` data-bot="${esc(sel.bot)}"` : ""}>⚡ ${esc(T.revenge)}</button></div>`
           : `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button></div>`);
     }
     return `<div class="dl-item${isOpen ? " open" : ""}" data-sel="${(sel || latest).code}">${row}${det}</div>`;
@@ -2693,10 +2770,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       const d = listKo.find((x) => x.code === code);
       if (act === "koend" && d) gc("duel-ko-review", "Duel: knockout result reviewed from Duels");
       if (act === "korev") gc("duel-ko-rev", "Duel: knockout rematch from Duels");
-      H?.ko?.().then((K) => (act === "koend" ? d && K.review?.(H, d) : K.invite?.(H, b.dataset.k, b.dataset.name))).catch(() => {});
+      H?.ko?.().then((K) => (act === "koend" ? d && K.review?.(H, d) : b.dataset.bot ? K.botStart?.(H, b.dataset.bot, true) : K.invite?.(H, b.dataset.k, b.dataset.name))).catch(() => {});
       return;
     }
     if (act === "kolive") return koResume();   // ⚡ terug in de knock-out die loopt
+    if (act === "bots") { gc("duel-bots", "Duel: bots opened"); return openBots(T); }   // 🤖 db/218
     if (act === "sync") { gc("duel-sync", "Duel: Duels logo tapped (refresh)"); return syncList(T, true); }
     if (act === "sfx") return toggleSfx(b);   // ⚔️ Duel-geluid aan/uit (de knop naast de ?)
     if (act === "sent-x") { listTop = ""; return renderList(T, null); }
@@ -3013,11 +3091,13 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS, en het geluid (au: de bus, de bouwstenen, "hit")
     kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, sndHtml, armSnd, flairEmoji, gc, create: (h, o) => create(h, o),
            openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
+           bots: () => listBots, botOptHtml: (T, b, i, o) => botOptHtml(T, b, i, o),   // 🤖 db/218: het K.O.-eindscherm (de volgende bot)
            intro: (h, d, o) => { H = h; return introStart(d, 0, false, o); },   // de opening van een ronde (⚡: bij de start van ronde 1)
            au: { bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud } },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, SFX, INTRO_MS, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
-         setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; }, koCardHtml, fillKo, onListClick, listKo: () => listKo },   // voor de tests
+         setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; }, koCardHtml, fillKo, onListClick, listKo: () => listKo,
+         botFaceHtml, botOptHtml, openBots, listBots: () => listBots },   // voor de tests
   };
 })();

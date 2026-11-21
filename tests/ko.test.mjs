@@ -134,19 +134,24 @@ test("ko.js — rondes, levensverloop en het eindscherm (A): schade, max, levens
   assert.equal(typeof KO.lifeHtml, "function"); assert.equal(typeof KO.review, "function");
 });
 
-test("db/208 + 210 + 214 ↔ ko.js — elke RPC die ko.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "214_ko_react.sql")) }, () => {
-  // de laatste definitie telt (db/210 maakt ko_submit opnieuw: jaar + hints in plaats van een score)
-  const sql = ["208_ko.sql", "210_ko_one_guess.sql", "214_ko_react.sql"].map((f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8")).join("\n");
-  const calls = [...KOSRC.matchAll(/call\("(ko_[a-z]+)", \{([^}]*)\}/g)].map((m) => [m[1], [...m[2].matchAll(/(p_[a-z]+):/g)].map((x) => x[1])]);
-  assert.deepEqual([...new Set(calls.map((c) => c[0]))].sort(), ["ko_answer", "ko_cancel", "ko_get", "ko_invite", "ko_react", "ko_rematch", "ko_submit"]);
+test("db/208 + 210 + 214 + 218 ↔ ko.js — elke RPC die ko.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "218_ko_bot.sql")) }, () => {
+  // de laatste definitie telt (db/210 maakt ko_submit opnieuw: jaar + hints in plaats van een score; db/218 + p_client met default)
+  const rd = (f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8");
+  const old = ["208_ko.sql", "210_ko_one_guess.sql", "214_ko_react.sql"].map(rd).join("\n"), sql = old + "\n" + rd("218_ko_bot.sql");
+  const calls = [...KOSRC.matchAll(/call\("(ko_[a-z_]+)", \{([^}]*)\}/g)].map((m) => [m[1], [...m[2].matchAll(/(p_[a-z]+):/g)].map((x) => x[1])]);
+  assert.deepEqual([...new Set(calls.map((c) => c[0]))].sort(), ["ko_answer", "ko_bot_start", "ko_cancel", "ko_get", "ko_invite", "ko_react", "ko_rematch", "ko_submit"]);
   for (const [fn, args] of calls) {
     const defs = [...sql.matchAll(new RegExp(`create (?:or replace )?function public\\.${fn}\\(([^)]*)\\)`, "gi"))], def = defs[defs.length - 1];
-    assert.ok(def, `${fn} bestaat niet in db/208`);
-    const params = [...def[1].matchAll(/(p_[a-z]+)\s/g)].map((x) => x[1]);
-    assert.deepEqual(params.sort(), [...args].sort(), `${fn}: argumenten`);
+    assert.ok(def, `${fn} bestaat niet in db/208–218`);
+    const ps = def[1].split(",").map((x) => x.trim()).filter(Boolean).map((x) => ({ n: x.split(/\s/)[0], opt: /default/i.test(x) }));
+    for (const a of args) assert.ok(ps.some((p) => p.n === a), `${fn}: ${a} bestaat niet`);
+    for (const p of ps) if (!p.opt && p.n !== "p_client") assert.ok(args.includes(p.n), `${fn}: ${p.n} ontbreekt`);
   }
+  assert.match(KOSRC, /if \(!H\.loggedIn && \/\^ko_\(get\|submit\|bot_start\)\$\/\.test\(fn\)\) args = \{ \.\.\.args, p_client: H\.clientId\?\.\(\) \|\| null \};/, "anoniem: het speler-id mee");
   assert.match(sql, /grant execute on function public\.ko_invite[\s\S]*to authenticated;/);
-  assert.doesNotMatch(sql, /to anon/, "anoniem mag niets");
+  assert.doesNotMatch(old, /to anon/, "anoniem mag niets met een mens");
+  // db/218: anoniem alleen ophalen, insturen en een bot-spel starten
+  assert.deepEqual([...rd("218_ko_bot.sql").matchAll(/grant execute on function public\.(\w+)\([^)]*\) to anon, authenticated;/g)].map((m) => m[1]).sort(), ["ko_bot_start", "ko_get", "ko_submit"]);
 });
 
 test("game.js / duel.js / live.js ↔ ko.js — lui geladen, rondes en seintjes gaan naar ko.js", () => {
@@ -388,13 +393,15 @@ test("ko.js — reacties (db/214): zes vaste, een reactie van de ander geeft een
   assert.equal(log.src.length, n, "nageleverd, ander spel of onzin: stil");
   assert.deepEqual(rpc, [], "een reactie haalt niets op");
   // de zes en de limieten (zelfde als db/214)
-  assert.match(KOSRC, /const RX = \["😂", "🤯", "🔥", "😬", "gg", "g2g"\], RXGAP = 2000, RXMAX = 6, RXLIFE = 2500;/);
+  assert.match(KOSRC, /const RX = \["😂", "🤯", "🔥", "😬", "gg", "g2g", "😭"\], RXGAP = 2000, RXMAX = 6, RXLIFE = 2500, RXO = \[0, 1, 2, 3, 6, 4, 5\];/, "😭 = nummer 6 (oude clients), in de rij bij de emoji");
   const f = join(dir, "..", "..", "jaardle-tools", "db", "214_ko_react.sql");
   if (existsSync(f)) {
     const sql = readFileSync(f, "utf8");
     assert.match(sql, /p_i < 0 or p_i > 5/); assert.match(sql, /v_n >= 6/); assert.match(sql, /interval '1\.8 seconds'/); assert.match(sql, /interval '5 minutes'/);
   }
-  for (const l of K9.langs()) assert.equal(K9.copy(l).rxL.split("|").length, 6, `${l}: zes labels`);
+  const f218 = join(dir, "..", "..", "jaardle-tools", "db", "218_ko_bot.sql");
+  if (existsSync(f218)) assert.match(readFileSync(f218, "utf8"), /p_i < 0 or p_i > 6/, "db/218: zeven reacties");
+  for (const l of K9.langs()) assert.equal(K9.copy(l).rxL.split("|").length, 7, `${l}: zeven labels`);
   // 😂 zit in het eigen emoji-lettertype (ko.js wordt gescand)
   assert.match(read("tools/build-emoji-font.py"), /SCAN = \[ROOT \/ "game\.js", ROOT \/ "index\.template\.html", ROOT \/ "ko\.js"\]/);
   assert.match(read("style.css"), /U\+1F602/i, "😂 in de unicode-range");
@@ -523,3 +530,85 @@ test("ko.js — de start: eerst het aftel-pop-up (3, 2, 1), dan de opening van e
   assert.ok(it2.removed, "de opening is weg");
   assert.match(DUEL, /intro: \(h, d, o\) => \{ H = h; return introStart\(d, 0, false, o\); \}/);
 });
+
+// 🤖 db/218: bots. Eigen lader met timers die we zelf afvuren (de bot gokt op bot_at: dan haalt de client de stand op).
+function loadBots() {
+  const timers = [];
+  const els = {}, win = { addEventListener() {}, dispatchEvent() {} };
+  const mk = () => ({ hidden: true, textContent: "", setAttribute() {}, querySelector: () => mk(), querySelectorAll: () => [], classList: { add() {}, remove() {}, toggle() {} }, style: { setProperty() {} } });
+  const doc = { hidden: false, head: { appendChild() {} }, body: { setAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
+    getElementById: (id) => els[id] || null, querySelector: () => null, querySelectorAll: () => [], createElement: mk, addEventListener() {}, removeEventListener() {} };
+  const ctx = vm.createContext({ window: win, document: doc, localStorage: { getItem: () => null }, performance: { now: () => 0 }, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL,
+    encodeURIComponent, CustomEvent: class { constructor(t) { this.type = t; } }, setTimeout: (f, ms) => { timers.push({ f, ms }); return timers.length; }, clearTimeout(i) { if (timers[i - 1]) timers[i - 1].f = null; },
+    setInterval: () => 0, clearInterval() {} });
+  vm.runInContext(DUEL, ctx);
+  vm.runInContext(KOSRC, ctx);
+  return { KO: win.KO, Duel: win.Duel, els, timers };
+}
+const BOTS = [{ key: "pip", k: "kp", name: "Pip", flair: "🐣", elo: 1100, w: 3, l: 0 }, { key: "robo", k: "kr", name: "Robo", flair: "🤖", elo: 1500, w: 1, l: 2 },
+              { key: "prof", k: "kf", name: "Prof", flair: "🧠", elo: 1800, w: 0, l: 0 }];
+
+test("ko.js — 🤖 bots (db/218): starten (ook anoniem), de stand ophalen op bot_at zolang je in het spel zit, geen reacties", async () => {
+  const { KO: KB, timers } = loadBots();
+  const rpc = [];
+  let st = null;
+  const h = host({ loggedIn: false, clientId: () => "cid-1", state: () => st, openModal() {}, closeModal() {}, rpc: async (fn, a) => { rpc.push([fn, a]); return null; } });
+  await KB.botStart(h, "robo");
+  assert.deepEqual(plainKo(rpc), [["ko_bot_start", { p_bot: "robo", p_client: "cid-1" }]], "anoniem: het speler-id gaat mee");
+  rpc.length = 0;
+  const now = Date.now(), iso = (ms) => new Date(now + ms).toISOString();
+  const g = { code: "KBOT01", state: "live", me: "a", bot: "robo", bot_elo: 1500, now: iso(0), round: 1, round_at: iso(-1000), bot_at: iso(5000), opp_done: false,
+    opp_name: "Robo", opp_flair: "🤖", hp: 150, opp_hp: 150, mine: [], theirs: [] };
+  st = { duel: { code: "KBOT01", round: 1, ko: true }, done: false };
+  KB._.apply(h, g);
+  const t = timers.filter((x) => x.f && x.ms >= 5000 && x.ms <= 5600).pop();
+  assert.ok(t, "een timer op bot_at (+250 ms)");
+  t.f();
+  assert.deepEqual(plainKo(rpc), [["ko_get", { p_code: "KBOT01", p_client: "cid-1" }]], "op bot_at de stand ophalen");
+  // weg uit het spel (Duels, de daily): niet ophalen, anders trekt elke bot-gok je terug
+  rpc.length = 0;
+  KB._.apply(h, { ...g, now: iso(0) });
+  st = null;
+  timers.filter((x) => x.f && x.ms >= 5000 && x.ms <= 5600).pop().f();
+  assert.deepEqual(rpc, [], "niet in het spel: niets");
+  // de bot gokte al (opp_done): geen timer meer
+  const n = timers.length;
+  st = { duel: { code: "KBOT01", round: 1, ko: true }, done: false };
+  KB._.apply(h, { ...g, opp_done: true, bot_at: null, deadline: iso(15000) });
+  assert.equal(timers.slice(n).filter((x) => x.f && x.ms >= 5000 && x.ms <= 5600).length, 0, "geen bot-timer als hij al gokte");
+  // geen reactieknopje tegen een bot; wel tegen een mens
+  assert.doesNotMatch(KB._.stripHtml(h, g), /ko-rx-btn/, "tegen een bot: geen reacties");
+  assert.match(KB._.stripHtml(h, { ...g, bot: null }), /ko-rx-btn/);
+  assert.match(KB._.stripHtml(h, g), /<b>Robo<\/b>/);
+});
+
+test("ko.js — 🤖 K.O. tegen een bot: Revanche begint meteen een nieuw spel, na winst de volgende bot, na verlies niet", async () => {
+  const { KO: KB, Duel: DB, els } = loadBots();
+  const rpc = [];
+  const h = host({ loggedIn: true, state: () => null, openModal: (id) => { els[id].hidden = false; }, closeModal: (id) => { els[id].hidden = true; },
+    rpc: async (fn, a) => { rpc.push([fn, a]); return null; }, flairHtml: (f) => `<i>${f}</i>` });
+  DB.kit.setHost(h);
+  DB._.applyList({ items: [], h2h: {}, targets: [], bots: BOTS });
+  const iso = new Date().toISOString();
+  const won = { code: "KBOT02", state: "done", me: "a", bot: "robo", now: iso, finished_at: iso, winner: "me", opp_name: "Robo", opp_flair: "🤖", hp: 80, opp_hp: 0,
+    mine: [90, 80], theirs: [40, 30], answers: [1912, 1950], my_years: [1912, 1950], their_years: [1930, 1980] };
+  KB.review(h, won);
+  const html = els["modal-ko"].innerHTML;
+  assert.match(html, /data-ko="re">⚡ Revanche<\/button>/, "Revanche zonder 'wil ook'");
+  assert.doesNotMatch(html, /Druk je allebei/, "geen uitleg over allebei drukken");
+  assert.match(html, /<div class="bot-next"><button type="button" class="dl-opt bot-opt" data-bot="prof" data-ko="bot">[^]*<b>Prof<\/b>[^]*Volgende: Sterk · 1800/, "na winst: de volgende bot");
+  assert.doesNotMatch(html, /class="ko-rx/, "geen reacties");
+  const click = (ko, bot) => els["modal-ko"].onclick({ target: { closest: () => ({ dataset: { ko, bot }, disabled: false, closest: () => null }) } });
+  click("re");
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(plainKo(rpc.pop()), ["ko_bot_start", { p_bot: "robo" }], "Revanche = een nieuw spel tegen dezelfde bot");
+  KB.review(h, won);   // (het antwoord null gaf een foutpop-up: het eindscherm opnieuw)
+  click("bot", "prof");
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(plainKo(rpc.pop()), ["ko_bot_start", { p_bot: "prof" }]);
+  KB.review(h, { ...won, code: "KBOT03", winner: "opp", hp: 0, opp_hp: 50 });
+  assert.doesNotMatch(els["modal-ko"].innerHTML, /bot-next/, "na verlies geen volgende bot");
+  KB.review(h, { ...won, code: "KBOT04", bot: "prof", opp_name: "Prof" });
+  assert.doesNotMatch(els["modal-ko"].innerHTML, /bot-next/, "Prof is de sterkste: geen volgende");
+});
+function plainKo(x) { return JSON.parse(JSON.stringify(x)); }

@@ -4997,6 +4997,7 @@ function duelHost() {
     openModal, closeModal, renderMenuDot, isMobile: isMobileDevice, showConfetti, toEvent, t, els,
     duelsChanged: () => renderNx(),   // 19/11: /duel.js heeft een verse lijst → het duel-stuk van de verder-spelen-knop bijwerken
     flairHtml: flairStaticHtml, myFlair: () => myFlair, openLogin: () => openModal("modal-login"), gc: gcCount,
+    myRating: () => (auth.user && Number.isFinite(auth.rating) ? Math.round(auth.rating) : null),   // 🤖 db/218: "≈ jij" bij de bots
     state: () => state, score: computeScore,
     startRound: (rec) => {   // een duelronde is een vrij potje: het tabblad gaat mee (zoals bij een gedeelde link)
       els.tabs.forEach((tb) => tb.setAttribute("aria-selected", String(tb.dataset.mode === "free")));
