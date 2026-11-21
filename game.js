@@ -229,7 +229,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
-    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_strict_guard: "🎯 Strenge check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", menu_duel_sfx: "⚔️ Duel-geluid", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
+    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_strict_guard: "🎯 Strenge check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", menu_duel_sfx: "⚔️ Duel-geluid", menu_duel_music: "🎵 Duel-muziek", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     nx_duel: "Duel", nx_turn: (n) => `Jouw beurt tegen ${n}`, nx_many: (k) => `Jouw beurt in ${k} duels`, nx_inv: (n) => `${n} daagt je uit`, nx_aria: "Daag een vriend uit",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
@@ -585,7 +585,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
-    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_strict_guard: "🎯 Strict check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", menu_duel_sfx: "⚔️ Duel sounds", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
+    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_strict_guard: "🎯 Strict check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", menu_duel_sfx: "⚔️ Duel sounds", menu_duel_music: "🎵 Duel music", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     nx_duel: "Duel", nx_turn: (n) => `Your turn vs ${n}`, nx_many: (k) => `Your turn in ${k} duels`, nx_inv: (n) => `${n} challenges you`, nx_aria: "Challenge a friend",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
@@ -934,7 +934,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
-    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_strict_guard: "🎯 Strenge Prüfung", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", menu_duel_sfx: "⚔️ Duell-Sounds", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
+    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_strict_guard: "🎯 Strenge Prüfung", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", menu_duel_sfx: "⚔️ Duell-Sounds", menu_duel_music: "🎵 Duell-Musik", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     nx_duel: "Duell", nx_turn: (n) => `Du bist dran gegen ${n}`, nx_many: (k) => `Du bist dran: ${k} Duelle`, nx_inv: (n) => `${n} fordert dich heraus`, nx_aria: "Fordere jemanden heraus",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
@@ -1287,7 +1287,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
-    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_strict_guard: "🎯 Control estricto", menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sonidos de duelos", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_strict_guard: "🎯 Control estricto", menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sonidos de duelos", menu_duel_music: "🎵 Música de duelos", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     nx_duel: "Duelo", nx_turn: (n) => `Tu turno contra ${n}`, nx_many: (k) => `Tu turno en ${k} duelos`, nx_inv: (n) => `${n} te reta`, nx_aria: "Reta a un amigo",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
@@ -1640,7 +1640,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
-    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_strict_guard: "🎯 Checagem rigorosa", menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sons dos duelos", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_strict_guard: "🎯 Checagem rigorosa", menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sons dos duelos", menu_duel_music: "🎵 Música dos duelos", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     nx_duel: "Duelo", nx_turn: (n) => `Sua vez contra ${n}`, nx_many: (k) => `Sua vez em ${k} duelos`, nx_inv: (n) => `${n} desafia você`, nx_aria: "Desafie um amigo",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
@@ -5005,6 +5005,7 @@ function duelHost() {
     // db/189: kleur per persoon (zoals de gezichtjes in het histogram) en de duel-seintjes
     faceHue, remindSupport, remindOn: () => !!remindState().on, openInstall: () => openInstall(), onPushChange: () => syncDuelPushUi(),
     setSfx: setDuelSfx,   // ⚔️ Duel-geluid: de knop naast de ? op de Duels-pagina is hetzelfde vinkje
+    setSnd: setDuelSnd, music: loadDuelMusic,   // 🎵 21/11: de luidspreker met drie standen; de achtergrondmuziek (lui)
     swap: kopSwap,   // 21/11: de Jaardle-deur op de Duels-pagina schuift terug (zie kopSwap)
     vondstImage,   // db/190: een vondst-tekening als plaatje (stil), voor het deelplaatje
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
@@ -5280,14 +5281,29 @@ function setDuelSfx(on) {
   prefChanged("duelsfx", !!on);
   syncDuelSfxUi();
 }
+// 🎵 Duel-muziek (21/11, zijn "3-way: sfx, uit, alles"; standaard alleen effecten): de luidspreker van /duel.js heeft drie standen,
+// 0 = uit, 1 = effecten, 2 = effecten + achtergrondmuziek (/duel-music.js). De muziek blijft op dit toestel (geen serverkolom); de effecten
+// reizen mee (db/205). In ⚙️ is het een tweede vinkje onder ⚔️ Duel-geluid; aanzetten zet de effecten ook aan.
+const DUEL_MUSIC_KEY = "jaardle:duelmusic";   // "1" = aan; anders uit
+function duelMusicOn() { try { return duelSfxOn() && localStorage.getItem(DUEL_MUSIC_KEY) === "1"; } catch (e) { return false; } }
+function setDuelSnd(n) {
+  const was = duelMusicOn();
+  if (n > 0) try { localStorage.setItem(DUEL_MUSIC_KEY, n === 2 ? "1" : "0"); } catch (e) {}
+  if ((n > 0) !== duelSfxOn()) setDuelSfx(n > 0); else syncDuelSfxUi();
+  if (duelMusicOn() !== was) gcCount(was ? "duel-music-off" : "duel-music-on", was ? "Duel music off" : "Duel music on");
+}
+const loadDuelMusic = fxLoader("/duel-music.js", "DuelMusic");
 function syncDuelSfxUi() {
-  // de luidspreker-knoppen van /duel.js: naast de ? op de Duels-pagina en in de kop van een ronde (ook ⚡ Knock-out)
-  document.querySelectorAll(".dl-snd-btn").forEach((b) => b.setAttribute("aria-pressed", String(duelSfxOn())));
+  // de luidspreker-knoppen van /duel.js: naast de ? op de Duels-pagina en in de kop van een ronde (ook ⚡ Knock-out); drie standen (21/11)
+  if (window.Duel?.sndSync) window.Duel.sndSync();
+  else document.querySelectorAll(".dl-snd-btn").forEach((b) => b.setAttribute("aria-pressed", String(duelSfxOn())));
   const item = document.querySelector('#menu-pop [data-action="duel-sfx"]');
   if (!item) return;
   let seen = false; try { seen = duelKnown() || localStorage.getItem(DUEL_SFX_KEY) != null || !!localStorage.getItem("jaardle:duel-name"); } catch (e) {}
   item.hidden = !seen;
   item.setAttribute("aria-checked", String(duelSfxOn()));
+  const mus = document.querySelector('#menu-pop [data-action="duel-music"]');
+  if (mus) { mus.hidden = !seen; mus.setAttribute("aria-checked", String(duelMusicOn())); }
 }
 const REMIND_KEY = "jaardle:remind";        // { on, hour, tz, ep } — schrijft remind.js
 const REMIND_SEEN_KEY = "jaardle:remindSeen";   // { d: laatste daily-dag met de bel in beeld, n: aantal zulke dagen }
@@ -15084,6 +15100,12 @@ async function init() {
       const on = !duelSfxOn();
       setDuelSfx(on);
       if (on) { if (window.Duel) window.Duel.sfxTest?.(); else loadDuel().then((D) => D.sfxTest?.()).catch(() => {}); }
+      window.Duel?.musicKick?.();
+      return;
+    }
+    if (action === "duel-music") {   // 🎵 Duel-muziek: in-place; aan = de stand "alles" (de effecten gaan dan ook aan)
+      setDuelSnd(duelMusicOn() ? 1 : 2);
+      window.Duel?.musicKick?.();
       return;
     }
     if (action === "strict-guard") {   // 🎯 Strenge check: in-place, het menu blijft open (zoals het thema)

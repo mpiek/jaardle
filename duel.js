@@ -315,6 +315,8 @@ body[data-duelshome] #mode-tabs { display: flex; }
 .dl-snd-btn svg { width: 1.2rem; height: 1.2rem; }
 .dl-snd-btn .on, .dl-snd-btn[aria-pressed="true"] .off { display: none; }
 .dl-snd-btn[aria-pressed="true"] .on { display: inline; }
+.dl-snd-btn .mus, .dl-snd-btn[data-snd="2"] .on { display: none; }
+.dl-snd-btn[data-snd="2"] .mus { display: inline; }
 .dl-snd-btn[aria-pressed="true"] { color: var(--fg); }
 /* in de kop van een ronde (20/11): links naast het Jaardle-icoontje. Rechts paste hij niet: daar staan de ronde en het pilletje (⚡ Knock-out,
    📻 1900+), en op 360 px schoof dat dan over het logo */
@@ -676,7 +678,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   const TXT = {
     nl: {
-      help: "Hoe werkt het?", sound: "Duel-geluid", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", statW: "Gewonnen", statL: "Verloren", statO: "Lopend", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
+      help: "Hoe werkt het?", sound: "Duel-geluid", snd0: "uit", snd1: "effecten", snd2: "effecten + muziek", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", statW: "Gewonnen", statL: "Verloren", statO: "Lopend", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
       title: "Duels", close: "Sluiten", newBtn: "Daag een vriend uit", nameLabel: "Je naam (die ziet je tegenstander)", namePh: "Naam", go: "Daag uit",
       ready: "Je uitdaging staat klaar", sent: "Link verstuurd", copied: "Link gekopieerd", sentSub: "Wie hem als eerste aanneemt, speelt tegen je.", onlyFor: (n) => `Alleen ${n} kan hem aannemen.`,  sendLink: "Stuur de link",
       copyPrompt: "Kopieer de link:", empty: "Nog geen duels. Daag iemand uit: jullie spelen dezelfde 5 rondes en per ronde wint de hoogste score.",
@@ -734,7 +736,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} ziet jouw ${s} pas na het spelen van ronde ${r}.`, yet: "moet<br>nog", itWas: "Het was", decider: "Beslissend", toDuels: "Naar Duels", fiveR: "5 rondes", turnBtn: "Normaal", koName: "Knock-out · live", turnSub: "5 rondes, om de beurt", liveOff: (n) => `${n} krijgt een seintje en 1 minuut`, koSub: (n) => `${n} is online`,
     },
     en: {
-      help: "How does it work?", sound: "Duel sounds", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
+      help: "How does it work?", sound: "Duel sounds", snd0: "off", snd1: "effects", snd2: "effects + music", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
       title: "Duels", close: "Close", newBtn: "Challenge a friend", nameLabel: "Your name (your opponent sees it)", namePh: "Name", go: "Challenge",
       ready: "Your challenge is ready", sent: "Link sent", copied: "Link copied", sentSub: "Whoever accepts it first plays against you.", onlyFor: (n) => `Only ${n} can accept it.`,  sendLink: "Send the link",
       copyPrompt: "Copy the link:", empty: "No duels yet. Challenge someone: you both play the same 5 rounds and the highest score wins each round.",
@@ -790,7 +792,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} only sees your ${s} after playing round ${r}.`, yet: "yet to<br>play", itWas: "It was", decider: "Decider", toDuels: "To Duels", fiveR: "5 rounds", turnBtn: "Normal", koName: "Knockout · live", turnSub: "5 rounds, taking turns", liveOff: (n) => `${n} gets a ping and 1 minute`, koSub: (n) => `${n} is online`,
     },
     de: {
-      help: "Wie funktioniert das?", sound: "Duell-Sounds", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
+      help: "Wie funktioniert das?", sound: "Duell-Sounds", snd0: "aus", snd1: "Effekte", snd2: "Effekte + Musik", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
       title: "Duelle", close: "Schließen", newBtn: "Fordere jemanden heraus", nameLabel: "Dein Name (sieht dein Gegenüber)", namePh: "Name", go: "Herausfordern",
       ready: "Deine Herausforderung ist bereit", sent: "Link verschickt", copied: "Link kopiert", sentSub: "Wer ihn zuerst annimmt, spielt gegen dich.", onlyFor: (n) => `Nur ${n} kann sie annehmen.`,  sendLink: "Link senden",
       copyPrompt: "Kopiere den Link:", empty: "Noch keine Duelle. Fordere jemanden heraus: Ihr spielt dieselben 5 Runden, und pro Runde gewinnt die höchste Punktzahl.",
@@ -847,7 +849,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} sieht deine ${s} erst nach Runde ${r}.`, yet: "noch<br>offen", itWas: "Es war", decider: "Entscheidung", toDuels: "Zu den Duellen", fiveR: "5 Runden", turnBtn: "Normal", koName: "Knock-out · live", turnSub: "5 Runden, abwechselnd", liveOff: (n) => `${n} bekommt eine Nachricht und 1 Minute`, koSub: (n) => `${n} ist online`,
     },
     es: {
-      help: "¿Cómo funciona?", sound: "Sonidos de duelos", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
+      help: "¿Cómo funciona?", sound: "Sonidos de duelos", snd0: "desactivados", snd1: "efectos", snd2: "efectos + música", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
       title: "Duelos", close: "Cerrar", newBtn: "Reta a un amigo", nameLabel: "Tu nombre (lo verá tu rival)", namePh: "Nombre", go: "Retar",
       ready: "Tu reto está listo", sent: "Enlace enviado", copied: "Enlace copiado", sentSub: "Quien lo acepte primero juega contra ti.", onlyFor: (n) => `Solo ${n} puede aceptarlo.`,  sendLink: "Enviar el enlace",
       copyPrompt: "Copia el enlace:", empty: "Aún no hay duelos. Reta a alguien: jugáis las mismas 5 rondas y en cada ronda gana la puntuación más alta.",
@@ -903,7 +905,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       barSub: (n, s, r) => `${n} verá tu ${s} solo después de jugar la ronda ${r}.`, yet: "aún no<br>juega", itWas: "Era", decider: "Decisiva", toDuels: "A Duelos", fiveR: "5 rondas", turnBtn: "Normal", koName: "K.O. · en vivo", turnSub: "5 rondas, por turnos", liveOff: (n) => `${n} recibe un aviso y 1 minuto`, koSub: (n) => `${n} está en línea`,
     },
     pt: {
-      help: "Como funciona?", sound: "Sons dos duelos", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
+      help: "Como funciona?", sound: "Sons dos duelos", snd0: "desligados", snd1: "efeitos", snd2: "efeitos + música", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
       title: "Duelos", close: "Fechar", newBtn: "Desafie um amigo", nameLabel: "Seu nome (seu adversário vai ver)", namePh: "Nome", go: "Desafiar",
       ready: "Seu desafio está pronto", sent: "Link enviado", copied: "Link copiado", sentSub: "Quem aceitar primeiro joga contra você.", onlyFor: (n) => `Só ${n} pode aceitar.`,  sendLink: "Enviar o link",
       copyPrompt: "Copie o link:", empty: "Ainda não há duelos. Desafie alguém: vocês jogam as mesmas 5 rodadas e em cada rodada vence a maior pontuação.",
@@ -1620,17 +1622,28 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const SFX_KEY = "jaardle:duelsfx";
   const SND = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 9.3h3.4l4.6-3.9v13.2l-4.6-3.9H3.5z" fill="currentColor"/>` +
     `<g class="on" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 9.3a3.9 3.9 0 0 1 0 5.4"/><path d="M17.7 6.7a7.6 7.6 0 0 1 0 10.6"/></g>` +
-    `<g class="off" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8"/></g></svg>`;
+    `<g class="off" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8"/></g>` +
+    `<g class="mus"><path d="M19.3 5.4v8.3M19.3 5.4c.5 1.7 2.7 2.2 2.7 4.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="17.4" cy="14" rx="2.2" ry="1.7" transform="rotate(-20 17.4 14)" fill="currentColor"/></g></svg>`;
   const sfxOn = () => { try { return localStorage.getItem(SFX_KEY) !== "0"; } catch (e) { return false; } };   // leeg = nooit gekozen = aan
   // De luidspreker als knop: op de Duels-pagina naast de ?, en sinds 20/11 ook links in de kop van een ronde (zijn vraag: "altijd de
   // geluidsknop kunnen indrukken, ook als je in een duel zit"); ⚡ Knock-out (/ko.js) gebruikt dezelfde. Hetzelfde als het vinkje in ⚙️:
   // game.js bewaart hem (ook op de server) en zet het vinkje en elke knop; aan = meteen de klang, binnen de tik.
-  const sndHtml = (T) => `<button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="${sfxOn()}" aria-label="${esc(T.sound)}" title="${esc(T.sound)}">${SND}</button>`;
+  // 🎵 21/11: drie standen (zijn "3-way: sfx, uit, alles"; standaard effecten): 0 = uit, 1 = effecten, 2 = effecten + achtergrondmuziek.
+  // De muziek is een eigen sleutel, alleen op dit toestel (de effecten reizen mee als duelsfx, db/205). Tik: effecten → uit → alles → effecten.
+  const MUS_KEY = "jaardle:duelmusic";
+  const sndState = () => { if (!sfxOn()) return 0; try { return localStorage.getItem(MUS_KEY) === "1" ? 2 : 1; } catch (e) { return 1; } };
+  const sndLbl = (T, s = sndState()) => `${T.sound}: ${T[`snd${s}`]}`;
+  function sndSet(b, T = tx(H?.lang)) {
+    const s = sndState(), l = sndLbl(T, s);
+    b.setAttribute("aria-pressed", String(s > 0)); b.setAttribute("data-snd", String(s)); b.setAttribute("aria-label", l); b.title = l;
+  }
+  const sndHtml = (T) => { const s = sndState(), l = esc(sndLbl(T, s)); return `<button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="${s > 0}" data-snd="${s}" aria-label="${l}" title="${l}">${SND}</button>`; };
   function toggleSfx(b) {
-    const on = !sfxOn();
-    if (H?.setSfx) H.setSfx(on); else try { localStorage.setItem(SFX_KEY, on ? "1" : "0"); } catch (e) {}
-    b.setAttribute("aria-pressed", String(on));
-    if (on) sfxTest();
+    const n = [2, 0, 1][sndState()];
+    if (H?.setSnd) H.setSnd(n); else try { localStorage.setItem(SFX_KEY, n ? "1" : "0"); if (n) localStorage.setItem(MUS_KEY, n === 2 ? "1" : "0"); } catch (e) {}
+    document.querySelectorAll(".dl-snd-btn").forEach((e) => sndSet(e));
+    if (n) sfxTest();   // aan = meteen de klang, binnen de tik
+    musicKick();
   }
   function armSnd(root) {   // de knop in de kop van een ronde: eigen klik (de kop wordt telkens opnieuw getekend)
     const b = root?.querySelector(".dl-snd-btn");
@@ -1641,7 +1654,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const AU = { x: null, out: null, noise: null, nap: 0 };
   function auNap(ms) {
     clearTimeout(AU.nap);
-    AU.nap = setTimeout(() => { try { if (AU.x?.state === "running") AU.x.suspend(); } catch (e) {} }, ms);
+    AU.nap = setTimeout(() => { try { if (AU.x?.state === "running" && !MUS.m?.on) AU.x.suspend(); } catch (e) {} }, ms);
   }
   function auWake() {
     if (!sfxOn()) return null;
@@ -1656,6 +1669,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
         const nb = x.createBuffer(1, x.sampleRate * 2, x.sampleRate), nd = nb.getChannelData(0);
         for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
         Object.assign(AU, { x, out, noise: nb });
+        auLoad(x);
       }
       if (AU.x.state !== "running") { AU.x.resume()?.catch?.(() => {}); auNap(15000); }
     } catch (e) { AU.x = null; }
@@ -1664,6 +1678,41 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   try {
     for (const ev of ["pointerup", "touchend", "click", "keydown"]) window.addEventListener?.(ev, () => { if (AU.x?.state !== "running") auWake(); }, { capture: true, passive: true });
   } catch (e) {}
+  // 21/11 (zijn keuze op de luisterpagina): drie klanken zijn opnames (ElevenLabs): de botsing, de tik van de klok en de max-schade. Ze laden
+  // pas als het geluid voor het eerst wakker wordt (samen ±26 KB, /sfx/, één keer); tot ze er zijn klinkt de synth. Het getal = het volume,
+  // gelijkgetrokken met de synth (gemeten op de luisterpagina).
+  const SMP = { "duel-hit": 1.48, "ko-tick": 0.09, "ko-bam": 1.09 };
+  const VER = (() => { try { return new URL(document.currentScript.src).searchParams.get("v") || ""; } catch (e) { return ""; } })();
+  function auLoad(x) {
+    if (AU.smp) return;
+    AU.smp = {};
+    for (const n of Object.keys(SMP)) {
+      try {
+        window.fetch(`/sfx/${n}.mp3${VER ? `?v=${encodeURIComponent(VER)}` : ""}`).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status)))
+          .then((a) => new Promise((ok, no) => x.decodeAudioData(a, ok, no))).then((b) => { AU.smp[n] = b; }).catch(() => {});
+      } catch (e) {}
+    }
+  }
+  function smp(bus, n, at = 0, k = 1) {   // false = (nog) niet geladen: dan speelt de synth
+    const b = AU.smp?.[n], x = AU.x;
+    if (!b || !bus || !x) return false;
+    const s = x.createBufferSource(), e = x.createGain(), t = x.currentTime + at;
+    s.buffer = b; e.gain.value = SMP[n] * k;
+    s.connect(e); e.connect(bus); s.start(t); s.stop(t + b.duration + 0.02);
+    return true;
+  }
+  // 🎵 Achtergrondmuziek tijdens het spelen (21/11, zijn "soort melodie tijdens spelen, net zoals bij geoguessr"): alleen op stand 2, alleen
+  // in een ronde (om de beurt: tot je klaar bent, zie sync; ⚡ knock-out: het hele spel, ko.js), stil zodra het tabblad weg is. De muziek
+  // zelf (Web Audio, geen bestand) staat in /duel-music.js en laadt pas als hij moet klinken. tense = de klok van een knock-out loopt.
+  const MUS = { want: false, tense: false, m: null };
+  function music(want, tense = false) { MUS.want = !!want; MUS.tense = !!tense; musicKick(); }
+  function musicKick() {
+    if (!(MUS.want && sndState() === 2 && !document.hidden)) { if (MUS.m?.on) { MUS.m.stop(); auNap(15000); } return; }
+    const x = auWake();
+    if (!x || !H?.music) return;
+    H.music().then((M) => { MUS.m = M; if (MUS.want && sndState() === 2 && !document.hidden) { M.start(x, AU.out); M.tense(MUS.tense); } }).catch(() => {});
+  }
+  try { document.addEventListener?.("visibilitychange", () => musicKick()); } catch (e) {}
   // Bouwstenen; at = seconden vanaf nu, alles via de bus van één opening.
   function swish(bus, at, dur, f0, f1, g, peak, pan0, pan1) {   // peak = waar (0–1) de zwiep het hardst is
     const x = AU.x, t = x.currentTime + at, s = x.createBufferSource(), bp = x.createBiquadFilter(), e = x.createGain();
@@ -1705,7 +1754,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const SFX = {
     // de volle opening: de helften schuiven van links en rechts naar de naad en botsen op de ⚔️; daarna schuiven ze weer weg
     in: (b) => { const d = INTRO_MS.hit / 1000; swish(b, 0, d, 280, 2300, 0.5, 0.92, -0.85, -0.1); swish(b, 0.015, d - 0.015, 330, 2000, 0.45, 0.92, 0.85, 0.1); },
-    hit: (b, at) => { ring(b, at, 1180, 0.32); tick(b, at, 3500, 0.35, 0.06); thud(b, at, 150, 46, 0.7, 0.28); swish(b, at + 0.03, 0.7, 1800, 220, 0.12, 0.08, 0, 0); },
+    hit: (b, at = 0) => { if (smp(b, "duel-hit", at)) return; ring(b, at, 1180, 0.32); tick(b, at, 3500, 0.35, 0.06); thud(b, at, 150, 46, 0.7, 0.28); swish(b, at + 0.03, 0.7, 1800, 220, 0.12, 0.08, 0, 0); },
     out: (b) => { const d = INTRO_MS.out / 1000; swish(b, 0, d, 1900, 380, 0.4, 0.3, -0.1, -0.9); swish(b, 0.01, d - 0.01, 2100, 420, 0.36, 0.3, 0.1, 0.9); },
     // de band tussen twee rondes: van links erin met een lichte tik van de ⚔️, naar rechts eruit
     bandIn: (b) => { const d = INTRO_MS.bandIn / 1000; swish(b, 0, d, 450, 2600, 0.36, 0.9, -0.85, 0); ring(b, d - 0.02, 1760, 0.1); },
@@ -1906,6 +1955,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   function sync(host) {
     H = host || H;
     const st = H.state(), body = document.body;
+    if (!st?.duel?.ko) music(!!st?.duel && !st.done);   // 🎵 om de beurt: tijdens de ronde; de knock-out regelt het zelf (ko.js)
     if (st?.duel?.ko) { H.ko?.().then((K) => K.sync(H)).catch(() => {}); return; }   // ⚡ Knock-out (db/208): eigen kop en levensstrook
     if (!st || !st.duel) {
       document.querySelectorAll("#duel-top, #duel-vs, #duel-bar, #ko-hintnote").forEach((e) => e.remove());
@@ -2352,7 +2402,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       const home = kop.querySelector(".kd-home");
       home.innerHTML = `<img class="kd-logo" src="${esc(homeIcon())}" alt="">`; home.setAttribute("aria-label", T.exit); home.title = T.exit;
       const sb = kop.querySelector(".dl-snd-btn");
-      sb.setAttribute("aria-label", T.sound); sb.title = T.sound; sb.setAttribute("aria-pressed", String(sfxOn()));
+      sndSet(sb, T);
     }
     el.querySelector(".dl-how span").textContent = T.help;
     if (!opts.keepTop) listTop = "";
@@ -3134,17 +3184,17 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   return {
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
-    sfxTest,
+    sfxTest, musicKick, sndSync: () => document.querySelectorAll(".dl-snd-btn").forEach((b) => sndSet(b)),
     // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS, en het geluid (au: de bus, de bouwstenen, "hit")
     kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, sndHtml, armSnd, flairEmoji, gc, create: (h, o) => create(h, o),
            openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },
            bots: () => listBots, botOptHtml: (T, b, i, o) => botOptHtml(T, b, i, o),   // 🤖 db/218: het K.O.-eindscherm (de volgende bot)
            intro: (h, d, o) => { H = h; return introStart(d, 0, false, o); },   // de opening van een ronde (⚡: bij de start van ronde 1)
-           au: { bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud } },
+           au: { bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud, smp, music } },
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, SFX, INTRO_MS, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; }, koCardHtml, fillKo, onListClick, listKo: () => listKo,
-         botFaceHtml, botOptHtml, openBots, listBots: () => listBots },   // voor de tests
+         botFaceHtml, botOptHtml, openBots, listBots: () => listBots, sndState, toggleSfx, music },   // voor de tests
   };
 })();

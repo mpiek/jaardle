@@ -29,9 +29,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-M/adwh28vSJIhi7yhj+heKBUkgwVCqQv36tuwQuPzvE=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
-     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=481 = de src van de game.js-tag onderaan (build). -->
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=482 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
-<link rel="preload" as="script" href="/game.js?v=481">
+<link rel="preload" as="script" href="/game.js?v=482">
 <script>
   // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
   window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -175,7 +175,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=242">
+<link rel="stylesheet" href="/style.css?v=243">
 </head>
 <body>
   <main>
@@ -212,6 +212,8 @@
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-push" data-i18n="menu_duel_push" hidden>⚔️ Duell-Benachrichtigungen</button>
             <!-- ⚔️ Duel-geluid (db/205): geluid bij de opening van een duelronde; standaard uit, reist met een account mee. Voor wie ooit duelleerde; game.js (syncDuelSfxUi) toont en zet hem. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-sfx" data-i18n="menu_duel_sfx" hidden>⚔️ Duell-Sounds</button>
+            <!-- 🎵 Duel-muziek (21/11): achtergrondmuziek tijdens een duelronde = de stand "alles" van de luidspreker; alleen op dit toestel. game.js (syncDuelSfxUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-music" data-i18n="menu_duel_music" hidden>🎵 Duell-Musik</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>🎃 Halloween-Look</button>
             <!-- De viering van een potjes-event (bv. Strooigoed) aan/uit: alleen zonder account (ingelogd kiest in 🪎) en alleen wie hem verdiende; game.js (renderEventFxToggle) vult en toont. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="evfx" hidden></button>
@@ -583,7 +585,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=481"></script>
+  <script src="/game.js?v=482"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

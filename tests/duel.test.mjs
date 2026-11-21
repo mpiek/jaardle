@@ -132,7 +132,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 271000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 275000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 21/11: +🎵 de luidspreker met drie standen, drie opnames (lui, /sfx/), muziek aan/uit (de muziek zelf in /duel-music.js); 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, de deur naast 🌐, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -990,7 +990,11 @@ test("duel.js — duel-geluid: standaard aan (21/11), Web Audio zonder bestanden
   const fresh = loadDuelAudio(null);
   fresh.D.sfxTest();
   assert.ok(fresh.log.nodes > 0, "nooit gekozen (leeg): geluid aan");
-  assert.ok(!/new Audio\(|\.mp3|\.ogg|\.wav/.test(SRC), "geen geluidsbestanden");
+  assert.ok(!/new Audio\(|\.ogg|\.wav/.test(SRC), "geen <audio>, geen ogg/wav");
+  // 21/11: drie opnames (/sfx/*.mp3), pas geladen als het geluid wakker wordt; tot dan (en in deze test: geen fetch) de synth
+  assert.match(SRC, /const SMP = \{ "duel-hit": [\d.]+, "ko-tick": [\d.]+, "ko-bam": [\d.]+ \};/);
+  assert.match(SRC, /Object\.assign\(AU, \{ x, out, noise: nb \}\);\n\s+auLoad\(x\);/, "laden bij het wakker worden, niet bij het laden van duel.js");
+  assert.match(SRC, /window\.fetch\(`\/sfx\/\$\{n\}\.mp3/);
 
   const { D: DA, log } = loadDuelAudio(true);
   DA.sfxTest();
@@ -1041,12 +1045,12 @@ test("game.js — ⚔️ Duel-geluid in ⚙️: vinkje bij de andere, standaard 
 
 test("duel.js — ⚔️ Duel-geluid ook als knop naast de ? op de Duels-pagina: hetzelfde vinkje", () => {
   assert.match(SRC, /`<div class="dl-tools"><button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="false">\$\{SND\}<\/button><\/div>`;\n\s+nav\.appendChild\(k\);/, "rechts in de kop van de Duels-pagina (het ? staat sinds 21/11 onderaan)");
-  assert.match(SRC, /sb\.setAttribute\("aria-label", T\.sound\); sb\.title = T\.sound; sb\.setAttribute\("aria-pressed", String\(sfxOn\(\)\)\);/, "stand bij het openen");
+  assert.match(SRC, /const sb = kop\.querySelector\("\.dl-snd-btn"\);\n\s+sndSet\(sb, T\);/, "stand bij het openen");
   assert.match(SRC, /if \(act === "sfx"\) return toggleSfx\(b\);/);
-  assert.match(SRC, /function toggleSfx\(b\) \{[^]*?if \(H\?\.setSfx\) H\.setSfx\(on\);[^]*?if \(on\) sfxTest\(\);/, "game.js bewaart hem; aan = meteen de klang");
+  assert.match(SRC, /function toggleSfx\(b\) \{[^]*?const n = \[2, 0, 1\]\[sndState\(\)\];[^]*?if \(H\?\.setSnd\) H\.setSnd\(n\);[^]*?if \(n\) sfxTest\(\);/, "21/11: drie standen; game.js bewaart ze; aan = meteen de klang");
   assert.match(D.css, /\.dl-snd-btn\[aria-pressed="true"\] \.on \{ display: inline; \}/);
   assert.match(GAME, /setSfx: setDuelSfx,/);
-  assert.match(GAME, /function syncDuelSfxUi\(\) \{[^}]*?document\.querySelectorAll\("\.dl-snd-btn"\)\.forEach\(\(b\) => b\.setAttribute\("aria-pressed", String\(duelSfxOn\(\)\)\)\);\n\s+const item =/, "vinkje in ⚙️ verandert → elke knop ook (vóór de vroege return)");
+  assert.match(GAME, /function syncDuelSfxUi\(\) \{[^}]*?if \(window\.Duel\?\.sndSync\) window\.Duel\.sndSync\(\);\n\s+else document\.querySelectorAll\("\.dl-snd-btn"\)\.forEach\(\(b\) => b\.setAttribute\("aria-pressed", String\(duelSfxOn\(\)\)\)\);\n\s+const item =/, "vinkje in ⚙️ verandert → elke knop ook (vóór de vroege return)");
 });
 
 test("duel.js + ko.js — 🔈 ook in de kop van een ronde (20/11: altijd kunnen indrukken, ook in een duel)", () => {
@@ -1144,7 +1148,74 @@ test("style.css — één kop Jaardle ↔ Duels (21/11): deur, tabs naar hun woo
   assert.match(CSS, /@media \(max-width: 380px\) \{\n  \.tab \{ padding-inline: 0\.45rem; gap: 0\.3rem; font-size: 0\.88rem; \}\n\}/);
   assert.match(CSS, /@media \(max-width: 480px\) \{\n  #menu-btn \.menu-label \{ display: none; \}\n\}/, "telefoon zonder account: alleen het poppetje");
   assert.ok(!/menu-label-short/.test(CSS + GAME), "geen kort label meer");
-  assert.match(CSS, /#mode-tabs \{ view-transition-name: kop; \}/, "de kop blijft staan tijdens het wisselen");
+  assert.match(CSS, /html\[data-kop\] #mode-tabs \{ view-transition-name: kop; \}/, "de kop blijft staan tijdens het wisselen");
+  assert.ok(!/^#mode-tabs \{ view-transition-name/m.test(CSS), "alleen tijdens het wisselen: altijd aan = eigen stapel, en dan viel het ⋮-menu onder de inhoud");
+  assert.match(GAME, /root\.dataset\.kop = dir;\n\s+const vt = document\.startViewTransition/, "de naam staat er al vóór de oude stand wordt vastgelegd");
   for (const k of ["kop-out-l", "kop-in-r", "kop-out-r", "kop-in-l"]) assert.match(CSS, new RegExp(`@keyframes ${k} \\{`), k);
   assert.match(CSS, /html\[data-kop="in"\]::view-transition-old\(root\) \{ animation-name: kop-out-l; \}/);
+});
+
+// ── 🎵 21/11: de luidspreker met drie standen (zijn "3-way: sfx, uit, alles"; standaard sfx) + achtergrondmuziek (/duel-music.js) ──
+function loadDuelSnd() {
+  const A = fakeAudio(), store = new Map(), btns = [], win = { AudioContext: A.Ctx, addEventListener() {} };
+  const doc = { hidden: false, head: { appendChild() {} }, getElementById: () => null, querySelector: () => null, addEventListener() {},
+    querySelectorAll: (q) => (q === ".dl-snd-btn" ? btns : []), createElement: () => ({ setAttribute() {}, textContent: "" }) };
+  const localStorage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)) };
+  vm.runInContext(SRC, vm.createContext({ window: win, document: doc, localStorage, performance: { now: () => 0 }, Float32Array, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL,
+    encodeURIComponent, Promise, setTimeout: () => 0, clearTimeout: () => {} }));
+  const btn = () => { const b = { a: {}, setAttribute(k, v) { this.a[k] = v; } }; btns.push(b); return b; };
+  return { D: win.Duel, store, btn, log: A.log };
+}
+
+test("duel.js — 🎵 drie standen: effecten (standaard) → uit → alles → effecten; elke knop volgt, met de stand in het label", () => {
+  const { D, store, btn } = loadDuelSnd(), X = D._, b = btn(), b2 = btn();
+  assert.equal(X.sndState(), 1, "nooit gekozen = alleen effecten (zijn \"default is dan sfx only\")");
+  X.toggleSfx(b);
+  assert.equal(X.sndState(), 0); assert.equal(store.get("jaardle:duelsfx"), "0");
+  assert.equal(b2.a["data-snd"], "0"); assert.equal(b2.a["aria-pressed"], "false"); assert.equal(b2.a["aria-label"], "Duel sounds: off");
+  X.toggleSfx(b);
+  assert.equal(X.sndState(), 2); assert.equal(store.get("jaardle:duelmusic"), "1"); assert.equal(b.a["data-snd"], "2"); assert.equal(b.a["aria-pressed"], "true");
+  X.toggleSfx(b);
+  assert.equal(X.sndState(), 1); assert.equal(store.get("jaardle:duelmusic"), "0");
+  for (const l of ["nl", "en", "de", "es", "pt"]) { const T = D.copy(l); assert.ok(T.snd0 && T.snd1 && T.snd2, `${l}: drie standen`); }
+  assert.match(D.css, /\.dl-snd-btn\[data-snd="2"\] \.mus \{ display: inline; \}/, "op 'alles' een muzieknoot in plaats van de golfjes");
+});
+
+test("duel.js — 🎵 muziek alleen op 'alles', alleen in een ronde; de knock-out geeft de spanning door", async () => {
+  const { D, store } = loadDuelSnd(), X = D._, calls = [];
+  const M = { on: false, start() { this.on = true; calls.push("start"); }, stop() { this.on = false; calls.push("stop"); }, tense(t) { calls.push(`tense:${t}`); } };
+  X.setHost({ lang: "nl", music: () => Promise.resolve(M), state: () => null });
+  X.music(true);
+  await Promise.resolve(); await Promise.resolve();
+  assert.deepEqual(calls, [], "stand effecten: geen muziek (het bestand laadt niet eens)");
+  store.set("jaardle:duelmusic", "1");
+  X.music(true, true);
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(calls, ["start", "tense:true"]);
+  X.music(false);
+  assert.deepEqual(calls.slice(-1), ["stop"], "uit de ronde: muziek weg");
+  assert.match(SRC, /if \(!st\?\.duel\?\.ko\) music\(!!st\?\.duel && !st\.done\);/, "om de beurt: tijdens de ronde");
+  assert.match(SRC, /AU\.x\?\.state === "running" && !MUS\.m\?\.on\) AU\.x\.suspend\(\)/, "niet in slaap zolang de muziek speelt");
+  assert.match(GAME, /const loadDuelMusic = fxLoader\("\/duel-music\.js", "DuelMusic"\);/, "lui geladen");
+  assert.equal((GAME.match(/menu_duel_music: "🎵 /g) || []).length, 5, "vinkje in vijf talen");
+  assert.match(TPL, /data-action="duel-music" data-i18n="menu_duel_music" hidden>\{\{i18n:menu_duel_music\}\}<\/button>/);
+  assert.match(GAME, /if \(action === "duel-music"\) \{[^}]*setDuelSnd\(duelMusicOn\(\) \? 1 : 2\);/);
+});
+
+test("duel-music.js — 🎵 de muziek zelf: alleen Web Audio, start/tense/stop zonder fouten", () => {
+  const MSRC = readFileSync(join(dir, "..", "duel-music.js"), "utf8");
+  assert.ok(!/fetch\(|\.mp3|new Audio\(/.test(MSRC), "geen bestanden");
+  const A = fakeAudio(), ivs = [], win = {};
+  class C2 extends A.Ctx {
+    createDelay() { return { delayTime: { value: 0 }, connect() {}, disconnect() {} }; }
+    createGain() { const g = super.createGain(); g.gain.cancelScheduledValues = () => {}; return g; }
+  }
+  vm.runInContext(MSRC, vm.createContext({ window: win, Math, setInterval: (f) => { ivs.push(f); return ivs.length; }, clearInterval() {}, setTimeout: () => 0, clearTimeout() {} }));
+  const M = win.DuelMusic, x = new C2();
+  M.start(x, { connect() {} });
+  assert.equal(M.on, true);
+  ivs[0](); M.tense(true); x.currentTime = 19; ivs[0](); x.currentTime = 30; ivs[0]();
+  assert.deepEqual(plain(A.log.errs), [], "geen ramp naar 0, geen tijd terug, geen NaN");
+  M.stop();
+  assert.equal(M.on, false);
 });

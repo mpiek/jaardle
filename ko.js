@@ -384,14 +384,56 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       }
     }
   }
+  const panTo = (x, node, p) => { if (!p || !x.createStereoPanner) return node; const n = x.createStereoPanner(); n.pan.value = p; node.connect(n); return n; };
+  // 8-bit-ruis zoals het ruiskanaal van een Game Boy (21/11, zijn "schade meer zoals pokemon hit"): ±1 uit een schuifregister van 15 bit,
+  // de klok zakt van f0 naar f1 (de "kssh" wordt lager), het volume zakt in stapjes van 1/64 s
+  function crunch(b, at, dur, f0, f1, g, p) {
+    const x = b.context, sr = x.sampleRate, t = x.currentTime + at, n = Math.ceil(sr * dur), buf = x.createBuffer(1, n, sr), d = buf.getChannelData(0);
+    let reg = 0x7fff, v = 1, acc = 0;
+    for (let i = 0; i < n; i++) {
+      const s = i / sr;
+      acc += (f0 * (f1 / f0) ** Math.min(1, (s / dur) * 1.4)) / sr;
+      while (acc >= 1) { acc -= 1; const bit = (reg ^ (reg >> 1)) & 1; reg = (reg >> 1) | (bit << 14); v = reg & 1 ? 1 : -1; }
+      d[i] = (v * Math.round(Math.max(0, 15 - Math.floor(s * 64) * (15 / (dur * 64))))) / 15;
+    }
+    const src = x.createBufferSource(), lp = x.createBiquadFilter(), e = x.createGain();
+    src.buffer = buf; lp.type = "lowpass"; lp.frequency.value = 7000; e.gain.value = 0; e.gain.setValueAtTime(g, t);
+    src.connect(lp); lp.connect(e); panTo(x, e, p).connect(b); src.start(t); src.stop(t + dur + 0.02);
+  }
+  function bwop(b, at, f0, f1, glide, g, dur, p) {   // een korte blokgolf die zakt, onder de 8-bit-klap
+    const x = b.context, t = x.currentTime + at, o = x.createOscillator(), e = x.createGain();
+    o.type = "square"; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + glide);
+    e.gain.value = 0; e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.002); e.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(e); panTo(x, e, p).connect(b); o.start(t); o.stop(t + dur + 0.02);
+  }
+  // de dalende noot (21/11, zijn "als hp daalt dat je een noot hoort die daalt"): begint op de hoogte van de oude levens en glijdt in ±0,35 s
+  // mee met de balk naar die van de nieuwe (vol C5 523 Hz … leeg C3 131 Hz; zijn "niet zo hoog beginnen")
+  function drop(b, at, was, now, max, p) {
+    const x = b.context, t = x.currentTime + at, f = (v) => 130.81 * 2 ** ((2 * Math.max(0, v)) / max), e = x.createGain();
+    e.gain.value = 0; e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(0.16, t + 0.012);
+    e.gain.setValueAtTime(0.16, t + 0.35); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+    panTo(x, e, p).connect(b);
+    for (const det of [-5, 5]) {
+      const o = x.createOscillator();
+      o.type = "triangle"; o.detune.value = det; o.frequency.setValueAtTime(f(was), t); o.frequency.setTargetAtTime(f(now), t, 0.12);
+      o.connect(e); o.start(t); o.stop(t + 0.85);
+    }
+  }
   const SFX = {
     invite: (b) => { A.ring(b, 0, 1320, 0.14); A.ring(b, 0.16, 1760, 0.18); },   // je wordt uitgedaagd: ting-TING, omhoog
     count: (b) => beep(b, 0, 880, 0.2, 0.12),   // 3, 2, 1
     go: (b) => A.play(b, "hit"),   // ⚡: de ⚔️-klang van de opening van een duel
     clock: (b) => { beep(b, 0, 1397, 0.16, 0.08); beep(b, 0.12, 1397, 0.16, 0.12); },   // de ander is klaar, jouw klok loopt: piep-piep
-    tick: (b, s) => A.tick(b, 0, s % 2 ? 2600 : 3400, 0.06 + (5 - s) * 0.02, 0.04),   // de laatste 5 s: tik-tak, steeds iets harder
-    // schade: een doffe klap als de balk begint te zakken (ko-drop wacht 0,5 s), harder bij meer schade, aan de kant van wie hem krijgt
-    hit: (b, x, me) => { const k = Math.min(1, x / 60), p = me ? -0.4 : 0.4; A.thud(b, 0.5, me ? 170 : 220, 45, 0.4 + 0.45 * k, 0.22 + 0.2 * k); A.swish(b, 0.5, 0.14, 1200, 260, 0.12 + 0.2 * k, 0.08, p, p); },
+    // de laatste 5 s: steeds iets harder (21/11: de opname, tot die er is de synth tik-tak)
+    tick: (b, s) => { const g = 0.06 + (5 - s) * 0.02; if (!A.smp?.(b, "ko-tick", 0, g / 0.1)) A.tick(b, 0, s % 2 ? 2600 : 3400, g, 0.04); },
+    // schade: een 8-bit-klap als de balk begint te zakken (ko-drop wacht 0,5 s), harder en langer bij meer schade, aan de kant van wie hem
+    // krijgt (×1,27 = even hard als de klap van vóór 21/11); met de levens van vóór de klap (was, max) ook de dalende noot
+    hit: (b, x, me, was, max) => {
+      const k = Math.min(1, x / 60), p = me ? -0.4 : 0.4, g = (0.6 + 0.4 * k) * 1.27;
+      crunch(b, 0.5, 0.26 + 0.1 * k, 9000, 650, 0.32 * g, p);
+      bwop(b, 0.5, 300, 90, 0.12, 0.14 * g, 0.16, p);
+      if (was > 0 && max > 0) drop(b, 0.5, was, Math.max(0, was - x), max, p);
+    },
     ko: (b, won) => {   // K.O.: klap + gong (winst hoger, met de ⚔️-klang erbovenop; verlies lager en kaal), daarna een vallende zwiep
       A.thud(b, 0, 140, 36, 0.95, 0.6); A.tick(b, 0, 2400, 0.3, 0.09); gong(b, 0, won ? 247 : 175, 0.42, 2.6);
       if (won) A.ring(b, 0.01, 1180, 0.24);
@@ -399,7 +441,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     },
     draw: (b) => A.ring(b, 0, 1180, 0.16),   // gelijkspel: alleen een zachte klang
     clash: (b) => { A.thud(b, 0, 260, 70, 0.32, 0.16); A.tick(b, 0, 3000, 0.1, 0.03); },   // de uitslag: het hoogste getal botst op het lagere
-    bam: (b) => { A.thud(b, 0, 150, 38, 0.85, 0.42); A.swish(b, 0, 0.3, 1800, 220, 0.2, 0.06, 0, 0); },   // de max: een harde klap
+    bam: (b) => { if (!A.smp?.(b, "ko-bam")) { A.thud(b, 0, 150, 38, 0.85, 0.42); A.swish(b, 0, 0.3, 1800, 220, 0.2, 0.06, 0, 0); } },   // de max: een harde klap (21/11: de opname)
     want: (b, at = 0) => { A.ring(b, at, 2349, 0.09); A.ring(b, at + 0.09, 2794, 0.08); },   // de ander wil revanche: belletje
     rx: (b) => A.ring(b, 0, 1568, 0.06),   // een reactie van de ander: een zacht tikje
   };
@@ -804,7 +846,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       if (!document.querySelector(".ko-show")) overlay(g, q, { hit() {}, left: g.state === "live" && g.round > r ? at(g.round_at) - now() : Infinity });
     };
     let hitDone = false;
-    const hit = () => { if (hitDone) return; hitDone = true; drawStrip({ drain }); if (q.who) sfx(`res:${g.code}:${r}`, "hit", q.x, q.who === "me"); };
+    const hit = () => { if (hitDone) return; hitDone = true; drawStrip({ drain }); if (q.who) sfx(`res:${g.code}:${r}`, "hit", q.x, q.who === "me", q.who === "me" ? drain.me : drain.op, g.hp_max || HP); };
     const left = g.state === "live" ? at(g.round_at) - now() : Infinity;
     if (left < 2200) { hit(); gone?.(); }
     else {
@@ -1010,6 +1052,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       }, Math.max(400, at(g.bot_at) - now() + 250));
     }
     const st = H.state(), here = !!(st?.duel?.ko && st.duel.code === g.code);
+    // 🎵 achtergrondmuziek (stand "alles"): het hele spel zolang je erin zit; loopt de klok, dan de hartslag eronder
+    const live = here && g.state === "live";
+    A.music?.(live, live && !!g.deadline && st.duel.round === g.round && at(g.deadline) > now());
     if (g.state === "invite") return g.me === "b" ? showInvite(g) : showWait(g);
     if (g.state === "declined" || g.state === "expired" || g.state === "cancelled") {
       const el = document.getElementById(ID);

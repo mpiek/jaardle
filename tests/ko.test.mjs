@@ -227,8 +227,12 @@ test("ko.js — knock-out-geluid: twaalf klanken, stil en zonder fout zonder vin
     assert.ok(r.end - 10 < 3, "alles is binnen 3 s uitgeklonken");
   }
   // schade: de klap valt als de balk zakt (ko-drop wacht 0,5 s) en is harder bij meer schade
-  assert.ok(/ko-drop 0\.35s ease-out 0\.5s both/.test(KOSRC) && /A\.thud\(b, 0\.5,/.test(KOSRC) && /A\.swish\(b, 0\.5,/.test(KOSRC), "klap op 0,5 s, gelijk met ko-drop");
+  assert.ok(/ko-drop 0\.35s ease-out 0\.5s both/.test(KOSRC) && /crunch\(b, 0\.5,/.test(KOSRC) && /bwop\(b, 0\.5,/.test(KOSRC) && /drop\(b, 0\.5,/.test(KOSRC), "klap en noot op 0,5 s, gelijk met ko-drop");
   const peak = (x) => { log.gains.length = 0; K1._.sfx(`p:${x}`, "hit", x, false); return Math.max(...log.gains); };
+  // 21/11: met de levens van vóór de klap komt de dalende noot erbij (twee oscillatoren); vol C5 … leeg C3
+  const nSrc = (args) => { const n = log.src.length; K1._.sfx(`n:${args.join()}`, "hit", ...args); return log.src.length - n; };
+  assert.equal(nSrc([30, true, 120, 150]) - nSrc([30, true]), 2, "de noot klinkt alleen met de levens erbij");
+  assert.match(KOSRC, /f = \(v\) => 130\.81 \* 2 \*\* \(\(2 \* Math\.max\(0, v\)\) \/ max\)/, "leeg C3 (131 Hz), vol twee octaven hoger (C5)");
   assert.ok(peak(60) > peak(5), "meer schade = hardere klap");
 
   for (const [on, au] of [[false, true], [true, false]]) {   // vinkje uit, of geen AudioContext
@@ -282,8 +286,8 @@ test("ko.js — knock-out-geluid in het spel: uitnodiging, aftellen, K.O. en 'wi
   assert.match(KOSRC, /if \(!it\) \{ sfx\(`go:\$\{g\.code\}`, "go"\); return startRound\(g\); \}/, "zonder opening: de ⚡-klang bij de start van ronde 1");
   assert.match(KOSRC, /if \(end - now\(\) > 1000\) sfx\(`dl:\$\{rk\}`, "clock"\);/);
   assert.match(KOSRC, /if \(s > 0 && s <= 5\) sfx\(`t:\$\{rk\}:\$\{s\}`, "tick", s\);/);
-  assert.match(KOSRC, /if \(q\.who\) sfx\(`res:\$\{g\.code\}:\$\{r\}`, "hit", q\.x, q\.who === "me"\);/);
-  assert.match(DUEL, /au: \{ bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud \}/, "de motor blijft in duel.js");
+  assert.match(KOSRC, /if \(q\.who\) sfx\(`res:\$\{g\.code\}:\$\{r\}`, "hit", q\.x, q\.who === "me", q\.who === "me" \? drain\.me : drain\.op, g\.hp_max \|\| HP\);/, "met de levens van vóór de klap: de dalende noot");
+  assert.match(DUEL, /au: \{ bus: sfxBus, play: sfx, nap: auNap, swish, ring, tick, thud, smp, music \}/, "de motor blijft in duel.js (21/11: + opnames en muziek)");
 });
 
 test("ko.js — de laatste ronde speelt eerst af: een tweede 'klaar' (seintje + antwoord) springt niet meteen naar de K.O. (feedback 20/11)", () => {
