@@ -16,7 +16,7 @@
    Meetpunten (GoatCounter, site jaardle-events; game.js telt duel-list bij ⋮ → Duels): duel-create · duel-rematch · duel-invite-shared|copied|
    abort|prompt · duel-copy-link · duel-resend · duel-withdraw · duel-link-open|own|taken|closed|notfound · duel-accept · duel-decline ·
    duel-login-invite · duel-round-1…5 · duel-done-first · duel-done-second · duel-reveal · duel-tell · duel-share-result · duel-exit ·
-   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open · duel-peek · duel-sync (tik op het logo = verversen). Trechter: link-open → accept →
+   duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open · duel-peek · duel-sync (tik op het logo = verversen) · duel-stand-b|k (een kaart onder Jouw stand). Trechter: link-open → accept →
    round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
    De Duels-pagina (18/11/2026): het Duels-scherm is geen pop-up meer maar een eigen scherm met een eigen adres, /duels/ (zie
    ensureListModal en duelsPageSet in game.js); de deellink gaat daarheen (eigen titel + deelplaatje). Meetpunten: duel-page (het
@@ -180,7 +180,6 @@ html[data-theme="light"] { --duel-op: #b8611a; --duel-loss: #c8432f; }
 .dl-past button { appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; width: 100%; min-height: 2.5rem; padding: 0.25rem 0.1rem; font: inherit; font-size: 0.8rem; font-weight: 500;
   color: var(--fg); background: transparent; border: 0; border-top: 1px solid var(--border); border-radius: 0; cursor: pointer; }
 .dl-past button[aria-pressed="true"] { color: var(--accent); }
-.dl-past .ko-mk { font-style: normal; font-weight: 700; color: var(--duel-arena); }   /* ⚡ = een knock-out (db/215) */
 .dl-detail .dl-ko .ko-life { margin-top: 0.5rem; }
 .dl-ko-life:empty { min-height: 10rem; }   /* het verloop komt zodra ko.js er is: geen sprong */
 .dl-past button:hover { filter: none; color: var(--accent); }
@@ -221,13 +220,40 @@ html[data-theme="light"] { --duel-arena: #b5531c; --duel-arena-on: #fff; }
 .dl-hero .dl-steps { align-self: stretch; }
 .dl-hero .dl-new { margin-top: 0.15rem; }
 
-/* je stand over alle duels */
-.dl-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
-.dl-stat { display: flex; flex-direction: column; align-items: center; padding: 0.45rem 0.2rem 0.4rem; background: var(--card-soft); border-radius: 10px; }
-.dl-stat b { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.dl-stat small { font-size: 0.66rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
-.dl-stat.w b { color: var(--green-text); }
-.dl-stat.l b { color: var(--duel-loss); }
+/* Jouw stand per vorm (22/11/2026, mockup "stand per vorm"): twee kaarten in GeoGuessr-stijl onder het kopje; de gekozen kaart is ook de
+   schakelaar voor de stand per tegenstander eronder (pijltje ernaartoe, zoals bij het spelerskaartje). De gloed achter het icoon is het
+   enige grote gebaar. */
+:root { --ms-b: var(--duel-arena); --ms-k: #e2564e; }
+html[data-theme="light"] { --ms-k: #c23a37; }
+.ms-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0.1rem 0 0.3rem; }
+.ms-card { appearance: none; font: inherit; color: inherit; position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: center; gap: 0.05rem;
+  padding: 0.75rem 0.4rem 0.7rem; border: 0; border-radius: 14px; background: var(--card-soft); text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.ms-card.b { --mc: var(--ms-b); }
+.ms-card.k { --mc: var(--ms-k); }
+.ms-card::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 0.1rem; width: 6.4rem; height: 6.4rem; transform: translateX(-50%); border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--mc) 34%, transparent) 0%, transparent 66%); opacity: 0.55; transition: opacity 0.2s; }
+.ms-card:hover { filter: none; }
+.ms-card[aria-pressed="true"] { background: color-mix(in srgb, var(--mc) 12%, var(--card-soft)); box-shadow: inset 0 0 0 2px var(--mc); }
+.ms-card[aria-pressed="true"]::before { opacity: 1; }
+.ms-card[aria-pressed="true"]::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 11px; height: 11px; margin-left: -5.5px; transform: rotate(45deg);
+  background: inherit; box-shadow: inset -2px -2px 0 0 var(--mc); border-bottom-right-radius: 2px; }
+.ms-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ms-ico { display: block; width: 3.3rem; height: 3.3rem; margin: 0.1rem 0 0.4rem; filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.28)); }
+.ms-name { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.ms-card[aria-pressed="true"] .ms-name { color: var(--fg); }
+.ms-rec { font-size: 1.55rem; font-weight: 900; line-height: 1.15; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.ms-rec .w { color: var(--green-text); }
+.ms-rec .l { color: var(--duel-loss); }
+.ms-rec .dash { color: var(--muted); font-weight: 700; margin: 0 0.04em; }
+.ms-sub { font-size: 0.7rem; line-height: 1.3; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ms-card.none .ms-ico { opacity: 0.5; filter: grayscale(0.7); }
+.ms-card.none .ms-rec { padding: 0.3rem 0 0.15rem; font-size: 0.95rem; font-weight: 700; color: var(--muted); letter-spacing: 0; }
+.ms-empty { margin: 0; padding: 0.9rem; border-radius: 10px; background: var(--card-soft); text-align: center; font-size: 0.82rem; line-height: 1.45; color: var(--muted); }
+.ms-bot { margin-left: 0.3rem; padding: 0 0.32rem; border: 1px solid var(--border); border-radius: 999px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--muted); vertical-align: 0.12em; }
+/* de iconen van de vormen in een regel tekst (kop van het knock-out-kaartje, revanche) en in het menu met duelvormen */
+.dm-i { display: inline-block; flex: none; width: 1.15em; height: 1.15em; vertical-align: -0.22em; }
+.dl-opt .mo-e .dm-mo { display: block; width: 1.45rem; height: 1.45rem; }
 
 /* de link zelf: te selecteren, met een eigen kopieerknop */
 .dl-link { display: flex; gap: 0.35rem; align-self: stretch; margin-top: 0.4rem; }
@@ -682,13 +708,13 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   const TXT = {
     nl: {
-      help: "Hoe werkt het?", sound: "Duel-geluid", snd0: "uit", snd1: "effecten", snd2: "effecten + muziek", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", statW: "Gewonnen", statL: "Verloren", statO: "Lopend", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
+      help: "Hoe werkt het?", sound: "Duel-geluid", snd0: "uit", snd1: "effecten", snd2: "effecten + muziek", st1: "Stuur een link naar een vriend", st1s: "Wie hem als eerste aanneemt, speelt tegen je.", st2: "Jullie spelen dezelfde 5 rondes", st2s: "Van makkelijk naar moeilijk, allebei wanneer je wilt binnen 24 uur.", st3: "Per ronde wint de hoogste score", st3s: "Wie de meeste rondes wint, wint het duel. Telt niet mee voor je rating.", heroTitle: "Daag een vriend uit voor een duel", copy: "Kopieer", linkAria: "Je duellink", yourRounds: "Jouw rondes", waitDetail: (n, k) => `${n} speelde ${k} van de 5. De rest zie je zodra ${n} verder speelt.`, exit: "Jaardle", roundN: (r) => `Ronde ${r}/5`, you: "Jij", played5: (k) => `${k}/5 gespeeld`, busy: "nog bezig", final: "eindstand", login: "Al een account? Log in", keepTitle: "Bewaar je duels op al je toestellen", keepBtn: "Maak een account", h2hNow: (a, b) => `jullie nu ${a}–${b}`,
       title: "Duels", close: "Sluiten", newBtn: "Daag een vriend uit", nameLabel: "Je naam (die ziet je tegenstander)", namePh: "Naam", go: "Daag uit",
       ready: "Je uitdaging staat klaar", sent: "Link verstuurd", copied: "Link gekopieerd", sentSub: "Wie hem als eerste aanneemt, speelt tegen je.", onlyFor: (n) => `Alleen ${n} kan hem aannemen.`,  sendLink: "Stuur de link",
       copyPrompt: "Kopieer de link:", empty: "Nog geen duels. Daag iemand uit: jullie spelen dezelfde 5 rondes en per ronde wint de hoogste score.",
       loading: "Even laden…", err: "Dat lukte niet. Probeer het nog eens.", retry: "Opnieuw", refresh: "Ververs",
       errMax: "Je hebt al 3 uitnodigingen openstaan. Wacht tot iemand aanneemt of trek er een in.", errName: "Vul eerst je naam in.",
-      secTurn: "Jouw beurt", secWait: "Wacht", secDone: "Stand per tegenstander",
+      secTurn: "Jouw beurt", secWait: "Wacht", secDone: "Jouw stand",
       left: (h, m) => (h >= 1 ? `nog ${h} u` : `nog ${m} min`),
       accepted: (n) => `${n} nam aan`, oppDone: (n) => `${n} is klaar`, oppPlays: (n, k) => `${n} speelt · ${k}/5`, oppNotYet: (n) => `${n} begon nog niet`,
       yourLink: "Je link", resend: "Stuur opnieuw", withdraw: "Intrekken", play: "Speel",
@@ -724,7 +750,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       onAcc: (n) => `Je krijgt een seintje als ${n} begint`, onAccAny: "Je krijgt een seintje als iemand begint", onDone: (n) => `Je krijgt een seintje als ${n} klaar is`,
       pushThem: (n) => `${n} krijgt een seintje dat jij klaar bent`, pushDenied: "Meldingen staan uit voor deze site. Zet ze aan in je browser.",
       h2hChip: "Jullie stand", duelsN: (n) => (n === 1 ? "1 duel" : `${n} duels`), wonN: (n) => `${n} gewonnen`,
-      stRounds: "Rondes", stAvg: "Gemiddeld", stAgainst: "tegen", stBest: "Grootste zege", stKo: "⚡ Knock-outs", koTag: "Knock-out", koRounds: (r) => (r === 1 ? "1 ronde" : `${r} rondes`), koWonS: "K.O. gewonnen", koLostS: "K.O. verloren", koDrawS: "knock-out gelijk", koRes: (res, r) => `${res === "w" ? "gewonnen" : res === "l" ? "verloren" : "gelijk"} · ronde ${r}`, koVWin: (r) => `Jij wint, K.O. in ronde ${r}`, koVLoss: (n, r) => `${n} wint, K.O. in ronde ${r}`, koVDraw: (r) => `Gelijkspel na ${r} rondes`, koVQuitW: (n) => `Jij wint, ${n} stopte`, koVQuitL: "Je stopte",
+      stRounds: "Rondes", stAvg: "Gemiddeld", stAgainst: "tegen", stBest: "Grootste zege", playedPct: (n, p) => `${n} gespeeld · ${p}% gewonnen`, notYet: "nog niet gespeeld", koNotYetSub: "live, tegen een vriend of bot", standPick: "Kies een vorm", koNone: "Nog geen knock-outs. Daag een vriend die online is live uit, of speel er een tegen een bot.", bo5None: "Nog geen duels van 5 rondes uitgespeeld.", kosN: (n) => (n === 1 ? "1 knock-out" : `${n} knock-outs`), stFast: "Snelste K.O.", koRnd: (r) => `ronde ${r}`, botTag: "bot", koTag: "Knock-out", koRounds: (r) => (r === 1 ? "1 ronde" : `${r} rondes`), koWonS: "K.O. gewonnen", koLostS: "K.O. verloren", koDrawS: "knock-out gelijk", koRes: (res, r) => `${res === "w" ? "gewonnen" : res === "l" ? "verloren" : "gelijk"} · ronde ${r}`, koVWin: (r) => `Jij wint, K.O. in ronde ${r}`, koVLoss: (n, r) => `${n} wint, K.O. in ronde ${r}`, koVDraw: (r) => `Gelijkspel na ${r} rondes`, koVQuitW: (n) => `Jij wint, ${n} stopte`, koVQuitL: "Je stopte",
       // db/190: uitslag delen als plaatje, en de pop-up voor wie de link opent zonder mee te spelen
       imgBrand: "JAARDLE-DUEL", imgTotal: (a, b) => `Totaal ${a} – ${b}`, imgTag: "Raad het jaar bij een gebeurtenis", onTotal: "op totaal",
       spEyebrow: "Jaardle-duel", spWin: (a, b, w, l) => `${a} wint ${w}–${l} van ${b}`, spWinTotal: (a, b) => `${a} wint op totaal van ${b}`, spTie: (a, b) => `Gelijkspel tussen ${a} en ${b}`,
@@ -737,16 +763,16 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       peekTip: "Tik op een ronde om de vraag terug te zien",
       // 19/11 (mockup v9 "mix"): de uitslag van een ronde, het scorebord, het logo bovenin een ronde, de uitnodiging
       rWin: (r) => `Ronde ${r} is voor jou`, rLoss: (r, n) => `Ronde ${r} is voor ${n}`, rTie: (r) => `Ronde ${r}: gelijkspel`, bar: "Jij legt de lat",
-      barSub: (n, s, r) => `${n} ziet jouw ${s} pas na het spelen van ronde ${r}.`, yet: "moet<br>nog", itWas: "Het was", decider: "Beslissend", toDuels: "Naar Duels", fiveR: "5 rondes", turnBtn: "Normaal", koName: "Knock-out · live", turnSub: "5 rondes, om de beurt", liveOff: (n) => `${n} krijgt een seintje en 1 minuut`, koSub: (n) => `${n} is online`,
+      barSub: (n, s, r) => `${n} ziet jouw ${s} pas na het spelen van ronde ${r}.`, yet: "moet<br>nog", itWas: "Het was", decider: "Beslissend", toDuels: "Naar Duels", fiveR: "5 rondes", turnBtn: "Best of 5", koName: "Knock-out · live", turnSub: "5 rondes, om de beurt", liveOff: (n) => `${n} krijgt een seintje en 1 minuut`, koSub: (n) => `${n} is online`,
     },
     en: {
-      help: "How does it work?", sound: "Duel sounds", snd0: "off", snd1: "effects", snd2: "effects + music", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", statW: "Won", statL: "Lost", statO: "Running", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
+      help: "How does it work?", sound: "Duel sounds", snd0: "off", snd1: "effects", snd2: "effects + music", st1: "Send a link to a friend", st1s: "Whoever accepts it first plays against you.", st2: "You both play the same 5 rounds", st2s: "From easy to hard, each whenever you like within 24 hours.", st3: "The highest score wins each round", st3s: "Whoever wins the most rounds wins the duel. Doesn't count toward your rating.", heroTitle: "Challenge a friend to a duel", copy: "Copy", linkAria: "Your duel link", yourRounds: "Your rounds", waitDetail: (n, k) => `${n} has played ${k} of 5. You'll see the rest as ${n} plays on.`, exit: "Jaardle", roundN: (r) => `Round ${r}/5`, you: "You", played5: (k) => `${k}/5 played`, busy: "in progress", final: "final score", login: "Already have an account? Log in", keepTitle: "Keep your duels on all your devices", keepBtn: "Create an account", h2hNow: (a, b) => `${a}–${b} overall now`,
       title: "Duels", close: "Close", newBtn: "Challenge a friend", nameLabel: "Your name (your opponent sees it)", namePh: "Name", go: "Challenge",
       ready: "Your challenge is ready", sent: "Link sent", copied: "Link copied", sentSub: "Whoever accepts it first plays against you.", onlyFor: (n) => `Only ${n} can accept it.`,  sendLink: "Send the link",
       copyPrompt: "Copy the link:", empty: "No duels yet. Challenge someone: you both play the same 5 rounds and the highest score wins each round.",
       loading: "Loading…", err: "That didn't work. Please try again.", retry: "Retry", refresh: "Refresh",
       errMax: "You already have 3 open invitations. Wait for someone to accept, or withdraw one.", errName: "Fill in your name first.",
-      secTurn: "Your turn", secWait: "Waiting", secDone: "Head-to-head",
+      secTurn: "Your turn", secWait: "Waiting", secDone: "Your record",
       left: (h, m) => (h >= 1 ? `${h} h left` : `${m} min left`),
       accepted: (n) => `${n} accepted`, oppDone: (n) => `${n} is done`, oppPlays: (n, k) => `${n} is playing · ${k}/5`, oppNotYet: (n) => `${n} hasn't started`,
       yourLink: "Your link", resend: "Send again", withdraw: "Withdraw", play: "Play",
@@ -782,7 +808,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       onAcc: (n) => `You'll get a notification when ${n} starts`, onAccAny: "You'll get a notification when someone starts", onDone: (n) => `You'll get a notification when ${n} is done`,
       pushThem: (n) => `${n} gets a notification that you're done`, pushDenied: "Notifications are blocked for this site. Allow them in your browser.",
       h2hChip: "Your record", duelsN: (n) => (n === 1 ? "1 duel" : `${n} duels`), wonN: (n) => `${n} won`,
-      stRounds: "Rounds", stAvg: "Average", stAgainst: "vs", stBest: "Biggest win", stKo: "⚡ Knockouts", koTag: "Knockout", koRounds: (r) => (r === 1 ? "1 round" : `${r} rounds`), koWonS: "won by K.O.", koLostS: "lost by K.O.", koDrawS: "knockout draw", koRes: (res, r) => `${res === "w" ? "won" : res === "l" ? "lost" : "draw"} · round ${r}`, koVWin: (r) => `You win, K.O. in round ${r}`, koVLoss: (n, r) => `${n} wins, K.O. in round ${r}`, koVDraw: (r) => `A draw after ${r} rounds`, koVQuitW: (n) => `You win, ${n} stopped`, koVQuitL: "You stopped",
+      stRounds: "Rounds", stAvg: "Average", stAgainst: "vs", stBest: "Biggest win", playedPct: (n, p) => `${n} played · ${p}% won`, notYet: "not played yet", koNotYetSub: "live, against a friend or a bot", standPick: "Choose a mode", koNone: "No knockouts yet. Challenge a friend who is online, or play one against a bot.", bo5None: "No best-of-5 duels finished yet.", kosN: (n) => (n === 1 ? "1 knockout" : `${n} knockouts`), stFast: "Fastest K.O.", koRnd: (r) => `round ${r}`, botTag: "bot", koTag: "Knockout", koRounds: (r) => (r === 1 ? "1 round" : `${r} rounds`), koWonS: "won by K.O.", koLostS: "lost by K.O.", koDrawS: "knockout draw", koRes: (res, r) => `${res === "w" ? "won" : res === "l" ? "lost" : "draw"} · round ${r}`, koVWin: (r) => `You win, K.O. in round ${r}`, koVLoss: (n, r) => `${n} wins, K.O. in round ${r}`, koVDraw: (r) => `A draw after ${r} rounds`, koVQuitW: (n) => `You win, ${n} stopped`, koVQuitL: "You stopped",
       imgBrand: "JAARDLE DUEL", imgTotal: (a, b) => `Total ${a} – ${b}`, imgTag: "Guess the year of the event", onTotal: "on points",
       spEyebrow: "Jaardle duel", spWin: (a, b, w, l) => `${a} beats ${b} ${w}–${l}`, spWinTotal: (a, b) => `${a} beats ${b} on points`, spTie: (a, b) => `${a} and ${b} tied`,
       spHow: "Both played the same 5 puzzles, from easy to hard. The highest score wins each round.", spDaily: "Play today's daily",
@@ -793,16 +819,16 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tap a round to see its question again",
       rWin: (r) => `Round ${r} is yours`, rLoss: (r, n) => `Round ${r} goes to ${n}`, rTie: (r) => `Round ${r}: a tie`, bar: "You set the bar",
-      barSub: (n, s, r) => `${n} only sees your ${s} after playing round ${r}.`, yet: "yet to<br>play", itWas: "It was", decider: "Decider", toDuels: "To Duels", fiveR: "5 rounds", turnBtn: "Normal", koName: "Knockout · live", turnSub: "5 rounds, taking turns", liveOff: (n) => `${n} gets a ping and 1 minute`, koSub: (n) => `${n} is online`,
+      barSub: (n, s, r) => `${n} only sees your ${s} after playing round ${r}.`, yet: "yet to<br>play", itWas: "It was", decider: "Decider", toDuels: "To Duels", fiveR: "5 rounds", turnBtn: "Best of 5", koName: "Knockout · live", turnSub: "5 rounds, taking turns", liveOff: (n) => `${n} gets a ping and 1 minute`, koSub: (n) => `${n} is online`,
     },
     de: {
-      help: "Wie funktioniert das?", sound: "Duell-Sounds", snd0: "aus", snd1: "Effekte", snd2: "Effekte + Musik", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", statW: "Gewonnen", statL: "Verloren", statO: "Laufend", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
+      help: "Wie funktioniert das?", sound: "Duell-Sounds", snd0: "aus", snd1: "Effekte", snd2: "Effekte + Musik", st1: "Schick einen Link an jemanden", st1s: "Wer ihn zuerst annimmt, spielt gegen dich.", st2: "Ihr spielt dieselben 5 Runden", st2s: "Von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden.", st3: "Pro Runde gewinnt die höchste Punktzahl", st3s: "Wer die meisten Runden gewinnt, gewinnt das Duell. Zählt nicht für dein Rating.", heroTitle: "Fordere jemanden zum Duell heraus", copy: "Kopieren", linkAria: "Dein Duell-Link", yourRounds: "Deine Runden", waitDetail: (n, k) => `${n} hat ${k} von 5 gespielt. Den Rest siehst du, sobald ${n} weiterspielt.`, exit: "Jaardle", roundN: (r) => `Runde ${r}/5`, you: "Du", played5: (k) => `${k}/5 gespielt`, busy: "läuft noch", final: "Endstand", login: "Schon ein Konto? Anmelden", keepTitle: "Behalte deine Duelle auf all deinen Geräten", keepBtn: "Konto erstellen", h2hNow: (a, b) => `jetzt insgesamt ${a}–${b}`,
       title: "Duelle", close: "Schließen", newBtn: "Fordere jemanden heraus", nameLabel: "Dein Name (sieht dein Gegenüber)", namePh: "Name", go: "Herausfordern",
       ready: "Deine Herausforderung ist bereit", sent: "Link verschickt", copied: "Link kopiert", sentSub: "Wer ihn zuerst annimmt, spielt gegen dich.", onlyFor: (n) => `Nur ${n} kann sie annehmen.`,  sendLink: "Link senden",
       copyPrompt: "Kopiere den Link:", empty: "Noch keine Duelle. Fordere jemanden heraus: Ihr spielt dieselben 5 Runden, und pro Runde gewinnt die höchste Punktzahl.",
       loading: "Lädt…", err: "Das hat nicht geklappt. Versuch es noch einmal.", retry: "Nochmal", refresh: "Aktualisieren",
       errMax: "Du hast schon 3 offene Einladungen. Warte, bis jemand annimmt, oder zieh eine zurück.", errName: "Gib zuerst deinen Namen ein.",
-      secTurn: "Du bist dran", secWait: "Wartet", secDone: "Stand pro Gegner",
+      secTurn: "Du bist dran", secWait: "Wartet", secDone: "Dein Stand",
       left: (h, m) => (h >= 1 ? `noch ${h} Std.` : `noch ${m} Min.`),
       accepted: (n) => `${n} hat angenommen`, oppDone: (n) => `${n} ist fertig`, oppPlays: (n, k) => `${n} spielt · ${k}/5`, oppNotYet: (n) => `${n} hat noch nicht angefangen`,
       yourLink: "Dein Link", resend: "Nochmal senden", withdraw: "Zurückziehen", play: "Spielen",
@@ -839,7 +865,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       onAcc: (n) => `Du bekommst eine Benachrichtigung, wenn ${n} anfängt`, onAccAny: "Du bekommst eine Benachrichtigung, wenn jemand anfängt", onDone: (n) => `Du bekommst eine Benachrichtigung, wenn ${n} fertig ist`,
       pushThem: (n) => `${n} bekommt eine Benachrichtigung, dass du fertig bist`, pushDenied: "Benachrichtigungen sind für diese Seite blockiert. Erlaube sie im Browser.",
       h2hChip: "Euer Stand", duelsN: (n) => (n === 1 ? "1 Duell" : `${n} Duelle`), wonN: (n) => `${n} gewonnen`,
-      stRounds: "Runden", stAvg: "Schnitt", stAgainst: "gegen", stBest: "Höchster Sieg", stKo: "⚡ Knock-outs", koTag: "Knock-out", koRounds: (r) => (r === 1 ? "1 Runde" : `${r} Runden`), koWonS: "per K.o. gewonnen", koLostS: "per K.o. verloren", koDrawS: "Knock-out unentschieden", koRes: (res, r) => `${res === "w" ? "gewonnen" : res === "l" ? "verloren" : "unentschieden"} · Runde ${r}`, koVWin: (r) => `Du gewinnst, K.o. in Runde ${r}`, koVLoss: (n, r) => `${n} gewinnt, K.o. in Runde ${r}`, koVDraw: (r) => `Unentschieden nach ${r} Runden`, koVQuitW: (n) => `Du gewinnst, ${n} hat aufgehört`, koVQuitL: "Du hast aufgehört",
+      stRounds: "Runden", stAvg: "Schnitt", stAgainst: "gegen", stBest: "Höchster Sieg", playedPct: (n, p) => `${n} gespielt · ${p}% gewonnen`, notYet: "noch nicht gespielt", koNotYetSub: "live, gegen jemanden oder einen Bot", standPick: "Wähle einen Modus", koNone: "Noch keine Knock-outs. Fordere jemanden heraus, der online ist, oder spiel einen gegen einen Bot.", bo5None: "Noch keine Duelle mit 5 Runden beendet.", kosN: (n) => (n === 1 ? "1 Knock-out" : `${n} Knock-outs`), stFast: "Schnellstes K.o.", koRnd: (r) => `Runde ${r}`, botTag: "Bot", koTag: "Knock-out", koRounds: (r) => (r === 1 ? "1 Runde" : `${r} Runden`), koWonS: "per K.o. gewonnen", koLostS: "per K.o. verloren", koDrawS: "Knock-out unentschieden", koRes: (res, r) => `${res === "w" ? "gewonnen" : res === "l" ? "verloren" : "unentschieden"} · Runde ${r}`, koVWin: (r) => `Du gewinnst, K.o. in Runde ${r}`, koVLoss: (n, r) => `${n} gewinnt, K.o. in Runde ${r}`, koVDraw: (r) => `Unentschieden nach ${r} Runden`, koVQuitW: (n) => `Du gewinnst, ${n} hat aufgehört`, koVQuitL: "Du hast aufgehört",
       imgBrand: "JAARDLE-DUELL", imgTotal: (a, b) => `Gesamt ${a} – ${b}`, imgTag: "Errate das Jahr des Ereignisses", onTotal: "nach Punkten",
       spEyebrow: "Jaardle-Duell", spWin: (a, b, w, l) => `${a} schlägt ${b} ${w}–${l}`, spWinTotal: (a, b) => `${a} schlägt ${b} nach Punkten`, spTie: (a, b) => `Unentschieden zwischen ${a} und ${b}`,
       spHow: "Beide spielten dieselben 5 Rätsel, von leicht bis schwer. Pro Runde gewinnt die höhere Punktzahl.", spDaily: "Das heutige Rätsel spielen",
@@ -850,16 +876,16 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tippe auf eine Runde, um die Frage noch mal zu sehen",
       rWin: (r) => `Runde ${r} geht an dich`, rLoss: (r, n) => `Runde ${r} geht an ${n}`, rTie: (r) => `Runde ${r}: unentschieden`, bar: "Du legst die Latte",
-      barSub: (n, s, r) => `${n} sieht deine ${s} erst nach Runde ${r}.`, yet: "noch<br>offen", itWas: "Es war", decider: "Entscheidung", toDuels: "Zu den Duellen", fiveR: "5 Runden", turnBtn: "Normal", koName: "Knock-out · live", turnSub: "5 Runden, abwechselnd", liveOff: (n) => `${n} bekommt eine Nachricht und 1 Minute`, koSub: (n) => `${n} ist online`,
+      barSub: (n, s, r) => `${n} sieht deine ${s} erst nach Runde ${r}.`, yet: "noch<br>offen", itWas: "Es war", decider: "Entscheidung", toDuels: "Zu den Duellen", fiveR: "5 Runden", turnBtn: "Best of 5", koName: "Knock-out · live", turnSub: "5 Runden, abwechselnd", liveOff: (n) => `${n} bekommt eine Nachricht und 1 Minute`, koSub: (n) => `${n} ist online`,
     },
     es: {
-      help: "¿Cómo funciona?", sound: "Sonidos de duelos", snd0: "desactivados", snd1: "efectos", snd2: "efectos + música", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", statW: "Ganados", statL: "Perdidos", statO: "En curso", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
+      help: "¿Cómo funciona?", sound: "Sonidos de duelos", snd0: "desactivados", snd1: "efectos", snd2: "efectos + música", st1: "Envía un enlace a un amigo", st1s: "Quien lo acepte primero juega contra ti.", st2: "Jugáis las mismas 5 rondas", st2s: "De fácil a difícil, cada uno cuando quiera en 24 horas.", st3: "En cada ronda gana la puntuación más alta", st3s: "Quien gane más rondas gana el duelo. No cuenta para tu rating.", heroTitle: "Reta a un amigo a un duelo", copy: "Copiar", linkAria: "Tu enlace de duelo", yourRounds: "Tus rondas", waitDetail: (n, k) => `${n} ha jugado ${k} de 5. Verás el resto cuando siga jugando.`, exit: "Jaardle", roundN: (r) => `Ronda ${r}/5`, you: "Tú", played5: (k) => `${k}/5 jugadas`, busy: "en curso", final: "resultado final", login: "¿Ya tienes cuenta? Inicia sesión", keepTitle: "Guarda tus duelos en todos tus dispositivos", keepBtn: "Crear una cuenta", h2hNow: (a, b) => `ahora en total ${a}–${b}`,
       title: "Duelos", close: "Cerrar", newBtn: "Reta a un amigo", nameLabel: "Tu nombre (lo verá tu rival)", namePh: "Nombre", go: "Retar",
       ready: "Tu reto está listo", sent: "Enlace enviado", copied: "Enlace copiado", sentSub: "Quien lo acepte primero juega contra ti.", onlyFor: (n) => `Solo ${n} puede aceptarlo.`,  sendLink: "Enviar el enlace",
       copyPrompt: "Copia el enlace:", empty: "Aún no hay duelos. Reta a alguien: jugáis las mismas 5 rondas y en cada ronda gana la puntuación más alta.",
       loading: "Cargando…", err: "No ha funcionado. Inténtalo de nuevo.", retry: "Reintentar", refresh: "Actualizar",
       errMax: "Ya tienes 3 invitaciones abiertas. Espera a que alguien acepte o retira una.", errName: "Escribe primero tu nombre.",
-      secTurn: "Tu turno", secWait: "En espera", secDone: "Marcador por rival",
+      secTurn: "Tu turno", secWait: "En espera", secDone: "Tu marcador",
       left: (h, m) => (h >= 1 ? `quedan ${h} h` : `quedan ${m} min`),
       accepted: (n) => `${n} aceptó`, oppDone: (n) => `${n} ha terminado`, oppPlays: (n, k) => `${n} está jugando · ${k}/5`, oppNotYet: (n) => `${n} aún no ha empezado`,
       yourLink: "Tu enlace", resend: "Reenviar", withdraw: "Retirar", play: "Jugar",
@@ -895,7 +921,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       onAcc: (n) => `Te avisaremos cuando ${n} empiece`, onAccAny: "Te avisaremos cuando alguien empiece", onDone: (n) => `Te avisaremos cuando ${n} termine`,
       pushThem: (n) => `${n} recibe un aviso de que has terminado`, pushDenied: "Las notificaciones están bloqueadas para este sitio. Permítelas en el navegador.",
       h2hChip: "Marcador", duelsN: (n) => (n === 1 ? "1 duelo" : `${n} duelos`), wonN: (n) => `${n} ganados`,
-      stRounds: "Rondas", stAvg: "Media", stAgainst: "contra", stBest: "Mayor victoria", stKo: "⚡ K.O.", koTag: "K.O.", koRounds: (r) => (r === 1 ? "1 ronda" : `${r} rondas`), koWonS: "ganado por K.O.", koLostS: "perdido por K.O.", koDrawS: "empate en K.O.", koRes: (res, r) => `${res === "w" ? "ganado" : res === "l" ? "perdido" : "empate"} · ronda ${r}`, koVWin: (r) => `Ganas tú, K.O. en la ronda ${r}`, koVLoss: (n, r) => `Gana ${n}, K.O. en la ronda ${r}`, koVDraw: (r) => `Empate tras ${r} rondas`, koVQuitW: (n) => `Ganas tú, ${n} lo dejó`, koVQuitL: "Lo dejaste",
+      stRounds: "Rondas", stAvg: "Media", stAgainst: "contra", stBest: "Mayor victoria", playedPct: (n, p) => `${n} jugados · ${p}% ganados`, notYet: "aún sin jugar", koNotYetSub: "en vivo, contra un amigo o un bot", standPick: "Elige un modo", koNone: "Aún no hay K.O. Reta en vivo a un amigo que esté en línea, o juega uno contra un bot.", bo5None: "Aún no has terminado duelos de 5 rondas.", kosN: (n) => (n === 1 ? "1 K.O." : `${n} K.O.`), stFast: "K.O. más rápido", koRnd: (r) => `ronda ${r}`, botTag: "bot", koTag: "K.O.", koRounds: (r) => (r === 1 ? "1 ronda" : `${r} rondas`), koWonS: "ganado por K.O.", koLostS: "perdido por K.O.", koDrawS: "empate en K.O.", koRes: (res, r) => `${res === "w" ? "ganado" : res === "l" ? "perdido" : "empate"} · ronda ${r}`, koVWin: (r) => `Ganas tú, K.O. en la ronda ${r}`, koVLoss: (n, r) => `Gana ${n}, K.O. en la ronda ${r}`, koVDraw: (r) => `Empate tras ${r} rondas`, koVQuitW: (n) => `Ganas tú, ${n} lo dejó`, koVQuitL: "Lo dejaste",
       imgBrand: "DUELO JAARDLE", imgTotal: (a, b) => `Total ${a} – ${b}`, imgTag: "Adivina el año del acontecimiento", onTotal: "por puntos",
       spEyebrow: "Duelo de Jaardle", spWin: (a, b, w, l) => `${a} gana ${w}–${l} a ${b}`, spWinTotal: (a, b) => `${a} gana a ${b} por puntos`, spTie: (a, b) => `Empate entre ${a} y ${b}`,
       spHow: "Los dos jugaron los mismos 5 puzles, de fácil a difícil. En cada ronda gana la puntuación más alta.", spDaily: "Jugar el Diario de hoy",
@@ -906,16 +932,16 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Toca una ronda para volver a ver la pregunta",
       rWin: (r) => `La ronda ${r} es tuya`, rLoss: (r, n) => `La ronda ${r} es para ${n}`, rTie: (r) => `Ronda ${r}: empate`, bar: "Tú pones el listón",
-      barSub: (n, s, r) => `${n} verá tu ${s} solo después de jugar la ronda ${r}.`, yet: "aún no<br>juega", itWas: "Era", decider: "Decisiva", toDuels: "A Duelos", fiveR: "5 rondas", turnBtn: "Normal", koName: "K.O. · en vivo", turnSub: "5 rondas, por turnos", liveOff: (n) => `${n} recibe un aviso y 1 minuto`, koSub: (n) => `${n} está en línea`,
+      barSub: (n, s, r) => `${n} verá tu ${s} solo después de jugar la ronda ${r}.`, yet: "aún no<br>juega", itWas: "Era", decider: "Decisiva", toDuels: "A Duelos", fiveR: "5 rondas", turnBtn: "Al mejor de 5", koName: "K.O. · en vivo", turnSub: "5 rondas, por turnos", liveOff: (n) => `${n} recibe un aviso y 1 minuto`, koSub: (n) => `${n} está en línea`,
     },
     pt: {
-      help: "Como funciona?", sound: "Sons dos duelos", snd0: "desligados", snd1: "efeitos", snd2: "efeitos + música", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", statW: "Vitórias", statL: "Derrotas", statO: "Em andamento", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
+      help: "Como funciona?", sound: "Sons dos duelos", snd0: "desligados", snd1: "efeitos", snd2: "efeitos + música", st1: "Envie um link para um amigo", st1s: "Quem aceitar primeiro joga contra você.", st2: "Vocês jogam as mesmas 5 rodadas", st2s: "Da mais fácil à mais difícil, cada um quando quiser em até 24 horas.", st3: "Em cada rodada vence a maior pontuação", st3s: "Quem vencer mais rodadas vence o duelo. Não conta para o seu rating.", heroTitle: "Desafie um amigo para um duelo", copy: "Copiar", linkAria: "Seu link de duelo", yourRounds: "Suas rodadas", waitDetail: (n, k) => `${n} jogou ${k} de 5. Você verá o resto quando continuar jogando.`, exit: "Jaardle", roundN: (r) => `Rodada ${r}/5`, you: "Você", played5: (k) => `${k}/5 jogadas`, busy: "em andamento", final: "placar final", login: "Já tem conta? Entrar", keepTitle: "Guarde seus duelos em todos os seus aparelhos", keepBtn: "Criar uma conta", h2hNow: (a, b) => `agora no total ${a}–${b}`,
       title: "Duelos", close: "Fechar", newBtn: "Desafie um amigo", nameLabel: "Seu nome (seu adversário vai ver)", namePh: "Nome", go: "Desafiar",
       ready: "Seu desafio está pronto", sent: "Link enviado", copied: "Link copiado", sentSub: "Quem aceitar primeiro joga contra você.", onlyFor: (n) => `Só ${n} pode aceitar.`,  sendLink: "Enviar o link",
       copyPrompt: "Copie o link:", empty: "Ainda não há duelos. Desafie alguém: vocês jogam as mesmas 5 rodadas e em cada rodada vence a maior pontuação.",
       loading: "Carregando…", err: "Não deu certo. Tente de novo.", retry: "Tentar de novo", refresh: "Atualizar",
       errMax: "Você já tem 3 convites em aberto. Espere alguém aceitar ou retire um.", errName: "Preencha seu nome primeiro.",
-      secTurn: "Sua vez", secWait: "Aguardando", secDone: "Placar por adversário",
+      secTurn: "Sua vez", secWait: "Aguardando", secDone: "Seu placar",
       left: (h, m) => (h >= 1 ? `faltam ${h} h` : `faltam ${m} min`),
       accepted: (n) => `${n} aceitou`, oppDone: (n) => `${n} terminou`, oppPlays: (n, k) => `${n} está jogando · ${k}/5`, oppNotYet: (n) => `${n} ainda não começou`,
       yourLink: "Seu link", resend: "Enviar de novo", withdraw: "Retirar", play: "Jogar",
@@ -951,7 +977,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       onAcc: (n) => `Você receberá um aviso quando ${n} começar`, onAccAny: "Você receberá um aviso quando alguém começar", onDone: (n) => `Você receberá um aviso quando ${n} terminar`,
       pushThem: (n) => `${n} recebe um aviso de que você terminou`, pushDenied: "As notificações estão bloqueadas para este site. Permita-as no navegador.",
       h2hChip: "Placar", duelsN: (n) => (n === 1 ? "1 duelo" : `${n} duelos`), wonN: (n) => `${n} vitórias`,
-      stRounds: "Rodadas", stAvg: "Média", stAgainst: "contra", stBest: "Maior vitória", stKo: "⚡ Nocautes", koTag: "Nocaute", koRounds: (r) => (r === 1 ? "1 rodada" : `${r} rodadas`), koWonS: "venceu por nocaute", koLostS: "perdeu por nocaute", koDrawS: "nocaute empatado", koRes: (res, r) => `${res === "w" ? "venceu" : res === "l" ? "perdeu" : "empate"} · rodada ${r}`, koVWin: (r) => `Você venceu, nocaute na rodada ${r}`, koVLoss: (n, r) => `${n} venceu, nocaute na rodada ${r}`, koVDraw: (r) => `Empate após ${r} rodadas`, koVQuitW: (n) => `Você venceu, ${n} parou`, koVQuitL: "Você parou",
+      stRounds: "Rodadas", stAvg: "Média", stAgainst: "contra", stBest: "Maior vitória", playedPct: (n, p) => `${n} jogados · ${p}% vencidos`, notYet: "ainda não jogado", koNotYetSub: "ao vivo, contra um amigo ou um bot", standPick: "Escolha um modo", koNone: "Ainda sem nocautes. Desafie ao vivo um amigo que esteja online, ou jogue um contra um bot.", bo5None: "Ainda nenhum duelo de 5 rodadas terminado.", kosN: (n) => (n === 1 ? "1 nocaute" : `${n} nocautes`), stFast: "Nocaute mais rápido", koRnd: (r) => `rodada ${r}`, botTag: "bot", koTag: "Nocaute", koRounds: (r) => (r === 1 ? "1 rodada" : `${r} rodadas`), koWonS: "venceu por nocaute", koLostS: "perdeu por nocaute", koDrawS: "nocaute empatado", koRes: (res, r) => `${res === "w" ? "venceu" : res === "l" ? "perdeu" : "empate"} · rodada ${r}`, koVWin: (r) => `Você venceu, nocaute na rodada ${r}`, koVLoss: (n, r) => `${n} venceu, nocaute na rodada ${r}`, koVDraw: (r) => `Empate após ${r} rodadas`, koVQuitW: (n) => `Você venceu, ${n} parou`, koVQuitL: "Você parou",
       imgBrand: "DUELO JAARDLE", imgTotal: (a, b) => `Total ${a} – ${b}`, imgTag: "Adivinhe o ano do acontecimento", onTotal: "nos pontos",
       spEyebrow: "Duelo de Jaardle", spWin: (a, b, w, l) => `${a} vence ${b} por ${w}–${l}`, spWinTotal: (a, b) => `${a} vence ${b} nos pontos`, spTie: (a, b) => `Empate entre ${a} e ${b}`,
       spHow: "Os dois jogaram os mesmos 5 desafios, do fácil ao difícil. Em cada rodada vence a maior pontuação.", spDaily: "Jogar o Diário de hoje",
@@ -962,7 +988,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Toque em uma rodada para ver a pergunta de novo",
       rWin: (r) => `A rodada ${r} é sua`, rLoss: (r, n) => `A rodada ${r} é de ${n}`, rTie: (r) => `Rodada ${r}: empate`, bar: "Você define a marca",
-      barSub: (n, s, r) => `${n} só vê o seu ${s} depois de jogar a rodada ${r}.`, yet: "ainda<br>não", itWas: "Era", decider: "Decisiva", toDuels: "Para Duelos", fiveR: "5 rodadas", turnBtn: "Normal", koName: "Nocaute · ao vivo", turnSub: "5 rodadas, por turnos", liveOff: (n) => `${n} recebe um aviso e 1 minuto`, koSub: (n) => `${n} está online`,
+      barSub: (n, s, r) => `${n} só vê o seu ${s} depois de jogar a rodada ${r}.`, yet: "ainda<br>não", itWas: "Era", decider: "Decisiva", toDuels: "Para Duelos", fiveR: "5 rodadas", turnBtn: "Melhor de 5", koName: "Nocaute · ao vivo", turnSub: "5 rodadas, por turnos", liveOff: (n) => `${n} recebe um aviso e 1 minuto`, koSub: (n) => `${n} está online`,
     },
   };
   const tx = (l) => TXT[l] || TXT.en;
@@ -970,6 +996,18 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
   const sum = (a) => (a || []).reduce((x, y) => x + (y || 0), 0);
   const icoHtml = (ch = ICON) => `<span class="duel-ico" aria-hidden="true">${ch}</span>`;
+  // De iconen van de twee duelvormen (22/11/2026, mockup "stand per vorm"): de DU/EL-tegel zonder letters, zelfde raster (512, rx 128) en
+  // zwaarden, met in het midden de vijf rondes (3 gewonnen, 2 open) of een levensbalk die bijna op is. Bron: jaardle-tools/mockups/standen/icons.
+  const DM_SW = (c) => `<g fill="${c}">` + [45, -45].map((r) => `<g transform="translate(256 256) rotate(${r})"><path d="M0 -236L24 -196V112H-24V-196Z"/>` +
+    `<rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g>`).join("") + "</g>";
+  const DM_SVG = {
+    b: `<rect width="512" height="512" rx="128" fill="#e8794a"/>${DM_SW("#b9532a")}<g fill="#fff">` +
+      [0, 1, 2].map((i) => `<rect x="${44 + i * 88}" y="215" width="72" height="82" rx="16"/>`).join("") +
+      [3, 4].map((i) => `<rect x="${48 + i * 88}" y="219" width="64" height="74" rx="12" fill="none" stroke="#fff" stroke-width="8"/>`).join("") + "</g>",
+    k: `<rect width="512" height="512" rx="128" fill="#d9433f"/>${DM_SW("#a8302c")}` +
+      `<rect x="48" y="219" width="416" height="74" rx="12" fill="none" stroke="#fff" stroke-width="8"/><rect x="62" y="233" width="116" height="46" rx="4" fill="#fff"/>`,
+  };
+  const dmIco = (m, cls = "dm-i") => `<svg class="${cls}" viewBox="0 0 512 512" aria-hidden="true" focusable="false">${DM_SVG[m]}</svg>`;
   const themeOf = (d) => (d && d.theme && THEMES[d.theme]) || null;
   const thHtml = (d) => { const m = themeOf(d); return m ? `<span class="dl-th"><span aria-hidden="true">${m.ico}</span>${esc(m.label)}</span>` : ""; };
   // het ⚔️ DUELS-logo: de zwaarden áchter het woord. Eén bron voor de kop van de Duels-pagina én die van een ronde (19/11: "niet overal
@@ -986,7 +1024,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       `<span><b>${esc(name)}</b><small>${esc(sub)}</small></span></button>`;
     return `<button type="button" class="dl-new dl-pickgo" data-act="modes" aria-expanded="${modesOpen}" aria-label="${esc(T.modes)}">${icoHtml()} ${esc(label)}` +
       `<span class="dl-pickchev" aria-hidden="true">${CHEV}</span></button>` +
-      (modesOpen ? `<div class="dl-menu">${ko}${opt(ICON, T.turnBtn, T.turnSub)}` +
+      (modesOpen ? `<div class="dl-menu">${ko}${opt(dmIco("b", "dm-mo"), T.turnBtn, T.turnSub)}` +
         Object.entries(THEMES).map(([k, m]) => opt(m.ico, m.label, T.eraSub, ` data-theme="${k}"`)).join("") + `</div>` : "");
   }
   const oppName = (d) => ((d && (d.ko ? d.opp_name : d.me === "c" ? d.o_name : d.c_name)) || "?");
@@ -1004,6 +1042,9 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   let listBots = [];   // 🤖 db/218: de bots uit duel_list (key, k, name, flair, elo, w, l), ook zonder account
   let listTargets = [], listH2h = {}, pickSel = null, listKo = [];   // listKo (db/215): je afgelopen ⚡ knock-outs (laatste 30 van 90 dagen)   // db/189: wie je direct kunt uitdagen, je stand per tegenstander (alle duels), het gekozen gezichtje
   const selInGrp = {}, openWait = new Set();
+  // Jouw stand per vorm (22/11/2026): "b" = Best of 5 (om de beurt, ook 1900+), "k" = knock-out. Een tik op een kaart onthoudt de keuze
+  // (standPick); zonder keuze de vorm van je laatst afgelopen duel. standFocus = even de vorm van een uitslag die we openen (eindstand).
+  let standPick = null, standFocus = null; try { standPick = localStorage.getItem("jaardle:duelStand"); } catch (e) {}
   let shut = new Set(); try { shut = new Set(JSON.parse(localStorage.getItem("jaardle:duelShut") || "[]")); } catch (e) {}   // 19/11: ingeklapte koppen
   const secH = (k, txt) => `<h3 class="dl-h"><button type="button" class="dl-hb" data-act="sec" data-sec="${k}" aria-expanded="${!shut.has(k)}">${txt}<span class="dl-hc" aria-hidden="true">▾</span></button></h3>`;
   let listAt = 0, listSync = null, syncCode = null, visHooked = false;   // verversen bij kijken (syncList)
@@ -2467,7 +2508,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     let pop = null;
     if (opts.focus) {
       const d = listItems.find((x) => x.code === opts.focus) || (opts.end && opts.end.code === opts.focus ? opts.end : null);
-      if (d && d.status === "done") { openGrp = d.opp || oppName(d); selInGrp[openGrp] = d.code; if (!d.seen || opts.end) pop = d; }
+      if (d && d.status === "done") { openGrp = d.opp || oppName(d); selInGrp[openGrp] = d.code; standFocus = "b"; if (!d.seen || opts.end) pop = d; }
       else if (d && d.status === "active") openWait.add(d.code);
     }
     renderList(T, null);
@@ -2529,7 +2570,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       if (!r.ok || !shown()) return null;
       applyList(await withInvite(r.v));
       const pop = listItems.find((d) => (openWait.has(d.code) || d.code === focus) && was.get(d.code) === "active" && d.status === "done" && !d.seen);
-      if (pop) { openGrp = pop.opp || oppName(pop); selInGrp[openGrp] = pop.code; }
+      if (pop) { openGrp = pop.opp || oppName(pop); selInGrp[openGrp] = pop.code; standFocus = "b"; }
       return pop;
     }).catch(() => null).then((pop) => {
       listSync = null; syncCode = null;
@@ -2546,6 +2587,40 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   }
   const qAv = `<span class="dl-av" aria-hidden="true">?</span>`;
 
+  // Welke vorm staat open onder Jouw stand: een ongeziene uitslag gaat voor (die moet je kunnen onthullen), dan een uitslag die we openen,
+  // dan je eigen keuze, anders de vorm van je laatst afgelopen duel.
+  function standMode(items) {
+    if ((items || []).some(unrevealed)) return "b";
+    if (standFocus) return standFocus;
+    if (standPick === "b" || standPick === "k") return standPick;
+    const t = (d) => Date.parse(d.finished_at || d.created_at) || 0;
+    const lastB = Math.max(0, ...(items || []).filter((d) => d.status === "done").map(t)), lastK = Math.max(0, ...listKo.map(t));
+    return lastK > lastB ? "k" : "b";
+  }
+  // De stand op de kaarten: van de server (db/189, alle duels; knock-outs in kw/kl/kn), zonder bots; zonder die (oude server) uit de lijsten.
+  function standTotals(items) {
+    const botK = new Set(listBots.map((b) => b.k)), t = { b: { w: 0, l: 0, n: 0 }, k: { w: 0, l: 0, n: 0 } };
+    const hs = Object.entries(listH2h).filter(([k]) => !botK.has(k)).map(([, x]) => x);
+    if (hs.length) {
+      for (const x of hs) { t.b.w += x.w || 0; t.b.l += x.l || 0; t.b.n += x.n || 0; t.k.w += x.kw || 0; t.k.l += x.kl || 0; t.k.n += x.kn || 0; }
+    } else {
+      for (const d of items || []) { if (d.status !== "done" || unrevealed(d)) continue; const r = resOf(d); t.b.n++; if (r !== "d") t.b[r]++; }
+      for (const d of listKo) { if (botK.has(d.opp)) continue; const r = koRes(d); t.k.n++; if (r !== "d") t.k[r]++; }
+    }
+    return t;
+  }
+  function standCardsHtml(T, mode, items) {
+    const t = standTotals(items);
+    const card = (m, name, sub0) => {
+      const x = t[m], n = Math.max(x.n, x.w + x.l);
+      const head = `<button type="button" class="ms-card ${m}${n ? "" : " none"}" data-act="stand" data-mode="${m}" aria-pressed="${mode === m}">${dmIco(m, "ms-ico")}` +
+        `<span class="ms-name">${esc(name)}</span>`;
+      if (!n) return head + `<span class="ms-rec">${esc(T.notYet)}</span><span class="ms-sub">${esc(sub0)}</span></button>`;
+      return head + `<span class="ms-rec"><span class="w">${x.w}</span><span class="dash">–</span><span class="l">${x.l}</span></span>` +
+        `<span class="ms-sub">${esc(T.playedPct(n, Math.round((100 * x.w) / n)))}</span></button>`;
+    };
+    return `<div class="ms-cards" role="group" aria-label="${esc(T.standPick)}">${card("b", T.turnBtn, T.turnSub)}${card("k", T.koTag, T.koNotYetSub)}</div>`;
+  }
   function groupsOf(items) {
     const m = new Map();
     for (const d of items) {
@@ -2582,20 +2657,10 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       return err + `<div class="dl-hero">${bandHtml(T, "?", null)}` +
         `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${bf ? `<div class="dl-pick bot-only"><div class="dl-faces">${bf}</div></div>` : ""}${newBtn}</div>`;
     }
-    let h = "";
-    const groups = groupsOf(items.concat(listKo));   // db/215: knock-outs tussen de gewone duels
-    const known = items.filter((d) => d.status === "done" && !unrevealed(d));
-    const botK = new Set(listBots.map((b) => b.k));   // 🤖 tegen een bot telt niet in je stand bovenaan
-    const hs = Object.entries(listH2h).filter(([k]) => !botK.has(k)).map(([, x]) => x);
-    if (known.length || hs.length) {   // je stand: gewonnen, verloren, lopend (zodra je een uitslag zag; een ongeziene telt nog niet mee)
-      let w = 0, l = 0;
-      if (hs.length) for (const x of hs) { w += (x.w || 0) + (x.kw || 0); l += (x.l || 0) + (x.kl || 0); }   // db/189: over alle duels (db/215: ook knock-outs)
-      else for (const d of known) { const o = outcome(d.mine, d.theirs); if (o.res === "w") w++; else if (o.res === "l") l++; }
-      const run = items.filter((d) => d.status === "active" || (d.status === "open" && d.me === "c")).length;
-      h += `<div class="dl-stats"><div class="dl-stat w"><b>${w}</b><small>${esc(T.statW)}</small></div><div class="dl-stat l"><b>${l}</b><small>${esc(T.statL)}</small></div>` +
-        `<div class="dl-stat"><b>${run}</b><small>${esc(T.statO)}</small></div></div>`;
-    }
-    h += top + err;
+    // Jouw stand (22/11/2026): per vorm, niet meer door elkaar en niet meer bovenaan (wat loopt staat al bij Jouw beurt en Wacht).
+    const mode = standMode(items), groups = groupsOf(mode === "k" ? listKo : items);
+    const anyDone = groups.length > 0 || groupsOf(mode === "k" ? items : listKo).length > 0;
+    let h = top + err;
     const turn = items.filter((d) => d.status === "active" && (d.mine || []).length < 5)
       .sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
     const wait = items.filter((d) => (d.status === "open" && d.me === "c") || (d.status === "active" && (d.mine || []).length >= 5));
@@ -2626,14 +2691,16 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       h += secH("wait", `${esc(T.secWait)}${wait.length > 1 ? ` · ${wait.length}` : ""}`);
       if (!shut.has("wait")) for (const d of wait) h += d.status === "open" ? openLinkHtml(T, d) : waitItemHtml(T, d, h2hTxt(d));
     }
-    if (groups.length || gone.length) {
+    if (anyDone || gone.length) {
       h += secH("done", esc(T.secDone));
     }
-    if ((groups.length || gone.length) && !shut.has("done")) {
+    if ((anyDone || gone.length) && !shut.has("done")) {
+      if (anyDone) h += standCardsHtml(T, mode, items);
+      if (anyDone && !groups.length) h += `<p class="ms-empty">${esc(mode === "k" ? T.koNone : T.bo5None)}</p>`;
       const shown = showAll ? groups : groups.slice(0, 3);
-      for (const g of shown) h += groupHtml(T, g);
+      for (const g of shown) h += groupHtml(T, g, mode);
       if (!showAll && groups.length > 3) h += `<button type="button" class="dl-moreb" data-act="more">${esc(T.moreOpp(groups.length - 3))}</button>`;
-      for (const d of gone) {
+      if (mode === "b") for (const d of gone) {
         const sub = d.status === "declined" ? T.declined(d.o_name || "?") : T.nobody;
         h += rowHtml({ av: qAv, name: T.yourLink, sub: esc(sub), cls: " dim", right: `<span class="dl-res">${esc(T.gone)}</span>` });
       }
@@ -2724,7 +2791,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       const [a, b] = recOf(t.k);
       tail = (a || b ? `<div class="dl-vsline"><span>${esc(T.vsLine(t.name))} <b>${a}–${b}</b></span>${formHtml(formOf(t.k))}</div>` : "") +
         goHtml(T, `data-act="challenge" data-k="${esc(t.k)}"`, T.challengeX(t.name),
-          `<button type="button" class="dl-opt ko-opt" data-act="ko" data-k="${esc(t.k)}"><span class="mo-e" aria-hidden="true">⚡</span>` +
+          `<button type="button" class="dl-opt ko-opt" data-act="ko" data-k="${esc(t.k)}"><span class="mo-e" aria-hidden="true">${dmIco("k", "dm-mo")}</span>` +
           `<span><b>${esc(T.koName)}</b><small>${esc(isOn(t.k) ? T.koSub(t.name) : T.liveOff(t.name))}</small></span></button>`) +
         `<button type="button" class="dl-linkb" data-act="new">${esc(T.linkInstead)}</button>`;
     }
@@ -2802,37 +2869,42 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       `<button type="button" class="dl-mini dl-rev" data-act="turn" data-code="${d.code}">${esc(T.tell(n))}</button></div>` : "";
     return `<div class="dl-item${open ? " open" : ""}">${card}${det}</div>`;
   }
-  function groupHtml(T, g) {
-    const latest = g.ds[0], n = oppName(latest), isOpen = openGrp === g.k;
+  function groupHtml(T, g, mode = "b") {
+    const latest = g.ds[0], n = oppName(latest), isOpen = openGrp === g.k, isK = mode === "k";
     const known = g.ds.filter((d) => !unrevealed(d));   // stand, blokjes en details alleen van uitslagen die je al zag
     let a = 0, b = 0;
     const form = known.slice(0, 8).reverse().map(resOf);
     for (const d of known) { const r = resOf(d); if (r === "w") a++; else if (r === "l") b++; }
     const sv = listH2h[g.k];
-    if (sv) { a = (sv.w || 0) + (sv.kw || 0); b = (sv.l || 0) + (sv.kl || 0); }   // db/189: over alle duels, niet alleen de laatste 90 dagen (db/215: + knock-outs)
+    if (sv) { a = (isK ? sv.kw : sv.w) || 0; b = (isK ? sv.kl : sv.l) || 0; }   // db/189: over alle duels van deze vorm, niet alleen de laatste 90 dagen
     const sel = known.find((d) => d.code === selInGrp[g.k]) || known[0];
     const news = g.ds.some((d) => !d.seen);
-    const koS = (d) => `⚡ ${{ w: T.koWonS, l: T.koLostS }[koRes(d)] || T.koDrawS}`;
-    const sub = unrevealed(latest) ? T.revealTap : `${cap(whenText(T, latest.finished_at))}: ${latest.ko ? koS(latest) : resText(T, outcome(latest.mine, latest.theirs))}`;
+    const sub = unrevealed(latest) ? T.revealTap : `${cap(whenText(T, latest.finished_at))}: ${latest.ko ? T.koRes(koRes(latest), koR(latest)) : resText(T, outcome(latest.mine, latest.theirs))}`;
+    const bot = isK && listBots.some((x) => x.k === g.k);   // 🤖 alleen in de lijst van knock-outs; telt niet mee op de kaart
     const rec = known.length ? `<span class="dl-rec"><span class="dl-form" aria-hidden="true">${form.map((r) => `<i class="${r}"></i>`).join("")}</span><b>${a}–${b}</b></span>` : "";
     const row = `<div class="dl-row${news ? " has-new" : ""}" data-grp="${esc(g.k)}" role="button" tabindex="0" aria-expanded="${isOpen}">` +
-      `${avHtml(oppFlair(latest), n)}<span class="dl-main"><b>${esc(n)}</b><small>${esc(sub)}</small></span>` +
+      `${avHtml(oppFlair(latest), n)}<span class="dl-main"><b>${esc(n)}${bot ? `<span class="ms-bot">${esc(T.botTag)}</span>` : ""}</b><small>${esc(sub)}</small></span>` +
       `${rec}<span class="dl-chev" aria-hidden="true">▾</span></div>`;
     let det = "";
     if (isOpen && sel) {
-      const so = sel.ko ? null : outcome(sel.mine, sel.theirs), nD = sv ? (sv.n || 0) + (sv.kn || 0) : known.length;
+      const so = sel.ko ? null : outcome(sel.mine, sel.theirs), nD = sv ? (isK ? sv.kn : sv.n) || 0 : known.length;
       let vs = "";
       if (nD >= 2) {   // db/189: jullie stand als VS-kop, met de laatste duels als blokjes en een paar cijfers
         vs = `<div class="duel-vs"><span class="side me">${meAv(T, "")}<span><b>${esc(T.you)}</b><small>${esc(T.wonN(a))}</small></span></span>` +
-          `<span class="mid"><b>${a}–${b}</b><small>${esc(T.duelsN(nD))}</small></span>` +
+          `<span class="mid"><b>${a}–${b}</b><small>${esc(isK ? T.kosN(nD) : T.duelsN(nD))}</small></span>` +
           `<span class="side op">${avHtml(oppFlair(latest), n)}<span><b>${esc(n)}</b><small>${esc(T.wonN(b))}</small></span></span>` +
           `<span class="duel-cells" aria-hidden="true">${form.slice(-6).map((r) => `<i class="duel-cell ${r === "w" ? "w" : r === "l" ? "l" : "d"}"></i>`).join("")}</span></div>`;
-        if (sv && (sv.n || sv.kn)) {   // de cijfers van de gewone duels (rondes, gemiddeld, grootste zege) en apart de knock-outs (db/215)
+        if (!isK && sv && sv.n) {   // gewone duels: rondes, gemiddeld, grootste zege
           const best = Array.isArray(sv.best) ? sv.best : null, avg = (x) => Math.round((x || 0) / (sv.n * 5));
-          vs += `<p class="dl-h2h-sub">` + (sv.n ? `<span>${esc(T.stRounds)} <b>${sv.rw || 0}–${sv.rl || 0}</b></span>` +
+          vs += `<p class="dl-h2h-sub"><span>${esc(T.stRounds)} <b>${sv.rw || 0}–${sv.rl || 0}</b></span>` +
             `<span>${esc(T.stAvg)} <b>${avg(sv.a)}</b> ${esc(T.stAgainst)} <b>${avg(sv.b)}</b></span>` +
-            (best ? `<span>${esc(T.stBest)} <b>${best[0]}–${best[1]}</b></span>` : "") : "") +
-            (sv.kn ? `<span>${esc(T.stKo)} <b>${sv.kw || 0}–${sv.kl || 0}</b></span>` : "") + `</p>`;
+            (best ? `<span>${esc(T.stBest)} <b>${best[0]}–${best[1]}</b></span>` : "") + `</p>`;
+        }
+        if (isK && known.length) {   // knock-outs: de snelste K.O. (gewonnen, niet opgegeven) en hoe lang ze duren, uit je afgelopen knock-outs
+          const wins = known.filter((d) => koRes(d) === "w" && !koQuit(d)).map(koR), avgR = known.reduce((x, d) => x + koR(d), 0) / known.length;
+          const one = (x) => (Math.round(x * 10) / 10).toLocaleString(H?.intl || "nl-NL");
+          vs += `<p class="dl-h2h-sub">` + (wins.length ? `<span>${esc(T.stFast)} <b>${esc(T.koRnd(Math.min(...wins)))}</b></span>` : "") +
+            `<span>${esc(T.stAvg)} <b>${esc(T.koRounds(one(avgR)))}</b></span></p>`;
         }
       }
       const card = sel.ko ? koCardHtml(T, sel, n)
@@ -2843,9 +2915,9 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       const pastRes = (d) => { if (d.ko) { const r = koRes(d); return [r, T.koRes(r, koR(d))]; } const o = outcome(d.mine, d.theirs); return [o.res, resText(T, o)]; };
       det = `<div class="dl-detail">${vs}${card}` +
         (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const [r, txt] = pastRes(d);
-          return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${d.ko ? `<i class="ko-mk" aria-hidden="true">⚡</i> ` : ""}${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${r}">${esc(txt)}</span></button>`; }).join("")}</div>` : "") +
-        (sel.ko ? `<button type="button" class="dl-mini dl-rev" data-act="korev" data-k="${esc(sel.opp || "")}" data-name="${esc(n)}"${sel.bot ? ` data-bot="${esc(sel.bot)}"` : ""}>⚡ ${esc(T.revenge)}</button></div>`
-          : `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button></div>`);
+          return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${r}">${esc(txt)}</span></button>`; }).join("")}</div>` : "") +
+        (sel.ko ? `<button type="button" class="dl-mini dl-rev" data-act="korev" data-k="${esc(sel.opp || "")}" data-name="${esc(n)}"${sel.bot ? ` data-bot="${esc(sel.bot)}"` : ""}>${dmIco("k")} ${esc(T.revenge)}</button></div>`
+          : `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${dmIco("b")} ${esc(T.revenge)}</button></div>`);
     }
     return `<div class="dl-item${isOpen ? " open" : ""}" data-sel="${(sel || latest).code}">${row}${det}</div>`;
   }
@@ -2854,7 +2926,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   function koCardHtml(T, d, n) {
     const r = koR(d), res = koRes(d);
     const v = koQuit(d) ? (res === "w" ? T.koVQuitW(n) : T.koVQuitL) : res === "w" ? T.koVWin(r) : res === "l" ? T.koVLoss(n, r) : T.koVDraw(r);
-    return `<div class="duel-card dl-ko"><div class="duel-head"><b>${esc(cap(whenText(T, d.finished_at)))}, ${esc(clockText(d.finished_at))} · ⚡ ${esc(T.koTag)}</b>` +
+    return `<div class="duel-card dl-ko"><div class="duel-head"><b>${esc(cap(whenText(T, d.finished_at)))}, ${esc(clockText(d.finished_at))} · ${dmIco("k")} ${esc(T.koTag)}</b>` +
       `<span class="duel-r">${esc(T.koRounds(r))}</span>` +
       `<button type="button" class="dl-endb" data-act="koend" data-code="${esc(d.code)}" aria-label="${esc(cap(T.final))}" title="${esc(cap(T.final))}">🏁<span aria-hidden="true">›</span></button></div>` +
       `<div class="dl-ko-life" data-ko-life="${esc(d.code)}"></div><span class="duel-verdict">${esc(v)}</span></div>`;
@@ -2939,6 +3011,15 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (act === "reload") return openList(H, { keepTop: true });
     if (act === "sec") { const k = b.dataset.sec; shut.has(k) ? shut.delete(k) : shut.add(k); try { localStorage.setItem("jaardle:duelShut", JSON.stringify([...shut])); } catch (e) {} return renderList(T, null); }
     if (act === "more") { showAll = true; return renderList(T, null); }
+    if (act === "stand") {   // een kaart onder Jouw stand: die vorm (onthouden); een opengeklapte tegenstander zonder potjes in die vorm gaat dicht
+      const m = b.dataset.mode === "k" ? "k" : "b";
+      if (standMode(listItems) === m && !standFocus) return;
+      standPick = m; standFocus = null; showAll = false;
+      try { localStorage.setItem("jaardle:duelStand", m); } catch (e) {}
+      if (openGrp && !groupsOf(m === "k" ? listKo : listItems || []).some((x) => x.k === openGrp)) openGrp = null;
+      gc(`duel-stand-${m}`, `Duel: ${m === "k" ? "knockout" : "best of 5"} record opened`);
+      return renderList(T, null);
+    }
     if (act === "play") return play(H, code);
     if (act === "rematch") return create(H, { rematch: code });
     // 🏁› rechts op de kaart: de eindstand-pop-up met Revanche en Deel uitslag, ook op een ander toestel dan waar je speelde. Hij ligt boven het
@@ -3238,7 +3319,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     css: CSS, copy: (l) => tx(l), langs: () => Object.keys(TXT),
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, SFX, INTRO_MS, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
-         setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setHost: (h) => { H = h; }, koCardHtml, fillKo, onListClick, listKo: () => listKo,
+         setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setStand: (m) => { standPick = m; standFocus = null; }, standMode, standCardsHtml, dmIco, setHost: (h) => { H = h; }, koCardHtml, fillKo, onListClick, listKo: () => listKo,
          botFaceHtml, botOptHtml, openBots, listBots: () => listBots, sndState, toggleSfx, music },   // voor de tests
   };
 })();
