@@ -112,19 +112,21 @@ test("timeline.js — lui geladen door game.js, een pagina zoals /duels/ (één 
   assert.ok(!/\btl-kop\b|HOME\[/.test(SRC), "geen eigen kop of terugknop meer");
 });
 
-test("de deur naast 🌐 gaat rond: Jaardle → Duels → Timeline → Jaardle; data-at kiest tegel en stipje", () => {
+test("de deur naast 🌐 gaat rond: Jaardle → Duels → Timeline → Jaardle; de tegel is waar je bent (logo), het stipje ook", () => {
   const GAME = readFileSync(join(ROOT, "game.js"), "utf8"), CSS = readFileSync(join(ROOT, "style.css"), "utf8");
   const TPL = readFileSync(join(ROOT, "index.template.html"), "utf8");
   assert.match(GAME, /const DOOR_NEXT = \{ j: "duels", d: "timeline", t: "" \};/);
   assert.match(GAME, /if \(at === "j"\) \{ newsSeen\("duels"\); openDuels\("door"\); \}\n\s+else if \(at === "d"\) openTimeline\("door"\);\n\s+else kopSwap\("in", \(\) => closeModal\(TL_PAGE\)\);/);
   assert.match(GAME, /function worldNow\(\) \{ const b = document\.body; return b\.hasAttribute\("data-tlhome"\) \? "t" : b\.hasAttribute\("data-duelshome"\) \? "d" : "j"; \}/);
   assert.match(GAME, /function appPageSet\(id, on\) \{[^]*?syncDoor\(\);\n\}/, "elke wissel van pagina zet de deur goed");
-  // de drie tegels in de deur; per plek de tegel van de volgende voor en het eigen stipje aan
+  // de drie tegels in de deur; per plek de eigen tegel voor (22/11 avond, zijn "logo verwacht van waar je nu bent") en het eigen stipje aan
   for (const w of ["j", "d", "t"]) assert.match(TPL, new RegExp(`<span class="kw-tile" data-w="${w}">`));
   assert.match(TPL, /<span class="kw-dots" aria-hidden="true"><i data-w="j"><\/i><i data-w="d"><\/i><i data-w="t"><\/i><\/span>/);
-  assert.match(CSS, /\.kop-wheel\[data-at="j"\] \.kw-tile\[data-w="d"\], \.kop-wheel\[data-at="d"\] \.kw-tile\[data-w="t"\], \.kop-wheel\[data-at="t"\] \.kw-tile\[data-w="j"\] \{ opacity: 1; transform: none;/);
+  assert.match(CSS, /\.kop-wheel\[data-at="j"\] \.kw-tile\[data-w="j"\], \.kop-wheel\[data-at="d"\] \.kw-tile\[data-w="d"\], \.kop-wheel\[data-at="t"\] \.kw-tile\[data-w="t"\] \{ opacity: 1; transform: none;/);
+  assert.match(CSS, /\.kop-wheel\[data-at="j"\] \.kw-tile\[data-w="d"\], \.kop-wheel\[data-at="d"\] \.kw-tile\[data-w="t"\], \.kop-wheel\[data-at="t"\] \.kw-tile\[data-w="j"\] \{ transform: translateX\(12px\) scale\(0\.86\); \}/, "de volgende staat rechts klaar");
   assert.match(CSS, /\.kop-wheel\[data-at="j"\] \.kw-dots i\[data-w="j"\], \.kop-wheel\[data-at="d"\] \.kw-dots i\[data-w="d"\], \.kop-wheel\[data-at="t"\] \.kw-dots i\[data-w="t"\] \{ width: 11px; opacity: 1; \}/);
-  assert.match(CSS, /\.kop-wheel:not\(\[data-at="j"\]\)\.has-new::after \{ display: none; \}/, "het duel-stipje alleen als de deur naar Duels gaat");
+  assert.match(CSS, /\.kop-wheel\.has-new::after \{ display: none; \}/, "geen rood stipje in de hoek van de deur");
+  assert.match(CSS, /\.kop-wheel\.has-new:not\(\[data-at="d"\]\) \.kw-dots i\[data-w="d"\] \{[^}]*background: var\(--achv-new, #e5484d\);/, "jouw beurt: het Duels-stipje wordt rood (niet op Duels zelf)");
   // de TI/ME-tegel: blauw, met de tijdlijnen erachter (make_time_icon.py)
   assert.match(TPL, /<span class="kw-tile" data-w="t"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#1e88e5"\/><g fill="#1565c0">/);
 });

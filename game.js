@@ -5073,7 +5073,8 @@ function openDuels(src = "menu") {   // de deur naast 🌐 of de nieuws-balk →
 }
 // De deur naast 🌐 (22/11/2026, zijn "switchen met die knop van time -> jaardle -> duels … klein carousel achtige hint"): één deur op
 // alle drie de schermen, rond Jaardle → Duels → Timeline → Jaardle. Elke tik schuift één verder ("in": de inhoud gaat naar links, zoals
-// een carrousel). syncDoor zet data-at (style.css kiest daarmee de tegel en het stipje), de link en het label.
+// een carrousel). syncDoor zet data-at (style.css zet daarmee de tegel van waar je bent voor, als logo, en het stipje aan), en de link
+// en het label van de volgende.
 const DOOR_NEXT = { j: "duels", d: "timeline", t: "" };
 function worldNow() { const b = document.body; return b.hasAttribute("data-tlhome") ? "t" : b.hasAttribute("data-duelshome") ? "d" : "j"; }
 function syncDoor() {
@@ -10556,7 +10557,7 @@ function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith
 // ::after overleeft dat, een kind-element niet.
 function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties, weekpodium, event); een duel op de deur ernaast
   const duel = duelNews() > 0;   // jouw beurt of een uitslag die je nog niet zag (bijgehouden door /duel.js)
-  document.getElementById("world-door")?.classList?.toggle("has-new", duel);   // 21/11: de deur naast 🌐 (geen menu-regel meer); style.css toont het alleen als hij naar Duels gaat
+  document.getElementById("world-door")?.classList?.toggle("has-new", duel);   // 21/11: de deur naast 🌐 (geen menu-regel meer); style.css kleurt het Duels-stipje rood
   const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew();
   document.getElementById("menu-btn")?.classList.toggle("has-new", has);
 }

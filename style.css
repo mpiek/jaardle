@@ -681,25 +681,29 @@ main {
   box-shadow: 0 0 0 2px var(--bg);
 }
 /* De deur gaat rond (22/11/2026, zijn "klein carousel achtige hint"; mockup https://claude.ai/artifact/4f3dCFfBmN2X4iQ9cRguoo): Jaardle →
-   Duels → Timeline → Jaardle. Alle drie de tegels zitten in de deur; data-at (waar je nu bent) zet die van de volgende voor, en eronder
-   drie stipjes met een streepje in de kleur van waar je bent. Bij een wissel schuift de oude tegel links weg en komt de nieuwe van rechts,
-   en loopt het streepje een stip door. Het rode stipje hoort bij Duels: alleen als de deur daarheen gaat. */
+   Duels → Timeline → Jaardle. Alle drie de tegels zitten in de deur; data-at (waar je nu bent) zet die tegel voor, als een logo (zijn "ik
+   had eigenlijk toch logo verwacht van waar je nu bent", 22/11 avond; eerst stond de tegel van de volgende voor). Eronder drie stipjes met
+   een streepje in de kleur van waar je bent: tegel en stipjes zeggen hetzelfde. Een tik brengt je naar de volgende (de link en het label
+   van de deur, game.js syncDoor): de tegel schuift links weg, de volgende komt van rechts, het streepje loopt een stip door. Jouw beurt in
+   een duel (has-new, renderMenuDot): het Duels-stipje wordt rood, behalve op Duels zelf. */
 .kop-wheel { overflow: visible; text-decoration: none; }
 /* 22 px (zijn "iets kleiner zodat ze beter passen naast language logo"): even zwaar als 🌐; met de stipjes eronder net boven het midden */
 .kw-face { position: relative; display: block; width: 22px; height: 22px; margin-top: -4px; }
 .kop-wheel .kd-logo { width: 22px; height: 22px; border-radius: 6px; }
 .kw-tile { position: absolute; inset: 0; display: block; opacity: 0; transform: translateX(-12px) scale(0.86);
   transition: transform 0.26s cubic-bezier(0.22, 0.8, 0.24, 1), opacity 0.26s; }
-.kop-wheel[data-at="j"] .kw-tile[data-w="d"], .kop-wheel[data-at="d"] .kw-tile[data-w="t"], .kop-wheel[data-at="t"] .kw-tile[data-w="j"] { opacity: 1; transform: none; z-index: 1; }
-.kop-wheel[data-at="j"] .kw-tile[data-w="t"], .kop-wheel[data-at="d"] .kw-tile[data-w="j"], .kop-wheel[data-at="t"] .kw-tile[data-w="d"] { transform: translateX(12px) scale(0.86); }
-.kw-dots { position: absolute; left: 50%; bottom: 2px; display: flex; gap: 3px; transform: translateX(-50%); pointer-events: none; }
+.kop-wheel[data-at="j"] .kw-tile[data-w="j"], .kop-wheel[data-at="d"] .kw-tile[data-w="d"], .kop-wheel[data-at="t"] .kw-tile[data-w="t"] { opacity: 1; transform: none; z-index: 1; }
+/* de volgende staat (onzichtbaar) rechts klaar en komt bij een tik binnen */
+.kop-wheel[data-at="j"] .kw-tile[data-w="d"], .kop-wheel[data-at="d"] .kw-tile[data-w="t"], .kop-wheel[data-at="t"] .kw-tile[data-w="j"] { transform: translateX(12px) scale(0.86); }
+.kw-dots { position: absolute; left: 50%; bottom: 2px; display: flex; align-items: center; gap: 3px; transform: translateX(-50%); pointer-events: none; }
 .kw-dots i { display: block; width: 4px; height: 4px; border-radius: 2px; background: var(--muted); opacity: 0.55;
   transition: width 0.26s cubic-bezier(0.22, 0.8, 0.24, 1), opacity 0.26s, background-color 0.26s; }
 .kop-wheel[data-at="j"] .kw-dots i[data-w="j"], .kop-wheel[data-at="d"] .kw-dots i[data-w="d"], .kop-wheel[data-at="t"] .kw-dots i[data-w="t"] { width: 11px; opacity: 1; }
 .kop-wheel[data-at="j"] .kw-dots i[data-w="j"] { background: #4caf50; }
 .kop-wheel[data-at="d"] .kw-dots i[data-w="d"] { background: #e8794a; }
 .kop-wheel[data-at="t"] .kw-dots i[data-w="t"] { background: #1e88e5; }
-.kop-wheel:not([data-at="j"]).has-new::after { display: none; }
+.kop-wheel.has-new::after { display: none; }
+.kop-wheel.has-new:not([data-at="d"]) .kw-dots i[data-w="d"] { width: 6px; height: 6px; border-radius: 50%; background: var(--achv-new, #e5484d); opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .kw-tile, .kw-dots i { transition: none; } }
 /* Wisselen tussen Jaardle en Duels (kopSwap in game.js, View Transitions): de kop blijft staan, de inhoud schuift opzij. Naar Duels =
    Jaardle naar links en Duels van rechts, terug = andersom. Zonder View Transitions of met minder beweging: in één keer, zoals eerst.
