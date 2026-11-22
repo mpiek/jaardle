@@ -706,6 +706,30 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 .bot-opt .bo-rec.down { color: var(--duel-loss); }
 .bot-opt:has(.bo-rec)::after { margin-left: 0; padding-left: 0.6rem; }   /* de stand rechts, dan de › */
 .bot-note { margin: -0.1rem 0 0; font-size: 0.76rem; color: var(--muted); }
+/* ⚔️ db/227 (22/11): ⚡ Knock-out | ⚔️ Best of 5. Breed in de pop-up met bots (zijn keuze "Schakelaar bovenin"), klein op de kaart van de
+   bot die klaarstaat (alleen de twee iconen als knopjes, de gekozen vorm erachter; zijn "kiezen tussen die twee icons"). */
+.bm-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--card-soft); box-shadow: inset 0 0 0 1px var(--border); }
+.bm-o { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; min-height: 2.1rem; padding: 0.2rem 0.8rem; border: 0; border-radius: 999px;
+  font: inherit; font-size: 0.88rem; font-weight: 700; color: var(--muted); background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bm-o[aria-checked="true"] { color: var(--fg); background: color-mix(in srgb, var(--duel-arena) 20%, var(--card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--duel-arena) 55%, transparent); }
+.bm-o:focus-visible { outline: 2px solid var(--duel-arena); outline-offset: 1px; }
+.bm-o .bm-i { font-size: 1rem; line-height: 1; }
+.bm-o[aria-checked="false"] .bm-i { opacity: 0.75; }
+.bm-wide { align-self: stretch; display: flex; }
+.bm-wide .bm-seg, .bm-wide .bm-o { flex: 1; }
+.bm-mini { display: inline-flex; align-items: center; gap: 0.35rem; margin-left: 0.4rem; vertical-align: middle; white-space: nowrap; }
+.bm-mini .bm-seg { padding: 2px; }
+.bm-mini .bm-o { min-height: 1.6rem; min-width: 2rem; padding: 0 0.4rem; }
+.bm-mini .bm-o .bm-i { font-size: 0.9rem; }
+.bm-mini .bm-n { font-size: 0.78rem; font-weight: 700; color: var(--fg); }
+/* wat de bot zegt in Best of 5: in ronde 1 onder het scorebord (gedag, de hele ronde), op de eindstand (zijn laatste woord) */
+.bo-line { display: flex; align-items: flex-start; gap: 0.45rem; margin: 0.5rem 0 0; font-size: 0.84rem; line-height: 1.35; color: var(--fg); text-align: left; }
+.bo-line .bo-av { flex: none; width: 1.7rem; height: 1.7rem; display: grid; place-items: center; border-radius: 50%; font-size: 1rem; line-height: 1;
+  background: color-mix(in srgb, var(--duel-arena) 18%, var(--card-soft)); }
+.bo-line .bo-tx { padding: 0.32rem 0.65rem; border-radius: 0.25rem 0.85rem 0.85rem 0.85rem; background: var(--card-soft); box-shadow: inset 0 0 0 1px var(--border); text-wrap: pretty; }
+.ep .bo-line { align-self: center; max-width: 21rem; }
+.ep-botnext { margin-top: 0.6rem; }   /* .bot-next: zoals op het K.O.-eindscherm */
 .bot-next { align-self: stretch; margin-top: -0.1rem; }
 .bot-next .dl-opt { background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; }
 /* ═══ ⚔️ Duelrating (db/225, 22/11/2026): de strook bovenaan Jouw stand, de pop-up, de Rated-schakelaar en het label "unrated".
@@ -809,7 +833,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} Ik ben klaar met ons Jaardle-duel, jouw beurt ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Jaardle-duel tegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "gelijk"}, ${a}–${b}`, shTotals: (a, b) => `${a} tegen ${b}`,
       // db/189: teamgenoten direct uitdagen, seintjes, stand per tegenstander
-      botsFace: "Bots", botsH: "Knock-out tegen een bot", botLvl: "Makkelijk|Gemiddeld|Sterk", botsNote: "Begint meteen · telt niet voor je rating", botYou: "≈ jij", botNext: "Volgende",
+      botsFace: "Bots", botsH: "Knock-out tegen een bot", botLvl: "Makkelijk|Gemiddeld|Sterk", botsNote: "Begint meteen · telt niet voor je rating", botsAny: "Speel tegen een bot", botsNoteB: "In je eigen tempo · telt niet voor je rating", errBotCool: "Even pauze: je speelde al veel tegen bots. Probeer het zo weer.", botYou: "≈ jij", botNext: "Volgende",
       botQ: (s) => `„${s}”`, saypip: "Ik ben net uit het ei. Ik lees alles twee keer.", sayrobo: "Elke gok in precies 10 seconden. Biep.", sayprof: "Vraag me alles over de Romeinen. Popmuziek? Nooit van gehoord.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Daag iemand uit", faceNew: "nieuw", faceRun: "loopt", vsLine: (n) => `Jij tegen ${n}:`, linkInstead: "Liever een link sturen",
       challenged: (n) => `${n} is uitgedaagd`, pushYes: (n) => `${n} krijgt meteen een seintje. Nog 24 uur om aan te nemen.`, pushNo: (n) => `${n} ziet hem bij het openen van Jaardle. Nog 24 uur om aan te nemen.`,
@@ -870,7 +894,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} I've finished our Jaardle duel, your turn ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Jaardle duel vs ${n}: ${r === "w" ? "won" : r === "l" ? "lost" : "tied"} ${a}–${b}`, shTotals: (a, b) => `${a} vs ${b}`,
       // db/189: challenge teammates directly, notifications, head-to-head
-      botsFace: "Bots", botsH: "Knockout against a bot", botLvl: "Easy|Medium|Hard", botsNote: "Starts right away · doesn't count toward your rating", botYou: "≈ you", botNext: "Next",
+      botsFace: "Bots", botsH: "Knockout against a bot", botLvl: "Easy|Medium|Hard", botsNote: "Starts right away · doesn't count toward your rating", botsAny: "Play a bot", botsNoteB: "At your own pace · doesn't count toward your rating", errBotCool: "Take a short break: you've played a lot against bots. Try again soon.", botYou: "≈ you", botNext: "Next",
       botQ: (s) => `“${s}”`, saypip: "I just hatched. I read everything twice.", sayrobo: "Every guess in exactly 10 seconds. Beep.", sayprof: "Ask me anything about the Romans. Pop music? Never heard of it.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Challenge someone", faceNew: "new", faceRun: "running", vsLine: (n) => `You vs ${n}:`, linkInstead: "Send a link instead",
       challenged: (n) => `You challenged ${n}`, pushYes: (n) => `${n} gets a notification right away. 24 hours to accept.`, pushNo: (n) => `${n} will see it when opening Jaardle. 24 hours to accept.`,
@@ -930,7 +954,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} Ich bin mit unserem Jaardle-Duell fertig, du bist dran, ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Jaardle-Duell gegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "unentschieden"}, ${a}–${b}`, shTotals: (a, b) => `${a} zu ${b}`,
       // db/189: Teammitglieder direkt herausfordern, Benachrichtigungen, Stand pro Gegner
-      botsFace: "Bots", botsH: "Knock-out gegen einen Bot", botLvl: "Leicht|Mittel|Schwer", botsNote: "Startet sofort · zählt nicht für dein Rating", botYou: "≈ du", botNext: "Nächster",
+      botsFace: "Bots", botsH: "Knock-out gegen einen Bot", botLvl: "Leicht|Mittel|Schwer", botsNote: "Startet sofort · zählt nicht für dein Rating", botsAny: "Spiel gegen einen Bot", botsNoteB: "In deinem Tempo · zählt nicht für dein Rating", errBotCool: "Kurze Pause: Du hast viel gegen Bots gespielt. Versuch es gleich noch mal.", botYou: "≈ du", botNext: "Nächster",
       botQ: (s) => `„${s}“`, saypip: "Ich bin gerade geschlüpft. Ich lese alles zweimal.", sayrobo: "Jeder Tipp in genau 10 Sekunden. Piep.", sayprof: "Frag mich alles über die Römer. Popmusik? Nie gehört.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Fordere jemanden heraus", faceNew: "neu", faceRun: "läuft", vsLine: (n) => `Du gegen ${n}:`, linkInstead: "Lieber einen Link schicken",
       challenged: (n) => `${n} ist herausgefordert`, pushYes: (n) => `${n} bekommt sofort eine Benachrichtigung. 24 Stunden zum Annehmen.`, pushNo: (n) => `${n} sieht sie beim Öffnen von Jaardle. 24 Stunden zum Annehmen.`,
@@ -989,7 +1013,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} He terminado nuestro duelo de Jaardle, ¡te toca, ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Duelo de Jaardle contra ${n}: ${r === "w" ? "ganado" : r === "l" ? "perdido" : "empate"}, ${a}–${b}`, shTotals: (a, b) => `${a} contra ${b}`,
       // db/189: retar directamente a compañeros, avisos, marcador por rival
-      botsFace: "Bots", botsH: "K.O. contra un bot", botLvl: "Fácil|Medio|Difícil", botsNote: "Empieza al instante · no cuenta para tu rating", botYou: "≈ tú", botNext: "Siguiente",
+      botsFace: "Bots", botsH: "K.O. contra un bot", botLvl: "Fácil|Medio|Difícil", botsNote: "Empieza al instante · no cuenta para tu rating", botsAny: "Juega contra un bot", botsNoteB: "A tu ritmo · no cuenta para tu rating", errBotCool: "Haz una pausa: has jugado mucho contra bots. Vuelve a intentarlo en un rato.", botYou: "≈ tú", botNext: "Siguiente",
       botQ: (s) => `«${s}»`, saypip: "Acabo de salir del cascarón. Lo leo todo dos veces.", sayrobo: "Cada respuesta en exactamente 10 segundos. Bip.", sayprof: "Pregúntame lo que quieras sobre los romanos. ¿Música pop? Ni idea.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Reta a alguien", faceNew: "nuevo", faceRun: "en curso", vsLine: (n) => `Tú contra ${n}:`, linkInstead: "Mejor enviar un enlace",
       challenged: (n) => `Has retado a ${n}`, pushYes: (n) => `${n} recibe un aviso ahora mismo. 24 horas para aceptar.`, pushNo: (n) => `${n} lo verá al abrir Jaardle. 24 horas para aceptar.`,
@@ -1048,7 +1072,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shTurn: (n) => `${ICON} Terminei nosso duelo de Jaardle, sua vez, ${n}!`,
       shResult: (n, a, b, r) => `${ICON} Duelo de Jaardle contra ${n}: ${r === "w" ? "venci" : r === "l" ? "perdi" : "empate"}, ${a}–${b}`, shTotals: (a, b) => `${a} contra ${b}`,
       // db/189: desafiar colegas de equipe diretamente, avisos, placar por adversário
-      botsFace: "Bots", botsH: "Nocaute contra um bot", botLvl: "Fácil|Médio|Difícil", botsNote: "Começa na hora · não conta para o seu rating", botYou: "≈ você", botNext: "Próximo",
+      botsFace: "Bots", botsH: "Nocaute contra um bot", botLvl: "Fácil|Médio|Difícil", botsNote: "Começa na hora · não conta para o seu rating", botsAny: "Jogue contra um bot", botsNoteB: "No seu ritmo · não conta para o seu rating", errBotCool: "Faça uma pausa: você jogou muito contra bots. Tente de novo daqui a pouco.", botYou: "≈ você", botNext: "Próximo",
       botQ: (s) => `“${s}”`, saypip: "Acabei de sair do ovo. Leio tudo duas vezes.", sayrobo: "Cada palpite em exatamente 10 segundos. Bip.", sayprof: "Me pergunte qualquer coisa sobre os romanos. Música pop? Nunca ouvi falar.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Desafie alguém", faceNew: "novo", faceRun: "em curso", vsLine: (n) => `Você contra ${n}:`, linkInstead: "Prefiro enviar um link",
       challenged: (n) => `Você desafiou ${n}`, pushYes: (n) => `${n} recebe um aviso agora mesmo. 24 horas para aceitar.`, pushNo: (n) => `${n} verá ao abrir o Jaardle. 24 horas para aceitar.`,
@@ -1095,7 +1119,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const dmIco = (m, cls = "ms-ico") => `<svg class="${cls}" viewBox="0 0 512 512" aria-hidden="true" focusable="false">${DM_SVG[m]}</svg>`;
   const themeOf = (d) => (d && d.theme && THEMES[d.theme]) || null;
   const thHtml = (d) => { const m = themeOf(d); return (m ? `<span class="dl-th"><span aria-hidden="true">${m.ico}</span>${esc(m.label)}</span>` : "") +
-    (d && d.rated === false ? `<span class="dl-th dr-fr">${esc(tx(H?.lang).unrated)}</span>` : ""); };   // ⚔️ db/225: telt niet voor de duelrating
+    (d && d.rated === false && !d.bot ? `<span class="dl-th dr-fr">${esc(tx(H?.lang).unrated)}</span>` : ""); };   // ⚔️ db/225: telt niet voor de duelrating (een bot nooit: geen label, db/227)
   // het ⚔️ DUELS-logo: de zwaarden áchter het woord. Eén bron voor de kop van de Duels-pagina én die van een ronde (19/11: "niet overal
   // is duel logo nog hetzelfde": de ronde had nog ⚔️ DUEL naast elkaar)
   const logoHtml = (T) => `<span class="dl-logo-sw" aria-hidden="true">${ICON}</span><span class="dl-logo-txt">${esc(T.title)}</span>`;
@@ -1284,7 +1308,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // alleen als jullie allebei alle vijf speelden; David vraagt een rating, dus die niet. Geeft de i18n-sleutel van de naam (game.js).
   function wouldEarn(d) {
     const mine = d?.mine || [], theirs = d?.theirs || [];
-    if (d?.status !== "done" || mine.length < 5 || theirs.length < 5) return null;
+    if (d?.status !== "done" || mine.length < 5 || theirs.length < 5 || d.bot) return null;   // db/227: tegen een bot telt niets
     const o = outcome(mine, theirs);
     if (o.res !== "w") return null;
     let w = 0, l = 0, down = false;
@@ -2130,7 +2154,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   // Het duelscherm (zolang state.duel): de duelkop in plaats van de tabbladen (‹ Jaardle · ⚔️ DUELS · ronde), de VS-kop boven
   // het feit, en de duelkleur (body[data-arena]). Zonder duel: alles weer weg.
-  let vsFetching = null, idAsked = false;
+  let vsFetching = null, idAsked = false, botTxtAsked = false;
   function sync(host) {
     H = host || H;
     const st = H.state(), body = document.body;
@@ -2181,6 +2205,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const dd = { ...d, mine, theirs: theirs.slice(0, Math.max(s.n, d.status === "done" ? 5 : 0)) };
     const decider = cur === 4 && s.n === 4 && s.w === 2 && s.l === 2;   // 2–2 en de laatste ronde: de beslissende
     if (vs) vs.innerHTML = boardHtml(T, dd, { cur, hot: decider, meta: d.status === "done" ? T.final : decider ? T.decider : leftText(T, d.deadline || dl.deadline) });
+    if (vs && d.bot && cur === 0) {   // ⚔️ db/227: in ronde 1 zegt de bot gedag (de zinnen van ko.js); nog niet geladen: eerst laden
+      const hi = botLine(d, "hi", d.code);
+      if (hi) vs.insertAdjacentHTML("beforeend", botSayHtml(d, hi, " hi"));
+      else if (!window.KO && H.ko && !botTxtAsked) { botTxtAsked = true; H.ko().then(() => sync()).catch(() => {}); }
+    }
     if (!cache[dl.code] && !vsFetching) {   // na herladen: de stand nog niet in het geheugen
       vsFetching = call("duel_get", { p_code: dl.code }).then((r) => { vsFetching = null; if (r.ok && r.v) { keep(r.v); sync(); } });
     }
@@ -2404,9 +2433,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
         boardHtml(T, d, { size: "big", meta: T.final, flip, hint: true }) +
         `<p class="ep-note${af}">${esc(T.totalNote(o.a, o.b))}<span class="ep-h2h"></span></p>` +
         (H.loggedIn && !again && d.rated !== false ? `<p class="fact-stats rating-line rating-line-link dr-endline" role="button" tabindex="0" hidden></p>` : "") +   // ⚔️ db/225
-        (H.loggedIn && H.duelAchv && !again ? `<div class="ep-achv"></div>` : "") +   // ⚔️ db/224: kaartje voor Duellist/Remontada/Ongeschonden/David (niet bij terugkijken)
+        (H.loggedIn && H.duelAchv && !again && !d.bot ? `<div class="ep-achv"></div>` : "") +   // ⚔️ db/224: kaartje voor Duellist/Remontada/Ongeschonden/David (niet bij terugkijken; db/227: niet tegen een bot)
+        (d.bot && !again && o.res !== "d" ? botSayHtml(d, botLine(d, o.res === "w" ? "win" : "lose", d.code), ` last${af}`) : "") +   // ⚔️ db/227: zijn laatste woord
         `<div class="ep-btns${af}"><button type="button" class="duel-btn" data-act="rematch" data-code="${d.code}">${icoHtml()} ${esc(T.revenge)}</button>` +
-        `<button type="button" class="duel-btn ep-ghost" data-act="share-result">${esc(T.shareRes)}</button></div>`;
+        `<button type="button" class="duel-btn ep-ghost" data-act="share-result">${esc(T.shareRes)}</button></div>` +
+        botNextHtml(T, d, o, af);
     } else {
       inner += `<h2>${esc(T.youDone(opp))}</h2>` +
         boardHtml(T, d, { size: "big", meta: T.busy }) +
@@ -2442,6 +2473,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       if (act === "share-turn") return share(H, b, { kind: "turn", d });
       if (act === "push") return onBell(b);
       if (act === "end-next") { close(); return next(H); }
+      if (act === "botnext") { close(); gc("duel-bot-b5-next", "Duel: next bot after a best of 5 win"); return botDuel(H, b.dataset.bot); }   // ⚔️ db/227
       if (act === "login") { gc("duel-login-end", "Duel: create account from result"); parkLogin(d.code); close(); return H.openLogin?.(); }
     });
     H.openModal("modal-duel-end", { over: true });   // boven het Duels-scherm (als dat open is): wegklikken = terug in de lijst
@@ -2460,6 +2492,13 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       if (o.res === "w" && !again && !(fresh && wonLast)) H.showConfetti();   // gewonnen: feest (had de laatste ronde al confetti, of zag je hem al: niet nog eens)
       if (!d.seen) markSeen(d.code);
     }, flip && !reduced ? FLIP_MS : 0);
+  }
+
+  // ⚔️ db/227: na een zege op een bot de volgende als één regel (zoals op het K.O.-eindscherm), ook in Best of 5
+  function botNextHtml(T, d, o, af = "") {
+    if (!d.bot || o.res !== "w") return "";
+    const i = listBots.findIndex((b) => b.key === d.bot), nb = i >= 0 ? listBots[i + 1] : null;
+    return nb ? `<div class="bot-next ep-botnext${af}">${botOptHtml(T, nb, i + 1, { next: true, attrs: 'data-act="botnext"', mode: "b" })}</div>` : "";
   }
 
   function next(host) {
@@ -2704,7 +2743,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (hs.length) {
       for (const x of hs) { t.b.w += x.w || 0; t.b.l += x.l || 0; t.b.n += x.n || 0; t.k.w += x.kw || 0; t.k.l += x.kl || 0; t.k.n += x.kn || 0; }
     } else {
-      for (const d of items || []) { if (d.status !== "done" || unrevealed(d)) continue; const r = resOf(d); t.b.n++; if (r !== "d") t.b[r]++; }
+      for (const d of items || []) { if (d.status !== "done" || unrevealed(d) || d.bot) continue; const r = resOf(d); t.b.n++; if (r !== "d") t.b[r]++; }
       for (const d of listKo) { if (botK.has(d.opp)) continue; const r = koRes(d); t.k.n++; if (r !== "d") t.k[r]++; }
     }
     return t;
@@ -3034,7 +3073,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (!listBots.length) return "";
     const busy = !!koNow()?.bot;
     let w = 0, l = 0;
-    for (const b of listBots) { w += b.w || 0; l += b.l || 0; }
+    for (const b of listBots) { w += (b.w || 0) + (b.bw || 0); l += (b.l || 0) + (b.bl || 0); }   // db/227: knock-outs + Best of 5
     const lab = busy ? `<small class="run">${esc(T.faceRun)}</small>`
       : w || l ? `<small class="${w > l ? "up" : w < l ? "down" : ""}">${w}–${l}</small>` : `<small class="new">${esc(T.faceNew)}</small>`;
     return `<button type="button" class="dl-face bot${busy ? " busy" : ""}" data-act="${busy ? "kolive" : "bots"}"${busy ? "" : ' aria-haspopup="dialog"'}>` +
@@ -3054,7 +3093,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const r = H?.loggedIn ? H.myRating?.() : null, n = H?.myRatingGames?.() ?? 0;
     if (r != null && n >= BOT_FIRM) return bots.reduce((a, b) => (Math.abs(b.elo - r) < Math.abs(a.elo - r) ? b : a));
     let top = -1;
-    bots.forEach((b, i) => { if ((b.w || 0) > 0) top = i; });
+    bots.forEach((b, i) => { if (botBeaten(b)) top = i; });   // db/227: ook een zege in Best of 5
     return bots[Math.min(top + 1, bots.length - 1)];
   }
   window.addEventListener?.("jaardle:rating", () => {
@@ -3063,20 +3102,79 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   });
   // De kaart: dezelfde als "X daagt je uit" (band + regel, de hele kaart = Speel), zonder ✕ en zonder klok. Tweede regel: zijn zin zolang
   // je nog nooit tegen hem speelde, daarna jullie stand (zoals bij een vriend).
+  // ⚔️ db/227 (22/11, zijn "wellicht ook in de auto challenge dat je kan kiezen tussen die twee icons"): op de kaart ⚡ en ⚔️ als twee
+  // knopjes, de gekozen vorm erachter. De hele kaart = spelen in die vorm; dezelfde keuze als de schakelaar in de pop-up (botMode).
   function botCardHtml(T, b) {
-    const w = b.w || 0, l = b.l || 0, say = T["say" + b.key], k = esc(b.key);
+    const [w, l] = botRec(b), say = T["say" + b.key], k = esc(b.key);
     const sub = w || l ? esc(cap(T.h2h(w, l))) : say ? `<i>${esc(T.botQ(say))}</i>` : "";
     return `<div class="dl-card inc bot" data-act="botgo" data-bot="${k}">${bandHtml(T, b.name, b.flair)}` +
-      `<div class="dl-card-f"><small><b>${esc(T.invTitle(b.name))}</b><span class="dl-th"><span aria-hidden="true">⚡</span>${esc(T.koTag)}</span>${sub ? "<br>" + sub : ""}</small>` +
+      `<div class="dl-card-f"><small><b>${esc(T.invTitle(b.name))}</b>${botModesHtml(T, true)}${sub ? "<br>" + sub : ""}</small>` +
       `<button type="button" class="dl-go" data-act="botgo" data-bot="${k}">${esc(T.play)}</button></div></div>`;
   }
+  // ⚔️ db/227 Best of 5 tegen een bot (22/11/2026, zijn "kunnen we ook maken dat je tegen bots rounds kan spelen?" → "Schakelaar bovenin").
+  // Eén keuze voor de pop-up en de kaart, onthouden (standaard Knock-out, zoals het was). De stand per bot volgt de vorm: w/l = knock-outs,
+  // bw/bl = Best of 5 (duel_list). De groene rand blijft: ooit verslagen, in welke vorm dan ook.
+  const BOTMODE_KEY = "jaardle:bot-mode";
+  let botMode = (() => { try { return localStorage.getItem(BOTMODE_KEY) === "b" ? "b" : "k"; } catch (e) { return "k"; } })();
+  function setBotMode(m) {
+    if ((m === "b" ? "b" : "k") === botMode) return false;
+    botMode = m === "b" ? "b" : "k";
+    try { localStorage.setItem(BOTMODE_KEY, botMode); } catch (e) {}
+    gc("duel-bot-mode-" + botMode, "Duel: bot mode " + (botMode === "b" ? "best of 5" : "knockout"));
+    return true;
+  }
+  const botRec = (b, m = botMode) => (m === "b" ? [b.bw || 0, b.bl || 0] : [b.w || 0, b.l || 0]);
+  const botBeaten = (b) => (b.w || 0) + (b.bw || 0) > 0;
+  // mini = op de kaart: alleen de twee iconen als knopjes, de naam van de gekozen vorm erachter; anders (de pop-up) twee helften met naam
+  function botModesHtml(T, mini = false) {
+    const opt = (m, ico, name) => `<button type="button" class="bm-o" role="radio" data-act="bmode" data-bmode="${m}" aria-checked="${botMode === m}"` +
+      `${mini ? ` aria-label="${esc(name)}" title="${esc(name)}"` : ""}><span class="bm-i" aria-hidden="true">${ico}</span>${mini ? "" : esc(name)}</button>`;
+    const seg = `<span class="bm-seg" role="radiogroup" aria-label="${esc(T.standPick)}">${opt("k", "⚡", T.koTag)}${opt("b", ICON, T.turnBtn)}</span>`;
+    return mini ? `<span class="bm-mini">${seg}<span class="bm-n">${esc(botMode === "b" ? T.turnBtn : T.koTag)}</span></span>` : `<div class="bm-wide">${seg}</div>`;
+  }
+  // Best of 5 tegen een bot: hij speelt zijn vijf rondes meteen (server), jij speelt ze zoals altijd; loopt er al een, dan die.
+  let botDuelBusy = false;
+  async function botDuel(host, key) {
+    H = host;
+    if (botDuelBusy) return;
+    botDuelBusy = true;
+    const T = tx(H.lang);
+    gc("duel-bot-b5-" + String(key).replace(/[^a-z0-9]/g, ""), "Duel: best of 5 started against a bot");
+    try {
+      const [r] = await Promise.all([call("duel_bot_start", { p_bot: key, p_name: myName() || null }), H.ko ? H.ko().catch(() => null) : null]);   // ko.js: zijn zinnen
+      if (!r.ok || !r.v) {
+        listTop = `<p class="dl-msg duel-err">${esc(/cooldown/.test(r.e || "") ? T.errBotCool : T.err)}</p>`;
+        return openList(H, { keepTop: true });
+      }
+      const d = keep(r.v);
+      remember(d.code, d.deadline);
+      ["modal-duel-bots", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
+      return play(H, d.code, d);
+    } finally { botDuelBusy = false; }
+  }
+  // de bot achter een duel (db/227: d.bot = zijn sleutel), en wat hij zegt: de zinnen van ko.js (BOT_TXT, window.KO na het laden)
+  const botOf = (d) => (d && d.bot && listBots.find((b) => b.key === d.bot)) || null;
+  function botLine(d, moment, seed) {
+    const L = window.KO?.botCopy?.(H?.lang) || window.KO?.botCopy?.("en"), B = d?.bot && L && L[d.bot];
+    const arr = (B?.[moment] || []).filter((t) => !t.includes("|"));   // "rond|…" en "na1950|…" gaan over een gok: niet in Best of 5
+    if (!arr.length) return "";
+    let h = 7; for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    const me = H?.loggedIn ? H.myRating?.() : null, b = botOf(d);
+    const p = me != null && b?.elo != null ? Math.round(100 / (1 + 10 ** ((me - b.elo) / 400))) : "??";   // Robo: zijn winkans (elo)
+    return arr[h % arr.length].replace(/\{p\}/g, String(p));
+  }
+  const botSayHtml = (d, text, cls = "") => {
+    if (!text) return "";
+    const f = oppFlair(d) || "🤖", fl = H?.flairHtml ? H.flairHtml(f) : "";
+    return `<p class="bo-line${cls}"><span class="bo-av" aria-hidden="true">${fl || esc(f)}</span><span class="bo-tx">${esc(text)}</span></p>`;
+  };
   // één bot als regel (de pop-up, en na winst op het K.O.-eindscherm: next). Het niveau komt uit de volgorde (botLvl), de rating eronder.
   // 🤖 db/226 (mockup "Bots met karakter" v3, zijn keuze 22/11): onder de naam de zin van de bot (zoals het ballonnetje op chess.com: hij
   // kondigt zijn trekje aan), en een groene rand om zijn gezichtje als je hem ooit versloeg (zijn "kroontje niet zo, gewoon een border").
-  function botOptHtml(T, b, i, { you = false, next = false, attrs = "" } = {}) {
-    const lvl = (T.botLvl || "").split("|")[i] || "", w = b.w || 0, l = b.l || 0, say = T["say" + b.key];
+  function botOptHtml(T, b, i, { you = false, next = false, attrs = "", mode = botMode } = {}) {
+    const lvl = (T.botLvl || "").split("|")[i] || "", [w, l] = botRec(b, mode), say = T["say" + b.key];
     const rec = !next && (w || l) ? `<span class="bo-rec${w > l ? " up" : w < l ? " down" : ""}">${w}–${l}</span>` : "";
-    return `<button type="button" class="dl-opt bot-opt" data-bot="${esc(b.key)}"${attrs ? " " + attrs : ""}>${avHtml(b.flair, b.name, w > 0 ? " won" : "")}` +
+    return `<button type="button" class="dl-opt bot-opt" data-bot="${esc(b.key)}"${attrs ? " " + attrs : ""}>${avHtml(b.flair, b.name, botBeaten(b) ? " won" : "")}` +
       `<span class="bo-t"><b>${esc(b.name)}${you ? ` <span class="bo-you">${esc(T.botYou)}</span>` : ""}</b>` +
       `<small>${next ? esc(T.botNext) + ": " : ""}${esc([lvl, b.elo].filter((x) => x !== "" && x != null).join(" · "))}</small>` +
       (say ? `<span class="bo-say">${esc(T.botQ(say))}</span>` : "") + `</span>${rec}</button>`;
@@ -3091,22 +3189,34 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       document.body.appendChild(el);
       el.addEventListener("click", (e) => {
         if (e.target.closest("[data-close]")) return H.closeModal(BOTS_ID);
+        const m = e.target.closest("[data-bmode]");
+        if (m) {   // ⚔️ db/227: de schakelaar; de pop-up blijft open, de kaart in Duels volgt
+          if (setBotMode(m.dataset.bmode)) { botsFill(el, tx(H.lang)); el.querySelector(`[data-bmode="${botMode}"]`)?.focus(); refreshList(); }
+          return;
+        }
         const b = e.target.closest("[data-bot]");
         if (!b) return;
         H.closeModal(BOTS_ID);
+        if (botMode === "b") return botDuel(H, b.dataset.bot);
         H.ko?.().then((K) => K.botStart?.(H, b.dataset.bot)).catch(() => {});
       });
     }
+    botsFill(el, T);
+    H.openModal(BOTS_ID, { over: true });
+    el.querySelector(".modal-close")?.focus();   // zoals de ?-pop-up: geen bot die al gekozen lijkt
+  }
+  function botsFill(el, T) {
     const me = H.loggedIn ? H.myRating?.() : null;   // "≈ jij": de bot die het dichtst bij jouw rating zit
     const near = me != null && listBots.length ? listBots.reduce((a, b) => (Math.abs(b.elo - me) < Math.abs(a.elo - me) ? b : a)) : null;
     el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card duel-pop bot-pop">` +
       `<button type="button" class="modal-close" data-close aria-label="${esc(T.close)}">✕</button>` +
-      `<div class="duel-inv"><span class="duel-ico" aria-hidden="true">⚡</span><h2 id="duel-bots-title">${esc(T.botsH)}</h2>` +
+      `<div class="duel-inv"><span class="duel-ico" aria-hidden="true">${botMode === "b" ? ICON : "⚡"}</span><h2 id="duel-bots-title">${esc(T.botsAny)}</h2>` +
+      botModesHtml(T) +
       `<div class="dl-menu bot-menu">${listBots.map((b, i) => botOptHtml(T, b, i, { you: b === near })).join("")}</div>` +
-      `<p class="bot-note">${esc(T.botsNote)}</p></div></div>`;
-    H.openModal(BOTS_ID, { over: true });
-    el.querySelector(".modal-close")?.focus();   // zoals de ?-pop-up: geen bot die al gekozen lijkt
+      `<p class="bot-note">${esc(botMode === "b" ? T.botsNoteB : T.botsNote)}</p></div></div>`;
   }
+  // het Duels-scherm opnieuw tekenen als het open is (de kaart van de bot die klaarstaat volgt de schakelaar)
+  function refreshList() { const m = document.getElementById("modal-duels"); if (H && listItems && m && !m.hidden) renderList(tx(H.lang), null); }
 
   // Je openstaande uitdaging (19/11: "bij waiting is die nog grijs en saai"): dezelfde kaart als een uitdaging aan jou, met de twee
   // kanten. Tik = de link nog eens sturen (de knop is het label), ✕ = intrekken. db/189: een directe uitdaging of een revanche krijgt
@@ -3144,7 +3254,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const sel = known.find((d) => d.code === selInGrp[g.k]) || known[0];
     const news = g.ds.some((d) => !d.seen);
     const sub = unrevealed(latest) ? T.revealTap : `${cap(whenText(T, latest.finished_at))}: ${latest.ko ? T.koRes(koRes(latest), koR(latest)) : resText(T, outcome(latest.mine, latest.theirs))}`;
-    const bot = isK && listBots.some((x) => x.k === g.k);   // 🤖 alleen in de lijst van knock-outs; telt niet mee op de kaart
+    const bot = listBots.some((x) => x.k === g.k);   // 🤖 knock-outs en (db/227) Best of 5 tegen een bot; telt niet mee op de kaart
     const rec = known.length ? `<span class="dl-rec"><span class="dl-form" aria-hidden="true">${form.map((r) => `<i class="${r}"></i>`).join("")}</span><b>${a}–${b}</b></span>` : "";
     const row = `<div class="dl-row${news ? " has-new" : ""}" data-grp="${esc(g.k)}" role="button" tabindex="0" aria-expanded="${isOpen}">` +
       `${avHtml(oppFlair(latest), n)}<span class="dl-main"><b>${esc(n)}${bot ? `<span class="ms-bot">${esc(T.botTag)}</span>` : ""}</b><small>${esc(sub)}</small></span>` +
@@ -3252,7 +3362,12 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     if (act === "kolive") return koResume();   // ⚡ terug in de knock-out die loopt
     if (act === "bots") { gc("duel-bots", "Duel: bots opened"); return openBots(T); }   // 🤖 db/218
-    if (act === "botgo") { gc("duel-bot-card", "Duel: ready bot started from Duels"); return H.ko?.().then((K) => K.botStart?.(H, b.dataset.bot)).catch(() => {}); }   // 🤖 de bot die klaarstaat
+    if (act === "bmode") { if (setBotMode(b.dataset.bmode)) renderList(T, null); return; }   // ⚔️ db/227: ⚡ of ⚔️ op de kaart van de bot (niet spelen)
+    if (act === "botgo") {   // 🤖 de bot die klaarstaat, in de gekozen vorm (db/227)
+      gc("duel-bot-card", "Duel: ready bot started from Duels");
+      if (botMode === "b") return botDuel(H, b.dataset.bot);
+      return H.ko?.().then((K) => K.botStart?.(H, b.dataset.bot)).catch(() => {});
+    }
     if (act === "sync") { gc("duel-sync", "Duel: Duels logo tapped (refresh)"); return syncList(T, true); }
     if (act === "sfx") return toggleSfx(b);   // ⚔️ Duel-geluid aan/uit (de knop naast de ?)
     if (act === "sent-x") { listTop = ""; return renderList(T, null); }
@@ -3357,6 +3472,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // Nieuwe uitdaging of revanche: naam (zonder account één keer vragen), aanmaken, dan meteen delen; de link blijft zichtbaar.
   async function create(host, { rematch = null, forK = null, forName = null, theme = null } = {}) {   // theme: db/202 (een revanche neemt het thema zelf over)
     H = host;
+    const bd = rematch && (cache[rematch] || (listItems || []).find((x) => x.code === rematch));
+    if (bd && bd.bot) { gc("duel-bot-rematch", "Duel: best of 5 rematch against a bot"); return botDuel(H, bd.bot); }   // ⚔️ db/227: een bot wil altijd, meteen
     const T = tx(H.lang);
     if (H.loggedIn) await H.ensureIdentity?.().catch?.(() => {});
     const name = myName();
@@ -3596,6 +3713,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
          spectateBody, duelSides, flairEmoji, SFX, INTRO_MS, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setStand: (m) => { standPick = m; standFocus = null; }, standMode, standCardsHtml, dmIco, setHost: (h) => { H = h; }, koCardHtml, fillKo, onListClick, listKo: () => listKo,
          botFaceHtml, botOptHtml, openBots, listBots: () => listBots, readyBot, botCardHtml, onFirst, sndState, toggleSfx, music,
+         botModesHtml, setBotMode, botMode: () => botMode, botNextHtml, botLine, standTotals, create, wouldEarn, host: () => H,   // ⚔️ db/227
          drStripHtml, drPopHtml, drSparkHtml, rtHtml, setDr: (v) => { listDr = v; }, ratedOn: () => ratedOn, setRated: (v) => { ratedOn = v; } },   // voor de tests
   };
 })();
