@@ -776,6 +776,23 @@ test("Duels-pagina — de build schrijft /duels/ in elke taal met een eigen tite
   assert.match(read("index.html"), /<a id="duels-door" class="kop-door" href="\/duels\/"/);
 });
 
+test("Duels-pagina — /duel/ (enkelvoud) stuurt in elke taal door naar /…/duels/, met ?query; noindex en niet in de sitemap", () => {
+  const root = join(dir, "..");
+  const read = (f) => readFileSync(join(root, f), "utf8");
+  const stubs = { "duel/index.html": ["en", "/duels/"], "en/duel/index.html": ["en", "/duels/"], "nl/duel/index.html": ["nl", "/nl/duels/"],
+    "de/duel/index.html": ["de", "/de/duels/"], "es/duel/index.html": ["es", "/es/duels/"], "pt/duel/index.html": ["pt", "/pt/duels/"] };
+  for (const [f, [lang, target]] of Object.entries(stubs)) {
+    assert.ok(existsSync(join(root, f)), `${f} bestaat (npm run build)`);
+    const h = read(f);
+    assert.match(h, new RegExp(`<html lang="${lang}`), f);
+    assert.ok(h.includes(`<script>location.replace(${JSON.stringify(target)} + location.search + location.hash);</script>`), `${f}: JS-doorsturen`);
+    assert.ok(h.includes(`<meta http-equiv="refresh" content="0; url=${target}">`), `${f}: vangnet zonder JS`);
+    assert.ok(h.includes(`<link rel="canonical" href="https://jaardle.com${target}">`) && h.includes('<meta name="robots" content="noindex">'), `${f}: niet zelf indexeren`);
+    assert.ok(h.indexOf("location.replace") < h.indexOf('http-equiv="refresh"'), `${f}: eerst JS (houdt ?duel= vast), dan pas meta-refresh`);
+  }
+  assert.ok(!/\/duel\/</.test(read("sitemap.xml")), "/duel/ staat niet in de sitemap");
+});
+
 test("db/201 ↔ duel.js — revanche volgt 'één duel per tweetal', intrekken telt een uur mee: elke fout van duel_create heeft een eigen melding", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "201_duel_limits.sql")) }, () => {
   const sql = readFileSync(join(dir, "..", "..", "jaardle-tools", "db", "201_duel_limits.sql"), "utf8");
   for (const code of ["'incoming:%'", "'running'", "'too_many_open'", "'too_many_recent'"]) assert.ok(sql.includes(`raise exception ${code}`), `db/201 geeft ${code}`);

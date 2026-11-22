@@ -74,7 +74,8 @@ function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, dir = "") {
 // oude taal staan, tot de volgende keer laden.
 const PAGES = [
   { dir: "", strings: null },
-  { dir: "duels", image: "/og-duel.jpg", strings: {
+  // aliases: extra adressen die alleen doorsturen (22/11, zijn "ja doe maar": wie jaardle.com/duel intikt, belandt niet op een 404).
+  { dir: "duels", aliases: ["duel"], image: "/og-duel.jpg", strings: {
     nl: { meta_title: "Jaardle Duels — daag een vriend uit: wie raadt het jaar het best?",
       meta_share_title: "⚔️ Jaardle-duel: daag een vriend uit",
       meta_desc: "Daag een vriend uit voor een Jaardle-duel: jullie raden het jaar van dezelfde 5 historische gebeurtenissen, van makkelijk naar moeilijk. Per ronde wint de hoogste score. Gratis, zonder account.",
@@ -274,6 +275,38 @@ for (const page of PAGES) for (const code of mod.LANG_CODES) {
     mkdirSync(join(ROOT, alias), { recursive: true });
     writeFileSync(join(ROOT, alias, "index.html"), html);
     console.log(`✓ ${alias}/index.html  (${code}, alias → /${page.dir ? page.dir + "/" : ""})`);
+  }
+}
+
+// Doorstuuradressen (PAGES[].aliases): GitHub Pages kent geen echte 301, dus een klein HTML-bestand per taal dat meteen doorstuurt
+// (location.replace, met ?query en #hash erbij; meta-refresh als vangnet zonder JS). noindex + canonical naar het echte adres, niet
+// in de sitemap. Ook onder /en/ (zoals de hoofdpagina's daar een alias hebben).
+function aliasHtml(target, htmlLang) {
+  return `<!doctype html>
+<html lang="${htmlLang}">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="${BASE_URL}${target}">
+<title>Jaardle</title>
+<script>location.replace(${JSON.stringify(target)} + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=${target}">
+</head>
+<body><a href="${target}">Jaardle</a></body>
+</html>
+`;
+}
+for (const page of PAGES) for (const alias of page.aliases || []) {
+  if (PAGES.some((p) => p.dir === alias)) throw new Error(`Alias /${alias}/ botst met een echte pagina`);
+  for (const code of mod.LANG_CODES) {
+    const path = mod.LANGS[code].path;
+    const target = pageUrl(path, page.dir).slice(BASE_URL.length);
+    for (const base of path ? [path] : ["", code]) {
+      const rel = [base, alias].filter(Boolean).join("/");
+      mkdirSync(join(ROOT, rel), { recursive: true });
+      writeFileSync(join(ROOT, rel, "index.html"), aliasHtml(target, mod.LANGS[code].html));
+      console.log(`✓ ${rel}/index.html  (doorsturen → ${target})`);
+    }
   }
 }
 
