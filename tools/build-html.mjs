@@ -72,10 +72,13 @@ function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, dir = "") {
 // subpagina haalt de build de data-i18n-attributen van die twee weg, anders zet applyLang() er bij het laden de tekst van de
 // hoofdpagina overheen (Google draait de JS ook). Gevolg: na een taalwissel op de pagina zelf blijft die verborgen intro in de
 // oude taal staan, tot de volgende keer laden.
+// at/next/label (22/11/2026): de deur naast 🌐 gaat rond Jaardle → Duels → Timeline → Jaardle. at = deze pagina (data-at op #world-door,
+// style.css kiest daarmee tegel en stipje), next = de pagina achter de deur (de echte link), label = de naam daarvan (aria-label; voor
+// Duels de vertaling door_duels uit I18N). noindex: de pagina staat niet in de sitemap en krijgt <meta name="robots" content="noindex">.
 const PAGES = [
-  { dir: "", strings: null },
+  { dir: "", at: "j", next: "duels", strings: null },
   // aliases: extra adressen die alleen doorsturen (22/11, zijn "ja doe maar": wie jaardle.com/duel intikt, belandt niet op een 404).
-  { dir: "duels", aliases: ["duel"], image: "/og-duel.jpg", strings: {
+  { dir: "duels", at: "d", next: "timeline", label: "Timeline", aliases: ["duel"], image: "/og-duel.jpg", strings: {
     nl: { meta_title: "Jaardle Duels — daag een vriend uit: wie raadt het jaar het best?",
       meta_share_title: "⚔️ Jaardle-duel: daag een vriend uit",
       meta_desc: "Daag een vriend uit voor een Jaardle-duel: jullie raden het jaar van dezelfde 5 historische gebeurtenissen, van makkelijk naar moeilijk. Per ronde wint de hoogste score. Gratis, zonder account.",
@@ -102,14 +105,44 @@ const PAGES = [
       intro_h1: "Duelos do Jaardle — quiz de história um contra um: quem adivinha melhor o ano?",
       intro_html: "Desafie um amigo para um duelo no Jaardle, o jogo em que você adivinha o ano de um acontecimento histórico. No <strong>Melhor de 5</strong>, vocês jogam os mesmos cinco acontecimentos, do mais fácil ao mais difícil, quando quiserem, dentro de 24 horas. Em cada rodada vence a maior pontuação. No <strong>Nocaute</strong> você joga ao vivo, contra um amigo que esteja online ou contra um bot. Cada ano de diferença custa pontos, e a diferença sai da barra de vida do outro até alguém ser nocauteado. Grátis e sem conta. Com uma conta, seus duelos contam para o seu próprio rating de duelos." },
   } },
+  // 🗓️ Timeline (22/11/2026): eerst een losse alpha-pagina, nu een pagina van de app (zijn "zelfde bovenscherm als duels dat je ook profiel
+  // enzo hebt want is 1 account"). Nog alpha: noindex en niet in de sitemap. Titel en kop per taal met het eigen woord voor tijdlijn.
+  { dir: "timeline", at: "t", next: "", label: "Jaardle", noindex: true, strings: {
+    nl: { meta_title: "Jaardle Timeline — leg de geschiedenis op volgorde (tijdlijn-spel)",
+      meta_share_title: "🗓️ Jaardle Timeline: leg de geschiedenis op volgorde",
+      meta_desc: "Leg historische gebeurtenissen op de goede plek in je tijdlijn. Elke kaart draait om en laat het jaar zien. Drie fouten en je bent af. Gratis, zonder account.",
+      intro_h1: "Jaardle Timeline — het tijdlijn-spel: welke gebeurtenis kwam eerst?",
+      intro_html: "Leg elke nieuwe gebeurtenis op de goede plek in je tijdlijn, door hem te slepen of op een + te tikken. De kaart draait om en laat het jaar zien. Goed gelegd telt mee, fout kost een hartje; na drie fouten is het klaar. Hoe verder je komt, hoe kleiner de gaten. Gratis en zonder account." },
+    en: { meta_title: "Jaardle Timeline — put history in order (timeline game)",
+      meta_share_title: "🗓️ Jaardle Timeline: put history in order",
+      meta_desc: "Place historic events in the right spot on your timeline. Each card flips over to reveal its year. Three mistakes and you're out. Free, no account needed.",
+      intro_h1: "Jaardle Timeline — the timeline game: which event came first?",
+      intro_html: "Place each new event in the right spot on your timeline by dragging it or tapping a +. The card flips over and shows its year. A correct placement counts, a wrong one costs a heart; after three mistakes the run is over. The further you get, the smaller the gaps. Free, no account needed." },
+    de: { meta_title: "Jaardle Timeline — bring die Geschichte in die richtige Reihenfolge (Zeitstrahl-Spiel)",
+      meta_share_title: "🗓️ Jaardle Timeline: bring die Geschichte in die richtige Reihenfolge",
+      meta_desc: "Lege historische Ereignisse an die richtige Stelle deines Zeitstrahls. Jede Karte dreht sich um und zeigt ihr Jahr. Drei Fehler und du bist raus. Kostenlos, ohne Konto.",
+      intro_h1: "Jaardle Timeline — das Zeitstrahl-Spiel: Was kam zuerst?",
+      intro_html: "Lege jedes neue Ereignis an die richtige Stelle deines Zeitstrahls, indem du es ziehst oder auf ein + tippst. Die Karte dreht sich um und zeigt das Jahr. Richtig gelegt zählt, ein Fehler kostet ein Herz; nach drei Fehlern ist die Runde vorbei. Je weiter du kommst, desto kleiner die Lücken. Kostenlos und ohne Konto." },
+    es: { meta_title: "Jaardle Timeline — ordena la historia (juego de línea del tiempo)",
+      meta_share_title: "🗓️ Jaardle Timeline: ordena la historia",
+      meta_desc: "Coloca acontecimientos históricos en el lugar correcto de tu línea del tiempo. Cada carta se da la vuelta y muestra su año. Tres errores y quedas fuera. Gratis, sin cuenta.",
+      intro_h1: "Jaardle Timeline — el juego de la línea del tiempo: ¿qué pasó primero?",
+      intro_html: "Coloca cada nuevo acontecimiento en el lugar correcto de tu línea del tiempo, arrastrándolo o tocando un +. La carta se da la vuelta y muestra el año. Si aciertas, suma; si fallas, pierdes un corazón; tras tres errores, la partida termina. Cuanto más avanzas, más pequeños son los huecos. Gratis y sin cuenta." },
+    pt: { meta_title: "Jaardle Timeline — coloque a história em ordem (jogo de linha do tempo)",
+      meta_share_title: "🗓️ Jaardle Timeline: coloque a história em ordem",
+      meta_desc: "Coloque acontecimentos históricos no lugar certo da sua linha do tempo. Cada carta vira e mostra o ano. Três erros e você está fora. Grátis, sem conta.",
+      intro_h1: "Jaardle Timeline — o jogo da linha do tempo: o que veio primeiro?",
+      intro_html: "Coloque cada novo acontecimento no lugar certo da sua linha do tempo, arrastando-o ou tocando em um +. A carta vira e mostra o ano. Acertou, conta; errou, perde um coração; depois de três erros, a partida acaba. Quanto mais longe você vai, menores ficam os espaços. Grátis e sem conta." },
+  } },
 ];
 const PAGE_KEYS = ["meta_title", "meta_share_title", "meta_desc", "intro_h1", "intro_html"];
 
 // Extra <head>-regels van een subpagina: een groot deelplaatje (WhatsApp, Discord, X). De hoofdpagina heeft er (nog) geen.
 function pageHead(page) {
-  if (!page.image) return `<meta name="twitter:card" content="summary">`;
+  const robots = page.noindex ? `<meta name="robots" content="noindex">\n` : "";
+  if (!page.image) return robots + `<meta name="twitter:card" content="summary">`;
   const img = BASE_URL + page.image;
-  return [
+  return robots + [
     `<meta property="og:image" content="${img}">`,
     `<meta property="og:image:width" content="1200">`,
     `<meta property="og:image:height" content="630">`,
@@ -185,7 +218,11 @@ function render(template, code, mod, csp, gameSrc, page = PAGES[0]) {
     .replace(/\{\{manifestHref\}\}/g, meta.path ? `/${meta.path}/manifest.webmanifest` : "/manifest.webmanifest")
     .replace(/\{\{html\}\}/g, meta.html)
     .replace(/\{\{url\}\}/g, pageUrl(meta.path, page.dir))
-    // {{href:duels}} → het pad van een pagina in deze taal ("/nl/duels/", "/duels/"): echte links voor crawlers (de deur naar Duels).
+    // de deur naast 🌐: waar je bent, waar hij heen gaat en hoe die pagina heet (zie PAGES)
+    .replace(/\{\{doorAt\}\}/g, page.at)
+    .replace(/\{\{doorLabel\}\}/g, () => escAttr(page.label || get("door_duels")))
+    .replace(/\{\{href:next\}\}/g, () => pageUrl(meta.path, page.next).slice(BASE_URL.length))
+    // {{href:duels}} → het pad van een pagina in deze taal ("/nl/duels/", "/duels/"): echte links voor crawlers.
     .replace(/\{\{href:([\w-]*)\}\}/g, (_, dir) => {
       if (dir && !PAGES.some((p) => p.dir === dir)) throw new Error(`{{href:${dir}}}: geen pagina /${dir}/ in PAGES`);
       return pageUrl(meta.path, dir).slice(BASE_URL.length);
@@ -229,7 +266,7 @@ function manifestFor(code, mod) {
 }
 
 function sitemap(LANGS, LANG_CODES) {
-  const urls = PAGES.flatMap((page) => LANG_CODES.map((c) =>
+  const urls = PAGES.filter((page) => !page.noindex).flatMap((page) => LANG_CODES.map((c) =>
     `  <url>\n    <loc>${pageUrl(LANGS[c].path, page.dir)}</loc>\n    <changefreq>daily</changefreq>\n    <priority>${page.dir ? "0.8" : "1.0"}</priority>\n  </url>`
   )).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
@@ -250,6 +287,10 @@ for (const page of PAGES) {
   if (!page.strings) continue;
   const gaps = mod.LANG_CODES.filter((c) => !page.strings[c] || PAGE_KEYS.some((k) => typeof page.strings[c][k] !== "string"));
   if (gaps.length) throw new Error(`Pagina /${page.dir}/ mist teksten voor: ${gaps.join(", ")}`);
+}
+
+for (const page of PAGES) {
+  if (!["j", "d", "t"].includes(page.at) || !PAGES.some((p) => p.dir === page.next)) throw new Error(`Pagina /${page.dir}/: at of next klopt niet`);
 }
 
 let count = 0;
@@ -311,5 +352,5 @@ for (const page of PAGES) for (const alias of page.aliases || []) {
 }
 
 writeFileSync(join(ROOT, "sitemap.xml"), sitemap(mod.LANGS, mod.LANG_CODES));
-console.log(`✓ sitemap.xml  (${mod.LANG_CODES.length * PAGES.length} URL's)`);
+console.log(`✓ sitemap.xml  (${mod.LANG_CODES.length * PAGES.filter((p) => !p.noindex).length} URL's)`);
 console.log(`\n${count} pagina's (taal × pagina) gegenereerd uit index.template.html.`);

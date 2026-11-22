@@ -5478,7 +5478,7 @@ test("NEWS — elke rij is sluitend: id, datums, kleur, menu-actie en tekst in a
     assert.match(n.id, /^[a-z0-9-]+$/); assert.ok(!ids.has(n.id), "unieke id"); ids.add(n.id);
     assert.match(n.from, /^\d{4}-\d\d-\d\d$/); assert.match(n.to, /^\d{4}-\d\d-\d\d$/); assert.ok(n.from <= n.to);
     assert.equal(n.tint.length, 2); for (const c of n.tint) assert.match(c, /^#[0-9a-f]{6}$/i);
-    assert.ok(new RegExp(`class="menu-item" role="menuitem" data-action="${n.action}"`).test(tmpl) || (n.action === "duels" && /<a id="duels-door"/.test(tmpl)),
+    assert.ok(new RegExp(`class="menu-item" role="menuitem" data-action="${n.action}"`).test(tmpl) || (n.action === "duels" && /<a id="world-door"/.test(tmpl)),
       "de actie is een scherm in het ⋮-menu (Duels: de deur naast 🌐, sinds 21/11)");
     for (const k of Object.keys(T.LANGS)) {
       const c = n.copy[k];

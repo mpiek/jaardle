@@ -1,6 +1,10 @@
-// 🗓️ Timeline (alpha, 22/11/2026): jaardle.com/timeline, los van de rest van Jaardle. Er linkt nog niets naartoe en de pagina staat
-// op noindex. Zijn woorden: "maak maar, maar laten we het nog niet promoten … gewoon achter jaardle.com/timeline als alpha mode".
-// Mockup: https://claude.ai/artifact/8deX6CCXoyNo5RLdM6ymz1 (v5). Server: db/226 get_timeline_deck(lang), alleen lezen.
+// 🗓️ Timeline (alpha, 22/11/2026): jaardle.com/timeline. Eerst een losse pagina ("maak maar, maar laten we het nog niet promoten …
+// gewoon achter jaardle.com/timeline als alpha mode"); dezelfde dag een pagina van de app zelf, zoals /duels/ (zijn "zelfde bovenscherm
+// als duels dat je ook profiel enzo hebt want is 1 account"): game.js laadt dit bestand lui (op /timeline/ of bij een tik op de deur op
+// de Duels-pagina) en roept open(host) aan. Dit zet het scherm (#modal-tl, een .modal in <main>) en het logo + 🔈 in de kop (#mode-tabs);
+// profiel, 🌐 en de deur zijn van game.js. Nog alpha: noindex (build-html.mjs).
+// Mockups: https://claude.ai/artifact/8deX6CCXoyNo5RLdM6ymz1 (het spel, v5), https://claude.ai/artifact/4f3dCFfBmN2X4iQ9cRguoo (de kop).
+// Server: db/226 get_timeline_deck(lang), alleen lezen.
 // Hoe het werkt: leg elke nieuwe kaart in het goede gat van je tijdlijn, door te slepen of op een + te tikken. De kaart draait dan om
 // en laat het jaar zien. Fout kost een ❤️, na drie fouten is het klaar.
 // Bewaard: alleen het record en de geluidsstand, per toestel (localStorage). Geen plays, geen rating, geen trofeeën.
@@ -9,13 +13,12 @@
 (() => {
   "use strict";
   const SB = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
-  const HOME = { nl: "/nl/", en: "/", de: "/de/", es: "/es/", pt: "/pt/" };
-  const REC_KEY = "jaardle:timeline:rec", SND_KEY = "jaardle:timeline:snd", LANG_KEY = "jaardle:lang";
+  const REC_KEY = "jaardle:timeline:rec", SND_KEY = "jaardle:timeline:snd";
   const SUIT = { 1: "⚔️", 2: "⚖️", 3: "🙏", 4: "🔬", 5: "🎨", 6: "⛵", 7: "🌋", 8: "🤝" };
 
   const T = {
     nl: {
-      back: "Terug naar Jaardle", sound: "Geluid", cue: "Sleep de kaart naar zijn plek, of tik op een +", earlier: "eerder", later: "later",
+      sound: "Geluid", cue: "Sleep de kaart naar zijn plek, of tik op een +", earlier: "eerder", later: "later",
       left: "nog", good: "goed", lives: (n) => `${n} van 3 levens`, newCard: "Nieuwe kaart", first: "Leg vooraan", last: "Leg achteraan",
       between: (a, b) => `Leg tussen ${a} en ${b}`, streak: (n) => `🔥 ${n} op rij!`, tight: "Op het randje!", goesEarlier: "← Hoort eerder",
       goesLater: "Hoort later →", placed: (n) => (n === 1 ? "kaart goed gelegd" : "kaarten goed gelegd"), record: "🏆 Nieuw record!",
@@ -25,7 +28,7 @@
       shareHead: (n, rec) => `Jaardle Timeline: 🗓️ ${n} ${n === 1 ? "kaart" : "kaarten"}${rec ? " (record!)" : ""}`,
     },
     en: {
-      back: "Back to Jaardle", sound: "Sound", cue: "Drag the card to its place, or tap a +", earlier: "earlier", later: "later",
+      sound: "Sound", cue: "Drag the card to its place, or tap a +", earlier: "earlier", later: "later",
       left: "deck", good: "correct", lives: (n) => `${n} of 3 lives`, newCard: "New card", first: "Place at the start", last: "Place at the end",
       between: (a, b) => `Place between ${a} and ${b}`, streak: (n) => `🔥 ${n} in a row!`, tight: "Close call!", goesEarlier: "← Goes earlier",
       goesLater: "Goes later →", placed: (n) => (n === 1 ? "card placed correctly" : "cards placed correctly"), record: "🏆 New record!",
@@ -35,7 +38,7 @@
       shareHead: (n, rec) => `Jaardle Timeline: 🗓️ ${n} ${n === 1 ? "card" : "cards"}${rec ? " (record!)" : ""}`,
     },
     de: {
-      back: "Zurück zu Jaardle", sound: "Ton", cue: "Zieh die Karte an ihren Platz oder tippe auf ein +", earlier: "früher", later: "später",
+      sound: "Ton", cue: "Zieh die Karte an ihren Platz oder tippe auf ein +", earlier: "früher", later: "später",
       left: "noch", good: "richtig", lives: (n) => `${n} von 3 Leben`, newCard: "Neue Karte", first: "Ganz vorne ablegen", last: "Ganz hinten ablegen",
       between: (a, b) => `Zwischen ${a} und ${b} ablegen`, streak: (n) => `🔥 ${n} in Folge!`, tight: "Knapp!", goesEarlier: "← Gehört früher",
       goesLater: "Gehört später →", placed: (n) => (n === 1 ? "Karte richtig gelegt" : "Karten richtig gelegt"), record: "🏆 Neuer Rekord!",
@@ -45,7 +48,7 @@
       shareHead: (n, rec) => `Jaardle Timeline: 🗓️ ${n} ${n === 1 ? "Karte" : "Karten"}${rec ? " (Rekord!)" : ""}`,
     },
     es: {
-      back: "Volver a Jaardle", sound: "Sonido", cue: "Arrastra la carta a su lugar o toca un +", earlier: "antes", later: "después",
+      sound: "Sonido", cue: "Arrastra la carta a su lugar o toca un +", earlier: "antes", later: "después",
       left: "quedan", good: "aciertos", lives: (n) => `${n} de 3 vidas`, newCard: "Carta nueva", first: "Colocar al principio", last: "Colocar al final",
       between: (a, b) => `Colocar entre ${a} y ${b}`, streak: (n) => `🔥 ¡${n} seguidas!`, tight: "¡Por los pelos!", goesEarlier: "← Va antes",
       goesLater: "Va después →", placed: (n) => (n === 1 ? "carta bien colocada" : "cartas bien colocadas"), record: "🏆 ¡Nuevo récord!",
@@ -55,7 +58,7 @@
       shareHead: (n, rec) => `Jaardle Timeline: 🗓️ ${n} ${n === 1 ? "carta" : "cartas"}${rec ? " (¡récord!)" : ""}`,
     },
     pt: {
-      back: "Voltar ao Jaardle", sound: "Som", cue: "Arraste a carta até o lugar certo ou toque em um +", earlier: "antes", later: "depois",
+      sound: "Som", cue: "Arraste a carta até o lugar certo ou toque em um +", earlier: "antes", later: "depois",
       left: "restam", good: "acertos", lives: (n) => `${n} de 3 vidas`, newCard: "Carta nova", first: "Colocar no início", last: "Colocar no fim",
       between: (a, b) => `Colocar entre ${a} e ${b}`, streak: (n) => `🔥 ${n} seguidas!`, tight: "Por um triz!", goesEarlier: "← Vem antes",
       goesLater: "Vem depois →", placed: (n) => (n === 1 ? "carta no lugar certo" : "cartas no lugar certo"), record: "🏆 Novo recorde!",
@@ -66,12 +69,6 @@
     },
   };
 
-  // De taal: ?lang= gaat voor, dan de taal die je in Jaardle koos (jaardle:lang), dan die van je browser, anders Engels.
-  function pickLang(search, stored, navLangs) {
-    const ok = (l) => (l && T[String(l).slice(0, 2).toLowerCase()] ? String(l).slice(0, 2).toLowerCase() : null);
-    const q = /[?&]lang=([a-z]{2})/i.exec(search || "");
-    return ok(q && q[1]) || ok(stored) || (navLangs || []).map(ok).find(Boolean) || "en";
-  }
   // Past kaart c in gat i van de lijn? Hetzelfde jaar telt aan beide kanten als goed.
   const fits = (line, i, c) => (i === 0 || line[i - 1].y <= c.y) && (i === line.length || c.y <= line[i].y);
   const rightIdx = (line, c) => line.filter((x) => x.y <= c.y).length;
@@ -81,11 +78,16 @@
   const CSS = String.raw`/* ═══ 🗓️ Timeline (alpha, /timeline.js) ═══ */
 :root { --tl: #1976d2; --tl-back: #1976d2; --tl-back-2: #1565c0; --tl-ch: clamp(10rem, 100dvh - 30rem, 13.5rem);
   --tl-era: linear-gradient(90deg, var(--purple), var(--blue) 30%, var(--green) 52%, var(--yellow) 74%, var(--orange)); }
-.tl { display: flex; flex-direction: column; }
-/* de kop: de deur terug naar Jaardle, het logo (het woord met een tijdlijn in de kleuren van de tijd), alpha, 🔈 */
-.tl-kop { display: flex; align-items: center; gap: 0.3rem; min-height: 2.75rem; margin-bottom: 0.6rem; }
-.tl-kop .kop-door { text-decoration: none; }
-.tl-logo { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 0.45rem; margin: 0; font-size: 1rem; }
+/* de Timeline-pagina (/timeline/): het scherm op de plek van het spel, zoals de Duels-pagina. game.js zet body[data-tlhome] en het adres;
+   het spel en de voet-knoppen gaan zolang weg, de kop (#mode-tabs) blijft: profiel, 🌐, de deur (hier naar Jaardle), dan ons logo en 🔈. */
+[data-tlhome] main > :not(#modal-tl):not(#mode-tabs), [data-tlhome] #help-btn, [data-tlhome] #day-label { display: none !important; }
+#modal-tl.tl-page { position: static; inset: auto; z-index: auto; display: flex; flex-direction: column; align-items: stretch; padding: 0; }
+.kop-tl { display: none; }
+body[data-tlhome] #mode-tabs { display: flex; }
+[data-tlhome] #mode-tabs > .tab { display: none; }
+[data-tlhome] .kop-tl { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
+/* het logo: het woord met een tijdlijn in de kleuren van de tijd eronder, en alpha; echt in het midden van de kop als er ruimte is (center()) */
+.tl-logo { justify-self: center; min-width: 0; display: flex; align-items: center; gap: 0.45rem; margin: 0; font-size: 1rem; transform: translateX(var(--kd-dx, 0px)); }
 .tl-logo-in { display: inline-flex; flex-direction: column; align-items: stretch; gap: 4px; line-height: 1; color: var(--fg); }
 .tl-logo-txt { font-size: 0.98rem; font-weight: 900; letter-spacing: 0.13em; text-transform: uppercase; padding-left: 0.13em; }
 .tl-logo-line { position: relative; height: 8px; }
@@ -140,7 +142,7 @@
 .tl-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .tl-suit { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .tl-suit i { font-style: normal; font-size: 1.3rem; letter-spacing: 0; }
-.tl-txt { flex: 1; margin: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.32; }
+.tl-txt { flex: 1; margin: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.32; overflow-wrap: anywhere; hyphens: auto; }
 .tl-q { align-self: center; padding: 0.2rem 0.85rem 0.2rem 1.1rem; border-radius: 999px; border: 1.5px dashed color-mix(in srgb, var(--muted) 70%, transparent);
   color: var(--muted); font-weight: 800; letter-spacing: 0.3em; }
 .tl-card.tl-drag { z-index: 30; cursor: grabbing; box-shadow: 0 22px 40px -12px rgba(0, 0, 0, 0.6); transition: none; }
@@ -161,7 +163,9 @@
 .tl-c .tl-y { font-size: 1.45rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; padding-right: 1.3rem; }
 .tl-c .tl-y small { display: block; margin-top: 0.1rem; font-size: 0.66rem; font-weight: 700; color: var(--muted); }
 .tl-c .tl-s { position: absolute; top: 0.45rem; right: 0.45rem; font-size: 1.05rem; line-height: 1; }
-.tl-c .tl-t { font-size: 0.78rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
+/* lange woorden (gezondheidsredenen) breken af in plaats van van de kaart te vallen */
+.tl-c .tl-t { font-size: 0.78rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden;
+  overflow-wrap: anywhere; hyphens: auto; }
 .tl-c.tl-bad .tl-y { color: var(--red-text); }
 .tl-c.tl-bad .tl-s { visibility: hidden; }
 .tl-c .tl-x, .tl-c .tl-v { position: absolute; top: 0.32rem; right: 0.32rem; z-index: 2; display: grid; place-items: center; width: 1.4rem; height: 1.4rem;
@@ -212,18 +216,11 @@
 }
 `;
 
-  window.JaardleTimeline = { T, pickLang, fits, rightIdx, shareText, endBand, SUIT, CSS };
-  const root = document.getElementById("tl");
-  if (!root) return;
+  window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang };
 
-  // ── opstarten ──
-  let LANG = "en";
-  try { LANG = pickLang(location.search, localStorage.getItem(LANG_KEY), navigator.languages || [navigator.language]); } catch (e) { LANG = pickLang(location.search, null, [navigator.language]); }
-  const L = T[LANG];
-  document.documentElement.lang = LANG;
-  const st = document.createElement("style");
-  st.textContent = CSS;
-  document.head.appendChild(st);
+  // ── de staat: H = wat game.js meegeeft (taal, openModal/closeModal, meetpunten); root = het scherm (#modal-tl) ──
+  let H = null, root = null, LANG = "en", L = T.en;
+  const PAGE_ID = "modal-tl";
   const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, String(v)); } catch (e) {} return null; };
   let snd = ls(SND_KEY) !== "0";
   let REC = Number(ls(REC_KEY)) || 0;
@@ -232,10 +229,11 @@
   const yHtml = (y) => (y < 0 ? `${-y}<small>${L.bc}</small>` : String(y));
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const reduced = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
-  const isMobile = () => (navigator.userAgentData && navigator.userAgentData.mobile != null ? navigator.userAgentData.mobile : /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
+  const isMobile = () => (H && H.isMobile ? H.isMobile() : /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
 
-  // Meetpunten naar de aparte events-site, zoals gcCount in game.js (count.js bouwt de URL, wij wisselen het adres)
+  // Meetpunten naar de aparte events-site: gcCount van game.js (count.js bouwt de URL, die wisselt het adres); zonder host zelf
   function gc(path, title) {
+    if (H && H.gc) { H.gc(path, title); return; }
     try {
       const g = window.goatcounter, tag = document.querySelector("script[data-goatcounter-events]");
       const main = tag && tag.dataset.goatcounter, events = tag && tag.dataset.goatcounterEvents;
@@ -291,9 +289,9 @@
     `<g class="on" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 9.3a3.9 3.9 0 0 1 0 5.4"/><path d="M17.7 6.7a7.6 7.6 0 0 1 0 10.6"/></g>` +
     `<g class="off" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8"/></g></svg>`;
   const SHARE_SVG = `<svg viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M352 224c53 0 96-43 96-96s-43-96-96-96-96 43-96 96c0 4 .2 8 .7 11.9l-94.1 47C145 174.6 124.8 160 96 160c-53 0-96 43-96 96s43 96 96 96c28.8 0 49-14.6 62.6-30.9l94.1 47c-.5 3.9-.7 7.8-.7 11.9 0 53 43 96 96 96s96-43 96-96-43-96-96-96c-28.8 0-49 14.6-62.6 30.9l-94.1-47c.5-3.9 .7-7.8 .7-11.9s-.2-8-.7-11.9l94.1-47C303 209.4 323.2 224 352 224z"/></svg>`;
-  const kopHtml = () => `<div class="tl-kop"><a class="kop-door" href="${HOME[LANG]}" aria-label="${esc(L.back)}" title="${esc(L.back)}"><img class="kd-logo" src="/favicon.svg?v=2" alt=""></a>` +
-    `<h1 class="tl-logo"><span class="tl-logo-in"><span class="tl-logo-txt">Timeline</span><span class="tl-logo-line" aria-hidden="true"><i></i><i></i><i></i></span></span>` +
-    `<span class="tl-alpha">alpha</span></h1><button type="button" class="tl-snd" aria-pressed="${snd}" aria-label="${esc(L.sound)}" title="${esc(L.sound)}">${SND_SVG}</button></div>`;
+  // in de kop van game.js (#mode-tabs), achter profiel, 🌐 en de deur: het logo en 🔈
+  const kopHtml = () => `<h2 class="tl-logo"><span class="tl-logo-in"><span class="tl-logo-txt">Timeline</span><span class="tl-logo-line" aria-hidden="true"><i></i><i></i><i></i></span></span>` +
+    `<span class="tl-alpha">alpha</span></h2><button type="button" class="tl-snd" aria-pressed="${snd}" aria-label="${esc(L.sound)}" title="${esc(L.sound)}">${SND_SVG}</button>`;
   function hudHtml(s, o) {
     const hearts = [0, 1, 2].map((i) => {
       const br = o.breakIdx === i;
@@ -348,8 +346,10 @@
     const a = el.offsetLeft, b = a + el.offsetWidth;
     if (a < row.scrollLeft + 16 || b > row.scrollLeft + row.clientWidth - 16) row.scrollLeft = Math.max(0, a - (row.clientWidth - el.offsetWidth) / 2);
   }
+  let loading = false;
   async function start() {
     G = null;
+    loading = true;
     draw();
     try {
       const deck = await (nextDeck || fetchDeck());
@@ -361,6 +361,7 @@
       nextDeck = null;
       draw({ error: true });
     }
+    loading = false;
   }
   // de kaart vliegt van je hand naar het gat (een kloon; de echte kaart is dan al weg)
   async function fly(fromEl, from, slot) {
@@ -455,19 +456,6 @@
     if (near) { if (drag.px < rr.left + 44) row.scrollLeft -= 9; else if (drag.px > rr.right - 44) row.scrollLeft += 9; }
   }
   const loop = () => { if (!drag) return; pick(); drag.raf = requestAnimationFrame(loop); };
-  root.addEventListener("pointerdown", (e) => {
-    const card = e.target.closest(".tl-card.tl-front");
-    if (!card || !G || G.phase !== "idle" || G.done) return;
-    drag = { card, id: e.pointerId, x0: e.clientX, y0: e.clientY, px: e.clientX, py: e.clientY, moved: false, slot: -1, raf: 0 };
-    try { card.setPointerCapture(e.pointerId); } catch (err) {}
-  });
-  root.addEventListener("pointermove", (e) => {
-    if (!drag || e.pointerId !== drag.id) return;
-    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
-    if (!drag.moved) { if (Math.hypot(dx, dy) < 6) return; drag.moved = true; drag.card.classList.remove("tl-deal"); drag.card.classList.add("tl-drag"); loop(); }
-    drag.px = e.clientX; drag.py = e.clientY;
-    drag.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.max(-7, Math.min(7, dx / 30))}deg) scale(1.03)`;
-  });
   const endDrag = (e) => {
     if (!drag || e.pointerId !== drag.id) return;
     const d = drag; drag = null; cancelAnimationFrame(d.raf);
@@ -475,25 +463,105 @@
     d.card.classList.remove("tl-drag"); d.card.style.transform = "";
     root.querySelectorAll(".tl-slot.tl-open").forEach((s) => s.classList.remove("tl-open"));
   };
-  root.addEventListener("pointerup", endDrag);
-  root.addEventListener("pointercancel", endDrag);
-  root.addEventListener("click", async (e) => {
-    const s = e.target.closest(".tl-slot");
-    if (s) { place(+s.dataset.i); return; }
-    if (e.target.closest(".tl-again, .tl-retry")) { start(); return; }
-    const b = e.target.closest(".tl-snd");
-    if (b) { snd = !snd; ls(SND_KEY, snd ? "1" : "0"); b.setAttribute("aria-pressed", String(snd)); return; }
-    const sh = e.target.closest(".tl-share");
-    if (sh && G) {
-      const txt = shareText(L, G.n, G.marks, G.rec), lab = sh.querySelector("span"), was = lab.textContent;
-      gc("timeline-share", "Timeline: shared");
-      if (isMobile() && navigator.share) { try { await navigator.share({ text: txt }); } catch (err) {} return; }
-      const done = () => { lab.textContent = L.copied; setTimeout(() => { lab.textContent = was; }, 1600); };
-      try { await navigator.clipboard.writeText(txt); } catch (err) {}
-      done();
-    }
-  });
+  // slepen en tikken: één keer, op het scherm zelf (ensurePage)
+  function listen(root) {
+    root.addEventListener("pointerdown", (e) => {
+      const card = e.target.closest(".tl-card.tl-front");
+      if (!card || !G || G.phase !== "idle" || G.done) return;
+      drag = { card, id: e.pointerId, x0: e.clientX, y0: e.clientY, px: e.clientX, py: e.clientY, moved: false, slot: -1, raf: 0 };
+      try { card.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    root.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+      if (!drag.moved) { if (Math.hypot(dx, dy) < 6) return; drag.moved = true; drag.card.classList.remove("tl-deal"); drag.card.classList.add("tl-drag"); loop(); }
+      drag.px = e.clientX; drag.py = e.clientY;
+      drag.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.max(-7, Math.min(7, dx / 30))}deg) scale(1.03)`;
+    });
+    root.addEventListener("pointerup", endDrag);
+    root.addEventListener("pointercancel", endDrag);
+    root.addEventListener("click", async (e) => {
+      const s = e.target.closest(".tl-slot");
+      if (s) { place(+s.dataset.i); return; }
+      if (e.target.closest(".tl-again, .tl-retry")) { start(); return; }
+      const sh = e.target.closest(".tl-share");
+      if (sh && G) {
+        const txt = shareText(L, G.n, G.marks, G.rec), lab = sh.querySelector("span"), was = lab.textContent;
+        gc("timeline-share", "Timeline: shared");
+        if (isMobile() && navigator.share) { try { await navigator.share({ text: txt }); } catch (err) {} return; }
+        const done = () => { lab.textContent = L.copied; setTimeout(() => { lab.textContent = was; }, 1600); };
+        try { await navigator.clipboard.writeText(txt); } catch (err) {}
+        done();
+      }
+    });
+  }
 
-  root.innerHTML = kopHtml();
-  start();
+  // ── het scherm en de kop ──
+  function ensureCss() {
+    if (document.getElementById("tl-css")) return;
+    const st = document.createElement("style");
+    st.id = "tl-css"; st.textContent = CSS;
+    document.head.appendChild(st);
+  }
+  function ensurePage() {
+    root = document.getElementById(PAGE_ID);
+    if (root) return root;
+    root = document.createElement("section");
+    root.id = PAGE_ID; root.className = "modal tl-page tl"; root.hidden = true;
+    root.setAttribute("aria-label", "Timeline");
+    (document.querySelector("main") || document.body).appendChild(root);
+    listen(root);
+    return root;
+  }
+  function ensureKop() {
+    let k = document.getElementById("kop-tl");
+    const nav = document.getElementById("mode-tabs");
+    if (!nav) return null;
+    if (!k) {
+      k = document.createElement("div");
+      k.id = "kop-tl"; k.className = "kop-tl";
+      nav.appendChild(k);
+      k.addEventListener("click", (e) => {
+        const b = e.target.closest(".tl-snd");
+        if (b) { snd = !snd; ls(SND_KEY, snd ? "1" : "0"); b.setAttribute("aria-pressed", String(snd)); }
+      });
+      if (window.ResizeObserver) { const ro = new ResizeObserver(() => center()); ro.observe(k); }
+    }
+    k.innerHTML = kopHtml();
+    return k;
+  }
+  // het logo echt in het midden van de kop als er ruimte is, zoals bij Duels (centerLogo in duel.js): het woord, niet woord + alpha;
+  // nooit dichter dan 6 px bij de deur of 🔈
+  function center() {
+    const k = document.getElementById("kop-tl"), nav = document.getElementById("mode-tabs"), lg = k && k.querySelector(".tl-logo");
+    if (!k || !nav || !lg || !k.offsetParent) return;
+    lg.style.setProperty("--kd-dx", "0px");
+    const r = lg.getBoundingClientRect(), w = lg.querySelector(".tl-logo-in").getBoundingClientRect(), n = nav.getBoundingClientRect();
+    const door = document.getElementById("world-door"), snb = k.querySelector(".tl-snd");
+    const lo = (door && door.offsetParent ? door.getBoundingClientRect().right : r.left) + 6 - r.left;
+    const hi = (snb ? snb.getBoundingClientRect().left : n.right) - 6 - r.right;
+    const want = n.left + n.width / 2 - (w.left + w.width / 2);
+    lg.style.setProperty("--kd-dx", (hi < lo ? 0 : Math.round(Math.min(hi, Math.max(lo, want)))) + "px");
+  }
+  function useLang(l) { LANG = T[l] ? l : "en"; L = T[LANG]; }
+  // game.js: de deur op de Duels-pagina of het adres /timeline/. Een lopend potje gaat gewoon verder waar je was.
+  function open(host) {
+    H = host;
+    useLang(H.lang);
+    ensureCss(); ensurePage(); ensureKop();
+    H.openModal(PAGE_ID);
+    try { document.documentElement.removeAttribute("data-tlload"); } catch (e) {}   // het 🗓️-laadscherm (head-script)
+    center();
+    if (G || loading) draw(); else start();
+  }
+  // 🌐 op de Timeline-pagina: de teksten in de nieuwe taal; kaarten die al op tafel liggen blijven, de volgende stapel komt in de nieuwe taal
+  function setLang(l) {
+    if (!H) return;
+    H.lang = l;
+    useLang(l);
+    nextDeck = null;
+    ensureKop();
+    center();
+    if (root) draw();
+  }
 })();

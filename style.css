@@ -680,6 +680,27 @@ main {
   background: var(--achv-new, #e5484d);
   box-shadow: 0 0 0 2px var(--bg);
 }
+/* De deur gaat rond (22/11/2026, zijn "klein carousel achtige hint"; mockup https://claude.ai/artifact/4f3dCFfBmN2X4iQ9cRguoo): Jaardle →
+   Duels → Timeline → Jaardle. Alle drie de tegels zitten in de deur; data-at (waar je nu bent) zet die van de volgende voor, en eronder
+   drie stipjes met een streepje in de kleur van waar je bent. Bij een wissel schuift de oude tegel links weg en komt de nieuwe van rechts,
+   en loopt het streepje een stip door. Het rode stipje hoort bij Duels: alleen als de deur daarheen gaat. */
+.kop-wheel { overflow: visible; text-decoration: none; }
+/* 22 px (zijn "iets kleiner zodat ze beter passen naast language logo"): even zwaar als 🌐; met de stipjes eronder net boven het midden */
+.kw-face { position: relative; display: block; width: 22px; height: 22px; margin-top: -4px; }
+.kop-wheel .kd-logo { width: 22px; height: 22px; border-radius: 6px; }
+.kw-tile { position: absolute; inset: 0; display: block; opacity: 0; transform: translateX(-12px) scale(0.86);
+  transition: transform 0.26s cubic-bezier(0.22, 0.8, 0.24, 1), opacity 0.26s; }
+.kop-wheel[data-at="j"] .kw-tile[data-w="d"], .kop-wheel[data-at="d"] .kw-tile[data-w="t"], .kop-wheel[data-at="t"] .kw-tile[data-w="j"] { opacity: 1; transform: none; z-index: 1; }
+.kop-wheel[data-at="j"] .kw-tile[data-w="t"], .kop-wheel[data-at="d"] .kw-tile[data-w="j"], .kop-wheel[data-at="t"] .kw-tile[data-w="d"] { transform: translateX(12px) scale(0.86); }
+.kw-dots { position: absolute; left: 50%; bottom: 2px; display: flex; gap: 3px; transform: translateX(-50%); pointer-events: none; }
+.kw-dots i { display: block; width: 4px; height: 4px; border-radius: 2px; background: var(--muted); opacity: 0.55;
+  transition: width 0.26s cubic-bezier(0.22, 0.8, 0.24, 1), opacity 0.26s, background-color 0.26s; }
+.kop-wheel[data-at="j"] .kw-dots i[data-w="j"], .kop-wheel[data-at="d"] .kw-dots i[data-w="d"], .kop-wheel[data-at="t"] .kw-dots i[data-w="t"] { width: 11px; opacity: 1; }
+.kop-wheel[data-at="j"] .kw-dots i[data-w="j"] { background: #4caf50; }
+.kop-wheel[data-at="d"] .kw-dots i[data-w="d"] { background: #e8794a; }
+.kop-wheel[data-at="t"] .kw-dots i[data-w="t"] { background: #1e88e5; }
+.kop-wheel:not([data-at="j"]).has-new::after { display: none; }
+@media (prefers-reduced-motion: reduce) { .kw-tile, .kw-dots i { transition: none; } }
 /* Wisselen tussen Jaardle en Duels (kopSwap in game.js, View Transitions): de kop blijft staan, de inhoud schuift opzij. Naar Duels =
    Jaardle naar links en Duels van rechts, terug = andersom. Zonder View Transitions of met minder beweging: in één keer, zoals eerst.
    De naam alleen tijdens het wisselen (html[data-kop]): een view-transition-name maakt van de kop een eigen stapel, en dan viel het
@@ -2342,11 +2363,12 @@ html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[da
 /* ⚔️ Laadscherm voor een duel-seintje of -link (?duel=, head-script): geen daily ertussen. Eén vlak in de achtergrondkleur
    (de schaduw van het ⚔️-vakje vult het scherm) met een rustig ademende ⚔️. /duel.js haalt het weg zodra de opening van de ronde
    begint (die heeft dezelfde achtergrond) of het iets anders laat zien. html::after, want de skins gebruiken html::before. */
-html[data-duelload]::after { content: "⚔️"; position: fixed; z-index: 150; left: 50%; top: 50%; width: 6rem; height: 6rem; margin: -3rem 0 0 -3rem;
+html[data-duelload]::after, html[data-tlload]::after { content: "⚔️"; position: fixed; z-index: 150; left: 50%; top: 50%; width: 6rem; height: 6rem; margin: -3rem 0 0 -3rem;
   display: grid; place-items: center; font: 3.2rem/1 "JaardleEmoji", sans-serif; background: var(--bg); box-shadow: 0 0 0 100vmax var(--bg);
   animation: duel-load 1.1s ease-in-out infinite alternate; }
 @keyframes duel-load { from { transform: scale(0.88); } to { transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { html[data-duelload]::after { animation: none; } }
+html[data-tlload]::after { content: "🗓️"; }   /* de Timeline-pagina (/timeline/, 22/11): /timeline.js haalt het weg */
+@media (prefers-reduced-motion: reduce) { html[data-duelload]::after, html[data-tlload]::after { animation: none; } }
 
 /* --- Modals --- */
 .modal {

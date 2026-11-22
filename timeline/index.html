@@ -1,21 +1,106 @@
 <!DOCTYPE html>
 <!--
-  🗓️ Timeline (alpha, 22/11/2026): jaardle.com/timeline. Een losse pagina, niet uit index.template.html gebouwd (npm run build raakt
-  hem niet): er linkt nog niets naartoe, hij staat op noindex en niet in de sitemap. Alles zit in /timeline.js; de server is db/226
-  get_timeline_deck (alleen lezen). Het inline thema-script hieronder is gelijk aan dat in index.template.html; past het aan, zet dan de
-  nieuwe sha256 in de CSP (tests/timeline.test.mjs bewaakt dat).
+  Hoi Redigeerdle 👋 Leuk dat je in de broncode kijkt. Deze repo, de feiten,
+  de daily-antwoorden en de pijplijn erachter zijn níét bedoeld om te scrapen.
+  Bouw gerust je eigen spel — maar verzin je eigen content. Met liefde, Jaardle ✌️
+-->
+<!--
+  BRON-TEMPLATE voor alle taal-mirrors. Bewerk NOOIT index.html / en/index.html /
+  de/index.html direct — die worden gegenereerd. Wijzig deze template (of de
+  I18N-strings in game.js) en draai `npm run build`.
+
+  Tokens (telkens tussen dubbele accolades):
+    html, url, intl, og, hreflang  → per-taal <head>/SEO-waarden
+    pageHead        → twitter:card, en op een subpagina (/duels/) het grote deelplaatje (og:image)
+    csp             → Content-Security-Policy (build berekent de sha256-hash
+                      van de inline scripts, o.a. de Supabase-bridge; taal-onafhankelijk)
+    gameSrc         → de src van de game.js-tag onderaan (met ?v=), voor de preload
+                      in de head; zo blijft het versienummer op één plek
+    i18n:<key>      → platte tekst uit I18N[lang][key] (HTML-geëscaped)
+    i18nhtml:<key>  → HTML-waarde uit I18N[lang][key] (ruw, mag tags bevatten)
+    json:<key>      → JSON-geëscapede waarde (voor ld+json)
+  Asset-paden zijn root-absoluut (/style.css, /game.js) zodat dezelfde template
+  vanaf zowel de root als een subdir (/en, /de) werkt. Versie-bumps (?v=) doe je
+  hier; de build kopieert ze naar elke mirror.
 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-kdjiuvjL5H6+9DYVPa8o42UNe3KOSNplFmg0tPDMaqE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-QUj59y59vtsMBLUvMUoWgWetzMtz9ksLM3v0xX0xjOU=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
+<!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=497 = de src van de game.js-tag onderaan (build). -->
+<link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
+<link rel="preload" as="script" href="/game.js?v=497">
+<script>
+  // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
+  window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
+  // Dagpuzzel alvast ophalen (alleen de daily, en alleen als hij nog niet lokaal staat): de bridge geeft dit antwoord één keer
+  // terug aan rpc("get_daily", { d }); bij een fout volgt de gewone aanroep. Dag = todayKey() in game.js (een test bewaakt dat).
+  (function () {
+    try {
+      if (/[?&]p=/.test(location.search)) return;   // gedeeld vrij spel: de daily is dan niet nodig
+      var d = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+      if (localStorage.getItem("jaardle:daily:" + d)) return;
+      var c = window.sbConfig;
+      var p = fetch(c.url + "/rest/v1/rpc/get_daily", {
+        method: "POST",
+        headers: { apikey: c.key, Authorization: "Bearer " + c.key, "Content-Type": "application/json" },
+        body: JSON.stringify({ d: d })
+      }).then(function (r) { if (!r.ok) throw new Error("get_daily " + r.status); return r.json(); });
+      p.catch(function () {});   // geen "Uncaught (in promise)": de bridge valt bij een fout terug op de gewone aanroep
+      window.sbEarly = { fn: "get_daily", d: d, p: p };
+    } catch (e) { /* geen fetch/Intl/localStorage → gewoon het gewone pad */ }
+  })();
+</script>
+<title>Jaardle Timeline — put history in order (timeline game)</title>
+<meta name="description" content="Place historic events in the right spot on your timeline. Each card flips over to reveal its year. Three mistakes and you're out. Free, no account needed.">
+<link rel="canonical" href="https://jaardle.com/timeline/">
+<link rel="alternate" hreflang="nl" href="https://jaardle.com/nl/timeline/">
+<link rel="alternate" hreflang="en" href="https://jaardle.com/timeline/">
+<link rel="alternate" hreflang="de" href="https://jaardle.com/de/timeline/">
+<link rel="alternate" hreflang="es" href="https://jaardle.com/es/timeline/">
+<link rel="alternate" hreflang="pt" href="https://jaardle.com/pt/timeline/">
+<link rel="alternate" hreflang="x-default" href="https://jaardle.com/timeline/">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jaardle.com/timeline/">
+<meta property="og:title" content="🗓️ Jaardle Timeline: put history in order">
+<meta property="og:description" content="Place historic events in the right spot on your timeline. Each card flips over to reveal its year. Three mistakes and you're out. Free, no account needed.">
+<meta property="og:locale" content="en_GB">
+<meta property="og:site_name" content="Jaardle">
+
 <meta name="robots" content="noindex">
-<title>Jaardle Timeline (alpha)</title>
-<meta name="theme-color" content="#1a1a1a">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="🗓️ Jaardle Timeline: put history in order">
+<meta name="twitter:description" content="Place historic events in the right spot on your timeline. Each card flips over to reveal its year. Three mistakes and you're out. Free, no account needed.">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Jaardle",
+  "url": "https://jaardle.com/timeline/",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "en-GB",
+  "isAccessibleForFree": true,
+  "description": "Place historic events in the right spot on your timeline. Each card flips over to reveal its year. Three mistakes and you're out. Free, no account needed."
+}
+</script>
+
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2">
 <link rel="apple-touch-icon" href="/favicon-192.png?v=2">
+
+<!-- PWA: installeerbaar op het beginscherm. Manifest per taal (start_url naar de
+     eigen locale, ?ref=pwa zodat GoatCounter installaties als bron toont). Bewust
+     géén service worker: geen offline-waarde (spel = DB) en geen stale-cache-risico. -->
+<meta name="theme-color" content="#1a1a1a">
+<!-- Thema vóór de stylesheet zetten: voorkomt een donkere flits voor spelers met
+     het lichte thema. Donker is de default; licht is opt-in (⋮-menu, per apparaat).
+     De kleur hier in sync houden met --bg in style.css en THEME_COLORS in game.js. -->
 <script>
   (function () {
     try {
@@ -27,17 +112,490 @@
       }
     } catch (e) { /* private mode zonder localStorage → donker */ }
   })();
+  // ⚔️ Een duel-seintje of -link (?duel=), of de Duels-pagina (/duels/): meteen het ⚔️-laadscherm (style.css) in plaats van eerst
+  // de daily. /duel.js haalt het weg zodra de opening van de ronde begint of als het iets anders laat zien; game.js na 10 s, dit vangnet na 12 s.
+  try {
+    if (/[?&]duel=[A-Za-z0-9]/.test(location.search) || /\/duels\/?$/.test(location.pathname)) {
+      document.documentElement.setAttribute("data-duelload", "");
+      setTimeout(function () { document.documentElement.removeAttribute("data-duelload"); }, 12000);
+    }
+    // 🗓️ De Timeline-pagina (/timeline/, 22/11): hetzelfde, met 🗓️; /timeline.js haalt het weg zodra de pagina er staat.
+    else if (/\/timeline\/?$/.test(location.pathname)) {
+      document.documentElement.setAttribute("data-tlload", "");
+      setTimeout(function () { document.documentElement.removeAttribute("data-tlload"); }, 12000);
+    }
+  } catch (e) {}
+  // Emoji-font voorladen, en alleen het bestand dat deze browser ook gebruikt:
+  // de @font-face in style.css kiest met tech() tussen COLRv1 (Chromium, Firefox)
+  // en OpenType-SVG (Safari/iOS). Het SVG-font is zwaarder en krijgt lage
+  // voorrang, zodat het de eerste paint niet ophoudt.
+  (function () {
+    try {
+      var colr = CSS.supports("font-tech(color-COLRv1)");
+      if (!colr && !CSS.supports("font-tech(color-SVG)")) return;
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = colr ? "/fonts/jaardle-emoji.woff2" : "/fonts/jaardle-emoji-svg.woff2";
+      if (!colr) l.fetchPriority = "low";
+      document.head.appendChild(l);
+    } catch (e) { /* geen CSS.supports → geen preload, font-display: swap vangt het op */ }
+  })();
 </script>
-<link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
-<link rel="stylesheet" href="/style.css?v=246">
+<!-- Seizoens-skins (Halloween 19 okt t/m 1 nov, Sinterklaas 5 en 6 dec, kerst 14 t/m 27 dec): data-season vóór de stylesheet zetten, net als het thema,
+     zodat er niets flitst. Actief op de apparaatdatum (elk jaar), tenzij de speler 'm uitzette (jaardle:season:<id>=off;
+     "jaardle:season"=off is de oude Halloween-sleutel); ?skin=<id> toont 'm altijd (voorvertoning). Alleen dan haalt dit
+     ook de versiering (/season-<id>.css), een andere kleur voor de browserbalk en het favicon van de skin op.
+     Houd de datumregels, de CSS-versies, de balkkleuren en de iconen gelijk aan SEASONS in game.js (een test bewaakt dat). -->
+<script>
+  (function () {
+    try {
+      var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+      var S = {
+        halloween: { on: (m === 10 && day >= 19) || (m === 11 && day === 1), css: "/season-halloween.css?v=1", bar: ["#120a1e", "#f3edf8"], icon: "/favicon-halloween" },
+        sinterklaas: { on: m === 12 && (day === 5 || day === 6), css: "/season-sinterklaas.css?v=1", bar: ["#0b1230", "#eaf0fa"], icon: "/favicon-sinterklaas" },
+        kerst: { on: m === 12 && day >= 14 && day <= 27, css: "/season-kerst.css?v=5", bar: ["#1c0a0f", "#fbf2ea"], icon: "/favicon-kerst" }
+      };
+      var q = /[?&]skin=([a-z]+)(&|$)/.exec(location.search), id = q && S.hasOwnProperty(q[1]) ? q[1] : "";
+      if (!id) {
+        for (var k in S) if (S[k].on) id = k;
+        if (!id || localStorage.getItem("jaardle:season:" + id) === "off" || (id === "halloween" && localStorage.getItem("jaardle:season") === "off")) return;
+      }
+      var s = S[id], root = document.documentElement;
+      root.dataset.season = id;
+      var css = document.createElement("link");
+      css.rel = "stylesheet"; css.href = s.css;
+      document.head.appendChild(css);
+      var meta = document.querySelector('meta[name="theme-color"]'), th = root.dataset.theme;
+      if (meta && (!th || th === "light")) meta.content = s.bar[th ? 1 : 0];
+      if (s.icon) document.querySelectorAll('link[rel="icon"]').forEach(function (l) {
+        l.href = l.getAttribute("href").replace("/favicon", s.icon);
+      });
+    } catch (e) { /* geen localStorage of DOM-fout → gewoon geen skin */ }
+  })();
+</script>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jaardle">
+<link rel="stylesheet" href="/style.css?v=247">
 </head>
 <body>
-<main id="tl" class="tl">
-  <noscript><p>Timeline needs JavaScript.</p></noscript>
-</main>
-<script src="/timeline.js?v=1" defer></script>
-<script data-goatcounter="https://jaardle.goatcounter.com/count"
-        data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+  <main>
+    <header class="site-intro sr-only">
+      <h1>Jaardle Timeline — the timeline game: which event came first?</h1>
+      <p>Place each new event in the right spot on your timeline by dragging it or tapping a +. The card flips over and shows its year. A correct placement counts, a wrong one costs a heart; after three mistakes the run is over. The further you get, the smaller the gaps. Free, no account needed.</p>
+    </header>
+    <nav id="mode-tabs" role="tablist">
+      <div id="menu-wrap">
+        <button id="menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu">⋮</button>
+        <!-- Twee lagen (28/10): de schermen + "⚙️ Instellingen", daarachter de schakelaars. Uitloggen staat naast je naam
+             (#menu-account, game.js vult). Openen en sluiten begint altijd weer bij de schermen. -->
+        <div id="menu-pop" role="menu" hidden>
+          <div id="menu-main" class="menu-pane">
+            <div id="menu-account" class="menu-section"></div>
+            <button class="menu-item" role="menuitem" data-action="stats" data-i18n="menu_stats">📊 Statistics</button>
+            <button class="menu-item" role="menuitem" data-action="history" data-i18n="menu_history">📅 History</button>
+            <button class="menu-item" role="menuitem" data-action="achievements" data-i18n="menu_achv">🏅 Achievements</button>
+            <button class="menu-item" role="menuitem" data-action="rewards" data-i18n="menu_rewards" hidden>🪎 Rewards</button>
+            <!-- Tijdelijk (alleen tijdens een event, alleen zonder account; ingelogd heeft de Events-tab in 🪎): game.js vult en toont. -->
+            <button class="menu-item" role="menuitem" data-action="events" hidden></button>
+            <button class="menu-item" role="menuitem" data-action="leaderboard" data-i18n="menu_leaderboard" hidden>🏆 Leaderboard</button>
+            <button class="menu-item menu-more" role="menuitem" aria-haspopup="menu" data-action="settings" data-i18n="menu_settings">⚙️ Settings</button>
+          </div>
+          <div id="menu-settings" class="menu-pane" hidden>
+            <button class="menu-back" type="button" data-action="settings-back" data-i18n="menu_settings_back">‹ Settings</button>
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="theme" data-i18n="menu_theme">☀️ Light theme</button>
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="remind" data-i18n="menu_remind" hidden>🔔 Daily reminder</button>
+            <!-- ⏩ Check (db/180): staat per account op de server, dus alleen ingelogd; game.js (syncLaterCheckUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="later-check" data-i18n="menu_later_check" hidden>⏩ Check</button>
+            <!-- 🎯 Strenge check: elke onmogelijke gok weigeren, ook de eerste. Voor iedereen, alleen op dit toestel; zonder eigen keuze aan met een account. game.js (syncStrictGuardUi) zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="strict-guard" data-i18n="menu_strict_guard">🎯 Strict check</button>
+            <!-- ⚔️ Duel-seintjes (db/189): los van het dagelijkse seintje; alleen voor wie duels heeft en push kan. game.js (syncDuelPushUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-push" data-i18n="menu_duel_push" hidden>⚔️ Duel notifications</button>
+            <!-- ⚔️ Duel-geluid (db/205): geluid bij de opening van een duelronde; standaard uit, reist met een account mee. Voor wie ooit duelleerde; game.js (syncDuelSfxUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-sfx" data-i18n="menu_duel_sfx" hidden>⚔️ Duel sounds</button>
+            <!-- 🎵 Duel-muziek (21/11): achtergrondmuziek tijdens een duelronde = de stand "alles" van de luidspreker; alleen op dit toestel. game.js (syncDuelSfxUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-music" data-i18n="menu_duel_music" hidden>🎵 Duel music</button>
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>🎃 Halloween look</button>
+            <!-- De viering van een potjes-event (bv. Strooigoed) aan/uit: alleen zonder account (ingelogd kiest in 🪎) en alleen wie hem verdiende; game.js (renderEventFxToggle) vult en toont. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="evfx" hidden></button>
+            <button class="menu-item" role="menuitem" data-action="install" data-i18n="menu_install" hidden>📲 Add to home screen</button>
+          </div>
+        </div>
+      </div>
+      <div id="lang-wrap">
+        <button id="lang-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Taal kiezen / Choose language"><span class="lang-globe">🌐</span></button>
+        <div id="lang-pop" role="menu" hidden></div>
+      </div>
+      <!-- De deur naar de andere werelden (21/11/2026 als deur naar Duels; 22/11 rond, zijn "dat je … kan switchen met die knop van time ->
+           jaardle -> duels … (wellicht ook makkelijk duidelijk te maken als je naast logo klein carousel achtige hint ziet?)"; mockup
+           https://claude.ai/artifact/4f3dCFfBmN2X4iQ9cRguoo). Eén deur op dezelfde plek op alle drie de schermen, de ronde is
+           Jaardle → Duels → Timeline → Jaardle. data-at = waar je nu bent (de build per pagina, game.js syncDoor bij elke wissel); style.css
+           zet daarmee de tegel van de volgende voor en het stipje van deze aan (de carrousel-hint eronder). De tegels: JA/AR = het
+           Jaardle-icoontje van de skin (game.js zet de src), DU/EL in de duelkleur met de zwaarden erachter
+           (jaardle-tools/mockups/duel/icon/make_icon.py), TI/ME in blauw met twee tijdlijnen erachter (jaardle-tools/mockups/kop-carrousel/
+           icons/make_time_icon.py). Voor iedereen, ook zonder account; /duel.js en /timeline.js laden pas bij een tik. Rood stipje = jouw
+           beurt of een nieuwe uitslag (renderMenuDot), alleen als de deur naar Duels gaat. Een echte link (<a href>, voor Google); game.js
+           onderschept de gewone tik, Ctrl/⌘-klik of middelklik opent een nieuw tabblad. -->
+      <a id="world-door" class="kop-door kop-wheel" data-at="t" href="/" aria-label="Jaardle" title="Jaardle"><span class="kw-face" aria-hidden="true"><span class="kw-tile" data-w="j"><img class="kd-logo" src="/favicon.svg?v=2" alt=""></span><span class="kw-tile" data-w="d"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#e8794a"/><g fill="#b9532a"><g transform="translate(256 256) rotate(45)"><path d="M0 -236L24 -196V112H-24V-196Z"/><rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g><g transform="translate(256 256) rotate(-45)"><path d="M0 -236L24 -196V112H-24V-196Z"/><rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g></g><g fill="#fff"><path transform="translate(128 128) scale(0.110007 -0.110007) translate(-765 -704.5)" d="M1393 715Q1393 497 1307.5 334.5Q1222 172 1065.5 86Q909 0 707 0H137V1409H647Q1003 1409 1198 1229.5Q1393 1050 1393 715ZM1096 715Q1096 942 978 1061.5Q860 1181 641 1181H432V228H682Q872 228 984 359Q1096 490 1096 715Z"/><path transform="translate(384 128) scale(0.110007 -0.110007) translate(-738.5 -694.5)" d="M723 -20Q432 -20 277.5 122Q123 264 123 528V1409H418V551Q418 384 497.5 297.5Q577 211 731 211Q889 211 974 301.5Q1059 392 1059 561V1409H1354V543Q1354 275 1188.5 127.5Q1023 -20 723 -20Z"/><path transform="translate(128 384) rotate(180) scale(0.110007 -0.110007) translate(-711.5 -704.5)" d="M137 0V1409H1245V1181H432V827H1184V599H432V228H1286V0Z"/><path transform="translate(384 384) rotate(180) scale(0.110007 -0.110007) translate(-662.5 -704.5)" d="M137 0V1409H432V228H1188V0Z"/></g></svg></span><span class="kw-tile" data-w="t"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#1e88e5"/><g fill="#1565c0"><g transform="translate(256 256) rotate(45)"><rect x="-232" y="-17" width="464" height="34" rx="17"/><circle cx="-168" r="31"/><circle cx="-84" r="31"/><circle cx="84" r="31"/><circle cx="168" r="31"/></g><g transform="translate(256 256) rotate(-45)"><rect x="-232" y="-17" width="464" height="34" rx="17"/><circle cx="-168" r="31"/><circle cx="-84" r="31"/><circle cx="84" r="31"/><circle cx="168" r="31"/></g></g><g fill="#fff"><path transform="translate(128 128) scale(0.110007 -0.110007) translate(-626.0 -704.5)" d="M773 1181V0H478V1181H23V1409H1229V1181Z"/><path transform="translate(384 128) scale(0.110007 -0.110007) translate(-284.5 -704.5)" d="M137 0V1409H432V0Z"/><path transform="translate(128 384) rotate(180) scale(0.110007 -0.110007) translate(-853.0 -704.5)" d="M1307 0V854Q1307 883 1307.5 912.0Q1308 941 1317 1161Q1246 892 1212 786L958 0H748L494 786L387 1161Q399 929 399 854V0H137V1409H532L784 621L806 545L854 356L917 582L1176 1409H1569V0Z"/><path transform="translate(384 384) rotate(180) scale(0.110007 -0.110007) translate(-711.5 -704.5)" d="M137 0V1409H1245V1181H432V827H1184V599H432V228H1286V0Z"/></g></svg></span></span><span class="kw-dots" aria-hidden="true"><i data-w="j"></i><i data-w="d"></i><i data-w="t"></i></span></a>
+      <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><span class="tab-icon tab-cal" id="tab-cal" aria-hidden="true"></span> <span data-i18n="tab_daily">Daily</span></button>
+      <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">New game</button>
+    </nav>
+
+    <!-- Inhaal-balk: de enige ingang naar een gemiste dag uit de laatste 3 dagen
+         (v231; de eindscherm-kaart en de ‹#N›-stepper zijn geschrapt). Twee tonen
+         op één element, één knop = de oudste gemiste dag; game.js vult en toont. -->
+    <div id="catchup-bar" hidden></div>
+    <!-- 5-potjes-reparatie (db/50): win een gebroken streak terug via vrij spel.
+         Verbergt zichzelf als het gat nog te dichten is (dan wint de balk
+         hierboven); game.js vult en toont. -->
+    <div id="repair-banner" hidden></div>
+
+    <!-- Event-balk (Spooktober, later kerst, …): de aankondiging boven de feitenkaart; tikken opent het Events-scherm.
+         Alleen tijdens een event, met de skin en zolang je speelt; game.js (syncEventUi) vult en toont. -->
+    <div id="event-bar" hidden></div>
+    <!-- Nieuws-balk: een nieuwe feature een paar dagen aankondigen (NEWS in game.js). Staat ná de balken hierboven: die gaan voor
+         (style.css verbergt deze zolang er een staat). -->
+    <div id="news-bar" hidden></div>
+
+    <section id="event-card">
+      <button id="fact-prev" class="fact-side fact-side-prev" type="button" aria-label="Previous fact" data-i18n-aria="fact_prev" hidden>‹</button>
+      <div id="event-text">Loading…</div>
+      <!-- Stippen-venster van de carrousel (💡··): onder de tekst, horizontaal
+           gecentreerd, op alle schermen (zie .fact-dots in CSS). game.js vult
+           het (renderEvent). -->
+      <div id="fact-dots" class="fact-dots" hidden></div>
+      <button id="fact-next" class="fact-side fact-side-next" type="button" aria-label="Next fact" data-i18n-aria="fact_next" hidden>›</button>
+      <span id="diff-heat" class="diff-heat" role="img" hidden></span>
+    </section>
+
+    <div id="hint-row">
+      <button id="hint-btn-later" type="button" hidden title="Toets: E"><span data-i18n="hint_later">⏩ 100 years later</span> <span class="btn-cost" data-penalty="later-clue"></span></button>
+      <button id="hint-btn-direction" type="button" hidden title="Toets: R"><span data-i18n="hint_dir">🧭 Direction</span> <span class="btn-cost" data-penalty="dir-hint"></span></button>
+      <button id="hint-btn-century" type="button" hidden title="Toets: C"><span data-i18n="hint_century">🏛️ Century</span> <span class="btn-cost" data-penalty="century-hint"></span></button>
+      <!-- Na aankoop morpht de 🏛️/🔢-knop naar een waarde-chip op dezelfde plek,
+           zodat eeuw-band en laatste cijfer in beeld blijven tijdens het gokken.
+           Tik (of C/L) = terug naar de bijbehorende carrousel-slide. -->
+      <button id="hint-chip-century" class="hint-chip" type="button" hidden title="Toets: C"></button>
+      <button id="hint-btn-digit" type="button" hidden title="Toets: L"><span data-i18n="hint_digit">🔢 Last digit</span> <span class="btn-cost" data-penalty="digit-hint"></span></button>
+      <button id="hint-chip-digit" class="hint-chip" type="button" hidden title="Toets: L"></button>
+      <span id="hint-count" class="hint-count"></span>
+    </div>
+
+    <section id="guesses" aria-label="Guesses" data-i18n-aria="aria_guesses"></section>
+
+    <!-- Score + invoer + keypad. Op lage schermen worden de verticale maten
+         gecomprimeerd (zie @media max-height in style.css). Na afloop klapt het
+         hele blok in (setPlayBarCollapsed, #21). -->
+    <div id="play-bar">
+      <div id="live-score" class="live-score" hidden>
+        <span class="live-score-val">100</span>
+        <span class="live-score-lab" data-i18n="score_label">points</span>
+      </div>
+
+      <section id="input-row">
+        <div id="year-input" aria-live="polite" aria-label="Entered year" data-i18n-aria="aria_year_input"></div>
+      </section>
+
+      <section id="keypad" aria-label="Numeric keypad" data-i18n-aria="aria_keypad">
+        <button class="key" type="button" data-digit="1">1</button>
+        <button class="key" type="button" data-digit="2">2</button>
+        <button class="key" type="button" data-digit="3">3</button>
+        <button class="key" type="button" data-digit="4">4</button>
+        <button class="key" type="button" data-digit="5">5</button>
+        <button class="key" type="button" data-digit="6">6</button>
+        <button class="key" type="button" data-digit="7">7</button>
+        <button class="key" type="button" data-digit="8">8</button>
+        <button class="key" type="button" data-digit="9">9</button>
+        <button class="key key-sign" type="button" id="sign-btn" aria-pressed="false" aria-label="BC toggle" data-i18n-aria="aria_bc">−</button>
+        <button class="key" type="button" data-digit="0">0</button>
+        <button class="key key-back" type="button" id="backspace-btn" aria-label="Delete last digit" data-i18n-aria="aria_backspace">⌫</button>
+        <button class="key key-wide" type="button" id="guess-btn" data-i18n="guess">Guess</button>
+      </section>
+    </div>
+
+    <section id="result" hidden>
+      <p id="result-text"></p>
+      <div id="reveal-row" hidden></div>
+      <div id="result-actions">
+        <button id="share-btn"><svg class="btn-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M352 224c53 0 96-43 96-96s-43-96-96-96-96 43-96 96c0 4 .2 8 .7 11.9l-94.1 47C145 174.6 124.8 160 96 160c-53 0-96 43-96 96s43 96 96 96c28.8 0 49-14.6 62.6-30.9l94.1 47c-.5 3.9-.7 7.8-.7 11.9 0 53 43 96 96 96s96-43 96-96-43-96-96-96c-28.8 0-49 14.6-62.6 30.9l-94.1-47c.5-3.9 .7-7.8 .7-11.9s-.2-8-.7-11.9l94.1-47C303 209.4 323.2 224 352 224z"/></svg> <span class="share-label" data-i18n="share">Share result</span></button>
+        <button id="recap-btn" hidden><svg class="btn-icon" viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M160 80c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 352c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48l0-352zM0 272c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 160c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48L0 272zM368 96l32 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-32 0c-26.5 0-48-21.5-48-48l0-288c0-26.5 21.5-48 48-48z"/></svg> <span data-i18n="recap_btn">Distribution &amp; team</span></button>
+        <!-- 19/11: verder spelen in één knop met twee stukken: 🎲 (vrij spel) en ⚔️ (duel); game.js renderNx -->
+        <div id="next-wrap" class="nx" role="group"><button id="next-btn" hidden data-i18n="next">New round</button><button id="duel-btn" type="button" hidden></button></div>
+      </div>
+      <p id="event-source"></p>
+    </section>
+  </main>
+
+  <div id="modal-help" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-help-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-help-title" data-i18n="help_summary">How to play?</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div class="modal-body">
+        <!-- Uitleg-demo: vier zelfspelende kaarten (game.js hw*-functies); JS vult en toont. -->
+        <div id="howto" class="howto"></div>
+        <ul id="help-list">
+  <li>You get an event from a year and <span data-help="max-guesses"></span> guesses to find that year.</li>
+  <li>The card is a carousel: alongside the main fact, it holds two <strong>free</strong> extra facts from the same year from the start (💡 yellow) — swipe or use the arrows.</li>
+  <li>Below the card, buttons let you buy hints: <strong>⏩ 100 years later</strong>, <strong>🧭 Direction</strong>, <strong>🏛️ Century</strong> and <strong>🔢 Last digit</strong>. Each hint you buy appears as a coloured slide in the carousel.</li>
+  <li><strong>Score (0–100)</strong>: you start at 100 points; wrong guesses and hints cost points.</li>
+  <li><strong>Daily Jaardle</strong> is the same for everyone; <strong>New game</strong> is endless practice.</li>
+  <li class="help-details-li">
+    <details>
+      <summary>Details &amp; scoring</summary>
+      <ul>
+        <li>Colours per guess: 🟩 0 &nbsp; 🟪 1–2 &nbsp; 🟦 3–5 &nbsp; 🟨 6–10 &nbsp; 🟧 11–25 &nbsp; 🟥 26–50 &nbsp; 🟫 51–200 &nbsp; ⬜ 201–599 &nbsp; ⬛ 600+.</li>
+        <li>Penalty per wrong guess: 🟪 <span data-penalty="veryclose"></span> · 🟦 <span data-penalty="near"></span> · 🟨 <span data-penalty="close"></span> · 🟧 <span data-penalty="warm"></span> · 🟥 <span data-penalty="cool"></span> · 🟫 <span data-penalty="far"></span> · ⬜ <span data-penalty="distant"></span> · ⬛ <span data-penalty="farthest"></span>. Hints: ⏩ <span data-penalty="later-clue"></span> each · 🧭 <span data-penalty="dir-hint"></span> each · 🏛️ <span data-penalty="century-hint"></span> · 🔢 <span data-penalty="digit-hint"></span>. Lost = 0–10, based on your closest guess.</li>
+        <li>Tiers: <span data-help="tiers"></span></li>
+        <li>🧭 appears after your first guess and reveals the arrow only on your latest guess, max <span data-help="max-dir-hints"></span> per puzzle. A guess outside your known range (or outside a purchased century/digit) is rejected without costing a guess. That check stays lenient until you make one guess your own board already ruled out; after that it tightens up and names the years still possible. With 🎯 Strict check in ⚙️ (on by default with an account) it is strict from the start and shows which guess rules it out; tap a guess to see this any time.</li>
+        <li>Keys: digits + Enter to guess, <kbd>−</kbd> for BC, <kbd>↑</kbd> recalls your last guess, <kbd>←</kbd>/<kbd>→</kbd> through the carousel, <kbd>E</kbd>/<kbd>R</kbd>/<kbd>C</kbd>/<kbd>L</kbd> for the hints, <kbd>D</kbd>/<kbd>N</kbd> to switch.</li>
+      </ul>
+    </details>
+  </li></ul>
+        <!-- Colofon: bronvermelding voor Wikipedia (CC BY-SA) en de Noto-emoji
+             (animaties CC BY 4.0, webfont OFL 1.1). CC BY *eist* die credit op
+             de plek waar het materiaal getoond wordt — de README telt niet. -->
+        <h3 id="help-credits-title">Credits</h3>
+        <p id="help-credits">Events: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animations <a href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-stats" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-stats-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-stats-title" data-i18n="stats_title">📊 Statistics</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="stats-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-history" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-history-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-history-title" data-i18n="menu_history">📅 History</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="history-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-achv" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-achv-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-achv-title" data-i18n="menu_achv">🏅 Achievements</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="achv-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Events-scherm voor wie niet is ingelogd (de kluis met de Events-tab is login-only): dezelfde kaart + beloningen. -->
+  <div id="modal-events" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-events-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-events-title" data-i18n="rewards_tab_events">Events</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="events-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-rewards" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-rewards-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <button id="rewards-back" class="modal-back" hidden><span class="mb-chev" aria-hidden="true">‹</span> <span data-i18n="lb_title">🏆 Leaderboard</span></button>
+        <h2 id="modal-rewards-title" data-i18n="menu_rewards">🪎 Rewards</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="rewards-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-recap" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-recap-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-recap-title" data-i18n="recap_title">📊 Done for today</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="recap-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-leaderboard" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-lb-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-lb-title" data-i18n="lb_title">🏆 Leaderboard</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div id="lb-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="modal-login" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-login-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <h2 id="modal-login-title" data-i18n="login_title">Sign in</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div class="modal-body">
+        <p id="login-why" class="login-why" data-i18n="login_why" hidden>A team needs an account, so we can keep your scores and friends.</p>
+        <button type="button" id="login-google" class="google-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.61z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.33-1.58-5.04-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.96 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.28-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3 2.33C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
+          <span data-i18n="login_google">Continue with Google</span>
+        </button>
+        <button type="button" id="login-discord" class="discord-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+          <span data-i18n="login_discord">Continue with Discord</span>
+        </button>
+        <div class="auth-sep"><span data-i18n="login_or">or with email</span></div>
+        <form id="login-form" autocomplete="on">
+          <label><span data-i18n="login_email">Email</span><input type="email" name="email" required autocomplete="email"></label>
+          <label><span data-i18n="login_password">Password</span><input type="password" name="password" required autocomplete="current-password" minlength="6"></label>
+          <div class="modal-actions">
+            <button type="submit" class="primary" data-i18n="login_submit">Sign in</button>
+            <button type="button" id="login-register" data-i18n="login_register">Register</button>
+          </div>
+          <button type="button" id="login-forgot" class="link-btn" data-i18n="login_forgot">Forgot password?</button>
+        </form>
+        <p id="login-error" class="form-error" hidden></p>
+        <p class="form-note" data-i18n-html="login_note">Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-newpw" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-newpw-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <header class="modal-head">
+        <h2 id="modal-newpw-title" data-i18n="newpw_title">Set a new password</h2>
+        <button class="modal-close" data-close aria-label="Close" data-i18n-aria="aria_close">✕</button>
+      </header>
+      <div class="modal-body">
+        <form id="newpw-form" autocomplete="on">
+          <label><span data-i18n="newpw_label">New password</span><input type="password" name="password" required autocomplete="new-password" minlength="6"></label>
+          <div class="modal-actions">
+            <button type="submit" class="primary" data-i18n="newpw_submit">Save password</button>
+          </div>
+        </form>
+        <p id="newpw-error" class="form-error" hidden></p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <button type="button" id="help-btn">
+      <svg class="help-icon" viewBox="0 0 512 512" aria-hidden="true"><path fill="currentColor" d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/></svg><span data-i18n="help_summary">How to play?</span>
+    </button>
+    <p>
+      <span data-i18n-html="footer_note">Events from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com"><svg viewBox="0 0 512 512" aria-hidden="true" style="width:.95em;height:.95em;vertical-align:-.13em;margin-right:.35em;fill:currentColor"><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48L48 64zM0 176L0 384c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-208L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/></svg>Contact</a></span>
+      <span id="day-label"></span>
+    </p>
+    <!-- Socials: één icoon per <a data-social="…">; een nieuwe erbij = een nieuwe <a> (teller + stijl zijn generiek). -->
+    <div id="footer-socials">
+      <a data-social="discord" href="https://discord.gg/qyWxq2K3Q9" target="_blank" rel="noopener noreferrer" aria-label="Join us on Discord" data-i18n-aria="aria_discord">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <!-- supabase-js staat zelf gehost in /vendor (zie vendor/README.md; zet window.supabase, versie in de bestandsnaam). Volgorde:
+       bibliotheek → bridge → game.js. -->
+  <script src="/vendor/supabase-js-2.108.2.umd.js"></script>
+  <script>
+    (function () {
+      // Brug naar game.js. Supabase retourneert {data,error} zonder te throwen;
+      // we throwen zelf zodat de UI-laag try/catch kan blijven gebruiken.
+      const unwrap = async (p) => {
+        const { data, error } = await p;
+        if (error) throw error;
+        return data;
+      };
+
+      // Bibliotheek niet binnen? Dan weigert window.sb meteen: het spel meldt "laden mislukt" met een knop, i.p.v. eindeloos "Loading…".
+      if (!window.supabase || !window.supabase.createClient) {
+        window.sb = { rpc: () => Promise.reject(new Error("Supabase nog niet geladen")) };
+        window.dispatchEvent(new Event("sb-ready"));
+        return;
+      }
+
+      const client = window.supabase.createClient(window.sbConfig.url, window.sbConfig.key);
+
+      window.sbAuth = {
+        signIn:  (email, password) => unwrap(client.auth.signInWithPassword({ email, password })),
+        signUp:  (email, password) => unwrap(client.auth.signUp({ email, password })),
+        // Eén OAuth-ingang voor alle providers ("google", "discord"): redirect (geen popup), terug op dezelfde (taal)pagina.
+        signInWithProvider: (provider) => unwrap(client.auth.signInWithOAuth({
+          provider,
+          options: { redirectTo: location.origin + location.pathname },
+        })),
+        // Stuurt een reset-mail; de link komt terug op dezelfde (taal)pagina,
+        // waar supabase-js de recovery-token in de hash oppikt en PASSWORD_RECOVERY vuurt.
+        resetPassword: (email) => unwrap(client.auth.resetPasswordForEmail(email, {
+          redirectTo: location.origin + location.pathname + "?auth=recovery",
+        })),
+        updatePassword: (password) => unwrap(client.auth.updateUser({ password })),
+        signOut: () => unwrap(client.auth.signOut()),
+      };
+
+      // Brug voor de game-RPC's (publieke leesfuncties + telemetrie via Postgres).
+      window.sb = {
+        rpc: (fn, args) => {
+          // De vroege get_daily uit de head: één keer, alleen voor dezelfde dag; faalt die, dan de gewone aanroep.
+          const e = window.sbEarly;
+          if (e && !e.used && fn === e.fn && args && args.d === e.d) {
+            e.used = true;
+            return e.p.catch(() => unwrap(client.rpc(fn, args)));
+          }
+          return unwrap(client.rpc(fn, args || {}));
+        },
+      };
+
+      // db/206: Realtime (alleen voor /live.js): je eigen privé-kanaal en de aanwezigheid. supabase-js zet het token zelf bij in- en uitloggen.
+      window.sbRealtime = {
+        channel: (name, opts) => client.channel(name, opts),
+        remove: (ch) => client.removeChannel(ch),
+        setAuth: () => client.realtime.setAuth(),
+      };
+
+      const emit = (session) => {
+        const u = session?.user;
+        const m = u?.user_metadata || {};
+        const user = u
+          ? { email: u.email, uid: u.id,
+              avatar: m.avatar_url || m.picture || null,
+              name: m.full_name || m.name || null }
+          : null;
+        // Draait vóór game.js: bewaar de laatste stand (null = anoniem) zodat game.js die kan afspelen als het event al vuurde.
+        window.sbAuthState = { user };
+        window.dispatchEvent(new CustomEvent("sb-auth-changed", { detail: user }));
+      };
+      // Sessie herstellen bij page-load (ook na Google OAuth-redirect).
+      client.auth.getSession().then(({ data }) => emit(data.session));
+      client.auth.onAuthStateChange((event, session) => {
+        // Recovery-link geklikt: laat game.js het "nieuw wachtwoord"-scherm openen.
+        if (event === "PASSWORD_RECOVERY") window.dispatchEvent(new Event("sb-recovery"));
+        emit(session);
+      });
+      window.dispatchEvent(new Event("sb-ready"));
+    })();
+  </script>
+  <script src="/game.js?v=497"></script>
+  <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
+  <script data-goatcounter="https://jaardle.goatcounter.com/count"
+          data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

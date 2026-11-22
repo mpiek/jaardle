@@ -19,8 +19,8 @@
    duel-help · duel-login-end · duel-login-list · duel-share-image · duel-link-spectate · duel-spectate-challenge|-direct|-daily · duel-result-open · duel-peek · duel-sync (tik op het logo = verversen) · duel-stand-b|k (een kaart onder Jouw stand). Trechter: link-open → accept →
    round-1 → round-5; create → invite-shared/copied → (bij de ander) link-open; share-image → (bij een buitenstaander) link-spectate → spectate-challenge.
    De Duels-pagina (18/11/2026): het Duels-scherm is geen pop-up meer maar een eigen scherm met een eigen adres, /duels/ (zie
-   ensureListModal en duelsPageSet in game.js); de deellink gaat daarheen (eigen titel + deelplaatje). Meetpunten: duel-page (het
-   adres zelf geopend, game.js) · duel-list-exit (‹ Jaardle).
+   ensureListModal en appPageSet in game.js); de deellink gaat daarheen (eigen titel + deelplaatje). Meetpunten: duel-page (het
+   adres zelf geopend, game.js) · duel-list-exit (‹ Jaardle, tot 22/11: sindsdien gaat de deur op deze pagina naar Timeline).
    Versie 4 (stap 2, db/190, mockup v6 16/11): "Deel uitslag" stuurt een plaatje mee (canvas 1080×1080, scorebord: winnaar links met kroon,
    elke ronde met beide scores, iedere speler in de kleur van zijn gezichtje) met één regel en de link; wie die link opent zonder mee te
    spelen, ziet de uitslag (de rondes draaien om) met "Daag zelf iemand uit", een teamgenoot van de winnaar "Daag <winnaar> uit".
@@ -302,12 +302,12 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 [data-duelshome] main > :not(#modal-duels):not(#mode-tabs), [data-duelshome] #help-btn, [data-duelshome] #day-label { display: none !important; }
 #modal-duels.dl-page { position: static; inset: auto; z-index: auto; display: block; padding: 0; }
 /* de kop van de Duels-pagina = de kop van Jaardle (21/11/2026, zijn "linksboven exact zelfde profiel/language en ernaast jaardle logo"):
-   profiel en 🌐 blijven staan; op de plek van de deur naar Duels het Jaardle-icoontje (terug, .kd-home), dan het logo in het midden van
-   wat overblijft ("gewoon beetje midden") en 🔈. De tabs en de Duels-deur gaan zolang weg. Een duelronde houdt zijn eigen kop. */
+   profiel, 🌐 en de deur blijven staan (sinds 22/11 gaat de deur hier naar Timeline, game.js syncDoor), dan het logo in het midden van
+   wat overblijft ("gewoon beetje midden") en 🔈. De tabs gaan zolang weg. Een duelronde houdt zijn eigen kop. */
 .kop-d { display: none; }
 body[data-duelshome] #mode-tabs { display: flex; }
-[data-duelshome] #mode-tabs > .tab, [data-duelshome] #duels-door { display: none; }
-[data-duelshome] .kop-d { flex: 1; min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
+[data-duelshome] #mode-tabs > .tab { display: none; }
+[data-duelshome] .kop-d { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
 .kop-d .duel-title { justify-self: center; margin: 0; transform: translateX(var(--kd-dx, 0px)); }   /* echt in het midden: centerLogo() */
 .kop-d .dl-tools { gap: 0.25rem; }
 /* "Hoe werkt het?" onderaan (21/11: het ? paste in de kop niet meer naast het logo), zoals onder de daily */
@@ -2499,7 +2499,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (!document.getElementById("modal-duels")?.hidden) renderList(tx(H.lang), null);   // stipje op de rij weg
   }
 
-  // Het Jaardle-icoontje (dat van de skin als er een is: het favicon in de <head>): de terugknop op de Duels-pagina (.kd-home).
+  // Het Jaardle-icoontje (dat van de skin als er een is: het favicon in de <head>): de reserve voor de terugknop in een ronde hieronder.
   const homeIcon = () => document.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute("href") || "/favicon.svg?v=2";   // het Jaardle-icoontje van de skin
   // De terugknop in een ronde (Best of 5 en knock-out): ‹ + het DU/EL-icoon, naar Duels (22/11/2026, zijn "nu is terugknop naar JAAR ipv
   // DUEL, dat is natuurlijk raar, je doet duel"). Het icoon is dat van de deur in de kop (#duels-door); Jaardle via de Duels-pagina. Een
@@ -2528,7 +2528,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // ════ het Duels-scherm (de deur naast 🌐, of het adres /duels/) ════
   // Sinds 18/11/2026 een eigen pagina in plaats van een pop-up: het staat in <main> op de plek van het spel. Sinds 21/11 met de kop
   // van Jaardle erboven (ensureKop). Het id en de klasse .modal blijven, zodat game.js het als open scherm blijft zien (toetsen,
-  // pop-ups die wachten); openModal/closeModal zetten body[data-duelshome] en het adres (duelsPageSet). Inloggen, de eindstand en de
+  // pop-ups die wachten); openModal/closeModal zetten body[data-duelshome] en het adres (appPageSet). Inloggen, de eindstand en de
   // vraag van een ronde gaan erbovenop en sluiten terug naar de pagina.
   const HELPI = '<svg viewBox="0 0 512 512" aria-hidden="true"><path fill="currentColor" d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/></svg>';
   function ensureListModal() {
@@ -2549,8 +2549,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     return el;
   }
 
-  // De kop van de Duels-pagina (21/11/2026): in #mode-tabs van game.js, achter profiel en 🌐, op de plek van de deur naar Duels.
-  // Het Jaardle-icoontje (van de skin) = terug, met dezelfde schuifovergang (H.swap); het logo = verversen; 🔈 = het geluid.
+  // De kop van de Duels-pagina (21/11/2026): in #mode-tabs van game.js, achter profiel, 🌐 en de deur (die gaat hier naar Timeline;
+  // game.js regelt hem, 22/11). Het logo = verversen; 🔈 = het geluid.
   function ensureKop() {
     let k = document.getElementById("kop-duels");
     if (k) return k;
@@ -2558,28 +2558,23 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (!nav) return null;
     k = document.createElement("div");
     k.id = "kop-duels"; k.className = "kop-d";
-    k.innerHTML = `<a class="kop-door kd-home" href="/"></a><h2 id="duels-title" class="duel-title dl-logo"></h2>` +
+    k.innerHTML = `<h2 id="duels-title" class="duel-title dl-logo"></h2>` +
       `<div class="dl-tools"><button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="false">${SND}</button></div>`;
     nav.appendChild(k);
-    k.addEventListener("click", (e) => {
-      if (!e.target.closest(".kd-home")) return onListClick(e);
-      if (H?.newTabClick?.(e)) return;   // 22/11: een echte link terug (voor Google); Ctrl/⌘-klik = nieuw tabblad
-      e.preventDefault();
-      gc("duel-list-exit", "Duel: left Duels page");
-      const close = () => H.closeModal("modal-duels");
-      if (H.swap) H.swap("out", close); else close();
-    });
+    k.addEventListener("click", onListClick);
     if (window.ResizeObserver) { const ro = new ResizeObserver(() => centerLogo()); ro.observe(k); ro.observe(k.querySelector("#duels-title")); }
     return k;
   }
   // Het logo echt in het midden van de kop als er ruimte is (21/11, zijn vraag "kan duel logo echt in het midden als er ruimte is"):
   // de grid zet het tussen het Jaardle-icoontje en 🔈; dit schuift het naar het midden van de hele kop, maar nooit dichter dan 6 px bij
-  // die twee (smal scherm, lange taal: dan zo dicht bij het midden als past). Opnieuw bij elke maatwissel (ResizeObserver).
+  // die twee (smal scherm, lange taal: dan zo dicht bij het midden als past). Opnieuw bij elke maatwissel (ResizeObserver). Links is
+  // dat sinds 22/11 de gedeelde deur (#world-door) in plaats van een eigen Jaardle-icoontje.
   function centerLogo() {
     const k = document.getElementById("kop-duels"), nav = document.getElementById("mode-tabs"), lg = k?.querySelector("#duels-title");
     if (!k || !nav || !lg || !k.offsetParent) return;   // niet op de Duels-pagina: niets te meten
     const cur = parseFloat(lg.style.getPropertyValue("--kd-dx")) || 0, r = lg.getBoundingClientRect(), n = nav.getBoundingClientRect();
-    const lo = k.querySelector(".kd-home").getBoundingClientRect().right + 6, hi = k.querySelector(".dl-tools").getBoundingClientRect().left - 6 - r.width;
+    const door = document.getElementById("world-door");
+    const lo = (door && door.offsetParent ? door.getBoundingClientRect().right : r.left - cur) + 6, hi = k.querySelector(".dl-tools").getBoundingClientRect().left - 6 - r.width;
     const left0 = r.left - cur, want = n.left + (n.width - r.width) / 2;
     const dx = hi < lo ? 0 : Math.round(Math.min(hi, Math.max(lo, want)) - left0);
     if (dx !== cur) lg.style.setProperty("--kd-dx", dx + "px");
@@ -2593,9 +2588,6 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (kop) {
       // Het logo is ook de ververs-knop (18/11): spelers tikken erop om te zien of de ander al speelde (syncList).
       kop.querySelector("#duels-title").innerHTML = `<button type="button" class="dl-logo-btn" data-act="sync" title="${esc(T.refresh)}">${logoHtml(T)}</button>`;
-      const home = kop.querySelector(".kd-home");
-      home.innerHTML = `<img class="kd-logo" src="${esc(homeIcon())}" alt="">`; home.setAttribute("aria-label", T.exit); home.title = T.exit;
-      if (H.href) home.setAttribute("href", H.href(""));   // de hoofdpagina in de taal van nu ("/" of "/nl")
       const sb = kop.querySelector(".dl-snd-btn");
       sndSet(sb, T);
     }

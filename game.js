@@ -1965,7 +1965,7 @@ function applyLang() {
   document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
     const v = t(el.dataset.i18nAria); if (v != null) el.setAttribute("aria-label", v);
   });
-  document.getElementById("duels-door")?.setAttribute("href", langHref("duels"));   // de link van de deur in de nieuwe taal
+  syncDoor();   // de link en het label van de deur in de nieuwe taal
   const help = document.getElementById("help-list");
   if (help) help.innerHTML = t("help_list");
   hwReset();   // uitleg-demo: andere taal = bij het volgende openen opnieuw opbouwen
@@ -2028,10 +2028,11 @@ function setLang(code) {
   if (!LANG_CODES.includes(code) || code === lang) return;
   lang = code;
   applyLang();
-  const duels = document.body.hasAttribute("data-duelshome");   // de Duels-pagina: /nl/duels/ → /de/duels/
-  try { history.replaceState(null, "", "/" + LANGS[lang].path + (duels ? (LANGS[lang].path ? "/" : "") + "duels/" : location.search)); }
+  const page = { d: "duels", t: "timeline" }[worldNow()] || "";   // de Duels- of Timeline-pagina: /nl/duels/ → /de/duels/
+  try { history.replaceState(null, "", page ? langHref(page) : "/" + LANGS[lang].path + location.search); }
   catch (e) {}
-  if (duels && window.Duel) window.Duel.openList(duelHost(), { keepTop: true });   // 21/11: 🌐 staat ook op de Duels-pagina
+  if (page === "duels" && window.Duel) window.Duel.openList(duelHost(), { keepTop: true });   // 21/11: 🌐 staat ook op de Duels-pagina
+  if (page === "timeline") window.JaardleTimeline?.setLang?.(lang);   // 22/11: en op de Timeline-pagina
 }
 
 // Debug-flag onthult WIP-features (account-menu, stats) zonder ze voor
@@ -5039,7 +5040,6 @@ function duelHost() {
     faceHue, remindSupport, remindOn: () => !!remindState().on, openInstall: () => openInstall(), onPushChange: () => syncDuelPushUi(),
     setSfx: setDuelSfx,   // ⚔️ Duel-geluid: de knop naast de ? op de Duels-pagina is hetzelfde vinkje
     setSnd: setDuelSnd, music: loadDuelMusic,   // 🎵 21/11: de luidspreker met drie standen; de achtergrondmuziek (lui)
-    swap: kopSwap,   // 21/11: de Jaardle-deur op de Duels-pagina schuift terug (zie kopSwap)
     vondstImage,   // db/190: een vondst-tekening als plaatje (stil), voor het deelplaatje
     dropDuelBoard: (code, r) => { try { localStorage.removeItem(DUEL_BOARD_KEY(code, r)); } catch (e) {} },
     playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
@@ -5071,6 +5071,28 @@ function openDuels(src = "menu") {   // de deur naast 🌐 of de nieuws-balk →
   // eerst laden, dan pas wisselen: de overgang wacht niet op het netwerk (anders staat het beeld zolang stil)
   loadDuel().then((D) => kopSwap("in", () => { D.openList(duelHost(), {}); })).catch(() => {});
 }
+// De deur naast 🌐 (22/11/2026, zijn "switchen met die knop van time -> jaardle -> duels … klein carousel achtige hint"): één deur op
+// alle drie de schermen, rond Jaardle → Duels → Timeline → Jaardle. Elke tik schuift één verder ("in": de inhoud gaat naar links, zoals
+// een carrousel). syncDoor zet data-at (style.css kiest daarmee de tegel en het stipje), de link en het label.
+const DOOR_NEXT = { j: "duels", d: "timeline", t: "" };
+function worldNow() { const b = document.body; return b.hasAttribute("data-tlhome") ? "t" : b.hasAttribute("data-duelshome") ? "d" : "j"; }
+function syncDoor() {
+  const d = document.getElementById("world-door");
+  if (!d) return;
+  const at = worldNow(), label = at === "j" ? t("door_duels") : at === "d" ? "Timeline" : "Jaardle";
+  d.dataset.at = at;
+  d.setAttribute("href", langHref(DOOR_NEXT[at]));
+  d.setAttribute("aria-label", label); d.title = label;
+  // het Jaardle-icoontje van de skin (de head zet de favicon om; de template heeft het gewone)
+  const jt = d.querySelector('.kw-tile[data-w="j"] img'), ic = document.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute("href");
+  if (jt && ic && jt.getAttribute("src") !== ic) jt.setAttribute("src", ic);
+}
+function doorTap() {
+  const at = worldNow();
+  if (at === "j") { newsSeen("duels"); openDuels("door"); }
+  else if (at === "d") openTimeline("door");
+  else kopSwap("in", () => closeModal(TL_PAGE));   // Timeline → Jaardle
+}
 // ⚔️ Wisselen tussen Jaardle en Duels (21/11/2026, zijn "kop blijft + inhoud schuift"): profiel, 🌐 en de deur blijven staan
 // (#mode-tabs heeft een eigen view-transition-name), de rest schuift opzij (CSS bij .kop-door). dir "in" = naar Duels, "out" = terug.
 // update() moet het scherm meteen wisselen (geen promise teruggeven: dan wacht de overgang op de server). Geen View Transitions
@@ -5088,18 +5110,40 @@ function kopSwap(dir, update) {
 // dat adres + body[data-duelshome] (verbergt het spel, CSS in /duel.js). Voor game.js blijft het een .modal (toetsen, wachtende
 // pop-ups), maar zonder scroll-slot; andere schermen gaan erbovenop en sluiten terug naar de pagina.
 const DUELS_PAGE = "modal-duels";
+// 🗓️ De Timeline-pagina (22/11/2026, zijn "zelfde bovenscherm als duels dat je ook profiel enzo hebt want is 1 account"): net zo, met
+// adres /timeline/ (build-html.mjs, noindex zolang het alpha is) en body[data-tlhome]. /timeline.js zet #modal-tl in <main> en zijn
+// logo + 🔈 in de kop. Eén pagina tegelijk: wie de ene opent, sluit de andere (APP_PAGES).
+const TL_PAGE = "modal-tl", APP_PAGES = [DUELS_PAGE, TL_PAGE];
+const loadTl = fxLoader("/timeline.js", "JaardleTimeline");
 function onDuelsPath() { return /\/duels\/?$/.test(location.pathname); }
+function onTlPath() { return /\/timeline\/?$/.test(location.pathname); }
 function pathBase() { const seg = location.pathname.split("/").filter(Boolean)[0]; return LANG_CODES.includes(seg) ? `/${seg}/` : "/"; }   // "/" of "/nl/"
-function duelsPageSet(on) {
-  if (!on && !document.body.hasAttribute("data-duelshome")) return;
-  document.body.toggleAttribute("data-duelshome", on);
-  // open: kaal /duels/ (geen ?p= van een vrij potje erachter); dicht: terug naar de basis, syncUrl zet de rest er weer achter
-  try { history.replaceState(null, "", pathBase() + (on ? "duels/" : location.search + location.hash)); } catch (e) {}
+// open: kaal /duels/ of /timeline/ (geen ?p= van een vrij potje erachter); dicht: terug naar de basis, syncUrl zet de rest er weer achter
+function appPageSet(id, on) {
+  const attr = id === TL_PAGE ? "data-tlhome" : "data-duelshome";
+  if (!on && !document.body.hasAttribute(attr)) return;
+  document.body.toggleAttribute(attr, on);
+  try { history.replaceState(null, "", pathBase() + (on ? (id === TL_PAGE ? "timeline/" : "duels/") : location.search + location.hash)); } catch (e) {}
+  syncDoor();
 }
-function duelsPageOpened() {
-  duelsPageSet(true);
-  if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden && m.id !== DUELS_PAGE)) unlockBodyScroll();
+const noPanelOpen = () => ![...document.querySelectorAll(".modal")].some((m) => !m.hidden && !APP_PAGES.includes(m.id));   // de pagina's scrollen zelf
+function appPageOpened(id) {
+  for (const other of APP_PAGES) {   // één pagina tegelijk
+    if (other === id) continue;
+    const o = document.getElementById(other);
+    if (o && !o.hidden) o.hidden = true;
+    appPageSet(other, false);
+  }
+  appPageSet(id, true);
+  if (noPanelOpen()) unlockBodyScroll();
   window.scrollTo(0, 0);
+}
+function tlHost() {
+  return { lang, href: langHref, openModal, closeModal, gc: gcCount, isMobile: isMobileDevice };
+}
+function openTimeline(src) {   // de deur op de Duels-pagina (meetpunt timeline-door) of het adres /timeline/
+  if (src === "door") gcCount("timeline-door", "Timeline: opened via the door on Duels");
+  loadTl().then((TL) => kopSwap("in", () => { TL.open(tlHost()); })).catch(() => {});
 }
 function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-news")) || 0; } catch (e) { return 0; } }
 function duelKnown() {
@@ -10512,7 +10556,7 @@ function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith
 // ::after overleeft dat, een kind-element niet.
 function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties, weekpodium, event); een duel op de deur ernaast
   const duel = duelNews() > 0;   // jouw beurt of een uitslag die je nog niet zag (bijgehouden door /duel.js)
-  document.getElementById("duels-door")?.classList?.toggle("has-new", duel);   // 21/11: de deur naar Duels naast 🌐 (geen menu-regel meer)
+  document.getElementById("world-door")?.classList?.toggle("has-new", duel);   // 21/11: de deur naast 🌐 (geen menu-regel meer); style.css toont het alleen als hij naar Duels gaat
   const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew();
   document.getElementById("menu-btn")?.classList.toggle("has-new", has);
 }
@@ -13936,7 +13980,7 @@ function unlockBodyScroll() {
 
 // De navigeerbare panelen (géén pop-ups: kroning/podium/beloning blokkeren de UI
 // zelf en beheren hun eigen sluiten). Eén tegelijk zichtbaar. De Duels-pagina (modal-duels) hoort er sinds 18/11/2026 niet meer
-// bij: dat is een eigen scherm, een paneel gaat erbovenop en sluiten brengt je terug naar de pagina (zie duelsPageSet).
+// bij: dat is een eigen scherm, een paneel gaat erbovenop en sluiten brengt je terug naar de pagina (zie appPageSet).
 const MODAL_PANELS = ["modal-stats", "modal-history", "modal-achv", "modal-rewards", "modal-events",
   "modal-leaderboard", "modal-recap", "modal-login"];
 
@@ -14337,7 +14381,7 @@ function openModal(id, opts) {
     if (p && !p.hidden) { p.hidden = true; if (pid === "modal-achv") achvPanelClosed(); }
   }
   document.getElementById(id).hidden = false;
-  if (id === DUELS_PAGE) duelsPageOpened(); else lockBodyScroll();
+  if (APP_PAGES.includes(id)) appPageOpened(id); else lockBodyScroll();
   if (id === "modal-help") { renderHelpConstants(); hwOpen(); }   // banden van het potje op het scherm (🟦 of niet)
   if (id === "modal-stats") { if (opts && opts.tab) pendingStatsTab = opts.tab; renderStats(); }
   if (id === "modal-history") { renderHistory(opts && opts.date); setModalUrl("history"); }
@@ -14382,8 +14426,8 @@ function closeModal(id) {
   if (id === "modal-podium-pop") podiumPopClosed();
   if (id === "modal-reward") rewardClosed();
   if (id === "modal-obsidian") obsidianClosed();
-  if (id === DUELS_PAGE) duelsPageSet(false);
-  if (![...document.querySelectorAll(".modal")].some((m) => !m.hidden && m.id !== DUELS_PAGE)) unlockBodyScroll();   // de Duels-pagina scrollt zelf
+  if (APP_PAGES.includes(id)) appPageSet(id, false);
+  if (noPanelOpen()) unlockBodyScroll();   // de Duels- en Timeline-pagina scrollen zelf
   setModalUrl(null);
   retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken
 }
@@ -14399,7 +14443,7 @@ function closeAllModals() {
   coronationClosed();  // kroning dicht = titel-mijlpaal gezien (server-side, db/59)
   rewardClosed();      // beloning-pop-up dicht = gevierd (server-side, db/61) + keten door
   obsidianClosed();    // onthulling dicht = gevierd (server-side) + keten door
-  duelsPageSet(false); // de Duels-pagina ging mee dicht: weer het adres van de daily
+  for (const id of APP_PAGES) appPageSet(id, false);   // de Duels- of Timeline-pagina ging mee dicht: weer het adres van de daily
   setModalUrl(null);
   retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken (bv. de recap)
 }
@@ -15213,14 +15257,13 @@ async function init() {
   const menuBtn = document.getElementById("menu-btn");
   const menuPop = document.getElementById("menu-pop");
   menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleLangMenu(false); toggleMenu(); });
-  // ⚔️ De deur naar Duels naast 🌐 (21/11/2026; daarvoor ⋮ → Duels). Sinds 22/11 een echte link (voor Google): een gewone tik
-  // blijft in de app, Ctrl/⌘/Shift-klik of middelklik laat de browser een nieuw tabblad openen.
-  document.getElementById("duels-door")?.addEventListener("click", (e) => {
+  // De deur naast 🌐 (21/11/2026 naar Duels, daarvoor ⋮ → Duels; 22/11 rond: Jaardle → Duels → Timeline → Jaardle, zie doorTap). Een
+  // echte link (voor Google): een gewone tik blijft in de app, Ctrl/⌘/Shift-klik of middelklik laat de browser een nieuw tabblad openen.
+  document.getElementById("world-door")?.addEventListener("click", (e) => {
     if (newTabClick(e)) return;
     e.preventDefault();
     toggleMenu(false); toggleLangMenu(false);
-    newsSeen("duels");
-    openDuels("door");
+    doorTap();
   });
   menuPop.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-action]");
@@ -15349,8 +15392,9 @@ async function init() {
     const dq = document.getElementById("modal-duel-q");
     if (dq && !dq.hidden) { closeModal("modal-duel-q"); return; }
     // Op de Duels-pagina (/duel.js): eerst alleen wat erboven ligt (de eindstand, inloggen, …); de pagina zelf pas bij de volgende Esc.
-    const dl = document.getElementById(DUELS_PAGE);
-    if (dl && !dl.hidden) {
+    // Zo ook op de Timeline-pagina (/timeline.js).
+    const dl = APP_PAGES.map((id) => document.getElementById(id)).find((m) => m && !m.hidden);
+    if (dl) {
       const over = [...document.querySelectorAll(".modal:not([hidden])")].filter((m) => m !== dl);
       if (over.length) { over.forEach((m) => closeModal(m.id)); return; }
     }
@@ -15550,10 +15594,10 @@ async function init() {
   if (lbParams.has("ko")) lbParams.delete("ko");
   // /duels/ (de Duels-pagina): het adres gaat eerst terug naar de basis; openList zet het weer zodra de pagina er staat. Met een
   // ?duel= erbij (de deellink sinds 18/11) gaat de uitnodiging voor, net als op de gewone pagina.
-  const duelsLand = onDuelsPath();
-  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap || duelCode || koCode || duelsLand) {
+  const duelsLand = onDuelsPath(), tlLand = !duelsLand && onTlPath();   // /timeline/ (22/11): hetzelfde, met /timeline.js
+  if (joinCode || pendingOpenLeaderboard || pendingOpenModal || pendingOpenRecap || duelCode || koCode || duelsLand || tlLand) {
     const qs = lbParams.toString();
-    history.replaceState(null, "", (duelsLand ? pathBase() : window.location.pathname) + (qs ? "?" + qs : "") + window.location.hash);
+    history.replaceState(null, "", (duelsLand || tlLand ? pathBase() : window.location.pathname) + (qs ? "?" + qs : "") + window.location.hash);
   }
 
   const sharedHashes = getSharedLocation();
@@ -15576,6 +15620,11 @@ async function init() {
     gcCount("duel-page", "Duel: Duels page opened by address");
     setTimeout(uncoverDuel, 10000);
     loadDuel().then((D) => D.openList(duelHost(), {})).catch(uncoverDuel);
+  }
+  else if (tlLand) {   // het 🗓️-laadscherm (head-script) haalt /timeline.js weg; lukt laden niet, dan meteen, en na 10 s altijd
+    const uncoverTl = () => document.documentElement.removeAttribute("data-tlload");
+    setTimeout(uncoverTl, 10000);
+    loadTl().then((TL) => TL.open(tlHost())).catch(uncoverTl);
   }
   else if (duelInviteWaiting() && !duelInviteWaiting().later && !sharedHashes) setTimeout(() => loadDuel().then((D) => D.resumeInvite(duelHost())).catch(() => {}), 600);
   // Rode stip voor duels (jouw beurt, een nieuwe uitslag): alleen wie op dit toestel duels heeft vraagt het na, in een rustig moment.
