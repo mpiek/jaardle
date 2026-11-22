@@ -72,7 +72,7 @@ src += `
   currentWinFxChoice, winFxUnlockedMap, setWinFx, earnedRewardKeys, loadRewardFx, runFx, stopFx, addFxLayers, CAL_FX, winFxPreviewHtml, rewardsVierHtml,
   VT_ROOS_FX, VTFX_KEY, vtRoosUnlocked, voltrefferChoice, setVoltrefferFx, loadVoltrefferFx, rewardsVoltrefferHtml, vtPreviewHtml, achvSeriesItem_: achvSeriesItem, elBox, voltrefferAvailable, VOLTREFFER_FX,
   ensureFlairFxCss, flairFxClass, getFxRun: () => fxRun,
-  awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, setHistoryCache: (h) => { myHistoryCache = h; },
+  awardsHtml, spotlightAwards, soloWeekStats, buildSoloVs, fetchWorldWeek, pickVsRows, vsWorldHtml, vwNum, vwMarker, weekdayShort, fetchWeekVsWorld, awardMeHtml, awardTexts, WEEK_AWARDS, fetchWeekAwards, weekdayName, podiumHtml, podiumParts, recapRaceHtml, setAchv: (a) => { achvCache = a; }, renderAchvBoard, DUEL_ACHV_KEYS, setHistoryCache: (h) => { myHistoryCache = h; },
   rewardQueueFor, obsidianGroupKeys, CAPSTONE_FLAIRS, FLAIR_ANIM, CAP_REWARD_ICONS, LANGS, OBSIDIAN_FX_DEFAULT,
   seasonFor, SEASONS, SEASON_KEY, seasonKey, THEME_COLORS, themeBarColor, setSeason, seasonActive, seasonCurrent, seasonMenuShown, syncSeasonCheck,
   EVENTS, STAMP_EVENTS, PLAYS_EVENTS, isPlaysEvent, EVPLAYS_KEY, eventPlaysCount, eventPlaysBump, eventPlaysSynced, eventPlaysState, eventState, eventEarnedAt, eventsInView, eventsArchived,
@@ -5522,4 +5522,51 @@ test("NEWS — wie ziet de balk: terugkerend, in het venster, hoogstens NEWS_DAY
   } finally {
     globalThis.document = doc; T.auth.user = user; n.known = known; T.setState(null); T.setLocalHistory([]); localStorage.removeItem(T.NEWS_KEY(n.id));
   }
+});
+
+test("⚔️ duel-prestaties (db/224) — Duellist + drie trofeeën, beloningen aan de getallen van set_my_flair, eigen sectie tussen Dagelijks en Mijlpalen, alleen ingelogd", () => {
+  const S = T.ACHV_SERIES.find((x) => x.key === "duels"), tr = (k) => T.ACHV_TROPHIES.find((x) => x.key === k);
+  assert.deepEqual(S.steps, [5, 25, 75, 150, 300, 600]);
+  assert.ok(S.authOnly && S.duel && S.art === "swords" && !T.CAPSTONE_KEYS.includes("duels"), "alleen ingelogd, eigen sectie, niet in de prestige-track");
+  // elke beloning ±250–300 duels werk ("wil dat mensen echt voor werken"); de getallen = de gates in set_my_flair (db/224)
+  assert.equal(S.steps[S.flairs.find((f) => f.emoji === "⚔️").at], 300, "⚔️ = 300 duels");
+  assert.equal(tr("comeback").flair.emoji, "🐦‍🔥"); assert.equal(tr("comeback").tiers[tr("comeback").flair.at], 6, "🐦‍🔥 = 6 comebacks");
+  assert.equal(tr("david").flair.emoji, "💪"); assert.equal(tr("david").tiers[tr("david").flair.at], 75, "💪 = 75 Davids");
+  assert.equal(tr("unscathed").flairFx, "lives"); assert.equal(tr("unscathed").tiers[tr("unscathed").flairFxAt], 35, "❤️ Volle levens = 35");
+  assert.equal(T.FLAIR_FX.lives.key, "unscathed"); assert.equal(T.FLAIR_FX.lives.min, 35);
+  for (const k of ["comeback", "unscathed", "david"]) assert.ok(tr(k).duel && tr(k).authOnly && tr(k).repeatable && tr(k).tiers.length === 6, k);
+  for (const [key, e] of [["fl_swords", "⚔️"], ["fl_phoenix", "🐦‍🔥"], ["fl_muscle", "💪"]]) {
+    assert.equal(T.REWARDS[key].emoji, e); assert.equal(T.REWARDS[key].cat, "flair");
+    assert.ok(T.REWARD_ORDER.includes(key), `${key} in REWARD_ORDER`); assert.ok(!T.FLAIR_OPTIONS.includes(e), `${e} is geen vrije flair`);
+  }
+  assert.ok(T.REWARD_ORDER.includes("fx_lives") && T.REWARDS.fx_lives.fx === "lives" && T.REWARDS.fx_lives.cat === "flairfx");
+  assert.ok(T.FLAIR_ANIM["🐦‍🔥"] && T.FLAIR_ANIM["💪"] && !T.FLAIR_ANIM["⚔️"], "🐦‍🔥 en 💪 bewegen in Noto, ⚔️ niet");
+  // DUEL_ACHV_KEYS = precies de duel-items (die krijgen hun kaartje in de eindstand)
+  assert.deepEqual([...T.DUEL_ACHV_KEYS].sort(), [...T.ACHV_SERIES, ...T.ACHV_TROPHIES].filter((x) => x.duel).map((x) => x.key).sort());
+  // de server levert de tellers; zonder → 0
+  const n = T.achvNormalize({ duels: 25, comeback: 1 });
+  assert.deepEqual([n.duels, n.comeback, n.unscathed, n.david], [25, 1, 0, 0]);
+  const top = T.achvNormalize({ duels: 300, comeback: 6, unscathed: 35, david: 75 }), under = T.achvNormalize({ duels: 299, comeback: 5, unscathed: 34, david: 74 });
+  assert.deepEqual(["duels", "comeback", "unscathed", "david"].map((k) => T.achvSnapshot(top)[k]), [5, 3, 4, 5], "treden: diamant, goud, platina, diamant");
+  const was = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    T.setAchv(top);
+    const got = T.earnedRewardKeys();
+    for (const k of ["fl_swords", "fl_phoenix", "fl_muscle", "fx_lives"]) assert.ok(got.includes(k), `${k} op de drempel`);
+    T.setAchv(under);
+    const not = T.earnedRewardKeys();
+    for (const k of ["fl_swords", "fl_phoenix", "fl_muscle", "fx_lives"]) assert.ok(!not.includes(k), `${k} net eronder: nog niet`);
+    // het bord: Duels tussen Dagelijks en Mijlpalen, Duellist één keer (niet ook bij Overige reeksen)
+    const body = { innerHTML: "", querySelectorAll: () => [] };
+    T.renderAchvBoard(body, T.achvNormalize({ duels: 25, comeback: 1, unscathed: 4 }));
+    const h = body.innerHTML, at = (k) => h.indexOf(`>${T.t(k)}</h3>`);
+    assert.ok(at("achv_sect_daily") > 0 && at("achv_sect_daily") < at("achv_sect_duels") && at("achv_sect_duels") < at("achv_sect_trophies"), "Duels tussen Dagelijks en Mijlpalen");
+    assert.equal((h.match(/data-key="duels"/g) || []).length, 1, "Duellist staat één keer op het bord");
+    for (const k of ["comeback", "unscathed", "david"]) assert.equal((h.match(new RegExp(`data-tkey="${k}"`, "g")) || []).length, 1, k);
+    assert.ok(h.indexOf('data-tkey="comeback"') > at("achv_sect_duels") && h.indexOf('data-tkey="comeback"') < at("achv_sect_trophies"), "de trofeeën staan in de duel-sectie");
+    T.auth.user = null;
+    T.renderAchvBoard(body, T.achvNormalize({}));
+    assert.ok(!body.innerHTML.includes(`>${T.t("achv_sect_duels")}</h3>`) && !body.innerHTML.includes('data-key="duels"'), "anoniem: geen duel-sectie");
+  } finally { T.auth.user = was; T.setAchv(null); }
 });

@@ -236,6 +236,9 @@ body.ko-showing #duel-vs.ko { position: relative; z-index: 61; }
 .ko-after em.tie { color: var(--muted); }
 .ko-after .n { flex: none; font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
 /* ── het K.O.-eindscherm (A, zijn keuze 20/11): het levensverloop, onder elke ronde de factor en de schade ── */
+.ko-achv { align-self: stretch; display: flex; flex-direction: column; gap: 0.4rem; text-align: left; }
+.ko-achv:empty { display: none; }
+.ko-achv .achv-card { margin: 0; }
 .ko-life { --op: hsl(var(--h, 30) 72% 66%); --opl: hsl(var(--h, 30) 62% 56%); align-self: stretch; display: flex; flex-direction: column; gap: 0.2rem; }
 html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(var(--h, 30) 58% 46%); }
 .kl-key { display: flex; justify-content: center; gap: 1rem; font-size: 0.76rem; font-weight: 700; color: var(--muted); }
@@ -1084,9 +1087,10 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     A.music?.(false);   // 🎵 de muziek weg zodra het K.O.-scherm er is (samen met de gong)
     const big = fresh && sfx(`ko:${g.code}`, g.winner ? "ko" : "draw", won);   // één keer per spel, niet bij een oude K.O.
     if (fresh && g.re_opp && !g.re_me && !g.next) sfx(`want:${g.code}`, "want", big ? 1.2 : 0);   // samen met de gong: na de gong
-    pop(`<div class="ko-bandw" style="--h:${hue(g)}">${band(g, "K.O.", ` ko-end${won ? "" : " lost"}`)}</div>` +
+    const pe = pop(`<div class="ko-bandw" style="--h:${hue(g)}">${band(g, "K.O.", ` ko-end${won ? "" : " lost"}`)}</div>` +
       `<h2>${esc(!g.winner ? T.draw : won ? T.koWin : T.koLoss(n))}</h2><p>${esc(p)}</p>` +
       (Math.min(g.mine.length, g.theirs.length) ? lifeHtml(g) : "") +
+      (fresh && !g.bot && H.loggedIn && H.duelAchv ? `<div class="ko-achv"></div>` : "") +   // ⚔️ db/224: kaartje voor de duel-prestaties
       (g.bot ? `<button type="button" class="duel-go ko-rev" data-ko="re">${esc(T.rematch)}</button>` + nextBot
         : fresh && !g.next ? (g.re_me ? `<button type="button" class="duel-go" disabled>${esc(T.rematchWait(n))}</button>`
         : `<button type="button" class="duel-go ko-rev" data-ko="re">${esc(T.rematch)}${want}</button>`) + `<p class="ko-alt-sub">${esc(T.rematchHint)}</p>` : "") +
@@ -1100,6 +1104,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
         closePop(); H.switchMode("daily"); K.openList(H, {});
       });
     endFor = g.code; endSeen.add(g.code);
+    // ⚔️ db/224 (game.js checkDuelAchievements): een knock-out tot K.O. tegen een mens telt voor Duellist, Remontada, Ongeschonden en David
+    const box = pe?.querySelector(".ko-achv");
+    if (box && typeof H.duelAchv === "function") H.duelAchv(box)?.catch?.(() => {});
   }
 
   // ── de stand van de server op het scherm ──

@@ -14,18 +14,21 @@
    Beweging: een effect beweegt wanneer de flair beweegt (rang 1, aanwijzen/tikken, podium, kluis, pop-up, sierrand);
    anders krijgt de flair .fl-still en staat het effect in een vaste pose (dezelfde pose als bij prefers-reduced-motion). */
 :root {
+  --fx-heart: #e05a4e; --fx-hearts: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 24'%3E%3Cpath id='h' d='M12 22C5 17 1 13 1 8.5C1 4.5 4 2 7.3 2C9.4 2 11 3.2 12 5C13 3.2 14.6 2 16.7 2C20 2 23 4.5 23 8.5C23 13 19 17 12 22Z'/%3E%3Cuse href='%23h' x='27'/%3E%3Cuse href='%23h' x='54'/%3E%3C/svg%3E");
   --fx-spark-core: #fff6c0; --fx-spark-mid: #ffb12e; --fx-spark-edge: #ff5a12; --fx-spark-rim: rgba(130, 24, 0, 0.75);
   --fx-glow-in: #fff0b0; --fx-glow-mid: #ffb02e; --fx-glow-out: rgba(255, 70, 0, 0.9);
   --fx-target: #ff5a4d; --fx-drop-a: #9fdcff; --fx-drop-b: #3aa0e8; --fx-ripple: #9be7dc; --fx-line: #cfc8dd; --fx-timer: #ffb020;
   --fx-lotus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 24 50 55'%3E%3Cpath d='M50 26C56 36 56 48 50 57C44 48 44 36 50 26Z' fill='%23f2e8c9'/%3E%3Cpath d='M29 38C40 40 48 48 50 59C40 59 31 50 29 38Z' fill='%23e8d9ae'/%3E%3Cpath d='M71 38C60 40 52 48 50 59C60 59 69 50 71 38Z' fill='%23e8d9ae'/%3E%3Cpath d='M27 61Q50 74 73 61Q66 77 50 77Q34 77 27 61Z' fill='%236db06d'/%3E%3C/svg%3E");
 }
 html[data-theme="light"], html[data-theme="parchment"] {
+  --fx-heart: #d2453a;
   --fx-spark-core: #ffe2a0; --fx-spark-mid: #ff9a1f; --fx-spark-edge: #d94a00; --fx-spark-rim: rgba(120, 30, 0, 0.7);
   --fx-glow-in: #ffd37a; --fx-glow-mid: #ff9a1f; --fx-glow-out: rgba(214, 60, 0, 0.85);
   --fx-target: #d32f2f; --fx-drop-a: #5cb8f0; --fx-drop-b: #1f78c8; --fx-ripple: #2a9d8f; --fx-line: #6d6555; --fx-timer: #c77700;
   --fx-lotus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 24 50 55'%3E%3Cg stroke='%23b99a47' stroke-width='1.3' stroke-linejoin='round'%3E%3Cpath d='M50 26C56 36 56 48 50 57C44 48 44 36 50 26Z' fill='%23fffaf0'/%3E%3Cpath d='M29 38C40 40 48 48 50 59C40 59 31 50 29 38Z' fill='%23f6ecd0'/%3E%3Cpath d='M71 38C60 40 52 48 50 59C60 59 69 50 71 38Z' fill='%23f6ecd0'/%3E%3C/g%3E%3Cpath d='M27 61Q50 74 73 61Q66 77 50 77Q34 77 27 61Z' fill='%234e9a52'/%3E%3C/svg%3E");
 }
 .rw-card, .podpop.night .podpop-card {   /* donkere kaarten in elk thema */
+  --fx-heart: #e05a4e;
   --fx-spark-core: #fff6c0; --fx-spark-mid: #ffb12e; --fx-spark-edge: #ff5a12; --fx-spark-rim: rgba(130, 24, 0, 0.75);
   --fx-glow-in: #fff0b0; --fx-glow-mid: #ffb02e; --fx-glow-out: rgba(255, 70, 0, 0.9);
   --fx-target: #ff5a4d; --fx-drop-a: #9fdcff; --fx-drop-b: #3aa0e8; --fx-ripple: #9be7dc; --fx-line: #cfc8dd; --fx-timer: #ffb020;
@@ -165,6 +168,19 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .fl-fx[data-flair="v:krampus"] { --fl-drop: 0.21em; }
 /* @@VONDST-DROP-END */
 
+/* lives = ❤️ Volle levens (Ongeschonden 35, db/224): drie hartjes boven de flair (je bent geen leven kwijt) die af en toe samen kloppen.
+   Eén ::before, gemaskeerd tot drie harten, elk met een lichtpuntje. Bovenrand 0,33em: ook op de top van de klop binnen de veilige zone
+   van het sprankel-effect (0,36em). Stil (.fl-still / minder beweging) = de hartjes zonder klop: dat regelen de algemene regels hieronder. */
+.fx-lives::before {
+  left: 50%; top: -0.33em; width: 0.78em; height: 0.24em; margin-left: -0.39em;
+  background: radial-gradient(circle at 10% 32%, rgba(255, 255, 255, 0.6) 0 0.026em, transparent 0.032em),
+    radial-gradient(circle at 44.6% 32%, rgba(255, 255, 255, 0.6) 0 0.026em, transparent 0.032em),
+    radial-gradient(circle at 79.2% 32%, rgba(255, 255, 255, 0.6) 0 0.026em, transparent 0.032em), var(--fx-heart);
+  -webkit-mask: var(--fx-hearts) center / 100% 100% no-repeat; mask: var(--fx-hearts) center / 100% 100% no-repeat;
+  transform-origin: 50% 85%; animation: fx-lives 2.8s ease-in-out infinite;
+}
+@keyframes fx-lives { 0%, 34%, 100% { transform: scale(1); } 9% { transform: scale(1.14); } 17% { transform: scale(0.98); } 25% { transform: scale(1.07); } }
+
 /* Stilstaande pose per effect: voor flairs die niet bewegen (.fl-still) en, via de media-query hieronder, voor
    iedereen met minder beweging. Expliciete waarden, geen bevroren animatie: een later toegevoegde class pauzeert een
    lopende animatie op een willekeurig moment. */
@@ -179,6 +195,7 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .fl-still.fx-lotus::before, .fl-still.fx-lotus::after { transform: none; opacity: 1; }
 .fl-still.fx-timer::before { --fx-a: 300deg; opacity: 1; } .fl-still.fx-timer::after { opacity: 0; }
 .fl-still.fx-pendulum { transform: none; }
+.fl-still.fx-lives::before { transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .fl-fx, .fl-fx::before, .fl-fx::after { animation: none !important; }
   .fl-fx.fx-sparkle::before, .fl-fx.fx-sparkle::after { transform: scale(0.85) rotate(45deg); opacity: 1; }
@@ -191,6 +208,7 @@ html[data-theme="light"], html[data-theme="parchment"] {
   .fl-fx.fx-lotus::before, .fl-fx.fx-lotus::after { transform: none; opacity: 1; }
   .fl-fx.fx-timer::before { --fx-a: 300deg; opacity: 1; } .fl-fx.fx-timer::after { opacity: 0; }
   .fl-fx.fx-pendulum { transform: none; }
+  .fl-fx.fx-lives::before { transform: none; }
 }
 
 /* ── Obsidiaan-effecten (capstone-trede 6) ─────────────────────────────────────────────────────────────────────

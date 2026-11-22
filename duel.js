@@ -332,6 +332,10 @@ body[data-duelshome] #mode-tabs { display: flex; }
 .ep-note { margin: 0; font-size: 0.8rem; color: var(--muted); }
 .ep-note b { color: var(--fg); }
 .ep-btns { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.2rem; }
+/* ⚔️ db/224: het unlock-kaartje (+ smalle regels) van de duel-prestaties, onder de uitslag */
+.ep-achv { display: flex; flex-direction: column; gap: 0.4rem; text-align: left; }
+.ep-achv:empty { display: none; }
+.ep-achv .achv-card { margin: 0; }
 .ep-btns button { width: 100%; }
 .ep-ghost { background: transparent; color: var(--fg); border: 1px solid var(--border); }
 .ep-ghost:hover { filter: none; border-color: var(--duel-arena); }
@@ -728,7 +732,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       spNew: "Nieuw hier? In Jaardle raad je elke dag het jaar bij een gebeurtenis.", spMate: (n) => `Jij tegen ${n}`, spOther: "Daag iemand anders uit",
       notForYouD: "Deze uitdaging is voor iemand anders", lockedLogin: "Log in met je account om hem aan te nemen.", loginBtn: "Log in",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
-      keepVs: (n) => `Met een account daag je ${n} uit zonder link`, keepList: "<u>Log in</u>, dan staan je tegenstanders hier en daag je ze uit met één tik",
+      keepVs: (n) => `Met een account daag je ${n} uit zonder link`, keepWould: (t) => `Met een account had deze zege je ${t} opgeleverd`, keepList: "<u>Log in</u>, dan staan je tegenstanders hier en daag je ze uit met één tik",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tik op een ronde om de vraag terug te zien",
       // 19/11 (mockup v9 "mix"): de uitslag van een ronde, het scorebord, het logo bovenin een ronde, de uitnodiging
@@ -785,7 +789,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       spNew: "New here? In Jaardle you guess the year of an event, every day.", spMate: (n) => `You vs ${n}`, spOther: "Challenge someone else",
       notForYouD: "This challenge is for someone else", lockedLogin: "Log in to your account to accept it.", loginBtn: "Log in",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
-      keepVs: (n) => `With an account, you can challenge ${n} without a link`, keepList: "<u>Log in</u> and your opponents appear here: challenge them with one tap",
+      keepVs: (n) => `With an account, you can challenge ${n} without a link`, keepWould: (t) => `With an account, this win would have earned you ${t}`, keepList: "<u>Log in</u> and your opponents appear here: challenge them with one tap",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tap a round to see its question again",
       rWin: (r) => `Round ${r} is yours`, rLoss: (r, n) => `Round ${r} goes to ${n}`, rTie: (r) => `Round ${r}: a tie`, bar: "You set the bar",
@@ -842,7 +846,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       spNew: "Neu hier? Bei Jaardle errätst du jeden Tag das Jahr eines Ereignisses.", spMate: (n) => `Du gegen ${n}`, spOther: "Fordere jemand anderen heraus",
       notForYouD: "Diese Herausforderung ist für jemand anderen", lockedLogin: "Melde dich an, um sie anzunehmen.", loginBtn: "Anmelden",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
-      keepVs: (n) => `Mit einem Konto forderst du ${n} ohne Link heraus`, keepList: "<u>Melde dich an</u>, dann forderst du deine Gegner hier mit einem Tipp heraus",
+      keepVs: (n) => `Mit einem Konto forderst du ${n} ohne Link heraus`, keepWould: (t) => `Mit einem Konto hätte dir dieser Sieg ${t} eingebracht`, keepList: "<u>Melde dich an</u>, dann forderst du deine Gegner hier mit einem Tipp heraus",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Tippe auf eine Runde, um die Frage noch mal zu sehen",
       rWin: (r) => `Runde ${r} geht an dich`, rLoss: (r, n) => `Runde ${r} geht an ${n}`, rTie: (r) => `Runde ${r}: unentschieden`, bar: "Du legst die Latte",
@@ -898,7 +902,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       spNew: "¿Nuevo aquí? En Jaardle adivinas cada día el año de un acontecimiento.", spMate: (n) => `Tú contra ${n}`, spOther: "Reta a otra persona",
       notForYouD: "Este reto es para otra persona", lockedLogin: "Inicia sesión para aceptarlo.", loginBtn: "Iniciar sesión",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
-      keepVs: (n) => `Con una cuenta retas a ${n} sin enlace`, keepList: "<u>Inicia sesión</u> y tus rivales aparecerán aquí: rétalos con un toque",
+      keepVs: (n) => `Con una cuenta retas a ${n} sin enlace`, keepWould: (t) => `Con una cuenta, esta victoria te habría dado ${t}`, keepList: "<u>Inicia sesión</u> y tus rivales aparecerán aquí: rétalos con un toque",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Toca una ronda para volver a ver la pregunta",
       rWin: (r) => `La ronda ${r} es tuya`, rLoss: (r, n) => `La ronda ${r} es para ${n}`, rTie: (r) => `Ronda ${r}: empate`, bar: "Tú pones el listón",
@@ -954,7 +958,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       spNew: "Novo por aqui? No Jaardle você adivinha todo dia o ano de um acontecimento.", spMate: (n) => `Você contra ${n}`, spOther: "Desafie outra pessoa",
       notForYouD: "Este desafio é para outra pessoa", lockedLogin: "Entre na sua conta para aceitar.", loginBtn: "Entrar",
       // account-momenten (db/193): bij de uitslag wat je er met deze tegenstander aan hebt, en één regel in het Duels-scherm
-      keepVs: (n) => `Com uma conta, você desafia ${n} sem link`, keepList: "<u>Entre</u> e seus adversários aparecem aqui: desafie com um toque",
+      keepVs: (n) => `Com uma conta, você desafia ${n} sem link`, keepWould: (t) => `Com uma conta, esta vitória teria te dado ${t}`, keepList: "<u>Entre</u> e seus adversários aparecem aqui: desafie com um toque",
       // de vraag van een ronde terugzien: de tip onder de tegels (dooft uit, zie peekHint)
       peekTip: "Toque em uma rodada para ver a pergunta de novo",
       rWin: (r) => `A rodada ${r} é sua`, rLoss: (r, n) => `A rodada ${r} é de ${n}`, rTie: (r) => `Rodada ${r}: empate`, bar: "Você define a marca",
@@ -1136,8 +1140,24 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // en klopt "daag je X uit zonder link". Zonder dat veld (oudere server, of een tegenstander zonder account): de algemene regel.
   const oppAcc = (d) => !!d && d.opp_acc === true;
   // Bij de uitslag (niet tijdens het wachten op de ander: daar staan de seintjes-knop en "Laat X het weten" al).
-  const keepHtml = (T, d, cls = "") => `<div class="ep-keep${cls}"><span>${esc(oppAcc(d) ? T.keepVs(oppName(d)) : T.keepTitle)}</span>` +
-    `<button type="button" class="dl-mini" data-act="login">${esc(T.keepBtn)}</button></div>`;
+  // ⚔️ db/224: zou dit duel met een account een trofee zijn geweest? Remontada (gewonnen na 0–2) of Ongeschonden (geen ronde verloren),
+  // alleen als jullie allebei alle vijf speelden; David vraagt een rating, dus die niet. Geeft de i18n-sleutel van de naam (game.js).
+  function wouldEarn(d) {
+    const mine = d?.mine || [], theirs = d?.theirs || [];
+    if (d?.status !== "done" || mine.length < 5 || theirs.length < 5) return null;
+    const o = outcome(mine, theirs);
+    if (o.res !== "w") return null;
+    let w = 0, l = 0, down = false;
+    for (const r of o.per) { if (r === "w") w++; if (r === "l") l++; if (!w && l >= 2) down = true; }
+    return down ? "achv_t_comeback" : !o.l ? "achv_t_unscathed" : null;
+  }
+  // Had het duel iets opgeleverd, dan zegt de regel dat (en een account maken zet dit duel over: duel_claim, dan telt het alsnog);
+  // anders de regel van db/193.
+  const keepHtml = (T, d, cls = "") => {
+    const k = wouldEarn(d), name = k && H?.t ? H.t(k) : "";
+    return `<div class="ep-keep${cls}"><span>${esc(name ? T.keepWould(name) : oppAcc(d) ? T.keepVs(oppName(d)) : T.keepTitle)}</span>` +
+      `<button type="button" class="dl-mini" data-act="login">${esc(T.keepBtn)}</button></div>`;
+  };
   // In het Duels-scherm: één regel onder de knop, zodra je een uitslag zag van een duel tegen iemand met een account (een uitslag
   // die je nog niet zag telt niet: de onthulling heeft haar eigen regel). De knop draagt dat duel mee voor de terugkeer.
   function acctHtml(T, items) {
@@ -1251,7 +1271,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     light: { bg: "#f4f1ea", card: "#fffdf8", soft: "#ebe7dd", fg: "#211e19", mu: "#5d574b", line: "#d6d0c2", arena: "#b5531c", gold: "#c99a0e", tile: 0.26, gray: "rgba(158,158,158,0.24)", glow: "rgba(181,83,28,0.16)", edge: "rgba(181,83,28,0.45)" },
   };
   // Een flair = een emoji of een vondst-tekening ("v:<id>"), eventueel met een effect erachter ("~sparkle").
-  const FX_IDS = ["sparkle", "ember", "glow", "vizier", "sweat", "ripple", "lotus", "timer", "pendulum", "eclipse", "shard", "aura", "web", "lights", "snow"];   // = de .fx-<id> in flair-fx.css (een test bewaakt dat)
+  const FX_IDS = ["sparkle", "ember", "glow", "vizier", "sweat", "ripple", "lotus", "timer", "pendulum", "eclipse", "shard", "aura", "web", "lights", "snow", "lives"];   // = de .fx-<id> in flair-fx.css (een test bewaakt dat)
   function flairParts(f) {
     const [g, fx] = String(f || "").split("~"), vf = !!g && g.startsWith("v:");
     return { em: g && !vf ? g : null, vf: vf ? g : null, fx: FX_IDS.includes(fx) ? fx : null };
@@ -1275,14 +1295,15 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       target: "#ff5a4d", da: "#9fdcff", db: "#3aa0e8", ripple: "#9be7dc", line: "#cfc8dd", timer: "#ffb020",
       ohi: "#efe8ff", omid: "#a58ff0", odeep: "#5a45b0", odark: "#1a0e33", oblack: "#07040f", halo: "rgba(150,118,255,0.75)", ring: "#a58ff0", dcore: "#fff", dmid: "#cdbdff", dedge: "#8f6cff",
       ai: "#e6dcff", am: "#8f6cff", ao: "rgba(88,40,200,0.85)", web: "#ece3ff", spider: "#f3ecff",
-      wire: "#7f998c", hi: "#fff", r: "#ff5a5a", y: "#ffc93c", g: "#40d98a", b: "#5aa8ff", flake: "#fff", flake0: "rgba(255,255,255,0)", lotus: ["#f2e8c9", "#e8d9ae", "#6db06d"], lotusLine: null },
+      wire: "#7f998c", hi: "#fff", r: "#ff5a5a", y: "#ffc93c", g: "#40d98a", b: "#5aa8ff", flake: "#fff", flake0: "rgba(255,255,255,0)", lotus: ["#f2e8c9", "#e8d9ae", "#6db06d"], lotusLine: null, heart: "#e05a4e" },
     light: { core: "#ffc933", edge: "#b25a00", sc: "#ffe2a0", sm: "#ff9a1f", se: "#d94a00", sr: "rgba(120,30,0,0.7)", gi: "#ffd37a", gm: "#ff9a1f", go: "rgba(214,60,0,0.85)",
       target: "#d32f2f", da: "#5cb8f0", db: "#1f78c8", ripple: "#2a9d8f", line: "#6d6555", timer: "#c77700",
       ohi: "#ffffff", omid: "#7a5cd6", odeep: "#432c8f", odark: "#160b2c", oblack: "#07040f", halo: "rgba(90,60,190,0.7)", ring: "#5d3fb8", dcore: "#fff", dmid: "#6a40d8", dedge: "#1a0e33",
       ai: "#b9a2ff", am: "#6a40d8", ao: "rgba(50,20,140,0.9)", web: "#4a2f7a", spider: "#2d1b45",
-      wire: "#41564b", hi: "#fff3c4", r: "#e5383b", y: "#f0a000", g: "#12a060", b: "#2f84ea", flake: "#9fb6c8", flake0: "rgba(159,182,200,0)", lotus: ["#fffaf0", "#f6ecd0", "#4e9a52"], lotusLine: "#b99a47" },
+      wire: "#41564b", hi: "#fff3c4", r: "#e5383b", y: "#f0a000", g: "#12a060", b: "#2f84ea", flake: "#9fb6c8", flake0: "rgba(159,182,200,0)", lotus: ["#fffaf0", "#f6ecd0", "#4e9a52"], lotusLine: "#b99a47", heart: "#d2453a" },
   };
   const FX_STAR = [[50, 0], [60, 40], [100, 50], [60, 60], [50, 100], [40, 60], [0, 50], [40, 40]];
+  const FX_HEART = "M12 22C5 17 1 13 1 8.5C1 4.5 4 2 7.3 2C9.4 2 11 3.2 12 5C13 3.2 14.6 2 16.7 2C20 2 23 4.5 23 8.5C23 13 19 17 12 22Z";   // ❤️ Volle levens (één hart van 24×24; drie op x 0/27/54)
   const FX_DROP = [[50, 0], [74, 38], [100, 68], [84, 94], [50, 100], [16, 94], [0, 68], [26, 38]];
   const FX_LOTUS = [["M50 26C56 36 56 48 50 57C44 48 44 36 50 26Z", 0], ["M29 38C40 40 48 48 50 59C40 59 31 50 29 38Z", 1], ["M71 38C60 40 52 48 50 59C60 59 69 50 71 38Z", 1], ["M27 61Q50 74 73 61Q66 77 50 77Q34 77 27 61Z", 2]];
   const FX_WEB = "M100 0L2 0M100 0L9.5 37.5M100 0L30.7 69.3M100 0L62.5 90.5M100 0L100 98M70.7 0Q75.9 4.8 73 11.2M73 11.2Q79.6 13.7 79.3 20.7M79.3 20.7Q86.3 20.4 88.8 27M88.8 27Q95.2 24.1 100 29.3M41.5 0Q51.8 9.6 45.9 22.4M45.9 22.4Q59.1 27.3 58.6 41.4M58.6 41.4Q72.7 40.9 77.6 54.1M77.6 54.1Q90.4 48.2 100 58.5M12.2 0Q27.7 14.4 18.9 33.6M18.9 33.6Q38.7 41 37.9 62.1M37.9 62.1Q59 61.3 66.4 81.1M66.4 81.1Q85.6 72.3 100 87.8";
@@ -1368,6 +1389,10 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       c.fillStyle = K.wire; [[3.7, 3.5], [27, 8], [50.2, 9.5], [73.5, 8], [96.7, 3.5]].forEach(([x, y]) => c.fillRect(x, y, 3.6, 3.5));
       [[5.5, 12, K.r], [28.8, 16.5, K.g], [52, 18, K.y], [75.3, 16.5, K.b], [98.5, 12, K.r]].forEach(([x, y, col]) => {
         c.beginPath(); c.ellipse(x, y, 5, 6, 0, 0, TAU); c.fillStyle = radial(x, y, 6.4, [[0, K.hi], [0.39, col], [1, col]]); c.fill(); });
+    } else if (fx === "lives") {   // ❤️ Volle levens (db/224): drie hartjes boven de flair, zoals .fx-lives (0,78em breed, bovenrand 0,33em)
+      const sc = (0.78 * E) / 78, heart = new Path2D(FX_HEART);
+      c.translate(cx - 0.39 * E, y0 - 0.33 * E); c.scale(sc, sc); c.fillStyle = K.heart;
+      [0, 27, 54].forEach((x) => { c.save(); c.translate(x, 0); c.fill(heart); c.restore(); });
     } else if (fx === "snow") {   // een paar vlokjes boven en naast de flair
       const bx = cx - 0.83 * E, by = y0 - 0.24 * E;
       [[0.15, 0.26, 0.042, 0.07], [0.31, 0.13, 0.025, 0.042], [1.43, 0.16, 0.028, 0.046], [1.59, 0.6, 0.034, 0.056]].forEach(([x, y, r1, r2]) =>
@@ -2238,6 +2263,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       inner += `<h2 class="${af.trim()}">${o.res === "w" ? "🏆 " : ""}${esc(h)}</h2>` +
         boardHtml(T, d, { size: "big", meta: T.final, flip, hint: true }) +
         `<p class="ep-note${af}">${esc(T.totalNote(o.a, o.b))}<span class="ep-h2h"></span></p>` +
+        (H.loggedIn && H.duelAchv && !again ? `<div class="ep-achv"></div>` : "") +   // ⚔️ db/224: kaartje voor Duellist/Remontada/Ongeschonden/David (niet bij terugkijken)
         `<div class="ep-btns${af}"><button type="button" class="duel-btn" data-act="rematch" data-code="${d.code}">${icoHtml()} ${esc(T.revenge)}</button>` +
         `<button type="button" class="duel-btn ep-ghost" data-act="share-result">${esc(T.shareRes)}</button></div>`;
     } else {
@@ -2284,6 +2310,10 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (done && (ha || hb) && ha + hb > 1) { const x = el.querySelector(".ep-h2h"); if (x) x.textContent = ` · ${T.h2hNow(ha, hb)}`; }   // pas vanaf je tweede duel tegen deze speler
     if (!done) return;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // ⚔️ db/224: de duel-prestaties (game.js checkDuelAchievements). Bij een onthulling pas als de rondes omgedraaid zijn, anders speelt de
+    // pop-in van het kaartje onzichtbaar af.
+    const box = el.querySelector(".ep-achv");
+    if (box && typeof H.duelAchv === "function") setTimeout(() => { H.duelAchv(box)?.catch?.(() => {}); }, flip && !reduced ? FLIP_MS : 0);
     setTimeout(() => {   // het bord draait zelf om (CSS): pas daarna confetti
       if (o.res === "w" && !again && !(fresh && wonLast)) H.showConfetti();   // gewonnen: feest (had de laatste ronde al confetti, of zag je hem al: niet nog eens)
       if (!d.seen) markSeen(d.code);

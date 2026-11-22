@@ -654,3 +654,10 @@ test("ko.js — de regels (db/222, 22/11): 5000 − 25 per jaar, 6000 levens, ge
   assert.match(KOSRC, /body\[data-ko\] #hint-row, body\[data-ko\] #live-score/);
   assert.doesNotMatch(KOSRC, /🎯|ks-tb|\bPEN\b|RULES|rulesOf|g\.rules|drawP/, "de oude regels zijn weg");
 });
+
+test("ko.js — ⚔️ duel-prestaties (db/224): op het K.O.-scherm een vak voor het kaartje, alleen bij een vers spel tegen een mens en met account", () => {
+  assert.match(KOSRC, /\(fresh && !g\.bot && H\.loggedIn && H\.duelAchv \? `<div class="ko-achv"><\/div>` : ""\)/, "niet tegen een bot, niet bij terugkijken, niet anoniem");
+  assert.match(KOSRC, /if \(box && typeof H\.duelAchv === "function"\) H\.duelAchv\(box\)\?\.catch\?\.\(\(\) => \{\}\);/);
+  assert.match(KOSRC, /\.ko-achv:empty \{ display: none; \}/, "geen unlock: geen lege ruimte");
+  assert.match(GAME, /duelAchv: \(box\) => checkDuelAchievements\(box\),/, "game.js geeft de host de functie mee");
+});
