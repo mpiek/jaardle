@@ -41,91 +41,75 @@ test("ko.js — teksten in vijf talen met dezelfde sleutels, niets leeg of kapot
   for (const l of langs) { const c = W.Duel.copy(l); assert.ok(c.turnBtn && c.koName && c.turnSub && c.koSub("Tim").includes("Tim") && c.liveOff("Tim").includes("Tim"), `duel.js ${l}: turnBtn/koName/turnSub/koSub/liveOff`); }
 });
 
-test("ko.js — ronde-factor ×1 ×1 ×1,5 ×2 ×2,5 ×3, zelfde als _ko_mult in db/208", () => {
-  assert.deepEqual([1, 2, 3, 4, 5, 6, 9].map(KO._.mult), [1, 1, 1.5, 2, 2.5, 3, 3]);
-  const f = join(dir, "..", "..", "jaardle-tools", "db", "208_ko.sql");
-  if (existsSync(f)) assert.match(readFileSync(f, "utf8"), /when p_round <= 2 then 1 when p_round = 3 then 1\.5 when p_round = 4 then 2 when p_round = 5 then 2\.5 else 3/);
+test("ko.js — ronde-factor ×1 t/m ronde 4, daarna elke ronde +0,5 (zoals GeoGuessr), geen max; zelfde als db/222", () => {
+  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 12].map(KO._.mult), [1, 1, 1, 1, 1.5, 2, 2.5, 3, 5]);
+  assert.equal(KO._.dmgOf(4975, 4900, 1), 75); assert.equal(KO._.dmgOf(4825, 0, 3), 4825); assert.equal(KO._.dmgOf(4900, 4825, 5), 113, "75 × 1,5 = 112,5 → 113 (zoals Postgres)");
+  assert.equal(KO._.dmgOf(5000, 0, 13), 27500, "geen max");
 });
 
 test("ko.js — de levensstrook: jouw en hun levens, de ronde-factor, wat de ander doet (nooit jaren)", () => {
-  const g = { code: "KABCDE", state: "live", round: 3, hp: 92, opp_hp: 64, hp_max: 100, opp_name: "Sanne", opp_flair: null, mine: [92, 81], theirs: [84, 89], opp_done: false, deadline: null };
+  const g = { code: "KABCDE", state: "live", round: 3, hp: 5520, opp_hp: 3840, hp_max: 6000, opp_name: "Sanne", opp_flair: null, mine: [4900, 4000], theirs: [2400, 4500], opp_done: false, deadline: null };
   const s = KO._.stripHtml(host(), g);
   assert.match(s, /--hp:92/); assert.match(s, /--hp:64/);
-  assert.match(s, /<b>R3<\/b><span class="up">×1,5<\/span>/);
+  assert.match(s, /<b>R3<\/b><span class="">×1<\/span>/);
+  assert.match(KO._.stripHtml(host(), { ...g, round: 5 }), /<b>R5<\/b><span class="up">×1,5<\/span>/, "vanaf ronde 5 licht de factor op");
   assert.match(s, /Sanne denkt na/);
   assert.doesNotMatch(s, /19\d\d/, "geen jaartallen");
   // de klok: Sanne klaar, jij nog niet
   const c = KO._.stripHtml(host(), { ...g, opp_done: true, deadline: new Date(Date.now() + 12000).toISOString() });
   assert.match(c, /Sanne heeft gegokt ✓/); assert.match(c, /ko-clock/);
-  // 150 levens: de balk in procenten
-  assert.match(KO._.stripHtml(host(), { ...g, hp: 75, hp_max: 150 }), /--hp:50;/);
+  // 6000 levens: de balk in procenten (ook zonder hp_max)
+  assert.match(KO._.stripHtml(host(), { ...g, hp: 3000, hp_max: undefined }), /--hp:50;/);
   // leeglopen na een ronde: --was = de oude stand
-  const d = KO._.stripHtml(host(), g, { drain: { r: 2, who: "opp", me: 100, op: 64 } });
+  const d = KO._.stripHtml(host(), g, { drain: { r: 2, who: "opp", me: 6000, op: 3840 } });
   assert.match(d, /ko-side me drain" style="--hp:92;--was:100"/);
   assert.match(d, /Ronde 2 voor Sanne/);
 });
 
-test("ko.js — de ronde-uitslag als laag (20/11): jaartallen als chips in de kleur van de afstand, het echte jaar groen, hints als chips, geen zinnen", () => {
+test("ko.js — de ronde-uitslag als laag: jaartallen in de kleur van de afstand, het echte jaar groen, wat je gok kostte als chip, geen zinnen", () => {
   const h = host({ els: { resultText: null } });
-  const g = { code: "KABCDE", state: "live", round: 4, round_at: new Date(Date.now() + 5000).toISOString(), hp: 66, opp_hp: 92, opp_name: "Sanne", mine: [92, 81, 81], theirs: [84, 89, 98],
-    my_years: [1911, 1920, 1917], their_years: [1915, 1913, 1912], my_hints: [0, 0, 23], their_hints: [0, 0, 0], answers: [1912, 1912, 1912] };
+  const g = { code: "KABCDE", state: "live", round: 4, round_at: new Date(Date.now() + 5000).toISOString(), hp: 4875, opp_hp: 6000, opp_name: "Sanne", mine: [4975, 4700, 4875], theirs: [4975, 4950, 5000],
+    my_years: [1911, 1920, 1917], their_years: [1913, 1914, 1912], answers: [1912, 1932, 1912] };
   const r = KO._.showHtml(h, g, 3);
   assert.match(r, /<b class="ks-yr ks-ans delta-badge correct">1912<\/b>/, "het echte jaar: groen");
   assert.match(r, /<div class="ks-g me"><b class="ks-yr delta-badge near">1917<\/b><\/div>/, "jouw gok: 5 ernaast = 🟦");
   assert.match(r, /<div class="ks-g op"><b class="ks-yr delta-badge correct">1912<\/b><\/div>/, "die van de ander: precies goed = groen");
-  assert.match(r, /<div class="ks-s me lose"><strong class="dmg">−26<\/strong>/, "jij krijgt de schade (17 × 1,5 = 26)");
-  assert.match(r, /<div class="ks-s op win"><strong>98<\/strong>/);
-  assert.match(r, /<b class="ks-f">×1,5<\/b>/);
-  assert.match(r, /<span class="ks-hint" data-v="-20"><span aria-hidden="true">🏛️<\/span>−20<\/span><span class="ks-hint" data-v="-3"><span aria-hidden="true">⏩<\/span>−3<\/span>/, "hints als losse chips, geen extra getal");
-  assert.doesNotMatch(r, /ernaast|Het was|punten|max|×\s*1,5 =|17 ×/, "geen zinnen, geen max-tekst, geen som");
-  // de max: goud (klasse max), geen tekst
-  assert.match(KO._.showHtml(h, { ...g, mine: [92, 81, 100], theirs: [84, 89, 0] }, 3), /<div class="ks-s op lose"><strong class="dmg max">−100<\/strong>/);
-  // geen gok: een grijs streepje
-  assert.match(KO._.showHtml(h, { ...g, my_years: [1911, 1920, null] }, 3), /<div class="ks-g me"><b class="ks-yr none">—<\/b><\/div>/);
+  assert.match(r, /<div class="ks-s me lose"><strong class="dmg">−125<\/strong><small><span class="ks-pen delta-badge near" data-v="-125">−125<\/span><\/small>/, "jij: 5 jaar × 25");
+  assert.match(r, /<div class="ks-s op win"><strong>5000<\/strong><small><\/small>/, "precies goed: geen chip");
+  assert.match(r, /<b class="ks-f">×1<\/b>/);
+  assert.doesNotMatch(r, /ernaast|Het was|punten|max|×\s*1 =|ks-hint/, "geen zinnen, geen max-tekst, geen som, geen hints");
+  // een klap van 5000 of meer: goud (klasse max), geen tekst
+  assert.match(KO._.showHtml(h, { ...g, mine: [4975, 4700, 5000], theirs: [4975, 4950, 0], their_years: [1913, 1914, 2400] }, 3), /<div class="ks-s op lose"><strong class="dmg max">−5000<\/strong>/);
+  // geen gok: een grijs streepje en alles kwijt (⬛)
+  const ng = KO._.showHtml(h, { ...g, mine: [4975, 4700, 0], my_years: [1911, 1920, null] }, 3);
+  assert.match(ng, /<div class="ks-g me"><b class="ks-yr none">—<\/b><\/div>/); assert.match(ng, /delta-badge farthest" data-v="-5000">−5000</);
   // gelijk: geen schade, niemand wint
-  const t = KO._.showHtml(h, { ...g, mine: [92, 81, 90], theirs: [84, 89, 90] }, 3);
-  assert.match(t, /<div class="ks-s me"><strong>90<\/strong>/); assert.doesNotMatch(t, /dmg|win|lose/);
+  const t = KO._.showHtml(h, { ...g, mine: [4975, 4700, 4900], theirs: [4975, 4950, 4900] }, 3);
+  assert.match(t, /<div class="ks-s me"><strong>4900<\/strong>/); assert.doesNotMatch(t, /dmg|win|lose/);
   // de regel daarna: wie de klap kreeg (gezichtje) en hoeveel, rechts de volgende ronde; afgelopen = zonder volgende ronde
   const l = KO._.lineHtml(h, g, 3);
-  assert.match(l, /<span class="ka-l"><b>R3<\/b><span class="ka-who me"><span class="db-av[^"]*"[^>]*>[^<]*<\/span><em class="">−26<\/em><\/span><\/span><span class="n">R4 · ×2<\/span>/);
+  assert.match(l, /<span class="ka-l"><b>R3<\/b><span class="ka-who me"><span class="db-av[^"]*"[^>]*>[^<]*<\/span><em class="">−125<\/em><\/span><\/span><span class="n">R4 · ×1<\/span>/);
   assert.match(KO._.lineHtml(h, { ...g, state: "done" }, 3), /class="ko-after still"/);
   assert.doesNotMatch(KO._.lineHtml(h, { ...g, state: "done" }, 3), /class="n"/);
-});
-
-test("ko.js — hints terug uit het totaal (🏛️ 20, 🔢 10, ⏩ 3 per stuk, hooguit 6): altijd eenduidig", () => {
-  const hp = (t) => JSON.parse(JSON.stringify(KO._.hintParts(t)));
-  assert.deepEqual(hp(0), []); assert.deepEqual(hp(null), []);
-  assert.deepEqual(hp(20), [["🏛️", 20]]); assert.deepEqual(hp(10), [["🔢", 10]]); assert.deepEqual(hp(9), [["⏩", 9]]);
-  assert.deepEqual(hp(23), [["🏛️", 20], ["⏩", 3]]); assert.deepEqual(hp(13), [["🔢", 10], ["⏩", 3]]);
-  assert.deepEqual(hp(30), [["🏛️", 20], ["🔢", 10]]); assert.deepEqual(hp(48), [["🏛️", 20], ["🔢", 10], ["⏩", 18]]);
-  assert.deepEqual(hp(40), [["", 40]], "kan niet: één chip met het totaal");
-  // elke echte combinatie komt er precies zo weer uit
-  for (const c of [0, 1]) for (const d of [0, 1]) for (let l = 0; l <= 6; l++) {
-    const want = [...(c ? [["🏛️", 20]] : []), ...(d ? [["🔢", 10]] : []), ...(l ? [["⏩", 3 * l]] : [])];
-    assert.deepEqual(hp(20 * c + 10 * d + 3 * l), want, `${c}/${d}/${l}`);
-  }
-  // de prijzen staan in game.js
-  assert.match(GAME, /const CENTURY_HINT_PENALTY = 20;/); assert.match(GAME, /const LATER_CLUE_PENALTY = 3;/); assert.match(GAME, /const LAST_DIGIT_PENALTY = 10;/);
-  assert.match(GAME, /const LATER_WINDOWS = \[100, 250, 500, 1000, 1500, 2000\];/, "hooguit 6 ⏩");
   // de kleuren per afstand zijn die van classify() in game.js
   assert.match(GAME, /if \(abs <= 2\) return "veryclose";\n  if \(blue && abs <= 5\) return "near";\n  if \(abs <= 10\) return "close";\n  if \(abs <= 25\) return "warm";\n  if \(abs <= 50\) return "cool";\n  if \(abs <= 200\) return "far";\n  if \(abs <= 599\) return "distant";/);
 });
 
-test("ko.js — rondes, levensverloop en het eindscherm (A): schade, max, levens per ronde", () => {
-  const g = { code: "KEND", state: "done", hp_max: 150, opp_name: "Sanne", mine: [90, 80, 40, 100], theirs: [40, 30, 70, 0], hp: 105, opp_hp: 0, winner: "me" };
+test("ko.js — rondes, levensverloop en het eindscherm (A): schade, de klap van 5000 (goud), levens per ronde", () => {
+  const g = { code: "KEND", state: "done", hp_max: 6000, opp_name: "Sanne", mine: [4900, 4000, 2000, 5000, 4000], theirs: [2400, 1500, 3500, 0, 3000], hp: 4500, opp_hp: 0, winner: "me" };
   const q = KO._.roundOf(g, 3);
-  assert.equal(q.d, 30); assert.equal(q.m, 1.5); assert.equal(q.x, 45); assert.equal(q.who, "me"); assert.equal(q.max, false);
+  assert.equal(q.d, 1500); assert.equal(q.m, 1); assert.equal(q.x, 1500); assert.equal(q.who, "me"); assert.equal(q.max, false);
   const q4 = KO._.roundOf(g, 4);
-  assert.equal(q4.x, 100); assert.equal(q4.max, true, "100 × 2 = 200 → max");
-  assert.equal(KO._.roundOf({ ...g, mine: [90, 80, 40, 90], theirs: [40, 30, 70, 40] }, 4).max, true, "precies 100 is ook de max");
-  assert.deepEqual(JSON.parse(JSON.stringify(KO._.hpPath(g))), [[150, 150], [150, 100], [150, 50], [105, 50], [105, 0]]);
+  assert.equal(q4.x, 5000); assert.equal(q4.max, true, "een hele ronde (5000) = goud");
+  assert.equal(KO._.roundOf(g, 5).x, 1500, "ronde 5: 1000 × 1,5");
+  assert.deepEqual(JSON.parse(JSON.stringify(KO._.hpPath(g))), [[6000, 6000], [6000, 3500], [6000, 1000], [4500, 1000], [4500, 0], [4500, 0]]);
   const h = host();
   const l = KO._.lifeHtml(h, g);
   assert.equal((l.match(/<polyline /g) || []).length, 2);
-  assert.match(l, /aria-label="Levens per ronde: jij van 150 naar 105, Sanne van 150 naar 0"/);
-  assert.match(l, /<b>Start<\/b><small>❤️ 150<\/small>/);
-  assert.match(l, /<b>R3<\/b><small>×1,5<\/small><em class="me">−45<\/em>/, "schade in de kleur van wie hem kreeg");
-  assert.match(l, /<b>R4<\/b><small>×2<\/small><em class="op max">−100<\/em>/, "de max in goud");
+  assert.match(l, /aria-label="Levens per ronde: jij van 6000 naar 4500, Sanne van 6000 naar 0"/);
+  assert.match(l, /<b>Start<\/b><small>❤️ 6000<\/small>/);
+  assert.match(l, /<b>R3<\/b><small>×1<\/small><em class="me">−1500<\/em>/, "schade in de kleur van wie hem kreeg");
+  assert.match(l, /<b>R4<\/b><small>×1<\/small><em class="op max">−5000<\/em>/, "de klap van 5000 in goud");
   assert.match(l, /<text class="out"[^>]*>0<\/text>/, "K.O. = 0 in rood");
   assert.doesNotMatch(l, /many/);
   assert.match(KO._.lifeHtml(h, { ...g, mine: Array(9).fill(50), theirs: Array(9).fill(50) }), /ko-life many/, "veel rondes: compacter");
@@ -159,7 +143,7 @@ test("game.js / duel.js / live.js ↔ ko.js — lui geladen, rondes en seintjes 
   assert.match(GAME, /const loadKo = \(\) => loadDuel\(\)\.then\(loadKoFile\);/, "eerst duel.js (Duel.kit)");
   assert.match(GAME, /"jaardle:ko-rt", \(e\) => loadKo\(\)\.then\(\(K\) => K\.event\(duelHost\(\), e\.detail\)\)/);
   assert.match(GAME, /state\.guesses\.length >= MAX_GUESSES \|\| state\.duel\?\.ko\) \{/, "één gok per ronde");
-  assert.match(GAME, /koHints: \(\) => \(state\?\.centuryRevealed \? CENTURY_HINT_PENALTY : 0\)/, "de hints van de ronde gaan mee naar ko_submit");
+  assert.doesNotMatch(GAME, /koHints/, "geen hints meer in knock-out (22/11)");
   assert.match(GAME, /koTimeout: \(\) => \{ if \(state\?\.duel\?\.ko && !state\.done\) finishGame\(false, true\); \}/);
   assert.match(DUEL, /if \(st\?\.duel\?\.ko\) \{ H\.ko\?\.\(\)\.then\(\(K\) => K\.sync\(H\)\)/);
   assert.match(DUEL, /if \(dl\.ko\) return H\.ko\?\.\(\)\.then\(\(K\) => K\.roundDone\(H, st\)\)/);
@@ -377,17 +361,13 @@ test("ko.js — nageleverde seintjes (replay bij het verbinden) over een ander s
   assert.deepEqual(rpc, [["ko_get", "KINV02"], ["ko_get", "KNEW03"]], "uitnodiging (daarvoor is de replay) en live seintjes gaan gewoon door");
 });
 
-test("ko.js — de hints één voor één tegen je eigen getal, daarna pas de ander; past in de pauze van 8 s (zijn idee 20/11)", () => {
-  assert.match(KOSRC, /const T0 = hn \? CH0 \+ hn \* HS \+ \(two \? 100 : 0\) : two \? 1250 : 1650, left = o\.left \?\? Infinity;/);
-  assert.match(KOSRC, /HS = hn >= 3 \? 450 : 600, CH0 = two \? 950 : 1700;/);
+test("ko.js — de kosten-chip botst op je eigen getal, daarna botsen jullie; past in de pauze van 8 s", () => {
+  assert.match(KOSRC, /const T0 = hn \? CH0 \+ hn \* HS \+ 100 : 1250, left = o\.left \?\? Infinity;/);
+  assert.match(KOSRC, /HS = 600, CH0 = 950;/);
   assert.match(KOSRC, /if \(reduced\(\) \|\| left < T0 \+ 3600 \+ 500\) return fin\(/, "past het niet: meteen het eindbeeld");
-  // de rekensom: met 3 hints (🏛️ 🔢 ⏩) moet de hele laag passen in wat er van 8 s over is als de uitslag ±0,4 s later binnenkomt
-  const T0 = (hn) => (hn ? 1700 + hn * (hn >= 3 ? 450 : 600) : 1650);
-  for (const hn of [0, 1, 2, 3]) assert.ok(T0(hn) + 3600 + 500 <= 7600, `${hn} hints: ${T0(hn) + 4100} ms`);
-  // regels 2: hooguit twee chips (strafpunten + 🎯 +1) vanaf 950 ms
-  const T2 = (hn) => (hn ? 950 + hn * 600 + 100 : 1250);
-  for (const hn of [0, 1, 2]) assert.ok(T2(hn) + 3600 + 500 <= 7600, `regels 2, ${hn} chips: ${T2(hn) + 4100} ms`);
-  assert.doesNotMatch(KOSRC, /hintNote/, "de zin 'een hint geeft … de punten' is weg");
+  // de rekensom: één chip per kant; de hele laag moet passen in wat er van 8 s over is als de uitslag ±0,4 s later binnenkomt
+  for (const hn of [0, 1]) { const T0 = hn ? 950 + hn * 600 + 100 : 1250; assert.ok(T0 + 3600 + 500 <= 7600, `${hn} chip: ${T0 + 4100} ms`); }
+  assert.doesNotMatch(KOSRC, /hintNote|hintParts/, "geen hints meer");
 });
 
 test("ko.js — reacties (db/214): zes vaste, een reactie van de ander geeft een bubbel en een zacht tikje; nageleverd of ander spel: niets", () => {
@@ -645,55 +625,32 @@ test("ko.js — 🎵 de muziek begint met de ronde, niet pas na de eerste gok (2
   assert.ok(/^tense:\d+$/.test(last) && +last.slice(6) > 14000, `de klok gaat door: ${last}`);
 });
 
-test("ko.js — regels 2 (db/220, 21/11): gewone strafpunten, 🎯 +1 bij dezelfde kleur, ×5 t/m ronde 4 en daarna +5, max 150, 250 levens", () => {
-  const two = { rules: 2 };
-  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 13].map((r) => KO._.mult(r, two)), [5, 5, 5, 5, 10, 15, 20, 25, 50]);
-  assert.deepEqual([1, 3, 5, 9].map((r) => KO._.mult(r)), [1, 1.5, 2.5, 3], "zonder rules: de regels van vóór 21/11");
-  assert.equal(KO._.dmgOf(98, 97, 1, two), 5); assert.equal(KO._.dmgOf(100, 85, 13, two), 150, "max 150"); assert.equal(KO._.dmgOf(100, 0, 3), 100, "regels 1: max 100");
-  const f = join(dir, "..", "..", "jaardle-tools", "db", "220_ko_rules2.sql");
-  if (existsSync(f)) { const sql = readFileSync(f, "utf8"); assert.match(sql, /least\(150/); assert.match(sql, /\b85\b/); }
+test("ko.js — de regels (db/222, 22/11): 5000 − 25 per jaar, 6000 levens, geen hints; de oude regels zijn weg", () => {
+  const f = join(dir, "..", "..", "jaardle-tools", "db", "222_ko_rules3.sql");
+  if (existsSync(f)) assert.match(readFileSync(f, "utf8"), /5000/);
   const h = host({ els: { resultText: null } });
-  // jouw ronde 1 tegen Prof: 1 en 4 jaar ernaast → 🟪 −2 en 🟦 −3 → 98 tegen 97, × 5 = −5
-  const g = { code: "KABCDE", rules: 2, hp_max: 250, state: "live", round: 2, round_at: new Date(Date.now() + 5000).toISOString(), hp: 250, opp_hp: 245, opp_name: "Prof",
-    mine: [98], theirs: [97], my_years: [1944], their_years: [1941], my_hints: [0], their_hints: [0], answers: [1945] };
+  // jouw ronde 1 tegen Prof: 1 en 4 jaar ernaast → −25 en −100 → 4975 tegen 4900, × 1 = −75
+  const g = { code: "KABCDE", hp_max: 6000, state: "live", round: 2, round_at: new Date(Date.now() + 5000).toISOString(), hp: 6000, opp_hp: 5925, opp_name: "Prof",
+    mine: [4975], theirs: [4900], my_years: [1944], their_years: [1941], answers: [1945] };
   const r = KO._.showHtml(h, g, 1);
-  assert.match(r, /<div class="ks-s me win"><strong>98<\/strong><small><span class="ks-pen delta-badge veryclose" data-v="-2">−2<\/span><\/small>/);
-  assert.match(r, /<div class="ks-s op lose"><strong class="dmg">−5<\/strong><small><span class="ks-pen delta-badge near" data-v="-3">−3<\/span><\/small>/);
-  assert.match(r, /<b class="ks-f">×5<\/b>/);
-  assert.doesNotMatch(r, /ks-hint|ks-tb/);
-  // zelfde kleur: 1 en 2 jaar → allebei 🟪 −2; de server gaf wie dichterbij zat +1 (99 tegen 98)
-  const t = KO._.showHtml(h, { ...g, mine: [99], theirs: [98], my_years: [1611], their_years: [1608], answers: [1610] }, 1);
-  assert.match(t, /<strong>99<\/strong><small><span class="ks-pen delta-badge veryclose" data-v="-2">−2<\/span><span class="ks-tb" data-v="1"><span aria-hidden="true">🎯<\/span>\+1<\/span><\/small>/);
-  assert.match(t, /<strong class="dmg">−5<\/strong><small><span class="ks-pen delta-badge veryclose" data-v="-2">−2<\/span><\/small>/);
-  // precies goed: geen chip; geen gok: een streepje en ⬛ −15 (85)
-  const x = KO._.showHtml(h, { ...g, mine: [100], theirs: [85], my_years: [1945], their_years: [null] }, 1);
-  assert.match(x, /<div class="ks-s me win"><strong>100<\/strong><small><\/small>/);
-  assert.match(x, /<div class="ks-g op"><b class="ks-yr none">—<\/b><\/div>/);
-  assert.match(x, /<strong class="dmg">−75<\/strong><small><span class="ks-pen delta-badge farthest" data-v="-15">−15<\/span>/, "een spel van vóór db/221: −15 uit de opgeslagen score (85)");
-  // sinds db/221: ⬜ −20, ⬛ −25, geen gok = ⬛ (75)
-  const far = KO._.showHtml(h, { ...g, mine: [80], theirs: [75], my_years: [1645], their_years: [null] }, 1);
-  assert.match(far, /<strong>80<\/strong><small><span class="ks-pen delta-badge distant" data-v="-20">−20<\/span><\/small>/);
-  assert.match(far, /<strong class="dmg">−25<\/strong><small><span class="ks-pen delta-badge farthest" data-v="-25">−25<\/span>/);
-  assert.match(KO._.showHtml(h, { ...g, mine: [95], theirs: [75], my_years: [1940], their_years: [3000] }, 1), /delta-badge farthest" data-v="-25">−25/);
-  assert.match(KOSRC, /pen: rulesOf\(g\)\.hints \? null : PEN \}/);
-  assert.match(GAME, /const penalty = \(state\.duel\?\.pen \|\| GUESS_PENALTIES\)\[g\.cls\] \|\| 0;/);
-  const f2 = join(dir, "..", "..", "jaardle-tools", "db", "221_ko_far.sql");
-  if (existsSync(f2)) assert.match(readFileSync(f2, "utf8"), /<= 599 then 20 else 25 end/);
-  // de levens vanaf 250; de strook: ×5 is gewoon, ×10 (ronde 5) licht op
-  assert.deepEqual(JSON.parse(JSON.stringify(KO._.hpPath({ ...g, mine: [98, 99], theirs: [97, 98] }))), [[250, 250], [250, 245], [250, 240]]);
-  assert.match(KO._.stripHtml(host(), { ...g, round: 4 }), /<b>R4<\/b><span class="">×5<\/span>/);
-  assert.match(KO._.stripHtml(host(), { ...g, round: 5 }), /<b>R5<\/b><span class="up">×10<\/span>/);
+  assert.match(r, /<div class="ks-s me win"><strong>4975<\/strong><small><span class="ks-pen delta-badge veryclose" data-v="-25">−25<\/span><\/small>/);
+  assert.match(r, /<div class="ks-s op lose"><strong class="dmg">−75<\/strong><small><span class="ks-pen delta-badge near" data-v="-100">−100<\/span><\/small>/);
+  // 7 tegen 1251 jaar: 4825 tegen 0 → −4825 (geen goud: minder dan een hele ronde)
+  const far = KO._.showHtml(h, { ...g, mine: [0], theirs: [4825], my_years: [694], their_years: [1938] }, 1);
+  assert.match(far, /<div class="ks-s me lose"><strong class="dmg">−4825<\/strong><small><span class="ks-pen delta-badge farthest" data-v="-5000">−5000<\/span>/);
+  assert.match(far, /<span class="ks-pen delta-badge close" data-v="-175">−175<\/span>/);
   // het verloop bij veel rondes: kleiner
-  const n = 13, many = { ...g, state: "done", mine: Array(n).fill(98), theirs: Array(n).fill(97), my_years: Array(n).fill(1944), their_years: Array(n).fill(1941), answers: Array(n).fill(1945) };
+  const n = 13, many = { ...g, state: "done", mine: Array(n).fill(4975), theirs: Array(n).fill(4900), my_years: Array(n).fill(1944), their_years: Array(n).fill(1941), answers: Array(n).fill(1945) };
   assert.match(KO._.lifeHtml(h, many), /class="ko-life many lots"/);
-  assert.match(KO._.lifeHtml(h, many), /❤️ 250/);
-  // teksten: minuten en levens
-  assert.equal(KO.copy("nl").mins(5), "±5 min"); assert.equal(KO.copy("de").mins(5), "±5 Min.");
-  assert.match(KO.copy("nl").liveSub("Tim"), /250 levens/);
-  // geen betaalde hints: de ronde krijgt noHints mee, game.js zet de knoppen én de toetsen uit, en ko_submit stuurt 0
-  assert.match(KOSRC, /duel: \{ code: g\.code, round: g\.round, opp: oppName\(g\), ko: true, noHints: !rulesOf\(g\)\.hints, pen: /);
-  assert.match(KOSRC, /p_hints: rulesOf\(cur\?\.code === dl\.code \? cur : null\)\.hints \? H\.koHints\?\.\(\) \|\| 0 : 0/);
+  // teksten
+  assert.equal(KO.copy("nl").mins, "±5 min"); assert.equal(KO.copy("de").mins, "±5 Min.");
+  assert.match(KO.copy("nl").liveSub("Tim"), /6000 levens/);
+  // geen betaalde hints: de ronde krijgt noHints mee, game.js zet de knoppen én de toetsen uit, ko_submit stuurt 0; de gokregel toont 25 per jaar
+  assert.match(KOSRC, /ko: true, noHints: true, perYear: PER_YEAR, top: TOP \}/);
+  assert.match(KOSRC, /p_hints: 0 \}\);/);
   for (const fn of ["requestCenturyHint", "requestLastDigit", "requestLaterClue", "requestDirectionHint"]) assert.match(GAME, new RegExp(`function ${fn}\\(\\) \\{\\n  if \\([^\\n]*state\\.duel\\?\\.noHints\\) return;`), `${fn}: uit bij noHints`);
   assert.match(GAME, /els\.hintBtnCentury\.hidden = noHints \|\| state\.done/);
-  assert.match(KOSRC, /body\[data-ko="2"\] #hint-row \{ display: none; \}/);
+  assert.match(GAME, /const penalty = state\.duel\?\.perYear \? Math\.min\(state\.duel\.top, state\.duel\.perYear \* Math\.abs\(g\.diff\)\) : GUESS_PENALTIES\[g\.cls\] \|\| 0;/);
+  assert.match(KOSRC, /body\[data-ko\] #hint-row, body\[data-ko\] #live-score/);
+  assert.doesNotMatch(KOSRC, /🎯|ks-tb|\bPEN\b|RULES|rulesOf|g\.rules|drawP/, "de oude regels zijn weg");
 });

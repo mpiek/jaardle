@@ -3547,7 +3547,8 @@ function renderGuesses() {
       const showDir = revealedSet.has(idx);
       renderDeltaBadge(badge, g.diff, g.cls, showDir);
       row.append(yr, badge);
-      const penalty = (state.duel?.pen || GUESS_PENALTIES)[g.cls] || 0;   // ⚡ knock-out (db/221): eigen tabel, ⬜ −20 en ⬛ −25
+      // ⚡ knock-out (regels 3): wat de gok kost, 25 per jaar ernaast (hooguit de top)
+      const penalty = state.duel?.perYear ? Math.min(state.duel.top, state.duel.perYear * Math.abs(g.diff)) : GUESS_PENALTIES[g.cls] || 0;
       if (penalty > 0) {
         const pen = document.createElement("span");
         pen.className = "penalty";
@@ -5014,8 +5015,6 @@ function duelHost() {
     playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
     ko: () => loadKo(),   // ⚡ Knock-out (db/208, /ko.js)
     koTimeout: () => { if (state?.duel?.ko && !state.done) finishGame(false, true); },   // de klok liep af: geen gok = 0 punten
-    // db/210: wat je hints in deze ronde kosten; in een knock-out gaan die punten naar de ander
-    koHints: () => (state?.centuryRevealed ? CENTURY_HINT_PENALTY : 0) + (state?.lastDigitRevealed ? LAST_DIGIT_PENALTY : 0) + (state?.laterCluesShown || 0) * LATER_CLUE_PENALTY,
   };
 }
 // Vlak vóór duel_submit (door /duel.js): de gegevens van het potje. done(id) komt na het antwoord: id = de nieuwe plays-rij,

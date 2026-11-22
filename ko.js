@@ -8,90 +8,90 @@
 (() => {
   if (window.KO) return;
   const D = window.Duel, K = D.kit;
-  const ID = "modal-ko";   // de levens: RULES hieronder (regels 1: 150, regels 2: 250)
+  const ID = "modal-ko";
 
   const TXT = {
     nl: { react: "Reageer", rxL: "Lachen|Wow|Mooi|Oef|Goed gespeeld|Ik moet gaan|Huilen", resultOf: (r) => `Uitslag ronde ${r}`, replay: "Nog eens zien", start: "Start", lifeAria: (n, m, a, b) => `Levens per ronde: jij van ${m} naar ${a}, ${n} van ${m} naar ${b}`,
-      live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 250 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
+      live: "Live · knock-out", liveSub: (n) => `Nu tegelijk, 6000 levens · ${n} is online`, tag: "Knock-out", noResp: "Geen reactie",
       waitH: (n) => `Wachten op ${n}…`, waitP: "Neemt die binnen een minuut aan, dan begint het meteen.", left: (s) => `nog ${s} s`, cancel: "Annuleer",
       lateH: (n) => `${n} reageert niet`, declH: (n) => `${n} kan nu niet`, lateP: "Misschien zit die niet achter de telefoon.", busyH: (n) => `${n} speelt nu een knock-out`, busyP: "Probeer het zo nog eens, of speel om de beurt.", coolP: "Over een paar minuten kun je het weer vragen.", again: "⚡ Nog eens vragen",
       turn: "⚔️ Speel om de beurt", turnSub: (n) => `5 rondes, ${n} speelt wanneer het uitkomt`, never: "Laat maar",
-      invH: (n) => `${n} wil nú een knock-out`, lives: "levens", same: "1 gok per ronde", mins: (m) => `±${m} min`, join: "Doe mee", notNow: "Niet nu",
+      invH: (n) => `${n} wil nú een knock-out`, lives: "levens", same: "1 gok per ronde", mins: "±5 min", join: "Doe mee", notNow: "Niet nu",
       startH: "Knock-out!", revH: "Revanche!", startP: "Ronde 1 begint zo", roundN: (r) => `Ronde ${r}`,
       guessing: (n) => `${n} gokt`, thinking: (n) => `${n} denkt na`, oppDone: (n) => `${n} is klaar ✓`, waitOpp: (n) => `Wachten op ${n}`,
       rFor: (r, n) => `Ronde ${r} voor ${n}`, rForMe: (r) => `Ronde ${r} voor jou`, rTie: (r) => `Ronde ${r}: gelijk`, you: "Jij",
       
       koWin: "K.O.! Jij wint", koLoss: (n) => `K.O. ${n} wint`, draw: "Gelijkspel",
       koPWin: (n, r, hp) => `${n} ging in ronde ${r} naar 0. Jij hield ${hp} levens over.`, koPLoss: (n, r, hp) => `Jij ging in ronde ${r} naar 0. ${n} hield ${hp} levens over.`,
-      gaveUp: (n) => `${n} stopte.`, youGaveUp: "Je stopte.", drawP: "Na 12 rondes even veel levens.",
+      gaveUp: (n) => `${n} stopte.`, youGaveUp: "Je stopte.",
       rematch: "⚡ Revanche", wantsToo: "wil ook", rematchWait: (n) => `Wacht op ${n}…`, rematchHint: "Druk je allebei, dan begint hij meteen", toDuels: "Naar Duels",
       isKo: (n) => `${n} is knock-out`, youKo: "Jij bent knock-out", gone: "Deze knock-out is gestopt.", err: "Dat lukte niet. Probeer het nog eens.", close: "Sluiten",
       oppGuessed: (n) => `${n} heeft gegokt ✓`,
       back: "Terug", hpLine: (a, n, b) => `Levens: jij ${a}, ${n} ${b}` },
     en: { react: "React", rxL: "Laugh|Wow|Nice|Oof|Good game|Got to go|Cry", resultOf: (r) => `Round ${r} result`, replay: "Watch again", start: "Start", lifeAria: (n, m, a, b) => `Lives per round: you from ${m} to ${a}, ${n} from ${m} to ${b}`,
-      live: "Live · knockout", liveSub: (n) => `Right now, 250 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
+      live: "Live · knockout", liveSub: (n) => `Right now, 6000 lives · ${n} is online`, tag: "Knockout", noResp: "No answer",
       waitH: (n) => `Waiting for ${n}…`, waitP: "If they accept within a minute, it starts right away.", left: (s) => `${s} s left`, cancel: "Cancel",
       lateH: (n) => `${n} isn't answering`, declH: (n) => `${n} can't right now`, lateP: "Maybe they're away from their phone.", busyH: (n) => `${n} is in a knockout right now`, busyP: "Try again in a bit, or play in turns.", coolP: "You can ask again in a few minutes.", again: "⚡ Ask again",
       turn: "⚔️ Play in turns", turnSub: (n) => `5 rounds, ${n} plays whenever it suits`, never: "Never mind",
-      invH: (n) => `${n} wants a knockout now`, lives: "lives", same: "1 guess per round", mins: (m) => `±${m} min`, join: "Join", notNow: "Not now",
+      invH: (n) => `${n} wants a knockout now`, lives: "lives", same: "1 guess per round", mins: "±5 min", join: "Join", notNow: "Not now",
       startH: "Knockout!", revH: "Rematch!", startP: "Round 1 starts in a moment", roundN: (r) => `Round ${r}`,
       guessing: (n) => `${n} is guessing`, thinking: (n) => `${n} is thinking`, oppDone: (n) => `${n} is done ✓`, waitOpp: (n) => `Waiting for ${n}`,
       rFor: (r, n) => `Round ${r} to ${n}`, rForMe: (r) => `Round ${r} to you`, rTie: (r) => `Round ${r}: a tie`, you: "You",
       
       koWin: "K.O.! You win", koLoss: (n) => `K.O. ${n} wins`, draw: "A draw",
       koPWin: (n, r, hp) => `${n} hit 0 in round ${r}. You had ${hp} lives left.`, koPLoss: (n, r, hp) => `You hit 0 in round ${r}. ${n} had ${hp} lives left.`,
-      gaveUp: (n) => `${n} stopped.`, youGaveUp: "You stopped.", drawP: "Same lives after 12 rounds.",
+      gaveUp: (n) => `${n} stopped.`, youGaveUp: "You stopped.",
       rematch: "⚡ Rematch", wantsToo: "wants one too", rematchWait: (n) => `Waiting for ${n}…`, rematchHint: "If you both tap, it starts right away", toDuels: "To Duels",
       isKo: (n) => `${n} is knocked out`, youKo: "You're knocked out", gone: "This knockout has stopped.", err: "That didn't work. Please try again.", close: "Close",
       oppGuessed: (n) => `${n} has guessed ✓`,
       back: "Rejoin", hpLine: (a, n, b) => `Lives: you ${a}, ${n} ${b}` },
     de: { react: "Reagieren", rxL: "Lachen|Wow|Stark|Autsch|Gut gespielt|Muss los|Weinen", resultOf: (r) => `Ergebnis Runde ${r}`, replay: "Noch mal ansehen", start: "Start", lifeAria: (n, m, a, b) => `Leben pro Runde: du von ${m} auf ${a}, ${n} von ${m} auf ${b}`,
-      live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 250 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
+      live: "Live · Knock-out", liveSub: (n) => `Jetzt gleichzeitig, 6000 Leben · ${n} ist online`, tag: "Knock-out", noResp: "Keine Antwort",
       waitH: (n) => `Warte auf ${n}…`, waitP: "Nimmt die Person innerhalb einer Minute an, geht es sofort los.", left: (s) => `noch ${s} s`, cancel: "Abbrechen",
       lateH: (n) => `${n} antwortet nicht`, declH: (n) => `${n} kann gerade nicht`, lateP: "Vielleicht ist das Handy gerade weg.", busyH: (n) => `${n} spielt gerade einen Knock-out`, busyP: "Versuch es gleich noch mal oder spielt abwechselnd.", coolP: "In ein paar Minuten kannst du wieder fragen.", again: "⚡ Noch mal fragen",
       turn: "⚔️ Abwechselnd spielen", turnSub: (n) => `5 Runden, ${n} spielt, wann es passt`, never: "Lass gut sein",
-      invH: (n) => `${n} will jetzt einen Knock-out`, lives: "Leben", same: "1 Tipp pro Runde", mins: (m) => `±${m} Min.`, join: "Mitmachen", notNow: "Nicht jetzt",
+      invH: (n) => `${n} will jetzt einen Knock-out`, lives: "Leben", same: "1 Tipp pro Runde", mins: "±5 Min.", join: "Mitmachen", notNow: "Nicht jetzt",
       startH: "Knock-out!", revH: "Revanche!", startP: "Runde 1 beginnt gleich", roundN: (r) => `Runde ${r}`,
       guessing: (n) => `${n} rät`, thinking: (n) => `${n} überlegt`, oppDone: (n) => `${n} ist fertig ✓`, waitOpp: (n) => `Warte auf ${n}`,
       rFor: (r, n) => `Runde ${r} für ${n}`, rForMe: (r) => `Runde ${r} für dich`, rTie: (r) => `Runde ${r}: unentschieden`, you: "Du",
       
       koWin: "K.O.! Du gewinnst", koLoss: (n) => `K.O. ${n} gewinnt`, draw: "Unentschieden",
       koPWin: (n, r, hp) => `${n} fiel in Runde ${r} auf 0. Du hattest noch ${hp} Leben.`, koPLoss: (n, r, hp) => `Du fielst in Runde ${r} auf 0. ${n} hatte noch ${hp} Leben.`,
-      gaveUp: (n) => `${n} hat aufgehört.`, youGaveUp: "Du hast aufgehört.", drawP: "Nach 12 Runden gleich viele Leben.",
+      gaveUp: (n) => `${n} hat aufgehört.`, youGaveUp: "Du hast aufgehört.",
       rematch: "⚡ Revanche", wantsToo: "will auch", rematchWait: (n) => `Warte auf ${n}…`, rematchHint: "Tippt ihr beide, geht es sofort los", toDuels: "Zu den Duellen",
       isKo: (n) => `${n} ist knock-out`, youKo: "Du bist knock-out", gone: "Dieser Knock-out wurde beendet.", err: "Das hat nicht geklappt. Versuch es noch mal.", close: "Schließen",
       oppGuessed: (n) => `${n} hat getippt ✓`,
       back: "Zurück", hpLine: (a, n, b) => `Leben: du ${a}, ${n} ${b}` },
     es: { react: "Reaccionar", rxL: "Risa|Guau|Genial|Uf|Buena partida|Me tengo que ir|Llorar", resultOf: (r) => `Resultado de la ronda ${r}`, replay: "Ver otra vez", start: "Inicio", lifeAria: (n, m, a, b) => `Vidas por ronda: tú de ${m} a ${a}, ${n} de ${m} a ${b}`,
-      live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 250 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
+      live: "En vivo · K.O.", liveSub: (n) => `Ahora a la vez, 6000 vidas · ${n} está en línea`, tag: "K.O.", noResp: "Sin respuesta",
       waitH: (n) => `Esperando a ${n}…`, waitP: "Si acepta en un minuto, empieza enseguida.", left: (s) => `quedan ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} no responde`, declH: (n) => `${n} no puede ahora`, lateP: "Quizá no está con el móvil.", busyH: (n) => `${n} está jugando un K.O. ahora`, busyP: "Inténtalo dentro de un rato o jugad por turnos.", coolP: "Podrás volver a preguntar en unos minutos.", again: "⚡ Volver a preguntar",
       turn: "⚔️ Jugar por turnos", turnSub: (n) => `5 rondas, ${n} juega cuando le venga bien`, never: "Déjalo",
-      invH: (n) => `${n} quiere un K.O. ahora`, lives: "vidas", same: "1 intento por ronda", mins: (m) => `±${m} min`, join: "Jugar", notNow: "Ahora no",
+      invH: (n) => `${n} quiere un K.O. ahora`, lives: "vidas", same: "1 intento por ronda", mins: "±5 min", join: "Jugar", notNow: "Ahora no",
       startH: "¡K.O.!", revH: "¡Revancha!", startP: "La ronda 1 empieza enseguida", roundN: (r) => `Ronda ${r}`,
       guessing: (n) => `${n} está adivinando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} ha terminado ✓`, waitOpp: (n) => `Esperando a ${n}`,
       rFor: (r, n) => `Ronda ${r} para ${n}`, rForMe: (r) => `Ronda ${r} para ti`, rTie: (r) => `Ronda ${r}: empate`, you: "Tú",
       
       koWin: "¡K.O.! Ganas tú", koLoss: (n) => `K.O. Gana ${n}`, draw: "Empate",
       koPWin: (n, r, hp) => `${n} llegó a 0 en la ronda ${r}. Te quedaban ${hp} vidas.`, koPLoss: (n, r, hp) => `Llegaste a 0 en la ronda ${r}. A ${n} le quedaban ${hp} vidas.`,
-      gaveUp: (n) => `${n} lo dejó.`, youGaveUp: "Lo dejaste.", drawP: "Mismas vidas tras 12 rondas.",
+      gaveUp: (n) => `${n} lo dejó.`, youGaveUp: "Lo dejaste.",
       rematch: "⚡ Revancha", wantsToo: "también quiere", rematchWait: (n) => `Esperando a ${n}…`, rematchHint: "Si pulsáis los dos, empieza enseguida", toDuels: "A Duelos",
       isKo: (n) => `${n} está K.O.`, youKo: "Estás K.O.", gone: "Este K.O. se ha detenido.", err: "No ha funcionado. Inténtalo otra vez.", close: "Cerrar",
       oppGuessed: (n) => `${n} ya ha respondido ✓`,
       back: "Volver", hpLine: (a, n, b) => `Vidas: tú ${a}, ${n} ${b}` },
     pt: { react: "Reagir", rxL: "Risada|Uau|Boa|Ops|Bom jogo|Preciso ir|Chorar", resultOf: (r) => `Resultado da rodada ${r}`, replay: "Ver de novo", start: "Início", lifeAria: (n, m, a, b) => `Vidas por rodada: você de ${m} para ${a}, ${n} de ${m} para ${b}`,
-      live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 250 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
+      live: "Ao vivo · nocaute", liveSub: (n) => `Agora ao mesmo tempo, 6000 vidas · ${n} está online`, tag: "Nocaute", noResp: "Sem resposta",
       waitH: (n) => `Esperando ${n}…`, waitP: "Se aceitar em um minuto, começa na hora.", left: (s) => `faltam ${s} s`, cancel: "Cancelar",
       lateH: (n) => `${n} não responde`, declH: (n) => `${n} não pode agora`, lateP: "Talvez esteja longe do celular.", busyH: (n) => `${n} está em um nocaute agora`, busyP: "Tente de novo daqui a pouco ou jogue por turnos.", coolP: "Você pode perguntar de novo em alguns minutos.", again: "⚡ Perguntar de novo",
       turn: "⚔️ Jogar por turnos", turnSub: (n) => `5 rodadas, ${n} joga quando puder`, never: "Deixa pra lá",
-      invH: (n) => `${n} quer um nocaute agora`, lives: "vidas", same: "1 chute por rodada", mins: (m) => `±${m} min`, join: "Jogar", notNow: "Agora não",
+      invH: (n) => `${n} quer um nocaute agora`, lives: "vidas", same: "1 chute por rodada", mins: "±5 min", join: "Jogar", notNow: "Agora não",
       startH: "Nocaute!", revH: "Revanche!", startP: "A rodada 1 já vai começar", roundN: (r) => `Rodada ${r}`,
       guessing: (n) => `${n} está chutando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} terminou ✓`, waitOpp: (n) => `Esperando ${n}`,
       rFor: (r, n) => `Rodada ${r} para ${n}`, rForMe: (r) => `Rodada ${r} para você`, rTie: (r) => `Rodada ${r}: empate`, you: "Você",
       
       koWin: "K.O.! Você venceu", koLoss: (n) => `K.O. ${n} venceu`, draw: "Empate",
       koPWin: (n, r, hp) => `${n} chegou a 0 na rodada ${r}. Você ficou com ${hp} vidas.`, koPLoss: (n, r, hp) => `Você chegou a 0 na rodada ${r}. ${n} ficou com ${hp} vidas.`,
-      gaveUp: (n) => `${n} parou.`, youGaveUp: "Você parou.", drawP: "Mesmas vidas após 12 rodadas.",
+      gaveUp: (n) => `${n} parou.`, youGaveUp: "Você parou.",
       rematch: "⚡ Revanche", wantsToo: "também quer", rematchWait: (n) => `Esperando ${n}…`, rematchHint: "Se os dois tocarem, começa na hora", toDuels: "Para Duelos",
       isKo: (n) => `${n} levou nocaute`, youKo: "Você levou nocaute", gone: "Este nocaute parou.", err: "Não deu certo. Tente de novo.", close: "Fechar",
       oppGuessed: (n) => `${n} já chutou ✓`,
@@ -169,11 +169,11 @@ html[data-theme="light"] #duel-vs.ko { --ko-op: hsl(var(--h, 30) 58% 42%); }
   background: color-mix(in srgb, var(--duel-arena-on) 16%, transparent); animation: ko-tick 0.6s ease-in-out infinite alternate; }
 .duel-inv .ko-count { margin: 0; font-size: 3.2rem; font-weight: 900; line-height: 1; color: var(--duel-arena); font-variant-numeric: tabular-nums; }
 .dl-opt.ko-opt b { color: var(--duel-arena); }
-body[data-ko]:not([data-ko="2"]) #guesses .penalty, body[data-ko] #live-score, body[data-ko] #hint-count, body[data-ko] #hint-btn-direction, body[data-ko] #guesses .guess-row:nth-child(n+2) { display: none; }   /* één gok per ronde */
+body[data-ko] #hint-row, body[data-ko] #live-score, body[data-ko] #hint-count, body[data-ko] #hint-btn-direction, body[data-ko] #guesses .guess-row:nth-child(n+2) { display: none; }   /* één gok per ronde */
 /* ── de uitslag van een ronde: een laag over het hele scherm (20/11, zijn "superimposed, net als confetti"). Zo min mogelijk tekst:
    bovenaan het echte jaar (groen) tussen jullie gokken (kleur van de afstand, zoals de gokregels), daaronder groot de punten met alleen de
-   hint-chips, in het midden de factor, onderin de namen. De levens blijven boven de laag (body.ko-showing): daar landt de schade. ±40
-   elementen + 14 deeltjes (spans, geen canvas). Max-schade = goud (--ko-max), geen tekst. */
+   chip met wat je gok kostte, in het midden de factor, onderin de namen. De levens blijven boven de laag (body.ko-showing): daar landt
+   de schade. ±40 elementen + 14 deeltjes (spans, geen canvas). Een klap van 5000 of meer (een hele ronde) = goud (--ko-max), geen tekst. */
 .ko-show { --op: hsl(var(--h, 30) 72% 66%); position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; justify-content: center; gap: 1.6rem;
   padding: var(--top, 9rem) max(1rem, env(safe-area-inset-right, 0px)) max(1.6rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
   overflow: hidden; text-align: center; background: color-mix(in srgb, var(--bg) 76%, transparent); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
@@ -198,17 +198,10 @@ body.ko-showing #duel-vs.ko { position: relative; z-index: 61; }
 .ks-s strong.dmg { text-shadow: 0 0 18px color-mix(in srgb, var(--duel-loss) 50%, transparent); }
 .ks-s strong.dmg.max { color: var(--ko-max); text-shadow: 0 0 26px color-mix(in srgb, var(--ko-max) 65%, transparent), 0 0 4px color-mix(in srgb, var(--ko-max) 50%, transparent); }
 .ks-s small { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.3rem; min-height: 1.45rem; }
-.ks-hint.used { opacity: 0.55; transition: opacity 0.3s; }
-/* regels 2 (21/11): de strafpunten van je gok als chip in de kleur van je gok (🟪 −2, 🟦 −3 …), en 🎯 +1 voor wie bij dezelfde kleur
-   dichterbij zat. Ze botsen op je score zoals de hint-chips. Geen hint-knoppen in de ronde (game.js zet ze ook uit, ook de toetsen). */
-body[data-ko="2"] #hint-row { display: none; }
+/* wat je gok kostte (25 per jaar), in de kleur van je gok; botst op je score */
 .ks-pen.delta-badge { min-width: 0; padding: 0.08rem 0.5rem; font-size: 0.82rem; font-weight: 800; line-height: 1.2; letter-spacing: 0; }
-.ks-pen.used, .ks-tb.used { opacity: 0.55; transition: opacity 0.3s; }
-.ks-tb { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.08rem 0.45rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; line-height: 1.2;
-  color: color-mix(in srgb, var(--green) 70%, var(--fg)); background: color-mix(in srgb, var(--green) 16%, transparent); font-variant-numeric: tabular-nums; }
-.ko-life.lots .kl-c b, .ko-life.lots .kl-c em { font-size: 0.56rem; letter-spacing: -0.02em; }   /* regels 2: soms 13+ rondes */
-.ks-hint { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.08rem 0.45rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; line-height: 1.2;
-  color: var(--duel-loss); background: color-mix(in srgb, var(--duel-loss) 15%, transparent); font-variant-numeric: tabular-nums; }
+.ks-pen.used { opacity: 0.55; transition: opacity 0.3s; }
+.ko-life.lots .kl-c b, .ko-life.lots .kl-c em { font-size: 0.56rem; letter-spacing: -0.02em; }   /* zonder rondegrens: soms 13+ rondes */
 /* de namen, in de banden van de duelopening (eigen kleur, streepjes, schuine kant); de verliezer van de ronde wordt grijs */
 .ks-names { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-inline: calc(-1 * max(1rem, env(safe-area-inset-left, 0px))); }
 .ks-nb { position: relative; display: flex; align-items: center; gap: 0.5rem; min-width: 0; height: 2.9rem; padding: 0 1.4rem 0 0.9rem; overflow: hidden; color: #fff;
@@ -344,22 +337,13 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   const esc = K.esc;
   const now = () => Date.now() + skew;
   const at = (iso) => (iso ? Date.parse(iso) : 0);
-  // de regels per spel (ko_games.rules, db/220). 1 = tot 21/11: eigen schaal 100·e^(−afstand/20), ×1 ×1 ×1,5 ×2 ×2,5 ×3, max 100 per ronde,
-  // 150 levens, hints, na 12 rondes klaar. 2 = sinds 21/11 (zijn "normale scores … met factoren werken", "250 levens", "geen max rondes"):
-  // 100 min de strafpunten van het gewone spel (🟪 −2, 🟦 −3 …; geen gok = ⬛ −15), bij dezelfde kleur 🎯 +1 voor wie dichterbij zat,
-  // ×5 t/m ronde 4 en daarna elke ronde +5 (×10, ×15 …), max 150 per ronde, 250 levens, geen betaalde hints, door tot iemand op 0 staat.
-  // Oude spellen houden hun eigen regels, zodat terugkijken in Duels blijft kloppen.
-  const RULES = {
-    1: { hp: 150, cap: 100, base: 1, mins: 3, hints: true, mult: (r) => (r <= 2 ? 1 : r === 3 ? 1.5 : r === 4 ? 2 : r === 5 ? 2.5 : 3) },
-    2: { hp: 250, cap: 150, base: 5, mins: 5, hints: false, mult: (r) => (r <= 4 ? 5 : 5 * (r - 3)) },
-  };
-  const rulesOf = (g) => RULES[g?.rules === 2 ? 2 : 1];
-  const hpMax = (g) => g?.hp_max || rulesOf(g).hp;
-  const mult = (r, g) => rulesOf(g).mult(r);
-  const dmgOf = (a, b, r, g) => Math.min(rulesOf(g).cap, Math.round(Math.abs(a - b) * mult(r, g)));   // = _ko_dmg
-  // = GUESS_PENALTIES (game.js), maar ver weg zwaarder: ⬜ −20, ⬛ −25 (db/221, 21/11, zijn "doe maar zwaarder maken" na 1251 jaar ernaast
-  // = maar 50 schade: met één gok is er geen tweede kans). Geen gok telt als ⬛.
-  const PEN = { correct: 0, veryclose: 2, near: 3, close: 5, warm: 8, cool: 11, far: 13, distant: 20, farthest: 25 };
+  // de regels (22/11, zijn "zoals GeoGuessr: max score 5000 en per jaar minpunten"; db/222): 5000 − 25 per jaar ernaast (0 vanaf 200 jaar,
+  // geen gok = 0), schade = het verschil × de factor (×1 t/m ronde 4, daarna elke ronde +0,5), geen max per ronde, 6000 levens, geen
+  // betaalde hints, door tot iemand op 0 staat. De oude knock-outs (andere regels) zijn bij de overstap gewist.
+  const HP = 6000, TOP = 5000, PER_YEAR = 25;
+  const mult = (r) => (r <= 4 ? 1 : 1 + 0.5 * (r - 4));
+  const dmgOf = (a, b, r) => Math.round(Math.abs(a - b) * mult(r));   // = _ko_damage
+  const hpMax = (g) => g?.hp_max || HP;
   const fmtM = (m) => m.toLocaleString(H?.intl || "en");
   const oppName = (g) => g?.opp_name || "?";
   const hue = (g) => (H?.faceHue ? H.faceHue(oppName(g)) : 30);
@@ -595,7 +579,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const left = Math.max(0, at(g.invite_until) - now());
     sfx(`inv:${g.code}`, "invite");
     const el = pop(band(g, T.tag) + `<h2>${esc(T.invH(oppName(g)))}</h2>` +
-      `<div class="ko-rules"><span>❤️ <b>${hpMax(g)}</b> ${esc(T.lives)}</span><span>${esc(T.same)}</span><span>${esc(T.mins(rulesOf(g).mins))}</span></div>` +
+      `<div class="ko-rules"><span>❤️ <b>${hpMax(g)}</b> ${esc(T.lives)}</span><span>${esc(T.same)}</span><span>${esc(T.mins)}</span></div>` +
       `<button type="button" class="duel-go ko-go" data-ko="yes" style="--dur:${left}ms">${esc(T.join)}<span class="ko-left"></span></button>` +
       `<button type="button" class="duel-no" data-ko="no">${esc(T.notNow)}</button>`,
       async (act, b) => {
@@ -713,7 +697,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       clock = `<div class="ko-clock"><i></i></div>`;
     } else if (playing) status = `<span class="ko-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc(T.thinking(n))}</span>`;
     const hold = drain?.hold;   // playResult: de balk wacht op de schade die eraan komt
-    return side("me", T.you, me, hold ? drain.me : g.hp, hold ? null : drain?.me) + `<span class="ko-mid"><b>R${rr}</b><span class="${mult(rr, g) > rulesOf(g).base ? "up" : ""}">×${esc(fmtM(mult(rr, g)))}</span></span>` +
+    return side("me", T.you, me, hold ? drain.me : g.hp, hold ? null : drain?.me) + `<span class="ko-mid"><b>R${rr}</b><span class="${mult(rr) > 1 ? "up" : ""}">×${esc(fmtM(mult(rr)))}</span></span>` +
       side("op", n, op, hold ? drain.op : g.opp_hp, hold ? null : drain?.op) + `<div class="ko-st${clock ? " clock" : ""}">${status}</div>${clock}` +
       (rxOk(g) ? `<button type="button" class="ko-rx-btn" aria-expanded="${rxOpen}" aria-label="${esc(T.react)}"${rxWait(g) ? " disabled" : ""}>${RXI}</button>` +
         (rxOpen && !rxWait(g) ? rxRow(T, " float") : "") : "");
@@ -722,7 +706,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const T = tx(), dt = K.tx(H.lang), tabs = document.getElementById("mode-tabs"), card = document.getElementById("event-card");
     document.body.setAttribute("data-duelpage", "");
     document.body.setAttribute("data-arena", "");
-    document.body.setAttribute("data-ko", rulesOf(g).hints ? "" : "2");   // CSS: één gokregel, geen puntenteller; "2" = regels 2 (geen hint-knoppen)
+    document.body.setAttribute("data-ko", "");   // CSS: één gokregel, geen puntenteller, geen hint-knoppen
     document.getElementById("ko-hintnote")?.remove();   // de zin "een hint geeft … de punten" is weg (20/11: verwarrend)
     let top = document.getElementById("duel-top");
     if (!top && tabs) {
@@ -820,7 +804,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // terug in een ronde die je al open had (via Duels, 20/11): je bord zoals je het achterliet (de gok, de hints), anders kon je opnieuw
     // gokken en waren je hints gratis; al gegokt = meteen weer "Wachten op …" (ko_submit nog eens geeft gewoon de stand)
     const run = H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(g.code, g.round) || null, potId: `k${g.code}${g.round}`,
-                               duel: { code: g.code, round: g.round, opp: oppName(g), ko: true, noHints: !rulesOf(g).hints, pen: rulesOf(g).hints ? null : PEN } });
+                               duel: { code: g.code, round: g.round, opp: oppName(g), ko: true, noHints: true, perYear: PER_YEAR, top: TOP } });
     if (it) Promise.resolve(run).then(() => it.open(), () => it.open());
     // 🎵 de muziek begint met de ronde. Eerder kwam hij pas bij het eerstvolgende seintje, dus na de eerste gok (zijn melding 21/11:
     // "muziek gaat pas spelen nadat 1 iemand gegokt heeft? ipv als match begint"). cur = de nieuwste stand van dit spel
@@ -842,42 +826,29 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   const band5 = (d) => (d === 0 ? "correct" : d <= 2 ? "veryclose" : d <= 5 ? "near" : d <= 10 ? "close" : d <= 25 ? "warm" : d <= 50 ? "cool"
     : d <= 200 ? "far" : d <= 599 ? "distant" : "farthest");   // = classify() in game.js
   const fmtN = (v) => (v < 0 ? `−${-v}` : String(v));
-  // het hinttotaal van de server (ko_submit p_hints) terug in losse hints: 🏛️ 20, 🔢 10, ⏩ 3 per stuk (hooguit 6). Die som is eenduidig
-  // (rest bij delen door 3: 2 = 🏛️, 1 = 🔢, 0 = geen van beide of allebei vanaf 30); klopt hij niet, dan één chip met het totaal.
-  function hintParts(t) {
-    if (!(t > 0)) return [];
-    const m = t % 3, both = m === 0 && t >= 30, c = m === 2 || both, d = m === 1 || both, l = (t - (c ? 20 : 0) - (d ? 10 : 0)) / 3;
-    if (!(l >= 0 && l <= 6 && Number.isInteger(l))) return [["", t]];
-    return [...(c ? [["🏛️", 20]] : []), ...(d ? [["🔢", 10]] : []), ...(l ? [["⏩", 3 * l]] : [])];
-  }
-  // ronde r van g: beide kanten (punten, gok, hints, afstand), het verschil, de schade, en wie hem krijgt (who: "me" = jij, "op" = de ander)
-  // regels 2: per kant ook de kleur (band), de strafpunten (pen; geen gok = ⬛ −15) en 🎯 +1 (tb: de score ligt er één boven 100 − pen)
+  // ronde r van g: beide kanten (punten, gok, afstand, de kleur van de gok en wat hij kostte: cost = 5000 − score; geen gok = ⬛), het
+  // verschil, de schade, en wie hem krijgt (who: "me" = jij, "op" = de ander). max = een klap van 5000 of meer (goud)
   function roundOf(g, r) {
-    const R = rulesOf(g), a = g.mine[r - 1], b = g.theirs[r - 1], m = mult(r, g), d = Math.abs(a - b), raw = Math.round(d * m), ans = g.answers?.[r - 1];
-    const side = (pts, y, h) => {
-      const off = y == null || ans == null ? null : Math.abs(y - ans), band = R.hints ? null : y == null ? "farthest" : off == null ? null : band5(off);
-      // de strafpunten uit de opgeslagen score (spellen van vóór db/221 hadden ⬜/⬛ −15); 🎯 +1 = één boven 100 − de tabel
-      const tb = band && pts === 100 - PEN[band] + 1 ? 1 : 0, pen = !band ? 0 : tb ? PEN[band] : Math.max(0, 100 - pts);
-      return { pts, y: y ?? null, h: R.hints ? h || 0 : 0, off, band, pen, tb };
+    const a = g.mine[r - 1], b = g.theirs[r - 1], m = mult(r), d = Math.abs(a - b), x = Math.round(d * m), ans = g.answers?.[r - 1];
+    const side = (pts, y) => {
+      const off = y == null || ans == null ? null : Math.abs(y - ans), band = y == null ? "farthest" : off == null ? null : band5(off);
+      return { pts, y: y ?? null, off, band, cost: band ? Math.max(0, TOP - pts) : 0 };
     };
-    return { r, m, d, x: Math.min(R.cap, raw), max: d > 0 && raw >= R.cap, ans, who: a > b ? "op" : a < b ? "me" : null,
-             a: side(a, g.my_years?.[r - 1], g.my_hints?.[r - 1]), b: side(b, g.their_years?.[r - 1], g.their_hints?.[r - 1]) };
+    return { r, m, d, x, max: x >= TOP, ans, who: a > b ? "op" : a < b ? "me" : null, a: side(a, g.my_years?.[r - 1]), b: side(b, g.their_years?.[r - 1]) };
   }
   // de levens na elke ronde, vanaf de start (zoals de server: de schade eraf, niet onder 0)
   function hpPath(g) {
     const max = hpMax(g), out = [[max, max]];
     let a = max, b = max;
     for (let i = 0; i < Math.min(g.mine.length, g.theirs.length); i++) {
-      const x = dmgOf(g.mine[i], g.theirs[i], i + 1, g);
+      const x = dmgOf(g.mine[i], g.theirs[i], i + 1);
       if (g.mine[i] < g.theirs[i]) a = Math.max(0, a - x); else if (g.mine[i] > g.theirs[i]) b = Math.max(0, b - x);
       out.push([a, b]);
     }
     return out;
   }
-  // de chips onder een score (data-v = wat er bij de botsing af of bij gaat): regels 1 de hints, regels 2 de strafpunten en 🎯 +1
-  const chipsHtml = (p) => (p.band ? (p.pen ? `<span class="ks-pen delta-badge ${p.band}" data-v="${-p.pen}">−${p.pen}</span>` : "") +
-      (p.tb ? `<span class="ks-tb" data-v="1"><span aria-hidden="true">🎯</span>+1</span>` : "")
-    : hintParts(p.h).map(([e, v]) => `<span class="ks-hint" data-v="${-v}">${e ? `<span aria-hidden="true">${e}</span>` : ""}−${v}</span>`).join(""));
+  // de chip onder een score: wat de gok kostte (data-v = wat er bij de botsing af gaat)
+  const chipsHtml = (p) => (p.band && p.cost ? `<span class="ks-pen delta-badge ${p.band}" data-v="${-p.cost}">−${p.cost}</span>` : "");
   // het eindbeeld van de laag (afspelen zet alles eerst terug op het begin)
   function showHtml(g, q) {
     const T = tx(), n = oppName(g), lo = q.who;
@@ -894,7 +865,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const T = tx(), n = oppName(g), live = g.state === "live" && g.round > q.r;
     const hit = q.who ? `<span class="ka-who ${q.who}">${q.who === "op" ? K.dbAv(g.opp_flair, n) : K.dbAv(K.meFlair(), K.meNameOr(T, T.you))}<em class="${q.max ? "max" : ""}">−${q.x}</em></span>` : `<em class="tie">0</em>`;
     return `<button type="button" class="ko-after${live ? "" : " still"}" style="--h:${hue(g)}${live ? `;--dur:${Math.max(0, at(g.round_at) - now())}ms` : ""}" title="${esc(T.replay)}">` +
-      `<span class="ka-l"><b>R${q.r}</b>${hit}</span>${live ? `<span class="n">R${g.round} · ×${esc(fmtM(mult(g.round, g)))}</span>` : ""}</button>`;
+      `<span class="ka-l"><b>R${q.r}</b>${hit}</span>${live ? `<span class="n">R${g.round} · ×${esc(fmtM(mult(g.round)))}</span>` : ""}</button>`;
   }
   function placeCard(html) {
     const res = H.els.result;
@@ -962,11 +933,10 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const $ = (sel) => ov.querySelector(sel), lo = q.who, wi = lo === "op" ? "me" : lo === "me" ? "op" : null;
     // de tijdlijn: de hints komen één voor één (zijn idee 20/11), daarna schuift de rest op (T0). Bij 3 hints iets vlotter, zodat het
     // in de pauze van 8 s past; daarna minstens tot de balk gezakt is (T0 + 3600), en weg uiterlijk 0,5 s voor de volgende ronde
-    // regels 2: de scores staan meteen op 100 en de strafchips botsen erop vanaf 950 ms (waar regels 1 de punten nog optelt)
-    const R = rulesOf(g), two = !R.hints;
+    // de scores staan meteen op 5000 en de kosten-chip botst erop vanaf 950 ms
     const cv = (k) => [...(ov.querySelector(`.ks-s.${k} small`)?.children || [])].map((e) => +e.dataset.v || 0);
-    const parts = { me: cv("me"), op: cv("op") }, hn = Math.max(parts.me.length, parts.op.length), HS = hn >= 3 ? 450 : 600, CH0 = two ? 950 : 1700;
-    const T0 = hn ? CH0 + hn * HS + (two ? 100 : 0) : two ? 1250 : 1650, left = o.left ?? Infinity;
+    const parts = { me: cv("me"), op: cv("op") }, hn = Math.max(parts.me.length, parts.op.length), HS = 600, CH0 = 950;
+    const T0 = hn ? CH0 + hn * HS + 100 : 1250, left = o.left ?? Infinity;
     if (reduced() || left < T0 + 3600 + 500) return fin(Math.max(800, Math.min(2500, left - 1500)));
     const S = { me: $(".ks-s.me"), op: $(".ks-s.op") }, N = { me: S.me.querySelector("strong"), op: S.op.querySelector("strong") };
     const C = { me: S.me.querySelector("small"), op: S.op.querySelector("small") }, P = { me: q.a, op: q.b };
@@ -998,23 +968,21 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     };
     // beginstand: alles nog weg, de getallen op 0
     [$(".ks-ans"), ...ov.querySelectorAll(".ks-g > *"), $(".ks-f"), C.me, C.op].forEach((e) => e?.classList.add("ks-wait"));
-    for (const k of ["me", "op"]) { S[k].classList.remove("win", "lose"); N[k].className = ""; N[k].textContent = two ? "100" : "0"; }
+    for (const k of ["me", "op"]) { S[k].classList.remove("win", "lose"); N[k].className = ""; N[k].textContent = String(TOP); }
     ov.querySelectorAll(".ks-nb").forEach((e) => e.classList.remove("lose"));
     later(250, () => pop([$(".ks-ans")]));   // het echte jaar
     later(520, () => pop([...ov.querySelectorAll(".ks-g.me > *")]));   // jouw gok
     later(680, () => pop([...ov.querySelectorAll(".ks-g.op > *"), $(".ks-f")]));   // die van de ander, en de factor
-    if (!two) later(950, () => { for (const k of ["me", "op"]) count(N[k], 0, P[k].pts + P[k].h, 650); });   // regels 1: de punten tellen op
-    // de chips, één voor één: de chip springt op en botst op je eigen getal, dat zakt (🎯 +1: stijgt); beide kanten tegelijk
+    // de chips, één voor één: de chip springt op en botst op je eigen getal, dat zakt; beide kanten tegelijk
     for (const k of ["me", "op"]) {
-      let v = two ? 100 : P[k].pts + P[k].h;
+      let v = TOP;
       parts[k].forEach((c, i) => {
         const t = CH0 + i * HS, chip = () => C[k].children[i];
         later(t, () => { C[k].classList.remove("ks-wait"); [...C[k].children].forEach((x, j) => x.classList.toggle("ks-wait", j > i)); pop([chip()]); });
         later(t + 170, () => { const ch = chip(); if (ch) { ghost(ch, N[k], ch.textContent, 280, "shot"); ch.classList.add("used"); } });
         later(t + 450, () => {
           const from = v; v += c;
-          if (c < 0) { burst(ov, N[k], ["var(--duel-loss)", "#fff"], 8, 0.6); shake(S[k]); sfx(`hint:${g.code}:${q.r}:${k}:${i}`, "clash"); }
-          else burst(ov, N[k], ["var(--green)", "#fff"], 8, 0.6);
+          burst(ov, N[k], ["var(--duel-loss)", "#fff"], 8, 0.6); shake(S[k]); sfx(`hint:${g.code}:${q.r}:${k}:${i}`, "clash");
           count(N[k], from, v, down(c, 360));
         });
       });
@@ -1036,7 +1004,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     });
     later(T0 + 2200, () => {   // × de factor: het blokje licht op (bij ×1,5 en hoger met de power-up), daarna verder aftellen
       pop([$(".ks-f")]);
-      const m = Math.min(3, q.m / R.base), w = m > 1 ? Math.round((m - 1) * 2) * 55 + 115 : 0;   // de power-up: t.o.v. ronde 1, hooguit als ×3
+      const m = Math.min(3, q.m), w = m > 1 ? Math.round((m - 1) * 2) * 55 + 115 : 0;   // de power-up, hooguit als ×3
       if (m > 1) sfx(`pw:${g.code}:${q.r}`, "power", m);
       if (q.x !== q.d) later(w, () => count(N[lo], -q.d, -q.x, down(q.x - q.d, 500)));   // later() telt vanaf nu
     });
@@ -1107,7 +1075,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   function showEnd(g) {
     const T = tx(), n = oppName(g), r = Math.max(g.mine.length, g.theirs.length), won = g.winner === "me";
     const gave = g.mine.length === g.theirs.length && r > 0 && g.hp > 0 && g.opp_hp > 0 && g.winner;   // opgegeven
-    const p = gave ? (won ? T.gaveUp(n) : T.youGaveUp) : !g.winner ? T.drawP : won ? T.koPWin(n, r, g.hp) : T.koPLoss(n, r, g.opp_hp);
+    const p = gave ? (won ? T.gaveUp(n) : T.youGaveUp) : !g.winner ? "" : won ? T.koPWin(n, r, g.hp) : T.koPLoss(n, r, g.opp_hp);
     const want = g.re_opp ? `<span class="ko-want"><span aria-hidden="true">${K.flairEmoji?.(g.opp_flair) || "⚡"}</span> ${esc(T.wantsToo)}</span>` : "";
     // 🤖 (db/218): een bot wil altijd, dus geen "wil ook" en geen uitleg; na winst staat de volgende (sterkere) bot eronder
     const bots = g.bot ? (K.bots?.() || []) : [], bi = bots.findIndex((b) => b.key === g.bot), nb = won && bi >= 0 ? bots[bi + 1] : null;
@@ -1213,7 +1181,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     if (!dl?.ko) return;
     sentRound = `${dl.code}:${dl.round}`;
     placeCard(`<p class="duel-note">${esc(tx().waitOpp(cur && cur.code === dl.code ? oppName(cur) : dl.opp || "?"))}…</p>`);
-    const r = await call("ko_submit", { p_code: dl.code, p_round: dl.round, p_year: st.guesses?.[0]?.year ?? null, p_hints: rulesOf(cur?.code === dl.code ? cur : null).hints ? H.koHints?.() || 0 : 0 });
+    const r = await call("ko_submit", { p_code: dl.code, p_round: dl.round, p_year: st.guesses?.[0]?.year ?? null, p_hints: 0 });
     if (H.state() !== st) return;
     if (r.ok && r.v) apply(r.v); else { sentRound = null; setTimeout(() => refresh(dl.code), 1500); }
   }
@@ -1290,7 +1258,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       call("ko_get", { p_code: g.code }).then((r) => apply(r.ok && r.v ? r.v : g));
     },
     css: CSS, copy: (l) => TXT[l], langs: () => Object.keys(TXT),
-    _: { mult, dmgOf, RULES, rulesOf, SFX, sfx, hintParts, roundOf, hpPath, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); },
+    _: { mult, dmgOf, SFX, sfx, roundOf, hpPath, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); },
          showHtml: (h, g, r) => { H = h; return showHtml(g, roundOf(g, r)); }, lineHtml: (h, g, r) => { H = h; return lineHtml(g, roundOf(g, r)); }, lifeHtml: (h, g) => { H = h; return lifeHtml(g); } },
   };
 })();
