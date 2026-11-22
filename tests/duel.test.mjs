@@ -133,7 +133,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 289000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 22/11: +Jouw stand per vorm (twee kaarten als schakelaar, iconen van de vormen, knock-outcijfers per tegenstander, vijf talen; de rij bovenaan weg); 22/11: +⚔️ duel-prestaties (kaartje in de eindstand, "had je … opgeleverd" zonder account, ❤️ Volle levens op het deelplaatje, db/224); 21/11: +🎵 drie noten bij het aanzetten van de muziek; 21/11: +🎵 de luidspreker met drie standen, drie opnames (lui, /sfx/), muziek aan/uit (de muziek zelf in /duel-music.js); 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 289700, `het lui geladen bestand blijft klein (${SRC.length})`);   // 22/11: +"Jij tegen X" per vorm, het knock-out-icoon ook voor ko.js; 22/11: +Jouw stand per vorm (twee kaarten als schakelaar, iconen van de vormen, knock-outcijfers per tegenstander, vijf talen; de rij bovenaan weg); 22/11: +⚔️ duel-prestaties (kaartje in de eindstand, "had je … opgeleverd" zonder account, ❤️ Volle levens op het deelplaatje, db/224); 21/11: +🎵 drie noten bij het aanzetten van de muziek; 21/11: +🎵 de luidspreker met drie standen, drie opnames (lui, /sfx/), muziek aan/uit (de muziek zelf in /duel-music.js); 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, de deur naast 🌐, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -271,11 +271,11 @@ test("duel.js v3 (db/189) — gezichtjes met jullie stand, kiezen → 'Daag X ui
   X.setPick("kb");
   h = X.pickHtml(T, "<NEW>");
   assert.ok(!h.includes("<NEW>"));
-  assert.match(h, /Jij tegen Bram: <b>4–2<\/b>/); assert.match(h, /class="dl-new dl-pickgo" data-act="modes" aria-expanded="false"[^>]*>[^]*Daag Bram uit/, "één grote knop die de vormen uitklapt");
+  assert.match(h, /<div class="dl-vsline"><span>Jij tegen Bram:<\/span><span class="vs-m"><span class="vs-e" aria-hidden="true">⚔️<\/span><b>4–2<\/b>/, "22/11: per vorm, ⚔️ = Best of 5 (hier alleen Best of 5)"); assert.match(h, /class="dl-new dl-pickgo" data-act="modes" aria-expanded="false"[^>]*>[^]*Daag Bram uit/, "één grote knop die de vormen uitklapt");
   X.setModes(true);
   const hm = X.pickHtml(T, "<NEW>");
   X.setModes(false);
-  assert.match(hm, /data-act="ko" data-k="kb"><span class="mo-e" aria-hidden="true"><svg class="dm-mo"[^]*?<\/svg><\/span><span><b>Knock-out · live<\/b><small>Bram krijgt een seintje en 1 minuut<\/small>/, "⚡ Knock-out, ook als Bram niet online is");
+  assert.match(hm, /data-act="ko" data-k="kb"><span class="mo-e" aria-hidden="true">⚡<\/span><span><b>Knock-out · live<\/b><small>Bram krijgt een seintje en 1 minuut<\/small>/, "⚡ Knock-out, ook als Bram niet online is");
   assert.match(hm, /data-act="challenge" data-k="kb">[^]*<b>Best of 5<\/b>/);
   assert.match(hm, /data-act="challenge" data-k="kb" data-theme="1900">/); assert.match(h, /data-act="new">Liever een link sturen/);
   X.setHost(host({ loggedIn: false }));
@@ -784,7 +784,7 @@ test("duel.js — duelmodus 1900+ (db/202): ▾ naast de grote knop, pilletje, u
   h = X.goHtml(T, `data-act="challenge" data-k="kb"`, T.challengeX("Bram"));
   assert.match(h, /aria-expanded="true"/);
   assert.match(h, /<div class="dl-menu">[^]*<button type="button" class="dl-opt" data-act="challenge" data-k="kb" data-theme="1900">[^]*?<b>1900\+<\/b><small>Alle 5 rondes uit 1900 tot nu<\/small>/);
-  assert.match(h, /<button type="button" class="dl-opt" data-act="challenge" data-k="kb"><span class="mo-e" aria-hidden="true"><svg class="dm-mo"[^]*?<\/svg><\/span><span><b>Best of 5<\/b><small>5 rondes, om de beurt<\/small>/, "Best of 5 staat er ook tussen (22/11: was Normaal)");
+  assert.match(h, /<button type="button" class="dl-opt" data-act="challenge" data-k="kb"><span class="mo-e" aria-hidden="true">⚔️<\/span><span><b>Best of 5<\/b><small>5 rondes, om de beurt<\/small>/, "Best of 5 staat er ook tussen (22/11: was Normaal)");
   X.setModes(false);
   // pilletje alleen bij een bekend thema (een oudere server stuurt geen theme)
   assert.equal(X.thHtml({ theme: "1900" }), `<span class="dl-th"><span aria-hidden="true">📻</span>1900+</span>`);
@@ -1088,18 +1088,18 @@ test("duel.js (db/215) — knock-outs terugzien: onder Jouw stand in hun eigen v
   // openklappen: het kaartje van de knock-out, de eigen cijfers, alleen knock-outs in het lijstje, revanche met het icoon van de vorm
   X.setGrp("kb");
   const o = X.listBody(T, [duel], "", null);
-  assert.match(o, /class="duel-card dl-ko"[^]*· <svg class="dm-i"[^]*?<\/svg> Knock-out<\/b><span class="duel-r">5 rondes<\/span>[^]*data-act="koend" data-code="KWIN01"/);
+  assert.match(o, /class="duel-card dl-ko"[^]*· ⚡ Knock-out<\/b><span class="duel-r">5 rondes<\/span>[^]*data-act="koend" data-code="KWIN01"/);
   assert.match(o, /data-ko-life="KWIN01"[^]*Jij wint, K\.O\. in ronde 5/);
   assert.match(o, /<span class="mid"><b>1–1<\/b><small>2 knock-outs<\/small>/);
   assert.match(o, /<span>Snelste K\.O\. <b>ronde 5<\/b><\/span><span>Gemiddeld <b>3,5 rondes<\/b><\/span>/, "snelste K.O. (niet opgegeven) en gemiddeld aantal rondes");
   assert.ok(!/Rondes <b>|ko-mk|⚡ Knock-outs/.test(o), "geen cijfers of merkjes van de andere vorm");
   assert.match(o, /Vandaag<\/span><span class="dl-res w">gewonnen · ronde 5[^]*verloren · ronde 2/);
-  assert.match(o, /data-act="korev" data-k="kb" data-name="Bram"><svg class="dm-i"[^]*?<\/svg> Revanche/);
+  assert.match(o, /data-act="korev" data-k="kb" data-name="Bram">⚡ Revanche/);
   // Best of 5: alleen het gewone duel
   X.setStand("b");
   const b5 = X.listBody(T, [duel], "", null);
   assert.match(b5, /<b>Bram<\/b><small>Vandaag: verloren 2–3<\/small>[^]*<b>0–1<\/b>/);
-  assert.match(b5, /data-act="rematch" data-code="AAAAAA"><svg class="dm-i"/);
+  assert.match(b5, /data-act="rematch" data-code="AAAAAA"><span class="duel-ico" aria-hidden="true">⚔️<\/span> Revanche/);
   assert.ok(!b5.includes("KWIN01"), "geen knock-outs bij Best of 5");
   X.setStand(null);
   assert.match(X.koCardHtml(T, X.listKo()[1], "Bram"), /Je stopte/, "opgegeven");
@@ -1149,10 +1149,11 @@ test("duel.js — Jouw stand per vorm (22/11): twee kaarten als schakelaar, onth
   assert.match(X.listBody(T, [duel], "", null), /<p class="ms-empty">Nog geen knock-outs\. Daag een vriend die online is live uit, of speel er een tegen een bot\.<\/p>/);
   assert.equal(X.standMode([{ ...duel, seen: false }]), "b");
   X.setStand(null);
-  // de iconen: in het menu met duelvormen, en de levensbalk van de knock-out
+  // de iconen alleen groot op de kaarten; klein (menu) blijft het ⚔️ (22/11: "die kleine KO zijn niet mooi")
   X.setModes(true);
-  assert.match(X.goHtml(T, `data-act="new"`, T.newBtn), /<span class="mo-e" aria-hidden="true"><svg class="dm-mo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#e8794a"\/>/);
+  assert.match(X.goHtml(T, `data-act="new"`, T.newBtn), /<span class="mo-e" aria-hidden="true">⚔️<\/span><span><b>Best of 5<\/b>/);
   X.setModes(false);
+  assert.ok(!/class="dm-i"|class="dm-mo"/.test(SRC), "geen kleine iconen meer");
   assert.match(X.dmIco("k"), /fill="#d9433f"[^]*<rect x="62" y="233" width="116" height="46" rx="4" fill="#fff"\/><\/svg>$/, "knock-out: de levensbalk bijna op");
   assert.match(X.dmIco("b"), /fill="#e8794a"[^]*<rect x="44" y="215" width="72" height="82" rx="16"\/>[^]*stroke-width="8"\/><\/g><\/svg>$/, "best of 5: drie volle en twee open blokjes");
   // de keuze blijft bewaard (localStorage) en een tik meet de vorm (GoatCounter)

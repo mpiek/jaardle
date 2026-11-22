@@ -251,9 +251,6 @@ html[data-theme="light"] { --ms-k: #c23a37; }
 .ms-empty { margin: 0; padding: 0.9rem; border-radius: 10px; background: var(--card-soft); text-align: center; font-size: 0.82rem; line-height: 1.45; color: var(--muted); }
 .ms-bot { margin-left: 0.3rem; padding: 0 0.32rem; border: 1px solid var(--border); border-radius: 999px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em;
   text-transform: uppercase; color: var(--muted); vertical-align: 0.12em; }
-/* de iconen van de vormen in een regel tekst (kop van het knock-out-kaartje, revanche) en in het menu met duelvormen */
-.dm-i { display: inline-block; flex: none; width: 1.15em; height: 1.15em; vertical-align: -0.22em; }
-.dl-opt .mo-e .dm-mo { display: block; width: 1.45rem; height: 1.45rem; }
 
 /* de link zelf: te selecteren, met een eigen kopieerknop */
 .dl-link { display: flex; gap: 0.35rem; align-self: stretch; margin-top: 0.4rem; }
@@ -412,7 +409,10 @@ body[data-duelshome] #mode-tabs { display: flex; }
 .dl-vsline { display: flex; align-items: center; gap: 0.5rem; min-height: 2.4rem; box-sizing: border-box; padding: 0.35rem 0.7rem; font-size: 0.8rem; color: var(--muted);
   background: var(--card-soft); border-radius: 10px; }
 .dl-vsline b { color: var(--fg); font-variant-numeric: tabular-nums; }
-.dl-vsline .dl-form { margin-left: auto; }
+.dl-vsline { flex-wrap: wrap; row-gap: 0.25rem; }
+.dl-vsline > span:first-child { margin-right: auto; }
+.dl-vsline .vs-m { display: inline-flex; align-items: center; gap: 0.35rem; }
+.dl-vsline .vs-e { font-size: 0.95rem; line-height: 1; }
 .dl-linkb { appearance: none; align-self: center; min-height: 2.5rem; padding: 0.2rem 0.8rem; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--muted);
   background: transparent; border: 0; cursor: pointer; }
 .dl-linkb:hover { filter: none; color: var(--fg); text-decoration: underline; }
@@ -998,6 +998,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   const icoHtml = (ch = ICON) => `<span class="duel-ico" aria-hidden="true">${ch}</span>`;
   // De iconen van de twee duelvormen (22/11/2026, mockup "stand per vorm"): de DU/EL-tegel zonder letters, zelfde raster (512, rx 128) en
   // zwaarden, met in het midden de vijf rondes (3 gewonnen, 2 open) of een levensbalk die bijna op is. Bron: jaardle-tools/mockups/standen/icons.
+  // Alleen groot, op de kaarten onder Jouw stand: klein waren ze niet mooi (zijn woorden), daar blijven ⚔️ (Best of 5) en ⚡ (Knock-out).
   const DM_SW = (c) => `<g fill="${c}">` + [45, -45].map((r) => `<g transform="translate(256 256) rotate(${r})"><path d="M0 -236L24 -196V112H-24V-196Z"/>` +
     `<rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g>`).join("") + "</g>";
   const DM_SVG = {
@@ -1007,7 +1008,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     k: `<rect width="512" height="512" rx="128" fill="#d9433f"/>${DM_SW("#a8302c")}` +
       `<rect x="48" y="219" width="416" height="74" rx="12" fill="none" stroke="#fff" stroke-width="8"/><rect x="62" y="233" width="116" height="46" rx="4" fill="#fff"/>`,
   };
-  const dmIco = (m, cls = "dm-i") => `<svg class="${cls}" viewBox="0 0 512 512" aria-hidden="true" focusable="false">${DM_SVG[m]}</svg>`;
+  const dmIco = (m, cls = "ms-ico") => `<svg class="${cls}" viewBox="0 0 512 512" aria-hidden="true" focusable="false">${DM_SVG[m]}</svg>`;
   const themeOf = (d) => (d && d.theme && THEMES[d.theme]) || null;
   const thHtml = (d) => { const m = themeOf(d); return m ? `<span class="dl-th"><span aria-hidden="true">${m.ico}</span>${esc(m.label)}</span>` : ""; };
   // het ⚔️ DUELS-logo: de zwaarden áchter het woord. Eén bron voor de kop van de Duels-pagina én die van een ronde (19/11: "niet overal
@@ -1024,7 +1025,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       `<span><b>${esc(name)}</b><small>${esc(sub)}</small></span></button>`;
     return `<button type="button" class="dl-new dl-pickgo" data-act="modes" aria-expanded="${modesOpen}" aria-label="${esc(T.modes)}">${icoHtml()} ${esc(label)}` +
       `<span class="dl-pickchev" aria-hidden="true">${CHEV}</span></button>` +
-      (modesOpen ? `<div class="dl-menu">${ko}${opt(dmIco("b", "dm-mo"), T.turnBtn, T.turnSub)}` +
+      (modesOpen ? `<div class="dl-menu">${ko}${opt(ICON, T.turnBtn, T.turnSub)}` +
         Object.entries(THEMES).map(([k, m]) => opt(m.ico, m.label, T.eraSub, ` data-theme="${k}"`)).join("") + `</div>` : "");
   }
   const oppName = (d) => ((d && (d.ko ? d.opp_name : d.me === "c" ? d.o_name : d.c_name)) || "?");
@@ -1170,9 +1171,14 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // db/189: de stand van de server (alle duels, zonder ongeziene uitslagen); zonder die (oude server) uit de lijst van 90 dagen.
   // db/215: knock-outs tellen mee (kw/kl naast w/l)
   function recOf(k) { const x = listH2h[k]; return x ? [(x.w || 0) + (x.kw || 0), (x.l || 0) + (x.kl || 0)] : h2hOf(listItems, k); }
-  const formOf = (k) => (listItems || []).concat(listKo).filter((d) => d.status === "done" && !unrevealed(d) && (d.opp || oppName(d)) === k)
+  const formIn = (list, k) => list.filter((d) => d.status === "done" && !unrevealed(d) && (d.opp || oppName(d)) === k)
     .sort((a, b) => (Date.parse(a.finished_at || a.created_at) || 0) - (Date.parse(b.finished_at || b.created_at) || 0))
     .slice(-8).map(resOf);
+  // Per vorm (22/11): b = Best of 5 (w/l van de server, anders de lijst), k = knock-outs (kw/kl). Een gewoon duel (kaart, uitnodiging, link)
+  // toont de Best of 5-stand, "Jij tegen X" allebei; alleen de gezichtjes houden het totaal (recOf).
+  const recB = (k) => { const x = listH2h[k]; return x ? [x.w || 0, x.l || 0] : h2hOf(listItems, k); };
+  const recK = (k) => { const x = listH2h[k]; return x ? [x.kw || 0, x.kl || 0] : h2hOf(listKo, k); };
+  const formB = (k) => formIn(listItems || [], k), formK = (k) => formIn(listKo, k);
   const formHtml = (f) => (f.length ? `<span class="dl-form" aria-hidden="true">${f.map((r) => `<i class="${r}"></i>`).join("")}</span>` : "");
   const incoming = (d) => d.status === "open" && !d.me && d.can_accept;
 
@@ -1582,8 +1588,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     rds += `</div>`;
     // een teamgenoot van de winnaar (bij gelijk: de uitdager) kan die meteen uitdagen, met zijn eigen stand erbij
     const t = H?.loggedIn && a.key ? (listTargets || []).find((x) => x.k === a.key && !x.busy) : null;
-    const [ha, hb] = t ? recOf(a.key) : [0, 0];
-    const chip = t && (ha || hb) ? `<p class="duel-h2h">${esc(T.spMate(a.name))} <b>${ha}–${hb}</b>${formHtml(formOf(a.key))}</p>` : "";
+    const [ha, hb] = t ? recB(a.key) : [0, 0];
+    const chip = t && (ha || hb) ? `<p class="duel-h2h">${esc(T.spMate(a.name))} <b>${ha}–${hb}</b>${formHtml(formB(a.key))}</p>` : "";
     const btns = t
       ? `<button type="button" class="duel-go" data-act="sp-for" data-k="${esc(a.key)}" data-name="${esc(a.name)}">${ICON} ${esc(T.challengeX(a.name))}</button>` +
         `<button type="button" class="duel-no" data-act="new">${esc(T.spOther)}</button>`
@@ -2666,7 +2672,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const wait = items.filter((d) => (d.status === "open" && d.me === "c") || (d.status === "active" && (d.mine || []).length >= 5));
     const recent = (d) => Date.now() - Date.parse(d.created_at) < 3 * 864e5;
     const gone = items.filter((d) => d.me === "c" && ["expired", "declined"].includes(d.status) && recent(d)).slice(0, 3);
-    const h2hTxt = (d) => { const [a, b] = recOf(d.opp || oppName(d)); return a || b ? T.h2h(a, b) : ""; };
+    const h2hTxt = (d) => { const [a, b] = recB(d.opp || oppName(d)); return a || b ? T.h2h(a, b) : ""; };   // een gewoon duel: de Best of 5-stand
     const inc = items.filter(incoming);   // db/189: een uitdaging aan jou (een teamgenoot, of een revanche)
     if (turn.length || inc.length || koLive) {
       const nT = turn.length + inc.length + (koLive ? 1 : 0);
@@ -2788,10 +2794,12 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const t = listTargets.find((x) => x.k === pickSel && !x.busy && x.k !== koK);
     let tail = newBtn;
     if (t) {
-      const [a, b] = recOf(t.k);
-      tail = (a || b ? `<div class="dl-vsline"><span>${esc(T.vsLine(t.name))} <b>${a}–${b}</b></span>${formHtml(formOf(t.k))}</div>` : "") +
+      // jullie stand per vorm (22/11): Best of 5 (⚔️) en knock-outs (⚡), elk met stand en laatste blokjes; een vorm zonder potjes valt weg
+      const seg = (m, [a, b], f) => (a || b ? `<span class="vs-m"><span class="vs-e" aria-hidden="true">${m === "k" ? "⚡" : ICON}</span><b>${a}–${b}</b>${formHtml(f.slice(-5))}</span>` : "");
+      const segs = seg("b", recB(t.k), formB(t.k)) + seg("k", recK(t.k), formK(t.k));
+      tail = (segs ? `<div class="dl-vsline"><span>${esc(T.vsLine(t.name))}</span>${segs}</div>` : "") +
         goHtml(T, `data-act="challenge" data-k="${esc(t.k)}"`, T.challengeX(t.name),
-          `<button type="button" class="dl-opt ko-opt" data-act="ko" data-k="${esc(t.k)}"><span class="mo-e" aria-hidden="true">${dmIco("k", "dm-mo")}</span>` +
+          `<button type="button" class="dl-opt ko-opt" data-act="ko" data-k="${esc(t.k)}"><span class="mo-e" aria-hidden="true">⚡</span>` +
           `<span><b>${esc(T.koName)}</b><small>${esc(isOn(t.k) ? T.koSub(t.name) : T.liveOff(t.name))}</small></span></button>`) +
         `<button type="button" class="dl-linkb" data-act="new">${esc(T.linkInstead)}</button>`;
     }
@@ -2849,7 +2857,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // geen linkveld (die ander krijgt een seintje en ziet hem in zijn lijst); een gewone link (wie hem als eerste aanneemt) heeft ? als
   // tegenstander en het veld met Kopieer, want de link is de enige weg (net verstuurd: dan staat hij al in het groene vak).
   function openLinkHtml(T, d) {
-    const n = d.for_name || "", [a, b] = n ? recOf(d.opp) : [0, 0];
+    const n = d.for_name || "", [a, b] = n ? recB(d.opp) : [0, 0];
     const sub = [n && d.rematch ? T.revenge : "", a || b ? cap(T.h2h(a, b)) : ""].filter(Boolean).map((s) => esc(s) + " · ").join("");
     return `<div class="dl-card out" data-act="resend" data-code="${d.code}">${bandHtml(T, n || "?", n ? d.for_flair : null)}` +
       `<div class="dl-card-f"><small><b>${esc(n ? T.challenged(n) : T.yourLink)}</b>${thHtml(d)}<br>${sub}<em>${esc((sub ? String : cap)(leftText(T, d.deadline)))}</em></small>` +
@@ -2916,8 +2924,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       det = `<div class="dl-detail">${vs}${card}` +
         (known.length > 1 ? `<div class="dl-past">${known.slice(0, 6).map((d) => { const [r, txt] = pastRes(d);
           return `<button type="button" data-sel="${d.code}" data-grp-of="${esc(g.k)}" aria-pressed="${d.code === sel.code}"><span>${esc(cap(whenText(T, d.finished_at)))}</span><span class="dl-res ${r}">${esc(txt)}</span></button>`; }).join("")}</div>` : "") +
-        (sel.ko ? `<button type="button" class="dl-mini dl-rev" data-act="korev" data-k="${esc(sel.opp || "")}" data-name="${esc(n)}"${sel.bot ? ` data-bot="${esc(sel.bot)}"` : ""}>${dmIco("k")} ${esc(T.revenge)}</button></div>`
-          : `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${dmIco("b")} ${esc(T.revenge)}</button></div>`);
+        (sel.ko ? `<button type="button" class="dl-mini dl-rev" data-act="korev" data-k="${esc(sel.opp || "")}" data-name="${esc(n)}"${sel.bot ? ` data-bot="${esc(sel.bot)}"` : ""}>⚡ ${esc(T.revenge)}</button></div>`
+          : `<button type="button" class="dl-mini dl-rev" data-act="rematch" data-code="${sel.code}">${icoHtml()} ${esc(T.revenge)}</button></div>`);
     }
     return `<div class="dl-item${isOpen ? " open" : ""}" data-sel="${(sel || latest).code}">${row}${det}</div>`;
   }
@@ -2926,7 +2934,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   function koCardHtml(T, d, n) {
     const r = koR(d), res = koRes(d);
     const v = koQuit(d) ? (res === "w" ? T.koVQuitW(n) : T.koVQuitL) : res === "w" ? T.koVWin(r) : res === "l" ? T.koVLoss(n, r) : T.koVDraw(r);
-    return `<div class="duel-card dl-ko"><div class="duel-head"><b>${esc(cap(whenText(T, d.finished_at)))}, ${esc(clockText(d.finished_at))} · ${dmIco("k")} ${esc(T.koTag)}</b>` +
+    return `<div class="duel-card dl-ko"><div class="duel-head"><b>${esc(cap(whenText(T, d.finished_at)))}, ${esc(clockText(d.finished_at))} · ⚡ ${esc(T.koTag)}</b>` +
       `<span class="duel-r">${esc(T.koRounds(r))}</span>` +
       `<button type="button" class="dl-endb" data-act="koend" data-code="${esc(d.code)}" aria-label="${esc(cap(T.final))}" title="${esc(cap(T.final))}">🏁<span aria-hidden="true">›</span></button></div>` +
       `<div class="dl-ko-life" data-ko-life="${esc(d.code)}"></div><span class="duel-verdict">${esc(v)}</span></div>`;
@@ -3187,8 +3195,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     if (d.can_accept) {
       const needName = !(H.loggedIn && H.myName && H.myName());
-      const [ha, hb] = recOf(d.opp || "");
-      const chip = ha || hb ? `<p class="duel-h2h">${esc(T.h2hChip)} <b>${ha}–${hb}</b>${formHtml(formOf(d.opp || ""))}</p>` : "";   // db/189
+      const [ha, hb] = recB(d.opp || "");
+      const chip = ha || hb ? `<p class="duel-h2h">${esc(T.h2hChip)} <b>${ha}–${hb}</b>${formHtml(formB(d.opp || ""))}</p>` : "";   // db/189 (22/11: alleen Best of 5)
       return `${bandHtml(T, c, d.c_flair, { poster: true, tag: T.fiveR })}<h2>${esc((d.rematch ? T.invRematch : T.invTitle)(c))}</h2>${thHtml(d)}${chip}<ul><li>${themeOf(d) ? T.inv1Era : T.inv1}</li><li>${T.inv2}</li><li>${T.inv3}</li></ul>` +
         (needName ? `<label for="duel-name-acc">${esc(T.invName(c))}<input id="duel-name-acc" maxlength="20" autocomplete="nickname" placeholder="${esc(T.namePh)}" value="${esc(storedName() || "")}"></label>` : "") +
         `<button type="button" class="duel-go" data-act="accept" data-code="${d.code}">${esc(T.accept)}</button>` +
