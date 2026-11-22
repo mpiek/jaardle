@@ -548,8 +548,6 @@ body[data-duelshome] #mode-tabs { display: flex; }
 .duel-round .dl-th { font-size: 0.68rem; padding: 0 0.4rem 0 0.3rem; }
 .dl-main b .dl-th, .dl-sent b .dl-th { margin-left: 0.35rem; font-size: 0.68rem; padding: 0 0.4rem 0 0.3rem; vertical-align: 0.1em; }
 .dl-card-f > small > .dl-th { margin-left: 0.4rem; }   /* 22/11 (zijn "chip niet tegen de laatste letter"): ⚡ Knock-out / 📻 1900+ achter "X daagt je uit" */
-.dl-hero > .dl-card { align-self: stretch; text-align: left; }   /* 🤖 de bot die klaarstaat, bovenaan de lege staat */
-.dl-hero > .dl-card + h3 { margin-top: 0.55rem; }
 .dl-card.bot .dl-card-f > small > i { font-style: normal; color: var(--fg); opacity: 0.8; }   /* zijn zin, zoals .bo-say in de pop-up */
 /* in een ronde met een thema zegt het lege invoervak welk stuk tijd (i.p.v. "—"). line-height 1.5 / 0.6 = 2.5: de kleine tekst krijgt
    dezelfde regelhoogte als de cijfers, anders krimpt het vak na elke gok (leeg) en groeit het bij het eerste cijfer (19/11: 14 px) */
@@ -2870,10 +2868,14 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const koLive = (koNow() && window.KO.liveHtml?.(H)) || "";   // ⚡ een knock-out die nu loopt (20/11): de kaart terug naar het spel
     const rb = readyBot();   // 🤖 de bot die klaarstaat (22/11): als uitdaging, ook zonder account
     readyKey = rb?.key || null;
-    if (!items.length && !listKo.length && !top && !koLive) {   // lege staat: de bot die klaarstaat (anders Jij vs ?), de drie stappen (= de uitleg), één knop
-      const bf = rb ? "" : botFaceHtml(T);
-      return err + `<div class="dl-hero">${rb ? botCardHtml(T, rb) : bandHtml(T, "?", null)}` +
-        `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${bf ? `<div class="dl-pick bot-only"><div class="dl-faces">${bf}</div></div>` : ""}${newBtn}</div>`;
+    // De bot die klaarstaat hoort bij Wacht, onder "Daag een vriend uit" (22/11, zijn "logischer dat die invite onder de challenge a friend
+    // komt te staan, het moet gewoon bij waiting staan en die hoort daaronder"); de bots, laatste kaart, telt niet mee in het getal.
+    const waitBot = () => (rb && !shut.has("wait") ? botCardHtml(T, rb) : "");
+    if (!items.length && !listKo.length && !top && !koLive) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop; daaronder Wacht met de bot
+      const bf = rb ? "" : botFaceHtml(T);   // het 🤖-gezichtje alleen als er geen bot klaarstaat (oude server)
+      return err + `<div class="dl-hero">${bandHtml(T, "?", null)}` +
+        `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${bf ? `<div class="dl-pick bot-only"><div class="dl-faces">${bf}</div></div>` : ""}${newBtn}</div>` +
+        (rb ? secH("wait", esc(T.secWait)) + waitBot() : "");
     }
     // Jouw stand (22/11/2026): per vorm, niet meer door elkaar en niet meer bovenaan (wat loopt staat al bij Jouw beurt en Wacht).
     const mode = standMode(items), groups = groupsOf(mode === "k" ? listKo : items);
@@ -2886,8 +2888,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const gone = items.filter((d) => d.me === "c" && ["expired", "declined"].includes(d.status) && recent(d)).slice(0, 3);
     const h2hTxt = (d) => { const [a, b] = recB(d.opp || oppName(d)); return a || b ? T.h2h(a, b) : ""; };   // een gewoon duel: de Best of 5-stand
     const inc = items.filter(incoming);   // db/189: een uitdaging aan jou (een teamgenoot, of een revanche)
-    if (turn.length || inc.length || koLive || rb) {
-      const nT = turn.length + inc.length + (koLive ? 1 : 0);   // zonder de bot: er wacht niemand op je
+    if (turn.length || inc.length || koLive) {
+      const nT = turn.length + inc.length + (koLive ? 1 : 0);
       h += secH("turn", `${esc(T.secTurn)}${nT > 1 ? ` · ${nT}` : ""}`);
       if (!shut.has("turn")) h += koLive;   // live gaat voor: de klok loopt
       if (!shut.has("turn")) for (const d of inc) {   // 19/11: de hele kaart = Neem aan (✕ apart); de twee kanten, zoals de opening
@@ -2903,12 +2905,12 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
         h += `<div class="dl-card turn" data-act="play" data-code="${d.code}">` + boardHtml(T, d, { cur: (d.mine || []).length, meta: leftText(T, d.deadline), peek: false }) +
           `<div class="dl-card-f"><small>${esc(who)}${h2 ? ` · ${esc(h2)}` : ""}${thHtml(d)}</small><button type="button" class="dl-go" data-act="play" data-code="${d.code}">${esc(T.play)}</button></div></div>`;
       }
-      if (!shut.has("turn") && rb) h += botCardHtml(T, rb);   // 🤖 altijd als laatste: eerst wat mensen van je vragen
     }
     if (!top.startsWith("<form")) h += pickHtml(T, newBtn, items);   // met het naamveld open is "Daag uit" de knop
-    if (wait.length) {
+    if (wait.length || rb) {
       h += secH("wait", `${esc(T.secWait)}${wait.length > 1 ? ` · ${wait.length}` : ""}`);
       if (!shut.has("wait")) for (const d of wait) h += d.status === "open" ? openLinkHtml(T, d) : waitItemHtml(T, d, h2hTxt(d));
+      h += waitBot();   // 🤖 als laatste: eerst wat met mensen loopt
     }
     if (anyDone || gone.length) {
       h += secH("done", esc(T.secDone));

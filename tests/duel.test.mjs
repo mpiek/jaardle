@@ -1223,10 +1223,11 @@ test("duel.js — 🤖 bots (db/218): één gezichtje vooraan (ook zonder accoun
   X.setHost(host({ loggedIn: false, faceHue: () => 330 }));
   X.applyList({ items: [], h2h: {}, targets: [], bots: BOTS.map((b) => ({ ...b, w: 0, l: 0 })) });
   assert.match(X.pickHtml(T, "<NEW>"), /class="dl-face bot"[^]*<small class="new">nieuw<\/small>/, "anoniem: de bot staat er ook");
-  // lege staat (22/11): de bot die klaarstaat bovenaan in plaats van "Jij vs ?"; het 🤖-gezichtje staat er dan niet meer
+  // lege staat (22/11): Jij vs ?, de stappen en de knop; daaronder Wacht met de bot die klaarstaat (zijn "onder de challenge a friend,
+  // bij waiting"); het 🤖-gezichtje staat er dan niet meer
   const hero = X.listBody(T, [], "", null);
-  assert.match(hero, /^<div class="dl-hero"><div class="dl-card inc bot" data-act="botgo" data-bot="pip"><div class="vb"[^]*<b>Pip daagt je uit<\/b><span class="dl-th"><span aria-hidden="true">⚡<\/span>Knock-out<\/span><br><i>„Ik ben net uit het ei\. Ik lees alles twee keer\.”<\/i><\/small><button type="button" class="dl-go" data-act="botgo" data-bot="pip">Speel<\/button><\/div><\/div><h3>Daag een vriend uit voor een duel<\/h3>[^]*class="dl-new dl-pickgo"/, "lege staat: Pip daagt je uit, dan het vriendendeel");
-  assert.ok(!hero.includes("bot-only") && !hero.includes('class="vb-av">?'), "lege staat: geen 🤖-gezichtje en geen Jij vs ?");
+  assert.match(hero, /^<div class="dl-hero"><div class="vb"[^]*<h3>Daag een vriend uit voor een duel<\/h3>[^]*class="dl-new dl-pickgo"[^]*<\/button><\/div><h3 class="dl-h"><button type="button" class="dl-hb" data-act="sec" data-sec="wait" aria-expanded="true">Wacht<span class="dl-hc"[^]*<\/h3><div class="dl-card inc bot" data-act="botgo" data-bot="pip"><div class="vb"[^]*<b>Pip daagt je uit<\/b><span class="dl-th"><span aria-hidden="true">⚡<\/span>Knock-out<\/span><br><i>„Ik ben net uit het ei\. Ik lees alles twee keer\.”<\/i><\/small><button type="button" class="dl-go" data-act="botgo" data-bot="pip">Speel<\/button><\/div><\/div>$/, "lege staat: vriendendeel, dan Wacht met Pip");
+  assert.ok(!hero.includes("bot-only"), "lege staat: geen 🤖-gezichtje");
   // geen bots van de server (oude server): alles zoals het was
   X.applyList({ items: [], h2h: {}, targets: [] });
   assert.equal(X.pickHtml(T, "<NEW>"), "<NEW>");
@@ -1458,19 +1459,27 @@ test("duel.js — 🤖 de bot die klaarstaat (22/11): Pip zonder vaste rating en
   ready({}, B(0, 0, 0));
   const robo = X.listBots().find((b) => b.key === "robo");
   assert.match(X.botCardHtml(T, robo), /<b>Robo daagt je uit<\/b><span class="dl-th">[^]*<br>Jullie 0–1<\/small>/);
-  // in de lijst: als laatste in Jouw beurt, het getal telt hem niet mee; niet in de lege staat-vorm
+  // in de lijst: onder Daag iemand uit, als laatste in Wacht; het getal telt hem niet mee
   const now = new Date().toISOString(), soon = new Date(Date.now() + 5 * 3600e3).toISOString();
   const turn = { code: "TTTTTT", status: "active", opp: "kb", me: "c", c_name: "Noor", o_name: "Bram", created_at: now, deadline: soon, mine: [80], theirs: [70, 60], their_done: 2 };
   X.setHost(host({ loggedIn: true, myName: () => "Noor", faceHue: () => 330, myRating: () => 1500, myRatingGames: () => 40 }));
   X.applyList({ items: [turn], h2h: {}, targets: [], bots: B(0, 0, 0) });
   const h = X.listBody(T, [turn], "", null);
-  assert.match(h, /aria-expanded="true">Jouw beurt<span class="dl-hc"/, "één echte kaart: geen getal (de bot telt niet)");
-  assert.ok(h.indexOf('data-code="TTTTTT"') < h.indexOf('data-act="botgo" data-bot="robo"'), "de bot na wat mensen van je vragen");
-  assert.ok(h.indexOf('data-bot="robo"') < h.indexOf("Daag iemand uit"), "en vóór Daag iemand uit");
-  // een afgemaakt duel, niets lopend: toch een kop Jouw beurt met alleen de bot
+  assert.ok(h.indexOf('data-code="TTTTTT"') < h.indexOf("Daag iemand uit") && h.indexOf("Daag iemand uit") < h.indexOf('data-sec="wait"') &&
+    h.indexOf('data-sec="wait"') < h.indexOf('data-act="botgo" data-bot="robo"'), "Jouw beurt, Daag iemand uit, dan Wacht met de bot");
+  assert.match(h, /data-sec="wait" aria-expanded="true">Wacht<span class="dl-hc"/, "het getal van Wacht telt de bot niet");
+  // wacht je op iemand: die eerst, de bot als laatste; Wacht · 2 blijft het aantal mensen
+  const out1 = { code: "OOOOO1", status: "open", me: "c", c_name: "Noor", created_at: now, deadline: soon, mine: [], theirs: [] };
+  const out2 = { ...out1, code: "OOOOO2" };
+  X.applyList({ items: [out1, out2], h2h: {}, targets: [], bots: B(0, 0, 0) });
+  const hw = X.listBody(T, [out1, out2], "", null);
+  assert.match(hw, />Wacht · 2<span class="dl-hc"/);
+  assert.ok(hw.indexOf('data-code="OOOOO2"') < hw.indexOf('data-bot="robo"'), "de bot na je eigen uitdagingen");
+  // een afgemaakt duel, niets lopend: geen kop Jouw beurt, wel Wacht met alleen de bot
   const done = { ...turn, code: "DDDDDD", status: "done", seen: true, finished_at: now, mine: [9, 9, 9, 9, 9], theirs: [1, 1, 1, 1, 1] };
   X.applyList({ items: [done], h2h: {}, targets: [], bots: B(0, 0, 0) });
-  assert.match(X.listBody(T, [done], "", null), /^<h3 class="dl-h"><button type="button" class="dl-hb" data-act="sec" data-sec="turn" aria-expanded="true">Jouw beurt<span class="dl-hc"[^]*data-act="botgo" data-bot="robo"/);
+  const hd = X.listBody(T, [done], "", null);
+  assert.ok(!hd.includes('data-sec="turn"') && /data-sec="wait"[^]*data-act="botgo" data-bot="robo"/.test(hd));
   // tik = een knock-out tegen die bot (zoals de pop-up)
   let started = null;
   X.setHost(host({ ko: () => Promise.resolve({ botStart: (h2, k) => { started = k; } }) }));
