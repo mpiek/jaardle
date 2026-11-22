@@ -690,9 +690,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 .dl-pick.bot-only .dl-faces { justify-content: center; }   /* de lege staat: alleen de bot, gecentreerd boven de grote knop */
 .bot-pop .duel-inv { gap: 0.7rem; }
 .bot-menu { margin-top: 0.15rem; gap: 4px; }
-.bot-opt { min-height: 3.5rem; gap: 0.7rem; padding: 0.45rem 0.6rem; }
-.bot-opt .dl-av { width: 2.5rem; height: 2.5rem; font-size: 1.3rem; }
-.bot-opt .bo-t { display: flex; flex-direction: column; align-items: flex-start; gap: 0.05rem; }
+.bot-opt { min-height: 3.5rem; gap: 0.7rem; padding: 0.55rem 0.6rem; }
+.bot-opt .dl-av { width: 2.5rem; height: 2.5rem; font-size: 1.3rem; align-self: flex-start; margin-top: 0.15rem; }
+.bot-opt .bo-t { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 0.08rem; }
+.bot-opt .bo-say { display: block; margin-top: 0.12rem; font-size: 0.8rem; font-weight: 400; line-height: 1.32; color: var(--fg); opacity: 0.8; text-align: left; text-wrap: pretty; }   /* db/226: zijn zin */
+.dl-av.won { box-shadow: 0 0 0 2px var(--card-soft), 0 0 0 4px var(--green); }   /* db/226: ooit verslagen (zoals een gekozen gezichtje, in de winstkleur) */
 .bot-opt .bo-t b { font-size: 0.98rem; display: flex; align-items: center; gap: 0.4rem; }
 .bot-opt .bo-t small { margin-left: 0; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
 .bot-opt .bo-you { padding: 0.05rem 0.4rem; border-radius: 999px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em;
@@ -806,6 +808,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shResult: (n, a, b, r) => `${ICON} Jaardle-duel tegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "gelijk"}, ${a}–${b}`, shTotals: (a, b) => `${a} tegen ${b}`,
       // db/189: teamgenoten direct uitdagen, seintjes, stand per tegenstander
       botsFace: "Bots", botsH: "Knock-out tegen een bot", botLvl: "Makkelijk|Gemiddeld|Sterk", botsNote: "Begint meteen · telt niet voor je rating", botYou: "≈ jij", botNext: "Volgende",
+      botQ: (s) => `„${s}”`, saypip: "Ik ben net uit het ei. Ik lees alles twee keer.", sayrobo: "Elke gok in precies 10 seconden. Biep.", sayprof: "Vraag me alles over de Romeinen. Popmuziek? Nooit van gehoord.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Daag iemand uit", faceNew: "nieuw", faceRun: "loopt", vsLine: (n) => `Jij tegen ${n}:`, linkInstead: "Liever een link sturen",
       challenged: (n) => `${n} is uitgedaagd`, pushYes: (n) => `${n} krijgt meteen een seintje. Nog 24 uur om aan te nemen.`, pushNo: (n) => `${n} ziet hem bij het openen van Jaardle. Nog 24 uur om aan te nemen.`,
       alsoLink: "Stuur ook een link", sendLinkShort: "Stuur link", acceptShort: "Neem aan", errRunning: (n) => `Je hebt al 3 duels met ${n} lopen.`,
@@ -866,6 +869,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shResult: (n, a, b, r) => `${ICON} Jaardle duel vs ${n}: ${r === "w" ? "won" : r === "l" ? "lost" : "tied"} ${a}–${b}`, shTotals: (a, b) => `${a} vs ${b}`,
       // db/189: challenge teammates directly, notifications, head-to-head
       botsFace: "Bots", botsH: "Knockout against a bot", botLvl: "Easy|Medium|Hard", botsNote: "Starts right away · doesn't count toward your rating", botYou: "≈ you", botNext: "Next",
+      botQ: (s) => `“${s}”`, saypip: "I just hatched. I read everything twice.", sayrobo: "Every guess in exactly 10 seconds. Beep.", sayprof: "Ask me anything about the Romans. Pop music? Never heard of it.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Challenge someone", faceNew: "new", faceRun: "running", vsLine: (n) => `You vs ${n}:`, linkInstead: "Send a link instead",
       challenged: (n) => `You challenged ${n}`, pushYes: (n) => `${n} gets a notification right away. 24 hours to accept.`, pushNo: (n) => `${n} will see it when opening Jaardle. 24 hours to accept.`,
       alsoLink: "Also send a link", sendLinkShort: "Send link", acceptShort: "Accept", errRunning: (n) => `You already have 3 duels going with ${n}.`,
@@ -925,6 +929,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shResult: (n, a, b, r) => `${ICON} Jaardle-Duell gegen ${n}: ${r === "w" ? "gewonnen" : r === "l" ? "verloren" : "unentschieden"}, ${a}–${b}`, shTotals: (a, b) => `${a} zu ${b}`,
       // db/189: Teammitglieder direkt herausfordern, Benachrichtigungen, Stand pro Gegner
       botsFace: "Bots", botsH: "Knock-out gegen einen Bot", botLvl: "Leicht|Mittel|Schwer", botsNote: "Startet sofort · zählt nicht für dein Rating", botYou: "≈ du", botNext: "Nächster",
+      botQ: (s) => `„${s}“`, saypip: "Ich bin gerade geschlüpft. Ich lese alles zweimal.", sayrobo: "Jeder Tipp in genau 10 Sekunden. Piep.", sayprof: "Frag mich alles über die Römer. Popmusik? Nie gehört.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Fordere jemanden heraus", faceNew: "neu", faceRun: "läuft", vsLine: (n) => `Du gegen ${n}:`, linkInstead: "Lieber einen Link schicken",
       challenged: (n) => `${n} ist herausgefordert`, pushYes: (n) => `${n} bekommt sofort eine Benachrichtigung. 24 Stunden zum Annehmen.`, pushNo: (n) => `${n} sieht sie beim Öffnen von Jaardle. 24 Stunden zum Annehmen.`,
       alsoLink: "Auch einen Link schicken", sendLinkShort: "Link schicken", acceptShort: "Annehmen", errRunning: (n) => `Du hast schon 3 laufende Duelle mit ${n}.`,
@@ -983,6 +988,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shResult: (n, a, b, r) => `${ICON} Duelo de Jaardle contra ${n}: ${r === "w" ? "ganado" : r === "l" ? "perdido" : "empate"}, ${a}–${b}`, shTotals: (a, b) => `${a} contra ${b}`,
       // db/189: retar directamente a compañeros, avisos, marcador por rival
       botsFace: "Bots", botsH: "K.O. contra un bot", botLvl: "Fácil|Medio|Difícil", botsNote: "Empieza al instante · no cuenta para tu rating", botYou: "≈ tú", botNext: "Siguiente",
+      botQ: (s) => `«${s}»`, saypip: "Acabo de salir del cascarón. Lo leo todo dos veces.", sayrobo: "Cada respuesta en exactamente 10 segundos. Bip.", sayprof: "Pregúntame lo que quieras sobre los romanos. ¿Música pop? Ni idea.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Reta a alguien", faceNew: "nuevo", faceRun: "en curso", vsLine: (n) => `Tú contra ${n}:`, linkInstead: "Mejor enviar un enlace",
       challenged: (n) => `Has retado a ${n}`, pushYes: (n) => `${n} recibe un aviso ahora mismo. 24 horas para aceptar.`, pushNo: (n) => `${n} lo verá al abrir Jaardle. 24 horas para aceptar.`,
       alsoLink: "Enviar también un enlace", sendLinkShort: "Enviar enlace", acceptShort: "Aceptar", errRunning: (n) => `Ya tienes 3 duelos en curso con ${n}.`,
@@ -1041,6 +1047,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       shResult: (n, a, b, r) => `${ICON} Duelo de Jaardle contra ${n}: ${r === "w" ? "venci" : r === "l" ? "perdi" : "empate"}, ${a}–${b}`, shTotals: (a, b) => `${a} contra ${b}`,
       // db/189: desafiar colegas de equipe diretamente, avisos, placar por adversário
       botsFace: "Bots", botsH: "Nocaute contra um bot", botLvl: "Fácil|Médio|Difícil", botsNote: "Começa na hora · não conta para o seu rating", botYou: "≈ você", botNext: "Próximo",
+      botQ: (s) => `“${s}”`, saypip: "Acabei de sair do ovo. Leio tudo duas vezes.", sayrobo: "Cada palpite em exatamente 10 segundos. Bip.", sayprof: "Me pergunte qualquer coisa sobre os romanos. Música pop? Nunca ouvi falar.",   // 🤖 db/226: de zin van elke bot in de pop-up ("say" + key)
       pickH: "Desafie alguém", faceNew: "novo", faceRun: "em curso", vsLine: (n) => `Você contra ${n}:`, linkInstead: "Prefiro enviar um link",
       challenged: (n) => `Você desafiou ${n}`, pushYes: (n) => `${n} recebe um aviso agora mesmo. 24 horas para aceitar.`, pushNo: (n) => `${n} verá ao abrir o Jaardle. 24 horas para aceitar.`,
       alsoLink: "Enviar também um link", sendLinkShort: "Enviar link", acceptShort: "Aceitar", errRunning: (n) => `Você já tem 3 duelos em andamento com ${n}.`,
@@ -3021,12 +3028,15 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       `${avHtml("🤖", T.botsFace, " on", false)}<b>${esc(T.botsFace)}</b>${lab}</button>`;
   }
   // één bot als regel (de pop-up, en na winst op het K.O.-eindscherm: next). Het niveau komt uit de volgorde (botLvl), de rating eronder.
+  // 🤖 db/226 (mockup "Bots met karakter" v3, zijn keuze 22/11): onder de naam de zin van de bot (zoals het ballonnetje op chess.com: hij
+  // kondigt zijn trekje aan), en een groene rand om zijn gezichtje als je hem ooit versloeg (zijn "kroontje niet zo, gewoon een border").
   function botOptHtml(T, b, i, { you = false, next = false, attrs = "" } = {}) {
-    const lvl = (T.botLvl || "").split("|")[i] || "", w = b.w || 0, l = b.l || 0;
+    const lvl = (T.botLvl || "").split("|")[i] || "", w = b.w || 0, l = b.l || 0, say = T["say" + b.key];
     const rec = !next && (w || l) ? `<span class="bo-rec${w > l ? " up" : w < l ? " down" : ""}">${w}–${l}</span>` : "";
-    return `<button type="button" class="dl-opt bot-opt" data-bot="${esc(b.key)}"${attrs ? " " + attrs : ""}>${avHtml(b.flair, b.name)}` +
+    return `<button type="button" class="dl-opt bot-opt" data-bot="${esc(b.key)}"${attrs ? " " + attrs : ""}>${avHtml(b.flair, b.name, w > 0 ? " won" : "")}` +
       `<span class="bo-t"><b>${esc(b.name)}${you ? ` <span class="bo-you">${esc(T.botYou)}</span>` : ""}</b>` +
-      `<small>${next ? esc(T.botNext) + ": " : ""}${esc([lvl, b.elo].filter((x) => x !== "" && x != null).join(" · "))}</small></span>${rec}</button>`;
+      `<small>${next ? esc(T.botNext) + ": " : ""}${esc([lvl, b.elo].filter((x) => x !== "" && x != null).join(" · "))}</small>` +
+      (say ? `<span class="bo-say">${esc(T.botQ(say))}</span>` : "") + `</span>${rec}</button>`;
   }
   const BOTS_ID = "modal-duel-bots";
   function openBots(T) {

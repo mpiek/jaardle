@@ -21,7 +21,7 @@
       guessing: (n) => `${n} gokt`, thinking: (n) => `${n} denkt na`, oppDone: (n) => `${n} is klaar ✓`, waitOpp: (n) => `Wachten op ${n}`,
       rFor: (r, n) => `Ronde ${r} voor ${n}`, rForMe: (r) => `Ronde ${r} voor jou`, rTie: (r) => `Ronde ${r}: gelijk`, you: "Jij",
       
-      koWin: "K.O.! Jij wint", koLoss: (n) => `K.O. ${n} wint`, draw: "Gelijkspel",
+      koWin: "K.O.! Jij wint", koLoss: (n) => `K.O. ${n} wint`, draw: "Gelijkspel", firstWin: (n) => `Eerste zege op ${n}`,
       koPWin: (n, r, hp) => `${n} ging in ronde ${r} naar 0. Jij hield ${hp} levens over.`, koPLoss: (n, r, hp) => `Jij ging in ronde ${r} naar 0. ${n} hield ${hp} levens over.`,
       gaveUp: (n) => `${n} stopte.`, youGaveUp: "Je stopte.",
       rematch: "⚡ Revanche", wantsToo: "wil ook", rematchWait: (n) => `Wacht op ${n}…`, rematchHint: "Druk je allebei, dan begint hij meteen", toDuels: "Naar Duels",
@@ -38,7 +38,7 @@
       guessing: (n) => `${n} is guessing`, thinking: (n) => `${n} is thinking`, oppDone: (n) => `${n} is done ✓`, waitOpp: (n) => `Waiting for ${n}`,
       rFor: (r, n) => `Round ${r} to ${n}`, rForMe: (r) => `Round ${r} to you`, rTie: (r) => `Round ${r}: a tie`, you: "You",
       
-      koWin: "K.O.! You win", koLoss: (n) => `K.O. ${n} wins`, draw: "A draw",
+      koWin: "K.O.! You win", koLoss: (n) => `K.O. ${n} wins`, draw: "A draw", firstWin: (n) => `First win against ${n}`,
       koPWin: (n, r, hp) => `${n} hit 0 in round ${r}. You had ${hp} lives left.`, koPLoss: (n, r, hp) => `You hit 0 in round ${r}. ${n} had ${hp} lives left.`,
       gaveUp: (n) => `${n} stopped.`, youGaveUp: "You stopped.",
       rematch: "⚡ Rematch", wantsToo: "wants one too", rematchWait: (n) => `Waiting for ${n}…`, rematchHint: "If you both tap, it starts right away", toDuels: "To Duels",
@@ -55,7 +55,7 @@
       guessing: (n) => `${n} rät`, thinking: (n) => `${n} überlegt`, oppDone: (n) => `${n} ist fertig ✓`, waitOpp: (n) => `Warte auf ${n}`,
       rFor: (r, n) => `Runde ${r} für ${n}`, rForMe: (r) => `Runde ${r} für dich`, rTie: (r) => `Runde ${r}: unentschieden`, you: "Du",
       
-      koWin: "K.O.! Du gewinnst", koLoss: (n) => `K.O. ${n} gewinnt`, draw: "Unentschieden",
+      koWin: "K.O.! Du gewinnst", koLoss: (n) => `K.O. ${n} gewinnt`, draw: "Unentschieden", firstWin: (n) => `Erster Sieg gegen ${n}`,
       koPWin: (n, r, hp) => `${n} fiel in Runde ${r} auf 0. Du hattest noch ${hp} Leben.`, koPLoss: (n, r, hp) => `Du fielst in Runde ${r} auf 0. ${n} hatte noch ${hp} Leben.`,
       gaveUp: (n) => `${n} hat aufgehört.`, youGaveUp: "Du hast aufgehört.",
       rematch: "⚡ Revanche", wantsToo: "will auch", rematchWait: (n) => `Warte auf ${n}…`, rematchHint: "Tippt ihr beide, geht es sofort los", toDuels: "Zu den Duellen",
@@ -72,7 +72,7 @@
       guessing: (n) => `${n} está adivinando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} ha terminado ✓`, waitOpp: (n) => `Esperando a ${n}`,
       rFor: (r, n) => `Ronda ${r} para ${n}`, rForMe: (r) => `Ronda ${r} para ti`, rTie: (r) => `Ronda ${r}: empate`, you: "Tú",
       
-      koWin: "¡K.O.! Ganas tú", koLoss: (n) => `K.O. Gana ${n}`, draw: "Empate",
+      koWin: "¡K.O.! Ganas tú", koLoss: (n) => `K.O. Gana ${n}`, draw: "Empate", firstWin: (n) => `Primera victoria contra ${n}`,
       koPWin: (n, r, hp) => `${n} llegó a 0 en la ronda ${r}. Te quedaban ${hp} vidas.`, koPLoss: (n, r, hp) => `Llegaste a 0 en la ronda ${r}. A ${n} le quedaban ${hp} vidas.`,
       gaveUp: (n) => `${n} lo dejó.`, youGaveUp: "Lo dejaste.",
       rematch: "⚡ Revancha", wantsToo: "también quiere", rematchWait: (n) => `Esperando a ${n}…`, rematchHint: "Si pulsáis los dos, empieza enseguida", toDuels: "A Duelos",
@@ -89,13 +89,91 @@
       guessing: (n) => `${n} está chutando`, thinking: (n) => `${n} está pensando`, oppDone: (n) => `${n} terminou ✓`, waitOpp: (n) => `Esperando ${n}`,
       rFor: (r, n) => `Rodada ${r} para ${n}`, rForMe: (r) => `Rodada ${r} para você`, rTie: (r) => `Rodada ${r}: empate`, you: "Você",
       
-      koWin: "K.O.! Você venceu", koLoss: (n) => `K.O. ${n} venceu`, draw: "Empate",
+      koWin: "K.O.! Você venceu", koLoss: (n) => `K.O. ${n} venceu`, draw: "Empate", firstWin: (n) => `Primeira vitória contra ${n}`,
       koPWin: (n, r, hp) => `${n} chegou a 0 na rodada ${r}. Você ficou com ${hp} vidas.`, koPLoss: (n, r, hp) => `Você chegou a 0 na rodada ${r}. ${n} ficou com ${hp} vidas.`,
       gaveUp: (n) => `${n} parou.`, youGaveUp: "Você parou.",
       rematch: "⚡ Revanche", wantsToo: "também quer", rematchWait: (n) => `Esperando ${n}…`, rematchHint: "Se os dois tocarem, começa na hora", toDuels: "Para Duelos",
       isKo: (n) => `${n} levou nocaute`, youKo: "Você levou nocaute", gone: "Este nocaute parou.", err: "Não deu certo. Tente de novo.", close: "Fechar",
       oppGuessed: (n) => `${n} já chutou ✓`,
       back: "Voltar", hpLine: (a, n, b) => `Vidas: você ${a}, ${n} ${b}` },
+  };
+
+  // 🤖 db/226 bots met karakter (mockup https://claude.ai/artifact/T2fwibeTiSkxNB99GoY12q v3, zijn keuze 22/11: Pip, Robo en Prof
+  // met hun trekje). Per bot (key uit public.bots) per moment een paar zinnen: hi = begroeting in het aftellen ({p} = zijn winkans),
+  // think/think2 = de statusregel (think2 na 8 s), you = jij precies goed, exact = hij precies goed, far = hij ≥ 50 jaar ernaast,
+  // hit = hij krijgt een klap van 5000 of meer, win/lose = het laatste woord (jij wint / hij wint). "rond|" = alleen als zijn gok een
+  // rond jaartal was ({y} = zijn gok), "na1950|" / "voor1950|" = alleen bij een antwoord vanaf / vóór 1950. Een bot zonder zinnen zwijgt.
+  const BOT_TXT = {
+    nl: {
+      pip: { hi: ["Hoi! Neem gerust je tijd, ik lees eerst alles.", "Piep! Ik ben er klaar voor. Denk ik."], think: "Pip leest het kaartje", think2: "Pip leest het nog een keer",
+        you: ["🤯 Precies goed?! Hoe dan?", "🤯 Wauw! Leer je mij dat ook?"], exact: ["Piep! Goed gelezen!"],
+        far: ["rond|😬 {y} klinkt toch altijd goed?", "😬 Oei. Ik had het kaartje nog niet uit."], hit: ["😭 Au! Mijn veertjes!"],
+        win: ["Goed gespeeld! Ik ga nog wat kaartjes lezen."], lose: ["Ik heb gewonnen? Piep piep piep!"] },
+      robo: { hi: ["Tegenstander gescand. Mijn winkans: {p}%."], think: "Robo rekent",
+        you: ["🤯 Dat stond niet in mijn berekening."], exact: ["🔥 Berekend."],
+        far: ["😬 Fout in module geschiedenis.", "😬 Foutcode 404: jaartal niet gevonden."], hit: ["😭 Fatale fout. Herstarten…"],
+        win: ["Systeem verslagen. Revanche? [J/N]"], lose: ["Zoals berekend. gg"] },
+      prof: { hi: ["Ah, een nieuwe student. Pen en papier bij de hand?"], think: "Prof bladert in zijn aantekeningen",
+        you: ["🤯 Een tien met een griffel!"], exact: ["Elementair. Stond in mijn proefschrift."],
+        far: ["na1950|😬 Na 1950 ben ik de weg kwijt.", "voor1950|😬 Hm. Dat moet ik nazoeken."], hit: ["😭 Dit komt niet in mijn memoires."],
+        win: ["U bent geslaagd. Cum laude!"], lose: ["Niet getreurd. Er is altijd een herkansing."] },
+    },
+    en: {
+      pip: { hi: ["Hi! Take your time, I'm reading everything first.", "Peep! I'm ready. I think."], think: "Pip is reading the card", think2: "Pip is reading it again",
+        you: ["🤯 Spot on?! How?", "🤯 Wow! Can you teach me that?"], exact: ["Peep! Read it right!"],
+        far: ["rond|😬 {y} always sounds good, right?", "😬 Oops. I hadn't finished the card yet."], hit: ["😭 Ouch! My feathers!"],
+        win: ["Well played! I'm off to read some more cards."], lose: ["I won? Peep peep peep!"] },
+      robo: { hi: ["Opponent scanned. My chance of winning: {p}%."], think: "Robo is calculating",
+        you: ["🤯 That was not in my calculations."], exact: ["🔥 Calculated."],
+        far: ["😬 Error in history module.", "😬 Error 404: year not found."], hit: ["😭 Fatal error. Rebooting…"],
+        win: ["System defeated. Rematch? [Y/N]"], lose: ["As calculated. gg"] },
+      prof: { hi: ["Ah, a new student. Pen and paper ready?"], think: "Prof is leafing through his notes",
+        you: ["🤯 Top marks! A+!"], exact: ["Elementary. It's in my thesis."],
+        far: ["na1950|😬 After 1950 I'm completely lost.", "voor1950|😬 Hm. I'll have to look that up."], hit: ["😭 This won't go in my memoirs."],
+        win: ["You pass. Cum laude!"], lose: ["Never mind. There's always a resit."] },
+    },
+    de: {
+      pip: { hi: ["Hallo! Lass dir Zeit, ich lese erst alles.", "Piep! Ich bin bereit. Glaube ich."], think: "Pip liest die Karte", think2: "Pip liest sie noch mal",
+        you: ["🤯 Genau richtig?! Wie das?", "🤯 Wow! Bringst du mir das auch bei?"], exact: ["Piep! Gut gelesen!"],
+        far: ["rond|😬 {y} klingt doch immer gut, oder?", "😬 Huch. Ich war mit der Karte noch nicht fertig."], hit: ["😭 Au! Meine Federn!"],
+        win: ["Gut gespielt! Ich lese noch ein paar Karten."], lose: ["Ich hab gewonnen? Piep piep piep!"] },
+      robo: { hi: ["Gegner gescannt. Meine Siegchance: {p} %."], think: "Robo rechnet",
+        you: ["🤯 Das war nicht in meiner Berechnung."], exact: ["🔥 Berechnet."],
+        far: ["😬 Fehler im Modul Geschichte.", "😬 Fehler 404: Jahreszahl nicht gefunden."], hit: ["😭 Schwerer Fehler. Neustart…"],
+        win: ["System besiegt. Revanche? [J/N]"], lose: ["Wie berechnet. gg"] },
+      prof: { hi: ["Ah, ein neuer Student. Stift und Papier bereit?"], think: "Prof blättert in seinen Notizen",
+        you: ["🤯 Eins mit Sternchen!"], exact: ["Elementar. Steht in meiner Doktorarbeit."],
+        far: ["na1950|😬 Nach 1950 bin ich völlig verloren.", "voor1950|😬 Hm. Das muss ich nachschlagen."], hit: ["😭 Das kommt nicht in meine Memoiren."],
+        win: ["Bestanden. Cum laude!"], lose: ["Kopf hoch. Es gibt immer eine Nachprüfung."] },
+    },
+    es: {
+      pip: { hi: ["¡Hola! Tómate tu tiempo, yo primero lo leo todo.", "¡Pío! Estoy listo. Creo."], think: "Pip lee la tarjeta", think2: "Pip la lee otra vez",
+        you: ["🤯 ¿¡Exacto?! ¿Cómo?", "🤯 ¡Guau! ¿Me enseñas?"], exact: ["¡Pío! ¡Bien leído!"],
+        far: ["rond|😬 {y} siempre suena bien, ¿no?", "😬 Uy. Aún no había terminado la tarjeta."], hit: ["😭 ¡Ay! ¡Mis plumas!"],
+        win: ["¡Bien jugado! Me voy a leer más tarjetas."], lose: ["¿He ganado? ¡Pío pío pío!"] },
+      robo: { hi: ["Rival escaneado. Mi probabilidad de ganar: {p} %."], think: "Robo está calculando",
+        you: ["🤯 Eso no estaba en mis cálculos."], exact: ["🔥 Calculado."],
+        far: ["😬 Error en el módulo de historia.", "😬 Error 404: año no encontrado."], hit: ["😭 Error fatal. Reiniciando…"],
+        win: ["Sistema derrotado. ¿Revancha? [S/N]"], lose: ["Según lo calculado. gg"] },
+      prof: { hi: ["Ah, un nuevo alumno. ¿Lápiz y papel a mano?"], think: "Prof hojea sus apuntes",
+        you: ["🤯 ¡Matrícula de honor!"], exact: ["Elemental. Está en mi tesis."],
+        far: ["na1950|😬 Después de 1950 estoy perdido.", "voor1950|😬 Hm. Tendré que consultarlo."], hit: ["😭 Esto no saldrá en mis memorias."],
+        win: ["Aprobado. ¡Cum laude!"], lose: ["No pasa nada. Siempre hay recuperación."] },
+    },
+    pt: {
+      pip: { hi: ["Oi! Fique à vontade, eu leio tudo primeiro.", "Piu! Estou pronto. Acho."], think: "Pip está lendo o cartão", think2: "Pip está lendo de novo",
+        you: ["🤯 Na mosca?! Como?", "🤯 Uau! Me ensina?"], exact: ["Piu! Li direitinho!"],
+        far: ["rond|😬 {y} sempre soa bem, né?", "😬 Ops. Eu ainda não tinha terminado o cartão."], hit: ["😭 Ai! Minhas penas!"],
+        win: ["Bem jogado! Vou ler mais uns cartões."], lose: ["Eu ganhei? Piu piu piu!"] },
+      robo: { hi: ["Oponente escaneado. Minha chance de vencer: {p}%."], think: "Robo está calculando",
+        you: ["🤯 Isso não estava nos meus cálculos."], exact: ["🔥 Calculado."],
+        far: ["😬 Erro no módulo de história.", "😬 Erro 404: ano não encontrado."], hit: ["😭 Erro fatal. Reiniciando…"],
+        win: ["Sistema derrotado. Revanche? [S/N]"], lose: ["Como calculado. gg"] },
+      prof: { hi: ["Ah, um novo aluno. Papel e caneta à mão?"], think: "Prof está folheando suas anotações",
+        you: ["🤯 Nota dez com louvor!"], exact: ["Elementar. Está na minha tese."],
+        far: ["na1950|😬 Depois de 1950 eu me perco.", "voor1950|😬 Hm. Preciso pesquisar isso."], hit: ["😭 Isso não vai entrar nas minhas memórias."],
+        win: ["Aprovado. Cum laude!"], lose: ["Não tem problema. Sempre há recuperação."] },
+    },
   };
 
   const CSS = String.raw`/* ═══ ⚡ Knock-out (/ko.js, db/208) ═══ */
@@ -309,6 +387,17 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
 .ko-bandw .ko-bub.me::after { left: 0.9rem; }
 .ko-bandw .ko-bub.op { --col: hsl(var(--h, 30) 58% 46%); right: 1rem; }
 .ko-bandw .ko-bub.op::after { right: 0.9rem; }
+/* 🤖 db/226 bots met karakter: de bot praat met dezelfde bubbel als een reactie, maar dan met een zin. Na een ronde boven zijn kant van
+   de strook (3,5 s, hooguit één per ronde), vast onder de band in het aftellen (begroeting) en op het K.O.-scherm (laatste woord). */
+.ko-bub.say { width: max-content; max-width: min(15.5rem, 72vw); padding: 0.45rem 0.7rem; white-space: normal; text-align: left; text-wrap: pretty;
+  font-size: 0.86rem; font-weight: 600; line-height: 1.3; animation-duration: 3.5s; }
+.ko-bub.say.stay { position: relative; inset: auto; align-self: flex-end; margin: 0.05rem 0.55rem 0 2.5rem; animation: ko-pop 0.34s ease-out both; }
+.ko-bub.say.stay::after { top: auto; bottom: calc(100% - 1px); right: 1.15rem; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.ko-bandw:has(.ko-bub.stay) { display: flex; flex-direction: column; }
+.duel-inv .bot-first { display: inline-flex; align-items: center; gap: 0.55rem; margin: 0; padding: 0.25rem 0.85rem 0.25rem 0.3rem; border-radius: 999px;
+  font-size: 0.84rem; font-weight: 700; color: var(--fg); background: var(--card-soft); }   /* de eerste zege op deze bot: zijn gezichtje met de groene rand */
+.bot-first .dl-av { width: 1.6rem; height: 1.6rem; font-size: 0.9rem; }
+@media (prefers-reduced-motion: reduce) { .ko-bub.say.stay { animation: none; } }
 @keyframes ko-bub { 0% { opacity: 0; transform: translateY(6px) scale(0.6); } 10% { opacity: 1; transform: none; } 88% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-4px); } }
 @keyframes ko-show-in { from { opacity: 0; } }
 @keyframes ko-show-out { to { opacity: 0; } }
@@ -335,7 +424,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
 
   let H = null, cur = null, skew = 0, oppN = 0, shownRes = null, sentRound = null, revNext = null, counting = null, endWait = null, endFor = null;
   const endSeen = new Set();   // K.O.-eindschermen die al in beeld waren: weggeklikt = niet terug (feedback 20/11: Tim kreeg ze steeds opnieuw)
-  let tClock = null, tTick = null, tStart = null, tPop = null, koIntro = null, tBot = null;   // tBot: de stand ophalen als de bot gokt (db/218)   // koIntro = de opening bij de start: { code, it }
+  let tClock = null, tTick = null, tStart = null, tPop = null, koIntro = null, tBot = null, tThink = null;   // tThink: Pip leest het nog een keer (db/226)   // tBot: de stand ophalen als de bot gokt (db/218)   // koIntro = de opening bij de start: { code, it }
   const tx = () => TXT[H?.lang] || TXT.en;
   const esc = K.esc;
   const now = () => Date.now() + skew;
@@ -362,7 +451,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     if (!H.loggedIn && /^ko_(get|submit|bot_start)$/.test(fn)) args = { ...args, p_client: H.clientId?.() || null };   // db/218: anoniem tegen een bot
     try { return { ok: true, v: await H.rpc(fn, args) }; } catch (e) { return { ok: false, e: String(e?.message || e) }; }
   }
-  function clearTimers() { [tClock, tTick, tStart, tPop].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = null; endWait = null; stopAnim(); dropIntro(); }
+  function clearTimers() { [tClock, tTick, tStart, tPop, tThink].forEach((t) => { clearInterval(t); clearTimeout(t); }); tClock = tTick = tStart = tPop = tThink = null; endWait = null; stopAnim(); dropIntro(); }
   function dropIntro() { const x = koIntro; koIntro = null; try { x?.it.kill(); } catch (e) {} }
   let anim = [], animGen = 0;   // de stappen van playResult
   function stopAnim() {
@@ -601,7 +690,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   function showCount(g, rev) {
     const T = tx();
     if (H.loggedIn) Promise.resolve(H.ensureIdentity?.()).catch(() => {});   // je naam en flair in de opening straks
-    const el = pop(band(g, rev ? T.revH : T.tag) + `<h2>${esc(rev ? T.revH : T.startH)}</h2><p class="ko-count">3</p><p>${esc(T.startP)}</p>`, () => {});
+    const hi = g.bot ? botHi(g) : "";   // 🤖 db/226: de bot zegt hallo, vast onder de band
+    const top = hi ? `<div class="ko-bandw" style="--h:${hue(g)}">${band(g, rev ? T.revH : T.tag)}<span class="ko-bub say stay op" aria-hidden="true">${esc(hi)}</span></div>` : band(g, rev ? T.revH : T.tag);
+    const el = pop(top + `<h2>${esc(rev ? T.revH : T.startH)}</h2><p class="ko-count">3</p><p>${esc(T.startP)}</p>`, () => {});
     countdown(el.querySelector(".ko-count"), at(g.round_at), (s) => { sfx(`c:${g.code}:${s}`, s > 0 ? "count" : "zap"); return s > 0 ? String(s) : "⚡"; });   // 21/11: de ⚡ bij 0 met een eigen zap
   }
   async function openRound(g) {
@@ -677,6 +768,69 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     setTimeout(() => { if (+b.dataset.t + RXLIFE <= Date.now() + 30) b.remove(); }, RXLIFE + 50);
   }
 
+  // ── 🤖 db/226: wat de bot zegt (de zinnen staan in BOT_TXT). Nooit iets over het jaar of het tijdvak vóór de uitslag; tijdens het
+  // gokken alleen de statusregel. Na een ronde hooguit één bubbel, alleen bij iets bijzonders, nooit twee rondes achter elkaar en geen
+  // zin twee keer per spel; na 10 spellen tegen dezelfde bot alleen nog de begroeting en het laatste woord (cues doven uit). De keuze
+  // ligt vast per spel + ronde.
+  const botTx = (g) => { const L = BOT_TXT[H?.lang] || BOT_TXT.en; return (g?.bot && L[g.bot]) || null; };
+  const botRow = (g) => (K.bots?.() || []).find((b) => b.key === g?.bot) || null;
+  const pickOf = (arr, seed) => { if (!arr?.length) return ""; let h = 7; for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return arr[h % arr.length]; };
+  const fillIn = (t, v) => String(t).replace(/\{(\w)\}/g, (_, k) => (v[k] != null ? String(v[k]) : ""));
+  const botW0 = new Map();   // per spel: hoe vaak je deze bot al versloeg toen het begon (voor "Eerste zege op …")
+  const botSaid = new Map();   // per spel: { r = de laatste ronde met een bubbel, used = de zinnen die al vielen }
+  function botHi(g) {
+    const B = botTx(g);
+    if (!B) return "";
+    const me = H.loggedIn ? H.myRating?.() : null;
+    const p = me != null && g.bot_elo != null ? Math.round(100 / (1 + 10 ** ((me - g.bot_elo) / 400))) : "??";   // Robo: echt uitgerekend (elo)
+    return fillIn(pickOf(B.hi, g.code), { p });
+  }
+  function botThink(g) {   // de statusregel terwijl de bot nadenkt (Pip leest het na 8 s nog een keer)
+    const B = botTx(g);
+    if (!B?.think) return null;
+    return B.think2 && now() - at(g.round_at) >= 8000 ? B.think2 : B.think;
+  }
+  function botAfter(g, q) {   // na de uitslag van ronde q.r: welke zin, of niets
+    const B = botTx(g);
+    if (!B || !q || g.state !== "live") return "";
+    const row = botRow(g);
+    if (row && (row.w || 0) + (row.l || 0) >= 10) return "";
+    const m = botSaid.get(g.code) || { r: -9, used: new Set() };
+    if (q.r - m.r < 2) return "";
+    const a = q.a, b = q.b;
+    const k = q.who === "op" && q.max ? "hit" : a.off === 0 ? "you" : b.off === 0 ? "exact" : b.off != null && b.off >= 50 ? "far" : null;
+    if (!k) return "";
+    const ok = (c) => !c || (c === "rond" && b.y != null && b.y % 50 === 0) || (c === "na1950" && q.ans != null && q.ans >= 1950) || (c === "voor1950" && q.ans != null && q.ans < 1950);
+    const lines = (B[k] || []).map((t) => { const i = t.indexOf("|"); return i > 0 ? [t.slice(0, i), t.slice(i + 1)] : ["", t]; })
+      .filter(([c, t]) => ok(c) && !m.used.has(t)).map(([, t]) => t);
+    if (!lines.length) return "";
+    const t = pickOf(lines, `${g.code}:${q.r}:${k}`);
+    m.r = q.r; m.used.add(t); botSaid.set(g.code, m);
+    return fillIn(t, { y: b.y == null ? "" : fmtN(b.y) });
+  }
+  function botBubble(text) {   // boven zijn kant van de strook, 3,5 s (een nieuwe tekening van de strook haalt hem weg)
+    const host = document.querySelector("#duel-vs .ko-side.op");
+    if (!host || !text) return;
+    host.querySelector(".ko-bub")?.remove();
+    const b = document.createElement("span");
+    b.className = "ko-bub say"; b.setAttribute("aria-hidden", "true"); b.textContent = text;
+    host.appendChild(b);
+    setTimeout(() => b.remove(), 3600);
+  }
+  function botLast(g) {   // het laatste woord op het K.O.-scherm (vers spel, iemand won)
+    const B = botTx(g);
+    if (!B || !g.winner || at(g.finished_at) <= now() - 120000) return "";
+    return pickOf(g.winner === "me" ? B.win : B.lose, g.code);
+  }
+  function botFirst(g) {   // je eerste zege op deze bot? Dan krijgt hij in duel.js meteen zijn groene rand (de stand loopt mee)
+    if (!g.bot || g.winner !== "me" || at(g.finished_at) <= now() - 120000) return false;
+    const w0 = botW0.get(g.code);
+    if (w0 == null) return false;   // niet live gezien (terugzien vanuit Duels, of herladen): niets tellen
+    const row = botRow(g);
+    if (row) row.w = Math.max(row.w || 0, w0 + 1);   // vaker getekend = nog steeds één zege
+    return w0 === 0;
+  }
+
   // ── het rondescherm ──
   function stripHtml(g, { drain = null } = {}) {
     const T = tx(), st = H.state(), n = oppName(g), r = g.round;
@@ -699,7 +853,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     else if (playing && g.deadline) {
       status = st.done ? `<span>${esc(T.waitOpp(n))}</span><span class="ko-t">…</span>` : `<span>${esc(T.oppGuessed(n))}</span><span class="ko-t">…</span>`;
       clock = `<div class="ko-clock"><i></i></div>`;
-    } else if (playing) status = `<span class="ko-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc(T.thinking(n))}</span>`;
+    } else if (playing) status = `<span class="ko-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc((g.bot && botThink(g)) || T.thinking(n))}</span>`;   // 🤖 db/226
     const hold = drain?.hold;   // playResult: de balk wacht op de schade die eraan komt
     return side("me", T.you, me, hold ? drain.me : g.hp, hold ? null : drain?.me) + `<span class="ko-mid"><b>R${rr}</b><span class="${mult(rr) > 1 ? "up" : ""}">×${esc(fmtM(mult(rr)))}</span></span>` +
       side("op", n, op, hold ? drain.op : g.opp_hp, hold ? null : drain?.op) + `<div class="ko-st${clock ? " clock" : ""}">${status}</div>${clock}` +
@@ -754,6 +908,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     if (rxWait(cur) && !(rxKey === rxKeyOf(cur) && rxN >= RXMAX)) setTimeout(() => { const t = vs.querySelector(".ko-rx-btn"); if (t && !rxWait(cur)) t.disabled = false; }, RXGAP - (Date.now() - rxAt) + 20);
     if (opts?.drain && !opts.drain.hold) tickDown(vs);
     armClock();
+    clearTimeout(tThink); tThink = null;   // 🤖 db/226: "Pip leest het nog een keer" (8 s na het begin, zolang niemand gokte)
+    const ms = cur.bot && botTx(cur)?.think2 && cur.state === "live" && !cur.deadline && !opts?.drain ? at(cur.round_at) + 8000 - now() : 0;
+    if (ms > 0) tThink = setTimeout(() => { tThink = null; drawStrip(); }, ms + 40);
   }
   // de levens bij de balk tellen razendsnel af, gelijk met de balk die zakt (ko-drop: 0,5 s wachten, dan 0,35 s), geen sprong (20/11)
   function tickDown(vs) {
@@ -896,7 +1053,12 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       if (!document.querySelector(".ko-show")) overlay(g, q, { hit() {}, left: g.state === "live" && g.round > r ? at(g.round_at) - now() : Infinity });
     };
     let hitDone = false;
-    const hit = () => { if (hitDone) return; hitDone = true; drawStrip({ drain }); if (q.who) sfx(`res:${g.code}:${r}`, "hit", q.x, q.who === "me", q.who === "me" ? drain.me : drain.op, hpMax(g)); };
+    const hit = () => {
+      if (hitDone) return;
+      hitDone = true; drawStrip({ drain });
+      if (q.who) sfx(`res:${g.code}:${r}`, "hit", q.x, q.who === "me", q.who === "me" ? drain.me : drain.op, hpMax(g));
+      if (g.bot) botBubble(botAfter(g, q));   // 🤖 db/226: de bot reageert (hooguit één keer per ronde, alleen bij iets bijzonders)
+    };
     const left = g.state === "live" ? at(g.round_at) - now() : Infinity;
     if (left < 2200) { hit(); gone?.(); }
     else {
@@ -1088,8 +1250,11 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     A.music?.(false);   // 🎵 de muziek weg zodra het K.O.-scherm er is (samen met de gong)
     const big = fresh && sfx(`ko:${g.code}`, g.winner ? "ko" : "draw", won);   // één keer per spel, niet bij een oude K.O.
     if (fresh && g.re_opp && !g.re_me && !g.next) sfx(`want:${g.code}`, "want", big ? 1.2 : 0);   // samen met de gong: na de gong
-    const pe = pop(`<div class="ko-bandw" style="--h:${hue(g)}">${band(g, "K.O.", ` ko-end${won ? "" : " lost"}`)}</div>` +
+    const last = g.bot ? botLast(g) : "", first = g.bot ? botFirst(g) : false;   // 🤖 db/226
+    const pe = pop(`<div class="ko-bandw" style="--h:${hue(g)}">${band(g, "K.O.", ` ko-end${won ? "" : " lost"}`)}` +
+      (last ? `<span class="ko-bub say stay op" aria-hidden="true">${esc(last)}</span>` : "") + `</div>` +
       `<h2>${esc(!g.winner ? T.draw : won ? T.koWin : T.koLoss(n))}</h2><p>${esc(p)}</p>` +
+      (first ? `<p class="bot-first">${K.dbAv(g.opp_flair, n, "dl-av hue won").replace('class="dl-av hue won', `style="--h:${hue(g)}" class="dl-av hue won`)}${esc(T.firstWin(n))}</p>` : "") +
       (Math.min(g.mine.length, g.theirs.length) ? lifeHtml(g) : "") +
       (fresh && !g.bot && H.loggedIn && g.rated !== false ? `<p class="fact-stats rating-line rating-line-link dr-endline" role="button" tabindex="0" hidden></p>` : "") +   // ⚔️ db/225
       (fresh && !g.bot && H.loggedIn && H.duelAchv ? `<div class="ko-achv"></div>` : "") +   // ⚔️ db/224: kaartje voor de duel-prestaties
@@ -1116,6 +1281,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   // ── de stand van de server op het scherm ──
   function apply(g, k) {
     if (!g || !g.code) return;
+    if (g.bot && g.state === "live" && !botW0.has(g.code)) { const row = botRow(g); botW0.set(g.code, row ? row.w || 0 : null); }   // 🤖 db/226
     skew = at(g.now) - Date.now();
     const prev = cur;
     cur = g;
@@ -1268,8 +1434,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       K.gc("ko-resume", "Knockout: back into the game from Duels");
       call("ko_get", { p_code: g.code }).then((r) => apply(r.ok && r.v ? r.v : g));
     },
-    css: CSS, copy: (l) => TXT[l], langs: () => Object.keys(TXT),
+    css: CSS, copy: (l) => TXT[l], langs: () => Object.keys(TXT), botCopy: (l) => BOT_TXT[l],
     _: { mult, dmgOf, SFX, sfx, roundOf, hpPath, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); },
-         showHtml: (h, g, r) => { H = h; return showHtml(g, roundOf(g, r)); }, lineHtml: (h, g, r) => { H = h; return lineHtml(g, roundOf(g, r)); }, lifeHtml: (h, g) => { H = h; return lifeHtml(g); } },
+         showHtml: (h, g, r) => { H = h; return showHtml(g, roundOf(g, r)); },
+         botAfter: (h, g, r) => { H = h; return botAfter(g, roundOf(g, r)); }, botHi: (h, g) => { H = h; return botHi(g); }, botThink: (h, g) => { H = h; return botThink(g); }, lineHtml: (h, g, r) => { H = h; return lineHtml(g, roundOf(g, r)); }, lifeHtml: (h, g) => { H = h; return lifeHtml(g); } },
   };
 })();

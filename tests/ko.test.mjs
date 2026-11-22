@@ -661,3 +661,96 @@ test("ko.js — ⚔️ duel-prestaties (db/224): op het K.O.-scherm een vak voor
   assert.match(KOSRC, /\.ko-achv:empty \{ display: none; \}/, "geen unlock: geen lege ruimte");
   assert.match(GAME, /duelAchv: \(box\) => checkDuelAchievements\(box\),/, "game.js geeft de host de functie mee");
 });
+
+// 🤖 db/226 bots met karakter (mockup "Bots met karakter" v3, zijn keuze 22/11: Pip, Robo en Prof met hun trekje)
+test("ko.js — 🤖 db/226 bots met karakter: zinnen in vijf talen, begroeting, statusregel, hooguit één bubbel per ronde, laatste woord", () => {
+  const { KO: KB, Duel: DB, els } = loadBots();
+  // 1. de zinnen: dezelfde bots en momenten in vijf talen, niets leeg, de voorwaarden en plekhouders kloppen
+  const nl = KB.botCopy("nl");
+  assert.deepEqual(Object.keys(nl).sort(), ["pip", "prof", "robo"]);
+  for (const l of KB.langs()) {
+    const c = KB.botCopy(l);
+    assert.deepEqual(Object.keys(c).sort(), Object.keys(nl).sort(), `${l}: dezelfde bots`);
+    for (const [bot, m] of Object.entries(c)) {
+      assert.deepEqual(Object.keys(m).sort(), Object.keys(nl[bot]).sort(), `${l}.${bot}: dezelfde momenten`);
+      for (const [k, v] of Object.entries(m)) for (const t of [].concat(v)) {
+        assert.ok(typeof t === "string" && t.trim() && !/undefined|NaN/.test(t), `${l}.${bot}.${k}: leeg of kapot`);
+        const cond = /^\w+\|/.test(t) ? t.split("|")[0] : "";
+        assert.ok(["", "rond", "na1950", "voor1950"].includes(cond), `${l}.${bot}.${k}: voorwaarde ${cond}`);
+        assert.equal(/\{y\}/.test(t), cond === "rond", `${l}.${bot}.${k}: {y} alleen bij een rond jaartal`);
+      }
+    }
+    assert.ok(c.robo.hi.every((t) => t.includes("{p}")), `${l}: Robo noemt zijn winkans`);
+    assert.ok(c.pip.think2 && !c.robo.think2 && !c.prof.think2, `${l}: alleen Pip leest het nog een keer`);
+    assert.ok(KB.copy(l).firstWin("Prof").includes("Prof"), `${l}: eerste zege`);
+  }
+  // 2. begroeting: Robo rekent zijn winkans echt uit (elo: jij 1612, hij 1455), zonder account ??
+  const now = Date.now(), iso = (ms) => new Date(now + ms).toISOString();
+  let st = null;
+  const h = host({ loggedIn: true, myRating: () => 1612, state: () => st, openModal: (id) => { els[id].hidden = false; }, closeModal: (id) => { els[id].hidden = true; },
+    rpc: async () => null, flairHtml: (f) => `<i>${f}</i>` });
+  DB.kit.setHost(h);
+  DB._.applyList({ items: [], h2h: {}, targets: [], bots: BOTS.map((b) => ({ ...b })) });
+  const g0 = { code: "KFUN01", state: "live", me: "a", bot: "robo", bot_elo: 1455, now: iso(0), round: 1, round_at: iso(-1000), opp_name: "Robo", opp_flair: "🤖",
+    hp: 6000, opp_hp: 6000, mine: [], theirs: [] };
+  assert.equal(KB._.botHi(h, g0), "Tegenstander gescand. Mijn winkans: 29%.");
+  assert.equal(KB._.botHi({ ...h, loggedIn: false }, g0), "Tegenstander gescand. Mijn winkans: ??%.");
+  assert.equal(KB._.botHi(h, { ...g0, bot: "nieuw" }), "", "een bot zonder zinnen zegt niets");
+  // 3. de statusregel: Pip leest het kaartje en na 8 s nog een keer; Robo rekent; een onbekende bot: de gewone regel
+  assert.equal(KB._.botThink(h, { ...g0, bot: "pip", round_at: iso(-3000) }), "Pip leest het kaartje");
+  assert.equal(KB._.botThink(h, { ...g0, bot: "pip", round_at: iso(-9000) }), "Pip leest het nog een keer");
+  assert.equal(KB._.botThink(h, { ...g0, round_at: iso(-9000) }), "Robo rekent");
+  assert.equal(KB._.botThink(h, { ...g0, bot: "nieuw" }), null);
+  st = { duel: { code: "KFUN01", round: 1, ko: true }, done: false };
+  assert.match(KB._.stripHtml(h, { ...g0, bot: "pip", round_at: iso(-9000) }), /<span>Pip leest het nog een keer<\/span>/, "in de strook");
+  // 4. na een ronde (Pip): hooguit één bubbel, alleen bij iets bijzonders, nooit twee rondes achter elkaar, geen zin twee keer
+  const pip = { ...g0, code: "KFUN02", bot: "pip", round: 8, answers: [1912, 1642, 1969, 1517, 1889, 1945, 1066], my_years: [1915, 1650, 1969, 1530, 1880, 1945, 1070],
+    their_years: [1850, 1600, 1969, 1200, 1700, 1945, 1000], mine: [4925, 4800, 5000, 4675, 4775, 5000, 4900], theirs: [3450, 3950, 5000, 0, 275, 5000, 3350] };
+  const far = (y) => [`😬 ${y} klinkt toch altijd goed?`, "😬 Oei. Ik had het kaartje nog niet uit."];
+  const r1 = KB._.botAfter(h, pip, 1);
+  assert.ok(far(1850).includes(r1), `ronde 1: 62 jaar ernaast met 1850 (${r1})`);
+  assert.equal(KB._.botAfter(h, pip, 2), "", "ronde 2: niets bijzonders (en vlak na ronde 1)");
+  assert.ok(["🤯 Precies goed?! Hoe dan?", "🤯 Wauw! Leer je mij dat ook?"].includes(KB._.botAfter(h, pip, 3)), "ronde 3: jij precies goed");
+  assert.equal(KB._.botAfter(h, pip, 4), "", "ronde 4: wel 317 jaar ernaast, maar net in ronde 3 gepraat");
+  assert.equal(KB._.botAfter(h, pip, 5), "😭 Au! Mijn veertjes!", "ronde 5: een klap van 6750 (×1,5)");
+  const r7 = KB._.botAfter(h, pip, 7);
+  assert.ok(far(1000).includes(r7) && r7.replace("1000", "Y") !== r1.replace("1850", "Y"), `ronde 7: de andere zin (${r1} / ${r7})`);
+  // Prof: na 1950 de weg kwijt (alleen de zin die bij het tijdvak past)
+  const prof = { ...g0, code: "KFUN03", bot: "prof", round: 2, answers: [1974], my_years: [1975], their_years: [1900], mine: [4975], theirs: [3150] };
+  assert.equal(KB._.botAfter(h, prof, 1), "😬 Na 1950 ben ik de weg kwijt.");
+  assert.equal(KB._.botAfter(h, { ...prof, code: "KFUN04", answers: [1774], my_years: [1775], their_years: [1700] }, 1), "😬 Hm. Dat moet ik nazoeken.");
+  assert.equal(KB._.botAfter(h, { ...prof, code: "KFUN05", state: "done" }, 1), "", "na afloop: het laatste woord, geen bubbel");
+  // uitdoven: na 10 spellen tegen dezelfde bot alleen nog begroeting en laatste woord
+  DB._.applyList({ items: [], h2h: {}, targets: [], bots: BOTS.map((b) => (b.key === "prof" ? { ...b, w: 6, l: 4 } : { ...b })) });
+  assert.equal(KB._.botAfter(h, { ...prof, code: "KFUN06" }, 1), "", "10 spellen: geen bubbels meer");
+  assert.match(KB._.botHi(h, { ...prof, code: "KFUN06" }), /student/, "maar wel hallo");
+  // 5. het laatste woord en je eerste zege (de stand bij het begin telt; daarna krijgt hij in duel.js meteen zijn groene rand)
+  DB._.applyList({ items: [], h2h: {}, targets: [], bots: BOTS.map((b) => ({ ...b })) });
+  const live = { ...g0, code: "KFUN07", bot: "prof", bot_elo: 1800, opp_name: "Prof", opp_flair: "🧠" };
+  st = { duel: { code: "KFUN07", round: 1, ko: true }, done: false };
+  KB._.apply(h, live);
+  const t = new Date().toISOString();
+  const won = { ...live, state: "done", winner: "me", finished_at: t, now: t, hp: 5725, opp_hp: 0, mine: [5000], theirs: [3150], answers: [1974], my_years: [1974], their_years: [1900] };
+  st = null;
+  KB.review(h, won);
+  let html = els["modal-ko"].innerHTML;
+  assert.match(html, /<div class="ko-bandw"[^>]*>[^]*<span class="ko-bub say stay op" aria-hidden="true">U bent geslaagd\. Cum laude!<\/span><\/div><h2>K\.O\.! Jij wint<\/h2>/, "zijn laatste woord onder de band");
+  assert.match(html, /<p class="bot-first"><span style="--h:\d+" class="dl-av hue won fl" aria-hidden="true"><i>🧠<\/i><\/span>Eerste zege op Prof<\/p>/, "je eerste zege op Prof");
+  assert.equal(DB.kit.bots().find((b) => b.key === "prof").w, 1, "de stand in duel.js loopt mee: groene rand in de pop-up");
+  KB.review(h, won);
+  assert.equal(DB.kit.bots().find((b) => b.key === "prof").w, 1, "niet dubbel geteld");
+  const before = DB.kit.bots().map((b) => b.w).join();
+  KB.review(h, { ...won, code: "KFUNXX" });   // een zege die je niet live zag (terugzien vanuit Duels): niets tellen, geen eerste zege
+  assert.equal(DB.kit.bots().map((b) => b.w).join(), before);
+  assert.doesNotMatch(els["modal-ko"].innerHTML, /bot-first/);
+  KB.review(h, { ...won, code: "KFUN08", winner: "opp", hp: 0, opp_hp: 3000 });
+  html = els["modal-ko"].innerHTML;
+  assert.match(html, /<span class="ko-bub say stay op" aria-hidden="true">Niet getreurd\. Er is altijd een herkansing\.<\/span>/, "verloren: hij troost je");
+  assert.doesNotMatch(html, /bot-first/);
+  const old = new Date(Date.now() - 10 * 60000).toISOString();
+  KB.review(h, { ...won, code: "KFUN09", finished_at: old });
+  assert.doesNotMatch(els["modal-ko"].innerHTML, /ko-bub say|bot-first/, "een oud spel terugzien: geen praatjes");
+  // tegen een mens: niets van dit alles
+  KB.review(h, { ...won, code: "KFUN10", bot: null, opp_name: "Sanne", opp_flair: "🦊" });
+  assert.doesNotMatch(els["modal-ko"].innerHTML, /ko-bub say|bot-first/);
+});
