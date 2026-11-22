@@ -5026,6 +5026,7 @@ function duelHost() {
     duelsChanged: () => renderNx(),   // 19/11: /duel.js heeft een verse lijst → het duel-stuk van de verder-spelen-knop bijwerken
     flairHtml: flairStaticHtml, myFlair: () => myFlair, openLogin: () => openModal("modal-login"), gc: gcCount,
     myRating: () => (auth.user && Number.isFinite(auth.rating) ? Math.round(auth.rating) : null),   // 🤖 db/218: "≈ jij" bij de bots
+    myRatingGames: () => (auth.user && Number.isFinite(auth.ratingGames) ? auth.ratingGames : null),   // 🤖 de bot die klaarstaat: < 25 = nog "?"
     state: () => state, score: computeScore,
     startRound: (rec) => {   // een duelronde is een vrij potje: het tabblad gaat mee (zoals bij een gedeelde link)
       els.tabs.forEach((tb) => tb.setAttribute("aria-selected", String(tb.dataset.mode === "free")));
@@ -8173,6 +8174,7 @@ async function showLiveRating(line, prev, prevRaw) {
   if (!r || r.elo == null) { line?.remove(); return; }
   auth.rating = r.elo;   // ook als er al een nieuw potje loopt: dat potje meet hiertegen
   auth.ratingRaw = r.elo_raw ?? null;   // rauw (2 dec., db/98) — alleen voor een ±0-delta
+  auth.ratingGames = r.games ?? null;   // 🤖 de bot die klaarstaat (Duels): onder 25 potjes nog geen vaste rating
   if (line && !line.isConnected) return;
   const el = line || buildRatingLine(r.elo);
   if (!line) {
@@ -8258,9 +8260,11 @@ function animateRatingCount(line, num, badge, from, to, held = 0) {
 }
 
 // Cache de huidige rating zodat de volgende free-mode-pot een delta kan tonen.
+// 🤖 Na het binnenkomen meldt jaardle:rating het aan /duel.js: de bot die op Duels klaarstaat hangt van je rating af.
 function refreshMyRating() {
-  if (!auth.user) { auth.rating = auth.ratingRaw = null; return; }
-  rpc("get_my_rating").then((r) => { auth.rating = r?.elo ?? null; auth.ratingRaw = r?.elo_raw ?? null; }).catch(() => {});
+  const told = () => { try { window.dispatchEvent(new Event("jaardle:rating")); } catch (e) {} };
+  if (!auth.user) { auth.rating = auth.ratingRaw = auth.ratingGames = null; told(); return; }
+  rpc("get_my_rating").then((r) => { auth.rating = r?.elo ?? null; auth.ratingRaw = r?.elo_raw ?? null; auth.ratingGames = r?.games ?? null; told(); }).catch(() => {});
 }
 
 // --- Daily-recap (eindscherm na afronden) ---------------------------------

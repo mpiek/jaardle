@@ -547,6 +547,10 @@ body[data-duelshome] #mode-tabs { display: flex; }
 .ep-eyebrow .dl-th { margin-left: 0.35rem; font-size: 0.7rem; vertical-align: 0.1em; }
 .duel-round .dl-th { font-size: 0.68rem; padding: 0 0.4rem 0 0.3rem; }
 .dl-main b .dl-th, .dl-sent b .dl-th { margin-left: 0.35rem; font-size: 0.68rem; padding: 0 0.4rem 0 0.3rem; vertical-align: 0.1em; }
+.dl-card-f > small > .dl-th { margin-left: 0.4rem; }   /* 22/11 (zijn "chip niet tegen de laatste letter"): ⚡ Knock-out / 📻 1900+ achter "X daagt je uit" */
+.dl-hero > .dl-card { align-self: stretch; text-align: left; }   /* 🤖 de bot die klaarstaat, bovenaan de lege staat */
+.dl-hero > .dl-card + h3 { margin-top: 0.55rem; }
+.dl-card.bot .dl-card-f > small > i { font-style: normal; color: var(--fg); opacity: 0.8; }   /* zijn zin, zoals .bo-say in de pop-up */
 /* in een ronde met een thema zegt het lege invoervak welk stuk tijd (i.p.v. "—"). line-height 1.5 / 0.6 = 2.5: de kleine tekst krijgt
    dezelfde regelhoogte als de cijfers, anders krimpt het vak na elke gok (leeg) en groeit het bij het eerste cijfer (19/11: 14 px) */
 [data-era] #year-input:empty::before { content: attr(data-ph); font-size: 0.6em; line-height: 2.5; letter-spacing: 0.02em; }
@@ -2159,7 +2163,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       top.id = "duel-top"; top.className = "duel-top";
       tabs.before(top);
       top.addEventListener("click", (e) => {
-        if (e.target.closest(".duel-exit")) { gc("duel-exit", "Duel: left duel screen"); H.switchMode("daily"); return; }
+        if (e.target.closest(".duel-exit")) { gc("duel-exit", "Duel: back to Duels"); H.switchMode("daily"); openList(H, {}); return; }   // 22/11: ‹ = naar Duels
         // 19/11 (zijn vraag): het ⚔️ DUELS-logo bovenin = naar het Duels-scherm (de ronde blijft bewaard, zoals bij ‹; Speel = verder)
         if (e.target.closest(".duel-home")) { gc("duel-home", "Duel: logo tapped (to Duels)"); H.switchMode("daily"); openList(H, {}); }
       });
@@ -2169,7 +2173,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const era = themeOf({ theme: d.theme || dl.theme }), inp = document.getElementById("year-input");   // db/202
     body.toggleAttribute("data-era", !!era);
     if (inp) { if (era) inp.dataset.ph = T.eraPh(era.from); else delete inp.dataset.ph; }
-    if (top) top.innerHTML = `<div class="duel-left"><button type="button" class="duel-exit" aria-label="${esc(T.exit)}">${exitHtml()}</button>${sndHtml(T)}</div><button type="button" class="duel-title duel-home dl-logo" aria-label="${esc(T.toDuels)}" title="${esc(T.toDuels)}">${logoHtml(T)}</button>` +
+    if (top) top.innerHTML = `<div class="duel-left"><button type="button" class="duel-exit" aria-label="${esc(T.toDuels)}">${exitHtml()}</button>${sndHtml(T)}</div><button type="button" class="duel-title duel-home dl-logo" aria-label="${esc(T.toDuels)}" title="${esc(T.toDuels)}">${logoHtml(T)}</button>` +
       `<span class="duel-round">${era ? thHtml({ theme: d.theme || dl.theme }) : ""}<span>${esc(T.roundN(Math.min(5, shown)))}</span></span>`;
     armSnd(top);
     let vs = document.getElementById("duel-vs");
@@ -2495,10 +2499,14 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (!document.getElementById("modal-duels")?.hidden) renderList(tx(H.lang), null);   // stipje op de rij weg
   }
 
-  // De terugknop (pagina en ronde): ‹ + het Jaardle-icoontje (dat van de skin als er een is: het favicon in de <head>); de naam
-  // "Jaardle" staat alleen in aria-label.
+  // Het Jaardle-icoontje (dat van de skin als er een is: het favicon in de <head>): de terugknop op de Duels-pagina (.kd-home).
   const homeIcon = () => document.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute("href") || "/favicon.svg?v=2";   // het Jaardle-icoontje van de skin
-  const exitHtml = () => `<span class="dx-chev" aria-hidden="true">‹</span><img class="dx-logo" src="${esc(homeIcon())}" alt="">`;
+  // De terugknop in een ronde (Best of 5 en knock-out): ‹ + het DU/EL-icoon, naar Duels (22/11/2026, zijn "nu is terugknop naar JAAR ipv
+  // DUEL, dat is natuurlijk raar, je doet duel"). Het icoon is dat van de deur in de kop (#duels-door); Jaardle via de Duels-pagina. Een
+  // knock-out die loopt staat daar bovenaan (tik = terug in het spel), een ronde om de beurt bij Jouw beurt. Ook met de draaiende deur
+  // (#world-door, de DU/EL-tegel); zonder icoon in de kop het Jaardle-icoontje zoals eerst.
+  const duelIcon = () => document.querySelector('#duels-door svg, #world-door [data-w="d"] svg')?.outerHTML.replace('class="kd-logo"', 'class="dx-logo"') || "";
+  const exitHtml = () => `<span class="dx-chev" aria-hidden="true">‹</span>${duelIcon() || `<img class="dx-logo" src="${esc(homeIcon())}" alt="">`}`;
   // "?" op de Duels-pagina: de drie stappen als pop-up boven de pagina (18/11: liever dan uitklappen); Esc/✕/naast = dicht
   const HOWTO_ID = "modal-duel-help";
   function openHowto(T) {
@@ -2868,9 +2876,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const newBtn = goHtml(T, `data-act="new"`, T.newBtn);
     const err = msg ? `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>` : "";
     const koLive = (koNow() && window.KO.liveHtml?.(H)) || "";   // ⚡ een knock-out die nu loopt (20/11): de kaart terug naar het spel
-    if (!items.length && !listKo.length && !top && !koLive) {   // lege staat: Jij vs ?, de drie stappen (= de uitleg), één knop
-      const bf = botFaceHtml(T);
-      return err + `<div class="dl-hero">${bandHtml(T, "?", null)}` +
+    const rb = readyBot();   // 🤖 de bot die klaarstaat (22/11): als uitdaging, ook zonder account
+    readyKey = rb?.key || null;
+    if (!items.length && !listKo.length && !top && !koLive) {   // lege staat: de bot die klaarstaat (anders Jij vs ?), de drie stappen (= de uitleg), één knop
+      const bf = rb ? "" : botFaceHtml(T);
+      return err + `<div class="dl-hero">${rb ? botCardHtml(T, rb) : bandHtml(T, "?", null)}` +
         `<h3>${esc(T.heroTitle)}</h3>${stepsHtml(T)}${bf ? `<div class="dl-pick bot-only"><div class="dl-faces">${bf}</div></div>` : ""}${newBtn}</div>`;
     }
     // Jouw stand (22/11/2026): per vorm, niet meer door elkaar en niet meer bovenaan (wat loopt staat al bij Jouw beurt en Wacht).
@@ -2884,8 +2894,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const gone = items.filter((d) => d.me === "c" && ["expired", "declined"].includes(d.status) && recent(d)).slice(0, 3);
     const h2hTxt = (d) => { const [a, b] = recB(d.opp || oppName(d)); return a || b ? T.h2h(a, b) : ""; };   // een gewoon duel: de Best of 5-stand
     const inc = items.filter(incoming);   // db/189: een uitdaging aan jou (een teamgenoot, of een revanche)
-    if (turn.length || inc.length || koLive) {
-      const nT = turn.length + inc.length + (koLive ? 1 : 0);
+    if (turn.length || inc.length || koLive || rb) {
+      const nT = turn.length + inc.length + (koLive ? 1 : 0);   // zonder de bot: er wacht niemand op je
       h += secH("turn", `${esc(T.secTurn)}${nT > 1 ? ` · ${nT}` : ""}`);
       if (!shut.has("turn")) h += koLive;   // live gaat voor: de klok loopt
       if (!shut.has("turn")) for (const d of inc) {   // 19/11: de hele kaart = Neem aan (✕ apart); de twee kanten, zoals de opening
@@ -2901,6 +2911,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
         h += `<div class="dl-card turn" data-act="play" data-code="${d.code}">` + boardHtml(T, d, { cur: (d.mine || []).length, meta: leftText(T, d.deadline), peek: false }) +
           `<div class="dl-card-f"><small>${esc(who)}${h2 ? ` · ${esc(h2)}` : ""}${thHtml(d)}</small><button type="button" class="dl-go" data-act="play" data-code="${d.code}">${esc(T.play)}</button></div></div>`;
       }
+      if (!shut.has("turn") && rb) h += botCardHtml(T, rb);   // 🤖 altijd als laatste: eerst wat mensen van je vragen
     }
     if (!top.startsWith("<form")) h += pickHtml(T, newBtn, items);   // met het naamveld open is "Daag uit" de knop
     if (wait.length) {
@@ -2979,10 +2990,18 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const m = document.getElementById("modal-duels");
     if (H && listItems && m && !m.hidden) renderList(tx(H.lang), null);
   });
+  // 22/11 (zijn "live mensen altijd vooraan, maar bot altijd op 1"): wie online is eerst, verder de volgorde van de server; de bots staan
+  // er los vóór (botFaceHtml). Verandert wie er online is, dan schuiven de gezichtjes op hun plek zonder nieuwe lijst.
+  const onFirst = (ts) => [...ts].sort((a, b) => Number(isOn(b.k)) - Number(isOn(a.k)));
   function syncOnline() {
     const m = document.getElementById("modal-duels");
     if (H && pickSel && m && !m.hidden) return renderList(tx(H.lang), null);
     document.querySelectorAll("#modal-duels .dl-face[data-face]").forEach((f) => f.querySelector(".dl-av")?.classList.toggle("on", isOn(f.dataset.face)));
+    const row = document.querySelector("#modal-duels .dl-faces");
+    if (!row) return;
+    const order = onFirst(listTargets).map((t) => t.k), pos = (f) => { const i = order.indexOf(f.dataset.face); return i < 0 ? order.length : i; };
+    const now = [...row.querySelectorAll(".dl-face[data-face]")], want = [...now].sort((a, b) => pos(a) - pos(b));
+    if (want.some((f, i) => f !== now[i])) want.forEach((f) => row.appendChild(f));
   }
   window.addEventListener?.("jaardle:online", syncOnline);
   // db/189: je teamgenoten (en eerdere tegenstanders met een account) als gezichtjes, met jullie stand eronder. Tik = kiezen;
@@ -2994,7 +3013,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (!listTargets.length) return bf ? only() : newBtn;
     const koK = koOpp();
     if (koK && pickSel === koK) pickSel = null;   // zoals busy in applyList
-    const faces = listTargets.map((t) => {
+    const faces = onFirst(listTargets).map((t) => {
       const [a, b] = recOf(t.k), busy = !!t.busy || t.k === koK;
       const lab = busy ? `<small class="run">${esc(T.faceRun)}</small>`
         : a || b ? `<small class="${a > b ? "up" : a < b ? "down" : ""}">${a}–${b}</small>` : `<small class="new">${esc(T.faceNew)}</small>`;
@@ -3026,6 +3045,36 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       : w || l ? `<small class="${w > l ? "up" : w < l ? "down" : ""}">${w}–${l}</small>` : `<small class="new">${esc(T.faceNew)}</small>`;
     return `<button type="button" class="dl-face bot${busy ? " busy" : ""}" data-act="${busy ? "kolive" : "bots"}"${busy ? "" : ' aria-haspopup="dialog"'}>` +
       `${avHtml("🤖", T.botsFace, " on", false)}<b>${esc(T.botsFace)}</b>${lab}</button>`;
+  }
+  // 🤖 De bot die klaarstaat (22/11/2026, zijn idee: "dat er altijd een challenge klaar staat van bot van jouw dichtste rating zodat nieuwe
+  // spelers ook gelijk 1 druk play kunnen doen; maar hun starten met pip als ze unrated zijn"; mockup
+  // https://claude.ai/artifact/8M32TzfMpK2m8a8Y31Gw1U). Met een vaste ⚡ (account, ≥ 25 potjes, zoals de ? op het bord) de bot die het
+  // dichtst bij je rating zit (= "≈ jij"); anders de eerste (Pip), en na een zege op hem de volgende (de hoogste die je ooit versloeg + 1).
+  // Niet zolang er een knock-out loopt: die kaart staat er dan al. Alleen uit duel_list (bots met jouw stand) en get_my_rating.
+  const BOT_FIRM = 25;
+  let readyKey = null;   // de bot op de kaart: komt je rating later binnen en verandert hij, dan de lijst opnieuw
+  function readyBot() {
+    if (!listBots.length || koNow()) return null;
+    const bots = listBots.filter((b) => Number.isFinite(Number(b.elo))).sort((a, b) => a.elo - b.elo);
+    if (!bots.length) return null;
+    const r = H?.loggedIn ? H.myRating?.() : null, n = H?.myRatingGames?.() ?? 0;
+    if (r != null && n >= BOT_FIRM) return bots.reduce((a, b) => (Math.abs(b.elo - r) < Math.abs(a.elo - r) ? b : a));
+    let top = -1;
+    bots.forEach((b, i) => { if ((b.w || 0) > 0) top = i; });
+    return bots[Math.min(top + 1, bots.length - 1)];
+  }
+  window.addEventListener?.("jaardle:rating", () => {
+    const m = document.getElementById("modal-duels");
+    if (H && listItems && m && !m.hidden && (readyBot()?.key || null) !== readyKey) renderList(tx(H.lang), null);
+  });
+  // De kaart: dezelfde als "X daagt je uit" (band + regel, de hele kaart = Speel), zonder ✕ en zonder klok. Tweede regel: zijn zin zolang
+  // je nog nooit tegen hem speelde, daarna jullie stand (zoals bij een vriend).
+  function botCardHtml(T, b) {
+    const w = b.w || 0, l = b.l || 0, say = T["say" + b.key], k = esc(b.key);
+    const sub = w || l ? esc(cap(T.h2h(w, l))) : say ? `<i>${esc(T.botQ(say))}</i>` : "";
+    return `<div class="dl-card inc bot" data-act="botgo" data-bot="${k}">${bandHtml(T, b.name, b.flair)}` +
+      `<div class="dl-card-f"><small><b>${esc(T.invTitle(b.name))}</b><span class="dl-th"><span aria-hidden="true">⚡</span>${esc(T.koTag)}</span>${sub ? "<br>" + sub : ""}</small>` +
+      `<button type="button" class="dl-go" data-act="botgo" data-bot="${k}">${esc(T.play)}</button></div></div>`;
   }
   // één bot als regel (de pop-up, en na winst op het K.O.-eindscherm: next). Het niveau komt uit de volgorde (botLvl), de rating eronder.
   // 🤖 db/226 (mockup "Bots met karakter" v3, zijn keuze 22/11): onder de naam de zin van de bot (zoals het ballonnetje op chess.com: hij
@@ -3209,6 +3258,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     }
     if (act === "kolive") return koResume();   // ⚡ terug in de knock-out die loopt
     if (act === "bots") { gc("duel-bots", "Duel: bots opened"); return openBots(T); }   // 🤖 db/218
+    if (act === "botgo") { gc("duel-bot-card", "Duel: ready bot started from Duels"); return H.ko?.().then((K) => K.botStart?.(H, b.dataset.bot)).catch(() => {}); }   // 🤖 de bot die klaarstaat
     if (act === "sync") { gc("duel-sync", "Duel: Duels logo tapped (refresh)"); return syncList(T, true); }
     if (act === "sfx") return toggleSfx(b);   // ⚔️ Duel-geluid aan/uit (de knop naast de ?)
     if (act === "sent-x") { listTop = ""; return renderList(T, null); }
@@ -3551,7 +3601,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     _: { outcome, stand, boardHtml, bandHtml, leftText, groupsOf, popBody, LINK, withInvite, INVITE_KEY, h2hOf, listBody, pickHtml, recOf, applyList, bellHtml, avHtml, showEndPop,
          spectateBody, duelSides, flairEmoji, SFX, INTRO_MS, flairParts, FX_IDS, HUES, drawShare, keepHtml, acctHtml, introLabel, canPeek, peekHtml, PEEK_ID, thHtml, goHtml, THEMES, setModes: (v) => { modesOpen = v; },
          setPick: (k) => { pickSel = k; }, setGrp: (k) => { openGrp = k; }, setStand: (m) => { standPick = m; standFocus = null; }, standMode, standCardsHtml, dmIco, setHost: (h) => { H = h; }, koCardHtml, fillKo, onListClick, listKo: () => listKo,
-         botFaceHtml, botOptHtml, openBots, listBots: () => listBots, sndState, toggleSfx, music,
+         botFaceHtml, botOptHtml, openBots, listBots: () => listBots, readyBot, botCardHtml, onFirst, sndState, toggleSfx, music,
          drStripHtml, drPopHtml, drSparkHtml, rtHtml, setDr: (v) => { listDr = v; }, ratedOn: () => ratedOn, setRated: (v) => { ratedOn = v; } },   // voor de tests
   };
 })();
