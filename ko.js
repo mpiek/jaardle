@@ -535,10 +535,10 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   }
 
   // Jij daagt uit (▾ → Live bij een gezichtje dat online is)
-  async function invite(host, k, name) {
+  async function invite(host, k, name, o = {}) {   // o.rated: de Rated-schakelaar (⚔️ db/225; false = unrated, anders telt hij mee)
     H = host; ensureCss();
     K.gc("ko-invite", "Knockout: invited");
-    const r = await call("ko_invite", { p_k: k });
+    const r = await call("ko_invite", { p_k: k, ...(o.rated === false ? { p_rated: false } : {}) });
     const why = !r.ok && /busy|cooldown/.exec(r.e || "");   // db/213: die speelt nu een knock-out, of zei net nee
     if (why) return showLate({ state: why[0], opp: k, opp_name: name });
     if (!r.ok || !r.v) return pop(`<h2>${esc(tx().err)}</h2><button type="button" class="duel-no" data-ko="close">${esc(tx().close)}</button>`, () => closePop());
@@ -571,7 +571,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
         : `<button type="button" class="duel-go" data-ko="turn">${esc(T.turn)}</button>`) +
       `<p class="ko-alt-sub">${esc(T.turnSub(n))}</p><button type="button" class="duel-no" data-ko="close">${esc(T.never)}</button>`,
       (act) => {
-        if (act === "again") return invite(H, g.opp, n);
+        if (act === "again") return invite(H, g.opp, n, { rated: g.rated });
         closePop();
         if (act === "turn") { K.gc("ko-turn", "Knockout: fell back to a turn duel"); K.create(H, { forK: g.opp, forName: n }); }
       });
@@ -582,6 +582,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const left = Math.max(0, at(g.invite_until) - now());
     sfx(`inv:${g.code}`, "invite");
     const el = pop(band(g, T.tag) + `<h2>${esc(T.invH(oppName(g)))}</h2>` +
+      (g.rated === false ? `<span class="dl-th dr-fr">${esc(K.tx(H.lang).unrated)}</span>` : "") +   // ⚔️ db/225: telt niet voor de duelrating
       `<div class="ko-rules"><span>❤️ <b>${hpMax(g)}</b> ${esc(T.lives)}</span><span>${esc(T.same)}</span><span>${esc(T.mins)}</span></div>` +
       `<button type="button" class="duel-go ko-go" data-ko="yes" style="--dur:${left}ms">${esc(T.join)}<span class="ko-left"></span></button>` +
       `<button type="button" class="duel-no" data-ko="no">${esc(T.notNow)}</button>`,
@@ -1090,6 +1091,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const pe = pop(`<div class="ko-bandw" style="--h:${hue(g)}">${band(g, "K.O.", ` ko-end${won ? "" : " lost"}`)}</div>` +
       `<h2>${esc(!g.winner ? T.draw : won ? T.koWin : T.koLoss(n))}</h2><p>${esc(p)}</p>` +
       (Math.min(g.mine.length, g.theirs.length) ? lifeHtml(g) : "") +
+      (fresh && !g.bot && H.loggedIn && g.rated !== false ? `<p class="fact-stats rating-line rating-line-link dr-endline" role="button" tabindex="0" hidden></p>` : "") +   // ⚔️ db/225
       (fresh && !g.bot && H.loggedIn && H.duelAchv ? `<div class="ko-achv"></div>` : "") +   // ⚔️ db/224: kaartje voor de duel-prestaties
       (g.bot ? `<button type="button" class="duel-go ko-rev" data-ko="re">${esc(T.rematch)}</button>` + nextBot
         : fresh && !g.next ? (g.re_me ? `<button type="button" class="duel-go" disabled>${esc(T.rematchWait(n))}</button>`
@@ -1107,6 +1109,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // ⚔️ db/224 (game.js checkDuelAchievements): een knock-out tot K.O. tegen een mens telt voor Duellist, Remontada, Ongeschonden en David
     const box = pe?.querySelector(".ko-achv");
     if (box && typeof H.duelAchv === "function") H.duelAchv(box)?.catch?.(() => {});
+    const dl = pe?.querySelector(".dr-endline");   // ⚔️ db/225: de duelrating telt op (duel.js), of de regel verdwijnt als dit spel niet telde
+    if (dl) (K.drLine ? K.drLine(H, dl, g.code) : dl.remove());
   }
 
   // ── de stand van de server op het scherm ──

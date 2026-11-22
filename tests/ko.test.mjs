@@ -121,7 +121,7 @@ test("ko.js — rondes, levensverloop en het eindscherm (A): schade, de klap van
 test("db/208 + 210 + 214 + 218 ↔ ko.js — elke RPC die ko.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "218_ko_bot.sql")) }, () => {
   // de laatste definitie telt (db/210 maakt ko_submit opnieuw: jaar + hints in plaats van een score; db/218 + p_client met default)
   const rd = (f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8");
-  const old = ["208_ko.sql", "210_ko_one_guess.sql", "214_ko_react.sql"].map(rd).join("\n"), sql = old + "\n" + rd("218_ko_bot.sql");
+  const old = ["208_ko.sql", "210_ko_one_guess.sql", "214_ko_react.sql"].map(rd).join("\n"), sql = old + "\n" + rd("218_ko_bot.sql") + "\n" + rd("225_duel_rating.sql");   // db/225: ko_invite(p_k, p_rated)
   const calls = [...KOSRC.matchAll(/call\("(ko_[a-z_]+)", \{([^}]*)\}/g)].map((m) => [m[1], [...m[2].matchAll(/(p_[a-z]+):/g)].map((x) => x[1])]);
   assert.deepEqual([...new Set(calls.map((c) => c[0]))].sort(), ["ko_answer", "ko_bot_start", "ko_cancel", "ko_get", "ko_invite", "ko_react", "ko_rematch", "ko_submit"]);
   for (const [fn, args] of calls) {

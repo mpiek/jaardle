@@ -133,7 +133,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 289700, `het lui geladen bestand blijft klein (${SRC.length})`);   // 22/11: +"Jij tegen X" per vorm, het knock-out-icoon ook voor ko.js; 22/11: +Jouw stand per vorm (twee kaarten als schakelaar, iconen van de vormen, knock-outcijfers per tegenstander, vijf talen; de rij bovenaan weg); 22/11: +⚔️ duel-prestaties (kaartje in de eindstand, "had je … opgeleverd" zonder account, ❤️ Volle levens op het deelplaatje, db/224); 21/11: +🎵 drie noten bij het aanzetten van de muziek; 21/11: +🎵 de luidspreker met drie standen, drie opnames (lui, /sfx/), muziek aan/uit (de muziek zelf in /duel-music.js); 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 309700, `het lui geladen bestand blijft klein (${SRC.length})`);   // 22/11: +⚔️ duelrating (strook bovenaan Jouw stand, pop-up met lijntje en duellisten, Rated-schakelaar, label unrated, regel op de eindstand; vijf talen; db/225); 22/11: +"Jij tegen X" per vorm, het knock-out-icoon ook voor ko.js; 22/11: +Jouw stand per vorm (twee kaarten als schakelaar, iconen van de vormen, knock-outcijfers per tegenstander, vijf talen; de rij bovenaan weg); 22/11: +⚔️ duel-prestaties (kaartje in de eindstand, "had je … opgeleverd" zonder account, ❤️ Volle levens op het deelplaatje, db/224); 21/11: +🎵 drie noten bij het aanzetten van de muziek; 21/11: +🎵 de luidspreker met drie standen, drie opnames (lui, /sfx/), muziek aan/uit (de muziek zelf in /duel-music.js); 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, de deur naast 🌐, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -1310,4 +1310,79 @@ test("duel.js — ⚔️ duel-prestaties (db/224): zonder account zegt de uitsla
   assert.match(SRC, /if \(box && typeof H\.duelAchv === "function"\) setTimeout\(\(\) => \{ H\.duelAchv\(box\)\?\.catch\?\.\(\(\) => \{\}\); \}, flip && !reduced \? FLIP_MS : 0\);/);
   // ❤️ Volle levens op het deelplaatje: dezelfde plek als .fx-lives (bovenrand 0,33em, 0,78em breed)
   assert.ok(X.FX_IDS.includes("lives") && SRC.includes('fx === "lives"') && SRC.includes("y0 - 0.33 * E"));
+});
+
+test("duel.js — ⚔️ duelrating (db/225): Rated-schakelaar alleen met account, label unrated, strook vast/voorlopig, pop-up met duellisten", () => {
+  const T = D.copy("nl");
+  // Rated: alleen het woord + het schakelaartje, standaard aan; zonder account niets
+  X.setHost(host());
+  assert.equal(X.rtHtml(T), "");
+  X.setHost(host({ loggedIn: true, myName: () => "Bram" }));
+  X.setRated(true);
+  assert.match(X.rtHtml(T), /class="dl-opt dr-rt" role="switch" aria-checked="true" data-act="rated"><span class="mo-e" aria-hidden="true"><\/span><span><b>Rated<\/b><\/span><\/button>/);
+  X.setRated(false);
+  assert.match(X.rtHtml(T), /aria-checked="false"/);
+  X.setRated(true);
+  // het menu van de grote knop heeft hem onderaan, onder de vormen
+  X.setModes(true);
+  const go = X.goHtml(T, 'data-act="new"', "Daag uit");
+  assert.ok(go.indexOf("dr-rt") > go.indexOf("1900+"), "onder de vormen");
+  X.setModes(false);
+  // label: alleen een duel dat niet meetelt
+  assert.match(X.thHtml({ rated: false }), /class="dl-th dr-fr">unrated</);
+  assert.equal(X.thHtml({ rated: true }), "");
+  assert.match(X.thHtml({ theme: "1900", rated: false }), /1900\+[\s\S]*unrated/);
+  // strook: niets zonder rating of zonder account
+  X.setDr(null);
+  assert.equal(X.drStripHtml(T), "");
+  X.setDr({ r: 1563, n: 3, prov: true, week: 63, hist: [1500, 1610, 1490, 1563], rank: [{ k: "a", name: null, r: 1563, n: 3, me: true }] });
+  const prov = X.drStripHtml(T);
+  assert.match(prov, /Duelrating · voorlopig/);
+  assert.match(prov, /1563<span class="dr-q">\?<\/span>/);
+  assert.equal((prov.match(/<i class="on"><\/i>/g) || []).length, 3, "drie van de tien stipjes");
+  assert.match(prov, /nog 7 duels/);
+  assert.ok(!/dr-rank/.test(prov), "voorlopig: geen plek in de rij");
+  const v = { r: 1612, n: 28, prov: false, week: 14, hist: [1548, 1561, 1612],
+    rank: [{ k: "s", name: "Sanne", flair: "🦊", r: 1688, n: 30 }, { k: "m", r: 1612, n: 28, me: true }, { k: "b", name: "Bas", r: 1590, n: 15 }, { k: "r", name: "Ravi", r: 1552, n: 4 }] };
+  X.setDr(v);
+  const vast = X.drStripHtml(T);
+  assert.match(vast, /<span class="dr-num">1612<\/span><span class="dr-trend up">\+14 <small>deze week<\/small><\/span>/);
+  assert.match(vast, /<b>#2<\/b><small>van 3<\/small>/, "plek tussen de vaste ratings");
+  assert.match(vast, /data-act="dr"/, "de hele strook is de knop");
+  X.setDr({ ...v, week: -9 });
+  assert.match(X.drStripHtml(T), /dr-trend down">−9 /);
+  X.setDr({ ...v, week: null });
+  assert.ok(!/dr-trend/.test(X.drStripHtml(T)), "geen duel deze week: geen trend");
+  // pop-up: vaste ratings op volgorde met plek, voorlopige onderaan zonder plek; drie regels uitleg
+  const pop = X.drPopHtml(T, v);
+  assert.ok(pop.indexOf("Sanne") < pop.indexOf(">Jij<") && pop.indexOf(">Jij<") < pop.indexOf("Bas") && pop.indexOf("Bas") < pop.indexOf("Ravi"));
+  assert.match(pop, /<li class="me"><span class="rk">2<\/span>/);
+  assert.match(pop, /<li class=" prov"><span class="rk"><\/span>[\s\S]*Ravi<small>voorlopig · 4 van 10<\/small>[\s\S]*1552<span class="dr-q">\?<\/span>/);
+  assert.equal((pop.match(/<li>/g) || []).length, 3, "drie regels uitleg");
+  assert.match(X.drSparkHtml(T, v), /<polyline class="ln" points="[^"]+"\/>[\s\S]*>1612<\/text>/);
+  assert.equal(X.drSparkHtml(T, { hist: [1500] }), "", "één punt is geen lijn");
+  X.setDr(null);
+  X.setHost(host());
+});
+
+test("duel.js ↔ db/225 — Rated gaat alleen mee als hij uit staat; de eindstand en de knock-out halen get_my_duel_rating(p_code)", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "225_duel_rating.sql")) }, () => {
+  const sql = readFileSync(join(dir, "..", "..", "jaardle-tools", "db", "225_duel_rating.sql"), "utf8");
+  assert.match(SRC, /\.\.\.\(H\.loggedIn && !ratedOn && !rematch \? \{ p_rated: false \} : \{\}\) \}\);/, "een revanche neemt Rated van de server over");
+  assert.match(sql, /CREATE FUNCTION public\.duel_create\([^)]*p_rated boolean DEFAULT NULL::boolean\)/);
+  assert.match(sql, /CREATE FUNCTION public\.ko_invite\(p_k text, p_rated boolean DEFAULT true\)/);
+  assert.match(sql, /create function public\.get_my_duel_rating\(p_code text default null\)/);
+  assert.match(sql, /grant execute on function public\.get_my_duel_rating\(text\) to anon, authenticated;/);
+  // geen p_client: get_my_duel_rating heeft hem niet (de gewone call() van duel.js stuurt hem altijd mee)
+  assert.match(SRC, /H\.rpc\("get_my_duel_rating", \{\}\)/);
+  assert.match(SRC, /H\.rpc\("get_my_duel_rating", \{ p_code: code \}\)/);
+  assert.ok(!/call\("get_my_duel_rating"/.test(SRC));
+  // de eindstand: een vak voor de regel, niet bij terugkijken en niet bij unrated
+  assert.match(SRC, /\(H\.loggedIn && !again && d\.rated !== false \? `<p class="fact-stats rating-line rating-line-link dr-endline"/);
+  assert.match(KO_SRC_FOR_MUSIC, /\(fresh && !g\.bot && H\.loggedIn && g\.rated !== false \? `<p class="fact-stats rating-line rating-line-link dr-endline"/);
+  assert.match(KO_SRC_FOR_MUSIC, /call\("ko_invite", \{ p_k: k, \.\.\.\(o\.rated === false \? \{ p_rated: false \} : \{\}\) \}\)/);
+  // Stats: een vierde tab ⚔️ Duels, verborgen tot er een duelrating is; dezelfde grafiek als ⚡ (drawRatingChart)
+  assert.match(GAME, /data-tab="duel" hidden>\$\{segLabel\("⚔️", t\("stats_duel"\)\)\}<\/button>/);
+  assert.match(GAME, /rpc\("get_my_duel_rating_history", \{\}\)/);
+  assert.match(GAME, /drawRatingChart\(pane, pts, \{ curTxt, extremes, unit: "🎲" \}\)/, "⚡ tekent nog precies zo");
+  assert.match(sql, /create function public\.get_my_duel_rating_history\(\)/);
 });

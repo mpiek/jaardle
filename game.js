@@ -218,7 +218,7 @@ const I18N = {
     stats_empty: "Nog geen dagelijkse puzzels afgerond.",
     history_empty: "Je hebt nog geen dailies gespeeld.",
     history_perfect_week: "Perfecte week: alle 7 dailies gewonnen",
-    stats_daily: "Dagelijks", stats_free: "Vrij spelen",
+    stats_daily: "Dagelijks", stats_free: "Vrij spelen", stats_duel: "Duels",
     stats_free_empty: "Nog geen vrije potjes gespeeld.", stats_tab_aria: "Kies statistiek",
     stat_played: "Gespeeld", stat_winrate: "Win-rate", stat_curstreak: "Huidige streak", stat_perfect_streak: "100-punters op rij",
     stat_beststreak: "Beste streak", stat_avgscore: "Gem. score", stat_won: "Gewonnen",
@@ -573,7 +573,7 @@ const I18N = {
     stats_empty: "No daily puzzles finished yet.",
     history_empty: "You haven't played any dailies yet.",
     history_perfect_week: "Perfect week: all 7 dailies won",
-    stats_daily: "Daily", stats_free: "Free play",
+    stats_daily: "Daily", stats_free: "Free play", stats_duel: "Duels",
     stats_free_empty: "No free-play rounds yet.", stats_tab_aria: "Choose stat",
     stat_played: "Played", stat_winrate: "Win rate", stat_curstreak: "Current streak", stat_perfect_streak: "Perfect scores in a row",
     stat_beststreak: "Best streak", stat_avgscore: "Avg. score", stat_won: "Won",
@@ -931,7 +931,7 @@ const I18N = {
     stats_empty: "Noch keine täglichen Rätsel abgeschlossen.",
     history_empty: "Du hast noch keine täglichen Rätsel gespielt.",
     history_perfect_week: "Perfekte Woche: alle 7 Dailies gewonnen",
-    stats_daily: "Täglich", stats_free: "Freies Spiel",
+    stats_daily: "Täglich", stats_free: "Freies Spiel", stats_duel: "Duelle",
     stats_free_empty: "Noch keine Runden im freien Spiel.", stats_tab_aria: "Statistik wählen",
     stat_played: "Gespielt", stat_winrate: "Gewinnrate", stat_curstreak: "Aktuelle Serie", stat_perfect_streak: "100er in Folge",
     stat_beststreak: "Beste Serie", stat_avgscore: "Ø Punkte", stat_won: "Gewonnen",
@@ -1283,7 +1283,7 @@ const I18N = {
     stats_empty: "Aún no has completado ningún puzle diario.",
     history_empty: "Aún no has jugado ningún diario.",
     history_perfect_week: "Semana perfecta: las 7 diarias ganadas",
-    stats_daily: "Diario", stats_free: "Partida libre",
+    stats_daily: "Diario", stats_free: "Partida libre", stats_duel: "Duelos",
     stats_free_empty: "Aún no has jugado ninguna partida libre.", stats_tab_aria: "Elegir estadística",
     stat_played: "Jugadas", stat_winrate: "Aciertos", stat_curstreak: "Racha actual", stat_perfect_streak: "Perfectas seguidas",
     stat_beststreak: "Mejor racha", stat_avgscore: "Puntos medios", stat_won: "Ganadas",
@@ -1640,7 +1640,7 @@ const I18N = {
     stats_empty: "Você ainda não concluiu nenhum quebra-cabeça diário.",
     history_empty: "Você ainda não jogou nenhum diário.",
     history_perfect_week: "Semana perfeita: as 7 diárias vencidas",
-    stats_daily: "Diário", stats_free: "Jogo livre",
+    stats_daily: "Diário", stats_free: "Jogo livre", stats_duel: "Duelos",
     stats_free_empty: "Ainda não jogou nenhuma partida livre.", stats_tab_aria: "Escolher estatística",
     stat_played: "Jogadas", stat_winrate: "Acertos", stat_curstreak: "Sequência atual", stat_perfect_streak: "Perfeitas seguidas",
     stat_beststreak: "Melhor sequência", stat_avgscore: "Pontos médios", stat_won: "Vitórias",
@@ -12934,13 +12934,15 @@ async function renderStats() {
   // de Leaderboard-modal (.lb-seg/.lb-tabpane zijn generiek genoeg om te delen).
   body.innerHTML = `
     <div class="lb-seg" role="tablist" aria-label="${t("stats_tab_aria")}">
-      <button type="button" class="lb-seg-btn" role="tab" data-tab="daily">📅 ${t("stats_daily")}</button>
-      <button type="button" class="lb-seg-btn" role="tab" data-tab="free">🎲 ${t("stats_free")}</button>
-      <button type="button" class="lb-seg-btn" role="tab" data-tab="rating">${t("menu_rating")}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="daily">${segLabel("📅", t("stats_daily"))}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="free">${segLabel("🎲", t("stats_free"))}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="rating">${segLabel("", t("menu_rating"))}</button>
+      <button type="button" class="lb-seg-btn" role="tab" data-tab="duel" hidden>${segLabel("⚔️", t("stats_duel"))}</button>
     </div>
     <section class="lb-tabpane" data-pane="daily" hidden></section>
     <section class="lb-tabpane" data-pane="free" hidden></section>
-    <section class="lb-tabpane" data-pane="rating" hidden></section>`;
+    <section class="lb-tabpane" data-pane="rating" hidden></section>
+    <section class="lb-tabpane" data-pane="duel" hidden></section>`;
   body.querySelectorAll(".lb-seg-btn").forEach((b) => { b.onclick = () => selectStatsTab(b.dataset.tab); });
 
   const dailyPane = body.querySelector('[data-pane="daily"]');
@@ -12978,15 +12980,25 @@ async function renderStats() {
     await Promise.all([
       renderFreeStats(freePane, req),
       renderRatingPane(ratingPane, req),
+      renderDuelRatingPane(body.querySelector('[data-pane="duel"]'), body.querySelector('[data-tab="duel"]'), req),
     ]);
   }
   if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
 
   let stored = null;
   try { stored = localStorage.getItem("jaardle:statsTab"); } catch (e) {}
-  const openTab = pendingStatsTab || (["daily", "free", "rating"].includes(stored) ? stored : "daily");
+  const duelTab = !body.querySelector('[data-tab="duel"]')?.hidden;   // ⚔️ db/225: alleen met een duelrating
+  const openTab = pendingStatsTab || (["daily", "free", "rating"].includes(stored) || (stored === "duel" && duelTab) ? stored : "daily");
   pendingStatsTab = null;
   selectStatsTab(openTab);
+}
+
+// Een tabblad in Stats als icoon + woord in twee spannetjes (⚔️ db/225): normaal staan ze naast elkaar zoals altijd ("📅 Dagelijks"); met
+// de vierde tab (Duels) zet style.css het icoon boven het woord, zodat ook "🎲 Partida libre" op 360 px past. Zonder icoon (⚡ Rating:
+// zit in de vertaling) haalt hij het eerste teken eraf.
+function segLabel(ico, txt) {
+  const m = !ico && /^(\S+)\s+(.+)$/.exec(txt);
+  return `<span class="seg-e">${escHtml(m ? m[1] : ico)}</span> <span class="seg-t">${escHtml(m ? m[2] : txt)}</span>`;
 }
 
 // Wisselt het zichtbare Stats-tabblad en onthoudt de keuze — zelfde patroon als
@@ -13104,6 +13116,19 @@ async function renderRatingStats(pane, req) {
   if (req !== statsReq || document.getElementById("modal-stats").hidden) return false;
 
   const pts = hist.map((p) => ({ t: Date.parse(p.d), d: p.d, elo: p.elo, n: p.n }));
+  // Rauwe rating (2 decimalen) voor current/piek/dal; val terug op de int als een
+  // (oudere) server-respons nog geen elo_raw/cur meestuurt.
+  const curTxt = ext && ext.cur != null ? fmtEloRaw(ext.cur) : String(pts[pts.length - 1].elo);
+  const extremes = ext && ext.hi && ext.lo ? `
+    <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${fmtEloRaw(ext.hi.elo_raw ?? ext.hi.elo)}</strong> <span>(${fmtDailyDate(ext.hi.d)})</span>
+      · 📉 ${t("rating_low")}: <strong>${fmtEloRaw(ext.lo.elo_raw ?? ext.lo.elo)}</strong> <span>(${fmtDailyDate(ext.lo.d)})</span></p>` : "";
+  drawRatingChart(pane, pts, { curTxt, extremes, unit: "🎲" });
+  return true;
+}
+
+// De lijngrafiek van een rating (⚡ en sinds db/225 ook ⚔️ Duels): pts = [{t, d, elo, n}] per dag, n = potjes/duels die dag (unit in de
+// tooltip; n = 0 = het beginpunt, zonder unit). curTxt = het getal boven de grafiek, extremes = de piek/dal-regel eronder.
+function drawRatingChart(pane, pts, { curTxt, extremes = "", unit = "🎲" }) {
   const first = pts[0], last = pts[pts.length - 1];
   const lo = Math.min(...pts.map((p) => p.elo)), hi = Math.max(...pts.map((p) => p.elo));
   const pad = Math.max(8, Math.round((hi - lo) * 0.15));   // ademruimte boven/onder de lijn
@@ -13123,12 +13148,6 @@ async function renderRatingStats(pane, req) {
   const delta = last.elo - first.elo;
   const badge = delta === 0 ? "" :
     `<span class="rating-delta ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : "−"}${Math.abs(delta)}</span>`;
-  // Rauwe rating (2 decimalen) voor current/piek/dal; val terug op de int als een
-  // (oudere) server-respons nog geen elo_raw/cur meestuurt.
-  const curTxt = ext && ext.cur != null ? fmtEloRaw(ext.cur) : String(last.elo);
-  const extremes = ext && ext.hi && ext.lo ? `
-    <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${fmtEloRaw(ext.hi.elo_raw ?? ext.hi.elo)}</strong> <span>(${fmtDailyDate(ext.hi.d)})</span>
-      · 📉 ${t("rating_low")}: <strong>${fmtEloRaw(ext.lo.elo_raw ?? ext.lo.elo)}</strong> <span>(${fmtDailyDate(ext.lo.d)})</span></p>` : "";
   const sec = document.createElement("div");
   sec.className = "stats-rating";
   sec.innerHTML = `
@@ -13176,7 +13195,7 @@ async function renderRatingStats(pane, req) {
       b.textContent = dd === 0 ? "±0" : `${dd > 0 ? "+" : "−"}${Math.abs(dd)}`;
       tip.append(b);
     }
-    tip.append(document.createTextNode(` · ${fmtDailyDate(p.d)} · 🎲 ${p.n}`));
+    tip.append(document.createTextNode(` · ${fmtDailyDate(p.d)}${p.n ? ` · ${unit} ${p.n}` : ""}`));
     tip.hidden = false;
     const tw = tip.offsetWidth, th = tip.offsetHeight;
     tip.style.left = `${Math.min(Math.max(0, px * r.width / W - tw / 2), r.width - tw)}px`;
@@ -13188,6 +13207,26 @@ async function renderRatingStats(pane, req) {
     tip.hidden = true; hair.style.opacity = 0; dot.style.opacity = 0;
   });
   return true;
+}
+
+// ⚔️ Duels-tab (db/225, 22/11/2026, zijn "misschien ook dat je dit als apart ding terug ziet bij stats"): je duelrating met dezelfde
+// grafiek als ⚡ (per dag de laatste stand, vanaf het begin op 1500), piek/dal vanaf duel 10. Het tabblad verschijnt alleen als er een
+// duelrating is (minstens één gewaardeerd duel); zonder blijft het weg (anoniem komt hier niet: die ziet de bewaar-pitch).
+async function renderDuelRatingPane(pane, btn, req) {
+  if (!pane || !btn) return;
+  let h = null;
+  try { h = await rpc("get_my_duel_rating_history", {}); } catch (e) { return; }   // oude server: geen tab
+  if (!h || !Array.isArray(h.days) || !h.days.length) return;
+  if (req !== statsReq || document.getElementById("modal-stats").hidden) return;
+  btn.hidden = false;
+  const pts = h.days.map((p) => ({ t: Date.parse(p.d), d: p.d, elo: p.r, n: p.n }));
+  const start = new Date(pts[0].t - 864e5).toISOString().slice(0, 10);   // het beginpunt (1500) een dag vóór je eerste duel
+  pts.unshift({ t: Date.parse(start), d: start, elo: h.start ?? 1500, n: 0 });
+  const prov = (h.n || 0) < 10 ? "?" : "";   // voorlopig tot 10 duels, zoals op Duels
+  const extremes = h.hi && h.lo ? `
+    <p class="rating-extremes">📈 ${t("rating_peak")}: <strong>${h.hi.r}</strong> <span>(${fmtDailyDate(h.hi.d)})</span>
+      · 📉 ${t("rating_low")}: <strong>${h.lo.r}</strong> <span>(${fmtDailyDate(h.lo.d)})</span></p>` : "";
+  drawRatingChart(pane, pts, { curTxt: `${pts[pts.length - 1].elo}${prov}`, extremes, unit: "⚔️" });
 }
 
 // Sterkste eeuw — over ALLE potjes (daily + free). Eén regel onderaan de
