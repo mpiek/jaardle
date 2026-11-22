@@ -29,9 +29,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-M/adwh28vSJIhi7yhj+heKBUkgwVCqQv36tuwQuPzvE=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
-     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=491 = de src van de game.js-tag onderaan (build). -->
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=492 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
-<link rel="preload" as="script" href="/game.js?v=491">
+<link rel="preload" as="script" href="/game.js?v=492">
 <script>
   // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
   window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -225,8 +225,10 @@
            dat je smoother transitie hebt"): het Duels-icoon in de vorm van het Jaardle-icoontje (DU/EL zoals JA/AR, de onderste rij op zijn
            kop, in de duelkleur met de zwaarden erachter; jaardle-tools/mockups/duel/icon/make_icon.py). Voor iedereen, ook zonder account;
            /duel.js laadt pas bij een tik. Op de Duels-pagina staat op deze plek het Jaardle-icoontje (/duel.js). Rood stipje = jouw beurt
-           of een nieuwe uitslag (renderMenuDot). Sinds dit staat "⚔️ Duels" niet meer in het ⋮-menu. -->
-      <button id="duels-door" class="kop-door" type="button" aria-label="Duelos" data-i18n-aria="door_duels"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#e8794a"/><g fill="#b9532a"><g transform="translate(256 256) rotate(45)"><path d="M0 -236L24 -196V112H-24V-196Z"/><rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g><g transform="translate(256 256) rotate(-45)"><path d="M0 -236L24 -196V112H-24V-196Z"/><rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g></g><g fill="#fff"><path transform="translate(128 128) scale(0.110007 -0.110007) translate(-765 -704.5)" d="M1393 715Q1393 497 1307.5 334.5Q1222 172 1065.5 86Q909 0 707 0H137V1409H647Q1003 1409 1198 1229.5Q1393 1050 1393 715ZM1096 715Q1096 942 978 1061.5Q860 1181 641 1181H432V228H682Q872 228 984 359Q1096 490 1096 715Z"/><path transform="translate(384 128) scale(0.110007 -0.110007) translate(-738.5 -694.5)" d="M723 -20Q432 -20 277.5 122Q123 264 123 528V1409H418V551Q418 384 497.5 297.5Q577 211 731 211Q889 211 974 301.5Q1059 392 1059 561V1409H1354V543Q1354 275 1188.5 127.5Q1023 -20 723 -20Z"/><path transform="translate(128 384) rotate(180) scale(0.110007 -0.110007) translate(-711.5 -704.5)" d="M137 0V1409H1245V1181H432V827H1184V599H432V228H1286V0Z"/><path transform="translate(384 384) rotate(180) scale(0.110007 -0.110007) translate(-662.5 -704.5)" d="M137 0V1409H432V228H1188V0Z"/></g></svg></button>
+           of een nieuwe uitslag (renderMenuDot). Sinds dit staat "⚔️ Duels" niet meer in het ⋮-menu.
+           22/11: een echte link (<a href>) in plaats van een knop, zodat Google /duels/ via de hoofdpagina vindt; game.js onderschept de
+           gewone tik, Ctrl/⌘-klik of middelklik opent gewoon een nieuw tabblad. -->
+      <a id="duels-door" class="kop-door" href="/pt/duels/" aria-label="Duelos" data-i18n-aria="door_duels"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#e8794a"/><g fill="#b9532a"><g transform="translate(256 256) rotate(45)"><path d="M0 -236L24 -196V112H-24V-196Z"/><rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g><g transform="translate(256 256) rotate(-45)"><path d="M0 -236L24 -196V112H-24V-196Z"/><rect x="-84" y="112" width="168" height="34" rx="17"/><rect x="-15" y="146" width="30" height="66" rx="6"/><circle cy="232" r="26"/></g></g><g fill="#fff"><path transform="translate(128 128) scale(0.110007 -0.110007) translate(-765 -704.5)" d="M1393 715Q1393 497 1307.5 334.5Q1222 172 1065.5 86Q909 0 707 0H137V1409H647Q1003 1409 1198 1229.5Q1393 1050 1393 715ZM1096 715Q1096 942 978 1061.5Q860 1181 641 1181H432V228H682Q872 228 984 359Q1096 490 1096 715Z"/><path transform="translate(384 128) scale(0.110007 -0.110007) translate(-738.5 -694.5)" d="M723 -20Q432 -20 277.5 122Q123 264 123 528V1409H418V551Q418 384 497.5 297.5Q577 211 731 211Q889 211 974 301.5Q1059 392 1059 561V1409H1354V543Q1354 275 1188.5 127.5Q1023 -20 723 -20Z"/><path transform="translate(128 384) rotate(180) scale(0.110007 -0.110007) translate(-711.5 -704.5)" d="M137 0V1409H1245V1181H432V827H1184V599H432V228H1286V0Z"/><path transform="translate(384 384) rotate(180) scale(0.110007 -0.110007) translate(-662.5 -704.5)" d="M137 0V1409H432V228H1188V0Z"/></g></svg></a>
       <button class="tab" data-mode="daily" role="tab" aria-selected="true" title="Toets: D"><span class="tab-icon tab-cal" id="tab-cal" aria-hidden="true"></span> <span data-i18n="tab_daily">Diário</span></button>
       <button class="tab" data-mode="free" role="tab" aria-selected="false" title="Toets: N" data-i18n="tab_free">Jogo novo</button>
     </nav>
@@ -581,7 +583,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=491"></script>
+  <script src="/game.js?v=492"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

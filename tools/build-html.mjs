@@ -66,27 +66,43 @@ function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, dir = "") {
 
 // ⚔️ Subpagina's (18/11/2026): hetzelfde spel onder een eigen adres, met een eigen <title>, beschrijving en deelvoorbeeld.
 // /duels/ opent meteen het Duels-scherm (game.js herkent het pad). De teksten staan hier en niet in de I18N van game.js: ze
-// horen alleen in de <head>, dus het spel hoeft ze niet mee te laden. Elke taal moet er zijn (de build stopt anders).
+// horen alleen in de HTML, dus het spel hoeft ze niet mee te laden. Elke taal moet er zijn (de build stopt anders).
+// 22/11/2026 (zijn vraag over vindbaarheid, "bouw het"): ook een eigen <h1> en introtekst (intro_h1/intro_html, de verborgen
+// .site-intro bovenaan). Met alleen een eigen <title> was /duels/ voor Google bijna een kopie van de hoofdpagina. Op een
+// subpagina haalt de build de data-i18n-attributen van die twee weg, anders zet applyLang() er bij het laden de tekst van de
+// hoofdpagina overheen (Google draait de JS ook). Gevolg: na een taalwissel op de pagina zelf blijft die verborgen intro in de
+// oude taal staan, tot de volgende keer laden.
 const PAGES = [
   { dir: "", strings: null },
   { dir: "duels", image: "/og-duel.jpg", strings: {
     nl: { meta_title: "Jaardle Duels — daag een vriend uit: wie raadt het jaar het best?",
       meta_share_title: "⚔️ Jaardle-duel: daag een vriend uit",
-      meta_desc: "Daag een vriend uit voor een Jaardle-duel: jullie raden het jaar van dezelfde 5 historische gebeurtenissen, van makkelijk naar moeilijk. Per ronde wint de hoogste score. Gratis, zonder account." },
+      meta_desc: "Daag een vriend uit voor een Jaardle-duel: jullie raden het jaar van dezelfde 5 historische gebeurtenissen, van makkelijk naar moeilijk. Per ronde wint de hoogste score. Gratis, zonder account.",
+      intro_h1: "Jaardle Duels — geschiedenisquiz één tegen één: wie raadt het jaartal het best?",
+      intro_html: "Daag een vriend uit voor een duel in Jaardle, het spel waarin je het jaartal van een historische gebeurtenis raadt. Bij <strong>Best of 5</strong> spelen jullie dezelfde vijf gebeurtenissen, van makkelijk naar moeilijk, wanneer het jullie uitkomt binnen 24 uur. Per ronde wint de hoogste score. Bij <strong>Knock-out</strong> speel je live, tegen een vriend die online is of tegen een bot. Elk jaar ernaast kost punten, en het verschil gaat van de levensbalk van de ander af tot iemand knock-out gaat. Gratis en zonder account. Met een account tellen je duels mee voor je eigen duelrating." },
     en: { meta_title: "Jaardle Duels — challenge a friend: who guesses the year best?",
       meta_share_title: "⚔️ Jaardle Duel: challenge a friend",
-      meta_desc: "Challenge a friend to a Jaardle duel: you both guess the year of the same 5 historic events, from easy to hard. The highest score wins each round. Free, no account needed." },
+      meta_desc: "Challenge a friend to a Jaardle duel: you both guess the year of the same 5 historic events, from easy to hard. The highest score wins each round. Free, no account needed.",
+      intro_h1: "Jaardle Duels — a 1v1 history quiz: who guesses the year best?",
+      intro_html: "Challenge a friend to a duel in Jaardle, the game where you guess the year of a historic event. In <strong>Best of 5</strong> you both play the same five events, from easy to hard, whenever it suits you within 24 hours. The highest score wins each round. In <strong>Knockout</strong> you play live, against a friend who is online or against a bot. Every year you are off costs points, and the difference comes off the other player's health bar until someone is knocked out. Free, no account needed. With an account, your duels count toward your own duel rating." },
     de: { meta_title: "Jaardle-Duelle — fordere jemanden heraus: wer errät das Jahr am besten?",
       meta_share_title: "⚔️ Jaardle-Duell: fordere jemanden heraus",
-      meta_desc: "Fordere Freunde zu einem Jaardle-Duell heraus: Ihr ratet das Jahr derselben 5 historischen Ereignisse, von leicht bis schwer. Pro Runde gewinnt die höchste Punktzahl. Kostenlos, ohne Konto." },
+      meta_desc: "Fordere Freunde zu einem Jaardle-Duell heraus: Ihr ratet das Jahr derselben 5 historischen Ereignisse, von leicht bis schwer. Pro Runde gewinnt die höchste Punktzahl. Kostenlos, ohne Konto.",
+      intro_h1: "Jaardle-Duelle — Geschichtsquiz eins gegen eins: wer errät das Jahr am besten?",
+      intro_html: "Fordere Freunde zu einem Duell in Jaardle heraus, dem Spiel, in dem du das Jahr eines historischen Ereignisses errätst. Bei <strong>Best of 5</strong> spielt ihr dieselben fünf Ereignisse, von leicht bis schwer, wann ihr wollt, innerhalb von 24 Stunden. Pro Runde gewinnt die höchste Punktzahl. Beim <strong>Knock-out</strong> spielst du live, gegen jemanden, der gerade online ist, oder gegen einen Bot. Jedes Jahr daneben kostet Punkte, und der Unterschied geht von der Lebensleiste des anderen ab, bis jemand K.o. ist. Kostenlos und ohne Konto. Mit Konto zählen deine Duelle für dein eigenes Duell-Rating." },
     es: { meta_title: "Duelos de Jaardle — reta a un amigo: ¿quién adivina mejor el año?",
       meta_share_title: "⚔️ Duelo de Jaardle: reta a un amigo",
-      meta_desc: "Reta a un amigo a un duelo de Jaardle: adivináis el año de los mismos 5 acontecimientos históricos, de fácil a difícil. En cada ronda gana la puntuación más alta. Gratis, sin cuenta." },
+      meta_desc: "Reta a un amigo a un duelo de Jaardle: adivináis el año de los mismos 5 acontecimientos históricos, de fácil a difícil. En cada ronda gana la puntuación más alta. Gratis, sin cuenta.",
+      intro_h1: "Duelos de Jaardle — quiz de historia uno contra uno: ¿quién adivina mejor el año?",
+      intro_html: "Reta a un amigo a un duelo en Jaardle, el juego en el que adivinas el año de un acontecimiento histórico. En <strong>Al mejor de 5</strong> jugáis los mismos cinco acontecimientos, de fácil a difícil, cuando os venga bien dentro de 24 horas. En cada ronda gana la puntuación más alta. En <strong>K.O.</strong> juegas en vivo, contra un amigo que esté conectado o contra un bot. Cada año de diferencia cuesta puntos, y la diferencia se resta de la barra de vida del otro hasta que alguien queda K.O. Gratis y sin cuenta. Con una cuenta, tus duelos cuentan para tu propio rating de duelos." },
     pt: { meta_title: "Duelos do Jaardle — desafie um amigo: quem adivinha melhor o ano?",
       meta_share_title: "⚔️ Duelo do Jaardle: desafie um amigo",
-      meta_desc: "Desafie um amigo para um duelo do Jaardle: vocês adivinham o ano dos mesmos 5 acontecimentos históricos, do mais fácil ao mais difícil. Em cada rodada vence a maior pontuação. Grátis, sem conta." },
+      meta_desc: "Desafie um amigo para um duelo do Jaardle: vocês adivinham o ano dos mesmos 5 acontecimentos históricos, do mais fácil ao mais difícil. Em cada rodada vence a maior pontuação. Grátis, sem conta.",
+      intro_h1: "Duelos do Jaardle — quiz de história um contra um: quem adivinha melhor o ano?",
+      intro_html: "Desafie um amigo para um duelo no Jaardle, o jogo em que você adivinha o ano de um acontecimento histórico. No <strong>Melhor de 5</strong>, vocês jogam os mesmos cinco acontecimentos, do mais fácil ao mais difícil, quando quiserem, dentro de 24 horas. Em cada rodada vence a maior pontuação. No <strong>Nocaute</strong> você joga ao vivo, contra um amigo que esteja online ou contra um bot. Cada ano de diferença custa pontos, e a diferença sai da barra de vida do outro até alguém ser nocauteado. Grátis e sem conta. Com uma conta, seus duelos contam para o seu próprio rating de duelos." },
   } },
 ];
+const PAGE_KEYS = ["meta_title", "meta_share_title", "meta_desc", "intro_h1", "intro_html"];
 
 // Extra <head>-regels van een subpagina: een groot deelplaatje (WhatsApp, Discord, X). De hoofdpagina heeft er (nog) geen.
 function pageHead(page) {
@@ -155,12 +171,24 @@ function render(template, code, mod, csp, gameSrc, page = PAGES[0]) {
     return v;
   };
   const meta = LANGS[code];
-  return template
+  let tpl = template;
+  if (page.strings) {   // subpagina: de eigen <h1> en intro mogen niet door applyLang() vervangen worden (zie PAGES)
+    for (const attr of [' data-i18n="intro_h1"', ' data-i18n-html="intro_html"']) {
+      if (!tpl.includes(attr)) throw new Error(`Template mist${attr} (nodig voor de eigen intro van /${page.dir}/)`);
+      tpl = tpl.replace(attr, "");
+    }
+  }
+  return tpl
     .replace(/\{\{csp\}\}/g, csp)
     .replace(/\{\{gameSrc\}\}/g, gameSrc)
     .replace(/\{\{manifestHref\}\}/g, meta.path ? `/${meta.path}/manifest.webmanifest` : "/manifest.webmanifest")
     .replace(/\{\{html\}\}/g, meta.html)
     .replace(/\{\{url\}\}/g, pageUrl(meta.path, page.dir))
+    // {{href:duels}} → het pad van een pagina in deze taal ("/nl/duels/", "/duels/"): echte links voor crawlers (de deur naar Duels).
+    .replace(/\{\{href:([\w-]*)\}\}/g, (_, dir) => {
+      if (dir && !PAGES.some((p) => p.dir === dir)) throw new Error(`{{href:${dir}}}: geen pagina /${dir}/ in PAGES`);
+      return pageUrl(meta.path, dir).slice(BASE_URL.length);
+    })
     .replace(/\{\{intl\}\}/g, meta.intl)
     .replace(/\{\{og\}\}/g, meta.og)
     .replace(/\{\{hreflang\}\}/g, hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, page.dir))
@@ -219,7 +247,7 @@ const leftover = (s) => (s.match(/\{\{[^}]+\}\}/g) || []);
 
 for (const page of PAGES) {
   if (!page.strings) continue;
-  const gaps = mod.LANG_CODES.filter((c) => !page.strings[c] || ["meta_title", "meta_share_title", "meta_desc"].some((k) => typeof page.strings[c][k] !== "string"));
+  const gaps = mod.LANG_CODES.filter((c) => !page.strings[c] || PAGE_KEYS.some((k) => typeof page.strings[c][k] !== "string"));
   if (gaps.length) throw new Error(`Pagina /${page.dir}/ mist teksten voor: ${gaps.join(", ")}`);
 }
 

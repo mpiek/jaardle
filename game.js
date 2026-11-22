@@ -1965,6 +1965,7 @@ function applyLang() {
   document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
     const v = t(el.dataset.i18nAria); if (v != null) el.setAttribute("aria-label", v);
   });
+  document.getElementById("duels-door")?.setAttribute("href", langHref("duels"));   // de link van de deur in de nieuwe taal
   const help = document.getElementById("help-list");
   if (help) help.innerHTML = t("help_list");
   hwReset();   // uitleg-demo: andere taal = bij het volgende openen opnieuw opbouwen
@@ -1988,6 +1989,14 @@ function applyLang() {
   const em = document.getElementById("modal-events");
   if (em && !em.hidden) renderEventsModal();
 }
+
+// Het pad van een pagina in de huidige taal, zoals de build het in de HTML zet ({{href:…}}): "" → "/" of "/nl", "duels" → "/duels/" of "/nl/duels/".
+function langHref(dir) {
+  const p = LANGS[lang]?.path || "";
+  return dir ? "/" + (p ? p + "/" : "") + dir + "/" : "/" + p;
+}
+// Een klik die de browser zelf in een nieuw tabblad of venster moet openen (op een echte link): dan niet onderscheppen.
+const newTabClick = (e) => !!(e && (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button > 0));
 
 // Zichtbare taalkeuze in de header (redactle-stijl dropdown), gevuld uit LANGS —
 // een nieuwe taal verschijnt hier dus vanzelf zodra 'ie in LANGS staat. De knop
@@ -5011,7 +5020,7 @@ const loadDuel = fxLoader("/duel.js", "Duel");
 const DUEL_BOARD_KEY = (code, r) => `jaardle:duelboard:${code}:${r}`;
 function duelHost() {
   return {
-    lang, intl: LANGS[lang]?.intl, rpc, clientId, get loggedIn() { return !!auth.user; }, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
+    lang, intl: LANGS[lang]?.intl, href: langHref, newTabClick, rpc, clientId, get loggedIn() { return !!auth.user; }, myName: () => myUsername, ensureIdentity: ensureMyIdentity,
     authReady: () => Promise.race([authResolvedP, new Promise((r) => setTimeout(r, 4000))]),
     openModal, closeModal, renderMenuDot, isMobile: isMobileDevice, showConfetti, toEvent, t, els,
     duelsChanged: () => renderNx(),   // 19/11: /duel.js heeft een verse lijst → het duel-stuk van de verder-spelen-knop bijwerken
@@ -15200,8 +15209,11 @@ async function init() {
   const menuBtn = document.getElementById("menu-btn");
   const menuPop = document.getElementById("menu-pop");
   menuBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleLangMenu(false); toggleMenu(); });
-  // ⚔️ De deur naar Duels naast 🌐 (21/11/2026; daarvoor ⋮ → Duels).
-  document.getElementById("duels-door")?.addEventListener("click", () => {
+  // ⚔️ De deur naar Duels naast 🌐 (21/11/2026; daarvoor ⋮ → Duels). Sinds 22/11 een echte link (voor Google): een gewone tik
+  // blijft in de app, Ctrl/⌘/Shift-klik of middelklik laat de browser een nieuw tabblad openen.
+  document.getElementById("duels-door")?.addEventListener("click", (e) => {
+    if (newTabClick(e)) return;
+    e.preventDefault();
     toggleMenu(false); toggleLangMenu(false);
     newsSeen("duels");
     openDuels("door");

@@ -2543,11 +2543,13 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     if (!nav) return null;
     k = document.createElement("div");
     k.id = "kop-duels"; k.className = "kop-d";
-    k.innerHTML = `<button type="button" class="kop-door kd-home"></button><h2 id="duels-title" class="duel-title dl-logo"></h2>` +
+    k.innerHTML = `<a class="kop-door kd-home" href="/"></a><h2 id="duels-title" class="duel-title dl-logo"></h2>` +
       `<div class="dl-tools"><button type="button" class="dl-snd-btn" data-act="sfx" aria-pressed="false">${SND}</button></div>`;
     nav.appendChild(k);
     k.addEventListener("click", (e) => {
       if (!e.target.closest(".kd-home")) return onListClick(e);
+      if (H?.newTabClick?.(e)) return;   // 22/11: een echte link terug (voor Google); Ctrl/⌘-klik = nieuw tabblad
+      e.preventDefault();
       gc("duel-list-exit", "Duel: left Duels page");
       const close = () => H.closeModal("modal-duels");
       if (H.swap) H.swap("out", close); else close();
@@ -2578,6 +2580,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
       kop.querySelector("#duels-title").innerHTML = `<button type="button" class="dl-logo-btn" data-act="sync" title="${esc(T.refresh)}">${logoHtml(T)}</button>`;
       const home = kop.querySelector(".kd-home");
       home.innerHTML = `<img class="kd-logo" src="${esc(homeIcon())}" alt="">`; home.setAttribute("aria-label", T.exit); home.title = T.exit;
+      if (H.href) home.setAttribute("href", H.href(""));   // de hoofdpagina in de taal van nu ("/" of "/nl")
       const sb = kop.querySelector(".dl-snd-btn");
       sndSet(sb, T);
     }

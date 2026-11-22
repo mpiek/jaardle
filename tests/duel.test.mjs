@@ -141,12 +141,15 @@ test("game.js ↔ duel.js — lui geladen, de deur naast 🌐, link, duelronde g
   assert.ok(!/<script[^>]+duel\.js/.test(TPL), "duel.js staat niet in de pagina: alleen lui");
   // 21/11: geen menu-regel meer, maar de deur naast 🌐 (het Duels-icoon in de vorm van het Jaardle-icoontje: DU/EL, zwaarden erachter)
   assert.ok(!/data-action="duels"/.test(TPL), "geen ⚔️ Duels meer in het ⋮-menu");
-  assert.match(TPL, /<\/div>\n\s+<!--[^]*?-->\n\s+<button id="duels-door" class="kop-door" type="button" aria-label="\{\{i18n:door_duels\}\}" data-i18n-aria="door_duels"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#e8794a"\/>/, "direct na 🌐, vóór de tabs");
+  assert.match(TPL, /<\/div>\n\s+<!--[^]*?-->\n\s+<a id="duels-door" class="kop-door" href="\{\{href:duels\}\}" aria-label="\{\{i18n:door_duels\}\}" data-i18n-aria="door_duels"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#e8794a"\/>/, "direct na 🌐, vóór de tabs");
   assert.ok(TPL.indexOf('id="duels-door"') > TPL.indexOf('id="lang-wrap"') && TPL.indexOf('id="duels-door"') < TPL.indexOf('class="tab" data-mode="daily"'));
   assert.ok(!/menu_duels|menu_login_short/.test(GAME), "oude teksten weg");
   assert.equal((GAME.match(/door_duels: "Duel(s|le|os)",/g) || []).length, 5, "de deur in vijf talen");
   assert.match(GAME, /else if \(action === "duels"\) openDuels\(\);/, "de nieuws-balk opent Duels nog steeds");
-  assert.match(GAME, /document\.getElementById\("duels-door"\)\?\.addEventListener\("click", \(\) => \{[^}]*?openDuels\("door"\);/);
+  assert.match(GAME, /document\.getElementById\("duels-door"\)\?\.addEventListener\("click", \(e\) => \{\n[^]*?if \(newTabClick\(e\)\) return;\n\s+e\.preventDefault\(\);[^}]*?openDuels\("door"\);/);
+  // 22/11: de deur is een echte link (Google vindt /duels/ via de hoofdpagina), in elke taal naar de eigen /…/duels/
+  assert.match(TPL, /<\/g><\/svg><\/a>\n\s+<button class="tab" data-mode="daily"/, "de deur sluit als link");
+  assert.match(GAME, /document\.getElementById\("duels-door"\)\?\.setAttribute\("href", langHref\("duels"\)\);/, "taalwissel: de link gaat mee");
   assert.match(GAME, /document\.getElementById\("duels-door"\)\?\.classList\?\.toggle\("has-new", duel\);/, "het stipje voor een duel staat op de deur");
   assert.match(GAME, /const has = achvNewLoad\(\)\.length > 0 \|\| podiumHasNew\(\) \|\| eventHasNew\(\);/, "⋮ zonder duel-stipje");
   assert.match(GAME, /"modal-leaderboard", "modal-recap", "modal-login"\];/, "één paneel tegelijk; de Duels-pagina is geen paneel (die blijft eronder staan)");
@@ -711,7 +714,9 @@ test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de 
   assert.match(SRC, /\[data-duelshome\] main > :not\(#modal-duels\):not\(#mode-tabs\)/, "de kop (#mode-tabs) blijft staan");
   // 21/11: de kop = die van Jaardle (profiel, 🌐), met op de plek van de deur het Jaardle-icoontje (terug, met de schuifovergang)
   assert.match(SRC, /const nav = document\.getElementById\("mode-tabs"\);[^]*?k\.id = "kop-duels"; k\.className = "kop-d";[^]*?nav\.appendChild\(k\);/);
-  assert.match(SRC, /<button type="button" class="kop-door kd-home"><\/button><h2 id="duels-title" class="duel-title dl-logo"><\/h2>/);
+  assert.match(SRC, /<a class="kop-door kd-home" href="\/"><\/a><h2 id="duels-title" class="duel-title dl-logo"><\/h2>/);
+  assert.match(SRC, /if \(!e\.target\.closest\("\.kd-home"\)\) return onListClick\(e\);\n\s+if \(H\?\.newTabClick\?\.\(e\)\) return;[^\n]*\n\s+e\.preventDefault\(\);/, "terug = echte link; gewone tik blijft in de app");
+  assert.match(SRC, /if \(H\.href\) home\.setAttribute\("href", H\.href\(""\)\);/);
   assert.match(SRC, /if \(H\.swap\) H\.swap\("out", close\); else close\(\);/);
   // het logo echt in het midden van de kop als er ruimte is, anders zo dichtbij als past (nooit over het icoontje of 🔈)
   assert.match(SRC, /\.kop-d \.duel-title \{ justify-self: center; margin: 0; transform: translateX\(var\(--kd-dx, 0px\)\); \}/);
@@ -749,14 +754,26 @@ test("Duels-pagina — de build schrijft /duels/ in elke taal met een eigen tite
     assert.match(h, /<meta name="twitter:card" content="summary_large_image">/, f);
     assert.match(h, /<title>[^<]*(Duel|Duelo)[^<]*<\/title>/, f);
     assert.match(h, /<link rel="alternate" hreflang="x-default" href="https:\/\/jaardle\.com\/duels\/">/, f);
-    // verder precies de hoofdpagina (zelfde scripts, CSP, game.js-versie): alleen de <head>-teksten verschillen
-    const body = (x) => x.slice(x.indexOf("<body>"));
-    if (lang === "nl") assert.equal(body(h), body(main), "zelfde <body> als /nl/");
+    // 22/11: een eigen <h1> en intro (anders is /duels/ voor Google bijna een kopie van de hoofdpagina), zonder data-i18n,
+    // zodat applyLang() er bij het laden niet de tekst van de hoofdpagina overheen zet
+    const intro = (x) => x.match(/<header class="site-intro sr-only">\n\s+<h1>([^<]+)<\/h1>\n\s+<p>([^]+?)<\/p>\n\s+<\/header>/);
+    const mi = intro(h);
+    assert.ok(mi, `${f}: eigen intro zonder data-i18n`);
+    assert.match(mi[1], /Duel/, `${f}: de kop gaat over duels`);
+    assert.match(mi[2], /<strong>[^<]+<\/strong>[^]*<strong>[^<]+<\/strong>/, `${f}: beide vormen genoemd`);
+    assert.match(h, new RegExp(`<a id="duels-door" class="kop-door" href="${url.slice("https://jaardle.com".length)}"`), `${f}: de deur linkt naar deze pagina`);
+    // verder precies de hoofdpagina (zelfde scripts, CSP, game.js-versie): alleen de <head>-teksten en de intro verschillen
+    const body = (x) => x.slice(x.indexOf("<body>")).replace(/<header class="site-intro sr-only">[^]*?<\/header>/, "");
+    if (lang === "nl") assert.equal(body(h), body(main), "zelfde <body> als /nl/ (op de intro na)");
     assert.equal(h.match(/content="(default-src[^"]*)"/)[1], main.match(/content="(default-src[^"]*)"/)[1], `${f}: zelfde CSP`);
   }
   assert.ok(existsSync(join(root, "og-duel.jpg")), "het deelplaatje staat in de repo");
   assert.ok(!/<meta property="og:image"/.test(main), "de hoofdpagina houdt (voorlopig) geen og:image");
   assert.match(read("sitemap.xml"), /<loc>https:\/\/jaardle\.com\/nl\/duels\/<\/loc>/);
+  // de hoofdpagina houdt de vertaalbare intro, en linkt naar de Duels-pagina in de eigen taal
+  assert.match(main, /<h1 data-i18n="intro_h1">/);
+  assert.match(main, /<a id="duels-door" class="kop-door" href="\/nl\/duels\/"/);
+  assert.match(read("index.html"), /<a id="duels-door" class="kop-door" href="\/duels\/"/);
 });
 
 test("db/201 ↔ duel.js — revanche volgt 'één duel per tweetal', intrekken telt een uur mee: elke fout van duel_create heeft een eigen melding", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "201_duel_limits.sql")) }, () => {
