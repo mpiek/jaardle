@@ -310,10 +310,6 @@ body[data-duelshome] #mode-tabs { display: flex; }
 [data-duelshome] .kop-d { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
 .kop-d .duel-title { justify-self: center; margin: 0; transform: translateX(var(--kd-dx, 0px)); }   /* echt in het midden: centerLogo() */
 .kop-d .dl-tools { gap: 0.25rem; }
-/* 🔈 in de kop even groot als het poppetje links (1.95rem = 31 px, 23/11: zijn "kijken of alle elementen even hoog zijn … ook over duels en
-   timelines?"); met 44 px werd de kop hier 4 px hoger dan op Jaardle en sprong het poppetje bij het wisselen. De ronde houdt zijn eigen maat. */
-.kop-d .dl-snd-btn { width: 1.95rem; height: 1.95rem; }
-.kop-d .dl-snd-btn svg { width: 1.05rem; height: 1.05rem; }
 /* "Hoe werkt het?" onderaan (21/11: het ? paste in de kop niet meer naast het logo), zoals onder de daily */
 .dl-foot { display: flex; justify-content: center; margin: 1rem 0 0.25rem; }
 .dl-how { display: inline-flex; align-items: center; gap: 0.45rem; margin: 0; padding: 0.5rem 1rem; font: inherit; font-weight: 600; color: var(--fg);
@@ -333,13 +329,15 @@ body[data-duelshome] #mode-tabs { display: flex; }
 @media (prefers-reduced-motion: reduce) { .dl-logo.sync .dl-logo-sw { animation: none; opacity: 0.6; } }
 .dl-logo-txt { position: relative; font-size: 1.2rem; padding-left: 0.14em;   /* letter-spacing zet ook ruimte ná de laatste letter: zo staat het woord echt in het midden */
   text-shadow: 0 0 4px var(--bg), 0 0 8px var(--bg); }
+/* 🔈 overal 1.95rem (31 px), even groot als het poppetje in de kop (23/11, zijn "kijken of alle elementen even hoog zijn … ook over duels
+   en timelines?" en "als je in een duel zit"): was 44 px; daardoor was de kop van de Duels-pagina 4 px hoger dan op Jaardle. */
 /* ⚔️ Duel-geluid ook als knop naast de ? (19/11, zijn vraag): dezelfde schakelaar als het vinkje in ⚙️. Luidspreker met golfjes = aan,
    met een kruisje = uit; de stand staat in aria-pressed (game.js zet hem ook, als het vinkje elders verandert). */
 .dl-tools { justify-self: end; display: flex; align-items: center; gap: 0.4rem; }
-.dl-snd-btn { appearance: none; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; color: var(--muted); background: transparent;
+.dl-snd-btn { appearance: none; display: grid; place-items: center; width: 1.95rem; height: 1.95rem; padding: 0; color: var(--muted); background: transparent;
   border: 1px solid var(--border); border-radius: 50%; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .dl-snd-btn:hover { filter: none; color: var(--fg); }
-.dl-snd-btn svg { width: 1.2rem; height: 1.2rem; }
+.dl-snd-btn svg { width: 1.05rem; height: 1.05rem; }
 .dl-snd-btn .on, .dl-snd-btn[aria-pressed="true"] .off { display: none; }
 .dl-snd-btn[aria-pressed="true"] .on { display: inline; }
 .dl-snd-btn .mus, .dl-snd-btn[data-snd="2"] .on { display: none; }

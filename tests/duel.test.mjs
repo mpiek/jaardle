@@ -1090,7 +1090,7 @@ test("duel.js — ⚔️ Duel-geluid ook als knop naast de ? op de Duels-pagina:
   assert.match(SRC, /if \(act === "sfx"\) return toggleSfx\(b\);/);
   assert.match(SRC, /function toggleSfx\(b\) \{[^]*?const n = \[2, 0, 1\]\[sndState\(\)\];[^]*?if \(H\?\.setSnd\) H\.setSnd\(n\);[^]*?if \(n === 2\) musTest\(\); else if \(n\) sfxTest\(\);/, "21/11: drie standen; game.js bewaart ze; aan = meteen de klang, op alles de drie noten");
   assert.match(D.css, /\.dl-snd-btn\[aria-pressed="true"\] \.on \{ display: inline; \}/);
-  assert.match(D.css, /\.kop-d \.dl-snd-btn \{ width: 1\.95rem; height: 1\.95rem; \}/, "🔈 in de kop even groot als het poppetje (23/11)");
+  assert.match(D.css, /\.dl-snd-btn \{ appearance: none; display: grid; place-items: center; width: 1\.95rem; height: 1\.95rem;/, "🔈 overal even groot als het poppetje (23/11): kop, ronde en knock-out");
   assert.match(GAME, /setSfx: setDuelSfx,/);
   assert.match(GAME, /function syncDuelSfxUi\(\) \{[^}]*?if \(window\.Duel\?\.sndSync\) window\.Duel\.sndSync\(\);\n\s+else document\.querySelectorAll\("\.dl-snd-btn"\)\.forEach\(\(b\) => b\.setAttribute\("aria-pressed", String\(duelSfxOn\(\)\)\)\);\n\s+const item =/, "vinkje in ⚙️ verandert → elke knop ook (vóór de vroege return)");
 });
