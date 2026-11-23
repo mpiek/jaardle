@@ -1258,8 +1258,11 @@ test("style.css — één kop Jaardle ↔ Duels (21/11): deur, tabs naar hun woo
   assert.match(CSS, /\.kop-door \.kd-logo \{ display: block; width: 28px; height: 28px; border-radius: 7px; \}/, "even groot als het Jaardle-icoontje op Duels");
   assert.match(CSS, /\.kop-door\.has-new::after \{/, "het stipje op de deur");
   // 23/11: geen tabs met woorden meer (die liepen op 360 px in DE/ES naar twee regels), maar de schakelaar 📅|🎲 en het logo
-  assert.match(CSS, /\.mode-seg \{ flex: none;[^}]*border: 1\.5px solid var\(--accent\); border-radius: 999px; \}/, "één omlijnde pil");
-  assert.match(CSS, /\.tab \{\n  flex: none;\n  width: 41px;/, "twee helften van 41 px");
+  assert.match(CSS, /\.mode-seg \{ flex: none;[^}]*border-radius: 999px; box-shadow: inset 0 0 0 1\.5px var\(--accent\); \}/, "één omlijnde pil (rand als binnenschaduw: geen naadje met de vulling)");
+  assert.match(CSS, /\.tab \{\n  flex: none;\n  width: 38px;/, "twee helften van 38 px");
+  assert.match(CSS, /\.mode-seg \{ flex: none; align-self: center; display: flex; height: 1\.95rem;/, "even hoog als het poppetje (31 px)");
+  assert.match(CSS, /\.jl-badge \{ display: block; width: 108px; max-width: 100%; height: auto; \}/, "het logo ook 31 px hoog");
+  assert.match(CSS, /\.tab \.ms-dice \{ font-size: 1\.4em; \}/, "🎲 even groot als het kalendertje");
   assert.match(CSS, /margin-left: auto; padding: 0;   \/\* de gevulde helft ligt tegen de rand/, "geen ruimte tussen de rand en de gevulde helft");
   assert.match(CSS, /\.tab\[data-mode="daily"\] \{ border-radius: 999px 0 0 999px; \}\n\.tab\[data-mode="free"\] \{ border-radius: 0 999px 999px 0; \}/, "gevuld tot het midden, daar recht");
   assert.match(CSS, /@media \(max-width: 480px\) \{\n  #menu-btn \.menu-label \{ display: none; \}\n\}/, "telefoon zonder account: alleen het poppetje");
