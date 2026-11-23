@@ -3090,7 +3090,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   let readyKey = null;   // de bot op de kaart: komt je rating later binnen en verandert hij, dan de lijst opnieuw
   function readyBot() {
     if (!listBots.length || koNow()) return null;
-    const bots = listBots.filter((b) => Number.isFinite(Number(b.elo))).sort((a, b) => a.elo - b.elo);
+    return pickReady(listBots);
+  }
+  // 🤖 db/232: dezelfde keuze voor de bot-kaart op het eindscherm van de daily (de bots komen daar uit get_daily_bots, zelfde vorm)
+  function pickReady(list) {
+    const bots = list.filter((b) => Number.isFinite(Number(b.elo))).sort((a, b) => a.elo - b.elo);
     if (!bots.length) return null;
     const r = H?.loggedIn ? H.myRating?.() : null, n = H?.myRatingGames?.() ?? 0;
     if (r != null && n >= BOT_FIRM) return bots.reduce((a, b) => (Math.abs(b.elo - r) < Math.abs(a.elo - r) ? b : a));
@@ -3106,10 +3110,12 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   // je nog nooit tegen hem speelde, daarna jullie stand (zoals bij een vriend).
   // ⚔️ db/227 (22/11, zijn "wellicht ook in de auto challenge dat je kan kiezen tussen die twee icons"): op de kaart ⚡ en ⚔️ als twee
   // knopjes, de gekozen vorm erachter. De hele kaart = spelen in die vorm; dezelfde keuze als de schakelaar in de pop-up (botMode).
-  function botCardHtml(T, b) {
+  // 🤖 db/232 (zijn "had verwacht dat het meer zou lijken als de standaard uitnodiging ook zonder die header"): onder een botrij op het
+  // eindscherm van de daily dezelfde kaart zonder band (band: false, de rij is de kop) en met zijn reactie op vandaag (say).
+  function botCardHtml(T, b, { band = true, say: line = "" } = {}) {
     const [w, l] = botRec(b), say = T["say" + b.key], k = esc(b.key);
-    const sub = w || l ? esc(cap(T.h2h(w, l))) : say ? `<i>${esc(T.botQ(say))}</i>` : "";
-    return `<div class="dl-card inc bot" data-act="botgo" data-bot="${k}">${bandHtml(T, b.name, b.flair)}` +
+    const sub = line ? `<i>${esc(T.botQ(line))}</i>` : w || l ? esc(cap(T.h2h(w, l))) : say ? `<i>${esc(T.botQ(say))}</i>` : "";
+    return `<div class="dl-card inc bot${band ? "" : " bc-in"}" data-act="botgo" data-bot="${k}">${band ? bandHtml(T, b.name, b.flair) : ""}` +
       `<div class="dl-card-f"><small><b>${esc(T.invTitle(b.name))}</b>${botModesHtml(T, true)}${sub ? "<br>" + sub : ""}</small>` +
       `<button type="button" class="dl-go" data-act="botgo" data-bot="${k}">${esc(T.play)}</button></div></div>`;
   }
@@ -3703,6 +3709,17 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   return {
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
     sfxTest, musTest, musicKick, sndSync: () => document.querySelectorAll(".dl-snd-btn").forEach((b) => sndSet(b)),
+    // 🤖 db/232 Bots in de daily: de bot-kaart op het eindscherm (dezelfde kaart, keuze ⚡/⚔️ en bot als in Duels)
+    daily: {
+      card: (h, b, o) => { H = h; ensureCss(); return botCardHtml(tx(h.lang), b, o); },
+      ready: (h, bots) => { H = h; return pickReady(Array.isArray(bots) ? bots : []); },
+      mode: (m) => setBotMode(m),
+      go: (h, key) => {
+        H = h;
+        if (botMode === "b") return botDuel(H, key);
+        return H.ko?.().then((K) => K.botStart?.(H, key)).catch(() => {});
+      },
+    },
     // ⚡ Knock-out (/ko.js) bouwt hierop: dezelfde band, gezichtjes, kop en CSS, en het geluid (au: de bus, de bouwstenen, "hit")
     kit: { esc, tx, ensureCss, bandHtml, dbAv, meFlair, meNameOr, logoHtml, exitHtml, sndHtml, armSnd, flairEmoji, gc, create: (h, o) => create(h, o),
            openList: (h, o) => openList(h, o), setHost: (h) => { H = h; },

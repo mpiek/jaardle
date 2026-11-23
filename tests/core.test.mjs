@@ -61,6 +61,8 @@ src += `
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
+  botsOn, paceMerge, botRowHtml, botDayRowsHtml, botWeekRows, botBoardHtml, recapBetter, dailyTableHtml, lbNameCell, DAILY_BOTS_DUELS, recapBotCardHtml,
+  setDailyBots: (v) => { dailyBots = v; },
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; }, renderMenuAccount,
   setState: (s) => { state = s; },
   refreshWeekPodiumResult, soloPathOk, fetchMyPools, popupSteps, withTimeout, teamAfterLoginPark, getPendingTeam: () => pendingTeamAfterLogin, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
@@ -5569,4 +5571,101 @@ test("⚔️ duel-prestaties (db/224) — Duellist + drie trofeeën, beloningen 
     T.renderAchvBoard(body, T.achvNormalize({}));
     assert.ok(!body.innerHTML.includes(`>${T.t("achv_sect_duels")}</h3>`) && !body.innerHTML.includes('data-key="duels"'), "anoniem: geen duel-sectie");
   } finally { T.auth.user = was; T.setAchv(null); }
+});
+
+
+// ── 🤖 Bots spelen de daily mee (db/232) ──────────────────────────────────────────────────────────────────────────────
+const BOTS_META = [{ key: "pip", name: "Pip", flair: "🐣", elo: 1100, w: 0, l: 0, bw: 0, bl: 0 },
+                   { key: "robo", name: "Robo", flair: "🤖", elo: 1455, w: 0, l: 0, bw: 0, bl: 0 },
+                   { key: "prof", name: "Prof", flair: "🧠", elo: 1800, w: 0, l: 0, bw: 0, bl: 0 }];
+const botDay = (pip, robo, prof) => [["pip", pip], ["robo", robo], ["prof", prof]].map(([key, s]) => ({
+  key, score: s, won: s > 10, attempts: 3, text_hints: key === "robo" ? 1 : 0, dir_hints: 0, century_hint: false, last_digit: false, guess_blocks: [3, 1, 0] }));
+const DB = (days, duels = 0) => ({ date: "2026-11-19", days, bots: BOTS_META, duels });
+
+test("bots — paceMerge: tussen de leden op score, bij gelijk het lid eerst, altijd vóór de inhaalpotjes", () => {
+  const rows = [{ display_name: "Noor", won: true, score: 94 }, { display_name: "Sanne", won: true, score: 81 }, { display_name: "Bram", won: true, score: 71 },
+                { display_name: "Lotte", won: false, score: 10 }, { display_name: "Kees", won: true, score: 60, late: true }];
+  const bots = T.botsOn("2026-11-19", DB({ "2026-11-19": botDay(71, 78, 85) }));
+  const order = T.paceMerge(rows, bots).map((x) => (x.bot ? "·" + x.bot.name : x.row.display_name));
+  assert.deepEqual(order, ["Noor", "·Prof", "Sanne", "·Robo", "Bram", "·Pip", "Lotte", "Kees"]);
+  // een verloren bot (6) staat onder een verloren lid met 10, maar nog steeds vóór de inhaalpot
+  const lost = T.botsOn("2026-11-19", DB({ "2026-11-19": botDay(6, 78, 85) }));
+  assert.deepEqual(T.paceMerge(rows, lost).map((x) => (x.bot ? "·" + x.bot.name : x.row.display_name)),
+    ["Noor", "·Prof", "Sanne", "·Robo", "Bram", "Lotte", "·Pip", "Kees"]);
+  // de index van een lid blijft die uit rows (data-i: het histogram licht de juiste rij op)
+  assert.deepEqual(T.paceMerge(rows, bots).filter((x) => x.row).map((x) => x.i), [0, 1, 2, 3, 4]);
+});
+
+test("bots — teambord: de bots als ijkpunt (·, lb-pace), de plaatsen van de leden blijven", () => {
+  T.setPlayer("Sanne", "🦊", null);
+  try {
+    const rows = [{ rank: 1, display_name: "Noor", won: true, score: 94, guess_blocks: [0] }, { rank: 2, display_name: "Sanne", is_me: true, won: true, score: 81, guess_blocks: [1, 0] }];
+    const h = T.dailyTableHtml(rows, false, T.botsOn("2026-11-19", DB({ "2026-11-19": botDay(71, 78, 85) })));
+    assert.equal((h.match(/lb-row lb-botrow lb-pace/g) || []).length, 3);
+    assert.equal((h.match(/<span class="lb-rank">·<\/span>/g) || []).length, 3);
+    assert.ok(!/lb-botrow lb-pace lb-top/.test(h), "geen podiumkleur voor een bot");
+    assert.match(h, /🥇[\s\S]*Noor[\s\S]*Prof[\s\S]*🥈[\s\S]*Sanne/);
+    assert.match(h, /data-bot="robo"/);
+    assert.match(h, /lb-tag lb-bot">bot</);
+    assert.match(h, /⏩<\/span>78/, "Robo gebruikte een ⏩ (van het echte potje)");
+    // zonder bots, of gesluierd: precies zoals vóór
+    assert.ok(!T.dailyTableHtml(rows).includes("lb-botrow"));
+    assert.ok(!T.dailyTableHtml(rows, true, T.botsOn("2026-11-19", DB({ "2026-11-19": botDay(71, 78, 85) }))).includes("lb-botrow"));
+  } finally { T.setPlayer(null, null, null); }
+});
+
+test("bots — zonder team, vandaag: jij en de bots op volgorde, gelijk = gedeelde plaats met jou bovenaan", () => {
+  const me = { is_me: true, display_name: "jij", won: true, score: 85, guess_blocks: [0] };
+  const h = T.botDayRowsHtml(me, T.botsOn("2026-11-19", DB({ "2026-11-19": botDay(6, 78, 85) })));
+  const names = [...h.matchAll(/<span class="lb-name">([^<]*)/g)].map((m) => m[1].trim());
+  assert.deepEqual(names, ["jij", "Prof", "Robo", "Pip"]);
+  assert.equal((h.match(/🥇/g) || []).length, 2, "jij en Prof delen de eerste plaats");
+  assert.ok(h.includes("💀"), "Pip verloor");
+  assert.ok(!/lb-tag">jij/.test(h), "zonder naam geen dubbel 'jij'");
+});
+
+test("bots — de week: alleen op jouw dagen, +25 voor wie bovenaan stond en won (gedeeld bij gelijk), geen dagzege voor een inhaalpot", () => {
+  const db = DB({ "2026-11-16": botDay(58, 82, 94), "2026-11-17": botDay(70, 70, 70), "2026-11-18": botDay(0, 76, 89), "2026-11-19": botDay(71, 78, 85) });
+  const me = { is_me: true, display_name: "Sanne", flair: "🦊", won: true, score: 81 };
+  const days = [{ date: "2026-11-16", won: true, score: 87, late: false }, { date: "2026-11-18", won: true, score: 92, late: false },
+                { date: "2026-11-19", won: true, score: 81, late: false }];   // 17/11 niet gespeeld: die dag telt voor niemand
+  const rows = T.botWeekRows(me, days, db);
+  const by = Object.fromEntries(rows.map((r) => [r.display_name, r]));
+  assert.equal(by.Prof.week_score, 94 + 89 + 85 + 50);   // dagzege ma + do
+  assert.equal(by.Prof.daily_wins, 2);
+  assert.equal(by.Sanne.week_score, 87 + 92 + 81 + 25);  // dagzege wo
+  assert.equal(by.Robo.week_score, 82 + 76 + 78);
+  assert.equal(by.Pip.week_score, 58 + 0 + 71);
+  assert.deepEqual(rows.map((r) => r.rank), [1, 2, 3, 4]);
+  assert.equal(rows[0].display_name, "Prof");
+  // gelijk bovenaan: allebei +25; een inhaalpot: jij geen +25 (de bot wel)
+  const tie = T.botWeekRows(me, [{ date: "2026-11-17", won: true, score: 70, late: false }], db);
+  assert.ok(tie.every((r) => r.daily_wins === 1), "vier keer 70 = vier dagzeges");
+  const late = T.botWeekRows(me, [{ date: "2026-11-17", won: true, score: 70, late: true }], db);
+  assert.equal(late.find((r) => r.is_me).daily_wins, 0);
+  assert.equal(late.find((r) => r.display_name === "Robo").daily_wins, 1);
+});
+
+test("bots — voorproefje met bots: de bots als stand, één gestippelde plek, de nieuwe uitleg; zonder bots zoals vóór", () => {
+  T.setPlayer("Joris", "🦊", null);
+  try {
+    T.setState({ won: true, puzzleDate: "2026-11-19", guesses: [{ cls: "close" }, { cls: "correct" }],
+      directionsRevealed: [], laterCluesShown: 0, centuryRevealed: false, lastDigitRevealed: false });
+    const db = DB({ "2026-11-19": botDay(71, 78, 85) });
+    const h = T.teamTeaserHtml([], "2026-11-16", db);
+    assert.equal((h.match(/class="lb-row lb-botrow/g) || []).length, 3, "drie botrijen in Vandaag");
+    assert.equal((h.match(/lb-row lb-ghost/g) || []).length, 1, "één gestippelde plek");
+    assert.equal((h.match(/race-ghost/g) || []).length, 1, "en één lege baan");
+    assert.equal((h.match(/class="lb-row[^"]*race-lane/g) || []).length, 5, "vier renners + de lege baan");
+    assert.ok(h.includes(T.t("recap_team_cap_bots")));
+    assert.match(h, /<button id="recap-pool-btn">/);
+    const old = T.teamTeaserHtml([], "2026-11-16", null);
+    assert.ok(!old.includes("lb-botrow") && old.includes(T.t("recap_team_cap")));
+  } finally { T.setPlayer(null, null, null); }
+});
+
+test("bots — de kaart boven de stand alleen met /duel.js, bots en minder dan 3 uitgespeelde duels", () => {
+  assert.equal(T.DAILY_BOTS_DUELS, 3);
+  assert.equal(T.recapBotCardHtml(null), "");
+  assert.equal(T.recapBotCardHtml(DB({}, 0)), "", "zonder /duel.js geen kaart (niets halfs)");
 });

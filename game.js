@@ -6665,7 +6665,7 @@ const lbNameCell = (row, rank, live) =>
   titleBadgeHtml(row.title) +
   escHtml(row.display_name) +
   flairBadgeHtml(row.flair, rank, live) +
-  (row.is_me ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");
+  (row.is_me && row.display_name !== t("lb_you") ? ` <span class="lb-tag">${t("lb_you")}</span>` : "");   // zonder naam heet je al "jij"
 
 // innerHTML + de laadfout-vangnetten voor eventuele geanimeerde flairs erin.
 // Het nieuwe bord heeft zelden dezelfde hoogte als wat er stond: het rating-bord
@@ -7120,12 +7120,15 @@ function dailyRowHtml(r, i, veil = false) {
     `<span class="lb-name">${lbNameCell(r, r.late ? null : r.rank)}${r.late ? ` <span class="lb-tag">${escHtml(t("makeup_tag"))}</span>` : ""}</span>` +
     `${val}</div>`;
 }
-function dailyTableHtml(rows, veil = false) {
+// `bots` (🤖 db/232, alleen het eindscherm van een team): de bots als ijkpunt tussen de leden, zonder plaats (paceMerge).
+function dailyTableHtml(rows, veil = false, bots = null) {
   if (!rows.length) {
     return `<p class="lb-empty">${t(lbDailyDate === todayKey() ? "lb_empty_daily" : "lb_empty_daily_past")}</p>`;
   }
-  return (veil ? esLockHtml(t("veil_board"), lbDailyDate) : "") +
-    `<div class="lb-table">` + rows.map((r, i) => dailyRowHtml(r, i, veil)).join("") + `</div>`;
+  const body = bots && bots.length && !veil
+    ? paceMerge(rows, bots).map((x) => (x.bot ? botRowHtml(x.bot, 0, true) : dailyRowHtml(x.row, x.i))).join("")
+    : rows.map((r, i) => dailyRowHtml(r, i, veil)).join("");
+  return (veil ? esLockHtml(t("veil_board"), lbDailyDate) : "") + `<div class="lb-table">` + body + `</div>`;
 }
 
 // ── Eerst spelen, dan kijken (6/11/2026) ── "veel mensen valspelen door naar vorige history dailies te kijken" (⏩ +100 van 6/11
@@ -8632,6 +8635,7 @@ async function renderRecap() {
     auth.user ? ensureMyIdentity() : null,   // je flair staat in de pin; liever vóór het eerste tekenen dan erna
     recapEvent() ? ensureEventUi([recapEvent()]).catch(() => null) : null,   // de 🎃-tab: het event-bestand (+ kattenkopje), meestal al binnen via de strook
     recapEvent() && auth.user && !myHistoryCache ? getMyHistory().catch(() => null) : null,   // de stempels komen (mede) uit je server-historie
+    fetchDailyBotsForRecap(state.puzzleDate || todayKey()).catch(() => null),   // 🤖 db/232: de bots van vandaag (en /duel.js voor de kaart)
   ]);
   if (document.getElementById("modal-recap").hidden) return;
   const teamRoom = !!auth.user && myPools.some((p) => (p.members || 0) >= 2);
@@ -8646,9 +8650,11 @@ async function renderRecap() {
     ? ` <a id="recap-rate-btn" class="recap-rate" href="${LISTDLE_URL}" target="_blank" rel="noopener">⭐ ${escHtml(t("rate_listdle"))}</a>`
     : "";
   const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button>${rateHtml}</div>`;
+  const botCard = recapBotCardHtml();   // 🤖 db/232: de bot die klaarstaat, boven de stand
+  const soloBots = auth.user ? "" : soloBotsHtml();   // 🤖 zonder account: jij en de bots als stand
   if (auth.user) {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
-    body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank, teamRoom) + shareHtml +
+    body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank, teamRoom) + shareHtml + botCard +
       `<section class="recap-section">` +
       `<h3 class="stats-heading" id="recap-team-head">${t("recap_team_title")}</h3>` +
       `<div id="recap-team"></div></section>`;
@@ -8656,8 +8662,12 @@ async function renderRecap() {
     loadRecapTeam();
   } else {
     // Uitgelogd: wijs op de voordelen van een (gratis) account.
-    body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank) + shareHtml + recapAccountHtml();
+    body.innerHTML = streakHtml + recapDistHtml(dist, stats, scoreRank) + shareHtml + botCard +
+      (soloBots ? `<section class="recap-section"><div id="recap-team"><div class="recap-bots-board">${soloBots}</div></div></section>` : "") +
+      recapAccountHtml();
     wireAcctPitch(body, "recap");
+    const bb = body.querySelector(".recap-bots-board");
+    if (bb) { recapTab = 0; mountRecapCarousel(bb.querySelector(".rc"), null); wireRecapBoardTaps(bb); }
   }
   const rateBtn = body.querySelector("#recap-rate-btn");
   if (rateBtn) rateBtn.addEventListener("click", () => {
@@ -8681,7 +8691,9 @@ async function renderRecap() {
   const sbtn = document.getElementById("recap-share-btn");
   if (sbtn) sbtn.onclick = () => doShare(sbtn);
   // De 🎃-tab: in de team-carrousel als die er komt (pool, team-voorproefje = nudge-stap 0), anders hier een tabbalkje bovenaan.
-  if (recapEventReady() && (!auth.user || (!myPool && teamNudgeStage() !== 0))) mountRecapEventTopbar(body);
+  // 🤖 db/232: zonder team is er met de bots altijd een carrousel, ook anoniem en na het uitdoven van het voorproefje.
+  const botsBoard = botsOn(state.puzzleDate || todayKey()).length > 0;
+  if (recapEventReady() && !botsBoard && (!auth.user || (!myPool && teamNudgeStage() !== 0))) mountRecapEventTopbar(body);
 }
 
 // Voordelen-blok voor uitgelogde spelers op het recap-scherm: een gecentreerd,
@@ -8747,14 +8759,14 @@ function raceLaneHtml(r, k, pos) {
   const winsHtml = trophies
     ? `<span class="race-tro" title="${escHtml(t("lb_wk_n_dagzeges")(r.daily_wins))}">${trophies}</span>` : "";
   const runner = r.flair ? flairBadgeHtml(r.flair, r.rank).trim() : "🏃";
-  const youTag = r.is_me && r.rank <= 3 ? ` <span class="lb-tag">${t("lb_you")}</span>` : "";   // top-3-tint overschrijft de .lb-me-tint → tag houdt "jij" leesbaar
+  const youTag = r.is_me && r.rank <= 3 && r.display_name !== t("lb_you") ? ` <span class="lb-tag">${t("lb_you")}</span>` : "";   // zonder naam heet je al "jij"   // top-3-tint overschrijft de .lb-me-tint → tag houdt "jij" leesbaar
   return `<div class="${lbRowCls(r.is_me)} race-lane${lbPodiumCls(r.rank)}" style="--p:${pos.toFixed(3)};--i:${k}" data-pn="${escHtml(r.display_name)}">` +
     `<span class="lb-rank">${lbMedal(r.rank)}</span>` +
     `<span class="lb-name race-name">${titleBadgeHtml(r.title)}<span class="nm">${escHtml(r.display_name)}</span>${youTag}${wkDeltaHtml(r)}</span>` +
     `<span class="race-track"><i class="race-streak"></i><span class="race-runner">${runner}</span></span>` +
     `<span class="lb-val">${winsHtml}<span class="lb-score" data-v="${r.week_score}">${r.week_score}</span></span></div>`;
 }
-function recapRaceHtml(rows, awards) {
+function recapRaceHtml(rows, awards, extraLanes = "") {   // extraLanes: 🤖 db/232, de gestippelde baan onder de bots
   const idxs = raceWindow(rows);
   const lead = Math.max(...rows.map((r) => r.week_score));
   const min = Math.min(...idxs.map((i) => rows[i].week_score));
@@ -8763,7 +8775,7 @@ function recapRaceHtml(rows, awards) {
   const secs = secsToWeekEnd(currentWeekStart());
   const d = Math.floor(secs / 86400), h = Math.max(1, Math.floor(secs / 3600));
   const note = t("recap_week_note")(d, h), aw = awardsHtml(spotlightAwards(awards, rows), true, note);
-  return `<div class="lb-table race-table">${html}</div>` +
+  return `<div class="lb-table race-table">${html}${extraLanes}</div>` +
     (aw || `<div class="lb-wk-note"><p>${escHtml(note)}</p></div>`) + awardMeHtml(awards, true);
 }
 
@@ -8869,8 +8881,8 @@ function mountRecapEventTopbar(body) {
 // spelers zonder team (teamTeaserHtml); tabs, spoor en mount zijn dan exact die van een echt team.
 // `evPane` ({ icon, name, html }, recapEventPaneSpec) = de event-tab als laatste (alleen het icoon); zonder weekrijen kan de carrousel ook
 // Vandaag + event zijn. De slides dragen hun soort (data-k: day · week · odds · ev), mountRecapCarousel zoekt ze daarop.
-function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides, awards, evPane) {
-  const parts = [{ k: "day", label: t("recap_tab_today"), aria: t("recap_team_title"), html: slides ? slides.day : dailyTableHtml(dailyRows) }];
+function recapCarouselHtml(dailyRows, weekRows, oddsItems, slides, awards, evPane, bots = null) {
+  const parts = [{ k: "day", label: t("recap_tab_today"), aria: t("recap_team_title"), html: slides ? slides.day : dailyTableHtml(dailyRows, false, bots) }];
   if (slides ? slides.week : weekRows && weekRows.length) parts.push({ k: "week", label: t("recap_tab_week"), aria: t("recap_week_title"), html: slides ? slides.week : recapRaceHtml(weekRows, awards) });
   if (oddsItems) parts.push({ k: "odds", label: t("recap_tab_odds"), aria: t("odds_head"), html: oddsSlideHtml(oddsItems) });
   if (evPane) parts.push({ k: "ev", label: evPane.icon, aria: evPane.name, html: evPane.html });
@@ -9489,18 +9501,31 @@ function teamNudgeStage() {   // 0 = voorproefje · 1 = slanke regel · 2 = weg
 }
 // `history`/`ws`: de daghistorie en de maandag van de week (tests geven ze mee). Een inhaalpot geeft op het echte bord geen
 // dagzege; de historie weet niet welke dagen dat waren, alleen dit potje weet het van zichzelf.
-function teamTeaserHtml(history = eventHistorySync(), ws = currentWeekStart()) {
-  const won = !!state.won, score = computeScore();
-  const me = {
-    rank: 1, is_me: true, display_name: myUsername || t("lb_you"), flair: myFlair, title: myTitle, won, score,
+// Jouw rij van vandaag zoals de server hem op een dagbord zou zetten (uit de spelstand), en je dagen van deze week (historie + vandaag).
+function myRecapRow() {
+  return {
+    rank: 1, is_me: true, display_name: myUsername || t("lb_you"), flair: myFlair, title: myTitle, won: !!state.won, score: computeScore(),
     guess_blocks: state.guesses.slice(0, 6).map((g) => LB_BLOCK_CLS.indexOf(g.cls || classify(g.diff))).filter((i) => i >= 0),
     text_hints: state.laterCluesShown, dir_hints: state.directionsRevealed.length,
     century_hint: !!state.centuryRevealed, last_digit: !!state.lastDigitRevealed,
   };
+}
+function myWeekDays(history, ws, me) {
   const day0 = state.puzzleDate || todayKey(), we = shiftDateKey(ws, 6);
   const days = (Array.isArray(history) ? history : []).filter((e) => e && e.date >= ws && e.date <= we && e.date !== day0)
     .map((e) => ({ date: e.date, won: !!e.won, score: Number(e.score) || 0, late: false }));
-  if (day0 >= ws && day0 <= we) days.push({ date: day0, won, score, late: isMakeup(state) });
+  if (day0 >= ws && day0 <= we) days.push({ date: day0, won: me.won, score: me.score, late: isMakeup(state) });
+  return days;
+}
+function teamTeaserHtml(history = eventHistorySync(), ws = currentWeekStart(), db = dailyBots) {
+  const me = myRecapRow(), days = myWeekDays(history, ws, me);
+  const bots = botsOn(state.puzzleDate || todayKey(), db);
+  if (bots.length) {   // 🤖 db/232: de bots zijn je stand, met één gestippelde plek voor je eerste teamgenoot
+    return botBoardHtml(me, days, bots, db, { ghost: escHtml(t("recap_team_ghost")) }) +
+      `<p class="lb-wk-note recap-team-cap">${escHtml(t("recap_team_cap_bots"))}</p>` +
+      `<div class="recap-cta rt-two"><button id="recap-pool-btn">${escHtml(t("recap_team_make"))}</button>` +
+      `<button type="button" id="recap-rt-btn" class="rt-dice-btn">${escHtml(t("rt_btn"))}</button></div>`;
+  }
   const wins = days.filter((d) => !d.late && dagzegeApplies(1, d.won, d.date)).length;
   const lane = { ...me, daily_wins: wins, week_score: days.reduce((s, d) => s + d.score, 0) + wins * 25 };
   const ghostRow = (rank, label, dim) =>
@@ -9523,10 +9548,11 @@ function teamNudgeSlimHtml() {
 function renderTeamNudge(wrap) {
   const stage = teamNudgeStage();
   const section = wrap.closest(".recap-section");
-  if (stage === 2) { if (section) section.hidden = true; return; }
+  const board = soloBotsHtml();   // 🤖 db/232: zonder team blijft er een stand, jij en de bots (ook na het uitdoven)
+  if (stage === 2 && !board) { if (section) section.hidden = true; return; }
   const head = document.getElementById("recap-team-head");
-  if (head) head.hidden = true;   // het voorproefje heeft de tabs als kop, de slanke regel heeft geen kop nodig
-  wrap.innerHTML = stage === 0 ? teamTeaserHtml() : teamNudgeSlimHtml();
+  if (head) head.hidden = true;   // de tabs zijn de kop; de slanke regel heeft geen kop nodig
+  wrap.innerHTML = `<div class="recap-bots-board">${stage === 0 ? teamTeaserHtml() : stage === 1 ? board + teamNudgeSlimHtml() : board}</div>`;
   armEmojiFallbacks(wrap);
   const go = document.getElementById("recap-pool-btn");
   if (go) go.onclick = () => { closeAllModals(); openModal("modal-leaderboard"); };
@@ -9542,9 +9568,12 @@ function renderTeamNudge(wrap) {
     let s = null;
     try { s = JSON.parse(localStorage.getItem(TEAM_NUDGE_KEY)); } catch (e) {}
     teamNudgeSave({ ...(s && typeof s === "object" ? s : {}), x: 1 });
-    if (section) section.hidden = true;
+    if (board) wrap.querySelector(".recap-slim")?.remove();   // de bots blijven staan
+    else if (section) section.hidden = true;
   };
-  if (stage === 0) mountRecapCarousel(wrap.querySelector(".rc"), null);
+  const rc = wrap.querySelector(".rc");
+  if (rc) mountRecapCarousel(rc, null);
+  if (board || stage === 0) wireRecapBoardTaps(wrap.querySelector(".recap-bots-board"));
 }
 
 // ── Tikken op de teamstand in het eindscherm (27/10) ──
@@ -9599,10 +9628,15 @@ function wireRecapBoardTaps(board) {
     if (k !== "day" && k !== "week") return;
     const d = down; down = null;
     if (!isRealTap(d, e, track, lastScroll)) return;
+    if (row.classList.contains("lb-botrow")) { toggleBotCard(row); return; }   // 🤖 db/232: zijn kaart, onder de rij
     const badge = e.target.closest(".lb-flair-badge[data-flair]");
     if (badge && row.classList.contains("lb-me")) { closeAllModals(); openModal("modal-rewards", { returnTo: "modal-recap" }); return; }
     if (badge) { if (!badge.querySelector(".emoji-anim:not(.vf-still), .flair-fake-anim")) flairPeek(badge); return; }
     if (row.dataset.pn) togglePlayerCard(row);   // het spelerskaartje, onder de rij
+  });
+  board.addEventListener("keydown", (e) => {   // 🤖 db/232: een botrij is ook met het toetsenbord te openen
+    const row = (e.key === "Enter" || e.key === " ") && e.target.closest?.(".lb-botrow");
+    if (row) { e.preventDefault(); toggleBotCard(row); }
   });
 }
 // De 🏆-knop rechts in de tabrij: zichtbaar dat het voorproefje een ingang is (een kale › leek op "volgende tab").
@@ -9701,7 +9735,173 @@ const RT_I18N = {
   },
 };
 for (const c in RT_I18N) Object.assign(I18N[c], RT_I18N[c]);
-const RANDOM_TEAM_SIZE = 8;                  // = c_cap in join_random_pool (db/140)
+
+// ── 🤖 Bots spelen de daily mee (db/232, 23/11/2026) ─────────────────────────────────────────────────────────────────────
+// Zijn vraag "duel of the day tegen bots?" → advies: laat Pip, Robo en Prof gewoon de daily meespelen → "eens", "goed idee", "bouw
+// maar" (mockup https://claude.ai/artifact/Ubte1qadtBJwZzjVFAQ7s3 v3). Voor iedereen dezelfde uitslag: get_daily_bots trekt per dag
+// per bot één keer een echte eindscore (mét hintstraf) en neemt blokjes en hints over van een echt potje met die score.
+// - Zonder team (ook anoniem) zijn de bots je stand: 📅 Vandaag en de ⚔️ Week-race, in de week alleen op de dagen dat jij speelde
+//   (anders staat wie donderdag begint hopeloos achter). Dezelfde regels als een team: scores opgeteld + 25 per dagzege.
+// - In een team lopen ze als ijkpunt mee in Vandaag: op scorevolgorde, "·" in plaats van een plaats, geen vulling. Plaatsen,
+//   dagzege, weekpodium en weekprijzen blijven van de leden (de server telt de bots nergens mee); de Week-race blijft van mensen.
+// - Boven de stand de bot-kaart uit Duels (zelfde bot als daar), tot je DAILY_BOTS_DUELS duels uitspeelde ("wie Duels kent, heeft
+//   de reclame niet meer nodig"). Tik op een bot = dezelfde kaart zonder band (de rij is de kop), met zijn reactie op vandaag.
+// Eén aanroep per eindscherm, parallel met de rest. Mislukt die, dan is het eindscherm zoals vóór 23/11.
+// Teksten apart (zoals RT_I18N): de taalblokken liggen ver uit elkaar en gzip kijkt maar 32 KB terug.
+const BOTS_I18N = {
+  nl: { lb_bot: "bot", recap_team_cap_bots: "In een team speel je tegen vrienden in plaats van bots." },
+  en: { lb_bot: "bot", recap_team_cap_bots: "In a team you play against friends instead of bots." },
+  de: { lb_bot: "Bot", recap_team_cap_bots: "In einem Team spielst du gegen Freunde statt gegen Bots." },
+  es: { lb_bot: "bot", recap_team_cap_bots: "En un equipo juegas contra amigos en lugar de bots." },
+  pt: { lb_bot: "bot", recap_team_cap_bots: "Em uma equipe você joga contra amigos em vez de bots." },
+};
+for (const c in BOTS_I18N) Object.assign(I18N[c], BOTS_I18N[c]);
+const DAILY_BOTS_DUELS = 3;
+let dailyBots = null;   // { date, days: { "YYYY-MM-DD": [{ key, score, won, guess_blocks, …hints }] }, bots: [{ key, name, flair, elo, w, l, bw, bl }], duels }
+async function fetchDailyBots(date) {
+  if (dailyBots && dailyBots.date === date) return dailyBots;
+  try {
+    const r = await withTimeout(rpc("get_daily_bots", { p_date: date, p_client: clientId() }), OPTIONAL_RPC_MS);
+    if (!r || typeof r !== "object" || !r.days || typeof r.days !== "object" || !Array.isArray(r.bots)) return null;
+    return (dailyBots = { date, days: r.days, bots: r.bots, duels: Number(r.duels) || 0 });
+  } catch (e) { return null; }
+}
+// Voor het eindscherm: de bots, en /duel.js erbij als de kaart erboven komt (dan staat hij er meteen, zonder verspringen).
+async function fetchDailyBotsForRecap(date) {
+  const db = await fetchDailyBots(date);
+  if (db && db.bots.length && db.duels < DAILY_BOTS_DUELS) await withTimeout(loadDuel(), 3000).catch(() => null);
+  return db;
+}
+// De bots van één dag, met naam en flair erbij (in de volgorde van de server: Pip, Robo, Prof).
+function botsOn(date, db = dailyBots) {
+  const meta = new Map((db?.bots || []).map((b) => [b.key, b]));
+  return (db?.days?.[date] || []).filter((x) => x && meta.has(x.key))
+    .map((x) => ({ ...meta.get(x.key), ...x, display_name: meta.get(x.key).name, is_bot: true }));
+}
+// > 0: a staat boven b op een dagbord (gewonnen eerst, dan de score). Gelijk = 0: dan houdt de stabiele sortering de mens voorop.
+const recapBetter = (a, b) => (a.won ? 1 : 0) - (b.won ? 1 : 0) || (Number(a.score) || 0) - (Number(b.score) || 0);
+// Teambord: de bots tussen de leden. Een bot staat boven een lid als hij beter is (bij gelijk: het lid eerst), en altijd vóór de
+// inhaalpotjes (die hebben ook geen plaats). Geeft [{ row, i }] (i = index in rows, voor data-i) en [{ bot }] in bordvolgorde.
+function paceMerge(rows, bots) {
+  const rest = [...bots].sort((a, b) => recapBetter(b, a)), out = [];
+  rows.forEach((r, i) => {
+    while (rest.length && (r.late || recapBetter(rest[0], r) > 0)) out.push({ bot: rest.shift() });
+    out.push({ row: r, i });
+  });
+  rest.forEach((b) => out.push({ bot: b }));
+  return out;
+}
+function botRowHtml(b, rank, pace = false) {
+  const val = `<span class="lb-val">${lbGuessBlocks(b)}<span class="lb-score">${b.won ? lbHintIcons(b) + b.score : "💀"}</span></span>`;
+  return `<div class="lb-row lb-botrow${pace ? " lb-pace" : lbPodiumCls(rank)}" data-bot="${escHtml(b.key)}" role="button" tabindex="0" aria-expanded="false">` +
+    `<span class="lb-rank">${pace ? "·" : lbMedal(rank)}</span>` +
+    `<span class="lb-name">${escHtml(b.name)}${flairBadgeHtml(b.flair, pace ? 0 : rank)} <span class="lb-tag lb-bot">${escHtml(t("lb_bot"))}</span></span>${val}</div>`;
+}
+// Zonder team, vandaag: jij en de bots op volgorde (gedeelde plaats bij gelijk, jij dan bovenaan).
+function botDayRowsHtml(me, bots) {
+  const all = [me, ...bots];
+  const rank = (r) => 1 + all.filter((x) => recapBetter(x, r) > 0).length;
+  return [...all].sort((a, b) => recapBetter(b, a)).map((r) => (r.is_bot ? botRowHtml(r, rank(r)) : dailyRowHtml({ ...r, rank: rank(r) }))).join("");
+}
+// Zonder team, de week: jouw dagen (`days`, uit myWeekDays) en op elk daarvan de bots. +25 voor wie die dag bovenaan stond en won
+// (gedeeld bij gelijk); een inhaalpot geeft jou geen dagzege, net als op een echt bord. Rijen in de vorm van get_pool_week_podium.
+function botWeekRows(me, days, db = dailyBots) {
+  const tot = new Map([["", { ...me, week_score: 0, daily_wins: 0 }]]);
+  for (const b of db?.bots || []) tot.set(b.key, { display_name: b.name, flair: b.flair, title: null, is_me: false, is_bot: true, key: b.key, week_score: 0, daily_wins: 0 });
+  for (const d of days) {
+    const field = [{ k: "", won: d.won, score: d.score, late: d.late }, ...botsOn(d.date, db).map((b) => ({ k: b.key, won: b.won, score: b.score }))];
+    const top = field.reduce((m, f) => (f.won ? Math.max(m, Number(f.score) || 0) : m), -1);
+    for (const f of field) {
+      const x = tot.get(f.k);
+      if (!x) continue;
+      x.week_score += Number(f.score) || 0;
+      if (f.won && (Number(f.score) || 0) === top && !f.late) { x.week_score += 25; x.daily_wins += 1; }
+    }
+  }
+  const rows = [...tot.values()];
+  const better = (a, b) => a.week_score - b.week_score || a.daily_wins - b.daily_wins;
+  rows.forEach((r) => { r.rank = 1 + rows.filter((x) => better(x, r) > 0).length; });
+  return rows.sort((a, b) => better(b, a));
+}
+function ghostRowHtml(rank, label, dim) {
+  return `<div class="lb-row lb-ghost${dim ? " dim" : ""}"><span class="lb-rank">${rank}</span><span class="lb-name">${label}</span><span class="lb-val">–</span></div>`;
+}
+function ghostLaneHtml(rank, k, dim) {
+  return `<div class="lb-row race-lane race-ghost${dim ? " dim" : ""}" style="--p:0;--i:${k}"><span class="lb-rank">${rank}</span>` +
+    `<span class="lb-name race-name"></span><span class="race-track"><span class="race-runner"></span></span><span class="lb-val">–</span></div>`;
+}
+// De carrousel zonder team: Vandaag (jij + bots) en de Week-race; `ghost` = de gestippelde plek voor je eerste teamgenoot.
+function botBoardHtml(me, days, bots, db = dailyBots, { ghost = "" } = {}) {
+  const n = 1 + bots.length;
+  const day = `<div class="lb-table">${botDayRowsHtml(me, bots)}${ghost ? ghostRowHtml(n + 1, ghost, false) : ""}</div>`;
+  const week = recapRaceHtml(botWeekRows(me, days, db), [], ghost ? ghostLaneHtml(n + 1, n, false) : "");
+  return recapCarouselHtml(null, null, null, { day, week }, undefined, recapEventPaneSpec());
+}
+function soloBotsHtml(db = dailyBots) {
+  const bots = botsOn(state.puzzleDate || todayKey(), db);
+  if (!bots.length) return "";
+  const me = myRecapRow();
+  return botBoardHtml(me, myWeekDays(eventHistorySync(), currentWeekStart(), me), bots, db);
+}
+// Boven de stand: de bot die klaarstaat, dezelfde kaart als in Duels (tot je DAILY_BOTS_DUELS duels uitspeelde).
+function recapBotCardHtml(db = dailyBots) {
+  const D = window.Duel;
+  if (!D?.daily || !db || !db.bots.length || db.duels >= DAILY_BOTS_DUELS) return "";
+  let b = null;
+  try { b = D.daily.ready(duelHost(), db.bots); } catch (e) { b = null; }
+  return b ? `<div class="recap-botcard">${D.daily.card(duelHost(), b)}</div>` : "";
+}
+// Zijn reactie op vandaag: de zinnen van de knock-out (BOT_TXT in /ko.js; win = jij wint, lose = hij wint), zonder de zinnen over een gok.
+function botSayToday(b, me) {
+  const L = window.KO?.botCopy?.(lang) || window.KO?.botCopy?.("en"), B = L?.[b.key];
+  const arr = (B?.[recapBetter(me, b) > 0 ? "win" : "lose"] || []).filter((s) => typeof s === "string" && !s.includes("|"));
+  if (!arr.length) return "";
+  let h = 7;
+  for (const c of String(b.key) + (state.puzzleDate || todayKey())) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return arr[h % arr.length];
+}
+function botCardFor(key) {   // de kaart onder een botrij: zonder band, met zijn reactie
+  const D = window.Duel, date = state.puzzleDate || todayKey();
+  const b = botsOn(date).find((x) => x.key === key);
+  if (!D?.daily || !b) return "";
+  return D.daily.card(duelHost(), b, { band: false, say: botSayToday(b, { won: !!state.won, score: computeScore() }) });
+}
+async function toggleBotCard(row) {
+  const table = row.closest(".lb-table");
+  if (!table) return;
+  const wasOpen = row.classList.contains("pf-open");
+  table.querySelectorAll(".dl-card.bc-in").forEach((c) => c.remove());
+  table.querySelectorAll(".lb-botrow.pf-open").forEach((r) => { r.classList.remove("pf-open"); r.setAttribute("aria-expanded", "false"); });
+  if (wasOpen) return;
+  row.classList.add("pf-open");
+  row.setAttribute("aria-expanded", "true");
+  gcCount("daily-bot-row", "Daily bots: bot row opened");
+  try { await loadKo(); } catch (e) {}   // /duel.js (de kaart) en /ko.js (zijn zinnen); zonder ko.js zegt hij zijn vaste zin
+  if (!row.isConnected || !row.classList.contains("pf-open")) return;
+  const html = botCardFor(row.dataset.bot);
+  if (html) row.insertAdjacentHTML("afterend", html);
+  else { row.classList.remove("pf-open"); row.setAttribute("aria-expanded", "false"); }
+}
+// ⚡/⚔️ en spelen, op de kaart boven de stand en op die onder een botrij (de klikken van de kaart in Duels zitten in /duel.js).
+document.addEventListener("click", (e) => {
+  if (!(e.target instanceof Element)) return;
+  const card = e.target.closest("#modal-recap .recap-botcard .dl-card, #modal-recap .dl-card.bc-in");
+  const D = window.Duel;
+  if (!card || !D?.daily) return;
+  const mode = e.target.closest('[data-act="bmode"]');
+  if (mode) {
+    if (!D.daily.mode(mode.dataset.bmode)) return;
+    const top = document.querySelector("#modal-recap .recap-botcard");
+    if (top) top.outerHTML = recapBotCardHtml() || "";
+    document.querySelectorAll("#modal-recap .dl-card.bc-in").forEach((c) => { c.outerHTML = botCardFor(c.dataset.bot) || ""; });
+    return;
+  }
+  const key = card.dataset.bot;
+  gcCount(card.classList.contains("bc-in") ? "daily-bot-go-row" : "daily-bot-card", "Daily bots: duel started from the end screen");
+  closeAllModals();
+  D.daily.go(duelHost(), key);
+});
+const RANDOM_TEAM_SIZE = 8;                 // = c_cap in join_random_pool (db/140)
 const RT_LINE_KEY = "jaardle:rt-line";       // {pool, kind: "welcome" | "first"}: de welkomstregel, één keer
 const RT_SEEN_KEY = "jaardle:rt-seen";       // {[poolId]: ledental dat dit toestel al zag}
 const RT_GIVEN_KEY = "jaardle:rt-given";     // {uid, name, flair, at}: wat de server invulde, voor de hint in het 🏆-scherm
@@ -9870,14 +10070,15 @@ async function loadRecapTeam() {
   const rtLine = myPool.is_random ? rtLineFor(myPool) : null;   // 🎲: één slanke regel boven de tabs (welkom / er is iemand bij)
   const rtHtml = rtLine ? rtLineHtml(myPool, rtLine) : "";
   const rtAlone = myPool.is_random && (myPool.members || 1) <= 1;   // eerste lid: de volgende speler als stippelrij
-  if (!weekRows.length && !evPane) { setBoard(board, rtHtml + dailyTableHtml(dailyRows)); wireRtLine(board, poolId); if (rtAlone) rtAddGhost(board); wireRecapBoardTaps(board); return; }
+  const paceBots = botsOn(todayKey());   // 🤖 db/232: de bots als ijkpunt in Vandaag (·, geen plaats); de Week-race blijft van mensen
+  if (!weekRows.length && !evPane) { setBoard(board, rtHtml + dailyTableHtml(dailyRows, false, paceBots)); wireRtLine(board, poolId); if (rtAlone) rtAddGhost(board); wireRecapBoardTaps(board); return; }
   let oddsItems = null;
   if (weekRows.length) try {
     oddsItems = oddsBuild(fc, dailyRows, weekRows, {
       poolId, weekStart: currentWeekStart(), todayKey: todayKey(), secsSinceMidnight: 86400 - secsToNextDaily(),
     });
   } catch (e) { console.error(e); oddsItems = null; }   // een rekenfout mag de recap nooit breken: dan gewoon geen derde tab
-  setBoard(board, rtHtml + recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards, evPane));
+  setBoard(board, rtHtml + recapCarouselHtml(dailyRows, weekRows, oddsItems, undefined, weekAwards, evPane, paceBots));
   wireRtLine(board, poolId);
   if (rtAlone) rtAddGhost(board);
   addRecapBoardBtn(board);

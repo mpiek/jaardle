@@ -1592,3 +1592,30 @@ test("de kop van Jaardle (23/11): JAARDLE-logo in het midden zoals DUELS en TIME
   assert.match(GAME, /hwCap\(hwText\("c4a", "📅 " \+ t\("tab_daily"\), "🎲 " \+ t\("tab_free"\)\)\);/);
   assert.equal((GAME.match(/<li><strong>📅 [^<]+<\/strong>[^<]+<strong>🎲 /g) || []).length, 5, "helptekst in vijf talen");
 });
+
+test("duel.js — 🤖 db/232 de bot-kaart op het eindscherm van de daily: zelfde kaart, zonder band onder een botrij, zelfde bot als in Duels", () => {
+  const T = D.copy("nl");
+  const bots = [{ key: "prof", name: "Prof", flair: "🧠", elo: 1800, w: 0, l: 0, bw: 0, bl: 0 },
+                { key: "pip", name: "Pip", flair: "🐣", elo: 1100, w: 0, l: 0, bw: 0, bl: 0 },
+                { key: "robo", name: "Robo", flair: "🤖", elo: 1455, w: 0, l: 0, bw: 0, bl: 0 }];
+  const h = host({ faceHue: () => 330 });
+  // zonder rating: Pip; na een zege op Pip: Robo; met een vaste rating: de dichtste
+  assert.equal(D.daily.ready(h, bots).key, "pip");
+  assert.equal(D.daily.ready(h, bots.map((b) => (b.key === "pip" ? { ...b, w: 1 } : b))).key, "robo");
+  assert.equal(D.daily.ready(host({ loggedIn: true, myRating: () => 1750, myRatingGames: () => 40 }), bots).key, "prof");
+  assert.equal(D.daily.ready(h, []), null);
+  // met band (boven de stand) en zonder band (onder de rij), met zijn eigen regel
+  D.daily.mode("k");
+  const full = D.daily.card(h, bots[1]);
+  assert.match(full, /^<div class="dl-card inc bot" data-act="botgo" data-bot="pip"><div class="vb"/);
+  assert.match(full, /<b>Pip daagt je uit<\/b>/);
+  const bare = D.daily.card(h, bots[2], { band: false, say: "Systeem verslagen. Revanche? [J/N]" });
+  assert.match(bare, /^<div class="dl-card inc bot bc-in" data-act="botgo" data-bot="robo"><div class="dl-card-f">/);
+  assert.ok(!bare.includes('class="vb"'), "geen band");
+  assert.match(bare, /<i>„Systeem verslagen\. Revanche\? \[J\/N\]”<\/i>/);
+  assert.match(bare, /data-bmode="k" aria-checked="true"/);
+  // de keuze ⚡/⚔️ is dezelfde als in Duels
+  assert.equal(D.daily.mode("b"), true);
+  assert.match(D.daily.card(h, bots[2], { band: false }), /data-bmode="b" aria-checked="true"/);
+  D.daily.mode("k");
+});

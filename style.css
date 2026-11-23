@@ -3782,6 +3782,16 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .lb-row.lb-prov { opacity: 0.55; }
 .lb-row.lb-prov .lb-val { font-weight: 400; color: var(--muted); }
 .lb-prov-n { font-size: 0.72em; opacity: 0.7; margin-left: 0.35em; font-variant-numeric: tabular-nums; }
+/* 🤖 Bots spelen de daily mee (db/232, 23/11/2026): rijen van Pip/Robo/Prof. Het label rustiger dan "jij"; tik = hun kaart (de
+   .dl-card uit /duel.js) onder de rij. In een teambord als ijkpunt: geen vulling, geen podiumkleur, "·" (de plaatsen zijn van de leden). */
+.lb-tag.lb-bot { color: var(--muted); }
+.lb-row.lb-botrow { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lb-row.lb-botrow:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.lb-row.lb-pace { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+.lb-row.lb-pace .lb-val { font-weight: 400; color: var(--muted); }
+.lb-row.lb-botrow.pf-open { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
+.recap-botcard { margin: 1rem 0 0.15rem; }
+.lb-table > .dl-card.bc-in { margin: 0.1rem 0 0.25rem; }
 /* Bijschrift bij de stat-kop, bv. "alle games" — geen kapitalen, gedimd. */
 .lb-stat-note { text-transform: none; font-weight: 400; opacity: 0.65; letter-spacing: 0; }
 /* Voetregel "N verborgen · 7+ dagen niet gespeeld" onder het rating-bord. */
