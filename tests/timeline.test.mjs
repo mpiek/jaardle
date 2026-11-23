@@ -108,6 +108,7 @@ test("timeline.js — lui geladen door game.js, een pagina zoals /duels/ (één 
   assert.match(SRC, /k\.id = "kop-tl"; k\.className = "kop-tl";\n\s+nav\.appendChild\(k\);/);
   assert.match(tl.CSS, /\[data-tlhome\] main > :not\(#modal-tl\):not\(#mode-tabs\)/);
   assert.match(tl.CSS, /\[data-tlhome\] #mode-tabs > :is\(\.jl-mid, \.mode-seg\) \{ display: none; \}/);
+  assert.match(tl.CSS, /\.tl-snd \{ flex: none;[^}]*width: 1\.95rem; height: 1\.95rem;[^}]*border: 1px solid var\(--border\); border-radius: 50%; \}/, "🔈 als rondje van 31 px, zoals op Duels");
   assert.match(tl.CSS, /\.tl-c \.tl-t \{[^}]*overflow-wrap: anywhere; hyphens: auto;/, "lange woorden vallen niet van de kaart");
   assert.ok(!/\btl-kop\b|HOME\[/.test(SRC), "geen eigen kop of terugknop meer");
 });

@@ -98,10 +98,11 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-logo-line i:nth-child(3) { left: 94%; background: var(--orange); }
 .tl-alpha { padding: 0.08rem 0.4rem; border: 1px solid var(--border); border-radius: 999px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--muted); }
-.tl-snd { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; color: var(--muted); background: transparent; border: 0; border-radius: 10px; }
+/* 🔈 zoals op Duels: een rondje van 1.95rem (31 px), even groot als het poppetje links (23/11, één maat voor de hele bovenregel) */
+.tl-snd { flex: none; display: grid; place-items: center; width: 1.95rem; height: 1.95rem; padding: 0; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 50%; }
 .tl-snd:hover { filter: none; color: var(--fg); background: var(--card-soft); }
 .tl-snd:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.tl-snd svg { width: 1.3rem; height: 1.3rem; }
+.tl-snd svg { width: 1.05rem; height: 1.05rem; }
 .tl-snd .on, .tl-snd[aria-pressed="true"] .off { display: none; }
 .tl-snd[aria-pressed="true"] .on { display: inline; }
 .tl-snd[aria-pressed="false"] { opacity: 0.6; }

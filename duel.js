@@ -310,6 +310,10 @@ body[data-duelshome] #mode-tabs { display: flex; }
 [data-duelshome] .kop-d { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
 .kop-d .duel-title { justify-self: center; margin: 0; transform: translateX(var(--kd-dx, 0px)); }   /* echt in het midden: centerLogo() */
 .kop-d .dl-tools { gap: 0.25rem; }
+/* 🔈 in de kop even groot als het poppetje links (1.95rem = 31 px, 23/11: zijn "kijken of alle elementen even hoog zijn … ook over duels en
+   timelines?"); met 44 px werd de kop hier 4 px hoger dan op Jaardle en sprong het poppetje bij het wisselen. De ronde houdt zijn eigen maat. */
+.kop-d .dl-snd-btn { width: 1.95rem; height: 1.95rem; }
+.kop-d .dl-snd-btn svg { width: 1.05rem; height: 1.05rem; }
 /* "Hoe werkt het?" onderaan (21/11: het ? paste in de kop niet meer naast het logo), zoals onder de daily */
 .dl-foot { display: flex; justify-content: center; margin: 1rem 0 0.25rem; }
 .dl-how { display: inline-flex; align-items: center; gap: 0.45rem; margin: 0; padding: 0.5rem 1rem; font: inherit; font-weight: 600; color: var(--fg);
