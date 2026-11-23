@@ -71,7 +71,7 @@ const HELP_NL = `
   <li>De kaart is een carrousel: naast het hoofdfeit staan vanaf de start <strong>gratis</strong> twee extra feiten uit hetzelfde jaar (💡 geel) — swipe of gebruik de pijltjes.</li>
   <li>Onder de kaart koop je met knoppen extra hints: <strong>⏩ 100 jaar later</strong>, <strong>🧭 Richting</strong>, <strong>🏛️ Eeuw</strong> en <strong>🔢 Laatste cijfer</strong>. Elke gekochte hint verschijnt als kleurenslide in de carrousel.</li>
   <li><strong>Score (0–100)</strong>: je begint op 100 punten; misgokken en hints kosten punten.</li>
-  <li><strong>Dagelijkse Jaardle</strong> is voor iedereen gelijk; <strong>Nieuw spel</strong> is oneindig oefenen.</li>
+  <li><strong>📅 Dagelijkse Jaardle</strong> is voor iedereen gelijk; <strong>🎲 Nieuw spel</strong> is oneindig oefenen.</li>
   <li class="help-details-li">
     <details>
       <summary>Details en scoring</summary>
@@ -89,7 +89,7 @@ const HELP_EN = `
   <li>The card is a carousel: alongside the main fact, it holds two <strong>free</strong> extra facts from the same year from the start (💡 yellow) — swipe or use the arrows.</li>
   <li>Below the card, buttons let you buy hints: <strong>⏩ 100 years later</strong>, <strong>🧭 Direction</strong>, <strong>🏛️ Century</strong> and <strong>🔢 Last digit</strong>. Each hint you buy appears as a coloured slide in the carousel.</li>
   <li><strong>Score (0–100)</strong>: you start at 100 points; wrong guesses and hints cost points.</li>
-  <li><strong>Daily Jaardle</strong> is the same for everyone; <strong>New game</strong> is endless practice.</li>
+  <li><strong>📅 Daily Jaardle</strong> is the same for everyone; <strong>🎲 New game</strong> is endless practice.</li>
   <li class="help-details-li">
     <details>
       <summary>Details &amp; scoring</summary>
@@ -107,7 +107,7 @@ const HELP_DE = `
   <li>Die Karte ist ein Karussell: neben dem Hauptfakt stehen von Anfang an <strong>gratis</strong> zwei zusätzliche Fakten aus demselben Jahr (💡 gelb) — wische oder nutze die Pfeile.</li>
   <li>Unter der Karte kaufst du mit Knöpfen zusätzliche Hinweise: <strong>⏩ 100 Jahre später</strong>, <strong>🧭 Richtung</strong>, <strong>🏛️ Jahrhundert</strong> und <strong>🔢 Letzte Ziffer</strong>. Jeder gekaufte Hinweis erscheint als farbige Folie im Karussell.</li>
   <li><strong>Punkte (0–100)</strong>: du startest bei 100 Punkten; Fehlversuche und Hinweise kosten Punkte.</li>
-  <li><strong>Tägliches Jaardle</strong> ist für alle gleich; <strong>Neues Spiel</strong> ist endloses Üben.</li>
+  <li><strong>📅 Tägliches Jaardle</strong> ist für alle gleich; <strong>🎲 Neues Spiel</strong> ist endloses Üben.</li>
   <li class="help-details-li">
     <details>
       <summary>Details &amp; Wertung</summary>
@@ -125,7 +125,7 @@ const HELP_ES = `
   <li>La tarjeta es un carrusel: junto al dato principal incluye <strong>gratis</strong> desde el inicio dos datos adicionales del mismo año (💡 amarillo) — desliza o usa las flechas.</li>
   <li>Debajo de la tarjeta compras pistas con botones: <strong>⏩ 100 años después</strong>, <strong>🧭 Dirección</strong>, <strong>🏛️ Siglo</strong> y <strong>🔢 Última cifra</strong>. Cada pista comprada aparece como una diapositiva de color en el carrusel.</li>
   <li><strong>Puntos (0–100)</strong>: empiezas con 100 puntos; los fallos y las pistas restan puntos.</li>
-  <li><strong>Jaardle diario</strong> es igual para todos; <strong>Partida nueva</strong> es práctica infinita.</li>
+  <li><strong>📅 Jaardle diario</strong> es igual para todos; <strong>🎲 Partida nueva</strong> es práctica infinita.</li>
   <li class="help-details-li">
     <details>
       <summary>Detalles y puntuación</summary>
@@ -143,7 +143,7 @@ const HELP_PT = `
   <li>O card é um carrossel: além do fato principal, ele traz <strong>grátis</strong> desde o início dois fatos extras do mesmo ano (💡 amarelo) — deslize ou use as setas.</li>
   <li>Abaixo do card, você compra dicas com botões: <strong>⏩ 100 anos depois</strong>, <strong>🧭 Direção</strong>, <strong>🏛️ Século</strong> e <strong>🔢 Último algarismo</strong>. Cada dica comprada aparece como um slide colorido no carrossel.</li>
   <li><strong>Pontos (0–100)</strong>: você começa com 100 pontos; erros e dicas custam pontos.</li>
-  <li><strong>Jaardle diário</strong> é igual para todos; <strong>Jogo novo</strong> é prática infinita.</li>
+  <li><strong>📅 Jaardle diário</strong> é igual para todos; <strong>🎲 Jogo novo</strong> é prática infinita.</li>
   <li class="help-details-li">
     <details>
       <summary>Detalhes e pontuação</summary>
@@ -1965,6 +1965,10 @@ function applyLang() {
   document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
     const v = t(el.dataset.i18nAria); if (v != null) el.setAttribute("aria-label", v);
   });
+  // tooltips (de schakelaar 📅|🎲 heeft geen woorden meer, 23/11): de naam, met de sneltoets erachter
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const v = t(el.dataset.i18nTitle); if (v != null) el.title = el.dataset.titleKey ? `${v} (${el.dataset.titleKey})` : v;
+  });
   syncDoor();   // de link en het label van de deur in de nieuwe taal
   const help = document.getElementById("help-list");
   if (help) help.innerHTML = t("help_list");
@@ -2082,6 +2086,7 @@ const els = {
   nextWrap: document.getElementById("next-wrap"),
   dayLabel: document.getElementById("day-label"),
   tabs: Array.from(document.querySelectorAll("#mode-tabs .tab")),
+  modeNav: document.getElementById("mode-tabs"),
 };
 
 const MAX_DIGITS = 4;
@@ -5093,6 +5098,19 @@ function doorTap() {
   if (at === "j") { newsSeen("duels"); openDuels("door"); }
   else if (at === "d") openTimeline("door");
   else kopSwap("in", () => closeModal(TL_PAGE));   // Timeline → Jaardle
+}
+// Het JAARDLE-logo echt in het midden van de kop als er ruimte is (23/11/2026), zoals DUELS (centerLogo in /duel.js) en TIMELINE: de flex
+// zet het tussen de deur en de schakelaar 📅|🎲, dit schuift het naar het midden van de hele kop, maar nooit dichter dan 6 px bij die
+// twee. Opnieuw bij elke maatwissel (ResizeObserver in init: de kop, de menuknop met je naam, het logo dat terugkomt na Duels/Timeline).
+function centerJlLogo() {
+  const nav = els.modeNav, lg = document.getElementById("jl-logo");
+  if (!nav || !lg || !lg.offsetParent) return;   // op Duels/Timeline of onder 340 px: geen logo
+  const cur = parseFloat(lg.style.getPropertyValue("--jl-dx")) || 0, r = lg.getBoundingClientRect(), n = nav.getBoundingClientRect();
+  const door = document.getElementById("world-door"), seg = document.getElementById("mode-seg"), left0 = r.left - cur;
+  const lo = (door && door.offsetParent ? door.getBoundingClientRect().right : left0) + 6;
+  const hi = (seg ? seg.getBoundingClientRect().left : n.right) - 6 - r.width;
+  const dx = hi < lo ? 0 : Math.round(Math.min(hi, Math.max(lo, n.left + (n.width - r.width) / 2)) - left0);
+  if (dx !== cur) lg.style.setProperty("--jl-dx", dx + "px");
 }
 // ⚔️ Wisselen tussen Jaardle en Duels (21/11/2026, zijn "kop blijft + inhoud schuift"): profiel, 🌐 en de deur blijven staan
 // (#mode-tabs heeft een eigen view-transition-name), de rest schuift opzij (CSS bij .kop-door). dir "in" = naar Duels, "out" = terug.
@@ -14104,7 +14122,7 @@ function hwScreenHtml(i) {
   if (i === 1) return hwEvHtml() + hwHintRowHtml({ dim: true, dir: true }) + hwBoardHtml() + hwScoreHtml(100) + hwInpHtml() + hwLegendHtml();
   if (i === 2) return hwEvHtml() + hwHintRowHtml({ dir: true }) + hwBoardHtml() + hwScoreHtml(missScore) + `<div class="hw-dim hw-col">${hwInpHtml()}${hwPadHtml()}</div>`;
   const tier = scoreTier(100 - [1900, 1850, 1820, 1815].reduce((a, y) => a + hwPen(y), 0), true);
-  return `<div class="hw-tabs"><span class="hw-tab hw-on">📅 ${t("tab_daily")}</span><span class="hw-tab">${t("tab_free")}</span></div>` +
+  return `<div class="hw-tabs"><span class="hw-tab hw-on">📅</span><span class="hw-tab">🎲</span></div>` +   // de schakelaar rechtsboven (23/11)
     `<div class="hw-today"><b>${hwText("today_t")}</b><span>${hwText("today")}</span></div>` +
     `<div class="hw-recap" hidden>${hwScoreHtml(100)}${hwBoardHtml(true)}</div>` +
     `<div class="hw-share" hidden><pre>Jaardle #${daysSince(EPOCH) + 1}: ${tier.emoji} ${tierLabel(tier)} (${100 - [1900, 1850, 1820, 1815].reduce((a, y) => a + hwPen(y), 0)}/100)\n🎯 4/${MAX_GUESSES} | 📊 ${[1900, 1850, 1820, 1815].map((y) => emojiFor(hwCls(y))).join("")}</pre><span class="hw-sbtn">${t("share")}</span></div>` +
@@ -14253,7 +14271,7 @@ const HW_SEQ = [
   // 4 · Score
   async (r, scr) => {
     const today = hwq(".hw-today", scr), recap = hwq(".hw-recap", scr), board = hwq(".hw-board", recap), sc = hwq(".live-score-val", recap);
-    hwCap(hwText("c4a", t("tab_daily"), t("tab_free")));
+    hwCap(hwText("c4a", "📅 " + t("tab_daily"), "🎲 " + t("tab_free")));   // de schakelaar heeft geen woorden meer: de uitleg legt de icoontjes uit
     today.classList.add("hw-ring");
     await hwWait(r, 3200);
 
@@ -15130,11 +15148,18 @@ async function init() {
   }
   applyLang();           // zet UI-taal + helptekst + daglabel (idempotent)
   injectAchvSvg();       // badge-artwork (SVG-defs) één keer in de DOM
+  // het JAARDLE-logo in het midden van de kop: meten vóór het wachten op Supabase, anders springt het na het laden nog opzij
+  if (window.ResizeObserver && els.modeNav) {
+    const ro = new ResizeObserver(() => centerJlLogo());
+    [els.modeNav, document.getElementById("menu-wrap"), document.getElementById("lang-wrap"), document.getElementById("jl-logo")].forEach((el) => el && ro.observe(el));
+  }
   await whenSbReady();
 
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => switchMode(tab.dataset.mode));
   });
+  // een tik op het logo = naar de daily, net als 📅
+  document.getElementById("jl-logo")?.addEventListener("click", () => switchMode("daily"));
   els.guessBtn.addEventListener("click", submitGuess);
   els.signBtn.addEventListener("click", toggleSign);
   els.backspaceBtn.addEventListener("click", backspaceYear);

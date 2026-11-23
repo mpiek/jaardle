@@ -303,10 +303,10 @@ html[data-theme="light"] [data-arena] { --duel-me: #2456c4; }
 #modal-duels.dl-page { position: static; inset: auto; z-index: auto; display: block; padding: 0; }
 /* de kop van de Duels-pagina = de kop van Jaardle (21/11/2026, zijn "linksboven exact zelfde profiel/language en ernaast jaardle logo"):
    profiel, 🌐 en de deur blijven staan (sinds 22/11 gaat de deur hier naar Timeline, game.js syncDoor), dan het logo in het midden van
-   wat overblijft ("gewoon beetje midden") en 🔈. De tabs gaan zolang weg. Een duelronde houdt zijn eigen kop. */
+   wat overblijft ("gewoon beetje midden") en 🔈. Het Jaardle-logo en de schakelaar 📅|🎲 gaan zolang weg. Een duelronde houdt zijn eigen kop. */
 .kop-d { display: none; }
 body[data-duelshome] #mode-tabs { display: flex; }
-[data-duelshome] #mode-tabs > .tab { display: none; }
+[data-duelshome] #mode-tabs > :is(.jl-mid, .mode-seg) { display: none; }
 [data-duelshome] .kop-d { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
 .kop-d .duel-title { justify-self: center; margin: 0; transform: translateX(var(--kd-dx, 0px)); }   /* echt in het midden: centerLogo() */
 .kop-d .dl-tools { gap: 0.25rem; }

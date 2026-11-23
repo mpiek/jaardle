@@ -628,25 +628,47 @@ main {
 .lang-item:hover { background: var(--card-soft); }
 .lang-item.active { font-weight: 600; }
 
+/* Het JAARDLE-logo in het midden van de kop (23/11/2026, zijn "dacht logo net zoals duels en timeline", logo 1 "Thumbnail"): het groene
+   deelplaatje in het klein. Echt in het midden als er ruimte is (game.js centerJlLogo zet --jl-dx), anders vlak na de deur. Een smal
+   scherm krimpt het mee (max-width); onder 340 px past het niet meer naast de deur en de schakelaar en gaat het weg. */
+.jl-mid { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.jl-logo { flex: 0 1 auto; min-width: 0; display: block; margin: 0; padding: 0; line-height: 0; background: transparent; border: 0; border-radius: 7px;
+  cursor: pointer; transform: translateX(var(--jl-dx, 0px)); -webkit-tap-highlight-color: transparent; }
+.jl-logo:hover { filter: none; }
+.jl-logo:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.jl-badge { display: block; width: 90.36px; max-width: 100%; height: auto; }
+@media (max-width: 340px) { .jl-mid { display: none; } }
+/* Daily | vrij spel als één schakelaar (23/11/2026, zijn "toggle tussen die kalender en dobbelsteen dat je 2 emojis ziet en dan welke actief
+   is" + "soort pil dat echt in 1 omlijst was, rechts gevuld links leeg of andersom"): één omlijning, de actieve helft gevuld. De woorden
+   staan in aria-label en title. Was: twee tabs met woorden, die op 360 px in DE/ES al naar twee regels liepen. */
+.mode-seg { flex: none; align-self: center; display: flex; height: 2.5rem; box-sizing: border-box; margin-left: auto; padding: 0;   /* de gevulde helft ligt tegen de rand (zijn "kan er geen ruimte meer tussen de rand en de geselecteerde knop") */
+  border: 1.5px solid var(--accent); border-radius: 999px; }
 .tab {
-  flex: 1 1 auto;   /* zo breed als het woord (21/11; was allebei de helft): met de deur naar Duels erbij past "Nieuw spel" zo op één regel */
-  min-width: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  background: var(--card);
-  color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.45rem 0.6rem; /* 0,6 → 0,45: kalender-icoontje (24 px) past zo binnen de 41 px van #23 */
-  font-size: 0.95rem;
-  font-weight: 600;
+  flex: none;
+  width: 41px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--fg);
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.86rem;   /* het kalendertje is 1.6em = 22 px */
+  line-height: 1;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s;
 }
-@media (max-width: 380px) {
-  .tab { padding-inline: 0.45rem; gap: 0.3rem; font-size: 0.88rem; }
-}
+/* gevuld tot het midden, daar een rechte lijn (zijn "zou je niet dan dit tot het midden vullen en dan 90 graden lijn"): buiten rond zoals
+   de pil, binnen recht */
+.tab[data-mode="daily"] { border-radius: 999px 0 0 999px; }
+.tab[data-mode="free"] { border-radius: 0 999px 999px 0; }
+.tab:hover { filter: none; }
+.tab:not([aria-selected="true"]):hover { background: var(--card-soft); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ms-dice { font-size: 1.3em; }
 
 /* De deur naar de andere kant (21/11/2026): op Jaardle het Duels-icoon, op de Duels-pagina het Jaardle-icoontje (/duel.js), steeds
    op dezelfde plek naast 🌐. Even groot als de avatar. Het rode stipje (jouw beurt / nieuwe uitslag) staat hier, niet meer op ⋮. */
@@ -769,7 +791,6 @@ html[data-kop="out"]::view-transition-new(root) { animation-name: kop-in-l; }
 .tab[aria-selected="true"] {
   background: var(--accent);
   color: var(--on-accent);
-  border-color: var(--accent);
 }
 
 /* Inhaal-balk: de ENIGE ingang naar een gemiste dag (v231 — kaart + stepper zijn
@@ -2163,9 +2184,11 @@ html[data-theme="light"], html[data-theme="parchment"] { --nx-duel: #b5531c; --n
 .hw-lr.hw-on .hw-lp { color: var(--fg); }
 
 /* kaart 4: daily, uitslag, delen */
-.hw-tabs { display: flex; gap: 8px; }
-.hw-tab { flex: 1; text-align: center; padding: 0.55em 0.4em; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-weight: 700; font-size: 0.95em; }
-.hw-tab.hw-on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+/* de schakelaar 📅|🎲 rechtsboven in het klein, zoals in de kop (23/11): één omlijning, de actieve helft gevuld */
+.hw-tabs { display: flex; align-self: flex-end; padding: 0; border: 1.5px solid var(--accent); border-radius: 999px; }
+.hw-tab { display: grid; place-items: center; width: 2.4em; height: 1.95em; border-radius: 999px 0 0 999px; font-size: 1em; line-height: 1; }
+.hw-tab + .hw-tab { border-radius: 0 999px 999px 0; }
+.hw-tab.hw-on { background: var(--accent); }
 .hw-today { display: flex; flex-direction: column; gap: 2px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 0.55em 0.8em; }
 .hw-today b { font-size: 0.7em; letter-spacing: 0.06em; text-transform: uppercase; color: var(--h-extra); }
 .hw-today span { font-size: 0.95em; font-weight: 500; }

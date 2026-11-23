@@ -107,7 +107,7 @@ test("timeline.js — lui geladen door game.js, een pagina zoals /duels/ (één 
   assert.match(SRC, /root\.id = PAGE_ID; root\.className = "modal tl-page tl"; root\.hidden = true;/);
   assert.match(SRC, /k\.id = "kop-tl"; k\.className = "kop-tl";\n\s+nav\.appendChild\(k\);/);
   assert.match(tl.CSS, /\[data-tlhome\] main > :not\(#modal-tl\):not\(#mode-tabs\)/);
-  assert.match(tl.CSS, /\[data-tlhome\] #mode-tabs > \.tab \{ display: none; \}/);
+  assert.match(tl.CSS, /\[data-tlhome\] #mode-tabs > :is\(\.jl-mid, \.mode-seg\) \{ display: none; \}/);
   assert.match(tl.CSS, /\.tl-c \.tl-t \{[^}]*overflow-wrap: anywhere; hyphens: auto;/, "lange woorden vallen niet van de kaart");
   assert.ok(!/\btl-kop\b|HOME\[/.test(SRC), "geen eigen kop of terugknop meer");
 });

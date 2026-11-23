@@ -84,7 +84,7 @@
 #modal-tl.tl-page { position: static; inset: auto; z-index: auto; display: flex; flex-direction: column; align-items: stretch; padding: 0; }
 .kop-tl { display: none; }
 body[data-tlhome] #mode-tabs { display: flex; }
-[data-tlhome] #mode-tabs > .tab { display: none; }
+[data-tlhome] #mode-tabs > :is(.jl-mid, .mode-seg) { display: none; }
 [data-tlhome] .kop-tl { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
 /* het logo: het woord met een tijdlijn in de kleuren van de tijd eronder, en alpha; echt in het midden van de kop als er ruimte is (center()) */
 .tl-logo { justify-self: center; min-width: 0; display: flex; align-items: center; gap: 0.45rem; margin: 0; font-size: 1rem; transform: translateX(var(--kd-dx, 0px)); }

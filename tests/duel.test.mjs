@@ -152,7 +152,7 @@ test("game.js ↔ duel.js — lui geladen, de deur naast 🌐, link, duelronde g
   assert.match(GAME, /document\.getElementById\("world-door"\)\?\.addEventListener\("click", \(e\) => \{\n[^]*?if \(newTabClick\(e\)\) return;\n\s+e\.preventDefault\(\);[^}]*?doorTap\(\);/);
   assert.match(GAME, /if \(at === "j"\) \{ newsSeen\("duels"\); openDuels\("door"\); \}/, "op Jaardle gaat de deur naar Duels");
   // 22/11: de deur is een echte link (Google vindt /duels/ via de hoofdpagina), in elke taal naar de eigen /…/duels/
-  assert.match(TPL, /<i data-w="t"><\/i><\/span><\/a>\n\s+<button class="tab" data-mode="daily"/, "de deur sluit als link");
+  assert.match(TPL, /<i data-w="t"><\/i><\/span><\/a>\n\s+<!-- Het logo in het midden/, "de deur sluit als link; daarna het logo (23/11)");
   assert.match(GAME, /  syncDoor\(\);   \/\/ de link en het label van de deur in de nieuwe taal/, "taalwissel: de link gaat mee");
   assert.match(GAME, /document\.getElementById\("world-door"\)\?\.classList\?\.toggle\("has-new", duel\);/, "het stipje voor een duel staat op de deur");
   assert.match(GAME, /const has = achvNewLoad\(\)\.length > 0 \|\| podiumHasNew\(\) \|\| eventHasNew\(\);/, "⋮ zonder duel-stipje");
@@ -730,7 +730,7 @@ test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de 
   assert.match(SRC, /const dx = hi < lo \? 0 : Math\.round\(Math\.min\(hi, Math\.max\(lo, want\)\) - left0\);/);
   assert.match(SRC, /H\.openModal\("modal-duels"\);\n\s+centerLogo\(\);/);
   assert.match(SRC, /body\[data-duelshome\] #mode-tabs \{ display: flex; \}/, "ook als een duelronde (data-duelpage) hem verborg");
-  assert.match(SRC, /\[data-duelshome\] #mode-tabs > \.tab \{ display: none; \}/, "de tabs weg, de deur blijft");
+  assert.match(SRC, /\[data-duelshome\] #mode-tabs > :is\(\.jl-mid, \.mode-seg\) \{ display: none; \}/, "het Jaardle-logo en de schakelaar weg, de deur blijft (23/11)");
   assert.match(GAME, /function kopSwap\(dir, update\) \{[^]*?if \(!document\.startViewTransition \|\| matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches\) \{ update\(\); return; \}/, "zonder View Transitions of met minder beweging: in één keer");
   assert.match(GAME, /loadDuel\(\)\.then\(\(D\) => kopSwap\("in", \(\) => \{ D\.openList\(duelHost\(\), \{\}\); \}\)\)/, "eerst laden, dan wisselen; geen promise naar de overgang");
   assert.match(GAME, /if \(page === "duels" && window\.Duel\) window\.Duel\.openList\(duelHost\(\), \{ keepTop: true \}\);/, "🌐 op de Duels-pagina: opnieuw in de nieuwe taal");
@@ -1257,8 +1257,11 @@ test("style.css — één kop Jaardle ↔ Duels (21/11): deur, tabs naar hun woo
   const CSS = readFileSync(join(dir, "..", "style.css"), "utf8");
   assert.match(CSS, /\.kop-door \.kd-logo \{ display: block; width: 28px; height: 28px; border-radius: 7px; \}/, "even groot als het Jaardle-icoontje op Duels");
   assert.match(CSS, /\.kop-door\.has-new::after \{/, "het stipje op de deur");
-  assert.match(CSS, /\.tab \{\n  flex: 1 1 auto;/, "tabs zo breed als hun woord (met de deur erbij past \"Nieuw spel\" zo op één regel)");
-  assert.match(CSS, /@media \(max-width: 380px\) \{\n  \.tab \{ padding-inline: 0\.45rem; gap: 0\.3rem; font-size: 0\.88rem; \}\n\}/);
+  // 23/11: geen tabs met woorden meer (die liepen op 360 px in DE/ES naar twee regels), maar de schakelaar 📅|🎲 en het logo
+  assert.match(CSS, /\.mode-seg \{ flex: none;[^}]*border: 1\.5px solid var\(--accent\); border-radius: 999px; \}/, "één omlijnde pil");
+  assert.match(CSS, /\.tab \{\n  flex: none;\n  width: 41px;/, "twee helften van 41 px");
+  assert.match(CSS, /margin-left: auto; padding: 0;   \/\* de gevulde helft ligt tegen de rand/, "geen ruimte tussen de rand en de gevulde helft");
+  assert.match(CSS, /\.tab\[data-mode="daily"\] \{ border-radius: 999px 0 0 999px; \}\n\.tab\[data-mode="free"\] \{ border-radius: 0 999px 999px 0; \}/, "gevuld tot het midden, daar recht");
   assert.match(CSS, /@media \(max-width: 480px\) \{\n  #menu-btn \.menu-label \{ display: none; \}\n\}/, "telefoon zonder account: alleen het poppetje");
   assert.ok(!/menu-label-short/.test(CSS + GAME), "geen kort label meer");
   assert.match(CSS, /html\[data-kop\] #mode-tabs \{ view-transition-name: kop; \}/, "de kop blijft staan tijdens het wisselen");
@@ -1562,4 +1565,26 @@ test("duel.js — ⚔️ Best of 5 tegen een bot (db/227): één schakelaar voor
   assert.match(SRC, /if \(act === "botgo"\) \{[^]*if \(botMode === "b"\) return botDuel\(H, b\.dataset\.bot\);/, "de kaart start in de gekozen vorm");
   assert.match(SRC, /if \(botMode === "b"\) return botDuel\(H, b\.dataset\.bot\);\n        H\.ko\?\.\(\)\.then\(\(K\) => K\.botStart/, "de pop-up ook");
   X.setBotMode("k");
+});
+
+test("de kop van Jaardle (23/11): JAARDLE-logo in het midden zoals DUELS en TIMELINE, Daily | vrij spel als schakelaar 📅|🎲", () => {
+  const CSS = readFileSync(join(dir, "..", "style.css"), "utf8");
+  // het logo: het groene deelplaatje in het klein, letters als paden (geen extra lettertype), na de deur en vóór de schakelaar
+  assert.match(TPL, /<div class="jl-mid"><button id="jl-logo" class="jl-logo" type="button" aria-label="Jaardle" title="Jaardle"><svg class="jl-badge" viewBox="0 0 90\.36 26" aria-hidden="true" focusable="false"><rect width="90\.36" height="26" rx="7" fill="#4caf50"\/><path fill="#fff" d="M/);
+  assert.ok(!/fonts\.googleapis|Comfortaa/.test(TPL.replace(/<!--[^]*?-->/g, "") + CSS), "geen webfont voor het logo");
+  const iDoor = TPL.indexOf('id="world-door"'), iLogo = TPL.indexOf('id="jl-logo"'), iSeg = TPL.indexOf('id="mode-seg"');
+  assert.ok(iDoor < iLogo && iLogo < iSeg, "deur → logo → schakelaar");
+  // de schakelaar: nog steeds de twee .tab-knoppen (switchMode en aria-selected werken zoals eerst), zonder woorden maar met label en tooltip
+  assert.match(TPL, /<nav id="mode-tabs">/, "de tablist is de schakelaar, niet de hele kop");
+  assert.match(TPL, /<div id="mode-seg" class="mode-seg" role="tablist">\n\s+<button class="tab" data-mode="daily" role="tab" aria-selected="true" aria-label="\{\{i18n:tab_daily\}\}" data-i18n-aria="tab_daily" title="\{\{i18n:tab_daily\}\} \(D\)" data-i18n-title="tab_daily" data-title-key="D"><span class="tab-icon tab-cal" id="tab-cal" aria-hidden="true"><\/span><\/button>\n\s+<button class="tab" data-mode="free" role="tab" aria-selected="false" aria-label="\{\{i18n:tab_free\}\}" data-i18n-aria="tab_free" title="\{\{i18n:tab_free\}\} \(N\)" data-i18n-title="tab_free" data-title-key="N"><span class="tab-icon ms-dice" aria-hidden="true">🎲<\/span><\/button>/);
+  assert.match(GAME, /document\.querySelectorAll\("\[data-i18n-title\]"\)\.forEach\(\(el\) => \{\n\s+const v = t\(el\.dataset\.i18nTitle\); if \(v != null\) el\.title = el\.dataset\.titleKey \? `\$\{v\} \(\$\{el\.dataset\.titleKey\}\)` : v;/, "de tooltip gaat mee met de taal");
+  assert.match(CSS, /\.tab\[aria-selected="true"\] \{\n  background: var\(--accent\);/, "de actieve helft gevuld");
+  // echt in het midden als er ruimte is (zoals centerLogo in duel.js), en een tik = naar de daily
+  assert.match(GAME, /function centerJlLogo\(\) \{[^]*?const dx = hi < lo \? 0 : Math\.round\(Math\.min\(hi, Math\.max\(lo, n\.left \+ \(n\.width - r\.width\) \/ 2\)\) - left0\);/);
+  assert.match(GAME, /const ro = new ResizeObserver\(\(\) => centerJlLogo\(\)\);[^]*?await whenSbReady\(\);/, "meten vóór het wachten op Supabase");
+  assert.match(GAME, /document\.getElementById\("jl-logo"\)\?\.addEventListener\("click", \(\) => switchMode\("daily"\)\);/);
+  assert.match(CSS, /@media \(max-width: 340px\) \{ \.jl-mid \{ display: none; \} \}/, "te smal: alleen deur en schakelaar");
+  // de uitleg (demo stap 4 en de helptekst) legt de icoontjes uit
+  assert.match(GAME, /hwCap\(hwText\("c4a", "📅 " \+ t\("tab_daily"\), "🎲 " \+ t\("tab_free"\)\)\);/);
+  assert.equal((GAME.match(/<li><strong>📅 [^<]+<\/strong>[^<]+<strong>🎲 /g) || []).length, 5, "helptekst in vijf talen");
 });
