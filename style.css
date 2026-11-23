@@ -7,6 +7,14 @@
   --card-soft: #2c2c2c;
   --border: #333;
   --green: #4caf50;
+  /* De kop (23/11/2026, zijn "het past gewoon niet" over de blauwe pil en "vind je jaardle logo niet te groen, te fel?"): de schakelaar
+     📅|🎲 in het grijs van de kop, en in donker het logo een tint dieper (wit op #4caf50 = 2,8:1, het blok gloeide; op #388e3c 4,1:1).
+     Licht en perkament hieronder: daar blijft #4caf50. */
+  --seg-track: var(--card-soft);
+  --seg-thumb: color-mix(in srgb, var(--fg) 16%, var(--card-soft));
+  --seg-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --jl-green: #388e3c;
+  --jl-door-dim: brightness(0.78);
   --purple: #ab47bc;
   --blue: #1976d2;     /* 🟦 3–5: de hoofdtint van het Noto-🟦, zoals --purple die van 🟪 is; wit erop 4,6:1 */
   --yellow: #f4c430;
@@ -55,6 +63,11 @@
    badge-/chipkleuren blijven bewust identiek aan het donkere thema). */
 html[data-theme="light"] {
   color-scheme: light;
+  --seg-track: color-mix(in srgb, var(--fg) 6%, var(--card-soft));
+  --seg-thumb: var(--card);
+  --seg-shadow: 0 1px 2px rgba(60, 50, 30, 0.22);
+  --jl-green: #4caf50;
+  --jl-door-dim: none;
   --bg: #f4f1ea;
   --fg: #211e19;
   --muted: #5d574b;      /* ≥4.5:1 op --card-soft én --card */
@@ -99,6 +112,11 @@ html[data-theme="light"] {
 /* Perkament — warm sepia, licht-familie (donkere inkt op perkament). */
 html[data-theme="parchment"] {
   color-scheme: light;
+  --seg-track: color-mix(in srgb, var(--fg) 6%, var(--card-soft));
+  --seg-thumb: var(--card);
+  --seg-shadow: 0 1px 2px rgba(60, 50, 30, 0.22);
+  --jl-green: #4caf50;
+  --jl-door-dim: none;
   --bg: #e5d8bd;
   --fg: #3a2e1f;
   --muted: #6b5c45;
@@ -639,16 +657,25 @@ main {
 .jl-logo:hover { filter: none; }
 .jl-logo:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .jl-badge { display: block; width: 108px; max-width: 100%; height: auto; }
+.jl-badge rect { fill: var(--jl-green); }
+/* het JA/AR-tegeltje in de deur gaat mee, anders staan er twee groenen naast elkaar (alleen het gewone icoon; een skin-favicon niet) */
+.kop-wheel .kw-tile[data-w="j"] img[src^="/favicon.svg"] { filter: var(--jl-door-dim); }
 @media (max-width: 340px) { .jl-mid { display: none; } }
 /* Daily | vrij spel als één schakelaar (23/11/2026, zijn "toggle tussen die kalender en dobbelsteen dat je 2 emojis ziet en dan welke actief
-   is" + "soort pil dat echt in 1 omlijst was, rechts gevuld links leeg of andersom"): één omlijning, de actieve helft gevuld. De woorden
-   staan in aria-label en title. Was: twee tabs met woorden, die op 360 px in DE/ES al naar twee regels liepen. */
-/* de rand is een binnenschaduw, geen border: de gevulde helft loopt zo tot de buitenkant door, zonder naadje tussen rand en vulling */
-.mode-seg { flex: none; align-self: center; display: flex; height: 1.95rem; box-sizing: border-box; margin-left: auto; padding: 0;   /* de gevulde helft ligt tegen de rand (zijn "kan er geen ruimte meer tussen de rand en de geselecteerde knop") */
-  border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--accent); }
+   is" + "soort pil dat echt in 1 omlijst was, rechts gevuld links leeg of andersom"). Eerst blauw omlijnd met een blauwe helft; na de release
+   zijn "het past gewoon niet, het ziet er niet uit" (mockup https://claude.ai/artifact/3FCWAhX5jBq7CHSdjGEAqo): het enige blauw in een kop
+   van grijs en groen, en zwaarder dan het logo. Nu een grijze bak zonder rand (het grijs van het poppetje) met een lichter schuifje dat naar
+   het actieve vak glijdt; het andere icoon dooft. De woorden staan in aria-label en title. Was: twee tabs met woorden, die op 360 px in
+   DE/ES al naar twee regels liepen. */
+.mode-seg { flex: none; align-self: center; display: flex; height: 1.95rem; box-sizing: border-box; margin-left: auto; position: relative;
+  padding: 2px; border-radius: 999px; background: var(--seg-track); }
+.mode-seg::before { content: ""; position: absolute; top: 2px; bottom: 2px; left: 2px; width: 36px; border-radius: 999px;
+  background: var(--seg-thumb); box-shadow: var(--seg-shadow); transition: transform 0.26s cubic-bezier(0.22, 0.8, 0.24, 1); }
+.mode-seg:has(.tab[data-mode="free"][aria-selected="true"])::before { transform: translateX(36px); }
 .tab {
+  position: relative;
   flex: none;
-  width: 38px;
+  width: 36px;
   height: 100%;
   display: grid;
   place-items: center;
@@ -658,20 +685,24 @@ main {
   color: var(--fg);
   border: 0;
   border-radius: 999px;
-  font-size: 0.86rem;   /* het kalendertje is 1.6em = 22 px */
+  font-size: 0.86rem;
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
 }
-/* gevuld tot het midden, daar een rechte lijn (zijn "zou je niet dan dit tot het midden vullen en dan 90 graden lijn"): buiten rond zoals
-   de pil, binnen recht */
-.tab[data-mode="daily"] { border-radius: 999px 0 0 999px; }
-.tab[data-mode="free"] { border-radius: 0 999px 999px 0; }
 .tab:hover { filter: none; }
-.tab:not([aria-selected="true"]):hover { background: var(--card-soft); }
 .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.tab .ms-dice { font-size: 1.4em; }   /* even groot als het kalendertje (22 px getekend); .tab erbij, anders wint .tab-icon hieronder */
+.tab .tab-icon { transition: opacity 0.26s, filter 0.26s; }
+.tab:not([aria-selected="true"]) .tab-icon { filter: grayscale(1); opacity: 0.45; }
+.tab:not([aria-selected="true"]):hover .tab-icon { opacity: 0.75; }
+.tab .tab-cal { width: 1.5em; height: 1.5em; }   /* 21 px, past in het schuifje van 27 */
+.tab .ms-dice { font-size: 1.4em; }   /* even groot als het kalendertje; .tab erbij, anders wint .tab-icon hieronder */
+/* zonder :has (oud Safari) schuift er niets: dan draagt het actieve vak zelf het schuifje */
+@supports not selector(:has(*)) {
+  .mode-seg::before { display: none; }
+  .tab[aria-selected="true"] { background: var(--seg-thumb); box-shadow: var(--seg-shadow); }
+}
+@media (prefers-reduced-motion: reduce) { .mode-seg::before, .tab .tab-icon { transition: none; } }
 
 /* De deur naar de andere kant (21/11/2026): op Jaardle het Duels-icoon, op de Duels-pagina het Jaardle-icoontje (/duel.js), steeds
    op dezelfde plek naast 🌐. Even groot als de avatar. Het rode stipje (jouw beurt / nieuwe uitslag) staat hier, niet meer op ⋮. */
@@ -791,10 +822,6 @@ html[data-kop="out"]::view-transition-new(root) { animation-name: kop-in-l; }
   font-variant-numeric: tabular-nums;
 }
 
-.tab[aria-selected="true"] {
-  background: var(--accent);
-  color: var(--on-accent);
-}
 
 /* Inhaal-balk: de ENIGE ingang naar een gemiste dag (v231 — kaart + stepper zijn
    geschrapt). Twee tonen op één element: reddings-toon = warm verloop + vlam, want

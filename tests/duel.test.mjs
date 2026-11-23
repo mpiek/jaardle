@@ -1259,13 +1259,14 @@ test("style.css — één kop Jaardle ↔ Duels (21/11): deur, tabs naar hun woo
   assert.match(CSS, /\.kop-door \.kd-logo \{ display: block; width: 28px; height: 28px; border-radius: 7px; \}/, "even groot als het Jaardle-icoontje op Duels");
   assert.match(CSS, /\.kop-door\.has-new::after \{/, "het stipje op de deur");
   // 23/11: geen tabs met woorden meer (die liepen op 360 px in DE/ES naar twee regels), maar de schakelaar 📅|🎲 en het logo
-  assert.match(CSS, /\.mode-seg \{ flex: none;[^}]*border-radius: 999px; box-shadow: inset 0 0 0 1\.5px var\(--accent\); \}/, "één omlijnde pil (rand als binnenschaduw: geen naadje met de vulling)");
-  assert.match(CSS, /\.tab \{\n  flex: none;\n  width: 38px;/, "twee helften van 38 px");
+  assert.match(CSS, /\.mode-seg \{ flex: none;[^}]*border-radius: 999px; background: var\(--seg-track\); \}/, "één pil in het grijs van de kop, zonder gekleurde rand (23/11, zijn \"het past gewoon niet\")");
+  assert.ok(!/\.mode-seg \{[^}]*var\(--accent\)/.test(CSS), "geen blauw meer in de schakelaar");
+  assert.match(CSS, /\.tab \{\n  position: relative;\n  flex: none;\n  width: 36px;/, "twee vakken van 36 px (+ 2 × 2 px rand = 76, zoals eerst)");
   assert.match(CSS, /\.mode-seg \{ flex: none; align-self: center; display: flex; height: 1\.95rem;/, "even hoog als het poppetje (31 px)");
   assert.match(CSS, /\.jl-badge \{ display: block; width: 108px; max-width: 100%; height: auto; \}/, "het logo ook 31 px hoog");
   assert.match(CSS, /\.tab \.ms-dice \{ font-size: 1\.4em; \}/, "🎲 even groot als het kalendertje");
-  assert.match(CSS, /margin-left: auto; padding: 0;   \/\* de gevulde helft ligt tegen de rand/, "geen ruimte tussen de rand en de gevulde helft");
-  assert.match(CSS, /\.tab\[data-mode="daily"\] \{ border-radius: 999px 0 0 999px; \}\n\.tab\[data-mode="free"\] \{ border-radius: 0 999px 999px 0; \}/, "gevuld tot het midden, daar recht");
+  assert.match(CSS, /\.mode-seg::before \{ content: ""; position: absolute; top: 2px; bottom: 2px; left: 2px; width: 36px; border-radius: 999px;/, "een schuifje 2 px binnen de bak");
+  assert.ok(!/\.tab\[data-mode="daily"\] \{ border-radius/.test(CSS), "geen helften met een rechte middenlijn meer: het schuifje is rond");
   assert.match(CSS, /@media \(max-width: 480px\) \{\n  #menu-btn \.menu-label \{ display: none; \}\n\}/, "telefoon zonder account: alleen het poppetje");
   assert.ok(!/menu-label-short/.test(CSS + GAME), "geen kort label meer");
   assert.match(CSS, /html\[data-kop\] #mode-tabs \{ view-transition-name: kop; \}/, "de kop blijft staan tijdens het wisselen");
@@ -1582,7 +1583,12 @@ test("de kop van Jaardle (23/11): JAARDLE-logo in het midden zoals DUELS en TIME
   assert.match(TPL, /<nav id="mode-tabs">/, "de tablist is de schakelaar, niet de hele kop");
   assert.match(TPL, /<div id="mode-seg" class="mode-seg" role="tablist">\n\s+<button class="tab" data-mode="daily" role="tab" aria-selected="true" aria-label="\{\{i18n:tab_daily\}\}" data-i18n-aria="tab_daily" title="\{\{i18n:tab_daily\}\} \(D\)" data-i18n-title="tab_daily" data-title-key="D"><span class="tab-icon tab-cal" id="tab-cal" aria-hidden="true"><\/span><\/button>\n\s+<button class="tab" data-mode="free" role="tab" aria-selected="false" aria-label="\{\{i18n:tab_free\}\}" data-i18n-aria="tab_free" title="\{\{i18n:tab_free\}\} \(N\)" data-i18n-title="tab_free" data-title-key="N"><span class="tab-icon ms-dice" aria-hidden="true">🎲<\/span><\/button>/);
   assert.match(GAME, /document\.querySelectorAll\("\[data-i18n-title\]"\)\.forEach\(\(el\) => \{\n\s+const v = t\(el\.dataset\.i18nTitle\); if \(v != null\) el\.title = el\.dataset\.titleKey \? `\$\{v\} \(\$\{el\.dataset\.titleKey\}\)` : v;/, "de tooltip gaat mee met de taal");
-  assert.match(CSS, /\.tab\[aria-selected="true"\] \{\n  background: var\(--accent\);/, "de actieve helft gevuld");
+  assert.match(CSS, /\.mode-seg:has\(\.tab\[data-mode="free"\]\[aria-selected="true"\]\)::before \{ transform: translateX\(36px\); \}/, "het schuifje glijdt naar 🎲");
+  assert.match(CSS, /\.tab:not\(\[aria-selected="true"\]\) \.tab-icon \{ filter: grayscale\(1\); opacity: 0\.45; \}/, "het andere icoon dooft");
+  assert.match(CSS, /@supports not selector\(:has\(\*\)\) \{[^]*?\.tab\[aria-selected="true"\] \{ background: var\(--seg-thumb\);/, "zonder :has draagt het actieve vak het schuifje");
+  assert.match(CSS, /\.jl-badge rect \{ fill: var\(--jl-green\); \}/, "het logo: in donker een tint dieper (23/11, \"te fel\")");
+  assert.match(CSS, /:root \{[^}]*--jl-green: #388e3c;/, "donker: #388e3c");
+  assert.match(CSS, /html\[data-theme="light"\] \{[^}]*--jl-green: #4caf50;/, "licht: het gewone groen");
   // echt in het midden als er ruimte is (zoals centerLogo in duel.js), en een tik = naar de daily
   assert.match(GAME, /function centerJlLogo\(\) \{[^]*?const dx = hi < lo \? 0 : Math\.round\(Math\.min\(hi, Math\.max\(lo, n\.left \+ \(n\.width - r\.width\) \/ 2\)\) - left0\);/);
   assert.match(GAME, /const ro = new ResizeObserver\(\(\) => centerJlLogo\(\)\);[^]*?await whenSbReady\(\);/, "meten vóór het wachten op Supabase");
