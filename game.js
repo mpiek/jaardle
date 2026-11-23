@@ -180,7 +180,7 @@ const I18N = {
     reveal: "Onthul",
     main_label: "Dit jaar", extra_label: "Ook dit jaar", fun_label: "Gek maar waar", tag_wow: "Niet te geloven", tag_mys: "Onopgelost", tag_rec: "Record of primeur", tag_warm: "Hartverwarmend", tag_spook: "Griezelig",
     century_label: "Tijdvak",
-    digit_label: "Laatste cijfer",
+    digit_label: "Laatste cijfer", digit_free: "🍀 Cadeau voor je laatste gok",
     score_label: "punten",
     diff_easy: "Moeilijkheid: makkelijk", diff_med: "Moeilijkheid: gemiddeld", diff_hard: "Moeilijkheid: pittig",
     later_label: (y) => `${y} jaar later`,
@@ -535,7 +535,7 @@ const I18N = {
     reveal: "Reveal",
     main_label: "This year", extra_label: "Also this year", fun_label: "Weird but true", tag_wow: "Unbelievable but true", tag_mys: "Unsolved", tag_rec: "Record or first", tag_warm: "Heartwarming", tag_spook: "Spooky",
     century_label: "Era",
-    digit_label: "Last digit",
+    digit_label: "Last digit", digit_free: "🍀 A gift for your last guess",
     score_label: "points",
     diff_easy: "Difficulty: easy", diff_med: "Difficulty: medium", diff_hard: "Difficulty: tough",
     later_label: (y) => `${y} years later`,
@@ -893,7 +893,7 @@ const I18N = {
     reveal: "Aufdecken",
     main_label: "Dieses Jahr", extra_label: "Auch dieses Jahr", fun_label: "Kurios, aber wahr", tag_wow: "Kaum zu glauben", tag_mys: "Ungelöst", tag_rec: "Rekord oder Premiere", tag_warm: "Herzerwärmend", tag_spook: "Gruselig",
     century_label: "Epoche",
-    digit_label: "Letzte Ziffer",
+    digit_label: "Letzte Ziffer", digit_free: "🍀 Geschenkt für deinen letzten Versuch",
     score_label: "Punkte",
     diff_easy: "Schwierigkeit: leicht", diff_med: "Schwierigkeit: mittel", diff_hard: "Schwierigkeit: knifflig",
     later_label: (y) => `${y} Jahre später`,
@@ -1245,7 +1245,7 @@ const I18N = {
     reveal: "Revelar",
     main_label: "Este año", extra_label: "También este año", fun_label: "Raro, pero cierto", tag_wow: "Increíble pero cierto", tag_mys: "Sin resolver", tag_rec: "Récord o primicia", tag_warm: "Conmovedor", tag_spook: "Escalofriante",
     century_label: "Época",
-    digit_label: "Última cifra",
+    digit_label: "Última cifra", digit_free: "🍀 Regalo para tu último intento",
     score_label: "Puntos",
     diff_easy: "Dificultad: fácil", diff_med: "Dificultad: media", diff_hard: "Dificultad: difícil",
     later_label: (y) => `${y} años después`,
@@ -1602,7 +1602,7 @@ const I18N = {
     reveal: "Revelar",
     main_label: "Este ano", extra_label: "Também neste ano", fun_label: "Estranho, mas verdade", tag_wow: "Inacreditável, mas verdade", tag_mys: "Sem solução", tag_rec: "Recorde ou pioneirismo", tag_warm: "Comovente", tag_spook: "Arrepiante",
     century_label: "Era",
-    digit_label: "Último algarismo",
+    digit_label: "Último algarismo", digit_free: "🍀 Presente para o seu último palpite",
     score_label: "Pontos",
     diff_easy: "Dificuldade: fácil", diff_med: "Dificuldade: média", diff_hard: "Dificuldade: difícil",
     later_label: (y) => `${y} anos depois`,
@@ -2804,7 +2804,7 @@ function factSlides() {
     slides.push({ kind: "century", text: centuryBand(state.event.year), sub: eraName(state.event.year) });
   }
   if (state.lastDigitRevealed) {
-    slides.push({ kind: "digit", text: String(Math.abs(state.event.year) % 10) });
+    slides.push({ kind: "digit", text: String(Math.abs(state.event.year) % 10), sub: state.lastDigitFree ? t("digit_free") : null });
   }
   return slides;
 }
@@ -2939,6 +2939,12 @@ function renderEvent() {
       slide.classList.add("slide-digit");
       slide.appendChild(buildSlideTag("digit-tag", "digit-icon", "🔢", t("digit_label")));
       slide.appendChild(hintValue(s.text));
+      if (s.sub) {   // 🧪 A/B "Laatste kans": cadeau vóór de laatste gok
+        const sub = document.createElement("div");
+        sub.className = "hint-sub";
+        sub.textContent = s.sub;
+        slide.appendChild(sub);
+      }
     } else {
       // Hoofdfeit: 💡 + "Dit jaar"-kopje, zelfde gele stijl als de zelfde-tijd-extra.
       slide.classList.add("slide-main");
@@ -3338,6 +3344,45 @@ function maybeShowHintNudge() {
   setTimeout(() => el.remove(), 8000);   // dooft vanzelf uit
 }
 
+// --- 🧪 A/B "Laatste kans" (23/11/2026) ---------------------------------------
+// Zijn vraag na de verliescijfers: "gebruikten die verliezers überhaupt hints?" Nauwelijks: 79% van de daily-verliezers
+// kocht niets. Van de 345 verliezen in 6 weken stonden er 135 vóór hun laatste gok al op 🟪 1–2 jaar (69% wint daar nu,
+// 3% kocht 🔢) en 75 op 🟦 3–5 (38%, 11% 🔢). Met het laatste cijfer is het antwoord dan (bijna) eenduidig.
+// Test: anonieme spelers in groep B krijgen vóór hun laatste gok het laatste cijfer cadeau als er een 🟪 of 🟦 op het
+// bord staat; groep A speelt zoals altijd. Alleen anoniem (geen rating, team of podium: niemand komt oneerlijk naast een
+// ander te staan) en alleen in de app (record_play klemt de score alleen op 0–100). Telt wel als hint (geen "pure" winst).
+// Groep = het laatste hex-teken van het speler-id (jaardle:cid), oneven = B. In SQL hetzelfde:
+//   ('x' || right(replace(client_id::text, '-', ''), 1))::bit(4)::int % 2 = 1
+// Meten: jaardle-tools/tools/ab_lastdigit.py (winst en terugkomen per groep, uit plays) + GoatCounter lastdigit-ab-a/-b
+// (het beslismoment per groep). Alleen op de daily's van .from t/m .to; daarna speelt iedereen weer zoals groep A.
+const AB_LASTDIGIT = { from: "2026-11-24", to: "2026-12-21" };
+function abLastDigitArm() {
+  const id = clientId();
+  const c = id ? String(id).replace(/-/g, "").slice(-1) : "";
+  return /^[0-9a-f]$/i.test(c) ? (parseInt(c, 16) % 2 ? "b" : "a") : null;
+}
+function lastDigitAbEligible(st = state) {
+  const gs = (st && st.guesses) || [];
+  return !!st && st.mode === "daily" && !st.duel && !st.shared && !auth.user && !isMakeup(st)
+    && !!st.puzzleDate && st.puzzleDate >= AB_LASTDIGIT.from && st.puzzleDate <= AB_LASTDIGIT.to
+    && !st.done && !st.lastDigitRevealed && gs.length === MAX_GUESSES - 1
+    && gs.some((g) => g.cls === "veryclose" || g.cls === "near");
+}
+function maybeFreeLastDigit() {
+  if (!lastDigitAbEligible()) return false;
+  const arm = abLastDigitArm();
+  if (!arm) return false;
+  gcCountDaily(`lastdigit-ab-${arm}`, `A/B last digit: group ${arm.toUpperCase()}`);
+  if (arm !== "b") return false;
+  state.lastDigitRevealed = true;
+  state.lastDigitFree = true;   // liveScore trekt er niets voor af; de 🔢-slide zegt waarom
+  renderEvent();
+  renderHintStatus();
+  goToHintSlide("digit");
+  save();
+  return true;
+}
+
 // Puls op de 🔢-knop zodra het eindspel begint. Een STAAT, geen eenmalige animatie:
 // hij loopt door vanaf gok 4 en dooft vanzelf zodra 🔢 gekocht is, het potje klaar
 // is of er een 🟪 op het bord staat. Bewust doorlopend (2026-09-22): één cyclus van
@@ -3427,7 +3472,7 @@ function liveScore() {
   s -= state.directionsRevealed.length * DIRECTION_HINT_PENALTY;
   s -= state.laterCluesShown * LATER_CLUE_PENALTY;
   if (state.centuryRevealed) s -= CENTURY_HINT_PENALTY;
-  if (state.lastDigitRevealed) s -= LAST_DIGIT_PENALTY;
+  if (state.lastDigitRevealed && !state.lastDigitFree) s -= LAST_DIGIT_PENALTY;   // 🧪 cadeau in groep B: gratis
   return Math.max(0, s);
 }
 
@@ -12936,6 +12981,7 @@ async function reconcileDailyProgressRun() {
   state.directionsRevealed = board.directionsRevealed;
   state.centuryRevealed = board.centuryRevealed;
   state.lastDigitRevealed = board.lastDigitRevealed;
+  state.lastDigitFree = !!board.lastDigitFree;
   if (board.done) {
     setKeypadDisabled(true);
     renderEvent();
@@ -14949,7 +14995,8 @@ function submitGuess() {
   } else if (state.guesses.length >= MAX_GUESSES || state.duel?.ko) {   // ⚡ Knock-out (db/210): één gok per ronde, zoals GeoGuessr
     finishGame(false, true);
   } else {
-    maybeShowHintNudge();   // gok 5, ver mis, hintloos → eenmalig duwtje
+    maybeFreeLastDigit();   // 🧪 A/B: gok 5, 🟪/🟦 op het bord, anoniem in groep B → 🔢 cadeau
+    maybeShowHintNudge();   // gok 5, ver mis, hintloos → eenmalig duwtje (na een cadeau doet hij niets: 🔢 staat al open)
     syncDailyProgress();    // halve dagpot naar de DB (ander apparaat kan 'm oppakken)
   }
 }
@@ -15058,6 +15105,7 @@ function save() {
       directionsRevealed: state.directionsRevealed,
       centuryRevealed: state.centuryRevealed,
       lastDigitRevealed: state.lastDigitRevealed,
+      lastDigitFree: !!state.lastDigitFree,   // 🧪 A/B "Laatste kans"
       laterClues: state.laterClues,
       laterPick: state.laterPick,
     };
@@ -15313,6 +15361,7 @@ async function startGame(mode, forceNew = false, sharedHashes = null, targetDate
     directionsRevealed: Array.isArray(b?.directionsRevealed) ? b.directionsRevealed : [],
     centuryRevealed: !!b?.centuryRevealed,
     lastDigitRevealed: !!b?.lastDigitRevealed,
+    lastDigitFree: !!b?.lastDigitFree,       // 🧪 A/B "Laatste kans": het cadeau-cijfer kost niets
     laterClues: b?.laterClues || null,
     laterPick: Array.isArray(b?.laterPick) ? b.laterPick : null,
   };

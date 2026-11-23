@@ -50,7 +50,7 @@ src += `
   BAND_OUTER, scoreRankPct, scoreFineBin, buildHistogram, histBinOfFroms, faceHue, FACE_HUES, histFaceHtml,
   BAND_INNER, guessRanges, guessImpossibleAt, outOfBand, BAND_SLACK, strictGuardOn, remainingRanges, intersectRanges, strictGuardPref, setStrictGuard, STRICT_GUARD_KEY,
   BLUE_DAILY_FROM, blueOnDay, bandLabel, RANGE_LABELS, GUESS_PENALTIES, LOSS_SCORES, LB_BLOCK_CLS,
-  rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, duelSfxOn, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES,
+  rangeLabel, rowRangeText, prefOn, laterAskLabel, PREFS_KEY, explicitWinFx, SYNCED_PREFS, duelSfxOn, WINFX_RE, MIN_YEAR, MAX_YEAR, digitGlowOn, MAX_GUESSES, abLastDigitArm, lastDigitAbEligible, AB_LASTDIGIT,
   easterSunday, holidayFxFor, historicFxFor, HOLIDAY_FX_IDS, HISTORIC_FX, loadHolidayFx, FX_ALIASES, fxResolve,
   EVENT_FX, EVENT_FX_IDS, eventFxFor, fxKnown, loadEventFx, winCelebrationFx, answerCelebrationFx, STROOIGOED_FX_IDS, loadStrooigoedFx, loadFxOf,
   raceWindow, racePos, RACE_MIN_SPREAD, RACE_LEAD_POS, RACE_LAST_POS,
@@ -1318,6 +1318,48 @@ test("🟦 reconstructDailyBoard — een dagbord krijgt de banden van zijn eigen
     assert.equal(nieuw.guesses[1].cls, "near");
     assert.equal(nieuw.blue, true);
   } finally { T.auth.user = wasUser; }
+});
+
+test("🧪 A/B Laatste kans — alleen anoniem, daily, gok 5 met 🟪/🟦, binnen het testvenster", () => {
+  const today = T.todayKey(), win = { ...T.AB_LASTDIGIT };
+  T.AB_LASTDIGIT.from = today; T.AB_LASTDIGIT.to = today;   // het venster op vandaag (een inhaaldag telt niet mee)
+  const g = (cls, diff = 9) => ({ cls, diff, year: 1900 });
+  const vier = [g("far", 300), g("cool", 40), g("warm", 15), g("close", 7)];
+  const base = { mode: "daily", puzzleDate: today, done: false, lastDigitRevealed: false, guesses: [...vier, g("veryclose", 1)] };
+  const wasUser = T.auth.user;
+  try {
+    T.auth.user = null;
+    assert.equal(T.lastDigitAbEligible(base), true);                                          // 🟪 op het bord
+    assert.equal(T.lastDigitAbEligible({ ...base, guesses: [...vier, g("near", 4)] }), true); // 🟦 telt ook
+    assert.equal(T.lastDigitAbEligible({ ...base, guesses: [...vier, g("close", 7)] }), false); // 6–10: niet
+    assert.equal(T.lastDigitAbEligible({ ...base, guesses: [g("veryclose", 1), ...vier.slice(1)] }), false);   // pas na gok 5
+    assert.equal(T.lastDigitAbEligible({ ...base, lastDigitRevealed: true }), false);          // al gekocht
+    assert.equal(T.lastDigitAbEligible({ ...base, done: true }), false);
+    assert.equal(T.lastDigitAbEligible({ ...base, mode: "free" }), false);                     // alleen de daily
+    assert.equal(T.lastDigitAbEligible({ ...base, duel: { code: "x" } }), false);              // geen duelronde
+    assert.equal(T.lastDigitAbEligible({ ...base, puzzleDate: "2026-01-01" }), false);         // buiten het venster / inhaaldag
+    T.auth.user = { uid: "u1" };
+    assert.equal(T.lastDigitAbEligible(base), false);                                          // nooit met een account (rating, team)
+  } finally { T.auth.user = wasUser; Object.assign(T.AB_LASTDIGIT, win); }
+  // het echte venster begint pas met de daily van morgen: vandaag (de push) verandert er niets
+  assert.ok(T.AB_LASTDIGIT.from > "2026-11-23" && T.AB_LASTDIGIT.to > T.AB_LASTDIGIT.from);
+});
+
+test("🧪 A/B Laatste kans — groep uit het laatste hex-teken van het speler-id (zoals de SQL in ab_lastdigit.py), cadeau kost niets", () => {
+  const was = localStorage.getItem("jaardle:cid");
+  try {
+    localStorage.setItem("jaardle:cid", "3f2b8c1e-0d4a-4b6e-9a7c-5e1f2d3c4b5f");   // f = 15, oneven → B
+    assert.equal(T.abLastDigitArm(), "b");
+    localStorage.setItem("jaardle:cid", "3f2b8c1e-0d4a-4b6e-9a7c-5e1f2d3c4b5a");   // a = 10, even → A
+    assert.equal(T.abLastDigitArm(), "a");
+    localStorage.setItem("jaardle:cid", "3f2b8c1e-0d4a-4b6e-9a7c-5e1f2d3c4b53");   // 3, oneven → B
+    assert.equal(T.abLastDigitArm(), "b");
+  } finally { if (was == null) localStorage.removeItem("jaardle:cid"); else localStorage.setItem("jaardle:cid", was); }
+  const won = { won: true, guesses: [{ cls: "veryclose" }, { cls: "correct" }], directionsRevealed: [], laterCluesShown: 0, lastDigitRevealed: true };
+  T.setState({ ...won });
+  const paid = T.computeScore();
+  T.setState({ ...won, lastDigitFree: true });
+  assert.equal(T.computeScore(), paid + 10);   // het cadeau-cijfer kost geen 10
 });
 
 test("digitGlowOn — puls vanaf gok 4, uit bij 🟪, gekochte 🔢 of einde", () => {
