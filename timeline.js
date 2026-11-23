@@ -157,6 +157,10 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-tablewrap { position: relative; margin: 0.35rem -1rem 0; }
 .tl-ends { display: flex; justify-content: space-between; padding: 0 1rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .tl-row { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; padding: 2.1rem 0 0.7rem; }   /* boven de kaarten: ruimte voor de zwevende melding */
+/* met een muis sleep je de tafel zelf heen en weer (een vinger scrolt hem al vanzelf) */
+@media (hover: hover) and (pointer: fine) { .tl-row { cursor: grab; } }
+.tl-row.tl-pan { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.tl-row.tl-pan .tl-slot { pointer-events: none; }
 .tl-strip { position: relative; display: flex; align-items: center; width: max-content; padding: 0 1rem; }
 .tl-strip::before { content: ""; position: absolute; left: 1rem; right: 1rem; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 2px; background: var(--tl-era); opacity: 0.55; }
 .tl-c { position: relative; z-index: 1; flex: none; display: flex; flex-direction: column; gap: 0.35rem; width: 7.6rem; height: var(--tl-ch); padding: 0.6rem 0.65rem 0.65rem;
@@ -481,6 +485,33 @@ body[data-tlhome] #mode-tabs { display: flex; }
     });
     root.addEventListener("pointerup", endDrag);
     root.addEventListener("pointercancel", endDrag);
+    // muis: de tafel slepen om je kaarten terug te zien, ook na afloop. Een vinger scrolt hem al; een sleep is nooit een tik op een gat.
+    let pan = null, panClick = false;
+    root.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse" || e.button !== 0 || drag) return;
+      const row = e.target.closest(".tl-row");
+      if (row && row.scrollWidth > row.clientWidth) pan = { row, id: e.pointerId, x0: e.clientX, l0: row.scrollLeft, on: false };
+    });
+    root.addEventListener("pointermove", (e) => {
+      if (!pan || e.pointerId !== pan.id) return;
+      const dx = e.clientX - pan.x0;
+      if (!pan.on) {
+        if (Math.abs(dx) < 5) return;
+        pan.on = true;
+        pan.row.classList.add("tl-pan");
+        try { pan.row.setPointerCapture(e.pointerId); } catch (err) {}
+        try { getSelection().removeAllRanges(); } catch (err) {}
+      }
+      pan.row.scrollLeft = pan.l0 - dx;
+    });
+    const endPan = (e) => {
+      if (!pan || e.pointerId !== pan.id) return;
+      if (pan.on) { pan.row.classList.remove("tl-pan"); panClick = true; setTimeout(() => { panClick = false; }, 0); }
+      pan = null;
+    };
+    root.addEventListener("pointerup", endPan);
+    root.addEventListener("pointercancel", endPan);
+    root.addEventListener("click", (e) => { if (panClick) { panClick = false; e.stopPropagation(); e.preventDefault(); } }, true);
     root.addEventListener("click", async (e) => {
       const s = e.target.closest(".tl-slot");
       if (s) { place(+s.dataset.i); return; }
