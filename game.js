@@ -5159,7 +5159,12 @@ function appPageOpened(id) {
   window.scrollTo(0, 0);
 }
 function tlHost() {
-  return { lang, href: langHref, openModal, closeModal, gc: gcCount, isMobile: isMobileDevice };
+  return { lang, href: langHref, openModal, closeModal, gc: gcCount, isMobile: isMobileDevice,
+    // db/233 Timeline met je team (23/11): je run en het bord via de gewone rpc (met je sessie); het team = je actieve pool, met dezelfde
+    // kiezer als het teambord van de daily (setActivePool, dus ook daar gewisseld); de naamcel (titel, naam, flair, jij) van het 🏆-bord
+    rpc: (fn, args) => whenSbReady().then(() => rpc(fn, args)), clientId, user: () => auth.user,
+    pool: async () => { if (!auth.user) return null; if (!myPoolsOk) await fetchMyPools(); return myPool; },
+    poolPickerHtml, wirePoolPicker, nameCell: (row, rank) => lbNameCell(row, rank) };
 }
 function openTimeline(src) {   // de deur op de Duels-pagina (meetpunt timeline-door) of het adres /timeline/
   if (src === "door") gcCount("timeline-door", "Timeline: opened via the door on Duels");

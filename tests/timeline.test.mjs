@@ -53,6 +53,19 @@ test("alle vijf talen hebben dezelfde teksten, en elke functie geeft tekst", () 
   }
 });
 
+test("de reeks in treden (3 · 5 · 10 · 15 · 20 · 30) en na 30 elke 5 belletjes, steeds meer (23/11)", () => {
+  const { tierOf, isStep, bubOf, bubN } = core();
+  assert.deepEqual([0, 2, 3, 4, 5, 9, 10, 14, 15, 19, 20, 29, 30, 53].map(tierOf), [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]);
+  for (const n of [3, 5, 10, 15, 20, 30, 35, 40, 45, 50, 55]) assert.equal(isStep(n), true, `${n} is een mijlpaal`);
+  for (const n of [1, 2, 4, 11, 29, 31, 34, 36, 52]) assert.equal(isStep(n), false, `${n} geen mijlpaal`);
+  assert.equal(bubOf(30), null);
+  assert.deepEqual([35, 40, 45, 50, 55].map((n) => bubOf(n)[0]), ["🤯", "🚀", "🌟", "🐐", "🤯"]);
+  assert.deepEqual([35, 40, 45, 50, 55, 60, 80].map(bubN), [9, 12, 15, 18, 21, 24, 24]);
+  // de emoji van de belletjes moeten in ons emoji-font zitten (jaardle-emoji.woff2: 🤯🔥✨🚀☄️⚡🌟💎🐐🏆🎉)
+  const ok = new Set(["🤯", "🔥", "✨", "🚀", "☄️", "⚡", "🌟", "💎", "🐐", "🏆", "🎉"]);
+  for (const n of [35, 40, 45, 50]) for (const e of bubOf(n)) assert.ok(ok.has(e), `${e} niet nagekeken in het emoji-font`);
+});
+
 test("de deeltekst: score, blokjes in speelvolgorde en het adres", () => {
   const { T, shareText, endBand } = core();
   const s = shareText(T.nl, 11, [true, true, false, true], true);

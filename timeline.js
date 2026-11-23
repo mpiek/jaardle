@@ -4,12 +4,15 @@
 // de Duels-pagina) en roept open(host) aan. Dit zet het scherm (#modal-tl, een .modal in <main>) en het logo + 🔈 in de kop (#mode-tabs);
 // profiel, 🌐 en de deur zijn van game.js. Nog alpha: noindex (build-html.mjs).
 // Mockups: https://claude.ai/artifact/8deX6CCXoyNo5RLdM6ymz1 (het spel, v5), https://claude.ai/artifact/4f3dCFfBmN2X4iQ9cRguoo (de kop).
-// Server: db/226 get_timeline_deck(lang), alleen lezen.
+// Server: db/226 get_timeline_deck(lang); sinds db/233 (23/11) get_timeline_deck2 (met id), record_timeline_run (de server telt je run
+// na uit de volgorde waarin je legde en geeft meteen het bord: je team deze week, of jij en de bots) en get_timeline_board (ander team).
+// Mockup van 23/11 (treden, momenten, teambord): https://claude.ai/artifact/Y9tR8rKK9Umx3RDQq8z9vw
 // Hoe het werkt: leg elke nieuwe kaart in het goede gat van je tijdlijn, door te slepen of op een + te tikken. De kaart draait dan om
 // en laat het jaar zien. Fout kost een ❤️, na drie fouten is het klaar.
-// Bewaard: alleen het record en de geluidsstand, per toestel (localStorage). Geen plays, geen rating, geen trofeeën.
+// Bewaard: het record en de geluidsstand per toestel (localStorage), en sinds db/233 elke run op de server (timeline_runs: je beste van
+// de week voor het bord, je beste ooit voor het record, ook op een ander toestel). Geen plays, geen rating, geen trofeeën.
 // Meetpunten (GoatCounter, site jaardle-events, zoals gcCount in game.js): timeline-start, timeline-end-<band>, timeline-share,
-// timeline-deck-op.
+// timeline-deck-op, timeline-board-team / timeline-board-bots (het bord op het eindscherm).
 (() => {
   "use strict";
   const SB = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -70,6 +73,30 @@
   };
 
   // Past kaart c in gat i van de lijn? Hetzelfde jaar telt aan beide kanten als goed.
+  // Het bord op het eindscherm (db/233). Zo min mogelijk tekst (zijn "liever geen tekst, meer emoji's, scheelt vertalingen").
+  const T2 = {
+    nl: { you: "jij", bot: "bot", vsBots: "Jij en de bots", botsCap: "In een team speel je tegen vrienden in plaats van bots.",
+      wk: (d, h) => `deze week · nog ${d >= 1 ? d + " d" : h + " u"}` },
+    en: { you: "you", bot: "bot", vsBots: "You and the bots", botsCap: "In a team you play against friends instead of bots.",
+      wk: (d, h) => `this week · ${d >= 1 ? d + "d" : h + "h"} left` },
+    de: { you: "du", bot: "Bot", vsBots: "Du und die Bots", botsCap: "In einem Team spielst du gegen Freunde statt gegen Bots.",
+      wk: (d, h) => `diese Woche · noch ${d >= 1 ? d + " T" : h + " Std."}` },
+    es: { you: "tú", bot: "bot", vsBots: "Tú y los bots", botsCap: "En un equipo juegas contra amigos en lugar de bots.",
+      wk: (d, h) => `esta semana · quedan ${d >= 1 ? d + " d" : h + " h"}` },
+    pt: { you: "você", bot: "bot", vsBots: "Você e os bots", botsCap: "Em uma equipe você joga contra amigos em vez de bots.",
+      wk: (d, h) => `esta semana · faltam ${d >= 1 ? d + " d" : h + " h"}` },
+  };
+  for (const c in T2) Object.assign(T[c], T2[c]);
+
+  // De reeks in treden (23/11): dezelfde zes als de streak-vlam van de daily (brons · zilver · goud · platina · diamant · obsidiaan), op
+  // 3 · 5 · 10 · 15 · 20 · 30 op rij. Het getal goed kleurt naar zijn eigen trede. Na 30 blijft het obsidiaan; elke 5 stijgen er emoji op
+  // als belletjes, 3 meer per keer (9, 12 … tot 24), de sets om de beurt (zijn "elke 5 na 30"). Alleen tekens uit ons emoji-font.
+  const TIERS = [3, 5, 10, 15, 20, 30];
+  const tierOf = (n) => TIERS.filter((m) => n >= m).length;   // 0 … 6
+  const BUB_SETS = [["🤯", "🔥", "✨"], ["🚀", "☄️", "🔥", "✨"], ["🌟", "💎", "⚡", "✨"], ["🐐", "🏆", "🎉", "🔥", "✨"]];
+  const bubOf = (n) => (n > 30 && n % 5 === 0 ? BUB_SETS[((n - 35) / 5) % BUB_SETS.length] : null);
+  const bubN = (n) => Math.min(24, 9 + (3 * (n - 35)) / 5);
+  const isStep = (n) => TIERS.includes(n) || !!bubOf(n);
   const fits = (line, i, c) => (i === 0 || line[i - 1].y <= c.y) && (i === line.length || c.y <= line[i].y);
   const rightIdx = (line, c) => line.filter((x) => x.y <= c.y).length;
   const shareText = (L, n, marks, isRec) => `${L.shareHead(n, isRec)}\n📊 ${marks.map((m) => (m ? "🟩" : "🟥")).join("")}\njaardle.com/timeline`;
@@ -117,9 +144,11 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-heart img { position: absolute; inset: -0.15rem; width: 2.45rem; height: 2.45rem; }
 .tl-heart.breaking > span { opacity: 0; }
 .tl-stand { display: flex; align-items: center; gap: 0.6rem; }
-.tl-streak { display: inline-flex; align-items: center; gap: 0.15rem; height: 1.9rem; padding: 0 0.55rem 0 0.35rem; border-radius: 999px; font-weight: 800;
-  font-size: 0.95rem; color: var(--flame); background: color-mix(in srgb, var(--flame) 15%, transparent); font-variant-numeric: tabular-nums; }
-.tl-streak img, .tl-streak .tl-fl { width: 1.35rem; height: 1.35rem; font-size: 1.1rem; line-height: 1.35rem; text-align: center; }
+.tl-streak { --st: var(--flame); display: inline-flex; align-items: center; gap: 0.15rem; height: 1.9rem; padding: 0 0.55rem 0 0.35rem; border-radius: 999px;
+  font-weight: 800; font-size: 0.95rem; color: var(--st); background: color-mix(in srgb, var(--st) 15%, transparent); font-variant-numeric: tabular-nums; }
+.tl-streak > img, .tl-streak .tl-fl { width: 1.35rem; height: 1.35rem; font-size: 1.1rem; line-height: 1.35rem; text-align: center; }
+.tl-streak .flm { font-size: 0.95rem; }
+.tl-streak .flm > img { width: 1.35rem; height: 1.35rem; }
 .tl-score { display: flex; align-items: baseline; gap: 0.3rem; font-variant-numeric: tabular-nums; }
 .tl-score b { font-size: 1.75rem; font-weight: 800; line-height: 1; }
 .tl-score span { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
@@ -206,22 +235,132 @@ body[data-tlhome] #mode-tabs { display: flex; }
 @keyframes tl-float { 0% { opacity: 0; transform: translate(-50%, 0.6rem) scale(0.85); } 18% { opacity: 1; transform: translate(-50%, 0) scale(1.08); }
   70% { opacity: 1; transform: translate(-50%, -0.35rem) scale(1); } 100% { opacity: 0; transform: translate(-50%, -0.9rem); } }
 /* klaar: de uitslag op de plek van je hand */
-.tl-end { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; margin: 0.1rem 0 0.4rem; padding: 1rem 1rem 1.1rem; text-align: center;
+.tl-end { display: flex; flex-direction: column; align-items: stretch; margin: 0.1rem 0 0.4rem; padding: 0.8rem 0.8rem 0.9rem; text-align: center;
   background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-pop); }
+.tl-end-top { display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+.tl-end-top > span:last-child { display: flex; flex-direction: column; align-items: flex-start; gap: 0.05rem; text-align: left; }
 .tl-end-n { font-size: 3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .tl-end-l { font-size: 0.95rem; color: var(--muted); }
-.tl-end-rec { margin-top: 0.35rem; font-weight: 800; color: var(--gold-text); }
+.tl-end-all { margin-bottom: 0.3rem; }
+.tl-end-rec { font-weight: 800; color: var(--gold-text); }
 .tl-end-rec.old { color: var(--muted); font-weight: 600; }
-.tl-end-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 0.75rem; }
+.tl-end-rec.wait { visibility: hidden; }
+.tl-end-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 0.7rem; }
 .tl-end-acts button { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; }
 .tl-end-acts svg { width: 1rem; height: 1rem; }
+
+/* ═══ 23/11: de reeks in treden, momenten die meegroeien, en je team deze week (mockup https://claude.ai/artifact/Y9tR8rKK9Umx3RDQq8z9vw) ═══
+   De treden = die van de streak-vlam van de daily (.flm s1–s6 in style.css): 3 brons · 5 zilver · 10 goud · 15 platina · 20 diamant ·
+   30 obsidiaan. --st = de kleur van de trede: pil, melding, gloed om de kaart, vonken, en ook het getal goed (dat kleurt naar zijn eigen
+   trede, zijn "dan is dat de benchmark van: oh die kleur is super goed"). */
+:is(.tl-streak, .tl-float, .tl-c, .tl-fxl, .tl-pulse, .tl-score b, .tl-end-n)[data-t="1"] { --st: var(--achv-bronze); }
+:is(.tl-streak, .tl-float, .tl-c, .tl-fxl, .tl-pulse, .tl-score b, .tl-end-n)[data-t="2"] { --st: var(--achv-silver); }
+:is(.tl-streak, .tl-float, .tl-c, .tl-fxl, .tl-pulse, .tl-score b, .tl-end-n)[data-t="3"] { --st: var(--achv-gold); }
+:is(.tl-streak, .tl-float, .tl-c, .tl-fxl, .tl-pulse, .tl-score b, .tl-end-n)[data-t="4"] { --st: var(--achv-plat); }
+:is(.tl-streak, .tl-float, .tl-c, .tl-fxl, .tl-pulse, .tl-score b, .tl-end-n)[data-t="5"] { --st: var(--achv-diamond); }
+:is(.tl-streak, .tl-float, .tl-c, .tl-fxl, .tl-pulse, .tl-score b, .tl-end-n)[data-t="6"] { --st: var(--achv-obsidian); }
+.tl-score b[data-t], .tl-end-n[data-t] { color: var(--st); }
+.tl-float.good:not([data-t="0"]) { color: var(--st); }   /* in een reeks (vanaf 3) ook de gewone +1 */
+.tl-float.hot { display: inline-flex; align-items: center; gap: 0.2rem; color: var(--st, var(--flame)); text-shadow: none;
+  filter: drop-shadow(0 0 2px var(--bg)) drop-shadow(0 0 4px var(--bg)); animation: tl-hot 1.7s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.tl-float.hot .flm { font-size: 0.8em; }   /* de vlam uit de balk naast de tekst, in de kleur van de trede */
+.tl-float.hot[data-t="1"] { font-size: 1.1rem; }
+.tl-float.hot[data-t="2"] { font-size: 1.15rem; }
+.tl-float.hot[data-t="3"] { font-size: 1.22rem; }
+.tl-float.hot[data-t="4"] { font-size: 1.28rem; }
+.tl-float.hot[data-t="5"] { font-size: 1.34rem; }
+.tl-float.hot[data-t="6"] { font-size: 1.4rem; filter: drop-shadow(0 0 2px var(--bg)) drop-shadow(0 0 7px color-mix(in srgb, var(--st) 70%, transparent)); }
+@keyframes tl-hot { 0% { opacity: 0; transform: translate(-50%, 0.8rem) scale(0.55); } 14% { opacity: 1; transform: translate(-50%, 0) scale(1.25); }
+  28%, 78% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -0.4rem) scale(1); } }
+/* vanaf zilver een lichtstreep over de letters (het vlammetje erbuiten, anders wordt hij doorzichtig); bij obsidiaan golven de letters */
+.tl-float.hot:is([data-t="2"], [data-t="3"], [data-t="4"], [data-t="5"]) b {
+  background: linear-gradient(100deg, var(--st) 0 36%, #fff 50%, var(--st) 64% 100%); background-size: 280% 100%; background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: tl-shine 0.9s ease-in-out 0.3s both; }
+@keyframes tl-shine { to { background-position: 0 0; } }
+.tl-float.hot[data-t="6"] b span { display: inline-block; white-space: pre; animation: tl-wave 0.7s ease-in-out calc(0.25s + var(--i) * 45ms) both; }
+@keyframes tl-wave { 0%, 100% { transform: none; } 40% { transform: translateY(-0.4em) scale(1.15); } 70% { transform: translateY(0.08em); } }
+.tl-c.tl-reveal.tl-good:not([data-t="0"])[data-t] { animation: tl-flip 0.5s cubic-bezier(0.3, 0.7, 0.3, 1) both, tl-glowt 1.4s ease-out 0.2s both; }
+@keyframes tl-glowt { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--st) 70%, transparent); }
+  35% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--st) 32%, transparent), 0 0 26px 4px color-mix(in srgb, var(--st) 40%, transparent); }
+  100% { box-shadow: 0 6px 14px -9px rgba(0, 0, 0, 0.55); } }
+/* de pil: een nieuwe trede schiet één keer op met een ring (vanaf diamant schokt hij), elke kaart ertussen flakkert de vlam; vanaf 30
+   een vaste violette gloed (geen puls) */
+.tl-streak.tl-lvl { animation: tl-lvl-ring 0.9s ease-out both; }
+.tl-streak.tl-lvl:is([data-t="5"], [data-t="6"]) { animation: tl-lvl-ring 0.9s ease-out both, tl-jolt 0.5s ease-in-out both; }
+.tl-streak.tl-lvl .flm > :first-child { animation: tl-lvl 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+.tl-streak.tl-tick .flm > :first-child { animation: tl-tick 0.4s ease-out both; }
+.tl-streak.tl-aura { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--st) 55%, transparent), 0 0 14px 1px color-mix(in srgb, var(--st) 40%, transparent); }
+@keyframes tl-lvl { 0% { transform: scale(1); } 28% { transform: scale(1.55); } 100% { transform: scale(1); } }
+@keyframes tl-lvl-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--st) 60%, transparent); } 100% { box-shadow: 0 0 0 0.7rem transparent; } }
+@keyframes tl-jolt { 15%, 55% { transform: translateX(-3px) rotate(-3deg); } 35%, 75% { transform: translateX(3px) rotate(3deg); } }
+@keyframes tl-tick { 40% { transform: scale(1.25); } }
+/* na een goede kaart tekent het spel na 650 ms opnieuw (de volgende kaart): --el = hoe lang het moment al loopt, zodat de animaties
+   doorlopen in plaats van opnieuw te beginnen of weg te vallen */
+.tl-c.tl-reveal, .tl-c.tl-reveal .tl-y, .tl-c .tl-v, .tl-float, .tl-streak.tl-lvl, .tl-streak.tl-lvl .flm > :first-child { animation-delay: calc(0s - var(--el, 0ms)); }
+.tl-c.tl-reveal.tl-good { animation-delay: calc(0s - var(--el, 0ms)), calc(0.2s - var(--el, 0ms)); }
+.tl-c.tl-reveal.tl-good:not([data-t="0"])[data-t] { animation-delay: calc(0s - var(--el, 0ms)), calc(0.2s - var(--el, 0ms)); }
+.tl-streak.tl-lvl:is([data-t="5"], [data-t="6"]) { animation-delay: calc(0s - var(--el, 0ms)), calc(0s - var(--el, 0ms)); }
+.tl-float.hot:is([data-t="2"], [data-t="3"], [data-t="4"], [data-t="5"]) b { animation-delay: calc(0.3s - var(--el, 0ms)); }
+.tl-float.hot[data-t="6"] b span { animation-delay: calc(0.25s + var(--i) * 45ms - var(--el, 0ms)); }
+.tl-float.hot, .tl-c.tl-reveal.tl-good .tl-y { animation-delay: calc(0s - var(--el, 0ms)); }
+.tl-pulse { animation-delay: calc(0.2s - var(--el, 0ms)); }
+/* de effectlaag: over het hele scherm (fixed), zodat de tafel (overflow-x) de vonken niet afknipt; weg na 1,8 s (met belletjes 3,6 s) */
+.tl-fxl { position: fixed; inset: 0; z-index: 60; overflow: hidden; pointer-events: none; }
+.tl-spk { position: absolute; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 14%, var(--st) 38%, color-mix(in srgb, var(--st) 0%, transparent) 72%);
+  box-shadow: 0 0 9px 2px color-mix(in srgb, var(--st) 55%, transparent); animation: tl-spk var(--du) cubic-bezier(0.15, 0.7, 0.3, 1) var(--dl) both; }
+.tl-spk.st { border-radius: 0; box-shadow: none; background: linear-gradient(#fff, var(--st));
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
+@keyframes tl-spk { 0% { opacity: 1; transform: translateY(0) rotate(var(--a)) translateX(0) scale(0.4); }
+  12% { transform: translateY(0) rotate(var(--a)) translateX(calc(var(--d) * 0.25)) scale(1.15); } 65% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(var(--g)) rotate(var(--a)) translateX(var(--d)) scale(0.3); } }
+.tl-ring { position: absolute; width: 9rem; height: 9rem; margin: -4.5rem 0 0 -4.5rem; border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--st), 0 0 18px 2px color-mix(in srgb, var(--st) 60%, transparent); animation: tl-ring 0.8s ease-out var(--dl, 0s) both; }
+@keyframes tl-ring { from { opacity: 0.95; transform: scale(0.25); } to { opacity: 0; transform: scale(1.35); } }
+/* obsidiaan (30): het scherm licht één tel op in de kleur van de trede, vanuit de kaart */
+.tl-vig { position: absolute; inset: 0; animation: tl-vig 1.5s ease-out both;
+  background: radial-gradient(circle at var(--x) var(--y), color-mix(in srgb, var(--st) 45%, transparent) 0, color-mix(in srgb, var(--st) 16%, transparent) 40%,
+    color-mix(in srgb, var(--st) 6%, transparent) 100%); }
+@keyframes tl-vig { 0% { opacity: 0; } 16% { opacity: 1; } 100% { opacity: 0; } }
+/* na 30, elke 5: emoji stijgen op als belletjes (buiten = omhoog, binnen = wiegen); geen tekst, dus niets te vertalen */
+.tl-bub { position: absolute; z-index: 2; margin-left: calc(var(--fs) / -2); font-size: var(--fs); line-height: 1;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--st) 55%, transparent)); animation: tl-bub-up var(--du) cubic-bezier(0.3, 0.6, 0.5, 1) var(--dl) both; }
+.tl-bub > i { display: block; font-style: normal; animation: tl-bub-sway var(--sw) ease-in-out var(--dl) infinite alternate; }
+@keyframes tl-bub-up { 0% { opacity: 0; transform: translateY(0) scale(0.3); } 12% { opacity: 1; transform: translateY(-1rem) scale(1.1); }
+  22% { transform: translateY(calc(var(--h) * 0.2)) scale(1); } 72% { opacity: 1; } 100% { opacity: 0; transform: translateY(var(--h)) scale(0.85); } }
+@keyframes tl-bub-sway { from { transform: translateX(calc(var(--x) * -1)) rotate(-9deg); } to { transform: translateX(var(--x)) rotate(9deg); } }
+/* vanaf goud een lichtpuls vanaf de kaart over de tijdlijn (in de strip, achter de kaarten) */
+.tl-pulse { position: absolute; top: 50%; z-index: 0; width: var(--w); height: 6px; margin: -3px 0 0 calc(var(--w) / -2); border-radius: 3px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--st) 25%, #fff 50%, var(--st) 75%, transparent);
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--st) 50%, transparent); animation: tl-pulse 1s ease-out 0.2s both; }
+@keyframes tl-pulse { 0% { opacity: 1; transform: scaleX(0.05); } 60% { opacity: 1; } 100% { opacity: 0; transform: scaleX(1); } }
+
+/* je team deze week (db/233): de rijen van het 🏆-bord (.lb-row uit style.css), iets compacter; zonder team jij en de bots */
+.tl-tb { margin-top: 0.7rem; padding-top: 0.65rem; border-top: 1px solid var(--border); text-align: left; }
+.tl-tb-wait { min-height: 7rem; }
+.tl-tb-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.4rem; }
+.tl-tb-head .lb-poolpick-wrap, .tl-tb-head .lb-poolpick-nm, .tl-tb-team { min-width: 0; font-size: 0.92rem; font-weight: 700; }
+.tl-tb-wk { flex: none; font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+.tl-tb .lb-table { gap: 3px; }
+.tl-tb .lb-row { grid-template-columns: 1.7rem minmax(0, 1fr) auto; gap: 0.5rem; padding: 0.32rem 0.55rem; font-size: 0.92rem; }
+.tl-tb .lb-row .lb-val { min-width: 2.2rem; justify-content: flex-end; }
+.tl-tb .lb-tag.lb-bot { color: var(--muted); }
+.tl-tb-gap { text-align: center; font-size: 0.8rem; line-height: 0.9; letter-spacing: 0.25em; color: var(--muted); }
+.tl-tb-cap { margin: 0.45rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; }
+.tl-tb .lb-row.tl-up { position: relative; z-index: 1; animation: tl-up 1.5s ease-out 0.55s both; }
+@keyframes tl-up { 0% { box-shadow: inset 0 0 0 2px var(--accent); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
+
 @media (prefers-reduced-motion: reduce) {
   .tl-c.tl-reveal, .tl-c.tl-reveal .tl-y, .tl-card.tl-deal, .tl-bump, .tl-float, .tl-c .tl-v { animation: none !important; }
   .tl-slot { transition: none; }
+  .tl-streak.tl-lvl, .tl-streak.tl-lvl .flm > :first-child, .tl-streak.tl-tick .flm > :first-child, .tl-float.hot b, .tl-float.hot b span,
+  .tl-tb .lb-row.tl-up { animation: none !important; }
+  .tl-float.hot b { color: var(--st); background: none; }
+  .tl-fxl, .tl-pulse { display: none; }
 }
 `;
 
-  window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang };
+  window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN };
 
   // ── de staat: H = wat game.js meegeeft (taal, openModal/closeModal, meetpunten); root = het scherm (#modal-tl) ──
   let H = null, root = null, LANG = "en", L = T.en;
@@ -251,9 +390,11 @@ body[data-tlhome] #mode-tabs { display: flex; }
   }
 
   // ── geluid: de tik en de bam van de knock-out, en korte toontjes voor goed, een reeks en een record ──
+  // "streak" met de trede erbij: elke trede een hele toon hoger. "obsidian": de eigen klank vanaf 30 (size 3 = 30 zelf, 2 = de
+  // belletjes elke 5, 1 = elke kaart na 30).
   const SFX = {};
   let AC = null;
-  function play(name) {
+  function play(name, arg) {
     if (!snd) return;
     try {
       if (name === "tick" || name === "bam") {
@@ -264,7 +405,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
         return;
       }
       AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-      const notes = { good: [660, 990], streak: [784, 1175, 1568], record: [523, 659, 784, 1047] }[name] || [];
+      if (name === "obsidian") { obsidianSound(AC, AC.destination, arg || 3); return; }
+      const k = name === "streak" ? Math.pow(2, (2 * Math.max(0, (arg || 1) - 1)) / 12) : 1;
+      const notes = ({ good: [660, 990], streak: [784, 1175, 1568], record: [523, 659, 784, 1047] }[name] || []).map((f) => f * k);
       notes.forEach((f, i) => {
         const o = AC.createOscillator(), g = AC.createGain(), t0 = AC.currentTime + i * 0.09;
         o.type = "triangle"; o.frequency.value = f;
@@ -274,17 +417,115 @@ body[data-tlhome] #mode-tabs { display: flex; }
     } catch (e) {}
   }
 
+  // 💜 obsidiaan = de lat (zijn "beter geluidje van obsidiaan, wat langer"): een lage dreun, een loopje omhoog (C-E-G-C-E-G) en een
+  // akkoord (C add9) dat naklinkt met glinstertjes en galm (zijn "laatste synth iets te hard": het akkoord zachter dan het loopje).
+  // size 3 = 30 (±2,8 s) · 2 = elke 5 na 30 (±1,9 s, zonder dreun) · 1 = elke kaart na 30 (twee noten, ±0,8 s).
+  function obsidianSound(ctx, dest, size) {
+    const t0 = ctx.currentTime + 0.02;
+    const comp = ctx.createDynamicsCompressor(), out = ctx.createGain();
+    out.gain.value = 0.8; out.connect(comp).connect(dest);
+    const rev = ctx.createConvolver(), len = Math.round(ctx.sampleRate * 2.2), ir = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+    rev.buffer = ir;
+    const wet = ctx.createGain(); wet.gain.value = 0.3; rev.connect(wet).connect(out);
+    const note = (f, s, dur, vol, type = "triangle", det = 0, hold = 0) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.value = f; o.detune.value = det;
+      g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(vol, s + 0.02);
+      if (hold) g.gain.linearRampToValueAtTime(vol * 0.75, s + hold);
+      g.gain.exponentialRampToValueAtTime(0.0001, s + dur);
+      o.connect(g); g.connect(out); g.connect(rev); o.start(s); o.stop(s + dur + 0.05);
+    };
+    if (size === 1) {
+      [1567.98, 2093].forEach((f, i) => note(f, t0 + i * 0.08, 0.45, 0.15));
+      [3136, 4186].forEach((f, i) => note(f, t0 + 0.2 + i * 0.12, 0.25, 0.015, "sine"));
+      return;
+    }
+    if (size === 3) {
+      const b = ctx.createOscillator(), bg = ctx.createGain();
+      b.type = "sine"; b.frequency.setValueAtTime(110, t0); b.frequency.exponentialRampToValueAtTime(55, t0 + 0.6);
+      bg.gain.setValueAtTime(0.0001, t0); bg.gain.exponentialRampToValueAtTime(0.4, t0 + 0.02); bg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.9);
+      b.connect(bg).connect(out); b.start(t0); b.stop(t0 + 1);
+    }
+    const arp = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1567.98];
+    arp.forEach((f, i) => note(f, t0 + i * 0.075, 0.5, 0.12));
+    const ch = t0 + arp.length * 0.075, hold = size === 3 ? 1 : 0.35, clen = size === 3 ? 2.6 : 1.5;
+    [523.25, 783.99, 1046.5, 1174.66, 1567.98].forEach((f) => { note(f, ch, clen, 0.04, "triangle", -7, hold); note(f, ch, clen, 0.03, "sine", 7, hold); });
+    [2093, 2637, 3136, 4186, 3136, 2637, 3136, 4186, 3136, 4186].slice(0, size === 3 ? 10 : 5).forEach((f, i) => note(f, ch + 0.12 + i * 0.14, 0.3, 0.017, "sine"));
+  }
+
+  // ── het moment bij een goede kaart: per trede één laag meer, in de kleur van de trede (--st), in een vaste laag over het scherm ──
+  //   brons 3 vonken · zilver 5 + glans op de letters · goud 10 + lichtpuls over de tijdlijn · platina 15 + schokring · diamant 20 +
+  //   sterretjes · obsidiaan 30 + twee ringen en het scherm kort violet. Ertussen 3 vonkjes; na 30 sterretjes en 2 belletjes 🔥✨, elke 5
+  //   een hele zwerm. Hooguit ±35 elementen tegelijk, alleen CSS (win-effecten: nooit canvas en CSS mengen).
+  const FX = { 1: { n: 8, d: 46 }, 2: { n: 12, d: 56 }, 3: { n: 16, d: 66, line: 360 }, 4: { n: 20, d: 74, ring: 1, line: 520 },
+    5: { n: 24, d: 84, ring: 1, line: 760, star: true }, 6: { n: 32, d: 96, ring: 2, line: 1400, star: true, vig: true } };
+  function burst(card, t, n) {
+    if (!card || !t || reduced()) return 0;
+    const bub = bubOf(n);
+    const spec = bub ? { n: 24, d: 88, ring: 1, line: 760, star: true, bub, bn: bubN(n) } : isStep(n) ? FX[t]
+      : n > 30 ? { n: 6, d: 34, star: true, bub: ["🔥", "✨"], bn: 2, small: true } : { n: 3, d: 26 };
+    // de kaart draait nog om (rotateY): het midden uit getBoundingClientRect, de maat uit offsetWidth/-Height
+    const b = card.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
+    const cx = b.left + b.width / 2, cy = b.top + b.height / 2, top = cy - h / 2 + 6, R = Math.random;
+    let html = "";
+    for (let i = 0; i < spec.n; i++) {   // vonken uit de zijkanten van de kaart, schuin weg: de melding erboven blijft leesbaar
+      const side = i % 2 ? 1 : -1, a = (i % 2 ? -62 : -178) + (60 * (Math.floor(i / 2) + R() * 0.8)) / Math.ceil(spec.n / 2);
+      const ox = cx + side * (0.44 + R() * 0.08) * w, oy = top + R() * h * 0.35, sz = (spec.d > 40 ? 8 : 6) + R() * (spec.d > 40 ? 6 : 3), st = spec.star && i % 3 === 0;
+      html += `<i class="tl-spk${st ? " st" : ""}" style="left:${ox.toFixed(1)}px;top:${oy.toFixed(1)}px;--a:${a.toFixed(0)}deg;--d:${(spec.d * (0.7 + R() * 0.6)).toFixed(0)}px;` +
+        `--g:${(18 + R() * 22).toFixed(0)}px;--s:${(st ? sz * 1.5 : sz).toFixed(1)}px;--du:${(0.75 + R() * 0.5).toFixed(2)}s;--dl:${(0.15 + R() * 0.1).toFixed(2)}s"></i>`;
+    }
+    for (let r = 0; r < (spec.ring || 0); r++) html += `<i class="tl-ring" style="left:${cx.toFixed(0)}px;top:${cy.toFixed(0)}px;--dl:${0.2 + r * 0.18}s"></i>`;
+    if (spec.vig) html = `<i class="tl-vig" style="--x:${cx.toFixed(0)}px;--y:${cy.toFixed(0)}px"></i>` + html;
+    for (let i = 0; i < (spec.bn || 0); i++) {   // belletjes: boven de melding beginnen, wiegend omhoog
+      const fs = spec.small ? 1 + R() * 0.3 : 1.1 + R() * 1.1, rise = -(spec.small ? 90 + R() * 50 : 170 + R() * 140);
+      html += `<span class="tl-bub" style="left:${(cx + (R() - 0.5) * w * 1.3).toFixed(0)}px;top:${(top - (spec.small ? 34 : 46)).toFixed(0)}px;` +
+        `--fs:${fs.toFixed(2)}rem;--h:${rise.toFixed(0)}px;--du:${(1.5 + R() * 0.9).toFixed(2)}s;--dl:${(0.2 + (spec.small ? 0.1 * i : R() * 0.9)).toFixed(2)}s;` +
+        `--sw:${(0.45 + R() * 0.35).toFixed(2)}s;--x:${(5 + R() * 9).toFixed(0)}px"><i>${spec.bub[i % spec.bub.length]}</i></span>`;
+    }
+    const lay = document.createElement("div");
+    lay.className = "tl-fxl"; lay.dataset.t = t; lay.setAttribute("aria-hidden", "true");
+    lay.innerHTML = html;
+    document.body.appendChild(lay);
+    setTimeout(() => lay.remove(), spec.bn ? 3600 : 1800);
+    if (spec.line) pulse(card, t, spec.line);
+    return spec.line || 0;
+  }
+  // de lichtpuls in de strip zelf (achter de kaarten, over de lijn); na een hertekening zet draw() hem terug met --el
+  function pulse(card, t, w) {
+    const strip = card && card.parentElement;
+    if (!strip || !w) return;
+    const p = document.createElement("i");
+    p.className = "tl-pulse"; p.dataset.t = t; p.setAttribute("aria-hidden", "true");
+    p.style.cssText = `left:${card.offsetLeft + card.offsetWidth / 2}px;--w:${w}px`;
+    strip.appendChild(p);
+    setTimeout(() => p.remove(), 1400);
+  }
+
   // ── de stapel van de server (db/226): ±54 kaarten, de volgende alvast in de achtergrond ──
+  // db/233: get_timeline_deck2 geeft er een id bij (de server telt je run daarmee na); bestaat hij nog niet (404), dan de oude, zonder bord
+  let DECK2 = true;
+  const post = (fn, body) => fetch(SB.url + "/rest/v1/rpc/" + fn, {
+    method: "POST",
+    headers: { apikey: SB.key, Authorization: "Bearer " + SB.key, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
   async function fetchDeck() {
-    const r = await fetch(SB.url + "/rest/v1/rpc/get_timeline_deck", {
-      method: "POST",
-      headers: { apikey: SB.key, Authorization: "Bearer " + SB.key, "Content-Type": "application/json" },
-      body: JSON.stringify({ p_lang: LANG }),
-    });
-    if (!r.ok) throw new Error("get_timeline_deck " + r.status);
-    const d = await r.json();
+    let id = null, d = null;
+    if (DECK2) {
+      const r = await post("get_timeline_deck2", { p_lang: LANG });
+      if (r.status === 404) DECK2 = false;
+      else if (!r.ok) throw new Error("get_timeline_deck2 " + r.status);
+      else { const j = await r.json(); id = (j && j.id) || null; d = j && j.cards; }
+    }
+    if (!DECK2) {
+      const r = await post("get_timeline_deck", { p_lang: LANG });
+      if (!r.ok) throw new Error("get_timeline_deck " + r.status);
+      d = await r.json();
+    }
     if (!Array.isArray(d) || d.length < 10) throw new Error("lege stapel");
-    return d.filter((c) => c && Number.isFinite(c.y) && c.t).map((c, k) => ({ y: c.y, t: String(c.t), c: c.c, k }));
+    const cards = d.filter((c) => c && Number.isFinite(c.y) && c.t).map((c, k) => ({ y: c.y, t: String(c.t), c: c.c, k }));
+    return { id: cards.length === d.length ? id : null, cards };   // viel er een kaart af, dan klopt de volgorde niet meer met de server
   }
   let nextDeck = null;
   const prefetch = () => { if (!nextDeck) { nextDeck = fetchDeck(); nextDeck.catch(() => { nextDeck = null; }); } };
@@ -302,21 +543,34 @@ body[data-tlhome] #mode-tabs { display: flex; }
       const br = o.breakIdx === i;
       return `<span class="tl-heart${i >= s.lives ? " lost" : ""}${br ? " breaking" : ""}"><span>❤️</span>${br ? `<img src="/emoji/heartbreak.webp" alt="">` : ""}</span>`;
     }).join("");
-    const streak = s.streak >= 2 ? `<span class="tl-streak">${o.fire ? `<img src="/emoji/fire.webp" alt="">` : `<span class="tl-fl">🔥</span>`}${s.streak}</span>` : "";
+    // de pil in de kleur van de trede (de vlam = .flm sN uit style.css); het getal goed in de kleur van zijn eigen trede
+    const t = tierOf(s.streak), st = tierOf(s.n);
+    const fire = o.fire ? `<img src="/emoji/fire.webp" alt="">` : t ? `<span class="flm-g">🔥</span>` : `<span class="tl-fl">🔥</span>`;
+    const streak = s.streak >= 2 ? `<span class="tl-streak${o.lvl ? " tl-lvl" : o.tick ? " tl-tick" : ""}${s.streak >= 30 ? " tl-aura" : ""}" data-t="${t}">` +
+      `${t ? `<span class="flm s${t}">${fire}</span>` : fire}${s.streak}</span>` : "";
     return `<div class="tl-hud"><span class="tl-hearts" role="img" aria-label="${esc(L.lives(s.lives))}">${hearts}</span>` +
-      `<span class="tl-stand">${streak}<span class="tl-score"><b class="${o.bump ? "tl-bump" : ""}">${s.n}</b><span>${esc(L.good)}</span></span></span></div>`;
+      `<span class="tl-stand">${streak}<span class="tl-score"><b class="${o.bump ? "tl-bump" : ""}"${st ? ` data-t="${st}"` : ""}>${s.n}</b><span>${esc(L.good)}</span></span></span></div>`;
   }
   const suit = (c) => SUIT[c] || "🗓️";
   const frontHtml = (c, deal) => `<div class="tl-card tl-front${deal ? " tl-deal" : ""}" tabindex="0" aria-label="${esc(L.newCard + ": " + c.t)}">` +
     `<div class="tl-suit"><i aria-hidden="true">${suit(c.c)}</i>${esc(L.cats[(c.c || 0) - 1] || "")}</div><p class="tl-txt">${esc(c.t)}</p><span class="tl-q" aria-hidden="true">????</span></div>`;
   const handHtml = (s, o) => `<div class="tl-hand"><div class="tl-handin"><div class="tl-back b2"></div><div class="tl-back b1"></div>${s.cur ? frontHtml(s.cur, o.deal) : ""}` +
     `<span class="tl-left">${esc(L.left)}<b>${s.pile.length}</b></span></div></div><p class="tl-cue${s.marks.length ? " gone" : ""}">${esc(L.cue)}</p>`;
+  // de melding boven de kaart: bij een mijlpaal de vlam van de trede naast de tekst (zijn "naast 30 op rij die juist gekleurde vlammetjes");
+  // bij obsidiaan elke letter apart (ze golven)
+  function floatHtml(f) {
+    if (f.cls !== "hot") return `<span class="tl-float ${f.cls}" data-t="${f.t || 0}" role="status">${esc(f.text)}</span>`;
+    const txt = f.text.replace(/^🔥\s*/, ""), letters = f.t >= 6 ? [...txt].map((ch, i) => `<span style="--i:${i}">${esc(ch)}</span>`).join("") : esc(txt);
+    return `<span class="tl-float hot" data-t="${f.t}" role="status" aria-label="${esc(f.text)}"><span class="flm s${f.t}" aria-hidden="true">` +
+      `<img src="/emoji/fire.webp" alt=""></span><b aria-hidden="true">${letters}</b></span>`;
+  }
   function cardHtml(c, o) {
     const rev = o.reveal === c.k, bad = c.ok === false;
-    return `<div class="tl-c${bad ? " tl-bad" : ""}${rev ? " tl-reveal" + (bad ? "" : " tl-good") : ""}" data-k="${c.k}"><span class="tl-y">${yHtml(c.y)}</span>` +
+    return `<div class="tl-c${bad ? " tl-bad" : ""}${rev ? " tl-reveal" + (bad ? "" : " tl-good") : ""}" data-k="${c.k}"${rev && !bad && o.ct ? ` data-t="${o.ct}"` : ""}>` +
+      `<span class="tl-y">${yHtml(c.y)}</span>` +
       `<span class="tl-s" aria-hidden="true">${suit(c.c)}</span><span class="tl-t">${esc(c.t)}</span>` +
       (bad ? `<span class="tl-x" aria-label="${esc(L.wrong)}">✕</span>` : rev ? `<span class="tl-v" aria-hidden="true">✓</span>` : "") +
-      (o.float && o.float.k === c.k ? `<span class="tl-float ${o.float.cls}" role="status">${esc(o.float.text)}</span>` : "") + `</div>`;
+      (o.float && o.float.k === c.k ? floatHtml(o.float) : "") + `</div>`;
   }
   function tableHtml(s, o) {
     const line = s.line;
@@ -324,26 +578,88 @@ body[data-tlhome] #mode-tabs { display: flex; }
     return `<div class="tl-tablewrap"><div class="tl-ends"><span>← ${esc(L.earlier)}</span><span>${esc(L.later)} →</span></div>` +
       `<div class="tl-row${s.phase !== "idle" ? " tl-busy" : ""}"><div class="tl-strip">` + line.map((c, i) => slot(i) + cardHtml(c, o)).join("") + slot(line.length) + `</div></div></div>`;
   }
-  const endHtml = (s) => `<div class="tl-end" aria-live="polite">${s.deckDone ? `<span class="tl-end-l">${esc(L.deckDone)}</span>` : ""}<span class="tl-end-n">${s.n}</span>` +
-    `<span class="tl-end-l">${esc(L.placed(s.n))}</span>` + (s.rec ? `<span class="tl-end-rec">${esc(L.record)}</span>` : `<span class="tl-end-rec old">${esc(L.yourRec(s.prevRec))}</span>`) +
-    `<div class="tl-end-acts"><button type="button" class="tl-share">${SHARE_SVG}<span>${esc(L.share)}</span></button><button type="button" class="tl-again">${esc(L.again)}</button></div></div>`;
-  const gameHtml = (s, o = {}) => `<div class="tl-game">${hudHtml(s, o)}${s.done ? endHtml(s) : handHtml(s, o)}${tableHtml(s, o)}</div>`;
+  // het eindscherm: getal (in de kleur van zijn trede) | wat het was, daaronder het bord, dan Deel en Nog een keer. Zolang de server je
+  // run natelt (recWait) staan de recordregel en de plek van het bord al klaar, zodat er niets verspringt.
+  const endHtml = (s) => {
+    const st = tierOf(s.n);
+    const rec = s.recWait ? `<span class="tl-end-rec wait" aria-hidden="true">·</span>`
+      : s.rec ? `<span class="tl-end-rec">${esc(L.record)}</span>` : `<span class="tl-end-rec old">${esc(L.yourRec(s.prevRec))}</span>`;
+    return `<div class="tl-end" aria-live="polite">${s.deckDone ? `<span class="tl-end-l tl-end-all">${esc(L.deckDone)}</span>` : ""}` +
+      `<div class="tl-end-top"><span class="tl-end-n"${st ? ` data-t="${st}"` : ""}>${s.n}</span><span><span class="tl-end-l">${esc(L.placed(s.n))}</span>${rec}</span></div>` +
+      boardHtml(s) +
+      `<div class="tl-end-acts"><button type="button" class="tl-share">${SHARE_SVG}<span>${esc(L.share)}</span></button><button type="button" class="tl-again">${esc(L.again)}</button></div></div>`;
+  };
+  // ── je team deze week (db/233): de rijen van het 🏆-bord (naamcel en medailles van game.js); groot team = de top 3, dan jij met je buren ──
+  const MEDAL = ["🥇", "🥈", "🥉"];
+  function boardRowHtml(r, rank, delta) {
+    const nm = H && H.nameCell ? H.nameCell({ display_name: r.name || "", flair: r.flair || null, title: r.title || null, is_me: !!r.me }, rank)
+      : esc(r.name || "") + (r.flair ? ` ${esc(r.flair)}` : "") + (r.me ? ` <span class="lb-tag">${esc(L.you)}</span>` : "");
+    return `<div class="lb-row${r.me ? " lb-me" : ""}${rank <= 3 ? " lb-top" + rank : ""}${delta > 0 ? " tl-up" : ""}"${delta > 0 ? ` data-d="${delta}"` : ""}>` +
+      `<span class="lb-rank">${MEDAL[rank - 1] || rank}</span><span class="lb-name">${nm}${r.bot ? ` <span class="lb-tag lb-bot">${esc(L.bot)}</span>` : ""}</span>` +
+      `<span class="lb-val">${r.v}${delta > 0 ? `<span class="wk-delta up">▲${delta}</span>` : ""}</span></div>`;
+  }
+  function wkLeft(ends) {
+    const ms = Date.parse(ends) - Date.now();
+    return L.wk(Math.floor(ms / 864e5), Math.max(1, Math.ceil(ms / 36e5)));
+  }
+  function boardHtml(s) {
+    if (s.recWait) return `<div class="tl-tb tl-tb-wait" aria-hidden="true"></div>`;
+    const b = s.board, rows = b && b.rows;
+    if (!rows || !rows.length) return "";
+    const rankOf = (v) => 1 + rows.filter((r) => r.v > v).length, me = rows.findIndex((r) => r.me);
+    // omhoog: je plek met je weekbeste van vóór deze run (prev_wk) tegen die van nu
+    let delta = 0;
+    if (me >= 0 && s.prevWk != null && rows[me].v > s.prevWk) delta = 1 + rows.filter((r) => !r.me && r.v > s.prevWk).length - rankOf(rows[me].v);
+    const show = rows.length <= 6 ? rows.map((r, i) => i) : [...new Set([0, 1, 2, me - 1, me, me + 1])].filter((i) => i >= 0 && i < rows.length).sort((a, c) => a - c);
+    let html = "", prev = -1;
+    for (const i of show) {
+      if (i > prev + 1) html += `<div class="tl-tb-gap" aria-hidden="true">· · ·</div>`;
+      html += boardRowHtml(rows[i], rankOf(rows[i].v), rows[i].me ? delta : 0);
+      prev = i;
+    }
+    const head = b.team ? ((H && H.poolPickerHtml && H.poolPickerHtml()) || `<span class="tl-tb-team">${esc(b.team)}</span>`) : `<span class="tl-tb-team">${esc(L.vsBots)}</span>`;
+    return `<div class="tl-tb"><div class="tl-tb-head">${head}<span class="tl-tb-wk">${esc(wkLeft(b.ends))}</span></div><div class="lb-table">${html}</div>` +
+      (b.team ? "" : `<p class="tl-tb-cap">${esc(L.botsCap)}</p>`) + `</div>`;
+  }
+  // jij stijgt: je rij begint op je oude plek en schuift omhoog; wie je inhaalt zakt één rij
+  function climb() {
+    const me = root.querySelector(".tl-tb .lb-row.tl-up");
+    if (!me || reduced()) return;
+    const rows = [...root.querySelectorAll(".tl-tb .lb-row")], i = rows.indexOf(me), h = me.offsetHeight + 3;
+    const passed = rows.slice(i + 1, i + 1 + (+me.dataset.d || 0));
+    const opt = { duration: 650, delay: 450, easing: "cubic-bezier(0.3, 0.7, 0.2, 1)", fill: "backwards" };
+    try {
+      me.animate([{ transform: `translateY(${h * passed.length}px)` }, { transform: "none" }], opt);
+      passed.forEach((r) => r.animate([{ transform: `translateY(${-h}px)` }, { transform: "none" }], opt));
+    } catch (e) {}
+  }
+  const gameHtml = (s, o = {}) => `<div class="tl-game"${o.el ? ` style="--el:${Math.round(o.el)}ms"` : ""}>${hudHtml(s, o)}${s.done ? endHtml(s) : handHtml(s, o)}${tableHtml(s, o)}</div>`;
   const msgHtml = (text, retry) => `<div class="tl-game"><div class="tl-msg"><p>${esc(text)}</p>${retry ? `<button type="button" class="tl-retry">${esc(L.retry)}</button>` : ""}</div></div>`;
 
   // ── het spel ──
   let G = null;
   function newGame(deck) {
-    const pile = deck.slice(), fi = pile.findIndex((c) => c.y > 1000 && c.y < 1950);   // een begin uit het midden: aan beide kanten ruimte
+    const pile = deck.cards.slice(), fi = pile.findIndex((c) => c.y > 1000 && c.y < 1950);   // een begin uit het midden: aan beide kanten ruimte
     const first = pile.splice(fi >= 0 ? fi : 0, 1)[0];
-    return { pile, line: [first], cur: pile.shift(), lives: 3, n: 0, streak: 0, marks: [], done: false, deckDone: false, phase: "idle", rec: false, prevRec: REC };
+    return { pile, line: [first], cur: pile.shift(), lives: 3, n: 0, streak: 0, marks: [], done: false, deckDone: false, phase: "idle", rec: false, prevRec: REC,
+      deckId: deck.id, moves: [], fx: null, recWait: false, board: null, prevWk: null };
   }
   function draw(o = {}) {
     const row0 = root.querySelector(".tl-row"), left = row0 ? row0.scrollLeft : 0, game = root.querySelector(".tl-game");
+    // het moment van de laatste goede kaart loopt door na een hertekening (de volgende kaart, het eindscherm): --el = hoe lang al
+    const m = G && G.fx, el = m ? performance.now() - m.t0 : 0;
+    if (m && o.reveal == null && el < 1800) o = { ...o, reveal: m.k, ct: m.ct, float: m.float, lvl: m.lvl && el < 900, el };
     const html = G ? gameHtml(G, o) : msgHtml(o.error ? L.error : L.loading, !!o.error);
     if (game) game.outerHTML = html; else root.insertAdjacentHTML("beforeend", html);
     const row = root.querySelector(".tl-row");
     if (row) row.scrollLeft = left;
     if (o.show != null) ensureVisible(o.show);
+    if (o.el && m.line && el < 1200) pulse(root.querySelector(`.tl-c[data-k="${m.k}"]`), m.ct, m.line);
+    if (G && G.done && G.board && G.board.team && H && H.wirePoolPicker) {   // het team wisselen = dezelfde kiezer als bij het teambord van de daily
+      const g = G, tb = root.querySelector(".tl-tb");
+      if (tb) H.wirePoolPicker(tb, () => switchTeam(g));
+    }
+    if (o.climb) climb();
   }
   function ensureVisible(k) {
     const row = root.querySelector(".tl-row"), el = root.querySelector(`.tl-c[data-k="${k}"]`);
@@ -396,14 +712,21 @@ body[data-tlhome] #mode-tabs { display: flex; }
     G.line.splice(i, 0, { ...c, ok });
     G.cur = null;
     G.marks.push(ok);
+    G.moves.push(i);   // db/233: de server telt je run na uit deze zetten
     if (ok) {
       G.n++; G.streak++;
+      const s = G.streak, t = tierOf(s), step = isStep(s);
       const a = G.line[i - 1], b = G.line[i + 1], tight = a && b && b.y - a.y <= 10;
-      const f = [3, 5, 10, 15, 20, 30].includes(G.streak) ? ["hot", L.streak(G.streak)] : tight ? ["good", L.tight] : ["good", "+1"];
-      draw({ reveal: c.k, bump: true, fire: G.streak >= 2, float: { k: c.k, cls: f[0], text: f[1] }, show: c.k });
-      play(f[0] === "hot" ? "streak" : "good");
+      const f = step ? ["hot", L.streak(s)] : tight ? ["good", L.tight] : ["good", "+1"];
+      const float = { k: c.k, cls: f[0], text: f[1], t };
+      G.fx = { k: c.k, ct: t, float, lvl: step && t > 0, t0: performance.now(), line: 0 };
+      draw({ reveal: c.k, ct: t, bump: true, fire: s >= 2, lvl: step && t > 0, tick: !step && t > 0, float, show: c.k });
+      G.fx.line = burst(root.querySelector(`.tl-c[data-k="${c.k}"]`), t, s);
+      if (s >= 30) play("obsidian", s === 30 ? 3 : bubOf(s) ? 2 : 1);
+      else play(step ? "streak" : "good", t);
       await wait(650);
     } else {
+      G.fx = null;
       G.lives--; G.streak = 0;
       draw({ reveal: c.k, breakIdx: G.lives, float: { k: c.k, cls: "bad", text: j < i ? L.goesEarlier : L.goesLater }, show: c.k });
       play("bam");
@@ -423,12 +746,16 @@ body[data-tlhome] #mode-tabs { display: flex; }
       await wait(250);
     }
     if (G.lives <= 0 || !G.pile.length) {
-      G.done = true; G.deckDone = G.lives > 0; G.phase = "idle"; G.prevRec = REC; G.rec = G.n > REC;
-      if (G.rec) { REC = G.n; ls(REC_KEY, REC); }
+      G.done = true; G.deckDone = G.lives > 0; G.phase = "idle"; G.prevRec = REC;
+      // met een stapel-id telt de server na en zegt hij of het een record is (ook van een ander toestel); anders alleen dit toestel
+      const live = !!(G.deckId && H && H.rpc && ((H.user && H.user()) || (H.clientId && H.clientId())));
+      G.recWait = live;
+      if (!live) { G.rec = G.n > REC; if (G.rec) { REC = G.n; ls(REC_KEY, REC); } }
       draw({});
       const row = root.querySelector(".tl-row");
       if (row) row.scrollLeft = 0;
-      if (G.rec) play("record");
+      if (!live && G.rec) play("record");
+      if (live) finishRun(G);
       gc("timeline-end-" + endBand(G.n), `Timeline: ended with ${endBand(G.n)} correct`);
       if (G.deckDone) gc("timeline-deck-op", "Timeline: placed the whole deck");
       prefetch();
@@ -438,6 +765,34 @@ body[data-tlhome] #mode-tabs { display: flex; }
     G.phase = "idle";
     draw({ deal: true });
     if (G.pile.length < 3) prefetch();
+  }
+
+  // ── de run naar de server (db/233): één verzoek aan het eind; geeft je record (prev_best) en het bord terug ──
+  async function finishRun(g) {
+    let res = null;
+    try {
+      const pool = H.pool ? await H.pool() : null;
+      res = await Promise.race([
+        H.rpc("record_timeline_run", { p_deck: g.deckId, p_moves: g.moves, p_client: (H.clientId && H.clientId()) || null, p_pool: (pool && pool.id) || null }),
+        wait(8000).then(() => null),
+      ]);
+    } catch (e) { res = null; }
+    const best = Math.max(g.prevRec, (res && res.prev_best) || 0);
+    g.prevRec = best; g.rec = g.n > best; g.recWait = false;
+    REC = Math.max(REC, g.n, best); ls(REC_KEY, REC);
+    g.board = res && res.board && Array.isArray(res.board.rows) ? res.board : null;
+    g.prevWk = res ? res.prev_wk : null;
+    if (G !== g) return;   // al een nieuw potje
+    draw({ climb: true });
+    if (g.rec) play("record");
+    if (g.board) gc("timeline-board-" + (g.board.team ? "team" : "bots"), "Timeline: board on the end screen (" + (g.board.team ? "team" : "bots") + ")");
+  }
+  async function switchTeam(g) {
+    try {
+      const pool = H.pool ? await H.pool() : null;
+      const b = await H.rpc("get_timeline_board", { p_pool: (pool && pool.id) || null, p_client: (H.clientId && H.clientId()) || null });
+      if (G === g && b && Array.isArray(b.rows)) { g.board = b; g.prevWk = null; draw({}); }
+    } catch (e) {}
   }
 
   // slepen: de kaart volgt je vinger; boven de tafel gaat het dichtstbijzijnde gat open; loslaten = leggen
