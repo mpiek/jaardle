@@ -2306,6 +2306,10 @@ footer p { margin: 0.15rem 0 0; }   /* i.p.v. de browser-default 1em boven én o
 #footer-socials a:hover, #footer-socials a:focus-visible { color: var(--fg); background: var(--card-soft); }
 #footer-socials a[data-social="discord"]:hover, #footer-socials a[data-social="discord"]:focus-visible { color: #7983f5; }
 html[data-theme="light"] #footer-socials a[data-social="discord"]:hover, html[data-theme="light"] #footer-socials a[data-social="discord"]:focus-visible { color: #4752c4; }
+#footer-socials a[data-social="youtube"]:hover, #footer-socials a[data-social="youtube"]:focus-visible { color: #ff4e45; }
+html[data-theme="light"] #footer-socials a[data-social="youtube"]:hover, html[data-theme="light"] #footer-socials a[data-social="youtube"]:focus-visible { color: #cc0000; }
+#footer-socials a[data-social="tiktok"]:hover, #footer-socials a[data-social="tiktok"]:focus-visible { color: #25f4ee; }
+html[data-theme="light"] #footer-socials a[data-social="tiktok"]:hover, html[data-theme="light"] #footer-socials a[data-social="tiktok"]:focus-visible { color: #111; }
 #footer-socials svg { width: 1.25rem; height: 1.25rem; }
 #help-btn {
   display: inline-flex;
