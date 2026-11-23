@@ -29,9 +29,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-QUj59y59vtsMBLUvMUoWgWetzMtz9ksLM3v0xX0xjOU=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
-     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=500 = de src van de game.js-tag onderaan (build). -->
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=501 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
-<link rel="preload" as="script" href="/game.js?v=500">
+<link rel="preload" as="script" href="/game.js?v=501">
 <script>
   // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
   window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -177,7 +177,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=249">
+<link rel="stylesheet" href="/style.css?v=250">
 </head>
 <body>
   <main>
@@ -482,7 +482,9 @@
           <button type="button" id="login-forgot" class="link-btn" data-i18n="login_forgot">Forgot password?</button>
         </form>
         <p id="login-error" class="form-error" hidden></p>
-        <p class="form-note" data-i18n-html="login_note">Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.</p>
+        <!-- "Gratis, voor altijd" (23/11/2026): de bron van het blokje; game.js acctPromiseHtml() zet hetzelfde onder de knop in het
+             account-kaartje, syncDoor zet het logo van de skin. Verving de technische regel over Supabase/bcrypt. -->
+        <div class="acct-promise"><img class="acct-promise-logo" src="/favicon.svg?v=2" alt="" width="30" height="30"><div><b data-i18n="acct_promise_title">Free, forever</b><p data-i18n="acct_promise_text">Jaardle is my hobby project: no ads, no paid version. Your email is only used to sign in.</p></div></div>
       </div>
     </div>
   </div>
@@ -603,7 +605,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=500"></script>
+  <script src="/game.js?v=501"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

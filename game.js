@@ -207,7 +207,6 @@ const I18N = {
     auth_provider_disabled: "Deze inlogmethode staat niet aan.",
     auth_network: "Netwerkfout, controleer je verbinding.",
     auth_failed: "Inloggen mislukt.",
-    login_note: `Inloggen verloopt via <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Wachtwoorden worden gehasht opgeslagen (bcrypt), nooit als platte tekst, en alleen jouw e-mail en spelscores worden bewaard — niet gedeeld met derden.`,
     footer_note: `Gebeurtenissen van <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contact</a>`,
     credits_title: "Colofon",
     credits_note: `Gebeurtenissen: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.nl" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaties <a href="https://creativecommons.org/licenses/by/4.0/deed.nl" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
@@ -325,10 +324,11 @@ const I18N = {
     recap_login: "Log in om je teamstand te zien.", recap_login_btn: "🔑 Inloggen",
     recap_team_ghost: "Je eerste teamgenoot", recap_team_cap: "Zo ziet je team eruit. Speel met vrienden, of schuif aan bij spelers zonder team.", recap_team_make: "🏆 Maak je team",
     recap_team_slim: "Met vrienden?", recap_team_slim_btn: "🏆 Team maken ›",
-    recap_acct_title: "Met een gratis account",
+    recap_acct_title: "Met een account",
     recap_acct_1: "📊 Je statistieken & streak blijven bewaard",
     recap_acct_2: "☁️ Speel verder op al je apparaten",
-    recap_acct_free: "Altijd 100% gratis — geen betaalde versie, geen advertenties.",
+    acct_promise_title: "Gratis, voor altijd",
+    acct_promise_text: "Jaardle is mijn hobbyproject: geen advertenties, geen betaalde versie. Je e‑mail is alleen om in te loggen.",
     streak_won: (n) => n === 1 ? "🔥 Streak gestart — kom morgen terug!" : `🔥 ${n} dagen op rij!`,
     streak_lost: (n) => `💔 Streak van ${n} ${n === 1 ? "dag" : "dagen"} gebroken — morgen nieuwe kans!`,
     streak_saved: (n) => `🔥 Streak gered — ${n} ${n === 1 ? "dag" : "dagen"} op rij!`,
@@ -562,7 +562,6 @@ const I18N = {
     auth_provider_disabled: "This sign-in method is not enabled.",
     auth_network: "Network error, check your connection.",
     auth_failed: "Sign-in failed.",
-    login_note: `Sign-in is handled by <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwords are stored hashed (bcrypt), never as plain text, and only your email and game scores are kept — not shared with third parties.`,
     footer_note: `Events from <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contact</a>`,
     credits_title: "Credits",
     credits_note: `Events: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animations <a href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">webfont</a> (subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
@@ -685,10 +684,11 @@ const I18N = {
     recap_login: "Sign in to see your team standings.", recap_login_btn: "🔑 Sign in",
     recap_team_ghost: "Your first teammate", recap_team_cap: "This is what your team looks like. Play with friends, or join players without a team.", recap_team_make: "🏆 Create your team",
     recap_team_slim: "With friends?", recap_team_slim_btn: "🏆 Create a team ›",
-    recap_acct_title: "With a free account",
+    recap_acct_title: "With an account",
     recap_acct_1: "📊 Your stats & streak are saved",
     recap_acct_2: "☁️ Keep playing across all your devices",
-    recap_acct_free: "Always 100% free — no paid tier, no ads.",
+    acct_promise_title: "Free, forever",
+    acct_promise_text: "Jaardle is my hobby project: no ads, no paid version. Your email is only used to sign in.",
     streak_won: (n) => n === 1 ? "🔥 Streak started — come back tomorrow!" : `🔥 ${n} days in a row!`,
     streak_lost: (n) => `💔 ${n}-day streak broken — new chance tomorrow!`,
     streak_saved: (n) => `🔥 Streak saved — ${n} ${n === 1 ? "day" : "days"} in a row!`,
@@ -920,7 +920,6 @@ const I18N = {
     auth_provider_disabled: "Diese Anmeldemethode ist nicht aktiviert.",
     auth_network: "Netzwerkfehler, prüfe deine Verbindung.",
     auth_failed: "Anmeldung fehlgeschlagen.",
-    login_note: `Die Anmeldung läuft über <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Passwörter werden gehasht gespeichert (bcrypt), nie als Klartext, und nur deine E-Mail und Spielergebnisse werden gespeichert — nicht an Dritte weitergegeben.`,
     footer_note: `Ereignisse von <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Kontakt</a>`,
     credits_title: "Credits",
     credits_note: `Ereignisse: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — Animationen <a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">Webfont</a> (Subset) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
@@ -1038,10 +1037,11 @@ const I18N = {
     recap_login: "Melde dich an, um deinen Team-Stand zu sehen.", recap_login_btn: "🔑 Anmelden",
     recap_team_ghost: "Dein erstes Teammitglied", recap_team_cap: "So sieht dein Team aus. Spiel mit Freunden oder schließ dich Spielern ohne Team an.", recap_team_make: "🏆 Team erstellen",
     recap_team_slim: "Mit Freunden?", recap_team_slim_btn: "🏆 Team gründen ›",
-    recap_acct_title: "Mit einem kostenlosen Konto",
+    recap_acct_title: "Mit einem Konto",
     recap_acct_1: "📊 Deine Statistiken & Serie bleiben erhalten",
     recap_acct_2: "☁️ Spiele auf all deinen Geräten weiter",
-    recap_acct_free: "Immer 100% kostenlos — keine Bezahlversion, keine Werbung.",
+    acct_promise_title: "Kostenlos, für immer",
+    acct_promise_text: "Jaardle ist mein Hobbyprojekt: keine Werbung, keine Bezahlversion. Deine E‑Mail dient nur zum Anmelden.",
     streak_won: (n) => n === 1 ? "🔥 Serie gestartet — komm morgen wieder!" : `🔥 ${n} Tage in Folge!`,
     streak_lost: (n) => `💔 Serie von ${n} ${n === 1 ? "Tag" : "Tagen"} gerissen — morgen neue Chance!`,
     streak_saved: (n) => `🔥 Serie gerettet — ${n} ${n === 1 ? "Tag" : "Tage"} in Folge!`,
@@ -1272,7 +1272,6 @@ const I18N = {
     auth_provider_disabled: "Este método de inicio de sesión no está activado.",
     auth_network: "Error de red, comprueba tu conexión.",
     auth_failed: "Error al iniciar sesión.",
-    login_note: `El inicio de sesión funciona a través de <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). Las contraseñas se guardan cifradas (bcrypt), nunca en texto plano, y solo se almacenan tu correo y tus resultados de juego — no se comparten con terceros.`,
     footer_note: `Acontecimientos de <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contacto</a>`,
     credits_title: "Créditos",
     credits_note: `Acontecimientos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipedia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animaciones <a href="https://creativecommons.org/licenses/by/4.0/deed.es" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fuente web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
@@ -1395,10 +1394,11 @@ const I18N = {
     recap_login: "Inicia sesión para ver el marcador de tu equipo.", recap_login_btn: "🔑 Iniciar sesión",
     recap_team_ghost: "Tu primer compañero", recap_team_cap: "Así se ve tu equipo. Juega con amigos o únete a jugadores sin equipo.", recap_team_make: "🏆 Crea tu equipo",
     recap_team_slim: "¿Con amigos?", recap_team_slim_btn: "🏆 Crear equipo ›",
-    recap_acct_title: "Con una cuenta gratuita",
+    recap_acct_title: "Con una cuenta",
     recap_acct_1: "📊 Tus estadísticas y tu racha se conservan",
     recap_acct_2: "☁️ Sigue jugando en todos tus dispositivos",
-    recap_acct_free: "Siempre 100% gratis — sin versión de pago, sin anuncios.",
+    acct_promise_title: "Gratis, para siempre",
+    acct_promise_text: "Jaardle es mi proyecto personal: sin anuncios, sin versión de pago. Tu correo solo sirve para iniciar sesión.",
     streak_won: (n) => n === 1 ? "🔥 ¡Racha iniciada — vuelve mañana!" : `🔥 ¡${n} días seguidos!`,
     streak_lost: (n) => `💔 Racha de ${n} ${n === 1 ? "día" : "días"} perdida — ¡mañana, otra oportunidad!`,
     streak_saved: (n) => `🔥 Racha salvada — ¡${n} ${n === 1 ? "día" : "días"} seguidos!`,
@@ -1629,7 +1629,6 @@ const I18N = {
     auth_provider_disabled: "Este método de login não está ativado.",
     auth_network: "Erro de rede, verifique sua conexão.",
     auth_failed: "Falha ao entrar.",
-    login_note: `O login é feito através do <a href="https://supabase.com/docs/guides/auth" target="_blank" rel="noopener">Supabase Auth</a> (Google, Discord). As senhas são armazenadas com hash (bcrypt), nunca em texto puro, e apenas o seu e-mail e os resultados de jogo são guardados — não compartilhados com terceiros.`,
     footer_note: `Acontecimentos da <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="mailto:contact@jaardle.com">${MAIL_ICON}Contato</a>`,
     credits_title: "Créditos",
     credits_note: `Acontecimentos: <a href="https://en.wikipedia.org/wiki/Main_Page" target="_blank" rel="noopener">Wikipédia</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-SA 4.0</a><br>Emoji: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto</a> © Google — animações <a href="https://creativecommons.org/licenses/by/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY 4.0</a>, <a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">fonte web</a> (subconjunto) <a href="/fonts/OFL.txt" target="_blank" rel="noopener">OFL 1.1</a>`,
@@ -1752,10 +1751,11 @@ const I18N = {
     recap_login: "Entre para ver o placar da sua equipe.", recap_login_btn: "🔑 Entrar",
     recap_team_ghost: "Seu primeiro colega", recap_team_cap: "Assim fica sua equipe. Jogue com amigos ou entre com jogadores sem equipe.", recap_team_make: "🏆 Crie sua equipe",
     recap_team_slim: "Com amigos?", recap_team_slim_btn: "🏆 Criar equipe ›",
-    recap_acct_title: "Com uma conta gratuita",
+    recap_acct_title: "Com uma conta",
     recap_acct_1: "📊 Suas estatísticas e sua sequência são preservadas",
     recap_acct_2: "☁️ Continue jogando em todos os seus dispositivos",
-    recap_acct_free: "Sempre 100% grátis — sem versão paga, sem anúncios.",
+    acct_promise_title: "Grátis, para sempre",
+    acct_promise_text: "O Jaardle é meu projeto pessoal: sem anúncios, sem versão paga. Seu e‑mail serve só para entrar.",
     streak_won: (n) => n === 1 ? "🔥 Sequência iniciada — volte amanhã!" : `🔥 ${n} dias seguidos!`,
     streak_lost: (n) => `💔 Sequência de ${n} ${n === 1 ? "dia" : "dias"} perdida — amanhã tem outra chance!`,
     streak_saved: (n) => `🔥 Sequência salva — ${n} ${n === 1 ? "dia" : "dias"} seguidos!`,
@@ -5092,6 +5092,7 @@ function syncDoor() {
   // het Jaardle-icoontje van de skin (de head zet de favicon om; de template heeft het gewone)
   const jt = d.querySelector('.kw-tile[data-w="j"] img'), ic = document.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute("href");
   if (jt && ic && jt.getAttribute("src") !== ic) jt.setAttribute("src", ic);
+  if (ic) document.querySelectorAll(".acct-promise-logo").forEach((im) => { if (im.getAttribute("src") !== ic) im.setAttribute("src", ic); });   // "Gratis, voor altijd"
 }
 function doorTap() {
   const at = worldNow();
@@ -8699,8 +8700,19 @@ function recapAccountHtml() {
       <button type="button" class="google-btn js-google-btn">${googleIcon}<span>${t("login_google")}</span></button>
       <p class="recap-alt">${t("login_or_with")} <button type="button" class="link-btn js-discord-btn">Discord</button><span aria-hidden="true">·</span><button type="button" class="link-btn js-acct-btn">${t("login_alt_mail")}</button></p>
     </div>
-    <p class="recap-free">${t("recap_acct_free")}</p>
+    ${acctPromiseHtml()}
   </div>`;
+}
+
+// "Gratis, voor altijd" onder de inlogknop (23/11/2026, zijn "duidelijk dat het free forever is, dat ze snappen dat dit echt
+// altruïsme is van mijn kant; nu lijkt het misschien: aha, ik ga niet mijn data geven of dan later zeker betalen"; mockup
+// https://claude.ai/artifact/3kR4Fq8KDCr1XMrZA7JH9d). Verving het grijze regeltje "Altijd 100% gratis" onderaan het kaartje en de
+// technische regel over Supabase/bcrypt in de login-modal: één blokje op alle plekken. De bron staat in de login-modal (zoals het
+// Google-logo hierboven); het logo volgt de skin (syncDoor). Zonder DOM (tests) bouwt hij het uit dezelfde strings.
+function acctPromiseHtml() {
+  const src = document.querySelector("#modal-login .acct-promise");
+  if (src) return src.outerHTML;
+  return `<div class="acct-promise"><img class="acct-promise-logo" src="/favicon.svg?v=2" alt="" width="30" height="30"><div><b>${escHtml(t("acct_promise_title"))}</b><p>${escHtml(t("acct_promise_text"))}</p></div></div>`;
 }
 
 // ⚔️ Weekstand als RACE in de recap (grill 3/10). Een podium is een uitslag, de
@@ -13095,7 +13107,20 @@ function wireAcctPitch(container, from) {
   if (google) google.onclick = () => { gcCount("acct-google", "Account card: Google"); doGoogleSignIn(google, from); };
   const discord = container.querySelector(".js-discord-btn");
   if (discord) discord.onclick = () => { gcCount("acct-discord", "Account card: Discord"); doDiscordSignIn(discord, from); };
-  if (from === "recap") gcCountDaily("acct-card-daily", "Account card shown (daily end screen)");
+  if (from === "recap") {
+    gcCountDaily("acct-card-daily", "Account card shown (daily end screen)");
+    // acct-card-seen-daily (23/11/2026): het kaartje staat onderaan het eindscherm, onder Delen; acct-card-daily telt al bij het
+    // openen. Deze telt pas als minstens de helft echt in beeld is geweest, zodat "niet gezien" en "gezien, niet getikt" uit elkaar gaan.
+    const card = container.querySelector(".recap-account");
+    if (card && typeof IntersectionObserver === "function") {
+      const io = new IntersectionObserver((es) => {
+        if (!es.some((en) => en.isIntersecting)) return;
+        io.disconnect();
+        gcCountDaily("acct-card-seen-daily", "Account card seen (daily end screen)");
+      }, { threshold: 0.5 });
+      io.observe(card);
+    }
+  }
   wireRtPerk(container);
 }
 

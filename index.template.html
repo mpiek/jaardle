@@ -171,7 +171,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=249">
+<link rel="stylesheet" href="/style.css?v=250">
 </head>
 <body>
   <main>
@@ -459,7 +459,9 @@
           <button type="button" id="login-forgot" class="link-btn" data-i18n="login_forgot">{{i18n:login_forgot}}</button>
         </form>
         <p id="login-error" class="form-error" hidden></p>
-        <p class="form-note" data-i18n-html="login_note">{{i18nhtml:login_note}}</p>
+        <!-- "Gratis, voor altijd" (23/11/2026): de bron van het blokje; game.js acctPromiseHtml() zet hetzelfde onder de knop in het
+             account-kaartje, syncDoor zet het logo van de skin. Verving de technische regel over Supabase/bcrypt. -->
+        <div class="acct-promise"><img class="acct-promise-logo" src="/favicon.svg?v=2" alt="" width="30" height="30"><div><b data-i18n="acct_promise_title">{{i18n:acct_promise_title}}</b><p data-i18n="acct_promise_text">{{i18n:acct_promise_text}}</p></div></div>
       </div>
     </div>
   </div>
@@ -580,7 +582,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=500"></script>
+  <script src="/game.js?v=501"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

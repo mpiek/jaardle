@@ -2845,12 +2845,22 @@ html[data-tlload]::after { content: "🗓️"; }   /* de Timeline-pagina (/timel
   line-height: 1.5;
 }
 .recap-perks li { margin: 0.3rem 0; }
-.recap-free {
-  margin: 0.7rem 0 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.82rem;
+/* "Gratis, voor altijd" (23/11/2026): één blokje onder de inlogknop, in het account-kaartje én de login-modal (game.js
+   acctPromiseHtml). Een iets diepere ondergrond (--bg door het kaartje heen) maakt er een eigen notitie van, zonder rand. */
+.acct-promise {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
 }
+.recap-account .acct-promise { width: 100%; max-width: 17rem; margin: 0.85rem auto 0; }
+.acct-promise-logo { flex: none; width: 30px; height: 30px; border-radius: 7px; margin-top: 2px; }
+.acct-promise > div { min-width: 0; }
+.acct-promise b { display: block; font-size: 0.92rem; color: var(--fg); }
+.acct-promise p { margin: 0.15rem 0 0; font-size: 0.82rem; line-height: 1.42; color: var(--muted); }
 /* Aanmeld-keuze in het pitch-kaartje: Google als hoofdknop (zelfde .google-btn als de login-modal), eronder
    "of met e-mail" als rustige link die de modal opent. Padding op de link: een aantikbaar doel, geen los woord. */
 .recap-signin { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin-top: 0.8rem; }
