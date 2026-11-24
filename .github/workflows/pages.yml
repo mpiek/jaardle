@@ -40,10 +40,13 @@ jobs:
             --exclude='tools/' \
             --exclude='*.template.html' \
             ./ /tmp/site/
-      - uses: actions/upload-pages-artifact@v3
+      # v5/v5 sinds 24/11/2026: met v3/v4 faalde de deploy vier keer op rij ("Deployment failed, try again later" en
+      # "No artifacts named github-pages"). v5 uploadt via upload-artifact v7, deploy-pages v5.0.1 pollt met backoff.
+      # Vanaf v4 gaan dotfiles niet meer mee; de site heeft er geen.
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: /tmp/site
       # NB: langer laten wachten kan niet — deploy-pages topt z'n
       # timeout-input intern af op 10 min (MAX_TIMEOUT in de action).
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
