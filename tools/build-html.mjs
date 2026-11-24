@@ -75,10 +75,13 @@ function hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, dir = "") {
 // at/next/label (22/11/2026): de deur naast 🌐 gaat rond Jaardle → Duels → Timeline → Jaardle. at = deze pagina (data-at op #world-door,
 // style.css kiest daarmee tegel en stipje), next = de pagina achter de deur (de echte link), label = de naam daarvan (aria-label; voor
 // Duels de vertaling door_duels uit I18N). noindex: de pagina staat niet in de sitemap en krijgt <meta name="robots" content="noindex">.
+// ldName (24/11/2026): de naam in de structured data (ld+json), zodat Google /duels/ en /timeline/ als eigen spel ziet en niet als
+// nog een "Jaardle". Krijgt get(key) voor een vertaling; zonder ldName is het "Jaardle".
 const PAGES = [
   { dir: "", at: "j", next: "duels", strings: null },
   // aliases: extra adressen die alleen doorsturen (22/11, zijn "ja doe maar": wie jaardle.com/duel intikt, belandt niet op een 404).
-  { dir: "duels", at: "d", next: "timeline", label: "Timeline", aliases: ["duel"], image: "/og-duel.jpg", strings: {
+  { dir: "duels", at: "d", next: "timeline", label: "Timeline", aliases: ["duel"], image: "/og-duel.jpg",
+    ldName: (get) => `Jaardle ${get("door_duels")}`, strings: {
     nl: { meta_title: "Jaardle Duels — daag een vriend uit: wie raadt het jaar het best?",
       meta_share_title: "⚔️ Jaardle-duel: daag een vriend uit",
       meta_desc: "Daag een vriend uit voor een Jaardle-duel: jullie raden het jaar van dezelfde 5 historische gebeurtenissen, van makkelijk naar moeilijk. Per ronde wint de hoogste score. Gratis, zonder account.",
@@ -108,7 +111,7 @@ const PAGES = [
   // 🗓️ Timeline (22/11/2026): eerst een losse alpha-pagina, nu een pagina van de app (zijn "zelfde bovenscherm als duels dat je ook profiel
   // enzo hebt want is 1 account"). Titel en kop per taal met het eigen woord voor tijdlijn. Eerst alpha met noindex; sinds 24/11 vindbaar
   // en in de sitemap (Search Console: "Excluded by 'noindex' tag").
-  { dir: "timeline", at: "t", next: "", label: "Jaardle", strings: {
+  { dir: "timeline", at: "t", next: "", label: "Jaardle", ldName: () => "Jaardle Timeline", strings: {
     nl: { meta_title: "Jaardle Timeline — leg de geschiedenis op volgorde (tijdlijn-spel)",
       meta_share_title: "🗓️ Jaardle Timeline: leg de geschiedenis op volgorde",
       meta_desc: "Leg historische gebeurtenissen op de goede plek in je tijdlijn. Elke kaart draait om en laat het jaar zien. Drie fouten en je bent af. Gratis, zonder account.",
@@ -232,6 +235,7 @@ function render(template, code, mod, csp, gameSrc, page = PAGES[0]) {
     .replace(/\{\{og\}\}/g, meta.og)
     .replace(/\{\{hreflang\}\}/g, hreflangBlock(LANGS, LANG_CODES, DEFAULT_LANG, page.dir))
     .replace(/\{\{pageHead\}\}/g, pageHead(page))
+    .replace(/\{\{ldName\}\}/g, () => JSON.stringify(page.ldName ? page.ldName(get) : "Jaardle"))
     .replace(/\{\{json:([\w.-]+)\}\}/g, (_, k) => JSON.stringify(get(k)))
     .replace(/\{\{i18nhtml:([\w.-]+)\}\}/g, (_, k) => get(k))          // ruwe HTML
     .replace(/\{\{i18n:([\w.-]+)\}\}/g, (_, k) => escAttr(get(k)));    // tekst/attribuut

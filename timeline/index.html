@@ -19,6 +19,7 @@
     i18n:<key>      → platte tekst uit I18N[lang][key] (HTML-geëscaped)
     i18nhtml:<key>  → HTML-waarde uit I18N[lang][key] (ruw, mag tags bevatten)
     json:<key>      → JSON-geëscapede waarde (voor ld+json)
+    ldName          → de naam in ld+json, per pagina ("Jaardle", "Jaardle Duels", "Jaardle Timeline"; PAGES[].ldName)
   Asset-paden zijn root-absoluut (/style.css, /game.js) zodat dezelfde template
   vanaf zowel de root als een subdir (/en, /de) werkt. Versie-bumps (?v=) doe je
   hier; de build kopieert ze naar elke mirror.
@@ -78,7 +79,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Jaardle",
+  "name": "Jaardle Timeline",
   "url": "https://jaardle.com/timeline/",
   "applicationCategory": "GameApplication",
   "operatingSystem": "Web",

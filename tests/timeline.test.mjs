@@ -94,6 +94,11 @@ test("Timeline-pagina — de build schrijft /timeline/ in elke taal: vindbaar, i
   }
   for (const url of Object.values(pages).map(([, u]) => u)) assert.match(read("sitemap.xml"), new RegExp(`<loc>https://jaardle\\.com${url}</loc>`), `${url} in de sitemap`);
   assert.ok(!/<meta name="robots"/.test(main) && !/<meta name="robots"/.test(read("nl/duels/index.html")), "Jaardle en Duels zijn ook vindbaar");
+  // ld+json (24/11): elke modus heet in de structured data naar zichzelf, Duels in de taal van de pagina
+  const ldName = (f) => JSON.parse(read(f).match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]).name;
+  for (const f of Object.keys(pages)) assert.equal(ldName(f), "Jaardle Timeline", `${f}: ld+json-naam`);
+  for (const [f, n] of [["index.html", "Jaardle"], ["nl/index.html", "Jaardle"], ["duels/index.html", "Jaardle Duels"], ["nl/duels/index.html", "Jaardle Duels"],
+    ["de/duels/index.html", "Jaardle Duelle"], ["es/duels/index.html", "Jaardle Duelos"], ["pt/duels/index.html", "Jaardle Duelos"]]) assert.equal(ldName(f), n, `${f}: ld+json-naam`);
   // de deur op Duels gaat naar Timeline, op Jaardle naar Duels
   assert.match(read("nl/duels/index.html"), /<a id="world-door" class="kop-door kop-wheel" data-at="d" href="\/nl\/timeline\/" aria-label="Timeline"/);
   assert.match(main, /<a id="world-door" class="kop-door kop-wheel" data-at="j" href="\/nl\/duels\/"/);
