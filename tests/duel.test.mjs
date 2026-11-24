@@ -1446,23 +1446,26 @@ test("duel.js ↔ db/225 — Rated gaat alleen mee als hij uit staat; de eindsta
   assert.match(sql, /create function public\.get_my_duel_rating_history\(\)/);
 });
 
-test("duel.js — 🤖 de bot die klaarstaat (22/11): Pip zonder vaste rating en dan de ladder op, anders de dichtste; als laatste in Jouw beurt", () => {
+test("duel.js — 🤖 de bot die klaarstaat (22/11, 24/11): de ladder op vanaf Pip, nooit een bot waar je achterstaat; als laatste in Wacht", () => {
   const T = D.copy("nl");
   const B = (pw, rw, fw) => [{ key: "prof", k: "kf", name: "Prof", flair: "🧠", elo: 1800, w: fw, l: 0 }, { key: "pip", k: "kp", name: "Pip", flair: "🐣", elo: 1100, w: pw, l: 0 },
                              { key: "robo", k: "kr", name: "Robo", flair: "🤖", elo: 1455, w: rw, l: 1 }];
   const ready = (h, bots) => { X.setHost(host({ faceHue: () => 330, ...h })); X.applyList({ items: [], h2h: {}, targets: [], bots }); return X.readyBot()?.key; };
-  // zonder account: Pip, na een zege op de klaarstaande bot de volgende; alles verslagen = de sterkste
+  // Pip, na een zege op de klaarstaande bot de volgende; alles verslagen = de sterkste
   assert.equal(ready({}, B(0, 0, 0)), "pip");
-  assert.equal(ready({}, B(1, 0, 0)), "robo");
-  assert.equal(ready({}, B(2, 1, 0)), "prof");
+  assert.equal(ready({}, B(2, 1, 0)), "prof", "Robo 1–1 = gelijk, dus door naar Prof (0–0)");
   assert.equal(ready({}, B(1, 1, 1)), "prof");
   assert.equal(ready({}, B(0, 0, 1)), "prof", "de hoogste die je ooit versloeg + 1 (hier al de top)");
-  // met een account: onder 25 potjes (? op het bord) of zonder rating nog de ladder; daarna de dichtste bij je ⚡ (= ≈ jij)
-  assert.equal(ready({ loggedIn: true, myRating: () => 1700, myRatingGames: () => 24 }, B(0, 0, 0)), "pip");
-  assert.equal(ready({ loggedIn: true, myRating: () => null, myRatingGames: () => null }, B(1, 0, 0)), "robo");
-  assert.equal(ready({ loggedIn: true, myRating: () => 1560, myRatingGames: () => 25 }, B(0, 0, 0)), "robo");
-  assert.equal(ready({ loggedIn: true, myRating: () => 1700, myRatingGames: () => 80 }, B(0, 0, 0)), "prof");
-  assert.equal(ready({ loggedIn: true, myRating: () => 1250, myRatingGames: () => 80 }, B(3, 3, 3)), "pip", "met een rating telt alleen de afstand");
+  // 24/11 (zijn "alleen de bot aanraden bij duels waar je een neutraal of hogere score hebt"): sta je achter, dan een stap omlaag
+  assert.equal(ready({}, B(1, 0, 0)), "pip", "Pip verslagen, maar tegen Robo 0–1: Pip blijft klaarstaan");
+  const P = (pip, robo, prof) => [{ key: "pip", name: "Pip", elo: 1100, ...pip }, { key: "robo", name: "Robo", elo: 1455, ...robo }, { key: "prof", name: "Prof", elo: 1800, ...prof }];
+  assert.equal(ready({}, P({ w: 3 }, { w: 2 }, { w: 1, bl: 3 })), "robo", "Prof ooit verslagen, nu 1–3 (⚡ + ⚔️ samen): Robo");
+  assert.equal(ready({}, P({ w: 3 }, { w: 1, l: 1, bw: 0, bl: 1 }, { w: 1, l: 2 })), "pip", "twee stappen omlaag");
+  assert.equal(ready({}, P({ l: 1 }, {}, {})), "pip", "overal achter of nooit gespeeld boven Pip: Pip");
+  assert.equal(ready({}, P({ w: 1, bl: 1 }, { bw: 1 }, {})), "prof", "Pip 1–1 telt als gelijk; Robo in Best of 5 verslagen: Prof (0–0)");
+  // je ⚡ telt niet meer mee (24/11, zijn "je rating is niet indicatief genoeg")
+  assert.equal(ready({ loggedIn: true, myRating: () => 1700 }, B(0, 0, 0)), "pip");
+  assert.equal(ready({ loggedIn: true, myRating: () => 1250 }, B(3, 3, 3)), "prof");
   // de kaart: zijn zin zolang je nooit tegen hem speelde, daarna jullie stand
   ready({}, B(0, 0, 0));
   const robo = X.listBots().find((b) => b.key === "robo");
@@ -1470,11 +1473,11 @@ test("duel.js — 🤖 de bot die klaarstaat (22/11): Pip zonder vaste rating en
   // in de lijst: onder Daag iemand uit, als laatste in Wacht; het getal telt hem niet mee
   const now = new Date().toISOString(), soon = new Date(Date.now() + 5 * 3600e3).toISOString();
   const turn = { code: "TTTTTT", status: "active", opp: "kb", me: "c", c_name: "Noor", o_name: "Bram", created_at: now, deadline: soon, mine: [80], theirs: [70, 60], their_done: 2 };
-  X.setHost(host({ loggedIn: true, myName: () => "Noor", faceHue: () => 330, myRating: () => 1500, myRatingGames: () => 40 }));
+  X.setHost(host({ loggedIn: true, myName: () => "Noor", faceHue: () => 330, myRating: () => 1500 }));
   X.applyList({ items: [turn], h2h: {}, targets: [], bots: B(0, 0, 0) });
   const h = X.listBody(T, [turn], "", null);
   assert.ok(h.indexOf('data-code="TTTTTT"') < h.indexOf("Daag iemand uit") && h.indexOf("Daag iemand uit") < h.indexOf('data-sec="wait"') &&
-    h.indexOf('data-sec="wait"') < h.indexOf('data-act="botgo" data-bot="robo"'), "Jouw beurt, Daag iemand uit, dan Wacht met de bot");
+    h.indexOf('data-sec="wait"') < h.indexOf('data-act="botgo" data-bot="pip"'), "Jouw beurt, Daag iemand uit, dan Wacht met de bot");
   assert.match(h, /data-sec="wait" aria-expanded="true">Wacht<span class="dl-hc"/, "het getal van Wacht telt de bot niet");
   // wacht je op iemand: die eerst, de bot als laatste; Wacht · 2 blijft het aantal mensen
   const out1 = { code: "OOOOO1", status: "open", me: "c", c_name: "Noor", created_at: now, deadline: soon, mine: [], theirs: [] };
@@ -1482,12 +1485,12 @@ test("duel.js — 🤖 de bot die klaarstaat (22/11): Pip zonder vaste rating en
   X.applyList({ items: [out1, out2], h2h: {}, targets: [], bots: B(0, 0, 0) });
   const hw = X.listBody(T, [out1, out2], "", null);
   assert.match(hw, />Wacht · 2<span class="dl-hc"/);
-  assert.ok(hw.indexOf('data-code="OOOOO2"') < hw.indexOf('data-bot="robo"'), "de bot na je eigen uitdagingen");
+  assert.ok(hw.indexOf('data-code="OOOOO2"') < hw.indexOf('data-bot="pip"'), "de bot na je eigen uitdagingen");
   // een afgemaakt duel, niets lopend: geen kop Jouw beurt, wel Wacht met alleen de bot
   const done = { ...turn, code: "DDDDDD", status: "done", seen: true, finished_at: now, mine: [9, 9, 9, 9, 9], theirs: [1, 1, 1, 1, 1] };
   X.applyList({ items: [done], h2h: {}, targets: [], bots: B(0, 0, 0) });
   const hd = X.listBody(T, [done], "", null);
-  assert.ok(!hd.includes('data-sec="turn"') && /data-sec="wait"[^]*data-act="botgo" data-bot="robo"/.test(hd));
+  assert.ok(!hd.includes('data-sec="turn"') && /data-sec="wait"[^]*data-act="botgo" data-bot="pip"/.test(hd));
   // tik = een knock-out tegen die bot (zoals de pop-up)
   let started = null;
   X.setHost(host({ ko: () => Promise.resolve({ botStart: (h2, k) => { started = k; } }) }));
@@ -1605,10 +1608,11 @@ test("duel.js — 🤖 db/232 de bot-kaart op het eindscherm van de daily: zelfd
                 { key: "pip", name: "Pip", flair: "🐣", elo: 1100, w: 0, l: 0, bw: 0, bl: 0 },
                 { key: "robo", name: "Robo", flair: "🤖", elo: 1455, w: 0, l: 0, bw: 0, bl: 0 }];
   const h = host({ faceHue: () => 330 });
-  // zonder rating: Pip; na een zege op Pip: Robo; met een vaste rating: de dichtste
+  // dezelfde keuze als in Duels: Pip; na een zege op Pip Robo; achter tegen Robo weer Pip; je ⚡ telt niet
   assert.equal(D.daily.ready(h, bots).key, "pip");
   assert.equal(D.daily.ready(h, bots.map((b) => (b.key === "pip" ? { ...b, w: 1 } : b))).key, "robo");
-  assert.equal(D.daily.ready(host({ loggedIn: true, myRating: () => 1750, myRatingGames: () => 40 }), bots).key, "prof");
+  assert.equal(D.daily.ready(h, bots.map((b) => (b.key === "pip" ? { ...b, w: 1 } : b.key === "robo" ? { ...b, bl: 1 } : b))).key, "pip");
+  assert.equal(D.daily.ready(host({ loggedIn: true, myRating: () => 1750 }), bots).key, "pip");
   assert.equal(D.daily.ready(h, []), null);
   // met band (boven de stand) en zonder band (onder de rij), met zijn eigen regel
   D.daily.mode("k");

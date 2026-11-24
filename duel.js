@@ -2908,7 +2908,6 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
     const err = msg ? `<p class="dl-msg duel-err">${esc(msg)} <button type="button" class="dl-mini" data-act="reload">${esc(T.retry)}</button></p>` : "";
     const koLive = (koNow() && window.KO.liveHtml?.(H)) || "";   // ⚡ een knock-out die nu loopt (20/11): de kaart terug naar het spel
     const rb = readyBot();   // 🤖 de bot die klaarstaat (22/11): als uitdaging, ook zonder account
-    readyKey = rb?.key || null;
     // De bot die klaarstaat hoort bij Wacht, onder "Daag een vriend uit" (22/11, zijn "logischer dat die invite onder de challenge a friend
     // komt te staan, het moet gewoon bij waiting staan en die hoort daaronder"); de bots, laatste kaart, telt niet mee in het getal.
     const waitBot = () => (rb && !shut.has("wait") ? botCardHtml(T, rb) : "");
@@ -3083,11 +3082,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   }
   // 🤖 De bot die klaarstaat (22/11/2026, zijn idee: "dat er altijd een challenge klaar staat van bot van jouw dichtste rating zodat nieuwe
   // spelers ook gelijk 1 druk play kunnen doen; maar hun starten met pip als ze unrated zijn"; mockup
-  // https://claude.ai/artifact/8M32TzfMpK2m8a8Y31Gw1U). Met een vaste ⚡ (account, ≥ 25 potjes, zoals de ? op het bord) de bot die het
-  // dichtst bij je rating zit (= "≈ jij"); anders de eerste (Pip), en na een zege op hem de volgende (de hoogste die je ooit versloeg + 1).
-  // Niet zolang er een knock-out loopt: die kaart staat er dan al. Alleen uit duel_list (bots met jouw stand) en get_my_rating.
-  const BOT_FIRM = 25;
-  let readyKey = null;   // de bot op de kaart: komt je rating later binnen en verandert hij, dan de lijst opnieuw
+  // https://claude.ai/artifact/8M32TzfMpK2m8a8Y31Gw1U). Sinds 24/11 (zijn "laten we toch alleen de bot aanraden bij duels waar je een
+  // neutraal of hogere score hebt; je rating is niet indicatief genoeg") telt je ⚡ niet meer, alleen je stand tegen de bots: de ladder
+  // (Pip, na een zege op een bot de volgende = de hoogste die je ooit versloeg + 1) en daarvandaan omlaag tot een bot waar je niet
+  // achterstaat (zeges ≥ nederlagen, ⚡ en ⚔️ samen; 0–0 = gelijk). Sta je overal achter: Pip.
+  // Niet zolang er een knock-out loopt: die kaart staat er dan al. Alleen uit duel_list (bots met jouw stand).
   function readyBot() {
     if (!listBots.length || koNow()) return null;
     return pickReady(listBots);
@@ -3096,16 +3095,11 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   function pickReady(list) {
     const bots = list.filter((b) => Number.isFinite(Number(b.elo))).sort((a, b) => a.elo - b.elo);
     if (!bots.length) return null;
-    const r = H?.loggedIn ? H.myRating?.() : null, n = H?.myRatingGames?.() ?? 0;
-    if (r != null && n >= BOT_FIRM) return bots.reduce((a, b) => (Math.abs(b.elo - r) < Math.abs(a.elo - r) ? b : a));
     let top = -1;
     bots.forEach((b, i) => { if (botBeaten(b)) top = i; });   // db/227: ook een zege in Best of 5
-    return bots[Math.min(top + 1, bots.length - 1)];
+    for (let i = Math.min(top + 1, bots.length - 1); i >= 0; i--) if (!botBehind(bots[i])) return bots[i];
+    return bots[0];
   }
-  window.addEventListener?.("jaardle:rating", () => {
-    const m = document.getElementById("modal-duels");
-    if (H && listItems && m && !m.hidden && (readyBot()?.key || null) !== readyKey) renderList(tx(H.lang), null);
-  });
   // De kaart: dezelfde als "X daagt je uit" (band + regel, de hele kaart = Speel), zonder ✕ en zonder klok. Tweede regel: zijn zin zolang
   // je nog nooit tegen hem speelde, daarna jullie stand (zoals bij een vriend).
   // ⚔️ db/227 (22/11, zijn "wellicht ook in de auto challenge dat je kan kiezen tussen die twee icons"): op de kaart ⚡ en ⚔️ als twee
@@ -3133,6 +3127,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   }
   const botRec = (b, m = botMode) => (m === "b" ? [b.bw || 0, b.bl || 0] : [b.w || 0, b.l || 0]);
   const botBeaten = (b) => (b.w || 0) + (b.bw || 0) > 0;
+  const botBehind = (b) => (b.w || 0) + (b.bw || 0) < (b.l || 0) + (b.bl || 0);   // de bot die klaarstaat: hier sta je achter
   // mini = op de kaart: alleen de twee iconen als knopjes, de naam van de gekozen vorm erachter; anders (de pop-up) twee helften met naam
   function botModesHtml(T, mini = false) {
     const opt = (m, ico, name) => `<button type="button" class="bm-o" role="radio" data-act="bmode" data-bmode="${m}" aria-checked="${botMode === m}"` +
