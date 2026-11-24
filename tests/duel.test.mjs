@@ -1589,8 +1589,8 @@ test("de kop van Jaardle (23/11): JAARDLE-logo in het midden zoals DUELS en TIME
   assert.match(CSS, /\.mode-seg:has\(\.tab\[data-mode="free"\]\[aria-selected="true"\]\)::before \{ transform: translateX\(36px\); \}/, "het schuifje glijdt naar 🎲");
   assert.match(CSS, /\.tab:not\(\[aria-selected="true"\]\) \.tab-icon \{ filter: grayscale\(1\); opacity: 0\.45; \}/, "het andere icoon dooft");
   assert.match(CSS, /@supports not selector\(:has\(\*\)\) \{[^]*?\.tab\[aria-selected="true"\] \{ background: var\(--seg-thumb\);/, "zonder :has draagt het actieve vak het schuifje");
-  assert.match(CSS, /\.jl-badge rect \{ fill: var\(--jl-green\); \}/, "het logo: in donker een tint dieper (23/11, \"te fel\")");
-  assert.match(CSS, /:root \{[^}]*--jl-green: #388e3c;/, "donker: #388e3c");
+  assert.match(CSS, /\.jl-badge rect \{ fill: var\(--jl-green\); \}/, "het logo kleurt via --jl-green");
+  assert.match(CSS, /:root \{[^}]*--jl-green: #4caf50;[^}]*--jl-door-dim: none;/, "donker: weer ons eigen groen, de deur niet gedimd (24/11)");
   assert.match(CSS, /html\[data-theme="light"\] \{[^}]*--jl-green: #4caf50;/, "licht: het gewone groen");
   // echt in het midden als er ruimte is (zoals centerLogo in duel.js), en een tik = naar de daily
   assert.match(GAME, /function centerJlLogo\(\) \{[^]*?const dx = hi < lo \? 0 : Math\.round\(Math\.min\(hi, Math\.max\(lo, n\.left \+ \(n\.width - r\.width\) \/ 2\)\) - left0\);/);
