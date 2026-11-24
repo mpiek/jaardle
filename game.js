@@ -8676,9 +8676,10 @@ async function renderRecap() {
     auth.user ? ensureMyIdentity() : null,   // je flair staat in de pin; liever vóór het eerste tekenen dan erna
     recapEvent() ? ensureEventUi([recapEvent()]).catch(() => null) : null,   // de 🎃-tab: het event-bestand (+ kattenkopje), meestal al binnen via de strook
     recapEvent() && auth.user && !myHistoryCache ? getMyHistory().catch(() => null) : null,   // de stempels komen (mede) uit je server-historie
-    fetchDailyBotsForRecap(state.puzzleDate || todayKey()).catch(() => null),   // 🤖 db/232: de bots van vandaag (en /duel.js voor de kaart)
+    teamBotsOff() ? null : fetchDailyBotsForRecap(state.puzzleDate || todayKey()).catch(() => null),   // 🤖 db/232: de bots van vandaag (en /duel.js voor de kaart); in je team uitgezet (db/235): niet ophalen
   ]);
   if (document.getElementById("modal-recap").hidden) return;
+  body.classList.toggle("bots-off", teamBotsOff());   // 🤖 db/235: geen ijkpunt-rijen en geen kaart (ook als ze bij een koude start toch binnenkwamen)
   const teamRoom = !!auth.user && myPools.some((p) => (p.members || 0) >= 2);
   const streakHtml = streak.line ? `<p class="recap-streak">${withAnimEmoji(streak.line, streak.n ? streakFlameHtml(streak.n) : undefined)}</p>` : "";
   // Delen hoort bij dít scherm (het Wordle-moment): direct onder de verdeling,
@@ -9790,11 +9791,11 @@ for (const c in RT_I18N) Object.assign(I18N[c], RT_I18N[c]);
 // Eén aanroep per eindscherm, parallel met de rest. Mislukt die, dan is het eindscherm zoals vóór 23/11.
 // Teksten apart (zoals RT_I18N): de taalblokken liggen ver uit elkaar en gzip kijkt maar 32 KB terug.
 const BOTS_I18N = {
-  nl: { lb_bot: "bot", recap_team_cap_bots: "In een team speel je tegen vrienden in plaats van bots." },
-  en: { lb_bot: "bot", recap_team_cap_bots: "In a team you play against friends instead of bots." },
-  de: { lb_bot: "Bot", recap_team_cap_bots: "In einem Team spielst du gegen Freunde statt gegen Bots." },
-  es: { lb_bot: "bot", recap_team_cap_bots: "En un equipo juegas contra amigos en lugar de bots." },
-  pt: { lb_bot: "bot", recap_team_cap_bots: "Em uma equipe você joga contra amigos em vez de bots." },
+  nl: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In een team speel je tegen vrienden in plaats van bots." },
+  en: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In a team you play against friends instead of bots." },
+  de: { lb_bot: "Bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In einem Team spielst du gegen Freunde statt gegen Bots." },
+  es: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "En un equipo juegas contra amigos en lugar de bots." },
+  pt: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "Em uma equipe você joga contra amigos em vez de bots." },
 };
 for (const c in BOTS_I18N) Object.assign(I18N[c], BOTS_I18N[c]);
 const DAILY_BOTS_DUELS = 3;
@@ -9922,6 +9923,64 @@ async function toggleBotCard(row) {
   const html = botCardFor(row.dataset.bot);
   if (html) row.insertAdjacentHTML("afterend", html);
   else { row.classList.remove("pf-open"); row.setAttribute("aria-expanded", "false"); }
+}
+// 🤖 Bots aan/uit in een team (db/235, mockup 24/11 "Bots aan/uit"): de pill "Bots" naast de teamnaam boven het bord. Uit = geen
+// ijkpunt-rijen in Vandaag en geen bot-kaart boven de stand; de Week-race en 🔮 hadden al geen bots. In je profiel (prefs.bots,
+// ontbreekt = aan), dus het reist mee. Zonder team geldt het niet: daar zijn de bots het hele bord. Uit = ze niet ophalen.
+function teamBotsOff() { return !!(auth.user && myPool && prefsCache()?.p?.bots === false); }
+function botSwitchHtml(on) {
+  return `<button type="button" class="lb-botsw" role="switch" aria-checked="${on}">${escHtml(t("lb_bots_sw"))}</button>`;
+}
+// De rijen en de kaart vouwen weg (uit) of open (aan); daarna (of zonder beweging meteen) regelt .bots-off het.
+function botsFold(body, on) {
+  body.querySelectorAll(".lb-botrow.pf-open").forEach((r) => { r.classList.remove("pf-open"); r.setAttribute("aria-expanded", "false"); });
+  body.querySelectorAll(".dl-card.bc-in").forEach((c) => c.remove());
+  body.getAnimations?.({ subtree: true }).forEach((a) => { if (a.id === "bots-fold") a.cancel(); });
+  if (on) body.classList.remove("bots-off");
+  const els = [...body.querySelectorAll(".recap-botcard, #recap-team-board .lb-pace")].filter((el) => el.offsetHeight > 0);
+  if (!els.length || typeof Element.prototype.animate !== "function" || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    body.classList.toggle("bots-off", !on);
+    return;
+  }
+  let left = els.length;
+  const anims = els.map((el) => {
+    const cs = getComputedStyle(el);
+    const full = { opacity: 1, height: el.offsetHeight + "px", marginTop: cs.marginTop, marginBottom: cs.marginBottom, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom };
+    const flat = { opacity: 0, height: "0px", marginTop: el.classList.contains("lb-row") ? "-2px" : "0px", marginBottom: "0px", paddingTop: "0px", paddingBottom: "0px" };
+    el.style.overflow = "hidden";
+    const a = el.animate(on ? [flat, full] : [full, flat],
+      { id: "bots-fold", duration: on ? 260 : 220, easing: on ? "cubic-bezier(.2,.7,.2,1)" : "cubic-bezier(.4,0,.8,.4)", fill: on ? "none" : "forwards" });
+    a.onfinish = () => {
+      if (on) { el.style.overflow = ""; return; }
+      if (--left > 0) return;
+      body.classList.add("bots-off");   // eerst dicht, dan pas de platte stand loslaten: geen flits terug
+      anims.forEach((x) => x.cancel());
+    };
+    a.oncancel = () => { el.style.overflow = ""; };
+    return a;
+  });
+}
+function wireBotSwitch(root) {
+  const sw = root.querySelector(".lb-botsw");
+  if (!sw) return;
+  sw.onclick = async () => {
+    const on = sw.getAttribute("aria-checked") !== "true";
+    sw.setAttribute("aria-checked", String(on));
+    setMyPref("bots", on);
+    gcCount(on ? "daily-bots-on" : "daily-bots-off", on ? "Daily bots: switched on in a team" : "Daily bots: switched off in a team");
+    const body = document.getElementById("recap-body");
+    if (!body) return;
+    const date = state.puzzleDate || todayKey();
+    if (!on || botsOn(date).length) { botsFold(body, on); return; }
+    // Aan, maar ze stonden uit bij het openen (dus niet opgehaald): eerst ophalen, dan kaart en bord opnieuw, dan openvouwen.
+    const db = await fetchDailyBotsForRecap(date).catch(() => null);
+    if (document.getElementById("modal-recap").hidden || teamBotsOff() || !db || !botsOn(date, db).length) return;
+    body.classList.add("bots-off");
+    const sec = document.getElementById("recap-team")?.closest(".recap-section");
+    if (sec && !body.querySelector(".recap-botcard")) sec.insertAdjacentHTML("beforebegin", recapBotCardHtml());
+    await loadRecapTeam();
+    if (!teamBotsOff()) botsFold(body, true);
+  };
 }
 // ⚡/⚔️ en spelen, op de kaart boven de stand en op die onder een botrij (de klikken van de kaart in Duels zitten in /duel.js).
 document.addEventListener("click", (e) => {
@@ -10078,10 +10137,14 @@ async function loadRecapTeam() {
     return;
   }
   // Bij 2+ pools staat dezelfde teamkiezer als in het bord boven het teambord; het bord
-  // zelf zit in een eigen div zodat setBoard de kiezer niet wegvaagt.
-  wrap.innerHTML = (myPools.length >= 2 ? `<div class="lb-poolname lb-poolpick-row">${poolPickerHtml()}</div>` : "") +
+  // zelf zit in een eigen div zodat setBoard de kiezer niet wegvaagt. 🤖 db/235: met bots ernaast de pill "Bots" (dan ook
+  // bij één team een rij, met alleen de naam).
+  const botSw = teamBotsOff() || botsOn(todayKey()).length > 0;
+  wrap.innerHTML = (myPools.length >= 2 || botSw
+    ? `<div class="lb-poolname lb-poolpick-row${botSw ? " lb-teamrow" : ""}">${poolPickerHtml()}${botSw ? botSwitchHtml(!teamBotsOff()) : ""}</div>` : "") +
     `<div id="recap-team-board"><p class="lb-empty">${t("loading")}</p></div>`;
   wirePoolPicker(wrap, loadRecapTeam);
+  wireBotSwitch(wrap);
   lbDailyDate = todayKey();   // stuurt de lege-staat-tekst van dailyTableHtml
   const poolId = myPool.id;   // wisselt de gebruiker intussen van pool → gooi dit antwoord weg
   // Dagbord + weekstand parallel; het weekblok verschijnt pas vanaf de podium-epoch
