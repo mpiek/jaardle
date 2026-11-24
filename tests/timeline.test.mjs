@@ -74,7 +74,7 @@ test("de deeltekst: score, blokjes in speelvolgorde en het adres", () => {
   assert.deepEqual([0, 4, 5, 9, 10, 19, 20, 55].map(endBand), ["0-4", "0-4", "5-9", "5-9", "10-19", "10-19", "20+", "20+"]);
 });
 
-test("Timeline-pagina — de build schrijft /timeline/ in elke taal: noindex, niet in de sitemap, eigen kop, de deur gaat naar Jaardle", () => {
+test("Timeline-pagina — de build schrijft /timeline/ in elke taal: vindbaar, in de sitemap, eigen kop, de deur gaat naar Jaardle", () => {
   const read = (f) => readFileSync(join(ROOT, f), "utf8");
   const pages = { "timeline/index.html": ["en", "/timeline/", "/"], "en/timeline/index.html": ["en", "/timeline/", "/"],
     "nl/timeline/index.html": ["nl", "/nl/timeline/", "/nl"], "de/timeline/index.html": ["de", "/de/timeline/", "/de"],
@@ -84,7 +84,7 @@ test("Timeline-pagina — de build schrijft /timeline/ in elke taal: noindex, ni
     assert.ok(existsSync(join(ROOT, f)), `${f} bestaat (npm run build)`);
     const h = read(f);
     assert.match(h, new RegExp(`<html lang="${lang}">`), f);
-    assert.match(h, /<meta name="robots" content="noindex">/, `${f}: alpha, nog niet in Google`);
+    assert.doesNotMatch(h, /<meta name="robots"/, `${f}: vindbaar in Google (sinds 24/11)`);
     assert.match(h, new RegExp(`<link rel="canonical" href="https://jaardle\\.com${url}">`), f);
     assert.match(h, /<title>Jaardle Timeline[^<]*<\/title>/, f);
     assert.match(h, /<header class="site-intro sr-only">\n\s+<h1>Jaardle Timeline[^<]*<\/h1>/, `${f}: eigen kop zonder data-i18n`);
@@ -92,8 +92,8 @@ test("Timeline-pagina — de build schrijft /timeline/ in elke taal: noindex, ni
     assert.ok(!/<script[^>]+timeline\.js/.test(h), `${f}: timeline.js laadt lui (game.js)`);
     assert.equal(h.match(/content="(default-src[^"]*)"/)[1], main.match(/content="(default-src[^"]*)"/)[1], `${f}: zelfde CSP als de hoofdpagina`);
   }
-  assert.doesNotMatch(read("sitemap.xml"), /timeline/, "niet in de sitemap");
-  assert.ok(!/<meta name="robots"/.test(main) && !/<meta name="robots"/.test(read("nl/duels/index.html")), "Jaardle en Duels blijven gewoon vindbaar");
+  for (const url of Object.values(pages).map(([, u]) => u)) assert.match(read("sitemap.xml"), new RegExp(`<loc>https://jaardle\\.com${url}</loc>`), `${url} in de sitemap`);
+  assert.ok(!/<meta name="robots"/.test(main) && !/<meta name="robots"/.test(read("nl/duels/index.html")), "Jaardle en Duels zijn ook vindbaar");
   // de deur op Duels gaat naar Timeline, op Jaardle naar Duels
   assert.match(read("nl/duels/index.html"), /<a id="world-door" class="kop-door kop-wheel" data-at="d" href="\/nl\/timeline\/" aria-label="Timeline"/);
   assert.match(main, /<a id="world-door" class="kop-door kop-wheel" data-at="j" href="\/nl\/duels\/"/);

@@ -106,8 +106,9 @@ const PAGES = [
       intro_html: "Desafie um amigo para um duelo no Jaardle, o jogo em que você adivinha o ano de um acontecimento histórico. No <strong>Melhor de 5</strong>, vocês jogam os mesmos cinco acontecimentos, do mais fácil ao mais difícil, quando quiserem, dentro de 24 horas. Em cada rodada vence a maior pontuação. No <strong>Nocaute</strong> você joga ao vivo, contra um amigo que esteja online ou contra um bot. Cada ano de diferença custa pontos, e a diferença sai da barra de vida do outro até alguém ser nocauteado. Grátis e sem conta. Com uma conta, seus duelos contam para o seu próprio rating de duelos." },
   } },
   // 🗓️ Timeline (22/11/2026): eerst een losse alpha-pagina, nu een pagina van de app (zijn "zelfde bovenscherm als duels dat je ook profiel
-  // enzo hebt want is 1 account"). Nog alpha: noindex en niet in de sitemap. Titel en kop per taal met het eigen woord voor tijdlijn.
-  { dir: "timeline", at: "t", next: "", label: "Jaardle", noindex: true, strings: {
+  // enzo hebt want is 1 account"). Titel en kop per taal met het eigen woord voor tijdlijn. Eerst alpha met noindex; sinds 24/11 vindbaar
+  // en in de sitemap (Search Console: "Excluded by 'noindex' tag").
+  { dir: "timeline", at: "t", next: "", label: "Jaardle", strings: {
     nl: { meta_title: "Jaardle Timeline — leg de geschiedenis op volgorde (tijdlijn-spel)",
       meta_share_title: "🗓️ Jaardle Timeline: leg de geschiedenis op volgorde",
       meta_desc: "Leg historische gebeurtenissen op de goede plek in je tijdlijn. Elke kaart draait om en laat het jaar zien. Drie fouten en je bent af. Gratis, zonder account.",
