@@ -144,3 +144,41 @@ test("de deur naast 🌐 gaat rond: Jaardle → Duels → Timeline → Jaardle; 
   // de TI/ME-tegel: blauw, met de tijdlijnen erachter (make_time_icon.py)
   assert.match(TPL, /<span class="kw-tile" data-w="t"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#1e88e5"\/><g fill="#1565c0">/);
 });
+
+test("Wie haal je in? (db/238, 24/11): de doelen van een run en het eerstvolgende doel", () => {
+  const { chaseMarks, chaseNext } = core();
+  const board = { rows: [{ name: "Sanne", flair: "🦉", v: 24 }, { name: "Joris", v: 19 }, { name: "Kim", me: true, v: 9 }, { name: "Eva", v: 11 }, { name: "Nul", v: 0 }] };
+  const m = chaseMarks(board, 23);
+  // de anderen (wie op 0 staat niet), dan jij (je beste van deze week), dan je record als dat hoger is
+  assert.deepEqual(m.map((x) => x.kind + x.v), ["p24", "p19", "p11", "self9", "rec23"]);
+  const at = (n) => { const g = chaseNext(m, n); return g ? g.items.map((x) => x.kind + x.v).join("+") : "top"; };
+  assert.equal(at(0), "self9");
+  assert.equal(at(9), "self9");     // gelijk = nog niet ingehaald
+  assert.equal(at(10), "p11");
+  assert.equal(at(12), "p19");
+  assert.equal(at(20), "rec23");
+  assert.equal(at(24), "p24");
+  assert.equal(at(25), "top");
+  // record = je beste van deze week: één doel ("jij"), niet twee
+  assert.deepEqual(chaseMarks({ rows: [{ me: true, v: 23 }] }, 23).map((x) => x.kind), ["self"]);
+  // nog niet gespeeld deze week: alleen je record
+  assert.deepEqual(chaseMarks({ rows: [{ name: "Pip", flair: "🐣", bot: true, v: 7 }] }, 12).map((x) => x.kind + x.v), ["bot7", "rec12"]);
+  // twee op hetzelfde getal: samen één doel
+  assert.equal(chaseNext(chaseMarks({ rows: [{ name: "A", v: 19 }, { name: "B", v: 19 }] }, 0), 3).items.length, 2);
+  // geen bord: geen doelen
+  assert.deepEqual(chaseMarks(null, 30), [{ kind: "rec", name: "", flair: null, v: 30 }]);
+  assert.equal(chaseNext([], 0), null);
+});
+
+test("db/238: het bord komt mee met de stapel (speler-id en team), zonder extra aanroep; het chipje vervangt 'goed'", () => {
+  const GAME = readFileSync(join(ROOT, "game.js"), "utf8");
+  assert.match(SRC, /const args = \{ p_lang: LANG, p_client: [^}]+, p_pool: activePool\(\) \};/);
+  assert.match(SRC, /H\.rpc\("get_timeline_deck2", args\)/);   // met een account: met je sessie, dan kent de server je team
+  assert.match(SRC, /e\.code === "PGRST202"/);                  // vóór db/238: terug naar de aanroep met alleen p_lang
+  // get_timeline_board alleen na een teamwissel (eindscherm of pop-up), nooit bij de start van een run
+  assert.equal((SRC.match(/H\.rpc\("get_timeline_board"/g) || []).length, 2);
+  assert.match(SRC, /\$\{chip \? "" : `<span>\$\{esc\(L\.good\)\}<\/span>`\}/);
+  assert.match(GAME, /flairGlyph: \(raw\) => \{ const p = parseFlair\(raw\); return p\.emoji \? flairGlyphHtml\(p\.emoji\) : ""; \}/);
+  // 👑 en 🏆 staan in ons emoji-font (het chipje); de smalle-telefoon-regel zit in de CSS
+  assert.match(SRC, /@container tl-hud \(max-width: 20\.5rem\) \{ \.tl-next-n \{ display: none; \}/);
+});

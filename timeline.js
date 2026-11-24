@@ -12,7 +12,9 @@
 // Bewaard: het record en de geluidsstand per toestel (localStorage), en sinds db/233 elke run op de server (timeline_runs: je beste van
 // de week voor het bord, je beste ooit voor het record, ook op een ander toestel). Geen plays, geen rating, geen trofeeën.
 // Meetpunten (GoatCounter, site jaardle-events, zoals gcCount in game.js): timeline-start, timeline-end-<band>, timeline-share,
-// timeline-deck-op, timeline-board-team / timeline-board-bots (het bord op het eindscherm).
+// timeline-deck-op, timeline-board-team / timeline-board-bots (het bord op het eindscherm), timeline-chase-tap / timeline-chase-top.
+// Wie haal je in? (db/238, 24/11; mockup https://claude.ai/artifact/NpQmmWBiJ4qNhZ2kut55r1): tijdens een run staat naast je score een
+// chipje met wie je hierna inhaalt. Het bord komt mee met de stapel (get_timeline_deck2), dus geen extra aanroep; tik = de stand als pop-up.
 (() => {
   "use strict";
   const SB = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -87,6 +89,20 @@
       wk: (d, h) => `esta semana · faltam ${d >= 1 ? d + " d" : h + " h"}` },
   };
   for (const c in T2) Object.assign(T[c], T2[c]);
+  // Het chipje (db/238): op het scherm alleen gezicht, naam en getal (en "jij"); deze zinnen zijn voor schermlezers en de pop-up.
+  const T3 = {
+    nl: { chNext: (who, v) => `Hierna haal je ${who} in (${v}). Tik voor de stand.`, chTop: "Je staat bovenaan. Tik voor de stand.",
+      chSelf: "je beste van deze week", chRec: "je record", close: "Sluiten" },
+    en: { chNext: (who, v) => `Next to pass: ${who} (${v}). Tap for the standings.`, chTop: "You're on top. Tap for the standings.",
+      chSelf: "your best this week", chRec: "your record", close: "Close" },
+    de: { chNext: (who, v) => `Als Nächstes überholst du ${who} (${v}). Tippen für den Stand.`, chTop: "Du bist ganz oben. Tippen für den Stand.",
+      chSelf: "deine Bestleistung dieser Woche", chRec: "dein Rekord", close: "Schließen" },
+    es: { chNext: (who, v) => `Próximo a superar: ${who} (${v}). Toca para ver la clasificación.`, chTop: "Vas en cabeza. Toca para ver la clasificación.",
+      chSelf: "tu mejor marca de esta semana", chRec: "tu récord", close: "Cerrar" },
+    pt: { chNext: (who, v) => `Próximo a passar: ${who} (${v}). Toque para ver a classificação.`, chTop: "Você está no topo. Toque para ver a classificação.",
+      chSelf: "seu melhor desta semana", chRec: "seu recorde", close: "Fechar" },
+  };
+  for (const c in T3) Object.assign(T[c], T3[c]);
 
   // De reeks in treden (23/11): dezelfde zes als de streak-vlam van de daily (brons · zilver · goud · platina · diamant · obsidiaan), op
   // 3 · 5 · 10 · 15 · 20 · 30 op rij. Het getal goed kleurt naar zijn eigen trede. Na 30 blijft het obsidiaan; elke 5 stijgen er emoji op
@@ -97,6 +113,24 @@
   const bubOf = (n) => (n > 30 && n % 5 === 0 ? BUB_SETS[((n - 35) / 5) % BUB_SETS.length] : null);
   const bubN = (n) => Math.min(24, 9 + (3 * (n - 35)) / 5);
   const isStep = (n) => TIERS.includes(n) || !!bubOf(n);
+  // Wie haal je in? (db/238): de doelen van een run, uit het bord van deze week en je record. De anderen met hun beste run van de week;
+  // jouw eigen rij = je beste van deze week ("jij"); je record (🏆) alleen als het hoger is (anders is het hetzelfde moment). Wie op 0
+  // staat, is geen doel. chaseNext: het eerstvolgende doel bij n goed = het laagste getal ≥ n (gelijk is nog niet ingehaald), met
+  // iedereen die op dat getal staat; null = je staat boven iedereen (👑).
+  function chaseMarks(board, best) {
+    const rows = board && Array.isArray(board.rows) ? board.rows : [], me = rows.find((r) => r && r.me), wb = me ? +me.v || 0 : 0;
+    const out = rows.filter((r) => r && !r.me && +r.v > 0).map((r) => ({ kind: r.bot ? "bot" : "p", name: String(r.name || ""), flair: r.flair || null, v: +r.v }));
+    if (wb > 0) out.push({ kind: "self", name: String(me.name || ""), flair: me.flair || null, v: wb });
+    if (+best > wb) out.push({ kind: "rec", name: "", flair: null, v: +best });
+    return out;
+  }
+  function chaseNext(marks, n) {
+    const ahead = (marks || []).filter((m) => m.v >= n);
+    if (!ahead.length) return null;
+    const v = Math.min(...ahead.map((m) => m.v));
+    return { v, items: ahead.filter((m) => m.v === v) };
+  }
+  const chaseKey = (g) => (g ? g.v + ":" + g.items.map((m) => m.kind + m.name).join(",") : "top");
   const fits = (line, i, c) => (i === 0 || line[i - 1].y <= c.y) && (i === line.length || c.y <= line[i].y);
   const rightIdx = (line, c) => line.filter((x) => x.y <= c.y).length;
   const shareText = (L, n, marks, isRec) => `${L.shareHead(n, isRec)}\n📊 ${marks.map((m) => (m ? "🟩" : "🟥")).join("")}\njaardle.com/timeline`;
@@ -350,6 +384,54 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-tb .lb-row.tl-up { position: relative; z-index: 1; animation: tl-up 1.5s ease-out 0.55s both; }
 @keyframes tl-up { 0% { box-shadow: inset 0 0 0 2px var(--accent); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
 
+/* Wie haal je in? (db/238, 24/11): het chipje naast je score met wie je hierna inhaalt. Haal je hem in, dan schiet hij omhoog weg en
+   schuift de volgende eronder vandaan; bovenaan 👑. Staat het chipje er, dan valt het woordje "goed" weg (het getal blijft). */
+/* De balk is een container: op een smalle telefoon (390 heeft 335 px binnenin, 375 maar 320) past de naam er niet bij, dan blijven
+   het gezicht en het getal over. Wie geen flair heeft, krijgt dan de eerste letter in een rondje; met naam is dat rondje niet nodig. */
+.tl-hud { container: tl-hud / inline-size; }
+.tl-nextw { display: inline-grid; min-width: 0; }
+.tl-nextw > * { grid-area: 1 / 1; }
+.tl-next { --nx: var(--border); display: inline-flex; align-items: center; gap: 0.28rem; min-width: 0; max-width: 7.4rem; height: 1.9rem;
+  padding: 0 0.6rem 0 0.3rem; border: 1px solid var(--nx); border-radius: 999px; background: var(--card-soft); color: var(--fg);
+  font: inherit; font-size: 0.8rem; font-weight: 700; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tl-next:hover { border-color: var(--muted); }
+.tl-next:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tl-next-f { flex: none; display: grid; place-items: center; width: 1.3rem; height: 1.3rem; font-size: 1.05rem; line-height: 1; }
+/* zonder flair: de eerste letter in een rondje */
+.tl-next-f.ini { border-radius: 50%; background: color-mix(in srgb, var(--fg) 14%, transparent); font-size: 0.68rem; font-weight: 800; color: var(--muted); }
+.tl-next-f.ini.named { display: none; }
+@container tl-hud (max-width: 20.5rem) { .tl-next-n { display: none; } .tl-next-f.ini.named { display: grid; }
+  /* "jij" is kort genoeg: die blijft staan, zonder letter (anders stond er "J" voor jezelf) */
+  .tl-next.self .tl-next-n { display: block; } .tl-next.self .tl-next-f.ini.named { display: none; } }
+.tl-next-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--muted); }
+.tl-next b { flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
+/* twee (of meer) op hetzelfde getal: de flairs schuiven over elkaar */
+.tl-next-f + .tl-next-f { margin-left: -0.55rem; }
+/* jij zelf (je beste van deze week) en je record: in jouw kleur */
+.tl-next.self { --nx: color-mix(in srgb, var(--accent) 55%, transparent); }
+.tl-next.self .tl-next-n { color: var(--accent); }
+/* gelijk: nog één kaart en je staat erboven */
+.tl-next.eq { --nx: var(--accent); animation: tl-next-eq 1.1s ease-in-out infinite; }
+@keyframes tl-next-eq { 50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); } }
+/* bovenaan */
+.tl-next.top { --nx: color-mix(in srgb, #f4c430 60%, transparent); background: color-mix(in srgb, #f4c430 16%, var(--card-soft)); padding: 0 0.45rem; }
+/* het inhalen */
+.tl-next.in { animation: tl-next-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.35) both; }
+.tl-next.out { z-index: 1; pointer-events: none; animation: tl-next-out 0.5s cubic-bezier(0.5, 0, 0.75, 0) forwards; }
+@keyframes tl-next-in { from { opacity: 0; transform: translateY(85%) scale(0.85); } to { opacity: 1; transform: none; } }
+@keyframes tl-next-out { 0% { opacity: 1; transform: none; } 30% { opacity: 1; transform: translateY(-10%) scale(1.06); }
+  100% { opacity: 0; transform: translateY(-140%) scale(0.8); } }
+@media (prefers-reduced-motion: reduce) { .tl-next.in, .tl-next.out, .tl-next.eq { animation: none; } .tl-next.out { display: none; } }
+
+/* het weekbord als pop-up: de rijen van het eindscherm; jouw rij telt live mee met een stipje */
+.tl-wkpop .modal-header h2 { flex: 1; min-width: 0; display: flex; align-items: center; }   /* niet krimpen tot de inhoud: dan kapt de teamkiezer zijn naam af */
+.tl-wkpop-sub { margin: 0 0 0.45rem; font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+.tl-wkpop .modal-body { gap: 0; }
+.lb-live { display: inline-block; width: 0.42rem; height: 0.42rem; margin-left: 0.35rem; border-radius: 50%; background: #2f9e6f; vertical-align: 0.12em;
+  animation: lb-live 1.4s ease-in-out infinite; }
+@keyframes lb-live { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .lb-live { animation: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   .tl-c.tl-reveal, .tl-c.tl-reveal .tl-y, .tl-card.tl-deal, .tl-bump, .tl-float, .tl-c .tl-v { animation: none !important; }
   .tl-slot { transition: none; }
@@ -360,7 +442,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 }
 `;
 
-  window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN };
+  window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN, chaseMarks, chaseNext };
 
   // ── de staat: H = wat game.js meegeeft (taal, openModal/closeModal, meetpunten); root = het scherm (#modal-tl) ──
   let H = null, root = null, LANG = "en", L = T.en;
@@ -407,7 +489,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
       AC = AC || new (window.AudioContext || window.webkitAudioContext)();
       if (name === "obsidian") { obsidianSound(AC, AC.destination, arg || 3); return; }
       const k = name === "streak" ? Math.pow(2, (2 * Math.max(0, (arg || 1) - 1)) / 12) : 1;
-      const notes = ({ good: [660, 990], streak: [784, 1175, 1568], record: [523, 659, 784, 1047] }[name] || []).map((f) => f * k);
+      const notes = ({ good: [660, 990], streak: [784, 1175, 1568], record: [523, 659, 784, 1047], pass: [1319, 1760], top: [1047, 1319, 1568, 2093] }[name] || [])
+        .map((f) => f * k);
       notes.forEach((f, i) => {
         const o = AC.createOscillator(), g = AC.createGain(), t0 = AC.currentTime + i * 0.09;
         o.type = "triangle"; o.frequency.value = f;
@@ -510,9 +593,34 @@ body[data-tlhome] #mode-tabs { display: flex; }
     headers: { apikey: SB.key, Authorization: "Bearer " + SB.key, "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  // db/238: get_timeline_deck2 geeft ook het bord van deze week en je beste run ooit mee (voor het chipje), in dezelfde aanroep. Met een
+  // account via H.rpc, met je sessie: dan kent de server je team (je gekozen team, anders je oudste, zoals pickActivePool in game.js).
+  // Zonder account met je speler-id. Kent de server de nieuwe parameters nog niet (vóór db/238), dan de aanroep met alleen p_lang.
+  let DECK238 = true;
+  const hasSession = () => { try { return !!localStorage.getItem("sb-" + new URL(SB.url).hostname.split(".")[0] + "-auth-token"); } catch (e) { return false; } };
+  const activePool = () => ls("jaardle:activePool") || null;   // ACTIVE_POOL_KEY in game.js
+  async function deck238() {
+    const args = { p_lang: LANG, p_client: (H && H.clientId && H.clientId()) || null, p_pool: activePool() };
+    if (H && H.rpc && hasSession()) {
+      try { return await H.rpc("get_timeline_deck2", args); }
+      catch (e) { if (e && e.code === "PGRST202") DECK238 = false; return null; }
+    }
+    const r = await post("get_timeline_deck2", args);
+    if (r.status === 404) { DECK238 = false; return null; }
+    return r.ok ? r.json() : null;
+  }
   async function fetchDeck() {
-    let id = null, d = null;
-    if (DECK2) {
+    let id = null, d = null, board = null, best = 0;
+    const at = performance.now();
+    if (DECK2 && DECK238) {
+      let j = null;
+      try { j = await deck238(); } catch (e) { j = null; }   // mislukt: deze keer de gewone stapel, zonder chipje
+      if (j && Array.isArray(j.cards)) {
+        id = j.id || null; d = j.cards; best = +j.best || 0;
+        board = j.board && Array.isArray(j.board.rows) ? j.board : null;
+      }
+    }
+    if (DECK2 && !d) {
       const r = await post("get_timeline_deck2", { p_lang: LANG });
       if (r.status === 404) DECK2 = false;
       else if (!r.ok) throw new Error("get_timeline_deck2 " + r.status);
@@ -525,8 +633,13 @@ body[data-tlhome] #mode-tabs { display: flex; }
     }
     if (!Array.isArray(d) || d.length < 10) throw new Error("lege stapel");
     const cards = d.filter((c) => c && Number.isFinite(c.y) && c.t).map((c, k) => ({ y: c.y, t: String(c.t), c: c.c, k }));
-    return { id: cards.length === d.length ? id : null, cards };   // viel er een kaart af, dan klopt de volgorde niet meer met de server
+    return { id: cards.length === d.length ? id : null, cards, board, best, at };   // viel er een kaart af, dan klopt de volgorde niet meer met de server
   }
+  // Het bord voor het chipje: het nieuwste dat we hebben. Een stapel die al onderweg was toen je vorige run werd opgeslagen, kan die run nog
+  // missen; daarom telt bij een stapel het moment van vragen, en bij record_timeline_run (of een ander team) het moment van antwoord.
+  let CB = { board: null, at: -1 }, BEST = 0;
+  function keepBoard(board, at) { if (board && Array.isArray(board.rows) && at >= CB.at) CB = { board, at }; }
+  const chaseFor = () => (CB.board ? chaseMarks(CB.board, Math.max(REC, BEST)) : null);
   let nextDeck = null;
   const prefetch = () => { if (!nextDeck) { nextDeck = fetchDeck(); nextDeck.catch(() => { nextDeck = null; }); } };
 
@@ -548,8 +661,34 @@ body[data-tlhome] #mode-tabs { display: flex; }
     const fire = o.fire ? `<img src="/emoji/fire.webp" alt="">` : t ? `<span class="flm-g">🔥</span>` : `<span class="tl-fl">🔥</span>`;
     const streak = s.streak >= 2 ? `<span class="tl-streak${o.lvl ? " tl-lvl" : o.tick ? " tl-tick" : ""}${s.streak >= 30 ? " tl-aura" : ""}" data-t="${t}">` +
       `${t ? `<span class="flm s${t}">${fire}</span>` : fire}${s.streak}</span>` : "";
+    // db/238: wie je hierna inhaalt; staat het chipje er, dan valt "goed" weg (het getal blijft)
+    const chip = !s.done && s.chase ? chipsHtml(s) : "";
     return `<div class="tl-hud"><span class="tl-hearts" role="img" aria-label="${esc(L.lives(s.lives))}">${hearts}</span>` +
-      `<span class="tl-stand">${streak}<span class="tl-score"><b class="${o.bump ? "tl-bump" : ""}"${st ? ` data-t="${st}"` : ""}>${s.n}</b><span>${esc(L.good)}</span></span></span></div>`;
+      `<span class="tl-stand">${streak}<span class="tl-score"><b class="${o.bump ? "tl-bump" : ""}"${st ? ` data-t="${st}"` : ""}>${s.n}</b>` +
+      `${chip ? "" : `<span>${esc(L.good)}</span>`}</span>${chip ? `<span class="tl-nextw">${chip}</span>` : ""}</span></div>`;
+  }
+  // ── het chipje (db/238): gezicht (flair, 🏆, of de eerste letter), naam en getal. Op een smalle telefoon zet de CSS de naam uit ──
+  const flairGlyph = (raw) => (H && H.flairGlyph ? H.flairGlyph(raw) : /^v:/.test(raw) ? "" : esc(String(raw).split("~")[0]));
+  function faceHtml(m, named) {
+    if (m.kind === "rec") return `<span class="tl-next-f">🏆</span>`;
+    const f = m.flair ? flairGlyph(m.flair) : "";
+    if (f) return `<span class="tl-next-f">${f}</span>`;
+    const ch = [...(m.name || (m.kind === "self" ? L.you : "?"))][0] || "?";
+    return `<span class="tl-next-f ini${named ? " named" : ""}">${esc(ch.toUpperCase())}</span>`;
+  }
+  // cls " out" = het chipje dat je net inhaalde (schiet omhoog weg), " in" = het nieuwe; el = hoe lang het inhalen al bezig is
+  function chipHtml(g, n, cls, el) {
+    const st = el != null ? ` style="animation-delay:${-Math.round(el)}ms"` : "", gone = cls === " out" ? ` aria-hidden="true" tabindex="-1"` : "";
+    if (!g) return `<button type="button" class="tl-next top${cls}"${st}${gone} aria-label="${esc(L.chTop)}"><span class="tl-next-f">👑</span></button>`;
+    const one = g.items.length === 1 ? g.items[0] : null, mine = g.items.every((m) => m.kind === "self" || m.kind === "rec");
+    const name = one ? (one.kind === "self" ? L.you : one.kind === "rec" ? "" : one.name) : "";
+    const who = g.items.map((m) => (m.kind === "self" ? L.chSelf : m.kind === "rec" ? L.chRec : m.name)).join(" + ");
+    return `<button type="button" class="tl-next${mine ? " self" : ""}${g.v === n ? " eq" : ""}${cls}"${st}${gone} aria-label="${esc(L.chNext(who, g.v))}">` +
+      g.items.map((m) => faceHtml(m, !!name)).join("") + (name ? `<span class="tl-next-n">${esc(name)}</span>` : "") + `<b>${g.v}</b></button>`;
+  }
+  function chipsHtml(s) {
+    const g = chaseNext(s.chase, s.n), p = s.pass, el = p ? performance.now() - p.t0 : Infinity;
+    return el < 560 ? chipHtml(p.from, s.n - 1, " out", el) + chipHtml(g, s.n, " in", el) : chipHtml(g, s.n, "");
   }
   const suit = (c) => SUIT[c] || "🗓️";
   const frontHtml = (c, deal) => `<div class="tl-card tl-front${deal ? " tl-deal" : ""}" tabindex="0" aria-label="${esc(L.newCard + ": " + c.t)}">` +
@@ -596,7 +735,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       : esc(r.name || "") + (r.flair ? ` ${esc(r.flair)}` : "") + (r.me ? ` <span class="lb-tag">${esc(L.you)}</span>` : "");
     return `<div class="lb-row${r.me ? " lb-me" : ""}${rank <= 3 ? " lb-top" + rank : ""}${delta > 0 ? " tl-up" : ""}"${delta > 0 ? ` data-d="${delta}"` : ""}>` +
       `<span class="lb-rank">${MEDAL[rank - 1] || rank}</span><span class="lb-name">${nm}${r.bot ? ` <span class="lb-tag lb-bot">${esc(L.bot)}</span>` : ""}</span>` +
-      `<span class="lb-val">${r.v}${delta > 0 ? `<span class="wk-delta up">▲${delta}</span>` : ""}</span></div>`;
+      `<span class="lb-val">${r.v}${delta > 0 ? `<span class="wk-delta up">▲${delta}</span>` : ""}${r.live ? `<i class="lb-live" aria-hidden="true"></i>` : ""}</span></div>`;
   }
   function wkLeft(ends) {
     const ms = Date.parse(ends) - Date.now();
@@ -642,7 +781,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     const pile = deck.cards.slice(), fi = pile.findIndex((c) => c.y > 1000 && c.y < 1950);   // een begin uit het midden: aan beide kanten ruimte
     const first = pile.splice(fi >= 0 ? fi : 0, 1)[0];
     return { pile, line: [first], cur: pile.shift(), lives: 3, n: 0, streak: 0, marks: [], done: false, deckDone: false, phase: "idle", rec: false, prevRec: REC,
-      deckId: deck.id, moves: [], fx: null, recWait: false, board: null, prevWk: null };
+      deckId: deck.id, moves: [], fx: null, recWait: false, board: null, prevWk: null, chase: null, pass: null };
   }
   function draw(o = {}) {
     const row0 = root.querySelector(".tl-row"), left = row0 ? row0.scrollLeft : 0, game = root.querySelector(".tl-game");
@@ -676,6 +815,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
       const deck = await (nextDeck || fetchDeck());
       nextDeck = null;
       G = newGame(deck);
+      keepBoard(deck.board, deck.at);
+      BEST = Math.max(BEST, deck.best || 0);
+      G.chase = chaseFor();
       draw({ deal: true });
       gc("timeline-start", "Timeline: run started");
     } catch (e) {
@@ -715,6 +857,14 @@ body[data-tlhome] #mode-tabs { display: flex; }
     G.moves.push(i);   // db/233: de server telt je run na uit deze zetten
     if (ok) {
       G.n++; G.streak++;
+      if (G.chase) {   // db/238: ingehaald? Het oude chipje schiet weg, het nieuwe komt eronder vandaan; het toontje na dat van de kaart
+        const was = chaseNext(G.chase, G.n - 1), now = chaseNext(G.chase, G.n);
+        if (chaseKey(was) !== chaseKey(now)) {
+          G.pass = { from: was, t0: performance.now() };
+          setTimeout(() => play(now ? "pass" : "top"), 280);
+          if (!now) gc("timeline-chase-top", "Timeline: passed everyone on the board this week");
+        }
+      }
       const s = G.streak, t = tierOf(s), step = isStep(s);
       const a = G.line[i - 1], b = G.line[i + 1], tight = a && b && b.y - a.y <= 10;
       const f = step ? ["hot", L.streak(s)] : tight ? ["good", L.tight] : ["good", "+1"];
@@ -782,6 +932,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
     REC = Math.max(REC, g.n, best); ls(REC_KEY, REC);
     g.board = res && res.board && Array.isArray(res.board.rows) ? res.board : null;
     g.prevWk = res ? res.prev_wk : null;
+    keepBoard(g.board, performance.now());
+    if (G && G !== g && !G.done && g.board) G.chase = chaseFor();   // al een nieuwe run: die jaagt voortaan op het verse bord
     if (G !== g) return;   // al een nieuw potje
     draw({ climb: true });
     if (g.rec) play("record");
@@ -791,7 +943,56 @@ body[data-tlhome] #mode-tabs { display: flex; }
     try {
       const pool = H.pool ? await H.pool() : null;
       const b = await H.rpc("get_timeline_board", { p_pool: (pool && pool.id) || null, p_client: (H.clientId && H.clientId()) || null });
+      keepBoard(b, performance.now());
       if (G === g && b && Array.isArray(b.rows)) { g.board = b; g.prevWk = null; draw({}); }
+    } catch (e) {}
+  }
+
+  // ── de stand van deze week als pop-up (tik op het chipje, db/238): de rijen van het eindscherm; jouw rij telt live mee (groen stipje) ──
+  const WK_ID = "modal-tlwk";
+  function weekRows(board, n) {
+    const rows = board.rows.map((r) => ({ ...r })), me = rows.find((r) => r.me);
+    if (me) { if (n > me.v) { me.v = n; me.live = true; } }
+    else if (n > 0) rows.push({ name: (H && H.myName && H.myName()) || "", flair: (H && H.myFlair && H.myFlair()) || null, me: true, v: n, live: true });
+    return rows.sort((a, b) => b.v - a.v || (a.live ? 1 : 0) - (b.live ? 1 : 0));   // gelijk: wie er al stond blijft boven
+  }
+  function weekHtml() {
+    const b = CB.board, rows = weekRows(b, G && !G.done ? G.n : 0);
+    const head = b.team ? ((H && H.poolPickerHtml && H.poolPickerHtml()) || esc(b.team)) : esc(L.vsBots);
+    const list = rows.map((r) => boardRowHtml(r, 1 + rows.filter((x) => x.v > r.v).length, 0)).join("");
+    return `<div class="modal-backdrop" data-close></div><div class="modal-card tl-wkpop">` +
+      `<header class="modal-header"><h2 id="tlwk-title">${head}</h2><button type="button" class="modal-close" data-close aria-label="${esc(L.close)}">✕</button></header>` +
+      `<div class="modal-body"><p class="tl-wkpop-sub">${esc(wkLeft(b.ends))}</p><div class="lb-table">${list}</div>` +
+      (b.team ? "" : `<p class="tl-tb-cap">${esc(L.botsCap)}</p>`) + `</div></div>`;
+  }
+  function fillWeek(el) {
+    el.innerHTML = weekHtml();
+    if (CB.board.team && H && H.wirePoolPicker) H.wirePoolPicker(el, () => weekSwitch(el));
+  }
+  function openWeek() {
+    if (!CB.board || !H) return;
+    gc("timeline-chase-tap", "Timeline: standings opened from the chip");
+    let el = document.getElementById(WK_ID);
+    if (!el) {
+      el = document.createElement("div");
+      el.id = WK_ID; el.className = "modal"; el.hidden = true;
+      el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "tlwk-title");
+      el.addEventListener("click", (e) => { if (e.target.closest("[data-close]")) H.closeModal(WK_ID); });
+      document.body.appendChild(el);   // als laatste: boven het Timeline-scherm
+    }
+    fillWeek(el);
+    H.openModal(WK_ID, { over: true });   // over: Timeline eronder blijft open; ✕, Esc en de achtergrond = terug naar je run
+  }
+  // een ander team gekozen in de pop-up: dat bord, en de rest van je run jaag je op dat team
+  async function weekSwitch(el) {
+    try {
+      const pool = H.pool ? await H.pool() : null;
+      const b = await H.rpc("get_timeline_board", { p_pool: (pool && pool.id) || null, p_client: (H.clientId && H.clientId()) || null });
+      if (!b || !Array.isArray(b.rows)) return;
+      keepBoard(b, performance.now());
+      if (G && !G.done) G.chase = chaseFor();
+      if (!el.hidden) fillWeek(el);
+      if (G && !G.done && G.phase === "idle") draw();
     } catch (e) {}
   }
 
@@ -871,6 +1072,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       const s = e.target.closest(".tl-slot");
       if (s) { place(+s.dataset.i); return; }
       if (e.target.closest(".tl-again, .tl-retry")) { start(); return; }
+      if (e.target.closest(".tl-next")) { openWeek(); return; }
       const sh = e.target.closest(".tl-share");
       if (sh && G) {
         const txt = shareText(L, G.n, G.marks, G.rec), lab = sh.querySelector("span"), was = lab.textContent;

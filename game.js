@@ -5208,7 +5208,9 @@ function tlHost() {
     // kiezer als het teambord van de daily (setActivePool, dus ook daar gewisseld); de naamcel (titel, naam, flair, jij) van het 🏆-bord
     rpc: (fn, args) => whenSbReady().then(() => rpc(fn, args)), clientId, user: () => auth.user,
     pool: async () => { if (!auth.user) return null; if (!myPoolsOk) await fetchMyPools(); return myPool; },
-    poolPickerHtml, wirePoolPicker, nameCell: (row, rank) => lbNameCell(row, rank) };
+    poolPickerHtml, wirePoolPicker, nameCell: (row, rank) => lbNameCell(row, rank),
+    // db/238 Wie haal je in?: de flair op het chipje (stil teken, ook een eigen tekening) en jij in de pop-up als je deze week nog niet speelde
+    flairGlyph: (raw) => { const p = parseFlair(raw); return p.emoji ? flairGlyphHtml(p.emoji) : ""; }, myName: () => myUsername, myFlair: () => myFlair };
 }
 function openTimeline(src) {   // de deur op de Duels-pagina (meetpunt timeline-door) of het adres /timeline/
   if (src === "door") gcCount("timeline-door", "Timeline: opened via the door on Duels");
