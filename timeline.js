@@ -103,6 +103,17 @@
       chSelf: "seu melhor desta semana", chRec: "seu recorde", close: "Fechar" },
   };
   for (const c in T3) Object.assign(T[c], T3[c]);
+  // ↻ naast de hartjes (24/11, zijn "restart knop … cirkel pijltje naar zichzelf met wel pop-up voor confirmation, onze stijl"): halverwege een
+  // run eerst de vraag. De run eindigt dan op wat je goed had en telt als score, zoals wanneer je daar je laatste hartje verloor. Niet
+  // "je 12 tellen mee": dat las als "die kaarten blijven liggen" (zijn "dubbelzinnig").
+  const T4 = {
+    nl: { restart: "Opnieuw beginnen", rstQ: "Opnieuw beginnen?", rstSub: (n) => `Deze run eindigt op ${n}.`, rstYes: "Opnieuw", rstNo: "Verder" },
+    en: { restart: "Start over", rstQ: "Start over?", rstSub: (n) => `This run ends at ${n}.`, rstYes: "Restart", rstNo: "Continue" },
+    de: { restart: "Neu anfangen", rstQ: "Neu anfangen?", rstSub: (n) => `Dieser Lauf endet bei ${n}.`, rstYes: "Neu starten", rstNo: "Weiter" },
+    es: { restart: "Empezar de nuevo", rstQ: "¿Empezar de nuevo?", rstSub: (n) => `Esta partida termina con ${n}.`, rstYes: "Reiniciar", rstNo: "Seguir" },
+    pt: { restart: "Começar de novo", rstQ: "Começar de novo?", rstSub: (n) => `Esta partida termina com ${n}.`, rstYes: "Reiniciar", rstNo: "Continuar" },
+  };
+  for (const c in T4) Object.assign(T[c], T4[c]);
 
   // De reeks in treden (23/11): dezelfde zes als de streak-vlam van de daily (brons · zilver · goud · platina · diamant · obsidiaan), op
   // 3 · 5 · 10 · 15 · 20 · 30 op rij. Het getal goed kleurt naar zijn eigen trede. Na 30 blijft het obsidiaan; elke 5 stijgen er emoji op
@@ -159,11 +170,12 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-logo-line i:nth-child(3) { left: 94%; background: var(--orange); }
 .tl-alpha { padding: 0.08rem 0.4rem; border: 1px solid var(--border); border-radius: 999px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--muted); }
-/* 🔈 zoals op Duels: een rondje van 1.95rem (31 px), even groot als het poppetje links (23/11, één maat voor de hele bovenregel) */
-.tl-snd { flex: none; display: grid; place-items: center; width: 1.95rem; height: 1.95rem; padding: 0; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 50%; }
-.tl-snd:hover { filter: none; color: var(--fg); background: var(--card-soft); }
-.tl-snd:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.tl-snd svg { width: 1.05rem; height: 1.05rem; }
+/* 🔈 zoals op Duels: een rondje van 1.95rem (31 px), even groot als het poppetje links (23/11, één maat voor de hele bovenregel);
+   ↻ naast de hartjes is hetzelfde rondje */
+.tl-rst, .tl-snd { flex: none; display: grid; place-items: center; width: 1.95rem; height: 1.95rem; padding: 0; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 50%; }
+.tl-rst:hover, .tl-snd:hover { filter: none; color: var(--fg); background: var(--card-soft); }
+.tl-rst:focus-visible, .tl-snd:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tl-rst svg, .tl-snd svg { width: 1.05rem; height: 1.05rem; }
 .tl-snd .on, .tl-snd[aria-pressed="true"] .off { display: none; }
 .tl-snd[aria-pressed="true"] .on { display: inline; }
 .tl-snd[aria-pressed="false"] { opacity: 0.6; }
@@ -172,6 +184,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-game { position: relative; display: flex; flex-direction: column; }
 .tl-hud { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.45rem; padding: 0.4rem 0.75rem 0.4rem 0.55rem;
   background: var(--card); border: 1px solid var(--border); border-radius: 14px; }
+.tl-hl { flex: none; display: flex; align-items: center; gap: 0.4rem; }
 .tl-hearts { display: flex; gap: 0.25rem; }
 .tl-heart { position: relative; display: grid; place-items: center; width: 2.15rem; height: 2.15rem; font-size: 1.75rem; line-height: 1; }
 .tl-heart.lost > span { filter: grayscale(1); opacity: 0.28; }
@@ -403,6 +416,12 @@ body[data-tlhome] #mode-tabs { display: flex; }
 @container tl-hud (max-width: 20.5rem) { .tl-next-n { display: none; } .tl-next-f.ini.named { display: grid; }
   /* "jij" is kort genoeg: die blijft staan, zonder letter (anders stond er "J" voor jezelf) */
   .tl-next.self .tl-next-n { display: block; } .tl-next.self .tl-next-f.ini.named { display: none; } }
+/* sinds ↻ naast de hartjes staat: met de 🔥-pil erbij past de naam pas vanaf ±23rem (anders bleef er van "Jake" alleen "." over) */
+@container tl-hud (max-width: 23rem) { .tl-stand:has(.tl-streak) .tl-next:not(.self) .tl-next-n { display: none; }
+  .tl-stand:has(.tl-streak) .tl-next-f.ini.named { display: grid; } .tl-stand:has(.tl-streak) .tl-next.self .tl-next-f.ini.named { display: none; } }
+/* en op een smalle telefoon (360) iets kleinere hartjes en kortere tussenruimtes, anders valt het getal uit het chipje */
+@container tl-hud (max-width: 20.5rem) { .tl-heart { width: 1.9rem; height: 1.9rem; font-size: 1.55rem; } .tl-heart img { width: 2.2rem; height: 2.2rem; }
+  .tl-hl { gap: 0.3rem; } .tl-stand { gap: 0.45rem; } }
 .tl-next-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--muted); }
 .tl-next b { flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
 /* twee (of meer) op hetzelfde getal: de flairs schuiven over elkaar */
@@ -427,6 +446,16 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-wkpop .modal-header h2 { flex: 1; min-width: 0; display: flex; align-items: center; }   /* niet krimpen tot de inhoud: dan kapt de teamkiezer zijn naam af */
 .tl-wkpop-sub { margin: 0 0 0.45rem; font-size: 0.75rem; font-weight: 600; color: var(--muted); }
 .tl-wkpop .modal-body { gap: 0; }
+/* ↻ halverwege een run: de vraag, in de vorm van de pop-ups van Duels (rondje met het teken, kop, één regel, twee knoppen) */
+.modal-card.tl-ask { max-width: 20rem; display: flex; flex-direction: column; align-items: center; gap: 0.55rem; padding: 1.3rem 1.1rem 1.1rem; text-align: center; outline: none; }
+.tl-ask-ico { display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; color: var(--tl);
+  background: color-mix(in srgb, var(--tl) 15%, transparent); }
+.tl-ask-ico svg { width: 1.75rem; height: 1.75rem; }
+.tl-ask h2 { margin: 0.1rem 0 0; font-size: 1.2rem; line-height: 1.2; text-wrap: balance; }
+.tl-ask p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.tl-ask-acts { align-self: stretch; display: flex; gap: 0.5rem; margin-top: 0.45rem; }
+.tl-ask-acts button { flex: 1; min-width: 0; padding: 0.65rem 0.6rem; }
+.tl-ask-acts .tl-ask-no { color: var(--fg); background: var(--card-soft); box-shadow: inset 0 0 0 1px var(--border); }
 .lb-live { display: inline-block; width: 0.42rem; height: 0.42rem; margin-left: 0.35rem; border-radius: 50%; background: #2f9e6f; vertical-align: 0.12em;
   animation: lb-live 1.4s ease-in-out infinite; }
 @keyframes lb-live { 50% { opacity: 0.35; } }
@@ -648,6 +677,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
     `<g class="on" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 9.3a3.9 3.9 0 0 1 0 5.4"/><path d="M17.7 6.7a7.6 7.6 0 0 1 0 10.6"/></g>` +
     `<g class="off" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8"/></g></svg>`;
   const SHARE_SVG = `<svg viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M352 224c53 0 96-43 96-96s-43-96-96-96-96 43-96 96c0 4 .2 8 .7 11.9l-94.1 47C145 174.6 124.8 160 96 160c-53 0-96 43-96 96s43 96 96 96c28.8 0 49-14.6 62.6-30.9l94.1 47c-.5 3.9-.7 7.8-.7 11.9 0 53 43 96 96 96s96-43 96-96-43-96-96-96c-28.8 0-49 14.6-62.6 30.9l-94.1-47c.5-3.9 .7-7.8 .7-11.9s-.2-8-.7-11.9l94.1-47C303 209.4 323.2 224 352 224z"/></svg>`;
+  // ↻: een pijl die rond gaat naar zichzelf, in de lijnen van 🔈
+  const RST_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">` +
+    `<path d="M20.2 12.6A8.2 8.2 0 1 1 18.2 6.6"/><path d="M18.1 2.5l.1 4.1-4.1-.7"/></g></svg>`;
   // in de kop van game.js (#mode-tabs), achter profiel, 🌐 en de deur: het logo en 🔈
   const kopHtml = () => `<h2 class="tl-logo"><span class="tl-logo-in"><span class="tl-logo-txt">Timeline</span><span class="tl-logo-line" aria-hidden="true"><i></i><i></i><i></i></span></span>` +
     `<span class="tl-alpha">alpha</span></h2><button type="button" class="tl-snd" aria-pressed="${snd}" aria-label="${esc(L.sound)}" title="${esc(L.sound)}">${SND_SVG}</button>`;
@@ -663,7 +695,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
       `${t ? `<span class="flm s${t}">${fire}</span>` : fire}${s.streak}</span>` : "";
     // db/238: wie je hierna inhaalt; staat het chipje er, dan valt "goed" weg (het getal blijft)
     const chip = !s.done && s.chase ? chipsHtml(s) : "";
-    return `<div class="tl-hud"><span class="tl-hearts" role="img" aria-label="${esc(L.lives(s.lives))}">${hearts}</span>` +
+    // ↻ direct naast de hartjes (zijn "naast de 3 hartjes")
+    const rst = `<button type="button" class="tl-rst" aria-label="${esc(L.restart)}" title="${esc(L.restart)}">${RST_SVG}</button>`;
+    return `<div class="tl-hud"><span class="tl-hl"><span class="tl-hearts" role="img" aria-label="${esc(L.lives(s.lives))}">${hearts}</span>${rst}</span>` +
       `<span class="tl-stand">${streak}<span class="tl-score"><b class="${o.bump ? "tl-bump" : ""}"${st ? ` data-t="${st}"` : ""}>${s.n}</b>` +
       `${chip ? "" : `<span>${esc(L.good)}</span>`}</span>${chip ? `<span class="tl-nextw">${chip}</span>` : ""}</span></div>`;
   }
@@ -898,7 +932,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (G.lives <= 0 || !G.pile.length) {
       G.done = true; G.deckDone = G.lives > 0; G.phase = "idle"; G.prevRec = REC;
       // met een stapel-id telt de server na en zegt hij of het een record is (ook van een ander toestel); anders alleen dit toestel
-      const live = !!(G.deckId && H && H.rpc && ((H.user && H.user()) || (H.clientId && H.clientId())));
+      const live = isLive(G);
       G.recWait = live;
       if (!live) { G.rec = G.n > REC; if (G.rec) { REC = G.n; ls(REC_KEY, REC); } }
       draw({});
@@ -918,6 +952,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
   }
 
   // ── de run naar de server (db/233): één verzoek aan het eind; geeft je record (prev_best) en het bord terug ──
+  const isLive = (g) => !!(g.deckId && H && H.rpc && ((H.user && H.user()) || (H.clientId && H.clientId())));
   async function finishRun(g) {
     let res = null;
     try {
@@ -996,6 +1031,44 @@ body[data-tlhome] #mode-tabs { display: flex; }
     } catch (e) {}
   }
 
+  // ── ↻ naast de hartjes: een nieuwe stapel. Halverwege een run (er ligt al iets) eerst de vraag; zonder zetten, op het eindscherm of na een
+  // laadfout meteen. Nooit terwijl een kaart onderweg is: place() rekent na zijn pauzes nog op G. ──
+  const ASK_ID = "modal-tlrst";
+  function askRestart() {
+    if (loading || drag) return;
+    if (!G || G.done || !G.moves.length) { start(); return; }
+    if (G.phase !== "idle") return;
+    let el = document.getElementById(ASK_ID);
+    if (!el) {
+      el = document.createElement("div");
+      el.id = ASK_ID; el.className = "modal"; el.hidden = true;
+      el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "tlrst-title");
+      el.addEventListener("click", (e) => {
+        if (e.target.closest(".tl-ask-yes")) { H.closeModal(ASK_ID); restartRun(); return; }
+        if (e.target.closest("[data-close]")) { H.closeModal(ASK_ID); const b = root.querySelector(".tl-hud .tl-rst"); if (b) b.focus(); }
+      });
+      document.body.appendChild(el);   // als laatste: boven het Timeline-scherm
+    }
+    el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal-card tl-ask" tabindex="-1"><span class="tl-ask-ico">${RST_SVG}</span>` +
+      `<h2 id="tlrst-title">${esc(L.rstQ)}</h2>${G.n ? `<p>${esc(L.rstSub(G.n))}</p>` : ""}` +
+      `<div class="tl-ask-acts"><button type="button" class="tl-ask-yes">${esc(L.rstYes)}</button><button type="button" class="tl-ask-no" data-close>${esc(L.rstNo)}</button></div></div>`;
+    H.openModal(ASK_ID, { over: true });   // over: Timeline eronder blijft open; Verder, Esc en de achtergrond = terug naar je run
+    const card = el.querySelector(".tl-ask");   // de focus in de pop-up (Tab = Opnieuw), zonder ring om een knop na een tik
+    if (card) card.focus({ preventScroll: true });
+  }
+  // de run stopt hier en telt mee zoals een gewoon einde (de server telt de zetten tot nu na); dan meteen een nieuwe stapel
+  function restartRun() {
+    const g = G;
+    if (!g || g.done || g.phase !== "idle") return;
+    g.done = true;
+    if (g.n > 0) {
+      if (isLive(g)) finishRun(g);   // G is dan al de nieuwe run: finishRun tekent niets, werkt alleen je record en het chipje bij
+      else if (g.n > REC) { REC = g.n; ls(REC_KEY, REC); }
+    }
+    gc("timeline-restart", "Timeline: restarted mid-run");
+    start();
+  }
+
   // slepen: de kaart volgt je vinger; boven de tafel gaat het dichtstbijzijnde gat open; loslaten = leggen
   let drag = null;
   function pick() {
@@ -1072,6 +1145,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       const s = e.target.closest(".tl-slot");
       if (s) { place(+s.dataset.i); return; }
       if (e.target.closest(".tl-again, .tl-retry")) { start(); return; }
+      if (e.target.closest(".tl-rst")) { askRestart(); return; }
       if (e.target.closest(".tl-next")) { openWeek(); return; }
       const sh = e.target.closest(".tl-share");
       if (sh && G) {

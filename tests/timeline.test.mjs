@@ -187,3 +187,20 @@ test("db/238: het bord komt mee met de stapel (speler-id en team), zonder extra 
   // 👑 en 🏆 staan in ons emoji-font (het chipje); de smalle-telefoon-regel zit in de CSS
   assert.match(SRC, /@container tl-hud \(max-width: 20\.5rem\) \{ \.tl-next-n \{ display: none; \}/);
 });
+
+test("↻ naast de hartjes (24/11): halverwege een run eerst onze eigen pop-up, de run eindigt dan en telt als score", () => {
+  // de knop staat in de balk, direct na de hartjes; de kop blijft logo + 🔈
+  assert.match(SRC, /<span class="tl-hl"><span class="tl-hearts"[^`]*\$\{hearts\}<\/span>\$\{rst\}<\/span>/);
+  assert.ok(!/kopHtml = [^\n]*\n[^\n]*tl-rst/.test(SRC), "↻ niet in de kop");
+  // geen systeem-pop-up: een .modal boven het scherm (over), Esc en de achtergrond sluiten alleen die
+  assert.ok(!/\bconfirm\(/.test(SRC), "geen window.confirm");
+  assert.match(SRC, /H\.openModal\(ASK_ID, \{ over: true \}\)/);
+  // zonder zetten, op het eindscherm of na een laadfout meteen; nooit terwijl een kaart onderweg is
+  assert.match(SRC, /if \(!G \|\| G\.done \|\| !G\.moves\.length\) \{ start\(\); return; \}\n\s*if \(G\.phase !== "idle"\) return;/);
+  // de afgebroken run naar de server zoals een gewoon einde (die telt de zetten tot nu na), zonder account alleen het record hier
+  assert.match(SRC, /if \(g\.n > 0\) \{\n\s*if \(isLive\(g\)\) finishRun\(g\);[^\n]*\n\s*else if \(g\.n > REC\)/);
+  // de vraag zegt dat de run eindigt, niet dat je kaarten blijven liggen (zijn "dubbelzinnig")
+  const { T } = core();
+  assert.equal(T.nl.rstSub(12), "Deze run eindigt op 12.");
+  for (const l of Object.keys(T)) assert.match(T[l].rstSub(7), /7/, `${l}: het getal staat in de vraag`);
+});
