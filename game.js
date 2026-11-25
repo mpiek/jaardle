@@ -5094,7 +5094,15 @@ function duelHost() {
     playStart: duelPlayStart,   // db/200: een duelronde telt als een vrij potje (zonder rating)
     duelAchv: (box) => checkDuelAchievements(box),   // ⚔️ db/224: kaartje voor Duellist/Remontada/Ongeschonden/David in de eindstand en op het K.O.-scherm
     ko: () => loadKo(),   // ⚡ Knock-out (db/208, /ko.js)
-    koTimeout: () => { if (state?.duel?.ko && !state.done) finishGame(false, true); },   // de klok liep af: geen gok = 0 punten
+    // De klok liep af. 25/11 (zijn "dat stel iemand gokt niet, je wel de input pakt die hij tot nu toe had ingevuld"): wat er in het
+    // veld staat telt als je gok, zoals de speld bij GeoGuessr. Een half getal ("19" voor 1923) kost niets: >200 jaar ernaast = 0,
+    // net als geen gok. Leeg, alleen "-" of buiten MIN_YEAR..MAX_YEAR = geen gok (0 punten). De server geeft 1 s speling (_ko_check).
+    koTimeout: () => {
+      if (!state?.duel?.ko || state.done) return;
+      const y = parseInt(getYearString().trim(), 10);
+      if (Number.isFinite(y) && y >= MIN_YEAR && y <= MAX_YEAR) submitGuess();   // één gok per ronde: submitGuess sluit de ronde zelf af
+      if (!state.done) finishGame(false, true);
+    },
   };
 }
 // Vlak vóór duel_submit (door /duel.js): de gegevens van het potje. done(id) komt na het antwoord: id = de nieuwe plays-rij,

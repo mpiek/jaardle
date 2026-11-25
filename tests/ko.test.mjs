@@ -144,7 +144,12 @@ test("game.js / duel.js / live.js ↔ ko.js — lui geladen, rondes en seintjes 
   assert.match(GAME, /"jaardle:ko-rt", \(e\) => loadKo\(\)\.then\(\(K\) => K\.event\(duelHost\(\), e\.detail\)\)/);
   assert.match(GAME, /state\.guesses\.length >= MAX_GUESSES \|\| state\.duel\?\.ko\) \{/, "één gok per ronde");
   assert.doesNotMatch(GAME, /koHints/, "geen hints meer in knock-out (22/11)");
-  assert.match(GAME, /koTimeout: \(\) => \{ if \(state\?\.duel\?\.ko && !state\.done\) finishGame\(false, true\); \}/);
+  // klok op 0: wat in het veld staat telt als gok (25/11); leeg/ongeldig = geen gok
+  const kt = GAME.match(/koTimeout: \(\) => \{([\s\S]*?)\n    \},/)?.[1] || "";
+  assert.match(kt, /if \(!state\?\.duel\?\.ko \|\| state\.done\) return;/);
+  assert.match(kt, /parseInt\(getYearString\(\)\.trim\(\), 10\)/);
+  assert.match(kt, /Number\.isFinite\(y\) && y >= MIN_YEAR && y <= MAX_YEAR\) submitGuess\(\);/, "half ingevuld jaar telt als gok");
+  assert.match(kt, /if \(!state\.done\) finishGame\(false, true\);/, "anders: geen gok = 0 punten");
   assert.match(DUEL, /if \(st\?\.duel\?\.ko\) \{ H\.ko\?\.\(\)\.then\(\(K\) => K\.sync\(H\)\)/);
   assert.match(DUEL, /if \(dl\.ko\) return H\.ko\?\.\(\)\.then\(\(K\) => K\.roundDone\(H, st\)\)/);
   assert.match(DUEL, /class="dl-opt ko-opt" data-act="ko"[^]*?\$\{esc\(isOn\(t\.k\) \? T\.koSub\(t\.name\) : T\.liveOff\(t\.name\)\)\}/, "⚡ Knock-out in de uitklapkeuze, ook als die vriend niet online is");
