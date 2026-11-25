@@ -198,11 +198,13 @@ function loadAudio(on, withAudio = true) {
   vm.runInContext(KOSRC, ctx);
   return { KO: win.KO, Duel: win.Duel, log, els };
 }
-const ARGS = { tick: [3], hit: [26, true], ko: [true], want: [0], power: [3] };
+const FW_SHELLS = [{ launch: 0, burst: 0.8, kind: "bright", fx: 0.3 }, { launch: 0.2, burst: 1.0, kind: "bright", fx: 0.7 }, { launch: 0.4, burst: 1.25, kind: "dark", fx: 0.5 },
+  { launch: 2.1, burst: 2.9, kind: "bright", final: true, fx: 0.2 }, { launch: 2.2, burst: 3.0, kind: "dark", final: true, fx: 0.8 }];
+const ARGS = { tick: [3], hit: [26, true], ko: [true], want: [0], power: [3], fw: [0.016, FW_SHELLS] };
 
-test("ko.js — knock-out-geluid: veertien klanken (21/11: + de zap bij ⚡ en de power-up van de verdubbelaar), stil en zonder fout zonder vinkje of zonder Web Audio, elk moment één keer", () => {
+test("ko.js — knock-out-geluid: vijftien klanken (21/11: + de zap bij ⚡ en de power-up van de verdubbelaar; 25/11: + 🎆 het vuurwerk van een 100), stil en zonder fout zonder vinkje of zonder Web Audio, elk moment één keer", () => {
   const { KO: K1, log } = loadAudio(true);
-  assert.deepEqual([...Object.keys(K1._.SFX)].sort(), ["bam", "clash", "clock", "count", "draw", "go", "hit", "invite", "ko", "power", "rx", "tick", "want", "zap"]);
+  assert.deepEqual([...Object.keys(K1._.SFX)].sort(), ["bam", "clash", "clock", "count", "draw", "fw", "go", "hit", "invite", "ko", "power", "rx", "tick", "want", "zap"]);
   for (const k of Object.keys(K1._.SFX)) {
     const n = log.src.length;
     assert.equal(K1._.sfx(`t:${k}`, k, ...(ARGS[k] || [])), true);
@@ -352,6 +354,33 @@ test("ko.js — een weggeklikt K.O.-eindscherm komt niet terug (feedback 20/11: 
   els["modal-ko"].hidden = true;
   K7._.apply(h, { ...d2, re_opp: true, now: iso() });
   assert.equal(opened.length, 3, "en daarna niet meer");
+});
+
+test("ko.js — 🎆 een 100 (25/11, zijn OSRS-voorbeeld, keuze ×0,20): sis tot vlak voor de eerste knal, elke pijl knalt op zijn moment, zacht; alleen in een gewonnen ⚡-ronde", () => {
+  const { KO: K, log } = loadAudio(true);
+  log.gains.length = 0;
+  assert.equal(K.fw(0.016, FW_SHELLS), true);
+  const noise = log.src.filter((r) => r.kind === "noise");
+  assert.equal(noise.length, 1 + FW_SHELLS.length, "één aanloop + één knal per pijl");
+  const [wh, ...bursts] = noise;
+  assert.ok(Math.abs(wh.t - 10) < 1e-9, "de aanloop begint nu (de eerste pijl ging op t = 0 omhoog)");
+  assert.ok(Math.abs(wh.end - (10 + 0.8 - 0.016 - 0.02 + 0.02)) < 1e-6, "en breekt 20 ms vóór de eerste knal af");
+  FW_SHELLS.forEach((s, i) => assert.ok(Math.abs(bursts[i].t - (10 + s.burst - 0.016)) < 1e-9, `pijl ${i}: knal op zijn burst, gelijk met het beeld`));
+  assert.ok(bursts[3].end - bursts[3].t > bursts[2].end - bursts[2].t && bursts[2].end - bursts[2].t > bursts[0].end - bursts[0].t, "finale klinkt langst na, dof langer dan helder");
+  assert.ok(Math.max(...log.gains) <= 0.5 * 0.2 * 1.1 + 1e-9, "zacht: ×0,20 van de luisterpagina");
+  assert.deepEqual(log.errs, []);
+  // later begonnen (at = 1,1 s): de aanloop en de knallen die al voorbij zijn vallen weg
+  const { KO: K2, log: l2 } = loadAudio(true);
+  K2.fw(1.1, FW_SHELLS);
+  assert.equal(l2.src.length, 3, "alleen de knallen die nog moeten komen");
+  // duelgeluid uit: stil
+  const { KO: K3, log: l3 } = loadAudio(false);
+  K3.fw(0.016, FW_SHELLS);
+  assert.equal(l3.src.length, 0);
+  // game.js: alleen in een gewonnen ⚡-ronde, op het eerste beeld van het vuurwerk; de gewone modus blijft stil
+  assert.match(GAME, /function koFwSound\(t, shells\) \{\n  if \(!state\?\.duel\?\.ko \|\| !state\.won \|\| !window\.KO\?\.fw\) return;/);
+  assert.match(GAME, /S = Math\.max\(0\.6, Math\.min\(1\.5, Math\.min\(W, H\) \/ 400\)\);\n\s+koFwSound\(t, shells\);/);
+  assert.match(GAME, /sh\.burst = sh\.launch \+ sh\.T; sh\.final = true;/);
 });
 
 test("ko.js — nageleverde seintjes (replay bij het verbinden) over een ander spel: niets ophalen; een uitnodiging wel", () => {

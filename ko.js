@@ -504,11 +504,12 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     o.connect(e); panTo(x, e, p).connect(b); o.start(t); o.stop(t + dur + 0.02);
   }
   // de dalende noot (21/11, zijn "als hp daalt dat je een noot hoort die daalt"): begint op de hoogte van de oude levens en glijdt in ±0,35 s
-  // mee met de balk naar die van de nieuwe (vol C5 523 Hz … leeg C3 131 Hz; zijn "niet zo hoog beginnen")
+  // mee met de balk naar die van de nieuwe (vol C5 523 Hz … leeg C3 131 Hz; zijn "niet zo hoog beginnen"). 25/11 (zijn "damage geluiden mogen
+  // ook kleeein beetje zachter"): 0,16 → 0,135, −1,5 dB, net als de klap in SFX.hit
   function drop(b, at, was, now, max, p) {
     const x = b.context, t = x.currentTime + at, f = (v) => 130.81 * 2 ** ((2 * Math.max(0, v)) / max), e = x.createGain();
-    e.gain.value = 0; e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(0.16, t + 0.012);
-    e.gain.setValueAtTime(0.16, t + 0.35); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+    e.gain.value = 0; e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(0.135, t + 0.012);
+    e.gain.setValueAtTime(0.135, t + 0.35); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
     panTo(x, e, p).connect(b);
     for (const det of [-5, 5]) {
       const o = x.createOscillator();
@@ -524,6 +525,44 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     for (const [r, a] of [[1, 1], [2, 0.25], [3, 0.08]]) {
       const o = x.createOscillator(), og = x.createGain();
       o.frequency.value = f * r; og.gain.value = a; o.connect(og); og.connect(e); o.start(t); o.stop(t + dec + 0.02);
+    }
+  }
+  // Vuurwerkgeluid bij een 100 (exacte gok = winst in één gok = het vuurwerk van game.js; 25/11, zijn "soort sound die lijkt op fireworks osrs geluid" →
+  // "bedoel meer zoals deze" met het OSRS-level-up-vuurwerk → keuze "knallen ×0,20" op de luisterpagina). Nagebouwd naar de meting van dat
+  // voorbeeld, het bestand zelf zit er niet in: alleen ruis, geen bas, geen toon. De sis zwelt aan terwijl de eerste pijl stijgt (−40 dB
+  // → 5 dB onder een knal) en breekt 20 ms vóór zijn knal hard af. Elke pijl knalt op zijn eigen moment: 22 ms aanzwellen, binnen 50 ms
+  // 8 dB terug, dan een sis-staart. Helder = 650 Hz–10 kHz (peony/chrys), dof = tot 5,5 kHz (knetter), de twee van de finale het dofst
+  // (tot 2,8 kHz, 1 s). Links/rechts waar de pijl knalt. at = waar de animatie nu is (s); wat al voorbij is, slaat hij over.
+  const FW_NF = { bright: [650, 10000, 0.33], dark: [300, 5500, 0.6], last: [180, 2800, 1] }, FW_G = 0.5 * 0.2;   // [highpass, lowpass, staart]
+  let fwBuf = null;
+  function fwHiss(b, t, dur, hp, lp, p) {   // 2 s ruis (eigen buffer, één keer per context), door highpass + lowpass, gepand; de envelop doet de aanroeper
+    const x = b.context;
+    if (!fwBuf || fwBuf.x !== x) {
+      const n = x.sampleRate * 2, buf = x.createBuffer(1, n, x.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      fwBuf = { x, buf };
+    }
+    const s = x.createBufferSource(), h = x.createBiquadFilter(), l = x.createBiquadFilter(), e = x.createGain();
+    s.buffer = fwBuf.buf; h.type = "highpass"; h.frequency.value = hp; l.type = "lowpass"; l.frequency.value = lp; e.gain.value = 0;
+    s.connect(h); h.connect(l); l.connect(e); panTo(x, e, p).connect(b);
+    s.start(t, Math.random() * Math.max(0, 1.95 - dur)); s.stop(t + dur + 0.02);
+    return e.gain;
+  }
+  function fireworks(b, at, shells) {
+    const now = b.context.currentTime, T = (s) => now + s - at, list = (shells || []).filter((s) => s && Number.isFinite(s.burst));
+    if (!list.length) return;
+    const first = list.reduce((m, s) => (s.burst < m.burst ? s : m)), cut = T(first.burst) - 0.02, top = FW_G * 0.56;
+    if (cut - 0.05 > now) {   // de aanloop: vanaf de lancering (of nu, als die al voorbij is) tot vlak voor de eerste knal
+      const t0 = Math.max(now, T(first.launch)), g = fwHiss(b, t0, cut - t0, 650, 10000, (first.fx ?? 0.5) - 0.5);
+      g.setValueAtTime(top * 0.01, t0); g.exponentialRampToValueAtTime(top, cut - 0.004); g.linearRampToValueAtTime(0, cut);
+    }
+    for (const s of list) {
+      const t = T(s.burst);
+      if (t < now) continue;
+      const kind = s.final ? "last" : s.kind === "dark" ? "dark" : "bright", [hp, lp, tail] = FW_NF[kind];
+      const v = FW_G * (s.final ? 1.1 : 0.9 + Math.random() * 0.15), g = fwHiss(b, t, tail, hp, lp, (s.fx ?? 0.5) - 0.5);
+      g.setValueAtTime(0.0001, t); g.exponentialRampToValueAtTime(v, t + 0.022); g.exponentialRampToValueAtTime(v * 0.4, t + 0.072);
+      g.exponentialRampToValueAtTime(0.0001, t + tail);
     }
   }
   const SFX = {
@@ -543,7 +582,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // schade: een 8-bit-klap als de balk begint te zakken (ko-drop wacht 0,5 s), harder en langer bij meer schade, aan de kant van wie hem
     // krijgt (×1,27 = even hard als de klap van vóór 21/11); met de levens van vóór de klap (was, max) ook de dalende noot
     hit: (b, x, me, was, max) => {
-      const k = Math.min(1, x / 60), p = me ? -0.4 : 0.4, g = (0.6 + 0.4 * k) * 1.27;
+      const k = Math.min(1, x / 60), p = me ? -0.4 : 0.4, g = (0.6 + 0.4 * k) * 1.07;   // 25/11: 1,27 → 1,07 (−1,5 dB, zijn "kleeein beetje zachter")
       crunch(b, 0.5, 0.26 + 0.1 * k, 9000, 650, 0.32 * g, p);
       bwop(b, 0.5, 300, 90, 0.12, 0.14 * g, 0.16, p);
       if (was > 0 && max > 0) drop(b, 0.5, was, Math.max(0, was - x), max, p);
@@ -572,7 +611,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       pluck(b, n * 0.055, P[n], 0.06, 0.6);
     },
     clash: (b) => { A.thud(b, 0, 260, 70, 0.32, 0.16); A.tick(b, 0, 3000, 0.1, 0.03); },   // de uitslag: het hoogste getal botst op het lagere
-    bam: (b) => { if (!A.smp?.(b, "ko-bam")) { A.thud(b, 0, 150, 38, 0.85, 0.42); A.swish(b, 0, 0.3, 1800, 220, 0.2, 0.06, 0, 0); } },   // de max: een harde klap (21/11: de opname)
+    // de max: een harde klap (21/11: de opname); 25/11 ×0,85 (−1,5 dB, zoals de andere schade)
+    bam: (b) => { if (!A.smp?.(b, "ko-bam", 0, 0.85)) { const q = sub(b, 0.85); A.thud(q, 0, 150, 38, 0.85, 0.42); A.swish(q, 0, 0.3, 1800, 220, 0.2, 0.06, 0, 0); } },
+    fw: (b, at, shells) => fireworks(b, at, shells),   // een 100: knallen bij het vuurwerk van game.js
     want: (b, at = 0) => { A.ring(b, at, 2349, 0.09); A.ring(b, at + 0.09, 2794, 0.08); },   // de ander wil revanche: belletje
     rx: (b) => A.ring(b, 0, 1568, 0.06),   // een reactie van de ander: een zacht tikje
   };
@@ -1437,6 +1478,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       K.gc("ko-resume", "Knockout: back into the game from Duels");
       call("ko_get", { p_code: g.code }).then((r) => apply(r.ok && r.v ? r.v : g));
     },
+    // vuurwerkgeluid: game.js (fireworksLayer, eerste beeld): het vuurwerk van een 100 in een ⚡-ronde begint; at = waar de animatie is (s), shells =
+    // [{launch, burst, kind: "bright"|"dark", final, fx}]. Stil met het duelgeluid uit (A.bus() = null).
+    fw: (at, shells) => sfx(`fw:${cur?.code || ""}:${Date.now()}`, "fw", at, shells),
     css: CSS, copy: (l) => TXT[l], langs: () => Object.keys(TXT), botCopy: (l) => BOT_TXT[l],
     _: { mult, dmgOf, SFX, sfx, roundOf, hpPath, apply: (h, g) => { H = h; apply(g); }, stripHtml: (h, g, o) => { H = h; return stripHtml(g, o); },
          showHtml: (h, g, r) => { H = h; return showHtml(g, roundOf(g, r)); },

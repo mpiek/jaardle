@@ -3905,7 +3905,7 @@ function fireworksLayer() {
   }
   for (let j = 0; j < 2; j++) {                              // finale: de laatste twee vrijwel tegelijk
     const sh = shells[N - 1 - j];
-    sh.launch = win + j * 0.08; sh.burst = sh.launch + sh.T;
+    sh.launch = win + j * 0.08; sh.burst = sh.launch + sh.T; sh.final = true;
   }
   const end = shells.reduce((m, sh) => Math.max(m, sh.burst + sh.type.life[1]), 0) + 0.1;
   let S = 0;
@@ -3914,6 +3914,7 @@ function fireworksLayer() {
     draw(ctx, t, W, H) {
       if (!S) {                                               // eerste frame: schaal op de schermmaat
         S = Math.max(0.6, Math.min(1.5, Math.min(W, H) / 400));
+        koFwSound(t, shells);                                 // vuurwerkgeluid, alleen in een gewonnen ⚡-ronde: de knallen, gelijk met wat je ziet
         for (const sh of shells) {
           const T = sh.type;
           sh.width = T.width * S;
@@ -3967,6 +3968,16 @@ function fireworksLayer() {
 }
 
 function showFireworks() { runFx([fireworksLayer()]); }
+// Vuurwerkgeluid: een 100 in een Knock-out (25/11, zijn "soort sound die lijkt op fireworks osrs geluid"): een exacte gok is een winst in één gok, dus
+// dit vuurwerk. Alleen daar krijgt het geluid (/ko.js, en alleen met het duelgeluid aan). In de gewone modus blijft het altijd stil (zijn
+// "alleen duel niet in normal mode want daar is geen sound moet daar altijd uit zijn"). Op het eerste beeld, zodat de knallen vallen
+// waar je de pijlen ziet openbarsten (ook als de animatie later begon); zonder animatie (minder beweging) dus ook geen geluid.
+function koFwSound(t, shells) {
+  if (!state?.duel?.ko || !state.won || !window.KO?.fw) return;
+  try {
+    window.KO.fw(t, shells.map((s) => ({ launch: s.launch, burst: s.burst, kind: s.type === FW_TYPES.crackle ? "dark" : "bright", final: !!s.final, fx: s.fx })));
+  } catch (e) {}
+}
 
 // ── Voltreffer-viering (In de roos, VT_ROOS_FX): de lagen staan in /voltreffer-fx.js ───────────────────────────────────
 // Verankerd op de jaartal-pil: het midden uit de bounding box (de pop-animatie schaalt om het midden), de maat uit
