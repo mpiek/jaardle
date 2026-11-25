@@ -13,7 +13,7 @@ const KOSRC = read("ko.js"), DUEL = read("duel.js"), GAME = read("game.js"), LIV
 function load() {
   const head = { kids: [], appendChild(e) { this.kids.push(e); } };
   const win = {};
-  const doc = { head, body: { setAttribute() {} }, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [],
+  const doc = { head, body: { setAttribute() {}, removeAttribute() {} }, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [],
     createElement: () => ({ setAttribute() {}, textContent: "" }) };
   const ctx = vm.createContext({ window: win, document: doc, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL, encodeURIComponent, setTimeout, clearTimeout, setInterval, clearInterval });
   vm.runInContext(DUEL, ctx);
@@ -121,7 +121,7 @@ test("ko.js — rondes, levensverloop en het eindscherm (A): schade, de klap van
 test("db/208 + 210 + 214 + 218 ↔ ko.js — elke RPC die ko.js aanroept bestaat, met de juiste argumentnamen", { skip: !existsSync(join(dir, "..", "..", "jaardle-tools", "db", "218_ko_bot.sql")) }, () => {
   // de laatste definitie telt (db/210 maakt ko_submit opnieuw: jaar + hints in plaats van een score; db/218 + p_client met default)
   const rd = (f) => readFileSync(join(dir, "..", "..", "jaardle-tools", "db", f), "utf8");
-  const old = ["208_ko.sql", "210_ko_one_guess.sql", "214_ko_react.sql"].map(rd).join("\n"), sql = old + "\n" + rd("218_ko_bot.sql") + "\n" + rd("225_duel_rating.sql");   // db/225: ko_invite(p_k, p_rated)
+  const old = ["208_ko.sql", "210_ko_one_guess.sql", "214_ko_react.sql"].map(rd).join("\n"), sql = old + "\n" + rd("218_ko_bot.sql") + "\n" + rd("225_duel_rating.sql") + "\n" + rd("239_ko_theme.sql");   // db/225: ko_invite(p_k, p_rated); db/239: + p_theme (ook ko_bot_start)
   const calls = [...KOSRC.matchAll(/call\("(ko_[a-z_]+)", \{([^}]*)\}/g)].map((m) => [m[1], [...m[2].matchAll(/(p_[a-z]+):/g)].map((x) => x[1])]);
   assert.deepEqual([...new Set(calls.map((c) => c[0]))].sort(), ["ko_answer", "ko_bot_start", "ko_cancel", "ko_get", "ko_invite", "ko_react", "ko_rematch", "ko_submit"]);
   for (const [fn, args] of calls) {
@@ -152,7 +152,10 @@ test("game.js / duel.js / live.js ↔ ko.js — lui geladen, rondes en seintjes 
   assert.match(kt, /if \(!state\.done\) finishGame\(false, true\);/, "anders: geen gok = 0 punten");
   assert.match(DUEL, /if \(st\?\.duel\?\.ko\) \{ H\.ko\?\.\(\)\.then\(\(K\) => K\.sync\(H\)\)/);
   assert.match(DUEL, /if \(dl\.ko\) return H\.ko\?\.\(\)\.then\(\(K\) => K\.roundDone\(H, st\)\)/);
-  assert.match(DUEL, /class="dl-opt ko-opt" data-act="ko"[^]*?\$\{esc\(isOn\(t\.k\) \? T\.koSub\(t\.name\) : T\.liveOff\(t\.name\)\)\}/, "⚡ Knock-out in de uitklapkeuze, ook als die vriend niet online is");
+  // db/239: ⚡ Knock-out in de pop-up van een vriend (de strook), ook als die niet online is: dan één regel onder de knop
+  assert.match(DUEL, /o\("m", "k", botMode, T\.koTag, "⚡"\)/, "⚡ Knock-out in de strook");
+  assert.match(DUEL, /\(ko && !isOn\(t\.k\) \? `<p class="dk-note">\$\{esc\(T\.liveOff\(t\.name\)\)\}<\/p>` : ""\)/, "niet online: seintje + 1 minuut");
+  assert.match(DUEL, /if \(botMode === "k"\) return H\.ko\?\.\(\)\.then\(\(K\) => K\.invite\(H, t\.k, t\.name, \{ rated: ratedOn, theme: pickedTheme\(\) \}\)\)/);
   assert.match(LIVE, /replay: \{ since: Date\.now\(\) - 60000/, "een uitnodiging van de laatste minuut komt bij het openen alsnog binnen");
   assert.match(LIVE, /\.on\("broadcast", \{ event: "ko" \}/);
   assert.ok(!/ko\.js/.test(read("index.template.html")), "ko.js staat niet in de pagina zelf (lui)");
@@ -189,7 +192,7 @@ function loadAudio(on, withAudio = true) {
   }
   const els = {}, win = { addEventListener() {}, ...(withAudio ? { AudioContext: Ctx } : {}) };
   const mk = () => ({ hidden: true, textContent: "", setAttribute() {}, querySelector: () => mk(), querySelectorAll: () => [], classList: { add() {}, remove() {}, toggle() {} }, style: { setProperty() {} } });
-  const doc = { hidden: false, head: { appendChild() {} }, body: { setAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
+  const doc = { hidden: false, head: { appendChild() {} }, body: { setAttribute() {}, removeAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
     getElementById: (id) => els[id] || null, querySelector: () => null, querySelectorAll: () => [], createElement: mk, addEventListener() {}, removeEventListener() {} };
   const localStorage = { getItem: (k) => (k === "jaardle:duelsfx" ? (on === null ? null : on ? "1" : "0") : null) };
   const ctx = vm.createContext({ window: win, document: doc, localStorage, performance: { now: () => 0 }, Float32Array, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL,
@@ -470,14 +473,13 @@ test("ko.js — terug in een lopende knock-out vanaf Duels (20/11): kaart bovena
   // Duels: de kaart onder Jouw beurt (ook zonder andere duels), het gezichtje van Sanne "loopt" en kan niet opnieuw uitgedaagd worden
   D._.setHost(h);
   D._.applyList({ items: [], targets: [{ k: "k-sanne", name: "Sanne", flair: null }, { k: "k-tim", name: "Tim", flair: null }], ko: [] });
-  D._.setPick("k-sanne");
   const T = D.copy("nl");
   const body = D._.listBody(T, [], "", null);
   assert.ok(body.includes(card), "de kaart staat op Duels");
   assert.match(body, /Jouw beurt/);
   assert.doesNotMatch(body, /dl-hero/, "geen lege staat");
-  assert.match(body, /class="dl-face busy" data-face="k-sanne" aria-pressed="false">.*?<small class="run">loopt<\/small>/s);
-  assert.doesNotMatch(body, /data-act="challenge" data-k="k-sanne"/, "geen 'Daag Sanne uit' tijdens het spel");
+  assert.match(body, /class="dl-face busy" data-face="k-sanne">.*?<small class="run">loopt<\/small>/s, "loopt: geen pop-up (aria-haspopup), tik = terug in het spel");
+  assert.match(body, /class="dl-face" data-face="k-tim" aria-haspopup="dialog">/, "db/239: een ander gezichtje opent de pop-up");
   // tik op de kaart of op Sanne: de verse stand ophalen, dan dezelfde ronde met je bord (al gegokt = niet nog eens)
   for (const target of [{ dataset: { act: "kolive" } }, { dataset: { face: "k-sanne" } }]) {
     started.length = 0; rpc.length = 0; st = { duel: null, done: false };
@@ -511,7 +513,7 @@ test("ko.js — de start: eerst het aftel-pop-up (3, 2, 1), dan de opening van e
     return e;
   };
   const doc = { hidden: false, documentElement: { hasAttribute: () => false, removeAttribute() {} }, head: { appendChild() {} },
-    body: { setAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
+    body: { setAttribute() {}, removeAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
     getElementById: (id) => els[id] || null, querySelector: () => null, querySelectorAll: () => [], createElement: mk, addEventListener() {}, removeEventListener() {} };
   const win = { addEventListener() {}, removeEventListener() {}, innerWidth: 390 };
   const later = (f, ms) => { timers.push({ f, ms }); return timers.length; };
@@ -562,7 +564,7 @@ function loadBots() {
   const timers = [];
   const els = {}, win = { addEventListener() {}, dispatchEvent() {} };
   const mk = () => ({ hidden: true, textContent: "", setAttribute() {}, querySelector: () => mk(), querySelectorAll: () => [], classList: { add() {}, remove() {}, toggle() {} }, style: { setProperty() {} } });
-  const doc = { hidden: false, head: { appendChild() {} }, body: { setAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
+  const doc = { hidden: false, head: { appendChild() {} }, body: { setAttribute() {}, removeAttribute() {}, appendChild(e) { if (e.id) els[e.id] = e; }, classList: { add() {}, remove() {} } },
     getElementById: (id) => els[id] || null, querySelector: () => null, querySelectorAll: () => [], createElement: mk, addEventListener() {}, removeEventListener() {} };
   const ctx = vm.createContext({ window: win, document: doc, localStorage: { getItem: () => null }, performance: { now: () => 0 }, String, Object, Array, Math, Date, Number, JSON, Intl, Set, Map, URL,
     encodeURIComponent, CustomEvent: class { constructor(t) { this.type = t; } }, setTimeout: (f, ms) => { timers.push({ f, ms }); return timers.length; }, clearTimeout(i) { if (timers[i - 1]) timers[i - 1].f = null; },
@@ -680,7 +682,7 @@ test("ko.js — de regels (db/222, 22/11): 5000 − 25 per jaar, 6000 levens, ge
   assert.equal(KO.copy("nl").mins, "±5 min"); assert.equal(KO.copy("de").mins, "±5 Min.");
   assert.match(KO.copy("nl").liveSub("Tim"), /6000 levens/);
   // geen betaalde hints: de ronde krijgt noHints mee, game.js zet de knoppen én de toetsen uit, ko_submit stuurt 0; de gokregel toont 25 per jaar
-  assert.match(KOSRC, /ko: true, noHints: true, perYear: PER_YEAR, top: TOP \}/);
+  assert.match(KOSRC, /ko: true, noHints: true, perYear: PER_YEAR, top: TOP,\s+\.\.\.\(K\.themeOf\(g\) \? \{ theme: g\.theme, from: K\.themeOf\(g\)\.from \} : \{\}\) \}/, "db/239: 1900+ = de ondergrens in de ronde");
   assert.match(KOSRC, /p_hints: 0 \}\);/);
   for (const fn of ["requestCenturyHint", "requestLastDigit", "requestLaterClue", "requestDirectionHint"]) assert.match(GAME, new RegExp(`function ${fn}\\(\\) \\{\\n  if \\([^\\n]*state\\.duel\\?\\.noHints\\) return;`), `${fn}: uit bij noHints`);
   assert.match(GAME, /els\.hintBtnCentury\.hidden = noHints \|\| state\.done/);
@@ -787,4 +789,20 @@ test("ko.js — 🤖 db/226 bots met karakter: zinnen in vijf talen, begroeting,
   // tegen een mens: niets van dit alles
   KB.review(h, { ...won, code: "KFUN10", bot: null, opp_name: "Sanne", opp_flair: "🦊" });
   assert.doesNotMatch(els["modal-ko"].innerHTML, /ko-bub say|bot-first/);
+});
+
+test("ko.js ↔ db/239 — 📻 1900+ ook voor knock-outs: de jaren gaan mee bij uitnodigen, bots, revanche en terugval; pilletje en \"1900 – nu\"", () => {
+  assert.match(KOSRC, /call\("ko_bot_start", \{ p_bot: key, \.\.\.\(o\.theme \? \{ p_theme: o\.theme \} : \{\}\) \}\)/, "een bot: alleen als er jaren gekozen zijn");
+  assert.match(KOSRC, /return botStart\(H, g\.bot, true, \{ theme: g\.theme \|\| null \}\); \}/, "revanche tegen een bot: dezelfde jaren");
+  assert.match(KOSRC, /return botStart\(H, b\.dataset\.bot, false, \{ theme: g\.theme \|\| null \}\); \}/, "de volgende bot: dezelfde jaren");
+  assert.match(KOSRC, /if \(act === "again"\) return invite\(H, g\.opp, n, \{ rated: g\.rated, theme: g\.theme \|\| null \}\);/);
+  assert.match(KOSRC, /K\.create\(H, \{ forK: g\.opp, forName: n, theme: g\.theme \|\| null \}\);/, "terugval naar om de beurt: dezelfde jaren");
+  assert.match(KOSRC, /showLate\(\{ state: why\[0\], opp: k, opp_name: name, rated: o\.rated !== false, theme: o\.theme \|\| null \}\)/);
+  assert.match(KOSRC, /`<h2>\$\{esc\(T\.invH\(oppName\(g\)\)\)\}<\/h2>` \+ K\.thHtml\(\{ theme: g\.theme \}\)/, "de uitnodiging: het 📻-pilletje");
+  assert.match(KOSRC, /<span class="dl-th">⚡ \$\{m \? `\$\{m\.ico\} \$\{esc\(m\.label\)\}` : esc\(T\.tag\)\}<\/span>/, "de kop van de ronde: ⚡ 📻 1900+");
+  assert.match(KOSRC, /if \(inp\) \{ if \(era\) inp\.dataset\.ph = dt\.eraPh\(era\.from\); else delete inp\.dataset\.ph; \}/, "\"1900 – nu\" in het lege invoervak");
+  const K = W.Duel.kit;
+  assert.equal(K.thHtml({ theme: "1900" }), `<span class="dl-th"><span aria-hidden="true">📻</span>1900+</span>`);
+  assert.equal(K.themeOf({ theme: "1900" }).from, 1900);
+  assert.equal(K.themeOf({ theme: null }), null);
 });

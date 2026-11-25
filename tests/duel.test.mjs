@@ -133,7 +133,7 @@ test("duel.js — CSS: één <style>, geen fixed, minder beweging, klein bestand
   assert.match(D.css, /prefers-reduced-motion: reduce/);
   const used = new Set([...D.css.matchAll(/var\((--duel[a-z0-9-]*)/g)].map((m) => m[1])), defined = new Set([...D.css.matchAll(/(--duel[a-z0-9-]*)\s*:/g)].map((m) => m[1]));
   for (const u of used) assert.ok(defined.has(u), `${u} gebruikt maar niet gedefinieerd`);
-  assert.ok(SRC.length < 331000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 22/11: +⚔️ Best of 5 tegen een bot (schakelaar in de pop-up, ⚡/⚔️ op de kaart, stand per vorm, gedag en laatste woord, de volgende bot; vijf talen; db/227); 22/11: +🤖 de bot die klaarstaat (kaart bovenaan, regel Pip/dichtste rating), online vooraan, ‹ in een ronde naar Duels; 22/11: +🤖 db/226 de zin van elke bot in de pop-up (vijf talen) en de groene rand; 22/11: +⚔️ duelrating (strook bovenaan Jouw stand, pop-up met lijntje en duellisten, Rated-schakelaar, label unrated, regel op de eindstand; vijf talen; db/225); 22/11: +"Jij tegen X" per vorm, het knock-out-icoon ook voor ko.js; 22/11: +Jouw stand per vorm (twee kaarten als schakelaar, iconen van de vormen, knock-outcijfers per tegenstander, vijf talen; de rij bovenaan weg); 22/11: +⚔️ duel-prestaties (kaartje in de eindstand, "had je … opgeleverd" zonder account, ❤️ Volle levens op het deelplaatje, db/224); 21/11: +🎵 drie noten bij het aanzetten van de muziek; 21/11: +🎵 de luidspreker met drie standen, drie opnames (lui, /sfx/), muziek aan/uit (de muziek zelf in /duel-music.js); 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
+  assert.ok(SRC.length < 336000, `het lui geladen bestand blijft klein (${SRC.length})`);   // 25/11: +⚔️ de kiesstrook in een pop-up (vorm + jaren, 1900+ ook voor knock-outs en bots; het ▾-lijstje en het vak onder een gezichtje weg; vijf talen; db/239); 22/11: +⚔️ Best of 5 tegen een bot (schakelaar in de pop-up, ⚡/⚔️ op de kaart, stand per vorm, gedag en laatste woord, de volgende bot; vijf talen; db/227); 22/11: +🤖 de bot die klaarstaat (kaart bovenaan, regel Pip/dichtste rating), online vooraan, ‹ in een ronde naar Duels; 22/11: +🤖 db/226 de zin van elke bot in de pop-up (vijf talen) en de groene rand; 22/11: +⚔️ duelrating (strook bovenaan Jouw stand, pop-up met lijntje en duellisten, Rated-schakelaar, label unrated, regel op de eindstand; vijf talen; db/225); 22/11: +"Jij tegen X" per vorm, het knock-out-icoon ook voor ko.js; 22/11: +Jouw stand per vorm (twee kaarten als schakelaar, iconen van de vormen, knock-outcijfers per tegenstander, vijf talen; de rij bovenaan weg); 22/11: +⚔️ duel-prestaties (kaartje in de eindstand, "had je … opgeleverd" zonder account, ❤️ Volle levens op het deelplaatje, db/224); 21/11: +🎵 drie noten bij het aanzetten van de muziek; 21/11: +🎵 de luidspreker met drie standen, drie opnames (lui, /sfx/), muziek aan/uit (de muziek zelf in /duel-music.js); 21/11: +de kop van de Duels-pagina in de balk van Jaardle (Jaardle-deur, "Hoe werkt het?" onderaan); 21/11: +🤖 bots (gezichtje, pop-up, vijf talen); 21/11: +de opening met opties (⚡ bij de start van een knock-out); 20/11: +⚡ terug in een lopende knock-out vanaf Duels (kaart + gezichtje); 20/11: +⚡ knock-outs terugzien in de lijst per tegenstander (db/215); 20/11: +🔈 ook in de kop van een ronde; 19/11: +slepen met de muis (gezichtjes, carrousel) en één uitklapknop; 19/11: +"Om de beurt | ⚡ Live" na het kiezen van een vriend; 19/11: +⚡ Live in het ▾-menu en de haakjes naar /ko.js (de knock-out zelf staat in ko.js); 19/11: +online-stipjes bij de gezichtjes (db/206, live.js); 19/11: +duel-geluid (Web Audio, geen bestanden) + knop naast de ?; 19/11: +inklapbare koppen, gedempte band; 19/11: +scorebord, uitslag per ronde, tikbare kaarten, twee kanten bij een uitdaging (mockup v9 "mix"; gzip hoeft niet meer gemeten, zijn woorden);   // 18/11: +verversen bij kijken (logo als knop, tik op een lopend duel, terug in de app; ≈ +1 KB gzip); 18/11: +duelmodus 1900+ (▾-knop, pilletje, teksten; ≈ +2 KB gzip, db/202); 18/11: +de Duels-pagina (logo-zwaarden, thuisknop, uitleg als pop-up; ≈ +2 KB gzip); db/189: +teamgenoten, seintjes, stand (≈ +7 KB gzip); db/190: +deelplaatje, toeschouwer, flair-effecten op het plaatje; alleen voor wie duelleert; 17/11: +de opening van een ronde (≈ +4 KB gzip); 17/11: +bewaarde uitnodiging (≈ +1,2 KB gzip); 18/11: +de vraag van een ronde terugzien, met carrouselletje (≈ +3,5 KB gzip)
 });
 
 test("game.js ↔ duel.js — lui geladen, de deur naast 🌐, link, duelronde gaat naar duel_submit en telt als vrij potje", () => {
@@ -252,11 +252,11 @@ test("duel.js — de Duels-lijst verklapt geen ongeziene uitslag; jouw beurt en 
   assert.match(seen, /Vandaag: verloren 2–3/); assert.match(seen, /<b>0–1<\/b>/);
   assert.deepEqual(plain(X.h2hOf([{ ...lost, seen: true }], "b")), [0, 1]);
   // volgorde: jouw beurt vóór de grote knop; net verstuurd: het groene vak vóór de grote knop; naamveld: geen grote knop
-  assert.ok(h.indexOf('data-act="play"') < h.indexOf('class="dl-new dl-pickgo"'), "Speel boven Daag een vriend uit");
+  assert.ok(h.indexOf('data-act="play"') < h.indexOf('class="dl-new" data-act="pick"'), "Speel boven Daag een vriend uit");
   const sent = X.listBody(T, [turn], `<div class="dl-sent">✓</div>`, null);
-  assert.ok(sent.indexOf("dl-sent") < sent.indexOf('data-act="play"') && sent.indexOf('data-act="play"') < sent.indexOf('class="dl-new dl-pickgo"'));
-  assert.ok(!X.listBody(T, [turn], `<form class="dl-name"></form>`, null).includes('class="dl-new dl-pickgo"'));
-  assert.match(X.listBody(T, [], "", null), /dl-hero[^]*class="dl-new dl-pickgo"/, "lege staat: dezelfde knop");
+  assert.ok(sent.indexOf("dl-sent") < sent.indexOf('data-act="play"') && sent.indexOf('data-act="play"') < sent.indexOf('class="dl-new" data-act="pick"'));
+  assert.ok(!X.listBody(T, [turn], `<form class="dl-name"></form>`, null).includes('class="dl-new" data-act="pick"'));
+  assert.match(X.listBody(T, [], "", null), /dl-hero[^]*class="dl-new" data-act="pick"/, "lege staat: dezelfde knop");
 });
 
 test("duel.js v3 (db/189) — gezichtjes met jullie stand, kiezen → 'Daag X uit', loopt = geen keuze; zonder account alleen de link", () => {
@@ -271,23 +271,48 @@ test("duel.js v3 (db/189) — gezichtjes met jullie stand, kiezen → 'Daag X ui
   });
   let h = X.pickHtml(T, "<NEW>");
   assert.match(h, /Daag iemand uit/);
-  assert.match(h, /data-face="kb" aria-pressed="false"><span class="dl-av fl hue" style="--h:28" aria-hidden="true"><i>🦫<\/i><\/span><b>Bram<\/b><small class="up">4–2<\/small>/, "Bram: flair, kleur zoals het histogram, groen 4–2");
+  assert.match(h, /data-face="kb" aria-haspopup="dialog"><span class="dl-av fl hue" style="--h:28" aria-hidden="true"><i>🦫<\/i><\/span><b>Bram<\/b><small class="up">4–2<\/small>/, "Bram: flair, kleur zoals het histogram, groen 4–2");
   assert.match(h, /<b>Joost<\/b><small class="down">1–3<\/small>/); assert.match(h, /<b>Sanne<\/b><small class="new">nieuw<\/small>/);
-  assert.match(h, /class="dl-face busy" data-face="kl"[^]*<small class="run">loopt<\/small>/);
-  assert.match(h, /<NEW>/, "zonder keuze: de gewone knop (de link)");
-  X.setPick("kb");
-  h = X.pickHtml(T, "<NEW>");
-  assert.ok(!h.includes("<NEW>"));
-  assert.match(h, /<div class="dl-vsline"><span>Jij tegen Bram:<\/span><span class="vs-m"><span class="vs-e" aria-hidden="true">⚔️<\/span><b>4–2<\/b>/, "22/11: per vorm, ⚔️ = Best of 5 (hier alleen Best of 5)"); assert.match(h, /class="dl-new dl-pickgo" data-act="modes" aria-expanded="false"[^>]*>[^]*Daag Bram uit/, "één grote knop die de vormen uitklapt");
-  X.setModes(true);
-  const hm = X.pickHtml(T, "<NEW>");
-  X.setModes(false);
-  assert.match(hm, /data-act="ko" data-k="kb"><span class="mo-e" aria-hidden="true">⚡<\/span><span><b>Knock-out · live<\/b><small>Bram krijgt een seintje en 1 minuut<\/small>/, "⚡ Knock-out, ook als Bram niet online is");
-  assert.match(hm, /data-act="challenge" data-k="kb">[^]*<b>Best of 5<\/b>/);
-  assert.match(hm, /data-act="challenge" data-k="kb" data-theme="1900">/); assert.match(h, /data-act="new">Liever een link sturen/);
+  assert.match(h, /class="dl-face busy" data-face="kl">[^]*<small class="run">loopt<\/small>/, "loopt: geen pop-up");
+  assert.match(h, /<NEW><\/div>$/, "de gewone knop (db/239: de pop-up voor een link) onder de gezichtjes");
+  // db/239: een gezichtje opent de pop-up: wie (band + jullie stand), de strook (vorm, jaren, Rated), één knop, de link als uitweg
+  const el = { innerHTML: "", setAttribute(k, v) { this[k] = v; } };
+  X.setBotMode("b"); X.setPickTheme(""); X.setRated(true);
+  X.setPickFor({ k: "kb", name: "Bram", flair: "🦫" });
+  X.pickFill(el, T);
+  let p = el.innerHTML;
+  assert.match(p, /^<div class="modal-backdrop" data-close><\/div><div class="modal-card duel-pop dk-pop"><button type="button" class="modal-close" data-close aria-label="Sluiten">✕<\/button><div class="duel-inv"><div class="vb vbf"/);
+  assert.equal(el["aria-label"], "Daag Bram uit");
+  assert.match(p, /<div class="dl-vsline"><span>Jij tegen Bram:<\/span><span class="vs-m"><span class="vs-e" aria-hidden="true">⚔️<\/span><b>4–2<\/b>/, "22/11: per vorm, ⚔️ = Best of 5 (hier alleen Best of 5)");
+  assert.match(p, /data-dk="m" data-v="b" aria-checked="true"><span class="bm-i" aria-hidden="true">⚔️<\/span>Best of 5<\/button>/);
+  assert.match(p, /<button type="button" class="duel-go dk-go" data-act="pgo"><span class="duel-ico" aria-hidden="true">⚔️<\/span> Daag Bram uit<\/button>/);
+  assert.doesNotMatch(p, /dk-note/, "Best of 5: geen regel over online");
+  assert.match(p, /<button type="button" class="duel-no" data-act="plink">Liever een link sturen<\/button><\/div><\/div>$/);
+  X.setBotMode("k");
+  X.pickFill(el, T); p = el.innerHTML;
+  assert.match(p, /<span class="vb-badge ko-z">⚡<\/span>/, "het rondje in de band volgt de vorm");
+  assert.match(p, /<span class="duel-ico" aria-hidden="true">⚡<\/span> Daag Bram uit<\/button><p class="dk-note">Bram krijgt een seintje en 1 minuut<\/p>/, "⚡ Knock-out, ook als Bram niet online is");
+  assert.match(p, /data-dk="t" data-v="" aria-checked="true">Alle jaren<\/button><button type="button" class="bm-o" role="radio" data-act="dk" data-dk="t" data-v="1900" aria-checked="false"><span class="bm-i" aria-hidden="true">📻<\/span>1900\+<\/button>/);
+  assert.match(p, /<button type="button" class="dk-rt" role="switch" aria-checked="true" data-act="rated">Rated<span class="dk-sw" aria-hidden="true"><\/span><\/button><\/div><\/div>/, "met account: Rated rechts op de jarenregel");
+  // een link: altijd Best of 5, dus geen vormregel
+  X.setPickFor(null);
+  X.pickFill(el, T); p = el.innerHTML;
+  assert.match(p, /<h2>Daag een vriend uit<\/h2><div class="dk"><div class="dk-row">/);
+  assert.doesNotMatch(p, /data-dk="m"/);
+  assert.match(p, /<button type="button" class="duel-go dk-go" data-act="pgo"><span class="duel-ico" aria-hidden="true">⚔️<\/span> Maak een link<\/button><\/div><\/div>$/);
+  // de knoppen: Knock-out = ko.js invite met Rated en de jaren; Best of 5 = create met de vriend en de jaren; een link = create
+  const acts = [];
+  const H0 = host({ loggedIn: true, myName: () => "Noor", closeModal: (id) => acts.push(["close", id]), ko: () => ({ then: (f) => { f({ invite: (h, k, n, o) => acts.push(["invite", k, n, o]) }); return { catch() {} }; } }) });
+  X.setHost(H0);
+  const click = (a, extra = {}) => X.onPickClick({ target: { closest: (sel) => (sel === "[data-close]" ? null : { dataset: { act: a, ...extra } }) } });
+  X.setPickTheme("1900"); X.setPickFor({ k: "kb", name: "Bram", flair: "🦫" });
+  click("pgo");
+  assert.deepEqual(plain(acts.slice(-2)), [["close", "modal-duel-pick"], ["invite", "kb", "Bram", { rated: true, theme: "1900" }]], "⚡ uitnodiging in 1900+");
+  X.setPickTheme("");
+  X.setHost(host({ loggedIn: true, myName: () => "Bram" }));
   X.setHost(host({ loggedIn: false }));
   assert.equal(X.pickHtml(T, "<NEW>"), "<NEW>", "zonder account geen gezichtjes");
-  X.setPick(null);
+  X.setPickFor(null); X.setBotMode("k");
   X.applyList({ items: [], h2h: {}, targets: [] });
 });
 
@@ -468,7 +493,7 @@ test("duel.js — account-momenten zonder account: bij de uitslag wat je er met 
   for (const l of D.langs()) assert.ok(D.copy(l).keepVs("Bram").includes("Bram") && /^<u>[^<]+<\/u>/.test(D.copy(l).keepList), `${l}: naam in de regel, het werkwoord onderstreept`);
   // het Duels-scherm: de regel onder de knop, zodra je een uitslag zag van een duel tegen iemand met een account
   const withAcc = X.listBody(T, [{ ...done, opp_acc: true }], "", null);
-  assert.match(withAcc, /class="dl-new dl-pickgo"[^]*?<\/button><button type="button" class="dl-linkb dl-acct" data-act="login" data-code="AAAAAA"><u>Log in<\/u>, dan staan je tegenstanders hier en daag je ze uit met één tik<\/button>/);
+  assert.match(withAcc, /class="dl-new" data-act="pick"[^]*?<\/button><button type="button" class="dl-linkb dl-acct" data-act="login" data-code="AAAAAA"><u>Log in<\/u>, dan staan je tegenstanders hier en daag je ze uit met één tik<\/button>/);
   assert.ok(withAcc.indexOf("dl-acct") < withAcc.indexOf("Jouw stand"), "boven je stand, direct onder de knop");
   assert.ok(!X.listBody(T, [done], "", null).includes("dl-acct"), "tegenstander zonder account (of een oudere server): geen regel");
   assert.ok(!X.listBody(T, [{ ...done, opp_acc: true, seen: false }], "", null).includes("dl-acct"), "een uitslag die je nog niet zag: de onthulling heeft haar eigen regel");
@@ -815,17 +840,18 @@ test("db/201 ↔ duel.js — revanche volgt 'één duel per tweetal', intrekken 
 test("duel.js — duelmodus 1900+ (db/202): ▾ naast de grote knop, pilletje, uitnodiging, gok-guard in game.js", () => {
   X.setHost(host());
   const T = D.copy("nl");
-  // dicht: de grote knop met rechts de ▾, geen lijstje; open: één regel 1900+ die met dezelfde actie meteen uitdaagt
-  X.setModes(false);
-  let h = X.goHtml(T, `data-act="new"`, T.newBtn);
-  assert.match(h, /^<button type="button" class="dl-new dl-pickgo" data-act="modes" aria-expanded="false" aria-label="Meer duelvormen">[^]*?Daag een vriend uit/, "één knop die uitklapt, ook zonder gekozen vriend");
-  assert.ok(!h.includes("dl-menu"));
-  X.setModes(true);
-  h = X.goHtml(T, `data-act="challenge" data-k="kb"`, T.challengeX("Bram"));
-  assert.match(h, /aria-expanded="true"/);
-  assert.match(h, /<div class="dl-menu">[^]*<button type="button" class="dl-opt" data-act="challenge" data-k="kb" data-theme="1900">[^]*?<b>1900\+<\/b><small>Alle 5 rondes uit 1900 tot nu<\/small>/);
-  assert.match(h, /<button type="button" class="dl-opt" data-act="challenge" data-k="kb"><span class="mo-e" aria-hidden="true">⚔️<\/span><span><b>Best of 5<\/b><small>5 rondes, om de beurt<\/small>/, "Best of 5 staat er ook tussen (22/11: was Normaal)");
-  X.setModes(false);
+  // db/239: geen ▾-lijstje meer. 1900+ is een jarenkeuze in de strook (naast Alle jaren), geen vorm; een link heeft geen vormregel
+  X.setPickTheme("");
+  let h = X.dkHtml(T, { vorm: false });
+  assert.equal(h, '<div class="dk"><div class="dk-row"><span class="bm-seg" role="radiogroup" aria-label="Welke jaren"><button type="button" class="bm-o" role="radio" data-act="dk" data-dk="t" data-v="" aria-checked="true">Alle jaren</button>' +
+    '<button type="button" class="bm-o" role="radio" data-act="dk" data-dk="t" data-v="1900" aria-checked="false"><span class="bm-i" aria-hidden="true">📻</span>1900+</button></span></div></div>');
+  X.setPickTheme("1900");
+  h = X.dkHtml(T);
+  assert.match(h, /^<div class="dk"><span class="bm-seg" role="radiogroup" aria-label="Kies een vorm">[^]*data-dk="m" data-v="k"[^]*⚡<\/span>Knock-out<\/button>[^]*data-dk="m" data-v="b"[^]*⚔️<\/span>Best of 5<\/button><\/span><div class="dk-row">/);
+  assert.match(h, /data-dk="t" data-v="" aria-checked="false">Alle jaren[^]*data-dk="t" data-v="1900" aria-checked="true">/);
+  assert.equal(X.pickTheme(), "1900");
+  X.setPickTheme("onbekend"); assert.equal(X.pickTheme(), "", "een onbekend thema = alle jaren");
+  for (const l of D.langs()) { const c = D.copy(l); assert.ok(c.allYears && c.yearsAria && c.makeLink, `${l}: teksten van de strook`); }
   // pilletje alleen bij een bekend thema (een oudere server stuurt geen theme)
   assert.equal(X.thHtml({ theme: "1900" }), `<span class="dl-th"><span aria-hidden="true">📻</span>1900+</span>`);
   assert.equal(X.thHtml({ theme: null }), "");
@@ -1191,9 +1217,7 @@ test("duel.js — Jouw stand per vorm (22/11): twee kaarten als schakelaar, onth
   assert.equal(X.standMode([{ ...duel, seen: false }]), "b");
   X.setStand(null);
   // de iconen alleen groot op de kaarten; klein (menu) blijft het ⚔️ (22/11: "die kleine KO zijn niet mooi")
-  X.setModes(true);
-  assert.match(X.goHtml(T, `data-act="new"`, T.newBtn), /<span class="mo-e" aria-hidden="true">⚔️<\/span><span><b>Best of 5<\/b>/);
-  X.setModes(false);
+  assert.match(X.dkHtml(T), /<span class="bm-i" aria-hidden="true">⚔️<\/span>Best of 5<\/button>/, "db/239: Best of 5 in de strook");
   assert.ok(!/class="dm-i"|class="dm-mo"/.test(SRC), "geen kleine iconen meer");
   assert.match(X.dmIco("k"), /fill="#d9433f"[^]*<rect x="62" y="233" width="116" height="46" rx="4" fill="#fff"\/><\/svg>$/, "knock-out: de levensbalk bijna op");
   assert.match(X.dmIco("b"), /fill="#e8794a"[^]*<rect x="44" y="215" width="72" height="82" rx="16"\/>[^]*stroke-width="8"\/><\/g><\/svg>$/, "best of 5: drie volle en twee open blokjes");
@@ -1227,7 +1251,7 @@ test("duel.js — 🤖 bots (db/218): één gezichtje vooraan (ook zonder accoun
   // lege staat (22/11): Jij vs ?, de stappen en de knop; daaronder Wacht met de bot die klaarstaat (zijn "onder de challenge a friend,
   // bij waiting"); het 🤖-gezichtje staat er dan niet meer
   const hero = X.listBody(T, [], "", null);
-  assert.match(hero, /^<div class="dl-hero"><div class="vb"[^]*<h3>Daag een vriend uit voor een duel<\/h3>[^]*class="dl-new dl-pickgo"[^]*<\/button><\/div><h3 class="dl-h"><button type="button" class="dl-hb" data-act="sec" data-sec="wait" aria-expanded="true">Wacht<span class="dl-hc"[^]*<\/h3><div class="dl-card inc bot" data-act="botgo" data-bot="pip"><div class="vb"[^]*<b>Pip daagt je uit<\/b><span class="bm-mini">[^]*<span class="bm-n">Knock-out<\/span><\/span><br><i>„Ik ben net uit het ei\. Ik lees alles twee keer\.”<\/i><\/small><button type="button" class="dl-go" data-act="botgo" data-bot="pip">Speel<\/button><\/div><\/div>$/, "lege staat: vriendendeel, dan Wacht met Pip");
+  assert.match(hero, /^<div class="dl-hero"><div class="vb"[^]*<h3>Daag een vriend uit voor een duel<\/h3>[^]*class="dl-new" data-act="pick"[^]*<\/button><\/div><h3 class="dl-h"><button type="button" class="dl-hb" data-act="sec" data-sec="wait" aria-expanded="true">Wacht<span class="dl-hc"[^]*<\/h3><div class="dl-card inc bot" data-act="botgo" data-bot="pip"><div class="vb"[^]*<b>Pip daagt je uit<\/b><span class="bm-mini">[^]*<span class="bm-n">Knock-out<\/span><\/span><br><i>„Ik ben net uit het ei\. Ik lees alles twee keer\.”<\/i><\/small><button type="button" class="dl-go" data-act="botgo" data-bot="pip">Speel<\/button><\/div><\/div>$/, "lege staat: vriendendeel, dan Wacht met Pip");
   assert.ok(!hero.includes("bot-only"), "lege staat: geen 🤖-gezichtje");
   // geen bots van de server (oude server): alles zoals het was
   X.applyList({ items: [], h2h: {}, targets: [] });
@@ -1373,20 +1397,16 @@ test("duel.js — ⚔️ duel-prestaties (db/224): zonder account zegt de uitsla
 
 test("duel.js — ⚔️ duelrating (db/225): Rated-schakelaar alleen met account, label unrated, strook vast/voorlopig, pop-up met duellisten", () => {
   const T = D.copy("nl");
-  // Rated: alleen het woord + het schakelaartje, standaard aan; zonder account niets
+  // Rated: alleen het woord + het schakelaartje, standaard aan; zonder account niets (db/239: rechts op de jarenregel van de strook)
   X.setHost(host());
-  assert.equal(X.rtHtml(T), "");
+  assert.doesNotMatch(X.dkHtml(T, { rated: true }), /dk-rt/);
   X.setHost(host({ loggedIn: true, myName: () => "Bram" }));
   X.setRated(true);
-  assert.match(X.rtHtml(T), /class="dl-opt dr-rt" role="switch" aria-checked="true" data-act="rated"><span class="mo-e" aria-hidden="true"><\/span><span><b>Rated<\/b><\/span><\/button>/);
+  assert.match(X.dkHtml(T, { rated: true }), /<button type="button" class="dk-rt" role="switch" aria-checked="true" data-act="rated">Rated<span class="dk-sw" aria-hidden="true"><\/span><\/button><\/div><\/div>$/);
+  assert.doesNotMatch(X.dkHtml(T), /dk-rt/, "tegen een bot (geen rated gevraagd): geen Rated");
   X.setRated(false);
-  assert.match(X.rtHtml(T), /aria-checked="false"/);
+  assert.match(X.dkHtml(T, { rated: true }), /class="dk-rt" role="switch" aria-checked="false"/);
   X.setRated(true);
-  // het menu van de grote knop heeft hem onderaan, onder de vormen
-  X.setModes(true);
-  const go = X.goHtml(T, 'data-act="new"', "Daag uit");
-  assert.ok(go.indexOf("dr-rt") > go.indexOf("1900+"), "onder de vormen");
-  X.setModes(false);
   // label: alleen een duel dat niet meetelt
   assert.match(X.thHtml({ rated: false }), /class="dl-th dr-fr">unrated</);
   assert.equal(X.thHtml({ rated: true }), "");
@@ -1438,7 +1458,7 @@ test("duel.js ↔ db/225 — Rated gaat alleen mee als hij uit staat; de eindsta
   // de eindstand: een vak voor de regel, niet bij terugkijken en niet bij unrated
   assert.match(SRC, /\(H\.loggedIn && !again && d\.rated !== false \? `<p class="fact-stats rating-line rating-line-link dr-endline"/);
   assert.match(KO_SRC_FOR_MUSIC, /\(fresh && !g\.bot && H\.loggedIn && g\.rated !== false \? `<p class="fact-stats rating-line rating-line-link dr-endline"/);
-  assert.match(KO_SRC_FOR_MUSIC, /call\("ko_invite", \{ p_k: k, \.\.\.\(o\.rated === false \? \{ p_rated: false \} : \{\}\) \}\)/);
+  assert.match(KO_SRC_FOR_MUSIC, /call\("ko_invite", \{ p_k: k, \.\.\.\(o\.rated === false \? \{ p_rated: false \} : \{\}\), \.\.\.\(o\.theme \? \{ p_theme: o\.theme \} : \{\}\) \}\)/, "db/239: de jaren alleen als ze gekozen zijn");
   // Stats: een vierde tab ⚔️ Duels, verborgen tot er een duelrating is; dezelfde grafiek als ⚡ (drawRatingChart)
   assert.match(GAME, /data-tab="duel" hidden>\$\{segLabel\("⚔️", t\("stats_duel"\)\)\}<\/button>/);
   assert.match(GAME, /rpc\("get_my_duel_rating_history", \{\}\)/);
@@ -1540,8 +1560,12 @@ test("duel.js — ⚔️ Best of 5 tegen een bot (db/227): één schakelaar voor
   c = X.botCardHtml(T, pip);
   assert.match(c, /data-bmode="b" aria-checked="true"[^]*<span class="bm-n">Best of 5<\/span><\/span><br>Jullie 0–1<\/small>/);
   assert.equal(X.botMode(), "b");
-  // de pop-up: brede schakelaar met de namen; per bot de stand van de gekozen vorm; groene rand = ooit verslagen, in welke vorm ook
-  assert.match(X.botModesHtml(T), /^<div class="bm-wide"><span class="bm-seg" role="radiogroup"[^]*⚡<\/span>Knock-out<\/button>[^]*⚔️<\/span>Best of 5<\/button><\/span><\/div>$/);
+  // db/239: bij 1900+ staat dat achter de vorm op de kaart
+  X.setPickTheme("1900");
+  assert.match(X.botCardHtml(T, pip), /<span class="bm-n">Best of 5 · 📻 1900\+<\/span><\/span><br>Jullie 0–1<\/small>/);
+  X.setPickTheme("");
+  // de pop-up: de strook (vorm + jaren, geen Rated); per bot de stand van de gekozen vorm; groene rand = ooit verslagen, in welke vorm ook
+  assert.match(SRC, /dkHtml\(T\) \+   \/\/ db\/239: dezelfde strook als bij een vriend, zonder Rated/);
   assert.match(X.botOptHtml(T, robo, 1), /<span class="bo-rec up">1–0<\/span>/);
   assert.match(X.botOptHtml(T, robo, 1, { mode: "k" }), /<span class="bo-rec down">0–1<\/span>/);
   assert.match(X.botOptHtml(T, robo, 1), /dl-av[^"]* won/, "Robo in Best of 5 verslagen: groene rand");
@@ -1570,8 +1594,9 @@ test("duel.js — ⚔️ Best of 5 tegen een bot (db/227): één schakelaar voor
   X.setHost(host({ clientId: () => "c1", rpc: async (fn, a) => { calls.push([fn, a.p_bot, a.p_rematch]); throw new Error("offline"); }, closeModal() {}, openModal() {} }));
   await X.create(X.host(), { rematch: "BBBBBB" }).catch(() => {});
   assert.deepEqual(plain(calls[0]), ["duel_bot_start", "pip", null]);
-  assert.match(SRC, /if \(act === "botgo"\) \{[^]*if \(botMode === "b"\) return botDuel\(H, b\.dataset\.bot\);/, "de kaart start in de gekozen vorm");
-  assert.match(SRC, /if \(botMode === "b"\) return botDuel\(H, b\.dataset\.bot\);\n        H\.ko\?\.\(\)\.then\(\(K\) => K\.botStart/, "de pop-up ook");
+  assert.match(SRC, /if \(act === "botgo"\) \{[^]*return botGo\(b\.dataset\.bot\);/, "de kaart start in de gekozen vorm");
+  assert.match(SRC, /H\.closeModal\(BOTS_ID\);\n        botGo\(b\.dataset\.bot\);/, "de pop-up ook");
+  assert.match(SRC, /function botGo\(key\) \{\n    if \(botMode === "b"\) return botDuel\(H, key, pickedTheme\(\)\);\n    return H\.ko\?\.\(\)\.then\(\(K\) => K\.botStart\?\.\(H, key, false, \{ theme: pickedTheme\(\) \}\)\)/, "db/239: in de gekozen jaren");
   X.setBotMode("k");
 });
 

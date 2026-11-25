@@ -665,21 +665,23 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
   }
 
   // Jij daagt uit (▾ → Live bij een gezichtje dat online is)
-  async function invite(host, k, name, o = {}) {   // o.rated: de Rated-schakelaar (⚔️ db/225; false = unrated, anders telt hij mee)
+  // o.rated: de Rated-schakelaar (⚔️ db/225; false = unrated, anders telt hij mee); o.theme: de jaren (db/239; "1900" = 1900+, anders alle)
+  async function invite(host, k, name, o = {}) {
     H = host; ensureCss();
     K.gc("ko-invite", "Knockout: invited");
-    const r = await call("ko_invite", { p_k: k, ...(o.rated === false ? { p_rated: false } : {}) });
+    if (o.theme) K.gc("ko-theme-" + o.theme, "Knockout: invited, years " + o.theme + "+");
+    const r = await call("ko_invite", { p_k: k, ...(o.rated === false ? { p_rated: false } : {}), ...(o.theme ? { p_theme: o.theme } : {}) });
     const why = !r.ok && /busy|cooldown/.exec(r.e || "");   // db/213: die speelt nu een knock-out, of zei net nee
-    if (why) return showLate({ state: why[0], opp: k, opp_name: name });
+    if (why) return showLate({ state: why[0], opp: k, opp_name: name, rated: o.rated !== false, theme: o.theme || null });
     if (!r.ok || !r.v) return pop(`<h2>${esc(tx().err)}</h2><button type="button" class="duel-no" data-ko="close">${esc(tx().close)}</button>`, () => closePop());
     apply(r.v);
   }
   // 🤖 Een knock-out tegen een bot (db/218, 21/11): 🐣 Pip, 🤖 Robo of 🧠 Prof (de lijst komt uit duel_list). Meteen live: aftellen, ronde 1.
-  // Ook zonder account (het speler-id gaat mee, zie call). rev = de revanche (het aftel-pop-up zegt dan "Revanche!").
-  async function botStart(host, key, rev = false) {
+  // Ook zonder account (het speler-id gaat mee, zie call). rev = de revanche (het aftel-pop-up zegt dan "Revanche!"). o.theme = de jaren (db/239).
+  async function botStart(host, key, rev = false, o = {}) {
     H = host; ensureCss();
     K.gc("ko-bot-" + String(key).replace(/[^a-z0-9]/g, ""), "Knockout: started against a bot");
-    const r = await call("ko_bot_start", { p_bot: key });
+    const r = await call("ko_bot_start", { p_bot: key, ...(o.theme ? { p_theme: o.theme } : {}) });
     if (!r.ok || !r.v) return pop(`<h2>${esc(tx().err)}</h2><button type="button" class="duel-no" data-ko="close">${esc(tx().close)}</button>`, () => closePop());
     if (rev) revNext = r.v.code;
     apply(r.v);
@@ -701,9 +703,9 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
         : `<button type="button" class="duel-go" data-ko="turn">${esc(T.turn)}</button>`) +
       `<p class="ko-alt-sub">${esc(T.turnSub(n))}</p><button type="button" class="duel-no" data-ko="close">${esc(T.never)}</button>`,
       (act) => {
-        if (act === "again") return invite(H, g.opp, n, { rated: g.rated });
+        if (act === "again") return invite(H, g.opp, n, { rated: g.rated, theme: g.theme || null });
         closePop();
-        if (act === "turn") { K.gc("ko-turn", "Knockout: fell back to a turn duel"); K.create(H, { forK: g.opp, forName: n }); }
+        if (act === "turn") { K.gc("ko-turn", "Knockout: fell back to a turn duel"); K.create(H, { forK: g.opp, forName: n, theme: g.theme || null }); }   // db/239: in dezelfde jaren
       });
   }
   // Jij wordt uitgedaagd: overal in Jaardle, 30 s
@@ -711,7 +713,7 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     const T = tx();
     const left = Math.max(0, at(g.invite_until) - now());
     sfx(`inv:${g.code}`, "invite");
-    const el = pop(band(g, T.tag) + `<h2>${esc(T.invH(oppName(g)))}</h2>` +
+    const el = pop(band(g, T.tag) + `<h2>${esc(T.invH(oppName(g)))}</h2>` + K.thHtml({ theme: g.theme }) +   // db/239: 📻 1900+
       (g.rated === false ? `<span class="dl-th dr-fr">${esc(K.tx(H.lang).unrated)}</span>` : "") +   // ⚔️ db/225: telt niet voor de duelrating
       `<div class="ko-rules"><span>❤️ <b>${hpMax(g)}</b> ${esc(T.lives)}</span><span>${esc(T.same)}</span><span>${esc(T.mins)}</span></div>` +
       `<button type="button" class="duel-go ko-go" data-ko="yes" style="--dur:${left}ms">${esc(T.join)}<span class="ko-left"></span></button>` +
@@ -913,10 +915,16 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       top.id = "duel-top"; top.className = "duel-top";
       tabs.before(top);
     }
+    // db/239: een knock-out in 1900+ (het thema uit ko_get, of uit de ronde na herladen): het pilletje en "1900 – nu" in het lege invoervak
+    const sd = H.state()?.duel, th = (g && g.theme) || (sd?.ko && sd.theme) || null, m = th && K.themeOf({ theme: th }), era = m ? { key: th, from: m.from } : null;
+    const inp = document.getElementById("year-input");
+    if (era) document.body.setAttribute("data-era", ""); else document.body.removeAttribute("data-era");
+    if (inp) { if (era) inp.dataset.ph = dt.eraPh(era.from); else delete inp.dataset.ph; }
     if (top) {
       top.innerHTML = `<div class="duel-left"><button type="button" class="duel-exit" aria-label="${esc(dt.toDuels)}">${K.exitHtml()}</button>${K.sndHtml(dt)}</div>` +
         `<button type="button" class="duel-title duel-home dl-logo" aria-label="${esc(dt.toDuels)}">${K.logoHtml(dt)}</button>` +
-        `<span class="duel-round"><span class="dl-th">⚡ ${esc(T.tag)}</span><span>${esc(T.roundN(g ? g.round : H.state()?.duel?.round || 1))}</span></span>`;
+        // db/239: in 1900+ één pilletje "⚡ 📻 1900+" (drie regels rechtsboven was te veel; ⚡ = knock-out, zoals overal klein)
+        `<span class="duel-round"><span class="dl-th">⚡ ${m ? `${m.ico} ${esc(m.label)}` : esc(T.tag)}</span><span>${esc(T.roundN(g ? g.round : H.state()?.duel?.round || 1))}</span></span>`;
       K.setHost(H); K.armSnd(top);   // 🔈 ook hier (20/11): dezelfde knop als op de Duels-pagina (H: game.js bewaart de keuze)
       top.onclick = (e) => {   // eigen klik (de kop van duel.js heeft zijn luisteraar alleen als duel.js hem maakte)
         // 22/11 (zijn "terugknop naar JAAR ipv DUEL is raar"): ‹ = naar Duels (DU/EL-icoon), daar staat dit spel bovenaan (tik = terug)
@@ -1009,7 +1017,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     // terug in een ronde die je al open had (via Duels, 20/11): je bord zoals je het achterliet (de gok, de hints), anders kon je opnieuw
     // gokken en waren je hints gratis; al gegokt = meteen weer "Wachten op …" (ko_submit nog eens geeft gewoon de stand)
     const run = H.startRound({ mode: "free", hashes: p.hashes, event: H.toEvent(p), board: H.duelBoard?.(g.code, g.round) || null, potId: `k${g.code}${g.round}`,
-                               duel: { code: g.code, round: g.round, opp: oppName(g), ko: true, noHints: true, perYear: PER_YEAR, top: TOP } });
+                               duel: { code: g.code, round: g.round, opp: oppName(g), ko: true, noHints: true, perYear: PER_YEAR, top: TOP,
+                                       ...(K.themeOf(g) ? { theme: g.theme, from: K.themeOf(g).from } : {}) } });   // db/239: 1900+
     if (it) Promise.resolve(run).then(() => it.open(), () => it.open());
     // 🎵 de muziek begint met de ronde. Eerder kwam hij pas bij het eerstvolgende seintje, dus na de eerste gok (zijn melding 21/11:
     // "muziek gaat pas spelen nadat 1 iemand gegokt heeft? ipv als match begint"). cur = de nieuwste stand van dit spel
@@ -1309,8 +1318,8 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
       `<button type="button" class="duel-no" data-ko="duels">${esc(T.toDuels)}</button>`,
       async (act, b) => {
         if (act === "rx") return react(+b.dataset.rx, b.closest(".ko-rx"));
-        if (act === "re" && g.bot) { b.disabled = true; K.gc("ko-bot-rematch", "Knockout: rematch against a bot"); return botStart(H, g.bot, true); }
-        if (act === "bot") { b.disabled = true; K.gc("ko-bot-next", "Knockout: next bot after a win"); return botStart(H, b.dataset.bot); }
+        if (act === "re" && g.bot) { b.disabled = true; K.gc("ko-bot-rematch", "Knockout: rematch against a bot"); return botStart(H, g.bot, true, { theme: g.theme || null }); }
+        if (act === "bot") { b.disabled = true; K.gc("ko-bot-next", "Knockout: next bot after a win"); return botStart(H, b.dataset.bot, false, { theme: g.theme || null }); }
         if (act === "re") { b.disabled = true; K.gc("ko-rematch", "Knockout: rematch"); const r2 = await call("ko_rematch", { p_code: g.code }); if (r2.ok && r2.v) apply(r2.v); return; }
         closePop(); H.switchMode("daily"); K.openList(H, {});
       });
