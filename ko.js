@@ -958,7 +958,10 @@ html[data-theme="light"] .ko-life { --op: hsl(var(--h, 30) 62% 38%); --opl: hsl(
     if (it) koIntro = null;
     clearTimers(); closePop();
     ["modal-duels", "modal-duel-pop", "modal-duel-end"].forEach((id) => { const el = document.getElementById(id); if (el && !el.hidden) H.closeModal(id); });
-    oppN = 0; shownRes = null; sentRound = null; counting = null; rxOpen = false;
+    // 25/11 (zijn "als je tussen duels emoji wilt doen dan gaan emoji's weg omdat je naar nieuwe duel gaat … dat als ik emoji ding open
+    // heb dat ik gewoon kan doen ook al switch ik"): rxOpen blijft staan over de rondewissel (en een revanche) heen; dicht gaat het rijtje
+    // alleen met het knopje of na een reactie. Tegen een bot is er geen knopje (rxOk), dus daar blijft niets zweven.
+    oppN = 0; shownRes = null; sentRound = null; counting = null;
     const p = g.puzzle;
     if (!p) { it?.kill(); return refresh(g.code); }
     K.gc("ko-round-" + Math.min(g.round, 6), "Knockout: round " + Math.min(g.round, 6));
