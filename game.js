@@ -10907,7 +10907,7 @@ function achvNewHits(prefix) { return achvNewLoad().filter((id) => id.startsWith
 // ::after overleeft dat, een kind-element niet.
 function renderMenuDot() {   // ⋮-knop: stip zodra er ergens iets nieuws is (prestaties, weekpodium, event); een duel op de deur ernaast
   const duel = duelNews() > 0;   // jouw beurt of een uitslag die je nog niet zag (bijgehouden door /duel.js)
-  document.getElementById("world-door")?.classList?.toggle("has-new", duel);   // 21/11: de deur naast 🌐 (geen menu-regel meer); style.css kleurt het Duels-stipje rood
+  document.getElementById("world-door")?.classList?.toggle("has-new", duel);   // 21/11: de deur naast 🌐 (geen menu-regel meer); style.css zet een rood stipje rechtsboven op de tegel
   const has = achvNewLoad().length > 0 || podiumHasNew() || eventHasNew();
   document.getElementById("menu-btn")?.classList.toggle("has-new", has);
 }

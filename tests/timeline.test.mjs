@@ -144,8 +144,9 @@ test("de deur naast 🌐 gaat rond: Jaardle → Duels → Timeline → Jaardle; 
   assert.match(CSS, /\.kop-wheel\[data-at="j"\] \.kw-tile\[data-w="j"\], \.kop-wheel\[data-at="d"\] \.kw-tile\[data-w="d"\], \.kop-wheel\[data-at="t"\] \.kw-tile\[data-w="t"\] \{ opacity: 1; transform: none;/);
   assert.match(CSS, /\.kop-wheel\[data-at="j"\] \.kw-tile\[data-w="d"\], \.kop-wheel\[data-at="d"\] \.kw-tile\[data-w="t"\], \.kop-wheel\[data-at="t"\] \.kw-tile\[data-w="j"\] \{ transform: translateX\(12px\) scale\(0\.86\); \}/, "de volgende staat rechts klaar");
   assert.match(CSS, /\.kop-wheel\[data-at="j"\] \.kw-dots i\[data-w="j"\], \.kop-wheel\[data-at="d"\] \.kw-dots i\[data-w="d"\], \.kop-wheel\[data-at="t"\] \.kw-dots i\[data-w="t"\] \{ width: 11px; opacity: 1; \}/);
-  assert.match(CSS, /\.kop-wheel\.has-new::after \{ display: none; \}/, "geen rood stipje in de hoek van de deur");
-  assert.match(CSS, /\.kop-wheel\.has-new:not\(\[data-at="d"\]\) \.kw-dots i\[data-w="d"\] \{[^}]*background: var\(--achv-new, #e5484d\);/, "jouw beurt: het Duels-stipje wordt rood (niet op Duels zelf)");
+  assert.match(CSS, /\.kop-wheel\.has-new::after \{ display: none; \}/, "niet het algemene deur-stipje: dat staat in de hoek van de knop, niet van de tegel");
+  assert.match(CSS, /\.kop-wheel\.has-new:not\(\[data-at="d"\]\) \.kw-face::after \{[^}]*top: -3px; right: -3px;[^}]*background: var\(--achv-new, #e5484d\);/, "jouw beurt: rood stipje rechtsboven op de tegel (niet op Duels zelf)");
+  assert.doesNotMatch(CSS, /\.kop-wheel\.has-new[^{]*\.kw-dots/, "de drie stipjes eronder blijven gewoon de carrousel-hint");
   // de TI/ME-tegel: blauw, met de tijdlijnen erachter (make_time_icon.py)
   assert.match(TPL, /<span class="kw-tile" data-w="t"><svg class="kd-logo" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><rect width="512" height="512" rx="128" fill="#1e88e5"\/><g fill="#1565c0">/);
 });
