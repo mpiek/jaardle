@@ -295,6 +295,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-end-n { font-size: 3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .tl-end-l { font-size: 0.95rem; color: var(--muted); }
 .tl-end-all { margin-bottom: 0.3rem; }
+.tl-end .tl-achv:not(:empty) { margin: 0.65rem 0 0.15rem; text-align: left; }   /* 🃏 db/240: het prestatie-kaartje (Kroniekschrijver) onder je getal */
 .tl-end-rec { font-weight: 800; color: var(--gold-text); }
 .tl-end-rec.old { color: var(--muted); font-weight: 600; }
 .tl-end-rec.wait { visibility: hidden; }
@@ -513,7 +514,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
 @media (orientation: landscape) and (max-height: 305px) { .tl-c .tl-t { -webkit-line-clamp: 6; } }
 `;
 
-  window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN, chaseMarks, chaseNext };
+  window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN, chaseMarks, chaseNext,
+    restyle: () => { if (root && G) draw({}); } };   // 🃏 db/240: een andere kaartstijl gekozen (game.js setCardStyle)
 
   // ── de staat: H = wat game.js meegeeft (taal, openModal/closeModal, meetpunten); root = het scherm (#modal-tl) ──
   let H = null, root = null, LANG = "en", L = T.en;
@@ -767,8 +769,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
     return el < 560 ? chipHtml(p.from, s.n - 1, " out", el) + chipHtml(g, s.n, " in", el) : chipHtml(g, s.n, "");
   }
   const suit = (c) => SUIT[c] || "🗓️";
-  const frontHtml = (c, deal) => `<div class="tl-card tl-front${deal ? " tl-deal" : ""}" tabindex="0" aria-label="${esc(L.newCard + ": " + c.t)}">` +
-    `<div class="tl-suit"><i aria-hidden="true">${suit(c.c)}</i>${esc(L.cats[(c.c || 0) - 1] || "")}</div><p class="tl-txt">${esc(c.t)}</p><span class="tl-q" aria-hidden="true">????</span></div>`;
+  const frontHtml = (c, deal) => `<div class="tl-card tl-front${deal ? " tl-deal" : ""}${LVC ? " tl-ill" : ""}" tabindex="0" aria-label="${esc(L.newCard + ": " + c.t)}"${LVC ? CX.attrs(cardSeed(c), c.c, LVC) : ""}>` +
+    `<div class="tl-suit"><i aria-hidden="true">${suit(c.c)}</i>${esc(L.cats[(c.c || 0) - 1] || "")}</div><p class="tl-txt">${LVC ? CX.text(c.t, LVC) : esc(c.t)}</p><span class="tl-q" aria-hidden="true">????</span></div>`;
   const handHtml = (s, o) => `<div class="tl-hand"><div class="tl-handin"><div class="tl-back b2"></div><div class="tl-back b1"></div>${s.cur ? frontHtml(s.cur, o.deal) : ""}` +
     `<span class="tl-left">${esc(L.left)}<b>${s.pile.length}</b></span></div></div><p class="tl-cue${s.marks.length ? " gone" : ""}">${esc(L.cue)}</p>`;
   // de kaart in je hand heeft een vaste hoogte (--tl-hh), dus de tekst past zich aan de kaart aan i.p.v. andersom: eerst een paar stapjes
@@ -796,9 +798,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
   }
   function cardHtml(c, o) {
     const rev = o.reveal === c.k, bad = c.ok === false;
-    return `<div class="tl-c${bad ? " tl-bad" : ""}${rev ? " tl-reveal" + (bad ? "" : " tl-good") : ""}" data-k="${c.k}"${rev && !bad && o.ct ? ` data-t="${o.ct}"` : ""}>` +
+    return `<div class="tl-c${bad ? " tl-bad" : ""}${rev ? " tl-reveal" + (bad ? "" : " tl-good") : ""}${LVC ? " tl-ill" : ""}" data-k="${c.k}"${rev && !bad && o.ct ? ` data-t="${o.ct}"` : ""}${LVC ? CX.attrs(cardSeed(c), c.c, LVC) : ""}>` +
       `<span class="tl-y">${yHtml(c.y)}</span>` +
-      `<span class="tl-s" aria-hidden="true">${suit(c.c)}</span><span class="tl-t">${esc(c.t)}</span>` +
+      `<span class="tl-s" aria-hidden="true">${suit(c.c)}</span><span class="tl-t">${LVC ? CX.text(c.t, LVC) : esc(c.t)}</span>` +
       (bad ? `<span class="tl-x" aria-label="${esc(L.wrong)}">✕</span>` : rev ? `<span class="tl-v" aria-hidden="true">✓</span>` : "") +
       (o.float && o.float.k === c.k ? floatHtml(o.float) : "") + `</div>`;
   }
@@ -863,7 +865,22 @@ body[data-tlhome] #mode-tabs { display: flex; }
       passed.forEach((r) => r.animate([{ transform: `translateY(${-h}px)` }, { transform: "none" }], opt));
     } catch (e) {}
   }
-  const gameHtml = (s, o = {}) => `<div class="tl-game"${o.el ? ` style="--el:${Math.round(o.el)}ms"` : ""}>${hudHtml(s, o)}${s.done ? endHtml(s) : handHtml(s, o)}${tableHtml(s, o)}</div>`;
+  const gameHtml = (s, o = {}) => `<div class="tl-game${LVC ? " tl-ill-on" : ""}"${o.el ? ` style="--el:${Math.round(o.el)}ms"` : ""}>${hudHtml(s, o)}${s.done ? endHtml(s) : handHtml(s, o)}${tableHtml(s, o)}</div>`;
+  // 🃏 db/240: de kaartstijl die je in de kluis koos (H.cards: off/book/dragons/black, alleen ingelogd en verdiend). Het tekenen zit in /timeline-ill.js
+  // (CX, lui via H.cardsFx): zolang dat laadt gewone kaarten, daarna één nieuwe draw. LVC = de tekenstand van deze draw (0 = gewoon).
+  let CX = null, LVC = 0, cxLoading = false;
+  function cardsLevel() {
+    const st = H && H.cards ? H.cards() : "off";
+    if (!st || st === "off") return 0;
+    if (window.JaardleCards) { CX = window.JaardleCards; return CX.lvOf(st); }
+    if (!cxLoading && H.cardsFx) {
+      cxLoading = true;
+      H.cardsFx().then(() => { cxLoading = false; if (root && G) draw({}); }).catch(() => { cxLoading = false; });
+    }
+    return 0;
+  }
+  // elke kaart zijn eigen ranken, en steeds dezelfde (jaar en plek in de stapel)
+  const cardSeed = (c) => Math.abs((c.y | 0) * 31 + (c.k | 0) * 7) + 1;
   const msgHtml = (text, retry) => `<div class="tl-game"><div class="tl-msg"><p>${esc(text)}</p>${retry ? `<button type="button" class="tl-retry">${esc(L.retry)}</button>` : ""}</div></div>`;
 
   // ── het spel ──
@@ -879,9 +896,13 @@ body[data-tlhome] #mode-tabs { display: flex; }
     // het moment van de laatste goede kaart loopt door na een hertekening (de volgende kaart, het eindscherm): --el = hoe lang al
     const m = G && G.fx, el = m ? performance.now() - m.t0 : 0;
     if (m && o.reveal == null && el < 1800) o = { ...o, reveal: m.k, ct: m.ct, float: m.float, lvl: m.lvl && el < 900, el };
+    LVC = G ? cardsLevel() : 0;
+    const keep = LVC && game ? CX.harvest(game) : null;   // 🃏 de getekende randen verhuizen naar de nieuwe kaarten i.p.v. opnieuw te worden ontleed
     const html = G ? gameHtml(G, o) : msgHtml(o.error ? L.error : L.loading, !!o.error);
     if (game) game.outerHTML = html; else root.insertAdjacentHTML("beforeend", html);
     fitHand();
+    if (LVC) CX.paint(root, keep);
+    if (G && G.done && G.achvBox && !G.achvBox.isConnected) root.querySelector(".tl-end-top")?.after(G.achvBox);
     const row = root.querySelector(".tl-row");
     if (row) row.scrollLeft = left;
     if (o.show != null) ensureVisible(o.show);
@@ -1030,6 +1051,14 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (G !== g) return;   // al een nieuw potje
     draw({ climb: true });
     if (g.rec) play("record");
+    // 🃏 db/240: Kroniekschrijver telt je goede kaarten; een nieuwe trede = het kaartje onder je getal (en op platina de pop-up met de kaartstijlen)
+    if (res && H.tlAchv && H.user && H.user()) {
+      const box = document.createElement("div");   // eerst op het scherm (leeg), dan vult game.js hem; een volgende draw zet hem terug (draw)
+      box.className = "tl-achv";
+      g.achvBox = box;
+      root.querySelector(".tl-end-top")?.after(box);
+      H.tlAchv(box).catch(() => {});
+    }
     if (g.board) gc("timeline-board-" + (g.board.team ? "team" : "bots"), "Timeline: board on the end screen (" + (g.board.team ? "team" : "bots") + ")");
   }
   async function switchTeam(g) {

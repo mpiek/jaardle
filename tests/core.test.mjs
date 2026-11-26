@@ -60,6 +60,8 @@ src += `
   ratingDeltaBadge, toEvent,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
+  TL_CARDS_AT, CARD_STYLES, CARDS_KEY, cardsUnlocked, cardStyle, cardStyleActive, setCardStyle, TL_ACHV_KEYS, rewardsCardsHtml, achvCardStylesHtml, activateReward,
+  getAchvPage: () => achvPage, setAchvPage: (p) => { achvPage = p; },
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   botsOn, paceMerge, botRowHtml, botDayRowsHtml, botWeekRows, botBoardHtml, recapBetter, dailyTableHtml, lbNameCell, DAILY_BOTS_DUELS, recapBotCardHtml,
   setDailyBots: (v) => { dailyBots = v; },
@@ -1064,10 +1066,11 @@ test("instellingen die meereizen (db/180) — één win-keuze uit vijf sleutels,
       vtfx: ["fw", ...T.VOLTREFFER_FX.map((v) => v.id)],
       frame: ["off", ...T.FRAME_STYLES],
       theme: Object.keys(T.THEME_COLORS),
+      cards: T.CARD_STYLES,   // db/240
     };
     for (const [k, vs] of Object.entries(values)) for (const v of vs) assert.match(v, SERVER, `${k}=${v}`);
     for (const v of values.winfx) assert.match(v, T.WINFX_RE, v);
-    assert.deepEqual(Object.keys(T.SYNCED_PREFS).sort(), ["duelsfx", "frame", "obxsound", "theme", "vtfx", "winfx"]);   // elke sleutel moet in de allow-list van set_my_prefs (duelsfx: db/205)
+    assert.deepEqual(Object.keys(T.SYNCED_PREFS).sort(), ["cards", "duelsfx", "frame", "obxsound", "theme", "vtfx", "winfx"]);   // elke sleutel moet in de allow-list van set_my_prefs (duelsfx: db/205, cards: db/240)
     T.SYNCED_PREFS.winfx.set("<script>");   // onzin van buiten: genegeerd
     assert.equal(T.explicitWinFx(), "beer");
     localStorage.removeItem("jaardle:obxsound");
@@ -5601,20 +5604,104 @@ test("⚔️ duel-prestaties (db/224) — Duellist + drie trofeeën, beloningen 
     T.setAchv(under);
     const not = T.earnedRewardKeys();
     for (const k of ["fl_swords", "fl_phoenix", "fl_muscle", "fx_lives"]) assert.ok(!not.includes(k), `${k} net eronder: nog niet`);
-    // het bord: Duels tussen Dagelijks en Mijlpalen, Duellist één keer (niet ook bij Overige reeksen)
+    // het bord: sinds db/240 een eigen pagina Duels (Jaardle · Duels · Timeline), Duellist één keer (niet ook bij Overige reeksen)
     const body = { innerHTML: "", querySelectorAll: () => [] };
     T.renderAchvBoard(body, T.achvNormalize({ duels: 25, comeback: 1, unscathed: 4 }));
-    const h = body.innerHTML, at = (k) => h.indexOf(`>${T.t(k)}</h3>`);
-    assert.ok(at("achv_sect_daily") > 0 && at("achv_sect_daily") < at("achv_sect_duels") && at("achv_sect_duels") < at("achv_sect_trophies"), "Duels tussen Dagelijks en Mijlpalen");
+    const h = body.innerHTML, panel = (id) => { const i = h.indexOf(`data-achv-panel="${id}"`), j = h.indexOf('data-achv-panel="', i + 10); return h.slice(i, j < 0 ? h.length : j); };
+    assert.ok(panel("duels").length > 0 && panel("jaardle").length > 0, "de pagina's Jaardle en Duels");
     assert.equal((h.match(/data-key="duels"/g) || []).length, 1, "Duellist staat één keer op het bord");
-    for (const k of ["comeback", "unscathed", "david"]) assert.equal((h.match(new RegExp(`data-tkey="${k}"`, "g")) || []).length, 1, k);
-    assert.ok(h.indexOf('data-tkey="comeback"') > at("achv_sect_duels") && h.indexOf('data-tkey="comeback"') < at("achv_sect_trophies"), "de trofeeën staan in de duel-sectie");
+    assert.ok(panel("duels").includes('data-key="duels"') && !panel("jaardle").includes('data-key="duels"'), "Duellist op de pagina Duels");
+    for (const k of ["comeback", "unscathed", "david"]) {
+      assert.equal((h.match(new RegExp(`data-tkey="${k}"`, "g")) || []).length, 1, k);
+      assert.ok(panel("duels").includes(`data-tkey="${k}"`), `${k} op de pagina Duels`);
+    }
     T.auth.user = null;
     T.renderAchvBoard(body, T.achvNormalize({}));
-    assert.ok(!body.innerHTML.includes(`>${T.t("achv_sect_duels")}</h3>`) && !body.innerHTML.includes('data-key="duels"'), "anoniem: geen duel-sectie");
+    const ha = body.innerHTML, duelsAnon = ha.slice(ha.indexOf('data-achv-panel="duels"'), ha.indexOf('data-achv-panel="timeline"'));
+    assert.ok(!ha.includes('data-key="duels"') && duelsAnon.includes(T.t("achv_anon_duels")), "anoniem: geen Duellist, wel de regel over een account");
   } finally { T.auth.user = was; T.setAchv(null); }
 });
 
+
+// ── 🃏 Kroniekschrijver en de kaartstijlen (db/240) ─────────────────────────────────────────────────────────────────────────────
+test("🃏 Kroniekschrijver (db/240) — ladder op de Timeline-pagina, de drie kaartstijlen samen op platina, eigen tab in de kluis, alleen ingelogd", () => {
+  const s = T.ACHV_SERIES.find((x) => x.key === "tl_cards");
+  assert.ok(s && s.authOnly && s.tl && s.art === "quill", "de ladder bestaat, alleen ingelogd, op de Timeline-pagina");
+  assert.deepEqual(s.steps, [50, 250, 750, 1500, 3000, 6000]);
+  assert.equal(s.steps[s.cards.at], T.TL_CARDS_AT, "de kaartstijlen hangen aan platina = TL_CARDS_AT (de rij cards_ill in rewards)");
+  assert.equal(T.TL_CARDS_AT, 1500);
+  assert.deepEqual(T.TL_ACHV_KEYS, T.ACHV_SERIES.filter((x) => x.tl).map((x) => x.key), "TL_ACHV_KEYS = de Timeline-ladders");
+  assert.equal(T.achvNormalize({}).tl_cards, 0, "zonder serverwaarde: 0");
+  assert.equal(T.achvNormalize({ tl_cards: 1503 }).tl_cards, 1503);
+  // de beloning: één rij, "Zet aan" = het Getijdenboek
+  assert.equal(T.REWARDS.cards_ill.cat, "cards");
+  assert.ok(T.REWARD_ORDER.includes("cards_ill"), "cards_ill in REWARD_ORDER");
+  assert.equal(T.rewardName("cards_ill"), T.t("reward_cards_name"));
+  assert.equal(T.RW_SECT_TAB.cards, "cards", "de pop-up springt naar de tab Kaarten");
+  assert.deepEqual(T.CARD_STYLES, ["off", "book", "dragons", "black"]);
+  const was = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    const top = T.achvNormalize({ tl_cards: 1500 }), under = T.achvNormalize({ tl_cards: 1499 });
+    assert.ok(T.cardsUnlocked(top) && !T.cardsUnlocked(under), "platina: precies 1500");
+    T.setAchv(top);
+    assert.ok(T.earnedRewardKeys().includes("cards_ill"), "op de drempel: de beloning");
+    assert.ok(T.rewardsTabsAvailable(top).includes("cards"), "en de tab Kaarten");
+    T.setAchv(under);
+    assert.ok(!T.earnedRewardKeys().includes("cards_ill") && !T.rewardsTabsAvailable(under).includes("cards"), "net eronder: nog niets");
+    // het kaartje: alleen op de stap die platina haalt de knop naar de kluis
+    assert.equal(T.achvSeriesItem(top, s, 4, 3).cards, true, "goud → platina");
+    assert.equal(T.achvSeriesItem(top, s, 3, 2).cards, false, "zilver → goud: nog geen kaartstijlen");
+    assert.equal(T.achvSeriesItem(T.achvNormalize({ tl_cards: 3000 }), s, 5, 4).cards, false, "platina → diamant: die had je al");
+    assert.equal(T.achvSnapshot(top).tl_cards, 4, "de snapshot telt de trede");
+    // Prestaties: de Timeline-pagina met de ladder (één keer) en de strook met de drie stijlen
+    const body = { innerHTML: "", querySelectorAll: () => [] };
+    T.renderAchvBoard(body, under);
+    const h = body.innerHTML, tl = h.slice(h.indexOf('data-achv-panel="timeline"'));
+    assert.equal((h.match(/data-key="tl_cards"/g) || []).length, 1, "Kroniekschrijver één keer");
+    assert.ok(tl.includes('data-key="tl_cards"'), "op de pagina Timeline");
+    assert.equal((tl.match(/class="achv-cstyle locked"/g) || []).length, 3, "net onder platina: drie gedimde stijlen");
+    assert.ok(tl.includes(T.t("achv_next")("1", T.achvTierName(3))), "met wat er nog voor nodig is");
+    T.renderAchvBoard(body, top);
+    assert.equal((body.innerHTML.match(/class="achv-cstyle"/g) || []).length, 3, "op platina: drie stijlen in kleur");
+    assert.ok(body.innerHTML.includes('data-achv-tab="jaardle"') && body.innerHTML.includes('data-achv-tab="duels"') && body.innerHTML.includes('data-achv-tab="timeline"'), "drie tabs");
+    // de tab in de kluis: Gewoon en de drie stijlen, de gekozen aangevinkt
+    localStorage.setItem(T.CARDS_KEY, "dragons");
+    const k = T.rewardsCardsHtml();
+    for (const id of T.CARD_STYLES) assert.ok(k.includes(`data-cards="${id}"`), id);
+    assert.ok(k.includes('aria-checked="true" data-cards="dragons"'), "de keuze staat aan");
+    // wat Timeline tekent: anoniem gewoon; verdiend = de keuze; niet verdiend = gewoon
+    T.setAchv(top);
+    assert.equal(T.cardStyleActive(), "dragons");
+    T.setAchv(under);
+    assert.equal(T.cardStyleActive(), "off", "(nog) niet verdiend");
+    T.setAchv(null);
+    assert.equal(T.cardStyleActive(), "dragons", "zonder verse prestaties: de keuze van dit toestel");
+    localStorage.setItem(T.CARDS_KEY, "<script>");
+    assert.equal(T.cardStyle(), "off", "onzin = gewoon");
+    T.SYNCED_PREFS.cards.set("black");
+    assert.equal(T.cardStyle(), "black", "de server-voorkeur zet de stijl");
+    T.SYNCED_PREFS.cards.set("rainbow");
+    assert.equal(T.cardStyle(), "black", "onbekende waarde van buiten: genegeerd");
+    T.auth.user = null;
+    assert.equal(T.cardStyleActive(), "off", "anoniem: gewoon");
+    assert.ok(!T.rewardsTabsAvailable(top).includes("cards"), "anoniem: geen tab");
+  } finally { T.auth.user = was; T.setAchv(null); localStorage.removeItem(T.CARDS_KEY); }
+});
+
+test("🃏 Kroniekschrijver (db/240) — Prestaties opent op de wereld waar je bent, en Timeline krijgt stijl, tekenbestand en het prestatie-kaartje", () => {
+  const G = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(G, /achvPage = achvWorldPage\(\); renderAchievements\(\)/, "een verse opening kiest de pagina van de wereld");
+  assert.match(G, /data-tlhome"\) \? "timeline" : document\.body\.hasAttribute\("data-duelshome"\) \? "duels" : "jaardle"/);
+  assert.match(G, /cards: cardStyleActive, cardsFx: loadCardsFx, tlAchv: \(box\) => checkTimelineAchievements\(box\)/, "de Timeline-host");
+  assert.match(G, /const loadCardsFx = fxLoader\("\/timeline-ill\.js", "JaardleCards"\)/, "het tekenbestand lui");
+  // de munt staat in ACHV_SVG
+  const svg = JSON.parse(G.match(/const ACHV_SVG = ("(?:[^"\\]|\\.)*");/)[1]);
+  assert.ok(svg.includes('id="achv-art-quill"'), "de munt van Kroniekschrijver");
+  const TLS = readFileSync(join(dir, "..", "timeline.js"), "utf8");
+  assert.match(TLS, /H\.tlAchv\(box\)/, "het eindscherm vraagt om het kaartje");
+  assert.match(TLS, /restyle: \(\) => \{ if \(root && G\) draw\(\{\}\); \}/, "een andere stijl = meteen opnieuw tekenen");
+});
 
 // ── 🤖 Bots spelen de daily mee (db/232) ──────────────────────────────────────────────────────────────────────────────
 const BOTS_META = [{ key: "pip", name: "Pip", flair: "🐣", elo: 1100, w: 0, l: 0, bw: 0, bl: 0 },

@@ -4337,6 +4337,27 @@ html[data-theme="light"] {
 
 #achv-body .stats-heading:not(:first-child) { margin-top: 1.25rem; }
 
+/* 🏅 Prestaties in drie pagina's (db/240, 26/11/2026): Jaardle · Duels · Timeline met de veegbalk van de kluis/het eindscherm. De kaart heeft
+   een vaste hoogte, de tabbalk blijft staan en elke pagina scrolt apart (anders scrol je op een korte pagina door de hoogte van de lange heen).
+   Het album (een sub-scherm) zet dit weer uit: dan scrolt het hele scherm, zoals vroeger. */
+#modal-achv .modal-card.achv-pagedcard { display: flex; flex-direction: column; height: min(90vh, 46rem); overflow: hidden; }
+#achv-body.achv-paged { flex: 1; min-height: 0; padding: 0.7rem 0 0; gap: 0; overflow: hidden; }
+.achv-tabs { flex: none; padding: 0 1rem; margin-bottom: 0.45rem; }
+.achv-track { flex: 1; min-height: 0; }
+.achv-slide { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 0.2rem 1rem 1.2rem; }
+#achv-body .achv-slide > .stats-heading:first-child { margin-top: 0.2rem; }
+/* 🃏 de pin van Kroniekschrijver: een piepklein verlucht kaartje (balk in rood en blauw, goud randje) */
+.achv-cardpin { display: inline-block; width: 12px; height: 16px; border-radius: 2px; vertical-align: -2px; border: 1px solid #c9973a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(90deg, transparent 1px, #b8364a 1px 2.5px, #2c4c9c 2.5px 4px, transparent 4px), linear-gradient(180deg, #fbf3dc, #ead7a8); }
+/* 🃏 onder de ladder: de drie kaartstijlen; nog niet verdiend = gedimd */
+.achv-cstyles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.achv-cstyle { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; min-width: 0; padding: 0.55rem 0.2rem 0.6rem; border-radius: 12px; background: var(--card-soft); text-align: center; }
+.achv-cstyle b { font-size: 0.8rem; }
+.achv-cstyle small { font-size: 0.68rem; line-height: 1.3; color: var(--muted); }
+.achv-cprev { height: 7.4rem; width: 100%; display: grid; place-items: center; margin-bottom: 0.25rem; overflow: hidden; }
+.achv-cprev .jc-prev { zoom: 0.58; transform: rotate(-2deg); }
+.achv-cstyle.locked .achv-cprev { opacity: 0.62; filter: saturate(0.7); }
+
 /* 🪎 Beloningen (de kluis): losse secties (flair / eindscherm / thema). Hergebruikt
    .lb-flair-opts (flair-rooster), .cap-action (win-effect-radio + platina-toggle)
    en .cap-themes (thema-kiezer); alleen de sectie-afstand + 🔒-regel zijn nieuw. */
@@ -4363,6 +4384,14 @@ html[data-theme="light"] {
 .rw-tile[aria-checked="true"]::after { content: "✓"; position: absolute; top: 0.55rem; right: 0.6rem; width: 1.25rem; height: 1.25rem; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 0.75rem; font-weight: 800; display: grid; place-items: center; z-index: 2; }
 .rw-tile:focus-visible, .rw-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .rw-tile-nm { font-size: 0.8rem; font-weight: 700; padding: 0 0.1rem; }
+/* 🃏 de tab Kaarten (db/240): een voorbeeldkaartje per stijl; vijf of zes tabs = kleiner, en de balk scrolt (.rw-tabs) */
+.rw-cprev { position: relative; height: 8.6rem; border-radius: 9px; overflow: hidden; background: var(--card); border: 1px solid var(--border); display: grid; place-items: center; }
+.rw-cprev .jc-prev { zoom: 0.62; transform: rotate(-2deg); }
+.rc-tabs.n5, .rc-tabs.n6 { gap: 0.3rem; }
+.rc-tabs.n5 .rc-tab, .rc-tabs.n6 .rc-tab { font-size: 0.64rem; letter-spacing: 0; white-space: nowrap; }
+/* de beloning-pop-up van de kaartstijlen: de held is je hand (een kaart met de stapel erachter) i.p.v. een grote flair */
+.rw-cards .rw-heroWrap { height: 156px; }
+.rw-cards .jc-hero { zoom: 0.52; }
 .rw-fxp { position: relative; height: 96px; border-radius: 9px; overflow: hidden; background: var(--card); border: 1px solid var(--border); }
 .rw-fxp i, .rw-fxp b { position: absolute; top: -14px; animation: rw-fall linear infinite; }
 .rw-fxp i { width: 6px; height: 10px; border-radius: 1px; }
