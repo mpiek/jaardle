@@ -25,7 +25,7 @@ function load() {
 
 test("🃏 timeline-ill.js — de stijlen, de attributen en de beginletter (alleen bij een letter, alles ge-escaped)", () => {
   const { C } = load();
-  assert.deepEqual(["off", "book", "dragons", "black", "x"].map(C.lvOf), [0, 3, 5, 6, 0]);
+  assert.deepEqual(["off", "glass", "book", "dragons", "black", "ouro", "x"].map(C.lvOf), [0, 8, 3, 5, 6, 9, 0]);
   const a = C.attrs(1234, 6, 3);
   assert.match(a, /data-jc="3" data-jcs="1234" data-jcc="6" style="--ill-m:#[0-9a-f]{6};--ill-s:#[0-9a-f]{6}"/);
   assert.match(C.attrs(0, undefined, 5), /data-jcs="1" data-jcc="1"/, "geen sleutel of categorie: 1");
@@ -35,6 +35,34 @@ test("🃏 timeline-ill.js — de stijlen, de attributen en de beginletter (alle
   assert.equal(C.text("1066: de slag", 3), "1066: de slag", "een cijfer: geen beginletter");
   assert.equal(C.text("Gewoon", 0), "Gewoon", "stand 0 = gewone tekst");
   assert.equal(C.text("<b>", 3), "&lt;b&gt;");
+  assert.equal(C.text("Beleg van Orléans", 8), "Beleg van Orléans", "Glas-in-lood (brons) is kaal: geen verluchte beginletter");
+  assert.equal(C.text("Beleg van Orléans", 9), '<span class="ill-ini">B</span>eleg van Orléans', "Ouroboros (diamant) wel");
+});
+
+test("🃏 timeline-ill.js — db/243: Glas-in-lood (8) en Ouroboros (9) tekenen geldige SVG op elke maat en categorie", () => {
+  const { C } = load();
+  for (const lv of [8, 9]) for (const cat of [1, 2, 3, 4, 5, 6, 7, 8]) for (const [W, H, hand] of [[128, 214, false], [128, 158, false], [262, 254, true], [212, 142, true]]) {
+    const svg = C.svg(W, H, hand ? 17 : 12.5, 77 + cat, lv, cat, hand);
+    assert.ok(svg.startsWith(`<svg class="tl-ills" viewBox="0 0 ${W} ${H}"`) && svg.endsWith("</svg>"), `${lv}/${cat}/${W}`);
+    assert.ok(!/NaN|undefined|Infinity/.test(svg), `geen NaN in ${lv}/${cat}/${W}x${H}`);
+    const opens = (svg.match(/<g[ >]/g) || []).length, closes = (svg.match(/<\/g>/g) || []).length;
+    assert.equal(opens, closes, `groepen sluiten (${lv}/${cat})`);
+    if (lv === 8) {
+      assert.match(svg, /clip-path="url\(#jcg\d+x\d+h?\)"/, "het glas knipt op de afgeronde kaart");
+      assert.ok(!svg.includes("jd-c-run"), "brons beweegt niet");
+    } else {
+      assert.equal((svg.match(/class="jd-c-run/g) || []).length, 2, "de glans (gloed + kern) van staart naar kop");
+      assert.match(svg, /scale\(-[\d.]+\)/, "de kop, omgedraaid");
+    }
+  }
+  assert.equal(C.svg(128, 214, 12.5, 5, 8, 1, false), C.svg(128, 214, 12.5, 5, 8, 1, false), "deterministisch");
+  assert.notEqual(C.svg(128, 214, 12.5, 5, 8, 1, false), C.svg(128, 214, 12.5, 6, 8, 1, false), "een andere kaart = andere tinten glas");
+  assert.match(C.svg(128, 214, 12.5, 5, 9, 1, false), /fill="#b3262f"/, "oorlog: kraag en vleugel in rood");
+  const pv = C.preview("glass"), hero = C.hero("ouro");
+  assert.match(pv, /data-jc="8"/);
+  assert.ok(!pv.includes("ill-ini"), "voorbeeld Glas-in-lood: geen beginletter");
+  assert.match(hero, /class="tl-card tl-ill" data-jc="9"/);
+  assert.ok(hero.includes("ill-ini"), "held Ouroboros: met beginletter");
 });
 
 test("🃏 timeline-ill.js — de rand: geldige SVG voor elke stijl, categorie en maat, steeds dezelfde voor dezelfde kaart", () => {

@@ -423,11 +423,11 @@ const I18N = {
     achv_t_fun: "Gek maar waar", achv_t_fun_sub: "speel een potje met een 🎭-feit",
     achv_sect_duels: "Duels", achv_duels: "Duellist", achv_duels_n: (n) => `${n} ${n === 1 ? "duel" : "duels"}`,   // ⚔️ db/224
     achv_tl_cards: "Kroniekschrijver", achv_tl_cards_n: (n) => `${n} ${n === 1 ? "kaart" : "kaarten"} goed`, achv_sect_cards: "Kaartstijlen",   // 🃏 db/240
-    achv_cards_note: (tier) => `bij ${tier} verdien je drie kaartstijlen voor Timeline`, achv_cards_have: "✓ in je kluis", achv_cards_earned: "🃏 Drie kaartstijlen vrijgespeeld", achv_cards_choose: "kies",
+    achv_cards_note: (tiers) => `kaartstijlen voor Timeline: ${tiers}`, achv_card_earned: (name) => `🃏 Kaartstijl ${name} vrijgespeeld`, achv_cards_have: "✓ in je kluis", achv_cards_earned: "🃏 Drie kaartstijlen vrijgespeeld", achv_cards_choose: "kies",
     achv_anon_duels: "Met een account tellen je duels mee voor je prestaties.", achv_anon_tl: "Met een account tellen je Timeline-kaarten mee voor je prestaties.",
-    card_style_off: "Gewoon", card_style_book: "Getijdenboek", card_style_dragons: "Draken", card_style_black: "Zwarte getijden",
+    card_style_off: "Gewoon", card_style_glass: "Glas-in-lood", card_style_ouro: "Ouroboros", card_style_book: "Getijdenboek", card_style_dragons: "Draken", card_style_black: "Zwarte getijden",
     rewards_sect_cards: "Timeline-kaarten", rewards_note_cards: "Zo zien jouw kaarten eruit in Timeline, vanaf de eerste kaart.",
-    reward_cards_name: "Verluchte kaarten", reward_sub_cards: "Drie kaartstijlen voor Timeline: Getijdenboek, Draken en Zwarte getijden. Wissel in de kluis.",
+    reward_sub_card: "Een kaartstijl voor Timeline, vanaf de eerste kaart. Wissel in de kluis.", reward_cards_name: "Verluchte kaarten", reward_sub_cards: "Drie kaartstijlen voor Timeline: Getijdenboek, Draken en Zwarte getijden. Wissel in de kluis.",
     achv_t_comeback: "Remontada", achv_t_comeback_sub: "win na 0–2 achter",
     achv_t_unscathed: "Ongeschonden", achv_t_unscathed_sub: "win zonder een ronde te verliezen",
     achv_t_david: "David", achv_t_david_sub: "win van iemand met 200+ hogere rating",
@@ -787,11 +787,11 @@ const I18N = {
     achv_t_fun: "Weird but true", achv_t_fun_sub: "play a game with a 🎭 fact",
     achv_sect_duels: "Duels", achv_duels: "Duellist", achv_duels_n: (n) => `${n} ${n === 1 ? "duel" : "duels"}`,   // ⚔️ db/224
     achv_tl_cards: "Chronicler", achv_tl_cards_n: (n) => `${n} ${n === 1 ? "card" : "cards"} placed`, achv_sect_cards: "Card styles",   // 🃏 db/240
-    achv_cards_note: (tier) => `reach ${tier} to earn three card styles for Timeline`, achv_cards_have: "✓ in your vault", achv_cards_earned: "🃏 Three card styles unlocked", achv_cards_choose: "choose",
+    achv_cards_note: (tiers) => `card styles for Timeline: ${tiers}`, achv_card_earned: (name) => `🃏 Card style ${name} unlocked`, achv_cards_have: "✓ in your vault", achv_cards_earned: "🃏 Three card styles unlocked", achv_cards_choose: "choose",
     achv_anon_duels: "With an account, your duels count towards your achievements.", achv_anon_tl: "With an account, your Timeline cards count towards your achievements.",
-    card_style_off: "Plain", card_style_book: "Book of Hours", card_style_dragons: "Dragons", card_style_black: "Black Hours",
+    card_style_off: "Plain", card_style_glass: "Stained glass", card_style_ouro: "Ouroboros", card_style_book: "Book of Hours", card_style_dragons: "Dragons", card_style_black: "Black Hours",
     rewards_sect_cards: "Timeline cards", rewards_note_cards: "How your cards look in Timeline, from the very first card.",
-    reward_cards_name: "Illuminated cards", reward_sub_cards: "Three card styles for Timeline: Book of Hours, Dragons and Black Hours. Switch in the vault.",
+    reward_sub_card: "A card style for Timeline, from the very first card. Switch in the vault.", reward_cards_name: "Illuminated cards", reward_sub_cards: "Three card styles for Timeline: Book of Hours, Dragons and Black Hours. Switch in the vault.",
     achv_t_comeback: "Comeback", achv_t_comeback_sub: "win after being 0–2 down",
     achv_t_unscathed: "Unscathed", achv_t_unscathed_sub: "win without losing a round",
     achv_t_david: "David", achv_t_david_sub: "beat someone rated 200+ higher",
@@ -1146,11 +1146,11 @@ const I18N = {
     achv_t_fun: "Kurios, aber wahr", achv_t_fun_sub: "spiele eine Partie mit einem 🎭-Fakt",
     achv_sect_duels: "Duelle", achv_duels: "Duellant", achv_duels_n: (n) => `${n} ${n === 1 ? "Duell" : "Duelle"}`,   // ⚔️ db/224
     achv_tl_cards: "Chronist", achv_tl_cards_n: (n) => `${n} ${n === 1 ? "Karte" : "Karten"} richtig`, achv_sect_cards: "Kartenstile",   // 🃏 db/240
-    achv_cards_note: (tier) => `ab ${tier} verdienst du drei Kartenstile für Timeline`, achv_cards_have: "✓ in deiner Truhe", achv_cards_earned: "🃏 Drei Kartenstile freigeschaltet", achv_cards_choose: "wählen",
+    achv_cards_note: (tiers) => `Kartenstile für Timeline: ${tiers}`, achv_card_earned: (name) => `🃏 Kartenstil ${name} freigeschaltet`, achv_cards_have: "✓ in deiner Truhe", achv_cards_earned: "🃏 Drei Kartenstile freigeschaltet", achv_cards_choose: "wählen",
     achv_anon_duels: "Mit einem Konto zählen deine Duelle für deine Erfolge.", achv_anon_tl: "Mit einem Konto zählen deine Timeline-Karten für deine Erfolge.",
-    card_style_off: "Schlicht", card_style_book: "Stundenbuch", card_style_dragons: "Drachen", card_style_black: "Schwarzes Stundenbuch",
+    card_style_off: "Schlicht", card_style_glass: "Bleiglas", card_style_ouro: "Ouroboros", card_style_book: "Stundenbuch", card_style_dragons: "Drachen", card_style_black: "Schwarzes Stundenbuch",
     rewards_sect_cards: "Timeline-Karten", rewards_note_cards: "So sehen deine Karten in Timeline aus, ab der ersten Karte.",
-    reward_cards_name: "Illuminierte Karten", reward_sub_cards: "Drei Kartenstile für Timeline: Stundenbuch, Drachen und Schwarzes Stundenbuch. Wechseln in der Truhe.",
+    reward_sub_card: "Ein Kartenstil für Timeline, ab der ersten Karte. Wechseln in der Truhe.", reward_cards_name: "Illuminierte Karten", reward_sub_cards: "Drei Kartenstile für Timeline: Stundenbuch, Drachen und Schwarzes Stundenbuch. Wechseln in der Truhe.",
     achv_t_comeback: "Aufholjagd", achv_t_comeback_sub: "gewinne nach 0:2-Rückstand",
     achv_t_unscathed: "Unversehrt", achv_t_unscathed_sub: "gewinne, ohne eine Runde zu verlieren",
     achv_t_david: "David", achv_t_david_sub: "schlage jemanden mit 200+ höherem Rating",
@@ -1509,11 +1509,11 @@ const I18N = {
     achv_t_fun: "Raro, pero cierto", achv_t_fun_sub: "juega una partida con un dato 🎭",
     achv_sect_duels: "Duelos", achv_duels: "Duelista", achv_duels_n: (n) => `${n} ${n === 1 ? "duelo" : "duelos"}`,   // ⚔️ db/224
     achv_tl_cards: "Cronista", achv_tl_cards_n: (n) => `${n} ${n === 1 ? "carta bien colocada" : "cartas bien colocadas"}`, achv_sect_cards: "Estilos de cartas",   // 🃏 db/240
-    achv_cards_note: (tier) => `al llegar a ${tier} ganas tres estilos de cartas para Timeline`, achv_cards_have: "✓ en tu caja", achv_cards_earned: "🃏 Tres estilos de cartas desbloqueados", achv_cards_choose: "elegir",
+    achv_cards_note: (tiers) => `estilos de cartas para Timeline: ${tiers}`, achv_card_earned: (name) => `🃏 Estilo de cartas ${name} desbloqueado`, achv_cards_have: "✓ en tu caja", achv_cards_earned: "🃏 Tres estilos de cartas desbloqueados", achv_cards_choose: "elegir",
     achv_anon_duels: "Con una cuenta, tus duelos cuentan para tus logros.", achv_anon_tl: "Con una cuenta, tus cartas de Timeline cuentan para tus logros.",
-    card_style_off: "Normal", card_style_book: "Libro de horas", card_style_dragons: "Dragones", card_style_black: "Horas negras",
+    card_style_off: "Normal", card_style_glass: "Vidriera", card_style_ouro: "Uróboros", card_style_book: "Libro de horas", card_style_dragons: "Dragones", card_style_black: "Horas negras",
     rewards_sect_cards: "Cartas de Timeline", rewards_note_cards: "Así se ven tus cartas en Timeline, desde la primera.",
-    reward_cards_name: "Cartas iluminadas", reward_sub_cards: "Tres estilos de cartas para Timeline: Libro de horas, Dragones y Horas negras. Cámbialo en la caja.",
+    reward_sub_card: "Un estilo de cartas para Timeline, desde la primera carta. Cámbialo en la caja.", reward_cards_name: "Cartas iluminadas", reward_sub_cards: "Tres estilos de cartas para Timeline: Libro de horas, Dragones y Horas negras. Cámbialo en la caja.",
     achv_t_comeback: "Remontada", achv_t_comeback_sub: "gana tras ir perdiendo 0-2",
     achv_t_unscathed: "Intacto", achv_t_unscathed_sub: "gana sin perder ninguna ronda",
     achv_t_david: "David", achv_t_david_sub: "gana a alguien con 200+ de rating más",
@@ -1872,11 +1872,11 @@ const I18N = {
     achv_t_fun: "Estranho, mas verdade", achv_t_fun_sub: "jogue uma partida com um fato 🎭",
     achv_sect_duels: "Duelos", achv_duels: "Duelista", achv_duels_n: (n) => `${n} ${n === 1 ? "duelo" : "duelos"}`,   // ⚔️ db/224
     achv_tl_cards: "Cronista", achv_tl_cards_n: (n) => `${n} ${n === 1 ? "carta no lugar certo" : "cartas no lugar certo"}`, achv_sect_cards: "Estilos de cartas",   // 🃏 db/240
-    achv_cards_note: (tier) => `ao chegar a ${tier} você ganha três estilos de cartas para o Timeline`, achv_cards_have: "✓ no seu cofre", achv_cards_earned: "🃏 Três estilos de cartas desbloqueados", achv_cards_choose: "escolher",
+    achv_cards_note: (tiers) => `estilos de cartas para o Timeline: ${tiers}`, achv_card_earned: (name) => `🃏 Estilo de cartas ${name} desbloqueado`, achv_cards_have: "✓ no seu cofre", achv_cards_earned: "🃏 Três estilos de cartas desbloqueados", achv_cards_choose: "escolher",
     achv_anon_duels: "Com uma conta, seus duelos contam para suas conquistas.", achv_anon_tl: "Com uma conta, suas cartas do Timeline contam para suas conquistas.",
-    card_style_off: "Normal", card_style_book: "Livro de horas", card_style_dragons: "Dragões", card_style_black: "Horas negras",
+    card_style_off: "Normal", card_style_glass: "Vitral", card_style_ouro: "Ouroboros", card_style_book: "Livro de horas", card_style_dragons: "Dragões", card_style_black: "Horas negras",
     rewards_sect_cards: "Cartas do Timeline", rewards_note_cards: "Assim ficam suas cartas no Timeline, desde a primeira.",
-    reward_cards_name: "Cartas iluminadas", reward_sub_cards: "Três estilos de cartas para o Timeline: Livro de horas, Dragões e Horas negras. Troque no cofre.",
+    reward_sub_card: "Um estilo de cartas para o Timeline, desde a primeira carta. Troque no cofre.", reward_cards_name: "Cartas iluminadas", reward_sub_cards: "Três estilos de cartas para o Timeline: Livro de horas, Dragões e Horas negras. Troque no cofre.",
     achv_t_comeback: "Virada", achv_t_comeback_sub: "vença depois de estar perdendo por 0–2",
     achv_t_unscathed: "Intacto", achv_t_unscathed_sub: "vença sem perder nenhuma rodada",
     achv_t_david: "Davi", achv_t_david_sub: "vença alguém com rating 200+ maior",
@@ -10483,9 +10483,10 @@ const ACHV_SERIES = [
   { key: "duels",   art: "swords",     steps: [5, 25, 75, 150, 300, 600], flairs: [{ emoji: "⚔️", at: 4 }], authOnly: true, duel: true },
   // 🃏 Kroniekschrijver (db/240, 26/11/2026): alle goed gelegde kaarten van je Timeline-runs (de server telt timeline_runs.n op). Eigen
   // pagina "Timeline" in Prestaties (tl: true), alleen ingelogd. Op platina (1500 = TL_CARDS_AT) de drie kaartstijlen in één keer: Getijdenboek,
-  // Draken en Zwarte getijden (cards; rij cards_ill in rewards, de tab 🃏 Kaarten in de kluis). Diamant en obsidiaan blijven vrij voor latere
-  // beloningen (zijn "deze 3 aan 1 tier dat we later nieuwe tiers doen"). Kaartje op het eindscherm van de run (checkTimelineAchievements).
-  { key: "tl_cards", art: "quill",     steps: [50, 250, 750, 1500, 3000, 6000], cards: { at: 3 }, authOnly: true, tl: true },
+  // Draken en Zwarte getijden (cards; rij cards_ill in rewards, de kluis-tab Uiterlijk). db/243 (26/11/2026): Glas-in-lood op brons (bewust
+  // kaal) en Ouroboros op diamant (zijn "glas-in-lood op de laagste trede … ouroboros voor diamond"); obsidiaan blijft vrij voor iets radicaal
+  // anders. cards = de treden met een kaartstijl (CARD_TIER). Kaartje op het eindscherm van de run (checkTimelineAchievements).
+  { key: "tl_cards", art: "quill",     steps: [50, 250, 750, 1500, 3000, 6000], cards: [0, 3, 4], authOnly: true, tl: true },
 ];
 // repeatable: true → het veld is een oplopende TELLER (niet ooit-ja/nee) en
 // krijgt een ×N-badge; blijft weg → strikt eenmalig. Zie memory
@@ -10809,17 +10810,23 @@ function setEventFx(id) {
 // GEEN win-effect, dus niet wederzijds uitsluitend met confetti/bier/goud. Eén keuze per apparaat (localStorage,
 // zoals de win-effecten): Certificaat (a) · Holo-foil (b) · Art deco (d) of uit. De rand toont je eigen flair
 // (met je flair-effect); zonder flair het woord PLATINA. Kiezer = de Uiterlijk-tab van de 🪎-kluis.
-// 🃏 De kaartstijl in Timeline (db/240, 26/11/2026): off | book (Getijdenboek) | dragons (Draken) | black (Zwarte getijden). Alle drie verdiend op
-// Kroniekschrijver-platina (TL_CARDS_AT = de rij cards_ill in rewards = ACHV_SERIES tl_cards.steps[3]); kiezen in de kluis (tab Kaarten). Per
-// account (prefs.cards, SYNCED_PREFS) met dit toestel als cache. Puur voor jezelf: geen server-gate. Het tekenen zit in /timeline-ill.js (lui).
+// 🃏 De kaartstijl in Timeline: off | glass (Glas-in-lood, Kroniekschrijver-brons, db/243) | book (Getijdenboek) · dragons (Draken) · black
+// (Zwarte getijden): de verluchte drie op platina (db/240, TL_CARDS_AT = de rij cards_ill) | ouro (Ouroboros, diamant, db/243). Hoe hoger de
+// trede, hoe chiquer. Elke stijl hoort bij een rij in rewards (CARD_REWARD); kiezen in de kluis (Uiterlijk). Per account (prefs.cards,
+// SYNCED_PREFS) met dit toestel als cache. Puur voor jezelf: geen server-gate. Het tekenen zit in /timeline-ill.js (lui).
 const TL_CARDS_AT = 1500;
-const CARD_STYLES = ["off", "book", "dragons", "black"];
+const CARD_STYLES = ["off", "glass", "book", "dragons", "black", "ouro"];   // van laag naar hoog, zo staan ze ook in de kluis en onder de ladder
+const CARD_TIER = { glass: 0, book: 3, dragons: 3, black: 3, ouro: 4 };   // de trede van Kroniekschrijver (index in steps) die de stijl geeft
+const TL_CARD_STEPS = ACHV_SERIES.find((s) => s.key === "tl_cards").steps;
+const cardAt = (id) => (id in CARD_TIER ? TL_CARD_STEPS[CARD_TIER[id]] : Infinity);   // zoveel goed gelegde kaarten kost de stijl
 const CARDS_KEY = "jaardle:cards";
 const loadCardsFx = fxLoader("/timeline-ill.js", "JaardleCards");
-function cardsUnlocked(a) { return !!(auth.user && a && (a.tl_cards || 0) >= TL_CARDS_AT); }
+// verdiend? "off" altijd; een stijl pas ingelogd en vanaf zijn trede. cardsUnlocked = minstens één stijl (brons): dan bestaat het kluisblok.
+function cardStyleUnlocked(a, id) { return id === "off" || !!(auth.user && a && (a.tl_cards || 0) >= cardAt(id)); }
+function cardsUnlocked(a) { return !!(auth.user && a && (a.tl_cards || 0) >= TL_CARD_STEPS[Math.min(...Object.values(CARD_TIER))]); }
 function cardStyle() { const v = lsGet(CARDS_KEY); return CARD_STYLES.includes(v) ? v : "off"; }
 // wat Timeline tekent: niet ingelogd of (zeker) niet verdiend = gewoon; zonder verse prestaties vertrouwen we de keuze van dit toestel
-function cardStyleActive() { return !auth.user || (achvCache && !cardsUnlocked(achvCache)) ? "off" : cardStyle(); }
+function cardStyleActive() { const v = cardStyle(); return !auth.user || (achvCache && !cardStyleUnlocked(achvCache, v)) ? "off" : v; }
 function setCardStyle(id) {
   const v = CARD_STYLES.includes(id) ? id : "off";
   try { localStorage.setItem(CARDS_KEY, v); } catch (e) {}
@@ -11550,7 +11557,9 @@ const REWARDS = {
   fl_phoenix:   { emoji: "🐦‍🔥", cat: "flair",  sect: "flair" },     // Remontada-goud (6)
   fl_muscle:    { emoji: "💪", cat: "flair",  sect: "flair" },     // David-diamant (75)
   fl_swords:    { emoji: "⚔️", cat: "flair",  sect: "flair" },     // Duellist-diamant (300); Noto heeft geen bewegende ⚔️
-  cards_ill:    { emoji: "🃏", cat: "cards",  sect: "cards", sub: "reward_sub_cards" },   // 🃏 Kroniekschrijver-platina (db/240): Getijdenboek, Draken en Zwarte getijden
+  cards_glass:  { emoji: "🃏", cat: "cards",  sect: "cards", sub: "reward_sub_card", style: "glass" },   // 🃏 Kroniekschrijver-brons (db/243): Glas-in-lood
+  cards_ill:    { emoji: "🃏", cat: "cards",  sect: "cards", sub: "reward_sub_cards", style: "book" },   // 🃏 Kroniekschrijver-platina (db/240): Getijdenboek, Draken en Zwarte getijden
+  cards_ouro:   { emoji: "🃏", cat: "cards",  sect: "cards", sub: "reward_sub_card", style: "ouro" },   // 🃏 Kroniekschrijver-diamant (db/243): Ouroboros
   fx_confetti:  { emoji: "🎊", cat: "effect", sect: "endscreen" },  // capstone-zilver
   fx_beer:      { emoji: "🍻", cat: "effect", sect: "endscreen" },  // 1500 potjes (potjes-diamant)
   fx_goldyears: { emoji: "🗓️", cat: "effect", sect: "endscreen" },  // capstone-goud
@@ -11570,9 +11579,9 @@ for (const ev of EVENTS) for (const r of ev.rewards) REWARDS[r.key] = { emoji: r
 for (const v of VONDSTEN) REWARDS["fv_" + v.id] = { emoji: v.flair, cat: "flair", sect: "flair", find: v.id };
 // Volgorde van zeldzaamheid (oplopend) → de wachtrij eindigt op de zeldzaamste.
 // Voor de flair-effecten: ruwweg de zeldzaamheid van hun drempel (Nippertje/Zweetdruppel op goud … Lotus op diamant).
-const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "fx_confetti", "fl_silver", "fl_glowstar", "fl_fire", "fl_brain", "fl_100", "fl_dice", "fl_pepper",
+const REWARD_ORDER = [...EVENT_REWARD_KEYS, "fl_star", "fl_bronze", "cards_glass", "fx_confetti", "fl_silver", "fl_glowstar", "fl_fire", "fl_brain", "fl_100", "fl_dice", "fl_pepper",
   "fx_sweat", "fx_timer", "fx_ripple", "fx_vizier", "fx_pendulum", "fx_lives", "fx_ember",
-  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fl_masks", "fl_phoenix", "fl_muscle", "fl_swords", "cards_ill", "fx_goldyears", "fl_gold", "fx_platina", "fl_gem", "theme", "fl_crown", "fx_bullseye",
+  "fl_dino", "fl_hourglass", "fx_calendar", "fx_beer", "fx_sparkle", "fx_glow", "fx_lotus", "fl_moai", "fl_masks", "fl_phoenix", "fl_muscle", "fl_swords", "cards_ill", "fx_goldyears", "fl_gold", "fx_platina", "fl_gem", "cards_ouro", "theme", "fl_crown", "fx_bullseye",
   "fl_obsidian", "fx_aura", "fx_shard", "fx_eclipse", "fx_vt_eclips", "cap_obsidian"];
 REWARD_ORDER.splice(REWARD_ORDER.indexOf("fl_obsidian"), 0, ...VONDSTEN.map((v) => "fv_" + v.id));   // vondsten vóór de obsidiaan-finale
 // Naam onder het icoon: hergebruik bestaande labels (de effect-/thema-labels
@@ -11580,7 +11589,7 @@ REWARD_ORDER.splice(REWARD_ORDER.indexOf("fl_obsidian"), 0, ...VONDSTEN.map((v) 
 const REWARD_NAME_KEY = {
   fx_confetti: "achv_cap_confetti", fx_goldyears: "achv_cap_goldyears", fx_calendar: "achv_fx_calendar",
   fx_platina: "achv_cap_platinaframe", fx_beer: "achv_fx_beer", theme: "achv_cap_theme", fx_bullseye: "vt_roos", fx_vt_eclips: "vt_eclips",
-  cards_ill: "reward_cards_name",
+  cards_ill: "reward_cards_name", cards_glass: "card_style_glass", cards_ouro: "card_style_ouro",
 };
 // De teksten van een event komen uit het lui geladen /season-event.js (vijf talen); zonder dat bestand valt alles terug op het icoon.
 const eventUiOf = (id) => (isPlaysEvent(eventById(id)) ? window.EventMini : window.SeasonEvent);   // een potjes-event heeft zijn teksten in /event-mini.js
@@ -11611,7 +11620,7 @@ function earnedRewardKeys() {
   if (calendarFxUnlocked(a)) got.add("fx_calendar");
   if (vtRoosUnlocked(a)) got.add("fx_bullseye");
   if (platinaFrameUnlocked(a)) got.add("fx_platina");
-  if (cardsUnlocked(a)) got.add("cards_ill");   // 🃏 db/240
+  for (const [key, r] of Object.entries(REWARDS)) if (r.cat === "cards" && cardStyleUnlocked(a, r.style)) got.add(key);   // 🃏 db/240 + db/243: elke kaartstijl op zijn trede
   if (ct >= 5) got.add("theme");
   if (ct >= CAPSTONE_MAX) { got.add("cap_obsidian"); got.add("fx_vt_eclips"); }
   for (const id of flairFxEarned(a)) got.add(FLAIR_FX[id].reward);
@@ -11691,7 +11700,7 @@ async function maybeShowRewards() {
   if (!pending.length) return false;
   if (pending.includes("cap_obsidian")) loadObsidianFx().catch(() => {});   // alvast ophalen: de speler wacht straks niet op het bestand
   if (pending.some((k) => REWARDS[k]?.cat === "flairfx" || k.startsWith("evgroup:"))) await ensureMyIdentity();   // de pop-up toont je gedragen flair
-  if (pending.includes("cards_ill")) { try { await loadCardsFx(); } catch (e) {} }   // 🃏 de held is je hand in de nieuwe stijl (lukt het niet: het 🃏-icoon)
+  if (pending.some((k) => REWARDS[k]?.cat === "cards")) { try { await loadCardsFx(); } catch (e) {} }   // 🃏 de held is je hand in de nieuwe stijl (lukt het niet: het 🃏-icoon)
   if (pending.some((k) => k.startsWith("evgroup:") || (REWARDS[k] && REWARDS[k].event))) { try { await ensureEventUi(EVENTS.filter((ev) => pending.some((k) => (k.startsWith("evgroup:") ? k.split(":")[1] === ev.id : REWARDS[k] && REWARDS[k].event === ev.id)))); } catch (e) { return false; } }   // de teksten van een event-beloning (volgende pot opnieuw als het laden mislukt)
   if (document.getElementById("modal-reward")) return true;                              // intussen al eentje open
   if (!noPanelOpen()) { rewardRetry = true; return false; }   // intussen ander scherm
@@ -11790,7 +11799,7 @@ function activateReward(key) {
   else if (key === "fx_bullseye") setVoltrefferFx("roos");
   else if (key === "fx_vt_eclips") setVoltrefferFx("eclips");
   else if (key === "fx_platina") setResultFrame("a");   // standaardrand; kiezen kan in de Uiterlijk-tab
-  else if (key === "cards_ill") setCardStyle("book");   // 🃏 Getijdenboek; Draken en Zwarte getijden kies je in de tab Kaarten
+  else if (fxr && fxr.cat === "cards") setCardStyle(fxr.style);   // 🃏 de stijl van de pop-up (cards_ill = het Getijdenboek; Draken en Zwarte getijden kies je in de kluis)
 }
 
 function showReward(key, opts) {
@@ -11803,11 +11812,11 @@ function showReward(key, opts) {
   const isFlair = r.cat === "flair";
   const fxCat = r.cat === "flairfx";   // flair-effect: "Zet aan" kan alleen op een flair die je draagt, anders naar de kluis
   const worn = parseFlair(myFlair).emoji;
-  const isEffect = r.cat === "effect" || r.cat === "cards" || (fxCat && !!worn);   // 🃏 kaarten: "Zet aan" = het Getijdenboek
+  const isEffect = r.cat === "effect" || r.cat === "cards" || (fxCat && !!worn);   // 🃏 kaarten: "Zet aan" = de stijl van deze beloning
   const evFlair = r.event ? (eventById(r.event).rewards.find((x) => x.kind === "flair") || {}).emoji : null;   // een event-effect zonder gedragen flair: laat de event-flair zien (niet het effect-icoon)
   const heroFlair = fxCat ? (worn || evFlair || r.emoji) : r.emoji;
   const heroInner = flairPreviewHtml(heroFlair);
-  const heroCards = r.cat === "cards" && window.JaardleCards ? window.JaardleCards.hero("book") : "";   // 🃏 je hand in het Getijdenboek
+  const heroCards = r.cat === "cards" && window.JaardleCards ? window.JaardleCards.hero(r.style || "book") : "";   // 🃏 je hand in de stijl die je net verdiende
   const hero = heroCards || (fxCat ? flairFxWrap(r.fx, heroFlair, heroInner) : heroInner);
   const evc = r.event ? eventCopy(r.event) : null;   // een event-beloning heeft eigen teksten (en een eigen kopregel)
   const sub = r.find ? t(anon ? "find_pop_anon" : "find_pop_sub")
@@ -11978,7 +11987,8 @@ function achvSeriesItem(a, s, tier, prev) {
     fxEarned: (s.fx && s.fx.earned) || null,   // eigen zin op de kaart (In de roos speelt bij een voltreffer, niet bij elke winst)
     // Een flair-effect (Gloed, Rimpel, Lotus) idem: alleen op de trede die het vrijspeelt.
     flairFx: (s.flairFxs || []).filter((f) => tier > f.at && prev <= f.at).pop()?.id || null,
-    cards: !!(s.cards && tier > s.cards.at && prev <= s.cards.at),   // 🃏 db/240: de drie kaartstijlen (Kroniekschrijver-platina)
+    // 🃏 de kaartstijlen van de trede die je net haalde (db/240 + db/243); pak je er twee in één klap, dan wint de hoogste. null = geen.
+    cards: (() => { const at = (s.cards || []).filter((x) => tier > x && prev <= x).pop(); return at == null ? null : CARD_STYLES.filter((id) => CARD_TIER[id] === at); })(),
   };
 }
 function achvTrophyItem(tr, count, tier, a, prev) {
@@ -12050,8 +12060,8 @@ function achvCardEl(it) {
     // die je via "bekijk ›" toch al bereikt.
     foot = `<span class="achv-card-note">${withAnimEmoji(escHtml(t(it.fxEarned || "achv_fx_earned")(it.fx)))}</span>`;
   } else if (it.cards) {
-    // 🃏 de drie kaartstijlen (db/240): de kortste route naar de tab Kaarten van de kluis
-    foot = `<span class="achv-card-note">${escHtml(t("achv_cards_earned"))}</span>
+    // 🃏 de kaartstijl(en) van deze trede (db/240 + db/243): de kortste route naar de kaarten in de kluis
+    foot = `<span class="achv-card-note">${escHtml(it.cards.length > 1 ? t("achv_cards_earned") : t("achv_card_earned")(t("card_style_" + it.cards[0])))}</span>
       <button type="button" class="achv-card-btn">${escHtml(t("achv_cards_choose"))}</button>`;
   }
   el.innerHTML = `
@@ -12285,8 +12295,9 @@ function achvDetailHtml(a, s) {
   const pinList = [...flairs.map((f) => ({ at: f.at, emoji: f.emoji, cls: "" })),
     ...(fx ? [{ at: fx.at, emoji: fx.emoji, cls: " achv-fxpin" }] : []),
     ...flairFxs.map((f) => ({ at: f.at, emoji: FLAIR_FX[f.id].emoji, cls: " achv-fxpin" })),
-    // 🃏 db/240: de kaartstijlen hangen er als een piepklein verlucht kaartje (alleen ingelogd, net als de viering-pins)
-    ...(s.cards && auth.user ? [{ at: s.cards.at, emoji: `<i class="achv-cardpin" role="img" aria-label="${escHtml(t("achv_sect_cards"))}"></i>`, cls: " achv-fxpin" }] : [])];
+    // 🃏 de kaartstijlen hangen er als een piepklein kaartje in die stijl (alleen ingelogd, net als de viering-pins); db/243: één per trede
+    ...(s.cards && auth.user ? s.cards.map((at) => { const id = CARD_STYLES.find((x) => CARD_TIER[x] === at);
+      return { at, emoji: `<i class="achv-cardpin cp-${id}" role="img" aria-label="${escHtml(t("achv_sect_cards"))}"></i>`, cls: " achv-fxpin" }; }) : [])];
   const pins = pinList.map((pin) => {
     const group = pinList.filter((x) => x.at === pin.at), off = (group.indexOf(pin) - (group.length - 1) / 2) * 1.1;
     return `<span class="achv-flairpin${pin.cls}" style="left:calc(${achvTickPos(pin.at, s.steps.length)}% + ${off.toFixed(2)}rem)">${pin.emoji}</span>`;
@@ -12303,7 +12314,7 @@ function achvDetailHtml(a, s) {
     ? `<p class="achv-flairnote">${escHtml(t(fx.note || "achv_fx_note")(fx.emoji, achvTierName(fx.at)))}</p>`
     : "") + flairFxs.map((f) =>
       `<p class="achv-flairnote">${escHtml(t("achv_flairfx_note")(t("fxn_" + f.id), achvTierName(f.at)))}</p>`).join("") +
-    (s.cards && auth.user ? `<p class="achv-flairnote">${escHtml(t("achv_cards_note")(achvTierName(s.cards.at)))}</p>` : "");
+    (s.cards && auth.user ? `<p class="achv-flairnote">${escHtml(t("achv_cards_note")(s.cards.map((at) => achvTierName(at)).join(" · ")))}</p>` : "");
   // Titels (JM/GM) als verlengstuk van de rating-ladder: de bestaande titel-pil + het getal, gedimd tot je de titel hebt (a.obsidian / a.legend =
   // gepind in player_titles). Aantikken geeft de uitleg-bubbel van de pil. De rail zelf eindigt gewoon op de laatste trede.
   const titleRow = !auth.user || !s.titles ? "" : `<div class="achv-titlerow">${s.titles.map((code) => {
@@ -12792,11 +12803,11 @@ function rewardsFrameHtml() {
     `<div class="rw-chips" role="radiogroup" aria-label="${escHtml(t("rewards_sect_frame"))}">${chips}</div></section>`;
 }
 
-// 🃏 De tab Kaarten (db/240): Gewoon en de drie stijlen als tegels met een voorbeeldkaartje (zonder tekst, dus niets te vertalen); geldt in
-// Timeline vanaf de eerste kaart. Alle drie komen tegelijk vrij (Kroniekschrijver-platina), dus wie de tab ziet, heeft ze alle drie.
-function rewardsCardsHtml() {
+// 🃏 De Timeline-kaarten in de kluis (db/240 + db/243): Gewoon en elke stijl die je verdiend hebt, als tegels met een voorbeeldkaartje (zonder
+// tekst, dus niets te vertalen); geldt in Timeline vanaf de eerste kaart. Wat je nog niet hebt staat er niet, zoals in de rest van de kluis.
+function rewardsCardsHtml(a = achvCache) {
   const cur = cardStyle();
-  const tiles = CARD_STYLES.map((id) => `<button type="button" class="rw-tile rw-ctile" role="radio" aria-checked="${cur === id}" data-cards="${id}">` +
+  const tiles = CARD_STYLES.filter((id) => cardStyleUnlocked(a, id)).map((id) => `<button type="button" class="rw-tile rw-ctile" role="radio" aria-checked="${cur === id}" data-cards="${id}">` +
     `<div class="rw-cprev" data-cprev="${id}" aria-hidden="true"></div><span class="rw-tile-nm">${escHtml(t("card_style_" + id))}</span></button>`).join("");
   return `<section class="rw-sect" data-rw-sect="cards"><h3 class="stats-heading">${escHtml(t("rewards_sect_cards"))}</h3>` +
     `<p class="rw-sect-note">${escHtml(t("rewards_note_cards"))}</p>` +
@@ -12813,7 +12824,7 @@ function renderRewardsBody(body, a) {
     flair: () => rewardsBoardPreviewHtml() +
       `<section class="rw-sect" data-rw-sect="flair"><h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>${rewardsFlairHtml()}</section>` + flairFxSectionHtml(a),
     vier: () => rewardsVierHtml(unlocked),
-    look: () => rewardsLookBlocks(a).map((k) => ({ frame: rewardsFrameHtml, theme: rewardsThemeHtml, cards: rewardsCardsHtml })[k]()).join(""),   // onder elkaar, elk met zijn eigen kopje
+    look: () => rewardsLookBlocks(a).map((k) => ({ frame: rewardsFrameHtml, theme: rewardsThemeHtml, cards: () => rewardsCardsHtml(a) })[k]()).join(""),   // onder elkaar, elk met zijn eigen kopje
     events: () => (window.SeasonEvent ? window.SeasonEvent.tab(eventTabEvents().map(eventView)) : "") + miniEventCardsHtml(),
   };
   // Alles verdiend = geen wegwijzer. Anders één gedimde 🔒-regel naar Prestaties.
@@ -12999,13 +13010,15 @@ function mountAchvTabs(body, ids) {
   go(achvPage, false);
   requestAnimationFrame(() => go(achvPage, false));
 }
-// 🃏 onder Kroniekschrijver: de drie kaartstijlen, nog niet verdiend = gedimd met wat er nog voor nodig is (zoals de pins op een ladder)
+// 🃏 onder Kroniekschrijver: alle kaartstijlen van laag naar hoog (brons · de verluchte drie van platina · diamant), drie per rij; nog niet
+// verdiend = gedimd met wat er nog voor nodig is (zoals de pins op een ladder)
 function achvCardStylesHtml(a) {
-  const n = a.tl_cards || 0, got = n >= TL_CARDS_AT;
-  const state = got ? t("achv_cards_have") : `🔒 ${t("achv_next")(fmtN(TL_CARDS_AT - n), achvTierName(3))}`;
-  return `<div class="achv-cstyles">` + CARD_STYLES.filter((id) => id !== "off").map((id) =>
-    `<div class="achv-cstyle${got ? "" : " locked"}"><div class="achv-cprev" data-cprev="${id}" aria-hidden="true"></div>` +
-    `<b>${escHtml(t("card_style_" + id))}</b><small>${escHtml(state)}</small></div>`).join("") + `</div>`;
+  const n = a.tl_cards || 0;
+  return `<div class="achv-cstyles">` + CARD_STYLES.filter((id) => id !== "off").map((id) => {
+    const got = n >= cardAt(id), state = got ? t("achv_cards_have") : `🔒 ${t("achv_next")(fmtN(cardAt(id) - n), achvTierName(CARD_TIER[id]))}`;
+    return `<div class="achv-cstyle${got ? "" : " locked"}"><div class="achv-cprev" data-cprev="${id}" aria-hidden="true"></div>` +
+      `<b>${escHtml(t("card_style_" + id))}</b><small>${escHtml(state)}</small></div>`;
+  }).join("") + `</div>`;
 }
 // De voorbeeldkaartjes (Prestaties en de kluis) komen uit het lui geladen /timeline-ill.js; tot dat er is, blijven de vakjes leeg.
 function fillCardPreviews(root) {

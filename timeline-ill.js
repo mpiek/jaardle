@@ -10,7 +10,9 @@
 // kiest hoeveel er getekend wordt. Elke kaart heeft een eigen toevalsgetal (zijn sleutel), dus geen twee ranken zijn gelijk.
 window.JaardleCards = (() => {
   "use strict";
-  const LV = { book: 3, dragons: 5, black: 6 };   // de tekenstand per stijl (3 = volle lijst + gouden beginletter, 5 = + draken, 6 = zwart)
+  // de tekenstand per stijl (3 = volle lijst + gouden beginletter, 5 = + draken, 6 = zwart; db/243: 8 = Glas-in-lood, 9 = Ouroboros)
+  const LV = { glass: 8, book: 3, dragons: 5, black: 6, ouro: 9 };
+  const NOINI = new Set([8]);   // Glas-in-lood (brons) is bewust kaal: geen verluchte beginletter
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const f2 = (n) => (Math.round(n * 100) / 100).toString();
   const rng = (seed) => { let x = (seed * 7919 + 13) % 2147483647 || 7; return () => (x = x * 16807 % 2147483647) / 2147483647; };
@@ -128,8 +130,161 @@ window.JaardleCards = (() => {
       `<circle cx="55.2" cy="2.85" r=".6" fill="#fff"/><circle cx="55.35" cy="2.85" r=".28" fill="#1a1208"/></g>`;
   }
 
+  // ═══ db/243 (26/11/2026): twee stijlen erbij, op hun eigen trede van Kroniekschrijver: Glas-in-lood (tekenstand 8, brons, bewust kaal) en
+  //     Ouroboros (9, diamant). Mockup: https://claude.ai/artifact/Wqj1T4w6JkWGgFaANgd6mz (daar heet Glas-in-lood B en Ouroboros C; A
+  //     Schatbinding viel af: "anders te veel unlocks in hetzelfde thema"). Ze tekenen op het vlak binnen de rand (clientWidth). ═══
+  const P = (x, y) => f2(x) + " " + f2(y);
+  const second = (c) => (c.s === "#e8dcc0" || c.s === "#24201a" ? GREEN : c.s);   // room en zwart zijn geen glaskleur
+  const hx = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+  const mix = (a, b, t) => { const A = hx(a), B = hx(b); return "#" + A.map((v, i) => Math.max(0, Math.min(255, Math.round(v + (B[i] - v) * t))).toString(16).padStart(2, "0")).join(""); };
+  const tone = (c, t) => (t >= 0 ? mix(c, "#ffffff", t) : mix(c, "#000000", -t));
+  function rr(x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    return `M${P(x + r, y)}H${f2(x + w - r)}A${f2(r)} ${f2(r)} 0 0 1 ${P(x + w, y + r)}V${f2(y + h - r)}A${f2(r)} ${f2(r)} 0 0 1 ${P(x + w - r, y + h)}` +
+      `H${f2(x + r)}A${f2(r)} ${f2(r)} 0 0 1 ${P(x, y + h - r)}V${f2(y + r)}A${f2(r)} ${f2(r)} 0 0 1 ${P(x + r, y)}Z`;
+  }
+  const circ = (x, y, r) => `M${P(x - r, y)}a${f2(r)} ${f2(r)} 0 1 0 ${f2(2 * r)} 0a${f2(r)} ${f2(r)} 0 1 0 ${f2(-2 * r)} 0Z`;
+
+  // ── Glas-in-lood (brons, de eenvoudige): de kaart is lood (CSS-achtergrond); daarop glas: een rand van lange stukken in de twee kleuren
+  //    van de categorie en korte amberkleurige stukjes, een wit biesje, hoeken met een rondje, en een venster van licht glas met dunne ruitjes
+  //    achter de tekst. Elk stuk glas heeft een iets andere tint, zoals oud glas. Bewust kaal: geen roosvenster, geen parels, geen beweging. ──
+  function glass(W, H, seed, cat, hand) {
+    const c = CATC[cat] || CATC[1], s2 = second(c), R = rng(seed), k = hand ? 1.3 : 1;
+    const f = 11 * k, rad = hand ? 15 : 11, lw = 1.3 * k, fz = 7.4 * k, AMB = "#e3a437", WHT = "#ece8d5";
+    const vr = (cl, a = 0.09) => tone(cl, (R() * 2 - 1) * a);
+    const id = `jcg${Math.round(W)}x${Math.round(H)}${hand ? "h" : ""}`;   // zelfde maat = zelfde knipvorm, dus een dubbele id is onschuldig
+    let fill = `<rect x="${f2(f)}" y="${f2(f)}" width="${f2(W - 2 * f)}" height="${f2(H - 2 * f)}" fill="url(#jd-gris)"/>`, lead = "";
+    const rect = (xa, ya, xb, yb, cl) => {
+      fill += `<rect x="${f2(Math.min(xa, xb))}" y="${f2(Math.min(ya, yb))}" width="${f2(Math.abs(xb - xa))}" height="${f2(Math.abs(yb - ya))}" fill="${cl}"/>`;
+    };
+    const line = (a, b) => `M${P(a[0], a[1])}L${P(b[0], b[1])}`;
+    // de vier zijden: a loopt langs de zijde, b van de rand naar binnen
+    const SIDES = [[f, W - f, (a, b) => [a, b]], [f, W - f, (a, b) => [a, H - b]], [f, H - f, (a, b) => [b, a]], [f, H - f, (a, b) => [W - b, a]]];
+    const Ls = 4.8 * k, Lm = 13 * k;
+    let li = 0;
+    for (const [a0, a1, at] of SIDES) {
+      const len = a1 - a0, n = Math.max(1, Math.round((len - Ls) / (Lm + Ls))), lm = (len - (n + 1) * Ls) / n;
+      let a = a0;
+      for (let i = 0; i < 2 * n + 1; i++) {
+        const L = i % 2 ? lm : Ls, A = at(a, 0), B = at(a + L, fz);
+        rect(A[0], A[1], B[0], B[1], i % 2 ? vr(li++ % 2 ? s2 : c.m) : vr(AMB, 0.06));
+        if (i) lead += line(at(a, 0), at(a, fz));
+        a += L;
+      }
+      const A = at(a0, fz), B = at(a1, f);
+      rect(A[0], A[1], B[0], B[1], vr(WHT, 0.03));
+      lead += line(at(a0, fz), at(a1, fz)) + line(at(a0, 0), at(a0, f)) + line(at(a1, 0), at(a1, f));
+    }
+    for (const [x, y] of [[0, 0], [W - f, 0], [0, H - f], [W - f, H - f]]) {
+      rect(x, y, x + f, y + f, vr(tone(c.m, -0.22), 0.05));
+      fill += `<path d="${circ(x + f / 2, y + f / 2, f * 0.26)}" fill="${vr(AMB, 0.05)}"/>`;
+      lead += circ(x + f / 2, y + f / 2, f * 0.26);
+    }
+    lead += `M${P(f, f)}H${f2(W - f)}V${f2(H - f)}H${f2(f)}Z`;
+    // ruitjes in het venster (licht lood): twee families schuine lijnen door het midden
+    const px0 = f, py0 = f, pw = W - 2 * f, ph = H - 2 * f, gx = 22 * k, sl = 1.75;
+    let lat = "";
+    const clipSeg = (cc, sg) => {
+      const yAt = (x) => py0 + ((x - cc) * sl) / sg;
+      const y1 = yAt(px0), y2 = yAt(px0 + pw), ya = Math.max(py0, Math.min(y1, y2)), yb = Math.min(py0 + ph, Math.max(y1, y2));
+      if (yb - ya < 1) return "";
+      return line([cc + (sg * (ya - py0)) / sl, ya], [cc + (sg * (yb - py0)) / sl, yb]);
+    };
+    const c1 = px0 + pw / 2 - ph / 2 / sl, c2 = px0 + pw / 2 + ph / 2 / sl, span = Math.ceil((pw + ph / sl) / gx) + 1;
+    for (let j = -span; j <= span; j++) lat += clipSeg(c1 + j * gx, 1) + clipSeg(c2 + j * gx, -1);
+    const band = `${rr(0, 0, W, H, rad)}M${P(f, f)}V${f2(H - f)}H${f2(W - f)}V${f2(f)}Z`;
+    return `<defs><clipPath id="${id}"><path d="${rr(0, 0, W, H, rad)}"/></clipPath></defs><g clip-path="url(#${id})">` + fill +
+      `<path d="${lat}" fill="none" stroke="#8e998b" stroke-opacity=".5" stroke-width="${f2(0.7 * k)}"/>` +
+      `<path d="${band}" fill="url(#jd-sun)" fill-rule="evenodd"/><path d="${band}" fill="url(#jd-seeds)" fill-rule="evenodd"/>` +
+      `<path d="${lead}" fill="none" stroke="#2a2730" stroke-width="${f2(lw)}" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<path d="${lead}" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="${f2(lw * 0.32)}" transform="translate(-.3 -.3)"/></g>`;
+  }
+
+  // ── Ouroboros (diamant): een draak ligt rond de kaart en bijt onderaan in zijn eigen staart, het oude teken van de tijd die rondgaat. Groen
+  //    lijf met schubben, een gouden buik aan de buitenkant en kleine stekels aan de binnenkant; de kop zit van opzij bovenop (gouden horens,
+  //    oog, tanden in de staart). Kraag en vleugel in de hoofdkleur van de categorie, zoals de vleugel van de Draken. ──
+  function ouro(W, H, seed, cat, hand) {
+    const c = CATC[cat] || CATC[1], k = hand ? 1.28 : 1, BODY = "#4c8a3b", INK = "#22170b";
+    const T = 9 * k, i0 = T / 2 + 1.3 * k, rad = hand ? 15 : 11;
+    const x0 = i0, y0 = i0, x1 = W - i0, y1 = H - i0, r = Math.max(4 * k, rad - i0 + 3 * k);
+    const hu = 1.5 * T, xn = W / 2 + 0.7 * hu, xt = xn - 1.32 * hu, hy = y1 - 0.12 * hu;   // eenheid van de kop; nek; staartpunt (in de bek); kop-as
+    const S = [
+      ["L", xn, y1, x1 - r, y1], ["A", x1 - r, y1 - r, Math.PI / 2, 0], ["L", x1, y1 - r, x1, y0 + r], ["A", x1 - r, y0 + r, 0, -Math.PI / 2],
+      ["L", x1 - r, y0, x0 + r, y0], ["A", x0 + r, y0 + r, -Math.PI / 2, -Math.PI], ["L", x0, y0 + r, x0, y1 - r], ["A", x0 + r, y1 - r, -Math.PI, -1.5 * Math.PI],
+      ["L", x0 + r, y1, xt, y1],
+    ];
+    const lenOf = (s) => (s[0] === "L" ? Math.hypot(s[3] - s[1], s[4] - s[2]) : Math.abs(s[4] - s[3]) * r);
+    const total = S.reduce((a, s) => a + lenOf(s), 0);
+    const pts = [];
+    let acc = 0;
+    for (const s of S) {
+      const L = lenOf(s), n = Math.max(1, Math.ceil(L / (s[0] === "L" ? 5 : 1.6)));
+      for (let j = 0; j < n; j++) {
+        const t = j / n;
+        let x, y, tx, ty;
+        if (s[0] === "L") { x = s[1] + (s[3] - s[1]) * t; y = s[2] + (s[4] - s[2]) * t; tx = (s[3] - s[1]) / L; ty = (s[4] - s[2]) / L; }
+        else { const a = s[3] + (s[4] - s[3]) * t, dir = Math.sign(s[4] - s[3]); x = s[1] + r * Math.cos(a); y = s[2] + r * Math.sin(a); tx = -Math.sin(a) * dir; ty = Math.cos(a) * dir; }
+        pts.push([x, y, ty, -tx, acc + L * t]);   // de normaal (ty, -tx) wijst naar binnen
+      }
+      acc += L;
+    }
+    pts.push([xt, y1, 0, -1, total]);
+    const sm = (t) => t * t * (3 - 2 * t);
+    const wOf = (s) => { const u = s / total; return T * (u < 0.05 ? 0.8 + 4 * u : u < 0.45 ? 1 : 1 - 0.68 * sm((u - 0.45) / 0.55)); };
+    const Lp = [], Rp = [];
+    for (const [x, y, nx, ny, s] of pts) { const h = wOf(s) / 2; Lp.push([x + nx * h, y + ny * h]); Rp.push([x - nx * h, y - ny * h]); }
+    const body = "M" + Lp.map((p) => P(p[0], p[1])).join("L") + "Q" + P(xt - 0.9 * k, y1) + " " + P(...Rp[Rp.length - 1]) + "L" + Rp.reverse().map((p) => P(p[0], p[1])).join("L") + "Z";
+    // een punt op de middellijn bij booglengte s (lineair tussen de monsters), met de normaal naar binnen
+    const at = (sx) => {
+      let lo = 0, hi = pts.length - 1;
+      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (pts[mid][4] <= sx) lo = mid; else hi = mid; }
+      const a = pts[lo], b = pts[hi], t = b[4] > a[4] ? (sx - a[4]) / (b[4] - a[4]) : 0;
+      return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2], a[3]];
+    };
+    const off = (sx, f) => { const [x, y, nx, ny] = at(sx), d = wOf(sx) * f; return [x + nx * d, y + ny * d]; };
+    // de rug ligt binnen (dan klopt hij met de kop, die rechtop staat): kleine gouden stekels naar binnen, naar de staart gestreken
+    let spk = "";
+    for (let sx = 0.03 * total; sx < 0.84 * total; sx += 4.3 * k) {
+      const a = off(sx - 1.1 * k, 0.48), b = off(sx + 1.1 * k, 0.48), [x, y, nx, ny] = at(sx + 1.1 * k), hh = wOf(sx) * 0.5 + 1.4 * k * (wOf(sx) / T);
+      spk += `M${P(...a)}L${P(x + nx * hh, y + ny * hh)}L${P(...b)}Z`;
+    }
+    // de buik ligt buiten: goud met dwarse schubben, een gouden rand om de kaart
+    const bo = [], bi = [];
+    for (const p of pts) { const w = wOf(p[4]); bo.push([p[0] - p[2] * w * 0.5, p[1] - p[3] * w * 0.5]); bi.push([p[0] - p[2] * w * 0.06, p[1] - p[3] * w * 0.06]); }
+    const belly = "M" + bo.map((p) => P(p[0], p[1])).join("L") + "L" + bi.reverse().map((p) => P(p[0], p[1])).join("L") + "Z";
+    const along = (u0, u1, f) => "M" + pts.filter((p) => p[4] >= u0 * total && p[4] <= u1 * total).map((p) => P(...off(p[4], f))).join("L");
+    let g = `<path d="${spk}" fill="url(#ill-gold)" stroke="${INK}" stroke-width="${f2(0.35 * k)}" stroke-linejoin="round"/>`;
+    g += `<path d="${body}" fill="${BODY}" stroke="${INK}" stroke-width="${f2(0.6 * k)}" stroke-linejoin="round"/>`;
+    g += `<path d="${body}" fill="url(#jd-scale)"/>`;
+    g += `<path d="${belly}" fill="url(#jd-belly)" stroke="${INK}" stroke-width="${f2(0.35 * k)}" stroke-opacity=".6"/>`;
+    g += `<path d="${along(0.02, 0.5, -0.28)}" fill="none" stroke="#7a4e12" stroke-opacity=".75" stroke-width="${f2(T * 0.4)}" stroke-dasharray="${f2(0.5 * k)} ${f2(1.7 * k)}"/>`;
+    // de glans die van staart naar kop loopt (bewegend, zie .jd-c-run in de CSS: alleen in je hand en op de kaart die je net legt)
+    const runD = "M" + pts.slice().reverse().map((p) => P(p[0], p[1])).join("L");
+    g += `<path d="${runD}" pathLength="100" class="jd-c-run glow" stroke-width="${f2(T * 1.25)}" stroke-dasharray="6 200"/>`;
+    g += `<path d="${runD}" pathLength="100" class="jd-c-run" stroke-width="${f2(T * 0.42)}" stroke-dasharray="4 200"/>`;
+    // de kop in eigen eenheden: x = vooruit (naar links op het scherm), y = omhoog; scale(-hu) draait dat om
+    const sw = (px) => f2(px / hu);
+    let h = `<g transform="translate(${P(xn, hy)}) scale(${f2(-hu)})">`;
+    h += `<path d="M-.42.24Q-.56.82-.86 1.02Q-1.42 1.2-2.02 1.02Q-1.76.8-1.64.6Q-1.47.63-1.32.46Q-1.13.41-1.08.24Z" fill="${c.m}" stroke="url(#ill-gold)" stroke-width="${sw(0.75 * k)}" stroke-linejoin="round"/>`;
+    h += `<path d="M-.86 1.02L-1.64.6M-.86 1.02L-1.32.46" stroke="#f3d98a" stroke-width="${sw(0.5 * k)}" fill="none" stroke-linecap="round"/>`;
+    h += `<path d="M.5.62Q.18.78-.36.9Q.1.64.34.56Z" fill="url(#ill-gold)" stroke="${INK}" stroke-width="${sw(0.35 * k)}" stroke-linejoin="round"/>`;
+    const HEAD = "M-.35.25Q.05.32.25.55Q.42.74.66.75Q.92.76 1.08.62Q1.3.48 1.62.44Q1.9.42 1.97.16Q1.99.03 1.84.04L1 .02L1.5-.27Q1.74-.36 1.75-.47Q1.72-.57 1.5-.57Q1-.55.55-.45Q.1-.36-.35-.25";
+    h += `<path d="${HEAD}Z" fill="${BODY}"/><path d="${HEAD}Z" fill="url(#jd-cab)" opacity=".3"/>`;
+    h += `<path d="${HEAD}" fill="none" stroke="${INK}" stroke-width="${sw(0.65 * k)}" stroke-linejoin="round"/>`;   // zonder de achterkant: die loopt over in de nek
+    // de kraag achter de kop (kleur van de categorie) dekt de overgang naar de nek
+    h += `<path d="M.32.44L-.28.66L.02.31L-.46.3L-.03.1L-.5-.06L-.03-.13L-.32-.38L.28-.42Q.45 0 .32.44Z" fill="${c.m}" stroke="url(#ill-gold)" stroke-width="${sw(0.5 * k)}" stroke-linejoin="round"/>`;
+    h += `<path d="M.8.72Q.35.98-.26 1.16Q.28.8.56.66Z" fill="url(#ill-gold)" stroke="${INK}" stroke-width="${sw(0.4 * k)}" stroke-linejoin="round"/>`;
+    h += `<path d="M1.64.04L1.76.04L1.7-.08ZM1.42.04L1.54.04L1.48-.08ZM1.2.03L1.32.03L1.26-.08ZM1.2-.1L1.3-.15L1.3-.03ZM1.36-.19L1.46-.25L1.46-.12Z" fill="#fffaf0" stroke="${INK}" stroke-width="${sw(0.25 * k)}" stroke-linejoin="round"/>`;
+    h += `<ellipse cx="1.12" cy=".47" rx=".14" ry=".08" transform="rotate(-12 1.12 .47)" fill="#f6d36b" stroke="${INK}" stroke-width="${sw(0.35 * k)}"/>`;
+    h += `<ellipse cx="1.13" cy=".47" rx=".025" ry=".07" fill="${INK}"/>`;
+    h += `<path d="M.9.62Q1.1.71 1.31.56" fill="none" stroke="${INK}" stroke-width="${sw(0.7 * k)}" stroke-linecap="round"/>`;
+    h += `<path d="M1.77.33Q1.82.37 1.85.3" fill="none" stroke="${INK}" stroke-width="${sw(0.55 * k)}" stroke-linecap="round"/></g>`;
+    return g + h;
+  }
+
   // ── de rand op de echte maat van de kaart (W × H css-px); m = breedte van de rand, lv = tekenstand (3, 5 of 6), hand = de kaart in je hand ──
   function svg(W, H, m, seed, lv, cat, hand) {
+    if (lv >= 8) return `<svg class="tl-ills" viewBox="0 0 ${f2(W)} ${f2(H)}" aria-hidden="true" focusable="false">${(lv === 8 ? glass : ouro)(W, H, seed, cat, hand)}</svg>`;
     const s = m / 12.5, R = rng(seed), c = CATC[cat] || CATC[1], o = { c, dense: lv >= 4, gems: lv >= 5 };
     const bx = 2.6 * s, bw = 3.4 * s, rr = 2.6 * s, y0 = m * 0.75, y1 = H - m * 0.75, cx = bx + bw / 2, cr = m * 0.55;
     let g = "";
@@ -170,7 +325,18 @@ window.JaardleCards = (() => {
   // ── de verguldsel-gradiënten (één keer in de pagina), de CSS en het lettertype van de beginletter ──
   const DEFS = `<svg id="jc-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>` +
     `<linearGradient id="ill-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe9a6"/><stop offset=".45" stop-color="#dcab42"/><stop offset="1" stop-color="#97661a"/></linearGradient>` +
-    `<linearGradient id="ill-goldu" gradientUnits="userSpaceOnUse" x1="-1" y1="-1" x2="1" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".5" stop-color="#e2b24a"/><stop offset="1" stop-color="#a87420"/></linearGradient></defs></svg>`;
+    `<linearGradient id="ill-goldu" gradientUnits="userSpaceOnUse" x1="-1" y1="-1" x2="1" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".5" stop-color="#e2b24a"/><stop offset="1" stop-color="#a87420"/></linearGradient>` +
+    // db/243: glans op de kop van de Ouroboros, het lichte glas achter de tekst, licht en belletjes op het gekleurde glas, schubben en buik van de draak
+    `<radialGradient id="jd-cab" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".32" stop-color="#fff" stop-opacity=".1"/>` +
+    `<stop offset=".68" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient>` +
+    `<linearGradient id="jd-gris" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#f7f9f3"/><stop offset="1" stop-color="#e2e8de"/></linearGradient>` +
+    `<linearGradient id="jd-sun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/>` +
+    `<stop offset="1" stop-color="#000" stop-opacity=".16"/></linearGradient>` +
+    `<linearGradient id="jd-belly" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e3a0"/><stop offset=".5" stop-color="#e2b955"/><stop offset="1" stop-color="#b8862e"/></linearGradient>` +
+    `<pattern id="jd-seeds" width="17" height="13" patternUnits="userSpaceOnUse"><g fill="#fff" fill-opacity=".32"><circle cx="3" cy="2.5" r=".45"/><circle cx="11.5" cy="5" r=".35"/>` +
+    `<circle cx="7" cy="10" r=".5"/><circle cx="15" cy="11.5" r=".3"/></g><path d="M1 7.5l3.2-1.6M9 2l2.6-1.3M12 10.5l3-1.5" stroke="#fff" stroke-opacity=".16" stroke-width=".7" stroke-linecap="round"/></pattern>` +
+    `<pattern id="jd-scale" width="3.4" height="2.8" patternUnits="userSpaceOnUse"><path d="M0 2.8A1.7 1.7 0 0 1 3.4 2.8M-1.7 1.4A1.7 1.7 0 0 1 1.7 1.4M1.7 1.4A1.7 1.7 0 0 1 5.1 1.4" ` +
+    `fill="none" stroke="#000" stroke-opacity=".32" stroke-width=".45"/></pattern></defs></svg>`;
   const CSS = String.raw`/* ═══ 🃏 verluchte Timeline-kaarten (/timeline-ill.js) ═══ */
 @font-face { font-family: "JaardleIni"; src: url("/fonts/jaardle-ini.woff2") format("woff2"); font-display: swap; }
 /* perkament in beide thema's (een kaart is een ding op tafel), in donker iets gedempter; alleen Zwarte getijden (lv 6) is zwart.
@@ -206,6 +372,26 @@ html :is(.tl-c, .tl-card).tl-ill[data-jc="6"] { --fg: #f1e6cc; --muted: #b9a888;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0.45px, transparent 0.9px) 0 0 / 3.5px 3.5px, linear-gradient(135deg, var(--ill-m) 50%, var(--ill-s) 50%);
   border: 1px solid #c9973a; border-radius: 1px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
 .tl-card.tl-ill .ill-ini { font-size: 2em; }
+/* ── db/243: Glas-in-lood (data-jc 8, brons) en Ouroboros (9, diamant). Ze tekenen op het vlak binnen de rand; de rand is ±10 px. ── */
+.tl-c.tl-ill:is([data-jc="8"], [data-jc="9"]) { padding: 0.9rem 0.85rem 0.9rem 0.9rem; }
+.tl-c.tl-ill:is([data-jc="8"], [data-jc="9"]) .tl-s { top: 0.85rem; right: 0.85rem; }
+.tl-c.tl-ill[data-jc="9"] { padding-bottom: 1.5rem; }   /* de kop van de draak onderaan */
+.tl-card.tl-ill:is([data-jc="8"], [data-jc="9"]) { padding: 1.2rem 1.3rem 1.25rem 1.2rem; }
+.tl-card.tl-ill[data-jc="9"] { padding-bottom: 2.05rem; }
+/* Glas-in-lood: de kaart zelf is lood; donkere tekst op het lichte glas, in beide thema's */
+html :is(.tl-c, .tl-card).tl-ill[data-jc="8"] { --fg: #1d1b17; --muted: #55524a; --ill-ink: #3d2b18; --ill-line: #2a2730; --red-text: #b3261e; color: var(--fg);
+  background: #2a2730; border: 1px solid #141217; box-shadow: 0 7px 14px -9px rgba(0, 0, 0, 0.6); }
+/* Ouroboros: het perkament van het Getijdenboek, met een donker gouden randje */
+:is(.tl-c, .tl-card).tl-ill[data-jc="9"] { border: 1px solid #8a6a2c; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 7px 14px -9px rgba(0, 0, 0, 0.6); }
+/* de glans van de Ouroboros loopt van de staart rond de kaart naar de kop: in je hand af en toe, op de kaart die je net goed legt één keer.
+   De tafel staat stil. De vertraging telt --el mee (timeline.js tekent na een zet opnieuw; zo loopt de glans door i.p.v. opnieuw te beginnen). */
+.tl-ill .jd-c-run { fill: none; stroke: #fffdf2; stroke-linecap: round; opacity: 0; }
+.tl-ill .jd-c-run.glow { stroke: #ffe38a; stroke-opacity: 0.45; }
+.tl-card.tl-ill[data-jc="9"] .jd-c-run { animation: jc-run-loop 7s cubic-bezier(0.45, 0.05, 0.4, 1) 1s infinite; }
+.tl-c.tl-reveal.tl-good.tl-ill[data-jc="9"] .jd-c-run { animation: jc-run 1.5s cubic-bezier(0.45, 0.05, 0.4, 1) both; animation-delay: calc(0.4s - var(--el, 0ms)); }
+@keyframes jc-run { 0% { opacity: 1; stroke-dashoffset: 8; } 94% { opacity: 1; } 100% { opacity: 0; stroke-dashoffset: -100; } }
+@keyframes jc-run-loop { 0% { opacity: 1; stroke-dashoffset: 8; } 26% { opacity: 1; stroke-dashoffset: -100; } 27%, 100% { opacity: 0; stroke-dashoffset: -100; } }
+@media (prefers-reduced-motion: reduce) { .tl-ill .jd-c-run { animation: none !important; } }
 /* buiten Timeline (de kluis, de pop-up): de basismaten van een kaart, zodat het voorbeeld niet van timeline.js afhangt; tekst = grijze balkjes */
 .jc-prev, .jc-hero { --tl-back: #1976d2; --tl-back-2: #1565c0; text-align: left; font-size: 16px; line-height: 1.5; }
 .jc-prev .tl-c { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 0.3rem; width: 8.1rem; height: 12.4rem; box-sizing: border-box;
@@ -250,7 +436,7 @@ html :is(.tl-c, .tl-card).tl-ill[data-jc="6"] { --fg: #f1e6cc; --muted: #b9a888;
   const INI = /^[A-Za-zÀ-ÖØ-öø-ÿŒœ]$/;
   function text(t, lv) {
     const s = String(t || ""), ch = [...s][0] || "";
-    if (!lv || !INI.test(ch)) return esc(s);
+    if (!lv || NOINI.has(lv) || !INI.test(ch)) return esc(s);
     return `<span class="ill-ini">${esc(ch)}</span>${esc(s.slice(ch.length))}`;
   }
   const cache = new Map();   // getekende randen op sleutel (maat + stand + kaart): bij elke draw van timeline.js zelfde string, geen rekenwerk
@@ -263,9 +449,10 @@ html :is(.tl-c, .tl-card).tl-ill[data-jc="6"] { --fg: #f1e6cc; --muted: #b9a888;
   function paint(root, keep) {
     inject();
     root.querySelectorAll("[data-jc]").forEach((el) => {
-      const W = el.offsetWidth, H = el.offsetHeight;
+      const lv = +el.dataset.jc, nw = lv >= 8;   // db/243: de nieuwe stijlen tekenen op het vlak binnen de rand
+      const W = (nw && el.clientWidth) || el.offsetWidth, H = (nw && el.clientHeight) || el.offsetHeight;
       if (!W || !H) return;
-      const hand = el.classList.contains("tl-card"), lv = +el.dataset.jc, seed = +el.dataset.jcs, cat = +el.dataset.jcc;
+      const hand = el.classList.contains("tl-card"), seed = +el.dataset.jcs, cat = +el.dataset.jcc;
       const key = `${lv}|${seed}|${cat}|${W}|${H}|${hand ? 1 : 0}`;
       const cur = el.querySelector(":scope > .tl-ills");
       if (cur && cur.dataset.k === key) return;
@@ -287,13 +474,13 @@ html :is(.tl-c, .tl-card).tl-ill[data-jc="6"] { --fg: #f1e6cc; --muted: #b9a888;
   function preview(style, cat = 1, suit = "⚔️", seed = 1429) {
     const lv = lvOf(style);
     return `<div class="jc-prev"><div class="tl-c${lv ? " tl-ill" : ""}"${lv ? attrs(seed, cat, lv) : ""}><span class="tl-y">1429</span>` +
-      `<span class="tl-s" aria-hidden="true">${esc(suit)}</span><span class="tl-t">${lv ? `<span class="ill-ini">B</span>` : ""}${SK(5)}</span></div></div>`;
+      `<span class="tl-s" aria-hidden="true">${esc(suit)}</span><span class="tl-t">${lv && !NOINI.has(lv) ? `<span class="ill-ini">B</span>` : ""}${SK(5)}</span></div></div>`;
   }
   function hero(style, cat = 1, suit = "⚔️") {
     const lv = lvOf(style) || 3;
     return `<div class="jc-hero"><div class="tl-handin"><div class="tl-back b2"></div><div class="tl-back b1"></div>` +
       `<div class="tl-card tl-ill"${attrs(1429, cat, lv)}><div class="tl-suit"><i aria-hidden="true">${esc(suit)}</i><i class="jc-sk jc-sk-cat"></i></div>` +
-      `<p class="tl-txt"><span class="ill-ini">B</span>${SK(4)}</p><span class="tl-q" aria-hidden="true">????</span></div></div></div>`;
+      `<p class="tl-txt">${NOINI.has(lv) ? "" : `<span class="ill-ini">B</span>`}${SK(4)}</p><span class="tl-q" aria-hidden="true">????</span></div></div></div>`;
   }
 
   return { lvOf, attrs, text, harvest, paint, preview, hero, inject, svg };

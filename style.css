@@ -4381,7 +4381,10 @@ html[data-theme="light"] {
 /* 🃏 de pin van Kroniekschrijver: een piepklein verlucht kaartje (balk in rood en blauw, goud randje) */
 .achv-cardpin { display: inline-block; width: 12px; height: 16px; border-radius: 2px; vertical-align: -2px; border: 1px solid #c9973a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   background: linear-gradient(90deg, transparent 1px, #b8364a 1px 2.5px, #2c4c9c 2.5px 4px, transparent 4px), linear-gradient(180deg, #fbf3dc, #ead7a8); }
-/* 🃏 onder de ladder: de drie kaartstijlen; nog niet verdiend = gedimd */
+/* 🃏 db/243: de pins van brons (Glas-in-lood: lood met gekleurd glas, een licht venster) en diamant (Ouroboros: perkament in een groene ring) */
+.achv-cardpin.cp-glass { border: 2px solid #2a2730; background: linear-gradient(90deg, #b3262f 0 1.5px, #e3a437 1.5px 3px, transparent 3px), linear-gradient(180deg, #f6f8f2, #dfe6dc); }
+.achv-cardpin.cp-ouro { border-color: #d4a640; background: linear-gradient(180deg, #fbf3dc, #ead7a8); box-shadow: inset 0 0 0 2px #4c8a3b, 0 1px 2px rgba(0, 0, 0, 0.45); }
+/* 🃏 onder de ladder: alle kaartstijlen, drie per rij (db/243: brons · de verluchte drie · diamant); nog niet verdiend = gedimd */
 .achv-cstyles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
 .achv-cstyle { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; min-width: 0; padding: 0.55rem 0.2rem 0.6rem; border-radius: 12px; background: var(--card-soft); text-align: center; }
 .achv-cstyle b { font-size: 0.8rem; }

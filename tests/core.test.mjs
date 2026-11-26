@@ -60,7 +60,7 @@ src += `
   ratingDeltaBadge, toEvent, computeStats, tlDaysForMe, TL_DAYS_KEY,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB, rewardsLookBlocks,
-  TL_CARDS_AT, CARD_STYLES, CARDS_KEY, cardsUnlocked, cardStyle, cardStyleActive, setCardStyle, TL_ACHV_KEYS, rewardsCardsHtml, achvCardStylesHtml, activateReward,
+  TL_CARDS_AT, CARD_STYLES, CARD_TIER, cardAt, cardStyleUnlocked, CARDS_KEY, cardsUnlocked, cardStyle, cardStyleActive, setCardStyle, TL_ACHV_KEYS, rewardsCardsHtml, achvCardStylesHtml, activateReward,
   getAchvPage: () => achvPage, setAchvPage: (p) => { achvPage = p; },
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
   botsOn, paceMerge, botRowHtml, botDayRowsHtml, botWeekRows, botBoardHtml, recapBetter, dailyTableHtml, lbNameCell, DAILY_BOTS_DUELS, recapBotCardHtml,
@@ -5762,59 +5762,95 @@ test("⚔️ duel-prestaties (db/224) — Duellist + drie trofeeën, beloningen 
 
 
 // ── 🃏 Kroniekschrijver en de kaartstijlen (db/240) ─────────────────────────────────────────────────────────────────────────────
-test("🃏 Kroniekschrijver (db/240) — ladder op de Timeline-pagina, de drie kaartstijlen samen op platina, eigen tab in de kluis, alleen ingelogd", () => {
+test("🃏 Kroniekschrijver (db/240 + db/243) — ladder op de Timeline-pagina, Glas-in-lood op brons, de verluchte drie op platina, Ouroboros op diamant", () => {
   const s = T.ACHV_SERIES.find((x) => x.key === "tl_cards");
   assert.ok(s && s.authOnly && s.tl && s.art === "quill", "de ladder bestaat, alleen ingelogd, op de Timeline-pagina");
   assert.deepEqual(s.steps, [50, 250, 750, 1500, 3000, 6000]);
-  assert.equal(s.steps[s.cards.at], T.TL_CARDS_AT, "de kaartstijlen hangen aan platina = TL_CARDS_AT (de rij cards_ill in rewards)");
+  assert.deepEqual(s.cards, [0, 3, 4], "kaartstijlen op brons, platina en diamant; obsidiaan blijft vrij");
+  assert.deepEqual(T.CARD_STYLES, ["off", "glass", "book", "dragons", "black", "ouro"], "van laag naar hoog");
+  assert.deepEqual(T.CARD_STYLES.slice(1).map(T.cardAt), [50, 1500, 1500, 1500, 3000], "zoveel kaarten kost elke stijl");
+  assert.deepEqual([...new Set(Object.values(T.CARD_TIER))].sort(), s.cards, "elke trede met een stijl staat in cards, en andersom");
+  assert.equal(T.cardAt("book"), T.TL_CARDS_AT, "de verluchte drie = platina = TL_CARDS_AT (de rij cards_ill)");
   assert.equal(T.TL_CARDS_AT, 1500);
   assert.deepEqual(T.TL_ACHV_KEYS, T.ACHV_SERIES.filter((x) => x.tl).map((x) => x.key), "TL_ACHV_KEYS = de Timeline-ladders");
   assert.equal(T.achvNormalize({}).tl_cards, 0, "zonder serverwaarde: 0");
   assert.equal(T.achvNormalize({ tl_cards: 1503 }).tl_cards, 1503);
-  // de beloning: één rij, "Zet aan" = het Getijdenboek
-  assert.equal(T.REWARDS.cards_ill.cat, "cards");
-  assert.ok(T.REWARD_ORDER.includes("cards_ill"), "cards_ill in REWARD_ORDER");
+  // de beloningen: één rij per trede (db/240 cards_ill, db/243 cards_glass en cards_ouro), elk met de stijl die "Zet aan" aanzet
+  const CARD_KEYS = { cards_glass: "glass", cards_ill: "book", cards_ouro: "ouro" };
+  for (const [key, style] of Object.entries(CARD_KEYS)) {
+    assert.equal(T.REWARDS[key].cat, "cards", key);
+    assert.equal(T.REWARDS[key].style, style, `${key} zet ${style} aan`);
+    assert.ok(T.REWARD_ORDER.includes(key), `${key} in REWARD_ORDER`);
+    assert.ok(T.rewardName(key) && !/^card_style_|^reward_/.test(T.rewardName(key)), `${key} heeft een naam`);
+  }
+  assert.deepEqual(Object.keys(T.REWARDS).filter((k) => T.REWARDS[k].cat === "cards").sort(), Object.keys(CARD_KEYS).sort(), "geen andere kaart-beloningen");
+  assert.ok(T.REWARD_ORDER.indexOf("cards_glass") < T.REWARD_ORDER.indexOf("cards_ill") && T.REWARD_ORDER.indexOf("cards_ill") < T.REWARD_ORDER.indexOf("cards_ouro"), "zeldzamer = later in de wachtrij");
   assert.equal(T.rewardName("cards_ill"), T.t("reward_cards_name"));
+  assert.equal(T.rewardName("cards_glass"), T.t("card_style_glass"));
   assert.equal(T.RW_SECT_TAB.cards, "look", "de pop-up springt naar de tab Uiterlijk");
-  assert.deepEqual(T.CARD_STYLES, ["off", "book", "dragons", "black"]);
   const was = T.auth.user;
   try {
     T.auth.user = { uid: "u" };
-    const top = T.achvNormalize({ tl_cards: 1500 }), under = T.achvNormalize({ tl_cards: 1499 });
-    assert.ok(T.cardsUnlocked(top) && !T.cardsUnlocked(under), "platina: precies 1500");
-    T.setAchv(top);
-    assert.ok(T.earnedRewardKeys().includes("cards_ill"), "op de drempel: de beloning");
-    assert.ok(T.rewardsTabsAvailable(top).includes("look") && T.rewardsLookBlocks(top).includes("cards"), "en de tab Uiterlijk met het kaartenblok");
-    T.setAchv(under);
-    assert.ok(!T.earnedRewardKeys().includes("cards_ill") && !T.rewardsTabsAvailable(under).includes("look"), "net eronder: nog niets");
-    // het kaartje: alleen op de stap die platina haalt de knop naar de kluis
-    assert.equal(T.achvSeriesItem(top, s, 4, 3).cards, true, "goud → platina");
-    assert.equal(T.achvSeriesItem(top, s, 3, 2).cards, false, "zilver → goud: nog geen kaartstijlen");
-    assert.equal(T.achvSeriesItem(T.achvNormalize({ tl_cards: 3000 }), s, 5, 4).cards, false, "platina → diamant: die had je al");
-    assert.equal(T.achvSnapshot(top).tl_cards, 4, "de snapshot telt de trede");
-    // Prestaties: de Timeline-pagina met de ladder (één keer) en de strook met de drie stijlen
+    const A = (n) => T.achvNormalize({ tl_cards: n });
+    assert.ok(!T.cardsUnlocked(A(49)) && T.cardsUnlocked(A(50)), "het kluisblok bestaat vanaf brons");
+    assert.ok(T.cardStyleUnlocked(A(50), "glass") && !T.cardStyleUnlocked(A(50), "book") && T.cardStyleUnlocked(A(0), "off"));
+    assert.ok(T.cardStyleUnlocked(A(1500), "black") && !T.cardStyleUnlocked(A(1500), "ouro") && T.cardStyleUnlocked(A(3000), "ouro"));
+    const earned = (n) => { T.setAchv(A(n)); return T.earnedRewardKeys().filter((k) => k.startsWith("cards_")); };
+    assert.deepEqual(earned(49), [], "net onder brons: niets");
+    assert.deepEqual(earned(50), ["cards_glass"], "brons: Glas-in-lood");
+    assert.deepEqual(earned(1499), ["cards_glass"]);
+    assert.deepEqual(earned(1500), ["cards_glass", "cards_ill"], "platina: de verluchte drie erbij");
+    assert.deepEqual(earned(3000), ["cards_glass", "cards_ill", "cards_ouro"], "diamant: Ouroboros erbij");
+    T.setAchv(A(50));
+    assert.ok(T.rewardsTabsAvailable(A(50)).includes("look") && T.rewardsLookBlocks(A(50)).includes("cards"), "brons: de tab Uiterlijk met het kaartenblok");
+    assert.ok(!T.rewardsTabsAvailable(A(49)).includes("look"), "net eronder: nog niets");
+    // "Zet aan" in de pop-up zet de stijl van die beloning aan
+    T.activateReward("cards_glass");
+    assert.equal(T.cardStyle(), "glass");
+    T.activateReward("cards_ouro");
+    assert.equal(T.cardStyle(), "ouro");
+    T.activateReward("cards_ill");
+    assert.equal(T.cardStyle(), "book");
+    // het kaartje: alleen op de stap die de trede haalt, met de stijl(en) van die trede
+    assert.deepEqual(T.achvSeriesItem(A(50), s, 1, 0).cards, ["glass"], "→ brons: Glas-in-lood");
+    assert.equal(T.achvSeriesItem(A(300), s, 2, 1).cards, null, "brons → zilver: geen stijl");
+    assert.deepEqual(T.achvSeriesItem(A(1500), s, 4, 3).cards, ["book", "dragons", "black"], "goud → platina: de verluchte drie");
+    assert.deepEqual(T.achvSeriesItem(A(3000), s, 5, 4).cards, ["ouro"], "platina → diamant: Ouroboros");
+    assert.equal(T.achvSeriesItem(A(6000), s, 6, 5).cards, null, "diamant → obsidiaan: (nog) niets");
+    assert.deepEqual(T.achvSeriesItem(A(1600), s, 4, 0).cards, ["book", "dragons", "black"], "twee treden in één klap: de hoogste wint");
+    assert.equal(T.achvSnapshot(A(1500)).tl_cards, 4, "de snapshot telt de trede");
+    // Prestaties: de Timeline-pagina met de ladder (één keer), een pin per trede met een stijl, en de strook met vijf stijlen
     const body = { innerHTML: "", querySelectorAll: () => [] };
-    T.renderAchvBoard(body, under);
+    T.renderAchvBoard(body, A(1499));
     const h = body.innerHTML, tl = h.slice(h.indexOf('data-achv-panel="timeline"'));
     assert.equal((h.match(/data-key="tl_cards"/g) || []).length, 1, "Kroniekschrijver één keer");
     assert.ok(tl.includes('data-key="tl_cards"'), "op de pagina Timeline");
-    assert.equal((tl.match(/class="achv-cstyle locked"/g) || []).length, 3, "net onder platina: drie gedimde stijlen");
-    assert.ok(tl.includes(T.t("achv_next")("1", T.achvTierName(3))), "met wat er nog voor nodig is");
-    T.renderAchvBoard(body, top);
-    assert.equal((body.innerHTML.match(/class="achv-cstyle"/g) || []).length, 3, "op platina: drie stijlen in kleur");
+    assert.deepEqual([...tl.matchAll(/achv-cardpin cp-(\w+)/g)].map((m) => m[1]), ["glass", "book", "ouro"], "pins op brons, platina en diamant");
+    assert.equal((tl.match(/class="achv-cstyle"/g) || []).length, 1, "1499: Glas-in-lood in kleur");
+    assert.equal((tl.match(/class="achv-cstyle locked"/g) || []).length, 4, "en vier gedimd");
+    assert.ok(tl.includes(T.t("achv_next")("1", T.achvTierName(3))), "per stijl wat er nog voor nodig is: 1 tot platina");
+    assert.ok(["1.501", "1501", "1,501"].some((n) => tl.includes(T.t("achv_next")(n, T.achvTierName(4)))), "…en 1.501 tot diamant");
+    T.renderAchvBoard(body, A(3000));
+    assert.equal((body.innerHTML.match(/class="achv-cstyle"/g) || []).length, 5, "op diamant: alle vijf in kleur");
     assert.ok(body.innerHTML.includes('data-achv-tab="jaardle"') && body.innerHTML.includes('data-achv-tab="duels"') && body.innerHTML.includes('data-achv-tab="timeline"'), "drie tabs");
-    // de tab in de kluis: Gewoon en de drie stijlen, de gekozen aangevinkt
-    localStorage.setItem(T.CARDS_KEY, "dragons");
-    const k = T.rewardsCardsHtml();
-    for (const id of T.CARD_STYLES) assert.ok(k.includes(`data-cards="${id}"`), id);
-    assert.ok(k.includes('aria-checked="true" data-cards="dragons"'), "de keuze staat aan");
+    // de kluis: Gewoon en alleen wat je verdiend hebt, de gekozen aangevinkt
+    localStorage.setItem(T.CARDS_KEY, "glass");
+    const k50 = T.rewardsCardsHtml(A(50));
+    assert.deepEqual([...k50.matchAll(/data-cards="(\w+)"/g)].map((m) => m[1]), ["off", "glass"], "brons: Gewoon en Glas-in-lood");
+    assert.ok(k50.includes('aria-checked="true" data-cards="glass"'), "de keuze staat aan");
+    assert.deepEqual([...T.rewardsCardsHtml(A(3000)).matchAll(/data-cards="(\w+)"/g)].map((m) => m[1]), T.CARD_STYLES, "diamant: alles");
     // wat Timeline tekent: anoniem gewoon; verdiend = de keuze; niet verdiend = gewoon
-    T.setAchv(top);
+    localStorage.setItem(T.CARDS_KEY, "dragons");
+    T.setAchv(A(1500));
     assert.equal(T.cardStyleActive(), "dragons");
-    T.setAchv(under);
+    T.setAchv(A(1499));
     assert.equal(T.cardStyleActive(), "off", "(nog) niet verdiend");
+    localStorage.setItem(T.CARDS_KEY, "glass");
+    assert.equal(T.cardStyleActive(), "glass", "Glas-in-lood heb je op 1499 wel");
+    localStorage.setItem(T.CARDS_KEY, "ouro");
+    assert.equal(T.cardStyleActive(), "off", "Ouroboros nog niet");
     T.setAchv(null);
-    assert.equal(T.cardStyleActive(), "dragons", "zonder verse prestaties: de keuze van dit toestel");
+    assert.equal(T.cardStyleActive(), "ouro", "zonder verse prestaties: de keuze van dit toestel");
     localStorage.setItem(T.CARDS_KEY, "<script>");
     assert.equal(T.cardStyle(), "off", "onzin = gewoon");
     T.SYNCED_PREFS.cards.set("black");
@@ -5823,7 +5859,7 @@ test("🃏 Kroniekschrijver (db/240) — ladder op de Timeline-pagina, de drie k
     assert.equal(T.cardStyle(), "black", "onbekende waarde van buiten: genegeerd");
     T.auth.user = null;
     assert.equal(T.cardStyleActive(), "off", "anoniem: gewoon");
-    assert.ok(!T.rewardsTabsAvailable(top).includes("look"), "anoniem: geen tab");
+    assert.ok(!T.rewardsTabsAvailable(A(3000)).includes("look"), "anoniem: geen tab");
   } finally { T.auth.user = was; T.setAchv(null); localStorage.removeItem(T.CARDS_KEY); }
 });
 
