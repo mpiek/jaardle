@@ -292,3 +292,32 @@ test("📅 🌍 iedereen vandaag: vanaf 2 spelers, uit 'all' bij het bord (db/24
   // 🃏 na de daily ook het kaartje van Kroniekschrijver (de server telt de daily-kaarten mee)
   assert.match(SRC, /if \(res && !quiet && H\.tlAchv && H\.user && H\.user\(\)\) \{/);
 });
+
+test("🃏 schudden bij elke nieuwe start: drie manieren, willekeurig; blijft schudden tot de stapel er is; een tik = klaar; minder beweging = zoals vroeger", () => {
+  const { CSS } = core();
+  // drie manieren, nooit twee keer dezelfde achter elkaar
+  assert.match(SRC, /const SHUF = \{ riffle: shRiffle, fan: shFan, cut: /);
+  assert.match(SRC, /const vs = Object\.keys\(SHUF\)\.filter\(\(v\) => v !== shufLast\)/);
+  // niet bij minder beweging, een dicht scherm of als er al geschud wordt
+  assert.match(SRC, /if \(!root \|\| root\.hidden \|\| SH \|\| reduced\(\) \|\| !Element\.prototype\.animate\) return null;/);
+  // start(): eerst pakken wat er ligt, dan pas het oude spel weg; de stapel laadt terwijl er geschud wordt
+  assert.match(SRC, /const sh = shufGrab\(\);[^\n]*\n\s+G = null; GF = null;\n\s+loading = true;\n\s+draw\(\);\n\s+if \(sh\) shufRun\(sh\);/);
+  assert.match(SRC, /if \(!shufDeal\(sh, G\)\) draw\(\{ deal: !G\.done \}\);/);
+  assert.match(SRC, /nextDeck = null;\n\s+shufStop\(sh\);\n\s+if \(!G\) draw\(\{ error: true \}\);/);
+  // alleen een vers potje wordt gedeeld (een halve of gespeelde daily niet)
+  assert.match(SRC, /if \(g\.done \|\| g\.moves\.length\) \{ shufStop\(me\); return false; \}/);
+  // zolang hij laadt: een lege tafel i.p.v. "Kaarten schudden…"; hand en tafel onzichtbaar tot de kaarten liggen
+  assert.match(SRC, /const html = G \? gameHtml\(G, o\) : SH && !o\.error \? gameHtml\(SHELL\(\), \{\}\) : msgHtml/);
+  assert.match(SRC, /\$\{SH \? " tl-pre" : ""\}/);
+  assert.match(CSS, /\.tl-pre \.tl-handin > \*, \.tl-pre \.tl-cue, \.tl-pre \.tl-strip \{ visibility: hidden; \}/);
+  // blijft schudden tot de stapel er is; met een tik wacht hij stil (geen lus zonder pauze)
+  assert.match(SRC, /if \(me\.ok === null\) \{ if \(me\.skip\) await me\.ready; else await shWait\(me, 60\); \}/);
+  // een tik in het scherm of op het schuifje = meteen klaar
+  assert.match(SRC, /if \(SH\) \{ shufSkip\(\); return; \}   \/\/ 🃏 een tik tijdens het schudden/);
+  assert.match(SRC, /function setMode\(mode\) \{\n\s+if \(SH\) \{ shufSkip\(\); return; \}/);
+  // de les van 26/11: een opacity-animatie maakt de 3D plat (dan geen rug); na het invagen weg
+  assert.match(SRC, /deck\.forEach\(\(e\) => \{ e\.getAnimations\(\)\.forEach\(\(a\) => \{ try \{ a\.commitStyles\(\); \} catch \(x\) \{\} a\.cancel\(\); \}\);/);
+  // de volgende kaart komt van de stapel: van de plek van b1, met de rug naar je toe, en draait om
+  assert.match(CSS, /@keyframes tl-deal \{ 0% \{ transform: perspective\(800px\) translate\(9px, 5px\) rotate\(4deg\) rotateY\(180deg\); \}/);
+  assert.match(CSS, /\.tl-card\.tl-deal::before \{ display: none; \}/, "minder beweging: geen rug over de kaart");
+});

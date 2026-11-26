@@ -262,8 +262,37 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-q { align-self: center; padding: 0.2rem 0.85rem 0.2rem 1.1rem; border-radius: 999px; border: 1.5px dashed color-mix(in srgb, var(--muted) 70%, transparent);
   color: var(--muted); font-weight: 800; letter-spacing: 0.3em; }
 .tl-card.tl-drag { z-index: 30; cursor: grabbing; box-shadow: 0 22px 40px -12px rgba(0, 0, 0, 0.6); transition: none; }
-.tl-card.tl-deal { animation: tl-deal 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-@keyframes tl-deal { from { transform: translate(1.2rem, 0.5rem) rotate(8deg); opacity: 0; } to { transform: rotate(-1.5deg); opacity: 1; } }
+/* 🃏 de volgende kaart wordt van de stapel gepakt (26/11, zijn "leuk als die van de stapel gepakt wordt"): de bovenste rug (b1) komt naar
+   voren en draait om; ::before is de rugzijde tot de kaart op zijn kant staat. De ruggen eronder schuiven één plek op (tl-shift). */
+.tl-card.tl-deal { animation: tl-deal 0.44s cubic-bezier(0.3, 0.7, 0.3, 1) both; }
+.tl-card.tl-deal::before { content: ""; position: absolute; inset: -1px; z-index: 5; border-radius: inherit; pointer-events: none; background-color: var(--tl-back);
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px);
+  box-shadow: inset 0 0 0 5px var(--tl-back-2), inset 0 0 0 6.5px rgba(255, 255, 255, 0.5); animation: tl-deal-back 0.44s linear both; }
+@keyframes tl-deal { 0% { transform: perspective(800px) translate(9px, 5px) rotate(4deg) rotateY(180deg); }
+  50% { transform: perspective(800px) translate(3px, -12px) rotate(1deg) rotateY(90deg); } 100% { transform: perspective(800px) rotate(-1.5deg) rotateY(0deg); } }
+@keyframes tl-deal-back { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.tl-back.b1.tl-shift { animation: tl-b1 0.44s ease both; }
+.tl-back.b2.tl-shift { animation: tl-b2 0.44s ease both; }
+@keyframes tl-b1 { from { transform: translate(17px, 10px) rotate(8deg); } to { transform: translate(9px, 5px) rotate(4deg); } }
+@keyframes tl-b2 { from { transform: translate(26px, 16px) rotate(12deg); opacity: 0; } to { transform: translate(17px, 10px) rotate(8deg); opacity: 1; } }
+/* 🃏 schudden bij een nieuwe start (shufRun): het nieuwe spel staat er al, maar hand en tafel wachten (tl-pre) tot de kaarten uit de
+   vaste laag (.tl-shuf) op hun plek liggen; dan vagen de gaten, de lijn en "nog" in en komen je hartjes terug (tl-in) */
+.tl-shuf { position: fixed; inset: 0; z-index: 50; overflow: hidden; pointer-events: none; }
+.tl-sc { position: absolute; transform-style: preserve-3d; will-change: transform; }
+.tl-sc > div { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.tl-sf > * { width: 100% !important; height: 100% !important; margin: 0 !important; transform: none !important; animation: none !important; box-shadow: var(--shadow-pop); }
+.tl-sb { transform: rotateY(180deg); border-radius: 15px; background-color: var(--tl-back);
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px);
+  box-shadow: inset 0 0 0 5px var(--tl-back-2), inset 0 0 0 6.5px rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.35), 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
+.tl-sg { position: absolute; margin: 0 !important; }
+.tl-sf .tl-deal::before { display: none; }
+.tl-pre .tl-handin > *, .tl-pre .tl-cue, .tl-pre .tl-strip { visibility: hidden; }
+.tl-in .tl-slot, .tl-in .tl-strip::before, .tl-in .tl-left, .tl-in .tl-cue { animation: tl-fin 0.3s ease-out both; }
+@keyframes tl-fin { from { opacity: 0; } }
+.tl-in .tl-heart > span { animation: tl-hpop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
+.tl-in .tl-heart:nth-child(2) > span { animation-delay: 0.07s; }
+.tl-in .tl-heart:nth-child(3) > span { animation-delay: 0.14s; }
+@keyframes tl-hpop { from { transform: scale(0.3); opacity: 0.3; } }
 .tl-cue { margin: 0; text-align: center; font-size: 0.8rem; color: var(--muted); }
 .tl-cue.gone { visibility: hidden; }
 .tl-msg { display: grid; place-items: center; gap: 0.75rem; min-height: 12.2rem; text-align: center; color: var(--muted); }
@@ -503,7 +532,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
 @media (prefers-reduced-motion: reduce) { .lb-live { animation: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .tl-c.tl-reveal, .tl-c.tl-reveal .tl-y, .tl-card.tl-deal, .tl-bump, .tl-float, .tl-c .tl-v { animation: none !important; }
+  .tl-c.tl-reveal, .tl-c.tl-reveal .tl-y, .tl-card.tl-deal, .tl-bump, .tl-float, .tl-c .tl-v, .tl-back.tl-shift { animation: none !important; }
+  .tl-card.tl-deal::before { display: none; }
   .tl-slot { transition: none; }
   .tl-streak.tl-lvl, .tl-streak.tl-lvl .flm > :first-child, .tl-streak.tl-tick .flm > :first-child, .tl-float.hot b, .tl-float.hot b span,
   .tl-tb .lb-row.tl-up { animation: none !important; }
@@ -887,7 +917,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
   const suit = (c) => SUIT[c] || "🗓️";
   const frontHtml = (c, deal) => `<div class="tl-card tl-front${deal ? " tl-deal" : ""}${LVC ? " tl-ill" : ""}" tabindex="0" aria-label="${esc(L.newCard + ": " + c.t)}"${LVC ? CX.attrs(cardSeed(c), c.c, LVC) : ""}>` +
     `<div class="tl-suit"><i aria-hidden="true">${suit(c.c)}</i>${esc(L.cats[(c.c || 0) - 1] || "")}</div><p class="tl-txt">${LVC ? CX.text(c.t, LVC) : esc(c.t)}</p><span class="tl-q" aria-hidden="true">????</span></div>`;
-  const handHtml = (s, o) => `<div class="tl-hand"><div class="tl-handin"><div class="tl-back b2"></div><div class="tl-back b1"></div>${s.cur ? frontHtml(s.cur, o.deal) : ""}` +
+  const handHtml = (s, o) => `<div class="tl-hand"><div class="tl-handin"><div class="tl-back b2${o.deal ? " tl-shift" : ""}"></div><div class="tl-back b1${o.deal ? " tl-shift" : ""}"></div>${s.cur ? frontHtml(s.cur, o.deal) : ""}` +
     `<span class="tl-left">${esc(L.left)}<b>${s.pile.length}</b></span></div></div><p class="tl-cue${s.marks.length ? " gone" : ""}">${esc(L.cue)}</p>`;
   // de kaart in je hand heeft een vaste hoogte (--tl-hh), dus de tekst past zich aan de kaart aan i.p.v. andersom: eerst een paar stapjes
   // kleiner, dan zonder ???? en nog wat kleiner, en past hij dan nog niet (de allerlangste teksten van vóór 1500, tot ±500 tekens) dan scrolt
@@ -999,7 +1029,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       passed.forEach((r) => r.animate([{ transform: `translateY(${-h}px)` }, { transform: "none" }], opt));
     } catch (e) {}
   }
-  const gameHtml = (s, o = {}) => `<div class="tl-game${LVC ? " tl-ill-on" : ""}"${o.el ? ` style="--el:${Math.round(o.el)}ms"` : ""}>${hudHtml(s, o)}${s.done ? endHtml(s) : handHtml(s, o)}${tableHtml(s, o)}</div>`;
+  const gameHtml = (s, o = {}) => `<div class="tl-game${LVC ? " tl-ill-on" : ""}${SH ? " tl-pre" : ""}"${o.el ? ` style="--el:${Math.round(o.el)}ms"` : ""}>${hudHtml(s, o)}${s.done ? endHtml(s) : handHtml(s, o)}${tableHtml(s, o)}</div>`;
   // 🃏 db/240: de kaartstijl die je in de kluis koos (H.cards: off/book/dragons/black, alleen ingelogd en verdiend). Het tekenen zit in /timeline-ill.js
   // (CX, lui via H.cardsFx): zolang dat laadt gewone kaarten, daarna één nieuwe draw. LVC = de tekenstand van deze draw (0 = gewoon).
   let CX = null, LVC = 0, cxLoading = false;
@@ -1078,7 +1108,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (m && o.reveal == null && el < 1800) o = { ...o, reveal: m.k, ct: m.ct, float: m.float, lvl: m.lvl && el < 900, el };
     LVC = G ? cardsLevel() : 0;
     const keep = LVC && game ? CX.harvest(game) : null;   // 🃏 de getekende randen verhuizen naar de nieuwe kaarten i.p.v. opnieuw te worden ontleed
-    const html = G ? gameHtml(G, o) : msgHtml(o.error ? L.error : L.loading, !!o.error);
+    const html = G ? gameHtml(G, o) : SH && !o.error ? gameHtml(SHELL(), {}) : msgHtml(o.error ? L.error : L.loading, !!o.error);
     if (game) game.outerHTML = html; else root.insertAdjacentHTML("beforeend", html);
     fitHand();
     if (LVC) CX.paint(root, keep);
@@ -1105,9 +1135,11 @@ body[data-tlhome] #mode-tabs { display: flex; }
   // niet speelde, anders bij een vrije run. Anders = een nieuwe vrije run (🎲, Nog een keer, ↻, Opnieuw na een fout).
   async function start(first) {
     if (!first) { MODE = "free"; syncSeg(); }
+    const sh = shufGrab();   // 🃏 wat er lag gaat de stapel in, en er wordt al geschud terwijl de nieuwe stapel laadt
     G = null; GF = null;
     loading = true;
     draw();
+    if (sh) shufRun(sh);
     try {
       const deck = await (nextDeck || fetchDeck());
       nextDeck = null;
@@ -1119,10 +1151,11 @@ body[data-tlhome] #mode-tabs { display: flex; }
       if (first) MODE = GD && !GD.done ? "daily" : "free";
       if (MODE === "daily" && GD) G = GD; else { MODE = "free"; G = GF; }
       ensureKop(); center();
-      draw({ deal: !G.done });
+      if (!shufDeal(sh, G)) draw({ deal: !G.done });
       seen(G);
     } catch (e) {
       nextDeck = null;
+      shufStop(sh);
       if (!G) draw({ error: true });
     }
     loading = false;
@@ -1138,11 +1171,13 @@ body[data-tlhome] #mode-tabs { display: flex; }
   const syncSeg = () => document.querySelectorAll("#kop-tl .tab[data-tlmode]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tlmode === MODE)));
   // 📅 | 🎲 in de kop (en 🎲 Nieuw spel op het eindscherm van de daily). Niet terwijl je sleept of een kaart onderweg is.
   function setMode(mode) {
+    if (SH) { shufSkip(); return; }
     if (drag || (G && G.phase !== "idle")) return;
     if (mode === "daily") {
       if (!GD || MODE === "daily") return;
+      const sh = !GD.done && !GD.moves.length ? shufGrab() : null;
       MODE = "daily"; syncSeg(); G = GD;
-      draw({ deal: !GD.done && !GD.moves.length });
+      if (shufDeal(sh, GD)) shufRun(sh); else draw({ deal: !GD.done && !GD.moves.length });
       if (GD.done) { const row = root.querySelector(".tl-row"); if (row) row.scrollLeft = 0; }
       seen(GD);
       gc("timeline-tab-daily", "Timeline: daily tab");
@@ -1152,7 +1187,13 @@ body[data-tlhome] #mode-tabs { display: flex; }
     MODE = "free"; syncSeg();
     gc("timeline-tab-free", "Timeline: new game tab");
     // je vrije run ligt er nog: daar verder. Een stapel zonder zetten van meer dan 6 uur oud wordt vers (de server telt een run na 12 uur niet meer).
-    if (GF && !GF.done && !(GF.moves.length === 0 && Date.now() - (GF.wall || 0) > 6 * 36e5)) { G = GF; draw({ deal: !GF.moves.length }); seen(GF); return; }
+    if (GF && !GF.done && !(GF.moves.length === 0 && Date.now() - (GF.wall || 0) > 6 * 36e5)) {
+      const sh = !GF.moves.length ? shufGrab() : null;
+      G = GF;
+      if (shufDeal(sh, GF)) shufRun(sh); else draw({ deal: !GF.moves.length });
+      seen(GF);
+      return;
+    }
     if (loading) { G = null; draw(); return; }   // de stapel is onderweg: het laadscherm tot hij er is (start() zet hem neer)
     start();
   }
@@ -1221,6 +1262,191 @@ body[data-tlhome] #mode-tabs { display: flex; }
     } catch (e) {}
     fl.remove();
   }
+  // ── 🃏 schudden bij elke nieuwe start (26/11, zijn "waarom niet alle 3 maken en gewoon random switcht ja altijd schudden bij starten";
+  // mockup https://claude.ai/artifact/6DfCspfSrsq2aqaYCm8T5j). Wat er lag gaat de stapel in: de kaarten op tafel vliegen terug (of worden
+  // opzij geveegd), je hand en het eindscherm ook. De stapel wordt geschud, elke keer anders: riffel, waaier of afnemen. Zolang de nieuwe
+  // stapel nog laadt, blijft hij schudden; "Kaarten schudden…" zie je niet meer. Dan delen: de beginkaart open op tafel, de bovenste draait
+  // om in je hand. ±1–1,25 s; een tik = meteen klaar; minder beweging = zoals vroeger.
+  // Het nieuwe spel staat er al onder: met hand en tafel onzichtbaar (tl-pre), of zolang de stapel laadt een lege tafel (SHELL). De kaarten
+  // vliegen in een vaste laag in het scherm (.tl-shuf, die gaat mee dicht met de pagina).
+  let SH = null, shufLast = "";
+  const SHELL = () => ({ pile: [], line: [], cur: null, lives: 3, n: 0, streak: 0, marks: [], moves: [], done: false, phase: "busy", chase: null, pass: null });
+  const ST = (x = 0, y = 0, r = 0, ry = 180, s = 1) => `perspective(900px) translate(${x}px, ${y}px) rotate(${r}deg) rotateY(${ry}deg) scale(${s})`;
+  const sy = (i) => -i * 0.9;   // de dikte van de stapel
+  const box = (r) => ({ left: r.x + "px", top: r.y + "px", width: r.w + "px", height: r.h + "px" });
+  const SC = 0.82;   // afnemen: de stapel iets kleiner, dan blijft hij binnen het scherm
+  // pak wat er nu ligt, vóórdat het nieuwe spel eronder komt. null = niet schudden (minder beweging, scherm dicht, er wordt al geschud)
+  function shufGrab() {
+    if (!root || root.hidden || SH || reduced() || !Element.prototype.animate) return null;
+    let lay = root.querySelector(":scope > .tl-shuf");
+    if (!lay) {
+      lay = document.createElement("div");
+      lay.className = "tl-shuf"; lay.setAttribute("aria-hidden", "true"); lay.inert = true;
+      root.appendChild(lay);
+    }
+    const P = lay.getBoundingClientRect(), rel = (el) => { const r = el.getBoundingClientRect(); return { x: r.left - P.left, y: r.top - P.top, w: r.width, h: r.height }; };
+    const src = [], row = root.querySelector(".tl-row"), rr = row && row.getBoundingClientRect();
+    if (rr) root.querySelectorAll(".tl-row .tl-c").forEach((e) => {
+      const r = e.getBoundingClientRect();
+      if (r.width && r.right > rr.left + 8 && r.left < rr.right - 8 && src.length < 8) src.push({ r: rel(e), html: e.outerHTML });
+    });
+    const hf = root.querySelector(".tl-card.tl-front"), end = root.querySelector(".tl-end");
+    if (hf && hf.offsetWidth) src.push({ r: rel(hf.parentNode), html: hf.outerHTML, hand: true });
+    const vs = Object.keys(SHUF).filter((v) => v !== shufLast), v = vs[Math.floor(Math.random() * vs.length)];
+    shufLast = v;
+    const me = { v, lay, src, end: end && end.offsetWidth ? { r: rel(end), html: end.outerHTML } : null, skip: false, dead: false, pend: [], g: null, ok: null, z: 20 };
+    me.ready = new Promise((res) => { me.go = (ok) => { if (me.ok === null) { me.ok = !!ok; res(me.ok); } }; });
+    SH = me;
+    return me;
+  }
+  // het nieuwe potje ligt er: vers (nog niets gelegd) = delen; anders stoppen. false = niet geschud, de aanroeper tekent zelf.
+  function shufDeal(me, g) {
+    if (!me || me.dead) return false;
+    if (g.done || g.moves.length) { shufStop(me); return false; }
+    g.phase = "busy"; me.g = g;
+    draw({});
+    me.go(true);
+    return true;
+  }
+  const shWait = (me, t) => new Promise((res) => {
+    if (me.skip) { res(); return; }
+    const f = () => { clearTimeout(id); res(); };
+    const id = setTimeout(() => { me.pend = me.pend.filter((p) => p !== f); res(); }, t);
+    me.pend.push(f);
+  });
+  function shAn(me, el, kf, o = {}) {
+    let a;
+    try { a = el.animate(kf, { easing: o.easing || "ease", duration: o.duration || 300, delay: o.delay || 0, fill: "both" }); } catch (e) { return Promise.resolve(); }
+    if (me.skip) a.finish();
+    return a.finished.catch(() => {});
+  }
+  const shMv = (me, e, to, o) => { const p = shAn(me, e, [{ transform: e._t }, { transform: to }], o); e._t = to; return p; };
+  function shCard(me, r, face, t) {
+    const d = document.createElement("div");
+    d.className = "tl-sc"; Object.assign(d.style, box(r)); d.style.transform = t; d._t = t;
+    d.innerHTML = `<div class="tl-sf">${face || ""}</div><div class="tl-sb"></div>`;
+    me.lay.appendChild(d);
+    return d;
+  }
+  // een tik: alles wat beweegt meteen op zijn eind, en geen pauzes meer (laadt de stapel nog, dan wacht de stapel stil)
+  function shufSkip() {
+    const me = SH;
+    if (!me || me.skip) return;
+    me.skip = true;
+    try { me.lay.getAnimations({ subtree: true }).forEach((a) => { try { a.finish(); } catch (e) {} }); } catch (e) {}
+    me.pend.splice(0).forEach((f) => f());
+  }
+  function shufStop(me) {
+    if (!me || me.dead) return;
+    me.dead = true; me.skip = true;
+    me.pend.splice(0).forEach((f) => f());
+    me.lay.textContent = "";
+    if (SH === me) SH = null;
+    if (me.g && me.g.phase === "busy") me.g.phase = "idle";
+    me.go(false);
+  }
+  function shufDone(me) {
+    const g = me.g;
+    shufStop(me);
+    if (g && G === g && root) { draw({}); const el = root.querySelector(".tl-game"); if (el) el.classList.add("tl-in"); }
+  }
+  // de drie manieren; deck = de stapel van onder naar boven, D = waar hij ligt. Geven de nieuwe volgorde.
+  async function shRiffle(me, deck, D) {   // twee helften naast elkaar; om en om valt de bovenste kaart van een helft op de nieuwe stapel
+    const h = deck.length >> 1, L = deck.slice(0, h), R = deck.slice(h), dx = D.w * 0.36, s = 0.72, ez = "cubic-bezier(.3,.7,.3,1)";
+    await Promise.all([...L.map((e, i) => shMv(me, e, ST(-dx, -6 + sy(i), -6, 180, s), { duration: 130, easing: ez })),
+      ...R.map((e, i) => shMv(me, e, ST(dx, -6 + sy(i), 6, 180, s), { duration: 130, easing: ez }))]);
+    const order = [];
+    for (let i = Math.max(L.length, R.length) - 1; i >= 0; i--) { if (L[i]) order.push(L[i]); if (R[i]) order.push(R[i]); }
+    await Promise.all(order.map((e, j) => shWait(me, j * 21).then(() => {
+      e.style.zIndex = String(++me.z);
+      const to = ST(0, sy(j), 0, 180, s), p = shAn(me, e, [{ transform: e._t }, { transform: ST(0, sy(j) - 7, 0, 180, s * 1.02), offset: 0.7 }, { transform: to }],
+        { duration: 110, easing: "cubic-bezier(.4,0,.4,1)" });
+      e._t = to;
+      return p;
+    })));
+    await Promise.all(order.map((e, j) => shAn(me, e, [{ transform: e._t }, { transform: ST(0, sy(j) - 3, 0, 180, s * 1.03), offset: 0.4 }, { transform: e._t }], { duration: 80 })));
+    return order;
+  }
+  async function shFan(me, deck) {   // één keer open als een waaier (zoals de tegels onder de deur) en in een andere volgorde dicht
+    const n = deck.length, span = 34, order = deck.slice();
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    deck.forEach((e) => { e.style.transformOrigin = "50% 120%"; });
+    await Promise.all(deck.map((e, i) => shMv(me, e, ST(0, sy(i), -span / 2 + (span * i) / (n - 1)), { duration: 180, delay: i * 6, easing: "cubic-bezier(.2,.8,.3,1)" })));
+    await shWait(me, 30);
+    order.forEach((e, j) => { e.style.zIndex = String(j + 1); });
+    await Promise.all(deck.map((e, i) => shMv(me, e, ST(0, sy(order.indexOf(e))), { duration: 170, delay: Math.abs(i - (n - 1) / 2) * 8, easing: "cubic-bezier(.6,0,.35,1)" })));
+    deck.forEach((e) => { e.style.transformOrigin = ""; });
+    return order;
+  }
+  async function shCut(me, deck, D, k, dir) {   // afnemen: de bovenste k opzij en eronder (zijwaarts: omhoog bedekte het de balk)
+    const n = deck.length, top = deck.slice(n - k), bot = deck.slice(0, n - k), ez = "cubic-bezier(.3,.7,.3,1)";
+    await Promise.all([...top.map((e, i) => shMv(me, e, ST(dir * D.w * 0.27, -D.h * 0.15 + sy(n - k + i), dir * 5, 180, SC), { duration: 110, easing: ez })),
+      ...bot.map((e, i) => shMv(me, e, ST(-dir * D.w * 0.05, sy(i), -dir * 2, 180, SC), { duration: 110, easing: ez }))]);
+    top.forEach((e, i) => { e.style.zIndex = String(i + 1); });
+    bot.forEach((e, i) => { e.style.zIndex = String(k + i + 1); });
+    await Promise.all([...top.map((e, i) => shMv(me, e, ST(0, sy(i), 0, 180, SC), { duration: 110, easing: "cubic-bezier(.5,0,.6,1)" })),
+      ...bot.map((e, i) => shMv(me, e, ST(0, sy(k + i), 0, 180, SC), { duration: 110 }))]);
+    return [...top, ...bot];
+  }
+  const SHUF = { riffle: shRiffle, fan: shFan, cut: async (me, d, D) => shCut(me, await shCut(me, d, D, 4, 1), D, 6, -1) };
+  async function shufRun(me) {
+    const P = me.lay.getBoundingClientRect(), rel = (el) => { const r = el.getBoundingClientRect(); return { x: r.left - P.left, y: r.top - P.top, w: r.width, h: r.height }; };
+    const hand = root.querySelector(".tl-handin");
+    if (!hand) { shufStop(me); return; }
+    const D = rel(hand), N = 10, deck = [], flying = [];
+    // het eindscherm vervaagt; wat er lag gaat de stapel in
+    if (me.end) {
+      const w = document.createElement("div");
+      w.innerHTML = me.end.html;
+      const e = w.firstElementChild;
+      if (e) { e.classList.add("tl-sg"); Object.assign(e.style, box(me.end.r)); me.lay.appendChild(e); shAn(me, e, [{ opacity: 1 }, { opacity: 0, transform: "scale(0.94)" }], { duration: 170 }).then(() => e.remove()); }
+    }
+    for (let i = 0; i < N; i++) { const e = shCard(me, D, "", ST(0, sy(i))); e.style.zIndex = String(i + 1); deck.push(e); }
+    const sweep = me.v === "cut";
+    me.src.forEach((s, j) => {
+      const e = shCard(me, s.r, s.html, ST(0, 0, s.hand ? -1.5 : 0, 0));
+      e.style.zIndex = String(40 + j);
+      const p = sweep && !s.hand   // afnemen: de tafel wordt opzij geveegd; anders vliegt alles terug op de stapel en draait om
+        ? shAn(me, e, [{ transform: e._t, opacity: 1 }, { transform: ST(-(s.r.x + s.r.w + 30), 0, -6, 0), opacity: 0.2 }], { duration: 220, delay: j * 30, easing: "cubic-bezier(.5,0,.75,0)" })
+        : shAn(me, e, [{ ...box(s.r), transform: e._t }, { ...box(D), transform: ST(0, sy(N)) }], { duration: 220, delay: j * 30, easing: "cubic-bezier(.45,0,.25,1)" });
+      flying.push(p.then(() => e.remove()));
+    });
+    const gather = !sweep && flying.length;
+    deck.forEach((e, i) => shAn(me, e, gather ? [{ opacity: 0 }, { opacity: 1 }] : [{ transform: ST(0, 26 + sy(i)), opacity: 0 }, { transform: e._t, opacity: 1 }],
+      gather ? { duration: 90, delay: 140 } : { duration: 200, delay: 20, easing: "cubic-bezier(.2,.8,.3,1)" }));
+    await (gather ? Promise.all(flying) : shWait(me, 220));
+    // het invagen weg: een opacity-animatie (ook een afgelopen, met fill) maakt de 3D plat, en dan zie je de rug van de kaarten niet meer
+    deck.forEach((e) => { e.getAnimations().forEach((a) => { try { a.commitStyles(); } catch (x) {} a.cancel(); }); e.style.opacity = ""; e.style.transform = e._t; });
+    // schudden, en blijven schudden zolang de stapel er nog niet is
+    let d = deck;
+    do {
+      if (me.dead) return;
+      d = await SHUF[me.v](me, d, D);
+      if (me.ok === null) { if (me.skip) await me.ready; else await shWait(me, 60); }
+    } while (me.ok === null);
+    if (me.dead || !me.ok) return;
+    // delen: de bovenste open op de beginkaart, de volgende draait om in je hand (het nieuwe spel staat er al, onzichtbaar)
+    const h2 = root.querySelector(".tl-handin"), s2 = root.querySelector(".tl-row .tl-c"), f2 = root.querySelector(".tl-card.tl-front");
+    if (!h2 || !s2 || !f2 || d.length < 4) { shufDone(me); return; }
+    const D2 = rel(h2), S = rel(s2), n = d.length, up = d[n - 1], nx = d[n - 2];
+    const mid = (a, b, dx = 0, dy = 0) => ({ x: (a.x + b.x) / 2 + dx, y: (a.y + b.y) / 2 + dy, w: (a.w + b.w) / 2, h: (a.h + b.h) / 2 });
+    up.firstElementChild.innerHTML = s2.outerHTML;
+    nx.firstElementChild.innerHTML = f2.outerHTML;
+    up.style.zIndex = String(me.z + 20); nx.style.zIndex = String(me.z + 19);
+    const ps = [shAn(me, up, [{ ...box(D), transform: up._t }, { ...box(mid(D, S, 20, -30)), transform: ST(0, 0, 6, 90), offset: 0.5 }, { ...box(S), transform: ST(0, 0, 0, 0) }],
+      { duration: 300, easing: "cubic-bezier(.35,.6,.3,1)" })];
+    await shWait(me, 60);
+    const rest = d.slice(0, n - 2), bk = [ST(17, 10, 8), ST(9, 5, 4)];
+    rest.forEach((e, i) => {
+      const k = i - (rest.length - 2);
+      ps.push(shAn(me, e, [{ ...box(D), transform: e._t }, { ...box(D2), transform: bk[Math.max(0, k)] }], { duration: k >= 0 ? 280 : 240, easing: "cubic-bezier(.3,.7,.3,1)" }));
+    });
+    ps.push(shAn(me, nx, [{ ...box(D), transform: nx._t }, { ...box(mid(D, D2)), transform: "perspective(900px) translate(4px, -16px) rotate(1deg) rotateY(90deg)", offset: 0.5 },
+      { ...box(D2), transform: "perspective(900px) rotate(-1.5deg) rotateY(0deg)" }], { duration: 290, easing: "cubic-bezier(.3,.6,.3,1)" }));
+    await Promise.all(ps);
+    if (!me.dead) shufDone(me);
+  }
+
   async function place(i, fromRect) {
     if (!G || G.phase !== "idle" || G.done || !G.cur) return;
     const hand = root.querySelector(".tl-card.tl-front"), slot = root.querySelector(`.tl-slot[data-i="${i}"]`);
@@ -1522,6 +1748,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     root.addEventListener("pointercancel", endPan);
     root.addEventListener("click", (e) => { if (panClick) { panClick = false; e.stopPropagation(); e.preventDefault(); } }, true);
     root.addEventListener("click", async (e) => {
+      if (SH) { shufSkip(); return; }   // 🃏 een tik tijdens het schudden: meteen gedeeld
       const s = e.target.closest(".tl-slot");
       if (s) { place(+s.dataset.i); return; }
       if (e.target.closest(".tl-tofree")) { setMode("free"); return; }   // 📅 klaar met de daily: 🎲 Nieuw spel
