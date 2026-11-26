@@ -59,7 +59,7 @@ src += `
   ACHV_SERIES, ACHV_TIER_KEYS, ACHV_YEARS, CAPSTONE_KEYS, CAPSTONE_MAX, FLAIR_OPTIONS, capstoneProgress, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
   ratingDeltaBadge, toEvent, computeStats, tlDaysForMe, TL_DAYS_KEY,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
-  resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
+  resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB, rewardsLookBlocks,
   TL_CARDS_AT, CARD_STYLES, CARDS_KEY, cardsUnlocked, cardStyle, cardStyleActive, setCardStyle, TL_ACHV_KEYS, rewardsCardsHtml, achvCardStylesHtml, activateReward,
   getAchvPage: () => achvPage, setAchvPage: (p) => { achvPage = p; },
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
@@ -2724,8 +2724,8 @@ test("rewardsTabsAvailable — een tab bestaat pas als je er iets in hebt verdie
     T.auth.user = { uid: "u" };
     assert.deepEqual(T.rewardsTabsAvailable(A_NONE), ["flair"], "nog niets: één scherm");
     assert.deepEqual(T.rewardsTabsAvailable(A_SILVER), ["flair", "vier"]);
-    assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair", "vier", "frame"], "platina: sierrand, nog geen thema");
-    assert.deepEqual(T.rewardsTabsAvailable(A_DIAMOND), ["flair", "vier", "frame", "theme"], "diamant: ook de thema-tab");
+    assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair", "vier", "look"], "platina: de tab Uiterlijk (sierrand), nog geen thema");
+    assert.deepEqual(T.rewardsTabsAvailable(A_DIAMOND), ["flair", "vier", "look"], "diamant: thema erbij, in dezelfde tab");
     T.auth.user = null;
     assert.deepEqual(T.rewardsTabsAvailable(A_PLATINA), ["flair"], "anoniem verdient niets");
   } finally { T.auth.user = was; }
@@ -2736,7 +2736,29 @@ test("RW_SECT_TAB — elke sectie waar een pop-up naartoe springt landt op een b
     const sect = T.REWARDS[key].sect;
     assert.ok(T.RW_SECT_TAB[sect], `reward ${key}: sectie "${sect}" mist in RW_SECT_TAB`);
   }
-  assert.ok(["flair", "vier", "frame", "theme"].every((x) => Object.values(T.RW_SECT_TAB).includes(x)), "elke tab is een sprong-doel");
+  assert.ok(["flair", "vier", "look"].every((x) => Object.values(T.RW_SECT_TAB).includes(x)), "elke tab is een sprong-doel");
+});
+
+test("tab Uiterlijk — sierrand, thema en kaarten in één tab; een blok dat je nog niet hebt staat er niet in", () => {
+  const was = T.auth.user;
+  try {
+    T.auth.user = { uid: "u" };
+    assert.deepEqual(["frame", "theme", "cards"].map((k) => T.RW_SECT_TAB[k]), ["look", "look", "look"], "de pop-ups springen alle drie naar Uiterlijk");
+    assert.deepEqual(T.rewardsLookBlocks(A_SILVER), [], "zonder een van de drie: geen tab");
+    assert.ok(!T.rewardsTabsAvailable(A_SILVER).includes("look"));
+    assert.deepEqual(T.rewardsLookBlocks(A_PLATINA), ["frame"]);
+    assert.deepEqual(T.rewardsLookBlocks(A_DIAMOND), ["frame", "theme"]);
+    const cardsOnly = T.achvNormalize({ tl_cards: 1500 });
+    assert.deepEqual(T.rewardsLookBlocks(cardsOnly), ["cards"], "alleen kaartstijlen: ook dan de tab");
+    assert.ok(T.rewardsTabsAvailable(cardsOnly).includes("look"));
+    const all = T.achvNormalize({ ...A_DIAMOND, tl_cards: 1500 });
+    assert.deepEqual(T.rewardsLookBlocks(all), ["frame", "theme", "cards"], "vaste volgorde");
+    assert.equal(T.rewardsTabsAvailable(all).length, 3, "met alles: Flair, Viering, Uiterlijk");
+    T.auth.user = null;
+    assert.deepEqual(T.rewardsLookBlocks(all), [], "anoniem verdient niets");
+    // de oude losse tabs bestaan niet meer
+    for (const k of ["frame", "theme", "cards"]) assert.ok(!T.rewardsTabsAvailable(all).includes(k));
+  } finally { T.auth.user = was; }
 });
 
 // ── Team-voorproefje in het eindscherm (ingelogd, nog geen pool) ──────────────────────────────────────
@@ -5753,7 +5775,7 @@ test("🃏 Kroniekschrijver (db/240) — ladder op de Timeline-pagina, de drie k
   assert.equal(T.REWARDS.cards_ill.cat, "cards");
   assert.ok(T.REWARD_ORDER.includes("cards_ill"), "cards_ill in REWARD_ORDER");
   assert.equal(T.rewardName("cards_ill"), T.t("reward_cards_name"));
-  assert.equal(T.RW_SECT_TAB.cards, "cards", "de pop-up springt naar de tab Kaarten");
+  assert.equal(T.RW_SECT_TAB.cards, "look", "de pop-up springt naar de tab Uiterlijk");
   assert.deepEqual(T.CARD_STYLES, ["off", "book", "dragons", "black"]);
   const was = T.auth.user;
   try {
@@ -5762,9 +5784,9 @@ test("🃏 Kroniekschrijver (db/240) — ladder op de Timeline-pagina, de drie k
     assert.ok(T.cardsUnlocked(top) && !T.cardsUnlocked(under), "platina: precies 1500");
     T.setAchv(top);
     assert.ok(T.earnedRewardKeys().includes("cards_ill"), "op de drempel: de beloning");
-    assert.ok(T.rewardsTabsAvailable(top).includes("cards"), "en de tab Kaarten");
+    assert.ok(T.rewardsTabsAvailable(top).includes("look") && T.rewardsLookBlocks(top).includes("cards"), "en de tab Uiterlijk met het kaartenblok");
     T.setAchv(under);
-    assert.ok(!T.earnedRewardKeys().includes("cards_ill") && !T.rewardsTabsAvailable(under).includes("cards"), "net eronder: nog niets");
+    assert.ok(!T.earnedRewardKeys().includes("cards_ill") && !T.rewardsTabsAvailable(under).includes("look"), "net eronder: nog niets");
     // het kaartje: alleen op de stap die platina haalt de knop naar de kluis
     assert.equal(T.achvSeriesItem(top, s, 4, 3).cards, true, "goud → platina");
     assert.equal(T.achvSeriesItem(top, s, 3, 2).cards, false, "zilver → goud: nog geen kaartstijlen");
@@ -5801,7 +5823,7 @@ test("🃏 Kroniekschrijver (db/240) — ladder op de Timeline-pagina, de drie k
     assert.equal(T.cardStyle(), "black", "onbekende waarde van buiten: genegeerd");
     T.auth.user = null;
     assert.equal(T.cardStyleActive(), "off", "anoniem: gewoon");
-    assert.ok(!T.rewardsTabsAvailable(top).includes("cards"), "anoniem: geen tab");
+    assert.ok(!T.rewardsTabsAvailable(top).includes("look"), "anoniem: geen tab");
   } finally { T.auth.user = was; T.setAchv(null); localStorage.removeItem(T.CARDS_KEY); }
 });
 

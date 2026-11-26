@@ -385,7 +385,7 @@ const I18N = {
     rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel", fxn_ember: "🌶️ Vonken", fxn_glow: "🔥 Gloed", fxn_vizier: "🎯 Vizier", fxn_sweat: "💧 Zweetdruppel", fxn_ripple: "🌊 Rimpel", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Nippertje", fxn_pendulum: "🕰️ Slinger", fxn_lives: "❤️ Volle levens",
     fxn_eclipse: "\u{1F311} Eclips", fxn_shard: "🗡️ Scherven", fxn_aura: "🔮 Aura", obx_replay: "Bekijk de onthulling opnieuw",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Spinnenweb", fxn_lights: "\u{1F387} Lichtjes", fxn_snow: "\u2744\uFE0F Sneeuw", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
-    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_frame: "🖼️ Sierrand", rewards_tab_theme: "🎨 Thema", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_look: "🎨 Uiterlijk", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
     achv_sect_daily: "Dagelijks", achv_sect_series: "Reeksen", achv_sect_repeat: "Vaker te halen", achv_sect_trophies: "Mijlpalen",
     achv_cap_title: "Prestige-track", achv_cap_done: "Track compleet!",
     achv_cap_next: (tier, lag) => `Nog voor ${tier}: ${lag}`,
@@ -426,7 +426,7 @@ const I18N = {
     achv_cards_note: (tier) => `bij ${tier} verdien je drie kaartstijlen voor Timeline`, achv_cards_have: "✓ in je kluis", achv_cards_earned: "🃏 Drie kaartstijlen vrijgespeeld", achv_cards_choose: "kies",
     achv_anon_duels: "Met een account tellen je duels mee voor je prestaties.", achv_anon_tl: "Met een account tellen je Timeline-kaarten mee voor je prestaties.",
     card_style_off: "Gewoon", card_style_book: "Getijdenboek", card_style_dragons: "Draken", card_style_black: "Zwarte getijden",
-    rewards_tab_cards: "🃏 Kaarten", rewards_sect_cards: "Timeline-kaarten", rewards_note_cards: "Zo zien jouw kaarten eruit in Timeline, vanaf de eerste kaart.",
+    rewards_sect_cards: "Timeline-kaarten", rewards_note_cards: "Zo zien jouw kaarten eruit in Timeline, vanaf de eerste kaart.",
     reward_cards_name: "Verluchte kaarten", reward_sub_cards: "Drie kaartstijlen voor Timeline: Getijdenboek, Draken en Zwarte getijden. Wissel in de kluis.",
     achv_t_comeback: "Remontada", achv_t_comeback_sub: "win na 0–2 achter",
     achv_t_unscathed: "Ongeschonden", achv_t_unscathed_sub: "win zonder een ronde te verliezen",
@@ -751,7 +751,7 @@ const I18N = {
     rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle", fxn_ember: "🌶️ Embers", fxn_glow: "🔥 Glow", fxn_vizier: "🎯 Crosshair", fxn_sweat: "💧 Sweat drop", fxn_ripple: "🌊 Ripple", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Close call", fxn_pendulum: "🕰️ Pendulum", fxn_lives: "❤️ Full lives",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Shards", fxn_aura: "🔮 Aura", obx_replay: "Watch the reveal again",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Cobweb", fxn_lights: "\u{1F387} Fairy lights", fxn_snow: "\u2744\uFE0F Snowfall", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
-    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_frame: "🖼️ Frame", rewards_tab_theme: "🎨 Theme", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_look: "🎨 Looks", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
     achv_sect_daily: "Daily", achv_sect_series: "Series", achv_sect_repeat: "Repeatable", achv_sect_trophies: "Milestones",
     achv_cap_title: "Prestige track", achv_cap_done: "Track complete!",
     achv_cap_next: (tier, lag) => `For ${tier}: ${lag}`,
@@ -790,7 +790,7 @@ const I18N = {
     achv_cards_note: (tier) => `reach ${tier} to earn three card styles for Timeline`, achv_cards_have: "✓ in your vault", achv_cards_earned: "🃏 Three card styles unlocked", achv_cards_choose: "choose",
     achv_anon_duels: "With an account, your duels count towards your achievements.", achv_anon_tl: "With an account, your Timeline cards count towards your achievements.",
     card_style_off: "Plain", card_style_book: "Book of Hours", card_style_dragons: "Dragons", card_style_black: "Black Hours",
-    rewards_tab_cards: "🃏 Cards", rewards_sect_cards: "Timeline cards", rewards_note_cards: "How your cards look in Timeline, from the very first card.",
+    rewards_sect_cards: "Timeline cards", rewards_note_cards: "How your cards look in Timeline, from the very first card.",
     reward_cards_name: "Illuminated cards", reward_sub_cards: "Three card styles for Timeline: Book of Hours, Dragons and Black Hours. Switch in the vault.",
     achv_t_comeback: "Comeback", achv_t_comeback_sub: "win after being 0–2 down",
     achv_t_unscathed: "Unscathed", achv_t_unscathed_sub: "win without losing a round",
@@ -1110,7 +1110,7 @@ const I18N = {
     rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln", fxn_ember: "🌶️ Glut", fxn_glow: "🔥 Glühen", fxn_vizier: "🎯 Fadenkreuz", fxn_sweat: "💧 Schweißtropfen", fxn_ripple: "🌊 Wellen", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Knapp geschafft", fxn_pendulum: "🕰️ Pendel", fxn_lives: "❤️ Volle Leben",
     fxn_eclipse: "\u{1F311} Finsternis", fxn_shard: "🗡️ Scherben", fxn_aura: "🔮 Aura", obx_replay: "Enthüllung noch einmal ansehen",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Spinnennetz", fxn_lights: "\u{1F387} Lichterkette", fxn_snow: "\u2744\uFE0F Schneefall", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
-    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_frame: "🖼️ Zierrand", rewards_tab_theme: "🎨 Design", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
+    rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_look: "🎨 Aussehen", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
     achv_sect_daily: "Täglich", achv_sect_series: "Serien", achv_sect_repeat: "Wiederholbar", achv_sect_trophies: "Meilensteine",
     achv_cap_title: "Prestige-Track", achv_cap_done: "Track komplett!",
     achv_cap_next: (tier, lag) => `Für ${tier}: ${lag}`,
@@ -1149,7 +1149,7 @@ const I18N = {
     achv_cards_note: (tier) => `ab ${tier} verdienst du drei Kartenstile für Timeline`, achv_cards_have: "✓ in deiner Truhe", achv_cards_earned: "🃏 Drei Kartenstile freigeschaltet", achv_cards_choose: "wählen",
     achv_anon_duels: "Mit einem Konto zählen deine Duelle für deine Erfolge.", achv_anon_tl: "Mit einem Konto zählen deine Timeline-Karten für deine Erfolge.",
     card_style_off: "Schlicht", card_style_book: "Stundenbuch", card_style_dragons: "Drachen", card_style_black: "Schwarzes Stundenbuch",
-    rewards_tab_cards: "🃏 Karten", rewards_sect_cards: "Timeline-Karten", rewards_note_cards: "So sehen deine Karten in Timeline aus, ab der ersten Karte.",
+    rewards_sect_cards: "Timeline-Karten", rewards_note_cards: "So sehen deine Karten in Timeline aus, ab der ersten Karte.",
     reward_cards_name: "Illuminierte Karten", reward_sub_cards: "Drei Kartenstile für Timeline: Stundenbuch, Drachen und Schwarzes Stundenbuch. Wechseln in der Truhe.",
     achv_t_comeback: "Aufholjagd", achv_t_comeback_sub: "gewinne nach 0:2-Rückstand",
     achv_t_unscathed: "Unversehrt", achv_t_unscathed_sub: "gewinne, ohne eine Runde zu verlieren",
@@ -1473,7 +1473,7 @@ const I18N = {
     rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Resplandor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de sudor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Loto", fxn_timer: "⏱️ Por los pelos", fxn_pendulum: "🕰️ Péndulo", fxn_lives: "❤️ Vidas llenas",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Esquirlas", fxn_aura: "🔮 Aura", obx_replay: "Ver la revelación otra vez",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Telaraña", fxn_lights: "\u{1F387} Lucecitas", fxn_snow: "\u2744\uFE0F Nevada", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
-    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_frame: "🖼️ Marco", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
+    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_look: "🎨 Aspecto", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
     achv_sect_daily: "Diario", achv_sect_series: "Series", achv_sect_repeat: "Repetibles", achv_sect_trophies: "Hitos",
     achv_cap_title: "Vía de prestigio", achv_cap_done: "¡Vía completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1512,7 +1512,7 @@ const I18N = {
     achv_cards_note: (tier) => `al llegar a ${tier} ganas tres estilos de cartas para Timeline`, achv_cards_have: "✓ en tu caja", achv_cards_earned: "🃏 Tres estilos de cartas desbloqueados", achv_cards_choose: "elegir",
     achv_anon_duels: "Con una cuenta, tus duelos cuentan para tus logros.", achv_anon_tl: "Con una cuenta, tus cartas de Timeline cuentan para tus logros.",
     card_style_off: "Normal", card_style_book: "Libro de horas", card_style_dragons: "Dragones", card_style_black: "Horas negras",
-    rewards_tab_cards: "🃏 Cartas", rewards_sect_cards: "Cartas de Timeline", rewards_note_cards: "Así se ven tus cartas en Timeline, desde la primera.",
+    rewards_sect_cards: "Cartas de Timeline", rewards_note_cards: "Así se ven tus cartas en Timeline, desde la primera.",
     reward_cards_name: "Cartas iluminadas", reward_sub_cards: "Tres estilos de cartas para Timeline: Libro de horas, Dragones y Horas negras. Cámbialo en la caja.",
     achv_t_comeback: "Remontada", achv_t_comeback_sub: "gana tras ir perdiendo 0-2",
     achv_t_unscathed: "Intacto", achv_t_unscathed_sub: "gana sin perder ninguna ronda",
@@ -1836,7 +1836,7 @@ const I18N = {
     rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Fulgor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de suor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Lótus", fxn_timer: "⏱️ Por um triz", fxn_pendulum: "🕰️ Pêndulo", fxn_lives: "❤️ Vidas cheias",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Estilhaços", fxn_aura: "🔮 Aura", obx_replay: "Ver a revelação de novo",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Teia de aranha", fxn_lights: "\u{1F387} Pisca-pisca", fxn_snow: "\u2744\uFE0F Neve", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
-    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_frame: "🖼️ Moldura", rewards_tab_theme: "🎨 Tema", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
+    rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_look: "🎨 Aparência", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
     achv_sect_daily: "Diário", achv_sect_series: "Séries", achv_sect_repeat: "Repetíveis", achv_sect_trophies: "Marcos",
     achv_cap_title: "Trilha de prestígio", achv_cap_done: "Trilha completa!",
     achv_cap_next: (tier, lag) => `Para ${tier}: ${lag}`,
@@ -1875,7 +1875,7 @@ const I18N = {
     achv_cards_note: (tier) => `ao chegar a ${tier} você ganha três estilos de cartas para o Timeline`, achv_cards_have: "✓ no seu cofre", achv_cards_earned: "🃏 Três estilos de cartas desbloqueados", achv_cards_choose: "escolher",
     achv_anon_duels: "Com uma conta, seus duelos contam para suas conquistas.", achv_anon_tl: "Com uma conta, suas cartas do Timeline contam para suas conquistas.",
     card_style_off: "Normal", card_style_book: "Livro de horas", card_style_dragons: "Dragões", card_style_black: "Horas negras",
-    rewards_tab_cards: "🃏 Cartas", rewards_sect_cards: "Cartas do Timeline", rewards_note_cards: "Assim ficam suas cartas no Timeline, desde a primeira.",
+    rewards_sect_cards: "Cartas do Timeline", rewards_note_cards: "Assim ficam suas cartas no Timeline, desde a primeira.",
     reward_cards_name: "Cartas iluminadas", reward_sub_cards: "Três estilos de cartas para o Timeline: Livro de horas, Dragões e Horas negras. Troque no cofre.",
     achv_t_comeback: "Virada", achv_t_comeback_sub: "vença depois de estar perdendo por 0–2",
     achv_t_unscathed: "Intacto", achv_t_unscathed_sub: "vença sem perder nenhuma rodada",
@@ -12666,19 +12666,28 @@ function flairFxSectionHtml(a) {
 }
 
 // ── 🪎 Kluis in tabs ──────────────────────────────────────────────────────────
-// Flair (altijd) · Viering (zodra je een win-effect hebt) · Sierrand (capstone-platina) · Thema (capstone-diamant). Eén
+// Flair (altijd) · Viering (zodra je een win-effect hebt) · Uiterlijk (sierrand = capstone-platina, thema = capstone-diamant,
+// Timeline-kaarten = Kroniekschrijver-platina; 26/11: drie tabs met elk één keuzeblok werden één tab, want met 5-6 tabs kromp
+// het label tot 0,64rem; een blok dat je nog niet hebt staat er niet in) · Events. Eén
 // gevulde tab = één scherm zonder tabbalk, precies zoals vóór de tabs: een tab verschijnt pas als je er iets in
 // hebt verdiend (geen sloten uittekenen; de gedimde 🔒-regel onderaan blijft de enige wegwijzer). Zelfde
 // .rc-tabs/.rc-track/.rc-slide als de eindscherm-carrousel; swipen en tikken blijven in sync. Elke beloning
 // heeft een voorbeeld: je flair op een bordrij, de vieringen als lusje, de sierrand als miniatuur.
-const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", voltreffer: "vier", frame: "frame", theme: "theme", cards: "cards", events: "events" };   // vault-sprong → tab
+const RW_SECT_TAB = { flair: "flair", flairfx: "flair", endscreen: "vier", voltreffer: "vier", frame: "look", theme: "look", cards: "look", events: "events" };   // vault-sprong → tab (de drie Uiterlijk-blokken houden elk hun eigen data-rw-sect om naartoe te scrollen)
 let rewardsTab = "flair";   // actieve tab; reset bij openen (openModal), blijft staan bij herrenderen
+// De blokken van de tab Uiterlijk die je hebt verdiend, in vaste volgorde (zelfde voorwaarden als de losse tabs van vóór 26/11).
+function rewardsLookBlocks(a) {
+  const b = [];
+  if (platinaFrameUnlocked(a)) b.push("frame");
+  if (auth.user && capstoneTier(a) >= 5) b.push("theme");
+  if (cardsUnlocked(a)) b.push("cards");   // 🃏 db/240: de Timeline-kaartstijlen
+  return b;
+}
+function rewardsThemeHtml() { return `<section class="rw-sect" data-rw-sect="theme"><h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>${themePickerHtml()}</section>`; }
 function rewardsTabsAvailable(a) {
   const u = winFxUnlockedMap(a), tabs = ["flair"];
   if (u.flair || u.beer || u.gold || u.cal || u.vt || eventFxUnlockedList().length) tabs.push("vier");
-  if (platinaFrameUnlocked(a)) tabs.push("frame");
-  if (auth.user && capstoneTier(a) >= 5) tabs.push("theme");
-  if (cardsUnlocked(a)) tabs.push("cards");   // 🃏 db/240: de Timeline-kaartstijlen (zijn "doe maar extra kaarten tab")
+  if (rewardsLookBlocks(a).length) tabs.push("look");   // 26/11 (zijn "rapport 2: 3 ok"): sierrand, thema en kaartstijlen samen in één tab
   if (auth.user && window.SeasonEvent && eventTabEvents().length) tabs.push("events");   // Events: tijdens een event voor iedereen, daarna voor wie meedeed
   return tabs;
 }
@@ -12790,9 +12799,7 @@ function renderRewardsBody(body, a) {
     flair: () => rewardsBoardPreviewHtml() +
       `<section class="rw-sect" data-rw-sect="flair"><h3 class="stats-heading">${escHtml(t("rewards_sect_flair"))}</h3>${rewardsFlairHtml()}</section>` + flairFxSectionHtml(a),
     vier: () => rewardsVierHtml(unlocked),
-    frame: () => rewardsFrameHtml(),
-    theme: () => `<section class="rw-sect" data-rw-sect="theme"><h3 class="stats-heading">${escHtml(t("rewards_sect_theme"))}</h3>${themePickerHtml()}</section>`,
-    cards: () => rewardsCardsHtml(),
+    look: () => rewardsLookBlocks(a).map((k) => ({ frame: rewardsFrameHtml, theme: rewardsThemeHtml, cards: rewardsCardsHtml })[k]()).join(""),   // onder elkaar, elk met zijn eigen kopje
     events: () => (window.SeasonEvent ? window.SeasonEvent.tab(eventTabEvents().map(eventView)) : "") + miniEventCardsHtml(),
   };
   // Alles verdiend = geen wegwijzer. Anders één gedimde 🔒-regel naar Prestaties.
