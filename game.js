@@ -8915,7 +8915,7 @@ async function renderRecap() {
     ? ` <a id="recap-rate-btn" class="recap-rate" href="${LISTDLE_URL}" target="_blank" rel="noopener">⭐ ${escHtml(t("rate_listdle"))}</a>`
     : "";
   const shareHtml = `<div class="recap-cta recap-share"><button id="recap-share-btn">${SHARE_ICON} <span class="share-label">${t("share")}</span></button>${rateHtml}</div>`;
-  const botCard = recapBotCardHtml();   // 🤖 db/232: de bot die klaarstaat, boven de stand
+  const botCard = recapPlayHtml();   // 🃏 bot | Timeline (db/232: de bot die klaarstaat), boven de stand
   const soloBots = auth.user ? "" : soloBotsHtml();   // 🤖 zonder account: jij en de bots als stand
   if (auth.user) {
     // Ingelogd: toon de teamstand van vandaag onder de verdeling.
@@ -8943,6 +8943,7 @@ async function renderRecap() {
     setTimeout(() => rateBtn.remove(), 400);
   });
   armEmojiFallbacks(body);
+  armRecapPlay(body);
   // Tik op een staaf → detailregel toont bereik + aantal spelers van die staaf.
   const detailEl = body.querySelector(".hist-detail");
   body.querySelectorAll(".hist-col").forEach((col, k) => {
@@ -10014,11 +10015,16 @@ for (const c in RT_I18N) Object.assign(I18N[c], RT_I18N[c]);
 // Eén aanroep per eindscherm, parallel met de rest. Mislukt die, dan is het eindscherm zoals vóór 23/11.
 // Teksten apart (zoals RT_I18N): de taalblokken liggen ver uit elkaar en gzip kijkt maar 32 KB terug.
 const BOTS_I18N = {
-  nl: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In een team speel je tegen vrienden in plaats van bots." },
-  en: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In a team you play against friends instead of bots." },
-  de: { lb_bot: "Bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In einem Team spielst du gegen Freunde statt gegen Bots." },
-  es: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "En un equipo juegas contra amigos en lugar de bots." },
-  pt: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "Em uma equipe você joga contra amigos em vez de bots." },
+  nl: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In een team speel je tegen vrienden in plaats van bots.",
+        ew_dare: "daagt je uit", ew_bot_aria: (n) => `${n} daagt je uit`, ew_tl_aria: "Timeline van de dag", ew_new: "Nieuw" },
+  en: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In a team you play against friends instead of bots.",
+        ew_dare: "dares you", ew_bot_aria: (n) => `${n} challenges you`, ew_tl_aria: "Today's Timeline", ew_new: "New" },
+  de: { lb_bot: "Bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In einem Team spielst du gegen Freunde statt gegen Bots.",
+        ew_dare: "will spielen", ew_bot_aria: (n) => `${n} fordert dich heraus`, ew_tl_aria: "Timeline des Tages", ew_new: "Neu" },
+  es: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "En un equipo juegas contra amigos en lugar de bots.",
+        ew_dare: "te reta", ew_bot_aria: (n) => `${n} te reta`, ew_tl_aria: "Timeline del día", ew_new: "Nuevo" },
+  pt: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "Em uma equipe você joga contra amigos em vez de bots.",
+        ew_dare: "te desafia", ew_bot_aria: (n) => `${n} te desafia`, ew_tl_aria: "Timeline do dia", ew_new: "Novo" },
 };
 for (const c in BOTS_I18N) Object.assign(I18N[c], BOTS_I18N[c]);
 const DAILY_BOTS_DUELS = 3;
@@ -10108,13 +10114,62 @@ function soloBotsHtml(db = dailyBots) {
   const me = myRecapRow();
   return botBoardHtml(me, myWeekDays(eventHistorySync(), currentWeekStart(), me), bots, db);
 }
-// Boven de stand: de bot die klaarstaat, dezelfde kaart als in Duels (tot je DAILY_BOTS_DUELS duels uitspeelde).
-function recapBotCardHtml(db = dailyBots) {
+// 🃏 Boven de stand: twee kaarten die net gedeeld zijn, bot | Timeline (26/11/2026, zijn "kunnen we die niet inkorten met soort 50/50
+// play bot of play timeline?"; na v2 "waarom is het zo lelijk op blauw … voelt als een downgrade … eerst diepere kleuren, ik ga dit nu
+// spelen!!" → "B is super leuk", mockup https://claude.ai/artifact/GLs8h6kJ5q3sjYH6DjhoNz v3 B "Kaarten"). Verving de bot-kaart uit
+// Duels (154 px; 7 tikken op 186 uitgespeelde dailies, 23–26/11). CSS bij .ew in style.css.
+// - Links de bot die klaarstaat (dezelfde keuze als in Duels), tot je DAILY_BOTS_DUELS duels uitspeelde en niet als de bots in je team
+//   uit staan. Zijn bandkleur (faceHue), hij springt uit zijn kaart; tik = spelen in de onthouden vorm (⚡/⚔️ achter zijn naam; kiezen
+//   doe je in Duels of op de kaart onder een botrij). Meetpunt daily-bot-card, zoals de oude kaart.
+// - Rechts de kaartrug van Timeline met de stapel erachter, zolang je de Timeline-daily van vandaag nog niet speelde; tik = Timeline (die
+//   opent zelf de daily). "Nieuw" zolang je Timeline nooit opende (tlKnown). Meetpunt end-tl (end-tl-new met "Nieuw").
+// - Valt er één weg, dan is de ander de hele rij (.solo, met een ›); allebei weg = niets. .go = het moment (armRecapPlay).
+const BOT_MODE_KEY = "jaardle:bot-mode";   // = BOTMODE_KEY in /duel.js ("b" = ⚔️ Best of 5, anders ⚡ knock-out); hier alleen lezen
+function recapBotReady(db = dailyBots) {
   const D = window.Duel;
-  if (!D?.daily || !db || !db.bots.length || db.duels >= DAILY_BOTS_DUELS) return "";
-  let b = null;
-  try { b = D.daily.ready(duelHost(), db.bots); } catch (e) { b = null; }
-  return b ? `<div class="recap-botcard">${D.daily.card(duelHost(), b)}</div>` : "";
+  if (teamBotsOff() || !D?.daily || !db || !db.bots.length || db.duels >= DAILY_BOTS_DUELS) return null;
+  try { return D.daily.ready(duelHost(), db.bots) || null; } catch (e) { return null; }
+}
+// Je Timeline-daily van vandaag: op dit toestel (jaardle:tl:days) of bij de server (get_my_streak_state, die het eindscherm al ophaalde)
+function tlDailyDone(date = todayKey()) {
+  return tlDaysForMe().includes(date) || !!streakExtrasCache?.tlServer?.includes(date);
+}
+function playCardsHtml(bot, tl, fresh = false) {
+  if (!bot && !tl) return "";
+  let mode = "k";
+  try { mode = localStorage.getItem(BOT_MODE_KEY) === "b" ? "b" : "k"; } catch (e) {}
+  const b = bot ? `<button type="button" class="ew-bot" data-bot="${escHtml(bot.key)}" aria-label="${escHtml(t("ew_bot_aria")(bot.name))}">` +
+    `<span class="ew-av" aria-hidden="true">${flairGlyphHtml(bot.flair || "🤖")}</span><span class="ew-t"><b>${escHtml(bot.name)} <span class="ew-m">${mode === "b" ? "⚔️" : "⚡"}</span></b>` +
+    `<small>${escHtml(t("ew_dare"))}</small></span><span class="ew-go" aria-hidden="true">›</span></button>` : "";
+  const tlB = tl ? `<button type="button" class="ew-tl${fresh ? " ew-fresh" : ""}" aria-label="${escHtml(t("ew_tl_aria"))}"><span class="ew-face" aria-hidden="true"></span>` +
+    `<span class="ew-logo" aria-hidden="true"><span class="ew-logo-txt">Timeline</span><span class="ew-logo-line"><i></i><i></i><i></i></span></span>` +
+    `<span class="ew-go" aria-hidden="true">›</span></button>` : "";
+  return `<div class="ew${bot && tl ? "" : " solo"}"${bot ? ` style="--h:${faceHue(bot.name)}"` : ""}>${b}${tlB}` +
+    `${tl && fresh ? `<span class="ew-new" aria-hidden="true">${escHtml(t("ew_new"))}</span>` : ""}</div>`;
+}
+function recapPlayHtml(db = dailyBots) {
+  const tl = !tlDailyDone();
+  return playCardsHtml(recapBotReady(db), tl, tl && !tlKnown());
+}
+// opnieuw tekenen na ⚡/⚔️ of de schakelaar Bots (zonder het moment); de kaarten staan direct onder Delen
+function renderRecapPlay() {
+  const body = document.getElementById("recap-body");
+  if (!body || document.getElementById("modal-recap")?.hidden) return;
+  const html = recapPlayHtml(), cur = body.querySelector(":scope > .ew");
+  if (cur) { if (html) cur.outerHTML = html; else cur.remove(); return; }
+  if (html) body.querySelector(":scope > .recap-share")?.insertAdjacentHTML("afterend", html);
+}
+// het moment (de kaarten worden gedeeld) pas als ze in beeld komen; de recap kan langer zijn dan het scherm
+function armRecapPlay(root) {
+  const ew = root.querySelector(":scope > .ew");
+  if (!ew) return;
+  if (typeof IntersectionObserver !== "function") { ew.classList.add("go"); return; }
+  const io = new IntersectionObserver((ents) => {
+    if (!ents.some((x) => x.isIntersecting)) return;
+    io.disconnect();
+    ew.classList.add("go");
+  }, { threshold: 0.6 });
+  io.observe(ew);
 }
 // Zijn reactie op vandaag: de zinnen van de knock-out (BOT_TXT in /ko.js; win = jij wint, lose = hij wint), zonder de zinnen over een gok.
 function botSayToday(b, me) {
@@ -10160,7 +10215,7 @@ function botsFold(body, on) {
   body.querySelectorAll(".dl-card.bc-in").forEach((c) => c.remove());
   body.getAnimations?.({ subtree: true }).forEach((a) => { if (a.id === "bots-fold") a.cancel(); });
   if (on) body.classList.remove("bots-off");
-  const els = [...body.querySelectorAll(".recap-botcard, #recap-team-board .lb-pace")].filter((el) => el.offsetHeight > 0);
+  const els = [...body.querySelectorAll("#recap-team-board .lb-pace")].filter((el) => el.offsetHeight > 0);
   if (!els.length || typeof Element.prototype.animate !== "function" || matchMedia("(prefers-reduced-motion: reduce)").matches) {
     body.classList.toggle("bots-off", !on);
     return;
@@ -10194,28 +10249,34 @@ function wireBotSwitch(root) {
     const body = document.getElementById("recap-body");
     if (!body) return;
     const date = state.puzzleDate || todayKey();
-    if (!on || botsOn(date).length) { botsFold(body, on); return; }
+    if (!on || botsOn(date).length) { botsFold(body, on); renderRecapPlay(); return; }
     // Aan, maar ze stonden uit bij het openen (dus niet opgehaald): eerst ophalen, dan kaart en bord opnieuw, dan openvouwen.
     const db = await fetchDailyBotsForRecap(date).catch(() => null);
     if (document.getElementById("modal-recap").hidden || teamBotsOff() || !db || !botsOn(date, db).length) return;
     body.classList.add("bots-off");
-    const sec = document.getElementById("recap-team")?.closest(".recap-section");
-    if (sec && !body.querySelector(".recap-botcard")) sec.insertAdjacentHTML("beforebegin", recapBotCardHtml());
+    renderRecapPlay();
     await loadRecapTeam();
     if (!teamBotsOff()) botsFold(body, true);
   };
 }
-// ⚡/⚔️ en spelen, op de kaart boven de stand en op die onder een botrij (de klikken van de kaart in Duels zitten in /duel.js).
+// Spelen: de bot-kaart boven de stand, de kaart onder een botrij (met ⚡/⚔️) en de Timeline-kaart (de klikken in Duels zitten in /duel.js).
 document.addEventListener("click", (e) => {
   if (!(e.target instanceof Element)) return;
-  const card = e.target.closest("#modal-recap .recap-botcard .dl-card, #modal-recap .dl-card.bc-in");
+  const tl = e.target.closest("#modal-recap .ew-tl");
+  if (tl) {
+    const fresh = tl.classList.contains("ew-fresh");
+    gcCount(fresh ? "end-tl-new" : "end-tl", fresh ? "End screen: Timeline card (new)" : "End screen: Timeline card");
+    closeAllModals();
+    openTimeline("end");
+    return;
+  }
+  const card = e.target.closest("#modal-recap .ew-bot, #modal-recap .dl-card.bc-in");
   const D = window.Duel;
   if (!card || !D?.daily) return;
   const mode = e.target.closest('[data-act="bmode"]');
   if (mode) {
     if (!D.daily.mode(mode.dataset.bmode)) return;
-    const top = document.querySelector("#modal-recap .recap-botcard");
-    if (top) top.outerHTML = recapBotCardHtml() || "";
+    renderRecapPlay();   // ⚡/⚔️ achter de naam op de bot-kaart boven de stand
     document.querySelectorAll("#modal-recap .dl-card.bc-in").forEach((c) => { c.outerHTML = botCardFor(c.dataset.bot) || ""; });
     return;
   }

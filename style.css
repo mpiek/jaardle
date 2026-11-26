@@ -3893,7 +3893,81 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .lb-row.lb-pace { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
 .lb-row.lb-pace .lb-val { font-weight: 400; color: var(--muted); }
 .lb-row.lb-botrow.pf-open { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
-.recap-botcard { margin: 1rem 0 0.15rem; }
+/* 🃏 Bot | Timeline boven de stand (26/11/2026, mockup v3 B "Kaarten", zijn "B is super leuk"; game.js playCardsHtml): twee kaarten die
+   net gedeeld zijn, in de diepe kleuren van de duelband (.vb in /duel.js), vast in beide thema's. Links de bot die klaarstaat (--h = zijn
+   faceHue), hij springt uit zijn kaart, met het groene stipje van "online"; rechts de kaartrug van Timeline (.tl-back in /timeline.js) met
+   de stapel erachter en het logo uit de Timeline-kop. Tik of hover = rechtop. .solo = één kaart over de hele breedte (met ›); .go = het
+   moment (armRecapPlay): de kaarten worden gedeeld, de bot springt eruit, de stippen van de tijdlijn lichten op. */
+.ew { --ew-stripe: repeating-linear-gradient(-66deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 15px);
+  --ew-back: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px); --ew-tl: #0e3a8a; --ew-tl-edge: #0a2a66;
+  position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem;
+  margin: 1rem 0 0.15rem; padding: 0.75rem 0.7rem 0.2rem 0.1rem; }
+.ew.solo { grid-template-columns: minmax(0, 1fr); padding-right: 0.9rem; }
+.ew > button { appearance: none; position: relative; display: flex; align-items: center; gap: 0.55rem; height: 3.5rem; margin: 0; padding: 0 0.7rem;
+  border: 0; border-radius: 12px; font: inherit; color: #fff; text-align: left; isolation: isolate; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.3); }
+.ew > button:hover { transform: translateY(-3px) rotate(0deg); }
+.ew > button:active { transform: scale(0.96); transition-duration: 0.08s; }
+.ew > button:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+.ew .ew-bot { transform: rotate(-2deg); padding-left: 3.35rem;
+  background: var(--ew-stripe), linear-gradient(135deg, hsl(var(--h, 30) 62% 44%) 0%, hsl(var(--h, 30) 58% 19%) 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.32), 0 9px 16px -10px rgba(0, 0, 0, 0.8); }
+.ew-av { position: absolute; left: 0.5rem; top: -0.7rem; display: grid; place-items: center; width: 2.55rem; height: 2.55rem; border-radius: 50%;
+  font-size: 1.45rem; line-height: 1; background: hsl(var(--h, 30) 52% 30%); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95); }
+.ew-av::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 0 2px hsl(var(--h, 30) 58% 26%); }
+.ew-t { min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; line-height: 1.1; }
+.ew-t b { font-size: 0.92rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ew-m { margin-left: 0.15em; font-size: 0.85em; letter-spacing: 0; }
+.ew-t small { font-size: 0.74rem; font-weight: 600; color: rgba(255, 255, 255, 0.88); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ew .ew-tl { justify-content: center; transform: rotate(2deg); background: transparent; }
+.ew-face, .ew .ew-tl::before, .ew .ew-tl::after { position: absolute; inset: 0; border-radius: 12px; background-color: var(--ew-tl); background-image: var(--ew-back);
+  box-shadow: inset 0 0 0 4px var(--ew-tl-edge), inset 0 0 0 5.5px rgba(255, 255, 255, 0.5); }
+.ew-face { z-index: 0; box-shadow: inset 0 0 0 4px var(--ew-tl-edge), inset 0 0 0 5.5px rgba(255, 255, 255, 0.5), 0 9px 16px -10px rgba(0, 0, 0, 0.8); }
+.ew .ew-tl::before, .ew .ew-tl::after { content: ""; z-index: -1; }
+.ew .ew-tl::before { transform: translate(5px, -4px) rotate(5deg); }
+.ew .ew-tl::after { transform: translate(9px, -7px) rotate(10deg); background-color: #0a2f70; }
+.ew-logo { position: relative; z-index: 1; display: inline-flex; flex-direction: column; align-items: stretch; gap: 6px; line-height: 1; }
+.ew-logo-txt { font-size: 0.95rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; padding-left: 0.14em; white-space: nowrap; }
+.ew-logo-line { position: relative; height: 8px; }
+.ew-logo-line::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--purple), var(--blue) 30%, var(--green) 52%, var(--yellow) 74%, var(--orange)); }
+.ew-logo-line i { position: absolute; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; box-shadow: 0 0 0 2px var(--ew-tl); }
+.ew-logo-line i:nth-child(1) { left: 6%; background: var(--purple); }
+.ew-logo-line i:nth-child(2) { left: 50%; background: var(--green); }
+.ew-logo-line i:nth-child(3) { left: 94%; background: var(--orange); }
+.ew-new { position: absolute; z-index: 4; top: 0.2rem; right: 0.15rem; padding: 0.14rem 0.36rem 0.12rem; border-radius: 999px; font-size: 0.56rem; font-weight: 900;
+  letter-spacing: 0.1em; line-height: 1.15; text-transform: uppercase; color: var(--ew-tl-edge); background: #fff; transform: rotate(6deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); pointer-events: none; }
+.ew-go { display: none; position: relative; z-index: 1; flex: none; margin-left: auto; font-size: 1.45rem; font-weight: 700; line-height: 1; color: rgba(255, 255, 255, 0.9); }
+.ew.solo .ew-go { display: block; }
+.ew.solo .ew-bot { transform: rotate(-1deg); }
+.ew.solo .ew-tl { transform: rotate(1deg); justify-content: flex-start; padding-left: 1rem; }
+.ew.solo .ew-tl::before { transform: translate(5px, -4px) rotate(1.2deg); }   /* een brede kaart draait verder uit: de waaier kleiner */
+.ew.solo .ew-tl::after { transform: translate(9px, -7px) rotate(2.4deg); }
+@media (max-width: 380px) {   /* 360 px: de kaarten iets dichter op elkaar, zodat "daagt je uit" heel blijft */
+  .ew { gap: 0.6rem; padding-right: 0.55rem; }
+  .ew > button { padding-right: 0.45rem; }
+  .ew .ew-bot { padding-left: 3.15rem; }
+  .ew-av { left: 0.4rem; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ew.go .ew-bot { animation: ew-deal-l 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+  .ew.go .ew-tl { animation: ew-deal-r 0.55s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+  .ew.go .ew-av { animation: ew-hop 0.55s 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.45) backwards; }
+  .ew.go .ew-tl::before { animation: ew-fan 0.4s 0.5s ease-out backwards; }
+  .ew.go .ew-tl::after { animation: ew-fan 0.4s 0.55s ease-out backwards; }
+  .ew.go .ew-logo-line i { animation: ew-dot 0.4s 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.7) backwards; }
+  .ew.go .ew-logo-line i:nth-child(2) { animation-delay: 0.72s; }
+  .ew.go .ew-logo-line i:nth-child(3) { animation-delay: 0.84s; }
+  .ew.go .ew-new { animation: ew-pop 0.4s 0.95s cubic-bezier(0.2, 0.9, 0.3, 1.6) backwards; }
+}
+@keyframes ew-deal-l { from { transform: translate(-14px, 18px) rotate(-12deg); opacity: 0; } }
+@keyframes ew-deal-r { from { transform: translate(14px, 18px) rotate(12deg); opacity: 0; } }
+@keyframes ew-hop { 0% { transform: translateY(1.1rem) scale(0.55); opacity: 0; } 60% { transform: translateY(-0.25rem) scale(1.06); opacity: 1; } }
+@keyframes ew-fan { from { transform: none; } }
+@keyframes ew-dot { from { transform: scale(0); } }
+@keyframes ew-pop { from { transform: scale(0.4); opacity: 0; } }
 .lb-table > .dl-card.bc-in { margin: 0.1rem 0 0.25rem; }
 /* Bijschrift bij de stat-kop, bv. "alle games" — geen kapitalen, gedimd. */
 .lb-stat-note { text-transform: none; font-weight: 400; opacity: 0.65; letter-spacing: 0; }
@@ -4081,8 +4155,8 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .lb-poolname.lb-poolpick-row { font-size: 0.95rem; margin: 0 0 0.5rem; }
 /* 🤖 Bots aan/uit in een team (db/235, mockup 24/11/2026). Boven het eindschermbord één rij: links het team (bij 2+ teams de
    kiezer, bij één team alleen de naam), rechts de schakelaar "Bots" (die van Rated, .dl-opt.dr-rt in duel.js, een maatje kleiner).
-   Uit = .bots-off op #recap-body: geen ijkpunt-rijen (·) in Vandaag en geen bot-kaart boven de stand (botsFold vouwt ze eerst weg). */
-#recap-body.bots-off .recap-botcard, #recap-body.bots-off .lb-pace, #recap-body.bots-off .dl-card.bc-in { display: none; }
+   Uit = .bots-off op #recap-body: geen ijkpunt-rijen (·) in Vandaag (botsFold vouwt ze eerst weg); de kaart boven de stand tekent game.js opnieuw zonder bot. */
+#recap-body.bots-off .lb-pace, #recap-body.bots-off .dl-card.bc-in { display: none; }
 .lb-poolname.lb-teamrow { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
 .lb-teamrow > .lb-poolpick-wrap { flex: 0 1 auto; min-width: 0; }
 .lb-teamrow > .lb-poolpick-nm { flex: 0 1 auto; min-width: 0; }
