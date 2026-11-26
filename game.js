@@ -5236,6 +5236,7 @@ function appPageSet(id, on) {
   const attr = id === TL_PAGE ? "data-tlhome" : "data-duelshome";
   if (!on && !document.body.hasAttribute(attr)) return;
   document.body.toggleAttribute(attr, on);
+  if (on) newsSeen(id === TL_PAGE ? "timeline" : "duels");   // via de deur, de balk of het adres: wie de wereld zag, krijgt geen aankondiging meer
   try { history.replaceState(null, "", pathBase() + (on ? (id === TL_PAGE ? "timeline/" : "duels/") : location.search + location.hash)); } catch (e) {}
   syncDoor();
 }
@@ -5322,6 +5323,8 @@ function renderNx(pot = false) {   // pot = een eindscherm dat net getekend is (
 // van/tot (puzzeldatums), icoon, kleur [donker, licht], tekst [naam, regel] per taal, action = het ⋮-menu-scherm dat een tik opent;
 // optioneel known() = kent het al. Alleen terugkerende spelers op de daily, hoogstens NEWS_DAYS dagen, weg na openen of ✕; de andere
 // balken gaan voor (style.css). Geen RPC. Meetpunten news-<id>-shown/-tap/-close. ?evdate= = voorvertoning.
+// action uit NEWS_OPEN = een wereld achter de deur (Duels, Timeline): die heeft geen ⋮-regel, de balk opent hem zelf. tile = het icoon
+// is die tegel uit de deur (dezelfde blauwe TI/ME die je daar terugziet), icon blijft de reserve.
 const NEWS = [
   { id: "duels", from: "2026-11-17", to: "2026-11-23", icon: "⚔️", tint: ["#e8794a", "#b5531c"], action: "duels",
     known: () => { try { return duelKnown() || localStorage.getItem("jaardle:duel-news") != null || !!localStorage.getItem("jaardle:duel-name"); } catch (e) { return false; } },
@@ -5332,7 +5335,19 @@ const NEWS = [
       es: ["Duelos", "Reta a un amigo a 5 rondas"],
       pt: ["Duelos", "Desafie um amigo para 5 rodadas"],
     } },
+  // 26/11/2026, zijn "hoe zouden we mensen meer kunnen wijzen dat ons tabje bestaat om naar duels -> timelines te gaan": van de ±270
+  // daily-spelers per week vonden er 10 Timeline (via de deur, twee tikken), en die speelden er samen 99 runs. De balk opent hem direct.
+  { id: "timeline", from: "2026-11-26", to: "2026-12-03", icon: "🗓️", tile: "t", tint: ["#1e88e5", "#1565c0"], action: "timeline",
+    known: () => { try { return localStorage.getItem("jaardle:timeline:rec") != null; } catch (e) { return false; } },   // ooit een run uitgespeeld
+    copy: {
+      nl: ["Timeline", "Leg elke kaart op de goede plek"],
+      en: ["Timeline", "Put every card in the right place"],
+      de: ["Timeline", "Ordne Karten auf der Zeitleiste ein"],
+      es: ["Timeline", "Coloca cada carta en su lugar"],
+      pt: ["Timeline", "Coloque cada carta no lugar certo"],
+    } },
 ];
+const NEWS_OPEN = { duels: () => openDuels("news"), timeline: () => openTimeline("news") };
 const NEWS_NEW = { nl: "Nieuw", en: "New", de: "Neu", es: "Nuevo", pt: "Novo" };
 const NEWS_DAYS = 3;
 const NEWS_KEY = (id) => "jaardle:news:" + id;
@@ -5348,8 +5363,10 @@ function newsItem(today) {
     if (today < n.from || today > n.to) continue;
     const r = newsRec(n.id);
     if (r.off || (r.day !== today && (r.n || 0) >= NEWS_DAYS)) continue;
-    const item = document.querySelector(`#menu-pop .menu-item[data-action="${n.action}"]`);
-    if (!item || item.hidden) continue;   // dat scherm is er (nu) niet voor jou (bv. zonder account)
+    if (!NEWS_OPEN[n.action]) {   // een ⋮-scherm: is het er (nu) voor jou (bv. zonder account)? (de Duels-rij miste sinds de deur van 21/11 zijn regel)
+      const item = document.querySelector(`#menu-pop .menu-item[data-action="${n.action}"]`);
+      if (!item || item.hidden) continue;
+    }
     if (n.known && n.known()) continue;
     return n;
   }
@@ -5366,10 +5383,11 @@ function renderNewsBar(hideOnly) {
   el.dataset.news = n.id;
   el.style.setProperty("--nb-d", n.tint[0]);
   el.style.setProperty("--nb-l", n.tint[1]);
-  el.innerHTML = `<button type="button" class="nb-go"><span class="nb-ico" aria-hidden="true">${n.icon}</span>` +
+  const ico = (n.tile && document.querySelector(`#world-door .kw-tile[data-w="${n.tile}"]`)?.innerHTML) || n.icon;
+  el.innerHTML = `<button type="button" class="nb-go"><span class="nb-ico" aria-hidden="true">${ico}</span>` +
     `<span class="nb-t"><b><span class="nb-new">${escHtml(NEWS_NEW[lang] || NEWS_NEW.en)}</span> ${escHtml(name)}</b><small>${escHtml(line)}</small></span>` +
     `<span class="nb-chev" aria-hidden="true">›</span></button><button type="button" class="nb-x" aria-label="${escHtml(t("aria_close"))}">✕</button>`;
-  el.querySelector(".nb-go").onclick = () => { newsDone(n.id); el.hidden = true; gcCount(`news-${n.id}-tap`, `News bar tapped: ${n.id}`); newsOpen(n.action); };
+  el.querySelector(".nb-go").onclick = () => { newsDone(n.id); el.hidden = true; gcCount(`news-${n.id}-tap`, `News bar tapped: ${n.id}`); (NEWS_OPEN[n.action] || newsOpen)(n.action); };
   el.querySelector(".nb-x").onclick = () => { newsDone(n.id); el.hidden = true; gcCount(`news-${n.id}-close`, `News bar closed: ${n.id}`); };
   el.hidden = false;
   if (getComputedStyle(el).display === "none") return;   // een andere balk staat er al: deze dag telt niet

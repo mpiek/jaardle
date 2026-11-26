@@ -2,7 +2,7 @@
 // gewoon achter jaardle.com/timeline als alpha mode"); dezelfde dag een pagina van de app zelf, zoals /duels/ (zijn "zelfde bovenscherm
 // als duels dat je ook profiel enzo hebt want is 1 account"): game.js laadt dit bestand lui (op /timeline/ of bij een tik op de deur op
 // de Duels-pagina) en roept open(host) aan. Dit zet het scherm (#modal-tl, een .modal in <main>) en het logo + 🔈 in de kop (#mode-tabs);
-// profiel, 🌐 en de deur zijn van game.js. Nog alpha: noindex (build-html.mjs).
+// profiel, 🌐 en de deur zijn van game.js. Geen alpha meer sinds 26/11 (zijn "laten we alpha ook maar weghalen", met de nieuwsbalk).
 // Mockups: https://claude.ai/artifact/8deX6CCXoyNo5RLdM6ymz1 (het spel, v5), https://claude.ai/artifact/4f3dCFfBmN2X4iQ9cRguoo (de kop).
 // Server: db/226 get_timeline_deck(lang); sinds db/233 (23/11) get_timeline_deck2 (met id), record_timeline_run (de server telt je run
 // na uit de volgorde waarin je legde en geeft meteen het bord: je team deze week, of jij en de bots) en get_timeline_board (ander team).
@@ -147,7 +147,7 @@
   const shareText = (L, n, marks, isRec) => `${L.shareHead(n, isRec)}\n📊 ${marks.map((m) => (m ? "🟩" : "🟥")).join("")}\njaardle.com/timeline`;
   const endBand = (n) => (n < 5 ? "0-4" : n < 10 ? "5-9" : n < 20 ? "10-19" : "20+");
 
-  const CSS = String.raw`/* ═══ 🗓️ Timeline (alpha, /timeline.js) ═══ */
+  const CSS = String.raw`/* ═══ 🗓️ Timeline (/timeline.js) ═══ */
 :root { --tl: #1976d2; --tl-back: #1976d2; --tl-back-2: #1565c0; --tl-ch: clamp(10rem, 100dvh - 30rem, 13.5rem);
   /* de kaart in je hand is altijd even hoog, hoe lang de tekst ook is (26/11: de tafel sprong mee met elke tekst); is het scherm hoog
      genoeg (de tafel staat al op zijn grootst), dan krijgt hij de ruimte die over is, tot 16rem */
@@ -161,7 +161,7 @@
 body[data-tlhome] #mode-tabs { display: flex; }
 [data-tlhome] #mode-tabs > :is(.jl-mid, .mode-seg) { display: none; }
 [data-tlhome] .kop-tl { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; }
-/* het logo: het woord met een tijdlijn in de kleuren van de tijd eronder, en alpha; echt in het midden van de kop als er ruimte is (center()) */
+/* het logo: het woord met een tijdlijn in de kleuren van de tijd eronder (de alpha-pil ging eraf op 26/11); echt in het midden van de kop als er ruimte is (center()) */
 .tl-logo { justify-self: center; min-width: 0; display: flex; align-items: center; gap: 0.45rem; margin: 0; font-size: 1rem; transform: translateX(var(--kd-dx, 0px)); }
 .tl-logo-in { display: inline-flex; flex-direction: column; align-items: stretch; gap: 4px; line-height: 1; color: var(--fg); }
 .tl-logo-txt { font-size: 0.98rem; font-weight: 900; letter-spacing: 0.13em; text-transform: uppercase; padding-left: 0.13em; }
@@ -171,8 +171,6 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-logo-line i:nth-child(1) { left: 6%; background: var(--purple); }
 .tl-logo-line i:nth-child(2) { left: 50%; background: var(--green); }
 .tl-logo-line i:nth-child(3) { left: 94%; background: var(--orange); }
-.tl-alpha { padding: 0.08rem 0.4rem; border: 1px solid var(--border); border-radius: 999px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--muted); }
 /* 🔈 zoals op Duels: een rondje van 1.95rem (31 px), even groot als het poppetje links (23/11, één maat voor de hele bovenregel);
    ↻ naast de hartjes is hetzelfde rondje */
 .tl-rst, .tl-snd { flex: none; display: grid; place-items: center; width: 1.95rem; height: 1.95rem; padding: 0; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 50%; }
@@ -726,7 +724,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     `<path d="M20.2 12.6A8.2 8.2 0 1 1 18.2 6.6"/><path d="M18.1 2.5l.1 4.1-4.1-.7"/></g></svg>`;
   // in de kop van game.js (#mode-tabs), achter profiel, 🌐 en de deur: het logo en 🔈
   const kopHtml = () => `<h2 class="tl-logo"><span class="tl-logo-in"><span class="tl-logo-txt">Timeline</span><span class="tl-logo-line" aria-hidden="true"><i></i><i></i><i></i></span></span>` +
-    `<span class="tl-alpha">alpha</span></h2><button type="button" class="tl-snd" aria-pressed="${snd}" aria-label="${esc(L.sound)}" title="${esc(L.sound)}">${SND_SVG}</button>`;
+    `</h2><button type="button" class="tl-snd" aria-pressed="${snd}" aria-label="${esc(L.sound)}" title="${esc(L.sound)}">${SND_SVG}</button>`;
   function hudHtml(s, o) {
     const hearts = [0, 1, 2].map((i) => {
       const br = o.breakIdx === i;
@@ -1289,7 +1287,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     k.innerHTML = kopHtml();
     return k;
   }
-  // het logo echt in het midden van de kop als er ruimte is, zoals bij Duels (centerLogo in duel.js): het woord, niet woord + alpha;
+  // het logo echt in het midden van de kop als er ruimte is, zoals bij Duels (centerLogo in duel.js): het woord zelf;
   // nooit dichter dan 6 px bij de deur of 🔈
   function center() {
     const k = document.getElementById("kop-tl"), nav = document.getElementById("mode-tabs"), lg = k && k.querySelector(".tl-logo");

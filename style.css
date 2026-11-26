@@ -4843,6 +4843,7 @@ html[data-theme="light"] #news-bar, html[data-theme="parchment"] #news-bar { --n
 .nb-go { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.1rem 0.4rem 0.7rem; background: none; border: 0;
   color: var(--fg); font: inherit; font-size: 0.85rem; line-height: 1.25; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .nb-ico { flex: none; font-size: 1.35rem; line-height: 1; }
+.nb-ico .kd-logo { display: block; width: 1.5rem; height: 1.5rem; }   /* tile: de tegel uit de deur (NEWS[].tile), net zo groot als het emoji-icoon */
 .nb-t { flex: 1; min-width: 0; }
 .nb-t b { font-weight: 600; }
 .nb-t small { display: block; color: var(--muted); font-size: 0.75rem; }

@@ -95,7 +95,7 @@ src += `
   isRealTap, TAP_SLOP, TAP_MAX_MS,
   earnedFlairsOf, dailyRowHtml, lbRow, pcFetch, pcCache, raceLaneHtml,
   boardVeilFor, historyVeilFor, dailyTableHtml, esLockHtml, setLbDailyDate: (d) => { lbDailyDate = d; },
-  NEWS, NEWS_NEW, NEWS_DAYS, NEWS_KEY, newsItem, newsDone, newsSeen,
+  NEWS, NEWS_NEW, NEWS_DAYS, NEWS_KEY, newsItem, newsDone, newsSeen, NEWS_OPEN,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -5525,8 +5525,9 @@ test("NEWS — elke rij is sluitend: id, datums, kleur, menu-actie en tekst in a
     assert.match(n.id, /^[a-z0-9-]+$/); assert.ok(!ids.has(n.id), "unieke id"); ids.add(n.id);
     assert.match(n.from, /^\d{4}-\d\d-\d\d$/); assert.match(n.to, /^\d{4}-\d\d-\d\d$/); assert.ok(n.from <= n.to);
     assert.equal(n.tint.length, 2); for (const c of n.tint) assert.match(c, /^#[0-9a-f]{6}$/i);
-    assert.ok(new RegExp(`class="menu-item" role="menuitem" data-action="${n.action}"`).test(tmpl) || (n.action === "duels" && /<a id="world-door"/.test(tmpl)),
-      "de actie is een scherm in het ⋮-menu (Duels: de deur naast 🌐, sinds 21/11)");
+    assert.ok(new RegExp(`class="menu-item" role="menuitem" data-action="${n.action}"`).test(tmpl) || (typeof T.NEWS_OPEN[n.action] === "function" && /<a id="world-door"/.test(tmpl)),
+      "de actie is een scherm in het ⋮-menu, of een wereld achter de deur naast 🌐 die de balk zelf opent (NEWS_OPEN: Duels, Timeline)");
+    if (n.tile) assert.match(tmpl, new RegExp(`class="kw-tile" data-w="${n.tile}"`), `${n.id}: de tegel staat in de deur`);
     for (const k of Object.keys(T.LANGS)) {
       const c = n.copy[k];
       assert.ok(Array.isArray(c) && c.length === 2 && c.every((x) => typeof x === "string" && x.trim()), `${n.id}: tekst in ${k}`);
@@ -5553,7 +5554,7 @@ test("NEWS — wie ziet de balk: terugkerend, in het venster, hoogstens NEWS_DAY
     T.setState({ mode: "free" }); assert.equal(T.newsItem(day), null, "vrij spel: niets");
     T.setState({ mode: "daily", duel: { code: "X" } }); assert.equal(T.newsItem(day), null, "duelronde: niets");
     T.setState({ mode: "daily" });
-    item.hidden = true; assert.equal(T.newsItem(day), null, "menu-item verborgen: niets"); item.hidden = false;
+    item.hidden = true; assert.equal(T.newsItem(day), T.NEWS_OPEN[n.action] ? n : null, "menu-item verborgen: niets (een wereld achter de deur heeft geen ⋮-regel nodig)"); item.hidden = false;
     n.known = () => true; assert.equal(T.newsItem(day), null, "kent het al"); n.known = () => false;
     // NEWS_DAYS getoonde dagen: op de laatste dag nog wel, de dag erna niet meer
     localStorage.setItem(T.NEWS_KEY(n.id), JSON.stringify({ n: T.NEWS_DAYS, day }));
@@ -5569,6 +5570,29 @@ test("NEWS — wie ziet de balk: terugkerend, in het venster, hoogstens NEWS_DAY
   } finally {
     globalThis.document = doc; T.auth.user = user; n.known = known; T.setState(null); T.setLocalHistory([]); localStorage.removeItem(T.NEWS_KEY(n.id));
   }
+});
+
+test("NEWS — Timeline (26/11): opent zelf, zonder ⋮-regel; weg zodra je hem ooit uitspeelde of de pagina opende", () => {
+  const n = T.NEWS.find((x) => x.id === "timeline"), day = n.from;
+  assert.ok(n && n.action === "timeline" && n.tile === "t" && typeof T.NEWS_OPEN.timeline === "function");
+  const doc = globalThis.document, user = T.auth.user;
+  globalThis.document = { ...doc, querySelector: () => null };   // geen ⋮-regel "timeline" (en sinds 21/11 ook geen "duels")
+  try {
+    T.auth.user = null; T.setState({ mode: "daily" }); T.setLocalHistory([{ date: "2026-01-01" }]);
+    for (const x of T.NEWS) localStorage.removeItem(T.NEWS_KEY(x.id));
+    localStorage.removeItem("jaardle:timeline:rec");
+    assert.equal(T.newsItem(day), n, "terugkerende speler: de balk, ook zonder menu-regel");
+    localStorage.setItem("jaardle:timeline:rec", "0");
+    assert.equal(T.newsItem(day), null, "ooit een run uitgespeeld (ook met 0): kent hem al");
+    localStorage.removeItem("jaardle:timeline:rec");
+    T.newsSeen("timeline"); assert.equal(T.newsItem(day), null, "de pagina geopend: weg");
+  } finally {
+    globalThis.document = doc; T.auth.user = user; T.setState(null); T.setLocalHistory([]);
+    for (const x of T.NEWS) localStorage.removeItem(T.NEWS_KEY(x.id));
+  }
+  const GAME = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(GAME, /if \(on\) newsSeen\(id === TL_PAGE \? "timeline" : "duels"\);/, "elke weg naar de wereld (deur, balk, adres) telt als gezien");
+  assert.match(GAME, /\(NEWS_OPEN\[n\.action\] \|\| newsOpen\)\(n\.action\)/, "de tik opent de wereld zelf");
 });
 
 test("⚔️ duel-prestaties (db/224) — Duellist + drie trofeeën, beloningen aan de getallen van set_my_flair, eigen sectie tussen Dagelijks en Mijlpalen, alleen ingelogd", () => {
