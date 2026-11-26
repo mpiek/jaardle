@@ -123,15 +123,15 @@
   // 📅 de daily (db/241): de twee vakken van het schuifje heten zoals bij Jaardle (tab_daily / tab_free); verder zo min mogelijk tekst
   const T5 = {
     nl: { daily: "Daily", free: "Nieuw spel", dayAria: (n, k) => `${n} van ${k} goed`, dayLeft: (h) => `vandaag · nog ${h} u`,
-      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7${n === 7 ? " 🏆" : ""}`, dayAll: (n, avg) => `🌍 ${n} spelers vandaag · gem. ${avg}` },
     en: { daily: "Daily", free: "New game", dayAria: (n, k) => `${n} of ${k} correct`, dayLeft: (h) => `today · ${h}h left`,
-      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7${n === 7 ? " 🏆" : ""}`, dayAll: (n, avg) => `🌍 ${n} players today · avg. ${avg}` },
     de: { daily: "Täglich", free: "Neues Spiel", dayAria: (n, k) => `${n} von ${k} richtig`, dayLeft: (h) => `heute · noch ${h} Std.`,
-      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7${n === 7 ? " 🏆" : ""}`, dayAll: (n, avg) => `🌍 ${n} Spieler heute · Ø ${avg}` },
     es: { daily: "Diario", free: "Partida nueva", dayAria: (n, k) => `${n} de ${k} aciertos`, dayLeft: (h) => `hoy · quedan ${h} h`,
-      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7${n === 7 ? " 🏆" : ""}`, dayAll: (n, avg) => `🌍 ${n} jugadores hoy · media ${avg}` },
     pt: { daily: "Diário", free: "Jogo novo", dayAria: (n, k) => `${n} de ${k} acertos`, dayLeft: (h) => `hoje · faltam ${h} h`,
-      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7${n === 7 ? " 🏆" : ""}`, dayAll: (n, avg) => `🌍 ${n} jogadores hoje · média ${avg}` },
   };
   for (const c in T5) Object.assign(T[c], T5[c]);
 
@@ -569,6 +569,11 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-mini i { display: block; width: 7px; height: 7px; border-radius: 2px; background: var(--red); }
 .tl-mini i.ok { background: var(--green); }
 .tl-tofree > span { margin-right: 0.1rem; }
+/* 7/7 (rapport 1 #6, zijn "6 ok"): goud in plaats van groen, in je vakjes en in ieders rijtje op het bord; het getal is al goud (.tl-perfect) */
+.tl-pips.tl-gold .tl-pip.ok { background: var(--achv-gold); border-color: var(--achv-gold); }
+.tl-mini.tl-gold i.ok { background: var(--achv-gold); }
+/* 🌍 iedereen vandaag (26/11, zijn "hier moet ook een line op met hoeveel spelers gespeeld hebben met average scores"), zoals in de recap van Jaardle */
+.tl-end-all { margin: 0.45rem 0 0; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .tl-pip.pop { animation: none; } }
 `;
 
@@ -826,7 +831,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
   // 📅 de 7 vakjes van de daily: leeg, aan de beurt (blauw), goed, fout; pop = het vakje dat net kleurde
   function pipsHtml(s, pop) {
     const k = s.marks.length, cur = s.done ? -1 : k;
-    return `<span class="tl-pips" role="img" aria-label="${esc(L.dayAria(s.n, k))}">` + Array.from({ length: 7 }, (_, i) =>
+    return `<span class="tl-pips${s.done && s.n === 7 ? " tl-gold" : ""}" role="img" aria-label="${esc(L.dayAria(s.n, k))}">` + Array.from({ length: 7 }, (_, i) =>
       `<i class="tl-pip${i < k ? (s.marks[i] ? " ok" : " bad") : i === cur ? " cur" : ""}${pop === i ? " pop" : ""}"></i>`).join("") + `</span>`;
   }
   function hudHtml(s, o) {
@@ -937,16 +942,23 @@ body[data-tlhome] #mode-tabs { display: flex; }
   // rijtje), dan Deel en 🎲 Nieuw spel (naar een vrije run, zoals het schuifje)
   const dayEndHtml = (s) => `<div class="tl-end" aria-live="polite"><div class="tl-end-top"><span class="tl-end-n${s.n === 7 ? " tl-perfect" : ""}">${s.n}<small>/7</small></span>` +
     `<span><span class="tl-end-l">${esc(L.placed(s.n))}</span>${pipsHtml(s)}</span></div>` +
-    (s.streakHtml ? `<div class="tl-end-streak">${s.streakHtml}</div>` : "") + boardHtml(s) +
+    (s.streakHtml ? `<div class="tl-end-streak">${s.streakHtml}</div>` : "") + dayAllHtml(s) + boardHtml(s) +
     `<div class="tl-end-acts"><button type="button" class="tl-share">${SHARE_SVG}<span>${esc(L.share)}</span></button>` +
     `<button type="button" class="tl-again tl-tofree"><span aria-hidden="true">🎲</span>${esc(L.free)}</button></div></div>`;
+  // 🌍 iedereen die vandaag de Timeline-daily speelde en hun gemiddelde (db/242: 'all' bij het bord, zonder bots); pas vanaf 2 spelers
+  function dayAllHtml(s) {
+    const a = s.board && s.board.all, n = a ? +a.n || 0 : 0;
+    if (n < 2 || !Number.isFinite(+a.avg)) return "";
+    const avg = (+a.avg).toLocaleString(document.documentElement.lang || "en", { maximumFractionDigits: 1 });
+    return `<p class="tl-end-all">${esc(L.dayAll(n, avg))}</p>`;
+  }
   // ── je team deze week (db/233): de rijen van het 🏆-bord (naamcel en medailles van game.js); groot team = de top 3, dan jij met je buren ──
   const MEDAL = ["🥇", "🥈", "🥉"];
   function boardRowHtml(r, rank, delta) {
     const nm = H && H.nameCell ? H.nameCell({ display_name: r.name || "", flair: r.flair || null, title: r.title || null, is_me: !!r.me }, rank)
       : esc(r.name || "") + (r.flair ? ` ${esc(r.flair)}` : "") + (r.me ? ` <span class="lb-tag">${esc(L.you)}</span>` : "");
     // 📅 op het bord van de daily ieders rijtje (m = "1101011") naast zijn getal
-    const mini = isDayMarks(r.m) ? `<span class="tl-mini" aria-hidden="true">${[...r.m].map((x) => `<i${x === "1" ? ' class="ok"' : ""}></i>`).join("")}</span>` : "";
+    const mini = isDayMarks(r.m) ? `<span class="tl-mini${r.m === "1111111" ? " tl-gold" : ""}" aria-hidden="true">${[...r.m].map((x) => `<i${x === "1" ? ' class="ok"' : ""}></i>`).join("")}</span>` : "";
     return `<div class="lb-row${r.me ? " lb-me" : ""}${rank <= 3 ? " lb-top" + rank : ""}${delta > 0 ? " tl-up" : ""}"${delta > 0 ? ` data-d="${delta}"` : ""}>` +
       `<span class="lb-rank">${MEDAL[rank - 1] || rank}</span><span class="lb-name">${nm}${r.bot ? ` <span class="lb-tag lb-bot">${esc(L.bot)}</span>` : ""}</span>` +
       `<span class="lb-val">${mini}${+r.v || 0}${delta > 0 ? `<span class="wk-delta up">▲${delta}</span>` : ""}${r.live ? `<i class="lb-live" aria-hidden="true"></i>` : ""}</span></div>`;
@@ -1182,6 +1194,14 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (res && res.board && Array.isArray(res.board.rows)) g.board = res.board;
     if (G === g && root) draw({});
     await dayStreak(g, true);
+    // 🃏 db/242: Kroniekschrijver telt nu ook je goede kaarten uit de daily; een nieuwe trede = het kaartje onder je uitslag, zoals na een run
+    if (res && !quiet && H.tlAchv && H.user && H.user()) {
+      const box = document.createElement("div");
+      box.className = "tl-achv";
+      g.achvBox = box;
+      root.querySelector(".tl-end-top")?.after(box);
+      H.tlAchv(box).catch(() => {});
+    }
     if (g.board && !quiet) gc("timeline-daily-board-" + (g.board.team ? "team" : "bots"), "Timeline: daily board (" + (g.board.team ? "team" : "bots") + ")");
   }
   // de kaart vliegt van je hand naar het gat (een kloon; de echte kaart is dan al weg)
@@ -1262,7 +1282,11 @@ body[data-tlhome] #mode-tabs { display: flex; }
         draw({});
         const row = root.querySelector(".tl-row");
         if (row) row.scrollLeft = 0;
-        if (G.n === 7) play("record");
+        if (G.n === 7) {   // foutloos: je gekozen viering, zoals bij een gewonnen Jaardle-daily (rapport 2 #7, zijn "7prima")
+          play("record");
+          const y = G.line[G.line.length - 1].y;
+          setTimeout(() => { if (H && H.celebrate) H.celebrate(y); }, 700);
+        }
         gc("timeline-daily-end-" + G.n, `Timeline: daily ended with ${G.n}/7`);
         finishDaily(G);
         return;

@@ -5899,3 +5899,18 @@ test("tlDaysForMe — de Timeline-dagen op dit toestel: van jou of van niemand; 
   assert.deepEqual(tlDaysForMe("u1"), []);
   localStorage.removeItem(TL_DAYS_KEY);
 });
+
+
+test("🏅 Weekprijs ×N (db/242): herhaalbare dagelijkse trofee, alleen ingelogd, met een eigen munt; achvNormalize kent week_prizes", () => {
+  const { ACHV_TROPHIES, achvNormalize } = globalThis.__T;
+  const tr = ACHV_TROPHIES.find((x) => x.key === "week_prizes");
+  assert.ok(tr, "trofee bestaat");
+  assert.equal(tr.repeatable, true); assert.equal(tr.daily, true); assert.equal(tr.authOnly, true);
+  assert.ok(!tr.flair && !tr.flairFx, "geen flair: alleen voor de verzameling");
+  assert.deepEqual(tr.tiers, [1, 5, 12, 25, 50, 100]);
+  assert.equal(achvNormalize({ week_prizes: 7 }).week_prizes, 7);
+  assert.equal(achvNormalize({}).week_prizes, 0);
+  const GAME = readFileSync(join(dir, "..", "game.js"), "utf8");
+  assert.match(GAME, /g id=\\"achv-art-podium\\"/, "de munt bestaat");
+  for (const l of ["nl", "en", "de", "es", "pt"]) assert.equal(typeof globalThis.__T.I18N[l].achv_t_weekprize, "string", l);
+});

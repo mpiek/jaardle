@@ -267,3 +267,28 @@ test("📅 de daily: alle 7 leggen (geen levens, geen ↻), halverwege bewaard, 
   assert.match(GAME, /const withTlDays = \(x\) =>/);
   assert.match(GAME, /tlServer: Array\.isArray\(r\.tl_days\)/);
 });
+
+// ── 26/11 (na de livegang): 7/7 goud, 🌍 iedereen vandaag, Kroniekschrijver na de daily, de viering ────────────────────────
+test("📅 7/7: goud in de vakjes en ieders rijtje, 🏆 in het deelbericht; de viering via game.js (nooit het Jaardle-antwoord)", () => {
+  const { dayShareText, T } = core();
+  for (const l of Object.keys(T)) {
+    assert.match(dayShareText(T[l], 2, "1111111"), /7\/7 🏆\n/, `${l}: 7/7 met 🏆`);
+    assert.ok(!/🏆/.test(dayShareText(T[l], 2, "1111101")), `${l}: 6/7 zonder 🏆`);
+  }
+  assert.match(SRC, /\$\{s\.done && s\.n === 7 \? " tl-gold" : ""\}/);
+  assert.match(SRC, /r\.m === "1111111" \? " tl-gold" : ""/);
+  assert.match(SRC, /if \(H && H\.celebrate\) H\.celebrate\(y\);/);
+  const GAME = readFileSync(join(ROOT, "game.js"), "utf8");
+  assert.match(GAME, /celebrate: tlCelebrate/);
+  assert.match(GAME, /function showGoldYears\(firstTry, year\) \{\n  const yr = year \?\? state\.event\?\.year \?\? "";/);
+  const cel = GAME.slice(GAME.indexOf("function tlCelebrate("), GAME.indexOf("async function tlStreakHtml("));
+  assert.ok(!/state\.event/.test(cel), "de viering van Timeline leest het antwoord van de Jaardle-daily niet");
+});
+
+test("📅 🌍 iedereen vandaag: vanaf 2 spelers, uit 'all' bij het bord (db/242), in alle talen met het getal en het gemiddelde", () => {
+  const { T } = core();
+  for (const l of Object.keys(T)) { const s = T[l].dayAll(23, "5,1"); assert.match(s, /^🌍 23 /, l); assert.match(s, /5,1$/, l); }
+  assert.match(SRC, /if \(n < 2 \|\| !Number\.isFinite\(\+a\.avg\)\) return "";/);
+  // 🃏 na de daily ook het kaartje van Kroniekschrijver (de server telt de daily-kaarten mee)
+  assert.match(SRC, /if \(res && !quiet && H\.tlAchv && H\.user && H\.user\(\)\) \{/);
+});
