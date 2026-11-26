@@ -4801,6 +4801,7 @@ function finishGame(won, fresh = false) {
   // knop — maar niet bij een inhaalpot (die telt niet mee op het dagbord van gisteren).
   if (els.recapBtn) els.recapBtn.hidden = state.mode !== "daily" || isMakeup(state);
   renderNx(true);
+  doorPeekSoon();   // 26/11: de deur waaiert na je daily even uit (hooguit 3 dagen)
   renderHintStatus();
   // Vieren. Hooguit één schermvullend effect (twee door elkaar is rommel): de
   // exclusieve win-fx (gouden jaartallen = capstone-goud, bier = potjes-diamant)
@@ -5187,7 +5188,70 @@ function syncDoor() {
   if (jt && ic && jt.getAttribute("src") !== ic) jt.setAttribute("src", ic);
   if (ic) document.querySelectorAll(".acct-promise-logo").forEach((im) => { if (im.getAttribute("src") !== ic) im.setAttribute("src", ic); });   // "Gratis, voor altijd"
 }
+// ── De deur waaiert uit (26/11/2026, zijn "denk de waaier"; mockup https://claude.ai/artifact/EDtLYSWGPUN3vE83xwYB4e): van de ±270
+// daily-spelers per week vonden er 10 Timeline, alleen via deze deur. Dus waaieren na je daily de drie tegels (JA/AR · DU/EL · TI/ME) even
+// onder de deur uit en klappen weer in: zo zie je dat er meer achter zit, zonder knop of tekst. Hooguit PEEK_DAYS dagen, één keer per
+// dag, alleen als de deur in beeld is en er geen paneel open staat. Nooit voor wie Duels of Timeline al kent (ooit geopend, een duel,
+// een Timeline-run), niet in een duelronde of inhaal-daily, niet met minder beweging. Meetpunt door-peek (gcCountDaily).
+const PEEK_KEY = "jaardle:door-peek", PEEK_DAYS = 3, PEEK_DELAY = 1200;
+function peekRec() { try { return JSON.parse(localStorage.getItem(PEEK_KEY) || "{}") || {}; } catch (e) { return {}; } }
+function peekSave(r) { try { localStorage.setItem(PEEK_KEY, JSON.stringify(r)); } catch (e) {} }
+function peekOff() { const r = peekRec(); if (!r.off) peekSave({ ...r, off: 1 }); }   // een wereld geopend: nooit meer
+function worldsKnown() {
+  try { return duelKnown() || localStorage.getItem("jaardle:timeline:rec") != null || !!localStorage.getItem("jaardle:duel-name"); } catch (e) { return false; }
+}
+function doorPeekDue(rec, today, known) { return !known && !rec.off && rec.day !== today && (rec.n || 0) < PEEK_DAYS; }
+let peekTimer = 0, peekWait = false, peekIo = null, peekFx = 0;
+function doorPeekSoon() {   // het eindscherm van de daily staat er net (renderResult)
+  clearTimeout(peekTimer);
+  if (!state || !state.done || state.mode !== "daily" || state.duel || isMakeup(state)) return;
+  if (!doorPeekDue(peekRec(), eventToday(), worldsKnown())) return;
+  peekWait = false; peekFx = 0;
+  peekTimer = setTimeout(doorPeek, PEEK_DELAY);
+}
+// Na een gewonnen daily gaat eerst de recap open (en soms een beloning): de waaier wacht tot dat dicht is (closeModal, toggleMenu).
+function peekResume() { if (!peekWait) return; peekWait = false; clearTimeout(peekTimer); peekTimer = setTimeout(doorPeek, 600); }
+function doorPeek() {
+  const d = document.getElementById("world-door");
+  if (!d || worldNow() !== "j" || !state || !state.done || state.mode !== "daily" || state.duel || isMakeup(state)) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!noPanelOpen() || document.getElementById("menu-pop")?.hidden === false) { peekWait = true; return; }   // recap, beloning of menu open: peekResume
+  if (fxBox && ++peekFx <= 30) { peekTimer = setTimeout(doorPeek, 700); return; }   // eerst de viering (vuurwerk, confetti: runFx) uit laten spelen
+  const box = d.getBoundingClientRect();
+  if (!d.offsetParent) return;
+  if (box.top < 0 || box.bottom > innerHeight) {   // op een telefoon staat de kop na de laatste gok vaak buiten beeld: wachten tot je terugscrolt
+    if (!peekIo && "IntersectionObserver" in window) {
+      peekIo = new IntersectionObserver((es) => {
+        if (!es.some((e) => e.intersectionRatio >= 0.99)) return;
+        peekIo.disconnect(); peekIo = null; peekTimer = setTimeout(doorPeek, 350);
+      }, { threshold: 1 });
+      peekIo.observe(d);
+    }
+    return;
+  }
+  const today = eventToday(), rec = peekRec();
+  if (!doorPeekDue(rec, today, worldsKnown())) return;
+  peekSave({ n: (rec.n || 0) + 1, day: today });
+  gcCountDaily("door-peek", "Door: the three worlds fanned out once");
+  d.querySelector(".kw-fan")?.remove();
+  const fan = document.createElement("span");
+  fan.className = "kw-fan"; fan.setAttribute("aria-hidden", "true");
+  fan.innerHTML = ["j", "d", "t"].map((w) => `<span class="kw-ft${w === "j" ? " on" : ""}">${d.querySelector(`.kw-tile[data-w="${w}"]`)?.innerHTML || ""}</span>`).join("");
+  d.append(fan);
+  const ease = "cubic-bezier(0.22, 0.8, 0.24, 1)", kids = [...fan.children], off = (i) => `translateX(${(1 - i) * 34}px) scale(0.7)`;   // vanuit het midden
+  const shut = [{ opacity: 0, transform: "translate(-50%, -8px) scale(0.6)" }, { opacity: 1, transform: "translate(-50%, 0) scale(1)" }];
+  try {
+    fan.animate(shut, { duration: 240, easing: ease, fill: "both" });
+    kids.forEach((c, i) => c.animate([{ opacity: 0, transform: off(i) }, { opacity: 1, transform: "none" }], { duration: 300, delay: 60 + i * 70, easing: ease, fill: "both" }));
+    setTimeout(() => {
+      kids.forEach((c, i) => c.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: off(i) }], { duration: 220, easing: "ease-in", fill: "both" }));
+      fan.animate([...shut].reverse(), { duration: 240, delay: 60, easing: "ease-in", fill: "both" });
+    }, 2300);
+  } catch (e) {}
+  setTimeout(() => fan.remove(), 2620);
+}
 function doorTap() {
+  document.querySelector("#world-door .kw-fan")?.remove();
   const at = worldNow();
   if (at === "j") { newsSeen("duels"); openDuels("door"); }
   else if (at === "d") openTimeline("door");
@@ -5236,7 +5300,7 @@ function appPageSet(id, on) {
   const attr = id === TL_PAGE ? "data-tlhome" : "data-duelshome";
   if (!on && !document.body.hasAttribute(attr)) return;
   document.body.toggleAttribute(attr, on);
-  if (on) newsSeen(id === TL_PAGE ? "timeline" : "duels");   // via de deur, de balk of het adres: wie de wereld zag, krijgt geen aankondiging meer
+  if (on) { newsSeen(id === TL_PAGE ? "timeline" : "duels"); peekOff(); }   // via de deur, de balk of het adres: wie de wereld zag, krijgt geen aankondiging en geen waaier meer
   try { history.replaceState(null, "", pathBase() + (on ? (id === TL_PAGE ? "timeline/" : "duels/") : location.search + location.hash)); } catch (e) {}
   syncDoor();
 }
@@ -14470,6 +14534,7 @@ function toggleMenu(force) {
   const open = force !== undefined ? force : pop.hidden;
   pop.hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
+  if (!open) peekResume();
   showMenuPane("main");   // openen en sluiten begint altijd weer bij de schermen
   if (open && auth.user) {
     renderMenuAccount();   // naam/flair kunnen sinds het tekenen binnengekomen of veranderd zijn
@@ -14972,6 +15037,7 @@ function closeModal(id) {
   if (noPanelOpen()) unlockBodyScroll();   // de Duels- en Timeline-pagina scrollen zelf
   setModalUrl(null);
   retryDeferredPopups();   // beloning/kroning die voor dit scherm moest wijken
+  peekResume();   // de deur waaiert pas uit als alles dicht is (doorPeek)
 }
 
 // Op de Duels- of Timeline-pagina: alleen wat erboven ligt dicht, de pagina blijft (zoals Esc daar doet); anders alles (closeAllModals).

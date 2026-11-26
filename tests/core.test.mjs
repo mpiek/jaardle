@@ -96,6 +96,7 @@ src += `
   earnedFlairsOf, dailyRowHtml, lbRow, pcFetch, pcCache, raceLaneHtml,
   boardVeilFor, historyVeilFor, dailyTableHtml, esLockHtml, setLbDailyDate: (d) => { lbDailyDate = d; },
   NEWS, NEWS_NEW, NEWS_DAYS, NEWS_KEY, newsItem, newsDone, newsSeen, NEWS_OPEN,
+  PEEK_KEY, PEEK_DAYS, doorPeekDue, peekRec, peekOff, worldsKnown,
 };`;
 (0, eval)(src);   // indirecte eval → sloppy global scope (game.js heeft geen 'use strict')
 // De vieringen zitten in een eigen bestand (lui geladen in de browser): hier gewoon meteen inladen.
@@ -5591,8 +5592,34 @@ test("NEWS — Timeline (26/11): opent zelf, zonder ⋮-regel; weg zodra je hem 
     for (const x of T.NEWS) localStorage.removeItem(T.NEWS_KEY(x.id));
   }
   const GAME = readFileSync(join(dir, "..", "game.js"), "utf8");
-  assert.match(GAME, /if \(on\) newsSeen\(id === TL_PAGE \? "timeline" : "duels"\);/, "elke weg naar de wereld (deur, balk, adres) telt als gezien");
+  assert.match(GAME, /if \(on\) \{ newsSeen\(id === TL_PAGE \? "timeline" : "duels"\);/, "elke weg naar de wereld (deur, balk, adres) telt als gezien");
   assert.match(GAME, /\(NEWS_OPEN\[n\.action\] \|\| newsOpen\)\(n\.action\)/, "de tik opent de wereld zelf");
+});
+
+test("De deur waaiert uit (26/11): hooguit PEEK_DAYS dagen, één keer per dag, nooit voor wie een wereld kent", () => {
+  const day = "2026-11-26";
+  assert.equal(T.PEEK_DAYS, 3);
+  assert.equal(T.doorPeekDue({}, day, false), true, "nieuw toestel");
+  assert.equal(T.doorPeekDue({ n: 1, day }, day, false), false, "vandaag al gedaan");
+  assert.equal(T.doorPeekDue({ n: 2, day: "2026-11-25" }, day, false), true, "derde dag");
+  assert.equal(T.doorPeekDue({ n: 3, day: "2026-11-25" }, day, false), false, "na drie dagen klaar");
+  assert.equal(T.doorPeekDue({}, day, true), false, "kent Duels of Timeline al");
+  assert.equal(T.doorPeekDue({ off: 1 }, day, false), false, "een wereld geopend");
+  try {
+    for (const k of ["jaardle:duels", "jaardle:duelInvite", "jaardle:duel-name", "jaardle:timeline:rec", T.PEEK_KEY]) localStorage.removeItem(k);
+    assert.equal(T.worldsKnown(), false);
+    localStorage.setItem("jaardle:timeline:rec", "4"); assert.equal(T.worldsKnown(), true, "ooit een Timeline-run");
+    localStorage.removeItem("jaardle:timeline:rec");
+    T.peekOff(); assert.equal(T.peekRec().off, 1);
+  } finally { localStorage.removeItem(T.PEEK_KEY); }
+  const GAME = readFileSync(join(dir, "..", "game.js"), "utf8"), CSS = readFileSync(join(dir, "..", "style.css"), "utf8");
+  assert.match(GAME, /renderNx\(true\);\n\s+doorPeekSoon\(\);/, "na het tekenen van het eindscherm");
+  assert.match(GAME, /if \(on\) \{ newsSeen\(id === TL_PAGE \? "timeline" : "duels"\); peekOff\(\); \}/, "een wereld openen = nooit meer waaieren");
+  assert.match(GAME, /function doorPeek\(\) \{[\s\S]*?prefers-reduced-motion: reduce[\s\S]*?box\.top < 0 \|\| box\.bottom > innerHeight/, "niet met minder beweging, alleen als de deur in beeld is");
+  assert.match(CSS, /\.kw-fan \{ position: absolute;[^}]*pointer-events: none; \}/, "de waaier is alleen een plaatje");
+  assert.match(GAME, /retryDeferredPopups\(\);[^\n]*\n\s+peekResume\(\);/, "na een gewonnen daily staat de recap open: de waaier wacht tot die dicht is");
+  assert.match(GAME, /if \(!open\) peekResume\(\);/, "of tot het menu dicht is");
+  assert.match(GAME, /if \(fxBox && \+\+peekFx <= 30\) \{ peekTimer = setTimeout\(doorPeek, 700\); return; \}/, "niet door de winviering heen");
 });
 
 test("⚔️ duel-prestaties (db/224) — Duellist + drie trofeeën, beloningen aan de getallen van set_my_flair, eigen sectie tussen Dagelijks en Mijlpalen, alleen ingelogd", () => {

@@ -764,6 +764,15 @@ main {
 .kop-wheel.has-new:not([data-at="d"]) .kw-face::after { content: ""; position: absolute; top: -3px; right: -3px; z-index: 2; width: 8px; height: 8px;
   border-radius: 50%; background: var(--achv-new, #e5484d); box-shadow: 0 0 0 2px var(--bg); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .kw-tile, .kw-dots i { transition: none; } }
+/* De deur waaiert uit (26/11/2026, zijn "denk de waaier"; game.js doorPeek): na je daily klappen de drie tegels even onder de deur open
+   en weer dicht, jij-bent-hier (JA/AR) met een groene ring. Alleen een plaatje (aria-hidden, geen tik), de animatie zit in game.js. */
+.kw-fan { position: absolute; left: 50%; top: calc(100% + 5px); z-index: 30; display: flex; gap: 6px; padding: 6px; border: 1px solid var(--border);
+  border-radius: 12px; background: var(--card); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32); transform: translateX(-50%); pointer-events: none; }
+.kw-fan::before { content: ""; position: absolute; top: -5px; left: 50%; width: 8px; height: 8px; margin-left: -4px; border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border); background: var(--card); transform: rotate(45deg); }
+.kw-ft { position: relative; display: block; width: 28px; height: 28px; }
+.kop-wheel .kw-ft .kd-logo { display: block; width: 28px; height: 28px; border-radius: 7px; }
+.kw-ft.on::after { content: ""; position: absolute; inset: -3px; border-radius: 9px; box-shadow: 0 0 0 2px #4caf50; }
 /* Wisselen tussen Jaardle en Duels (kopSwap in game.js, View Transitions): de kop blijft staan, de inhoud schuift opzij. Naar Duels =
    Jaardle naar links en Duels van rechts, terug = andersom. Zonder View Transitions of met minder beweging: in één keer, zoals eerst.
    De naam alleen tijdens het wisselen (html[data-kop]): een view-transition-name maakt van de kop een eigen stapel, en dan viel het
