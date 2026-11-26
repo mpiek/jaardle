@@ -149,6 +149,9 @@
 
   const CSS = String.raw`/* ═══ 🗓️ Timeline (alpha, /timeline.js) ═══ */
 :root { --tl: #1976d2; --tl-back: #1976d2; --tl-back-2: #1565c0; --tl-ch: clamp(10rem, 100dvh - 30rem, 13.5rem);
+  /* de kaart in je hand is altijd even hoog, hoe lang de tekst ook is (26/11: de tafel sprong mee met elke tekst); is het scherm hoog
+     genoeg (de tafel staat al op zijn grootst), dan krijgt hij de ruimte die over is, tot 16rem */
+  --tl-hh: clamp(12.2rem, 100dvh - 31.5rem, 16rem);
   --tl-era: linear-gradient(90deg, var(--purple), var(--blue) 30%, var(--green) 52%, var(--yellow) 74%, var(--orange)); }
 /* de Timeline-pagina (/timeline/): het scherm op de plek van het spel, zoals de Duels-pagina. game.js zet body[data-tlhome] en het adres;
    het spel en de voet-knoppen gaan zolang weg, de kop (#mode-tabs) blijft: profiel, 🌐, de deur (hier naar Jaardle), dan ons logo en 🔈. */
@@ -204,7 +207,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 
 /* je hand: de nieuwe kaart met de stapel erachter */
 .tl-hand { position: relative; z-index: 2; display: grid; place-items: center; padding: 0.35rem 0 1.9rem; }
-.tl-handin { position: relative; width: min(16.5rem, 80%); min-height: 12.2rem; isolation: isolate; }
+.tl-handin { position: relative; width: min(16.5rem, 80%); height: var(--tl-hh); isolation: isolate; }
 .tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; background-color: var(--tl-back);
   background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px);
   box-shadow: inset 0 0 0 5px var(--tl-back-2), inset 0 0 0 6.5px rgba(255, 255, 255, 0.5), var(--shadow-pop); }
@@ -213,13 +216,16 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-left { position: absolute; right: calc(100% + 0.8rem); top: 50%; transform: translateY(-50%); font-size: 0.72rem; font-weight: 700; line-height: 1.2;
   text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
 .tl-left b { display: block; font-size: 1rem; color: var(--fg); }
-.tl-card { position: relative; display: flex; flex-direction: column; gap: 0.55rem; min-height: 12.2rem; padding: 0.8rem 1rem 0.95rem; color: var(--fg);
+.tl-card { position: relative; display: flex; flex-direction: column; gap: 0.55rem; height: 100%; padding: 0.8rem 1rem 0.95rem; color: var(--fg);
   background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-pop); transform: rotate(-1.5deg);
   touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
 .tl-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .tl-suit { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .tl-suit i { font-style: normal; font-size: 1.3rem; letter-spacing: 0; }
-.tl-txt { flex: 1; margin: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.32; overflow-wrap: anywhere; hyphens: auto; }
+.tl-txt { flex: 1 1 0; min-height: 0; overflow: hidden; margin: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.32; overflow-wrap: anywhere; hyphens: auto; }
+/* past de tekst niet (fitHand): eerst kleiner, dan zonder ????, en de allerlangste scrolt in de kaart (wiel of vinger; leggen kan ook met een tik op een +) */
+.tl-card.tl-long .tl-q { display: none; }
+.tl-card.tl-scroll .tl-txt { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; touch-action: pan-y; padding-right: 0.2rem; }
 .tl-q { align-self: center; padding: 0.2rem 0.85rem 0.2rem 1.1rem; border-radius: 999px; border: 1.5px dashed color-mix(in srgb, var(--muted) 70%, transparent);
   color: var(--muted); font-weight: 800; letter-spacing: 0.3em; }
 .tl-card.tl-drag { z-index: 30; cursor: grabbing; box-shadow: 0 22px 40px -12px rgba(0, 0, 0, 0.6); transition: none; }
@@ -729,6 +735,21 @@ body[data-tlhome] #mode-tabs { display: flex; }
     `<div class="tl-suit"><i aria-hidden="true">${suit(c.c)}</i>${esc(L.cats[(c.c || 0) - 1] || "")}</div><p class="tl-txt">${esc(c.t)}</p><span class="tl-q" aria-hidden="true">????</span></div>`;
   const handHtml = (s, o) => `<div class="tl-hand"><div class="tl-handin"><div class="tl-back b2"></div><div class="tl-back b1"></div>${s.cur ? frontHtml(s.cur, o.deal) : ""}` +
     `<span class="tl-left">${esc(L.left)}<b>${s.pile.length}</b></span></div></div><p class="tl-cue${s.marks.length ? " gone" : ""}">${esc(L.cue)}</p>`;
+  // de kaart in je hand heeft een vaste hoogte (--tl-hh), dus de tekst past zich aan de kaart aan i.p.v. andersom: eerst een paar stapjes
+  // kleiner, dan zonder ???? en nog wat kleiner, en past hij dan nog niet (de allerlangste teksten van vóór 1500, tot ±500 tekens) dan scrolt
+  // hij in de kaart. Na elke draw() en als het venster van maat verandert.
+  const FIT = [1, 0.95, 0.9], FIT_LONG = [0.95, 0.9, 0.85, 0.8, 0.76, 0.72];   // rem; 1.05 = de gewone maat (.tl-txt). Liever zonder ???? dan piepklein
+  function fitHand() {
+    const card = root && root.querySelector(".tl-card.tl-front"), t = card && card.querySelector(".tl-txt");
+    if (!t) return;
+    const over = () => t.scrollHeight > t.clientHeight + 1;
+    card.classList.remove("tl-long", "tl-scroll"); t.style.fontSize = "";
+    if (!over()) return;
+    for (const f of FIT) { t.style.fontSize = f + "rem"; if (!over()) return; }
+    card.classList.add("tl-long");
+    for (const f of FIT_LONG) { t.style.fontSize = f + "rem"; if (!over()) return; }
+    card.classList.add("tl-scroll");
+  }
   // de melding boven de kaart: bij een mijlpaal de vlam van de trede naast de tekst (zijn "naast 30 op rij die juist gekleurde vlammetjes");
   // bij obsidiaan elke letter apart (ze golven)
   function floatHtml(f) {
@@ -824,6 +845,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (m && o.reveal == null && el < 1800) o = { ...o, reveal: m.k, ct: m.ct, float: m.float, lvl: m.lvl && el < 900, el };
     const html = G ? gameHtml(G, o) : msgHtml(o.error ? L.error : L.loading, !!o.error);
     if (game) game.outerHTML = html; else root.insertAdjacentHTML("beforeend", html);
+    fitHand();
     const row = root.querySelector(".tl-row");
     if (row) row.scrollLeft = left;
     if (o.show != null) ensureVisible(o.show);
@@ -1099,9 +1121,13 @@ body[data-tlhome] #mode-tabs { display: flex; }
   };
   // slepen en tikken: één keer, op het scherm zelf (ensurePage)
   function listen(root) {
+    let fitRaf = 0;   // een ander venster (of de adresbalk van een telefoon) = een andere --tl-hh: de tekst opnieuw passen
+    addEventListener("resize", () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitHand); });
     root.addEventListener("pointerdown", (e) => {
       const card = e.target.closest(".tl-card.tl-front");
       if (!card || !G || G.phase !== "idle" || G.done) return;
+      const sb = e.target.closest(".tl-scroll .tl-txt");   // het scrollbalkje van een lange tekst pakken = scrollen, niet de kaart slepen
+      if (sb && e.offsetX > sb.clientWidth) return;
       drag = { card, id: e.pointerId, x0: e.clientX, y0: e.clientY, px: e.clientX, py: e.clientY, moved: false, slot: -1, raf: 0 };
       try { card.setPointerCapture(e.pointerId); } catch (err) {}
     });
