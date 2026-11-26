@@ -513,6 +513,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 `;
 
   window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN, chaseMarks, chaseNext,
+    ready: () => !!G,   // er ligt al een potje: de deur schuift er meteen heen, zonder laadscherm (game.js worldGo)
     restyle: () => { if (root && G) draw({}); } };   // 🃏 db/240: een andere kaartstijl gekozen (game.js setCardStyle)
 
   // ── de staat: H = wat game.js meegeeft (taal, openModal/closeModal, meetpunten); root = het scherm (#modal-tl) ──
@@ -918,6 +919,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (a < row.scrollLeft + 16 || b > row.scrollLeft + row.clientWidth - 16) row.scrollLeft = Math.max(0, a - (row.clientWidth - el.offsetWidth) / 2);
   }
   let loading = false;
+  const loadWait = [];   // open() wacht hierop zolang er een stapel onderweg is (het laadscherm van game.js)
   async function start() {
     G = null;
     loading = true;
@@ -936,6 +938,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       draw({ error: true });
     }
     loading = false;
+    loadWait.splice(0).forEach((f) => f());
   }
   // de kaart vliegt van je hand naar het gat (een kloon; de echte kaart is dan al weg)
   async function fly(fromEl, from, slot) {
@@ -1301,15 +1304,16 @@ body[data-tlhome] #mode-tabs { display: flex; }
     lg.style.setProperty("--kd-dx", (hi < lo ? 0 : Math.round(Math.min(hi, Math.max(lo, want)))) + "px");
   }
   function useLang(l) { LANG = T[l] ? l : "en"; L = T[LANG]; }
-  // game.js: de deur op de Duels-pagina of het adres /timeline/. Een lopend potje gaat gewoon verder waar je was.
+  // game.js: de deur op de Duels-pagina, de nieuwsbalk of het adres /timeline/. Een lopend potje gaat gewoon verder waar je was. Geeft een
+  // promise die afloopt zodra de kaarten er liggen (of de foutmelding met "Opnieuw"): zolang houdt game.js het laadscherm op (worldGo, 26/11).
   function open(host) {
     H = host;
     useLang(H.lang);
     ensureCss(); ensurePage(); ensureKop();
     H.openModal(PAGE_ID);
-    try { document.documentElement.removeAttribute("data-tlload"); } catch (e) {}   // het 🗓️-laadscherm (head-script)
     center();
     if (G || loading) draw(); else start();
+    return loading ? new Promise((r) => loadWait.push(r)) : Promise.resolve();
   }
   // 🌐 op de Timeline-pagina: de teksten in de nieuwe taal; kaarten die al op tafel liggen blijven, de volgende stapel komt in de nieuwe taal
   function setLang(l) {

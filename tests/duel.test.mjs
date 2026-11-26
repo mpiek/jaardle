@@ -563,10 +563,11 @@ test("duel.js — de opening van een ronde: pil met de ronde, vanaf ronde 2 met 
 
 test("duel.js — een seintje of link (?duel=) opent achter het ⚔️-laadscherm, nooit eerst de daily; en dat scherm gaat altijd weer weg", () => {
   // het head-script zet het vóór de eerste tekening, style.css tekent het
-  assert.match(TPL, /\[\?&\]duel=\[A-Za-z0-9\]\/\.test\(location\.search\)( \|\| [^)]+\))?\) \{\s*document\.documentElement\.setAttribute\("data-duelload"/);
-  assert.match(TPL, /setTimeout\(function \(\) \{ document\.documentElement\.removeAttribute\("data-duelload"\); \}, 12000\)/, "vangnet in het head-script zelf");
+  // (26/11: de andere pagina's kregen een eigen laadscherm met de tegel uit de deur, html[data-load]; zie tests/veil.test.mjs)
+  assert.match(TPL, /if \(\/\[\?&\]duel=\[A-Za-z0-9\]\/\.test\(location\.search\)\) root\.setAttribute\("data-duelload", ""\);/);
+  assert.match(TPL, /setTimeout\(function \(\) \{ root\.removeAttribute\("data-duelload"\);[^}]*\}, 12000\)/, "vangnet in het head-script zelf");
   const CSS = readFileSync(join(dir, "..", "style.css"), "utf8");
-  assert.match(CSS, /html\[data-duelload\]::after(, html\[data-tlload\]::after)? \{/);
+  assert.match(CSS, /html\[data-duelload\]::after \{ content: "⚔️";/);
   // game.js: bij een fout bij het laden van duel.js weg, en na 10 s altijd
   assert.match(GAME, /loadDuel\(\)\.then\(\(D\) => D\.openInvite\(duelHost\(\), duelCode\)\)\.catch\(uncoverDuel\)/);
   assert.match(GAME, /setTimeout\(uncoverDuel, 10000\)/);
@@ -726,10 +727,10 @@ test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de 
   const re = /\/duels\/?$/;
   for (const [p, ok] of [["/duels/", true], ["/duels", true], ["/nl/duels/", true], ["/", false], ["/nl/", false], ["/duelsx/", false]]) assert.equal(re.test(p), ok, p);
   // init: zonder ?duel= opent /duels/ meteen het scherm (meetpunt duel-page); met ?duel= gaat de uitnodiging voor
-  assert.match(GAME, /else if \(duelsLand\) \{[^]*?gcCount\("duel-page"[^]*?loadDuel\(\)\.then\(\(D\) => D\.openList\(duelHost\(\), \{\}\)\)\.catch\(uncoverDuel\);/);
-  assert.match(GAME, /if \(!duelCode && !duelsLand\) uncoverDuel\(\);/, "het ⚔️-laadscherm blijft tot de pagina er staat");
-  // het ⚔️-laadscherm in de head ook voor het pad (geen daily die eerst flitst)
-  assert.match(TPL, /\/\[\?&\]duel=\[A-Za-z0-9\]\/\.test\(location\.search\) \|\| \/\\\/duels\\\/\?\$\/\.test\(location\.pathname\)/);
+  assert.match(GAME, /else if \(duelsLand\) \{[^]*?gcCount\("duel-page"[^]*?loadDuel\(\)\.then\(\(D\) => D\.openList\(duelHost\(\), \{\}\)\)\.catch\(\(\) => \{\}\)\.finally\(veilOff\);/, "het laadscherm blijft tot de lijst er staat");
+  assert.match(GAME, /if \(!duelCode && !duelsLand\) uncoverDuel\(\);/);
+  // het laadscherm in de head ook voor het pad (geen daily die eerst flitst): sinds 26/11 de DU/EL-tegel (data-load="d")
+  assert.match(TPL, /root\.setAttribute\("data-load", \/\\\/duels\\\/\?\$\/\.test\(p\) \? "d"/);
   // openModal/closeModal/closeAllModals: adres + body[data-duelshome], geen scroll-slot voor de pagina zelf
   // 22/11: zo ook de Timeline-pagina (APP_PAGES); één pagina tegelijk
   assert.match(GAME, /if \(APP_PAGES\.includes\(id\)\) appPageOpened\(id\); else lockBodyScroll\(\);/);
@@ -757,7 +758,8 @@ test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de 
   assert.match(SRC, /body\[data-duelshome\] #mode-tabs \{ display: flex; \}/, "ook als een duelronde (data-duelpage) hem verborg");
   assert.match(SRC, /\[data-duelshome\] #mode-tabs > :is\(\.jl-mid, \.mode-seg\) \{ display: none; \}/, "het Jaardle-logo en de schakelaar weg, de deur blijft (23/11)");
   assert.match(GAME, /function kopSwap\(dir, update\) \{[^]*?if \(!document\.startViewTransition \|\| matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches\) \{ update\(\); return; \}/, "zonder View Transitions of met minder beweging: in één keer");
-  assert.match(GAME, /loadDuel\(\)\.then\(\(D\) => kopSwap\("in", \(\) => \{ D\.openList\(duelHost\(\), \{\}\); \}\)\)/, "eerst laden, dan wisselen; geen promise naar de overgang");
+  assert.match(GAME, /function goDuels\(\) \{ return worldGo\("d", loadDuel, \(D\) => D\.openList\(duelHost\(\), \{\}\), \(\) => window\.Duel\?\.listed\?\.\(\)\); \}/);
+  assert.match(GAME, /if \(hot\) return load\(\)\.then\(\(m\) => kopSwap\("in", \(\) => \{ show\(m\); \}\)\)\.catch\(\(\) => \{\}\);/, "warm: eerst laden, dan wisselen; geen promise naar de overgang");
   assert.match(GAME, /if \(page === "duels" && window\.Duel\) window\.Duel\.openList\(duelHost\(\), \{ keepTop: true \}\);/, "🌐 op de Duels-pagina: opnieuw in de nieuwe taal");
   assert.ok(!/modal-backdrop" data-close><\/div><div class="modal-card"><header class="modal-header"><h2 id="duels-title"/.test(SRC), "geen pop-up meer");
   // de kop: logo (de ⚔️ áchter het woord), thuisknop = ‹ + het Jaardle-icoontje (van de skin), "?" = een pop-up boven de pagina

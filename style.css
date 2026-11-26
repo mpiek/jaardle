@@ -2470,15 +2470,36 @@ html[data-theme="light"] #footer-socials a[data-social="tiktok"]:hover, html[dat
 }
 
 
-/* ⚔️ Laadscherm voor een duel-seintje of -link (?duel=, head-script): geen daily ertussen. Eén vlak in de achtergrondkleur
-   (de schaduw van het ⚔️-vakje vult het scherm) met een rustig ademende ⚔️. /duel.js haalt het weg zodra de opening van de ronde
-   begint (die heeft dezelfde achtergrond) of het iets anders laat zien. html::after, want de skins gebruiken html::before. */
-html[data-duelload]::after, html[data-tlload]::after { content: "⚔️"; position: fixed; z-index: 150; left: 50%; top: 50%; width: 6rem; height: 6rem; margin: -3rem 0 0 -3rem;
-  display: grid; place-items: center; font: 3.2rem/1 "JaardleEmoji", sans-serif; background: var(--bg); box-shadow: 0 0 0 100vmax var(--bg);
-  animation: duel-load 1.1s ease-in-out infinite alternate; }
-@keyframes duel-load { from { transform: scale(0.88); } to { transform: scale(1); } }
-html[data-tlload]::after { content: "🗓️"; }   /* de Timeline-pagina (/timeline/, 22/11): /timeline.js haalt het weg */
-@media (prefers-reduced-motion: reduce) { html[data-duelload]::after, html[data-tlload]::after { animation: none; } }
+/* ⏳ Het laadscherm (26/11/2026, zijn "bij al de spellen een laadscherm want nu switch je en soms zie je dat ie aan laden is … net zoals
+   bij duels dat je start en je zo pulsing [icoon ziet]"). Eén vlak in de achtergrondkleur (de schaduw van het vakje vult het scherm) met
+   de tegel van het spel uit de deur, rustig ademend, tot er echt iets staat (geen "Laden…" of "Kaarten schudden…" meer).
+   html[data-load] = j/d/t: het head-script zet het bij het openen van de pagina, game.js (worldGo → veilOn) bij een wissel naar een spel
+   dat nog moet laden; veilOff laat het wegvagen (data-load-fx). Zolang het er staat, gaan tikken nergens heen.
+   html[data-duelload] = de ⚔️ voor een duel-seintje of -link (?duel=): die loopt door in de opening van de ronde, /duel.js haalt hem weg.
+   html::after, want de skins gebruiken html::before. De tegels zijn die uit de deur (tests/veil.test.mjs houdt ze gelijk). */
+html[data-load]::after, html[data-duelload]::after { content: ""; position: fixed; z-index: 150; left: 50%; top: 50%; width: 4.5rem; height: 4.5rem;
+  margin: -2.25rem 0 0 -2.25rem; border-radius: 25%; background: var(--bg) center / 100% no-repeat; box-shadow: 0 0 0 100vmax var(--bg);
+  animation: load-breathe 1.1s ease-in-out infinite alternate; }
+html[data-load]:not([data-load-fx="out"]) body { pointer-events: none; }
+html[data-load="j"]::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%234CAF50'/%3E%3Cpath fill='%23fff' transform='translate(128 128) scale(0.110007 -0.110007) translate(-515.0 -694.5)' d='M524 -20Q305 -20 187.5 75.0Q70 170 31 382L324 425Q342 316 391.0 263.5Q440 211 526 211Q614 211 659.5 270.0Q705 329 705 439V1178H424V1409H999V446Q999 226 874.0 103.0Q749 -20 524 -20Z'/%3E%3Cpath fill='%23fff' transform='translate(384 128) scale(0.110007 -0.110007) translate(-738.0 -704.5)' d='M1133 0 1008 360H471L346 0H51L565 1409H913L1425 0ZM739 1192 733 1170Q723 1134 709.0 1088.0Q695 1042 537 582H942L803 987L760 1123Z'/%3E%3Cpath fill='%23fff' transform='translate(128 384) rotate(180) scale(0.110007 -0.110007) translate(-738.0 -704.5)' d='M1133 0 1008 360H471L346 0H51L565 1409H913L1425 0ZM739 1192 733 1170Q723 1134 709.0 1088.0Q695 1042 537 582H942L803 987L760 1123Z'/%3E%3Cpath fill='%23fff' transform='translate(384 384) rotate(180) scale(0.110007 -0.110007) translate(-787.0 -704.5)' d='M1105 0 778 535H432V0H137V1409H841Q1093 1409 1230.0 1300.5Q1367 1192 1367 989Q1367 841 1283.0 733.5Q1199 626 1056 592L1437 0ZM1070 977Q1070 1180 810 1180H432V764H818Q942 764 1006.0 820.0Q1070 876 1070 977Z'/%3E%3C/svg%3E"); }
+html[data-load="d"]::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23e8794a'/%3E%3Cg fill='%23b9532a'%3E%3Cg transform='translate(256 256) rotate(45)'%3E%3Cpath d='M0 -236L24 -196V112H-24V-196Z'/%3E%3Crect x='-84' y='112' width='168' height='34' rx='17'/%3E%3Crect x='-15' y='146' width='30' height='66' rx='6'/%3E%3Ccircle cy='232' r='26'/%3E%3C/g%3E%3Cg transform='translate(256 256) rotate(-45)'%3E%3Cpath d='M0 -236L24 -196V112H-24V-196Z'/%3E%3Crect x='-84' y='112' width='168' height='34' rx='17'/%3E%3Crect x='-15' y='146' width='30' height='66' rx='6'/%3E%3Ccircle cy='232' r='26'/%3E%3C/g%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Cpath transform='translate(128 128) scale(0.110007 -0.110007) translate(-765 -704.5)' d='M1393 715Q1393 497 1307.5 334.5Q1222 172 1065.5 86Q909 0 707 0H137V1409H647Q1003 1409 1198 1229.5Q1393 1050 1393 715ZM1096 715Q1096 942 978 1061.5Q860 1181 641 1181H432V228H682Q872 228 984 359Q1096 490 1096 715Z'/%3E%3Cpath transform='translate(384 128) scale(0.110007 -0.110007) translate(-738.5 -694.5)' d='M723 -20Q432 -20 277.5 122Q123 264 123 528V1409H418V551Q418 384 497.5 297.5Q577 211 731 211Q889 211 974 301.5Q1059 392 1059 561V1409H1354V543Q1354 275 1188.5 127.5Q1023 -20 723 -20Z'/%3E%3Cpath transform='translate(128 384) rotate(180) scale(0.110007 -0.110007) translate(-711.5 -704.5)' d='M137 0V1409H1245V1181H432V827H1184V599H432V228H1286V0Z'/%3E%3Cpath transform='translate(384 384) rotate(180) scale(0.110007 -0.110007) translate(-662.5 -704.5)' d='M137 0V1409H432V228H1188V0Z'/%3E%3C/g%3E%3C/svg%3E"); }
+html[data-load="t"]::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%231e88e5'/%3E%3Cg fill='%231565c0'%3E%3Cg transform='translate(256 256) rotate(45)'%3E%3Crect x='-232' y='-17' width='464' height='34' rx='17'/%3E%3Ccircle cx='-168' r='31'/%3E%3Ccircle cx='-84' r='31'/%3E%3Ccircle cx='84' r='31'/%3E%3Ccircle cx='168' r='31'/%3E%3C/g%3E%3Cg transform='translate(256 256) rotate(-45)'%3E%3Crect x='-232' y='-17' width='464' height='34' rx='17'/%3E%3Ccircle cx='-168' r='31'/%3E%3Ccircle cx='-84' r='31'/%3E%3Ccircle cx='84' r='31'/%3E%3Ccircle cx='168' r='31'/%3E%3C/g%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Cpath transform='translate(128 128) scale(0.110007 -0.110007) translate(-626.0 -704.5)' d='M773 1181V0H478V1181H23V1409H1229V1181Z'/%3E%3Cpath transform='translate(384 128) scale(0.110007 -0.110007) translate(-284.5 -704.5)' d='M137 0V1409H432V0Z'/%3E%3Cpath transform='translate(128 384) rotate(180) scale(0.110007 -0.110007) translate(-853.0 -704.5)' d='M1307 0V854Q1307 883 1307.5 912.0Q1308 941 1317 1161Q1246 892 1212 786L958 0H748L494 786L387 1161Q399 929 399 854V0H137V1409H532L784 621L806 545L854 356L917 582L1176 1409H1569V0Z'/%3E%3Cpath transform='translate(384 384) rotate(180) scale(0.110007 -0.110007) translate(-711.5 -704.5)' d='M137 0V1409H1245V1181H432V827H1184V599H432V228H1286V0Z'/%3E%3C/g%3E%3C/svg%3E"); }
+/* met een skin de Jaardle-tegel van die skin, net als in de deur (syncDoor) */
+html[data-load="j"][data-season="halloween"]::after { background-image: url("/favicon-halloween.svg?v=2"); }
+html[data-load="j"][data-season="sinterklaas"]::after { background-image: url("/favicon-sinterklaas.svg?v=2"); }
+html[data-load="j"][data-season="kerst"]::after { background-image: url("/favicon-kerst.svg?v=2"); }
+html[data-duelload]::after { content: "⚔️"; display: grid; place-items: center; width: 6rem; height: 6rem; margin: -3rem 0 0 -3rem; border-radius: 0;
+  font: 3.2rem/1 "JaardleEmoji", sans-serif; }
+html[data-load-fx="in"]::after { animation: load-breathe 1.1s ease-in-out infinite alternate, load-in 0.14s ease-out both; }
+html[data-load-fx="out"]::after { animation: load-breathe 1.1s ease-in-out infinite alternate, load-out 0.22s ease-in both; }
+@keyframes load-breathe { from { transform: scale(0.88); } to { transform: scale(1); } }
+@keyframes load-in { from { opacity: 0; } }
+@keyframes load-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  html[data-load]::after, html[data-duelload]::after { animation: none; }
+  html[data-load-fx="in"]::after { animation: load-in 0.14s ease-out both; }
+  html[data-load-fx="out"]::after { animation: load-out 0.22s ease-in both; }
+}
 
 /* --- Modals --- */
 .modal {

@@ -3785,6 +3785,7 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
 
   return {
     openList, openInvite, resumeInvite, play, sync, roundDone, next, share, checkNews, pushed, pushToggle, waiting, fromEnd, pushOn: (host) => { H = host || H; return pushOn(); },
+    listed: () => !!listItems,   // de lijst is er al (checkNews of eerder geopend): de deur schuift er meteen heen, zonder laadscherm (game.js worldGo)
     sfxTest, musTest, musicKick, sndSync: () => document.querySelectorAll(".dl-snd-btn").forEach((b) => sndSet(b)),
     // 🤖 db/232 Bots in de daily: de bot-kaart op het eindscherm (dezelfde kaart, keuze ⚡/⚔️ en bot als in Duels)
     daily: {

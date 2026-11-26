@@ -5167,9 +5167,11 @@ function duelPlayStart(st) {
 }
 function openDuels(src = "menu") {   // de deur naast 🌐 of de nieuws-balk → Duels (meetpunt duel-list; de rest van de trechter telt /duel.js)
   gcCount("duel-list", src === "door" ? "Duel: Duels screen opened (door)" : "Duel: Duels screen opened (menu)");
-  // eerst laden, dan pas wisselen: de overgang wacht niet op het netwerk (anders staat het beeld zolang stil)
-  loadDuel().then((D) => kopSwap("in", () => { D.openList(duelHost(), {}); })).catch(() => {});
+  goDuels();
 }
+// Naar het Duels-scherm (de deur, de nieuwsbalk, het ⚔️-stuk op het eindscherm): kent /duel.js de lijst al (listed), dan de schuif van
+// altijd; anders het laadscherm met de DU/EL-tegel tot de lijst er staat (worldGo).
+function goDuels() { return worldGo("d", loadDuel, (D) => D.openList(duelHost(), {}), () => window.Duel?.listed?.()); }
 // De deur naast 🌐 (22/11/2026, zijn "switchen met die knop van time -> jaardle -> duels … klein carousel achtige hint"): één deur op
 // alle drie de schermen, rond Jaardle → Duels → Timeline → Jaardle. Elke tik schuift één verder ("in": de inhoud gaat naar links, zoals
 // een carrousel). syncDoor zet data-at (style.css zet daarmee de tegel van waar je bent voor, als logo, en het stipje aan), en de link
@@ -5255,7 +5257,7 @@ function doorTap() {
   const at = worldNow();
   if (at === "j") { newsSeen("duels"); openDuels("door"); }
   else if (at === "d") openTimeline("door");
-  else kopSwap("in", () => closeModal(TL_PAGE));   // Timeline → Jaardle
+  else worldGo("j", () => Promise.resolve(null), () => { closeModal(TL_PAGE); return firstGameP; }, () => firstGameDone);   // Timeline → Jaardle (de daily laadt altijd mee)
 }
 // Het JAARDLE-logo echt in het midden van de kop als er ruimte is (23/11/2026), zoals DUELS (centerLogo in /duel.js) en TIMELINE: de flex
 // zet het tussen de deur en de schakelaar 📅|🎲, dit schuift het naar het midden van de hele kop, maar nooit dichter dan 6 px bij die
@@ -5282,6 +5284,40 @@ function kopSwap(dir, update) {
     const vt = document.startViewTransition(() => { update(); });
     vt.finished.finally(() => { if (root.dataset.kop === dir) delete root.dataset.kop; });
   } catch (e) { delete root.dataset.kop; update(); }
+}
+// ⏳ Het laadscherm (26/11/2026, zijn "bij al de spellen een laadscherm want nu switch je en soms zie je dat ie aan laden is"; CSS bij
+// html[data-load]): de tegel van het spel (j/d/t) tot er echt iets staat. Het head-script zet het bij het openen van de pagina, veilOn bij
+// een wissel die nog moet laden (komt kort op), veilOff laat het wegvagen. Na VEIL_MAX gaat het altijd weg, ook als er iets blijft hangen.
+const VEIL_IN = 140, VEIL_OUT = 220, VEIL_MAX = 10000;
+let veilTimer = 0;
+let firstGameP = null, firstGameDone = false;   // het eerste potje uit init (de daily, of een gedeeld potje): pas daarna staat Jaardle er
+function veilArm() { clearTimeout(veilTimer); veilTimer = setTimeout(veilOff, VEIL_MAX); }
+function veilOn(w) {
+  const r = document.documentElement;
+  if (!r.dataset.load) r.dataset.loadFx = "in";
+  else if (r.dataset.loadFx === "out") delete r.dataset.loadFx;   // was al aan het wegvagen: gewoon weer helemaal
+  r.dataset.load = w;
+  veilArm();
+}
+function veilOff() {
+  const r = document.documentElement;
+  r.removeAttribute("data-tlload");   // het 🗓️-laadscherm van vóór 26/11 (een oude pagina uit de cache met deze game.js)
+  if (!r.dataset.load || r.dataset.loadFx === "out") return;   // niets op, of het vaagt al weg (die timer moet blijven lopen)
+  clearTimeout(veilTimer);
+  r.dataset.loadFx = "out";
+  veilTimer = setTimeout(() => { delete r.dataset.load; delete r.dataset.loadFx; }, VEIL_OUT);
+}
+// Naar een ander spel (de deur, de nieuwsbalk, het ⚔️-stuk op het eindscherm). load() = de code van dat spel (lui); show(mod) wisselt het
+// scherm en geeft een promise die afloopt zodra er echte inhoud staat (of een foutmelding met "Opnieuw"); warm() = die inhoud is er al.
+// Warm: de schuif van altijd (kopSwap: eerst laden, dan wisselen, en de overgang wacht niet op de server). Anders eerst het laadscherm,
+// dan de wissel eronder (zonder schuif), en weg zodra show() klaar is. Lukt het laden van de code niet, dan blijf je waar je was.
+function worldGo(w, load, show, warm) {
+  let hot = false;
+  try { hot = !!warm(); } catch (e) {}
+  if (hot) return load().then((m) => kopSwap("in", () => { show(m); })).catch(() => {});
+  veilOn(w);
+  return Promise.all([load(), new Promise((r) => setTimeout(r, VEIL_IN))])
+    .then(([m]) => show(m)).catch(() => {}).finally(veilOff);
 }
 // ⚔️ De Duels-pagina (18/11/2026): een eigen scherm met een eigen adres, /duels/ (build-html.mjs: eigen titel + deelplaatje). Open =
 // dat adres + body[data-duelshome] (verbergt het spel, CSS in /duel.js). Voor game.js blijft het een .modal (toetsen, wachtende
@@ -5328,9 +5364,11 @@ function tlHost() {
     // 🃏 db/240: de kaartstijl (alleen ingelogd en verdiend), het lui geladen tekenbestand, en het prestatie-kaartje op het eindscherm van een run
     cards: cardStyleActive, cardsFx: loadCardsFx, tlAchv: (box) => checkTimelineAchievements(box) };
 }
-function openTimeline(src) {   // de deur op de Duels-pagina (meetpunt timeline-door) of het adres /timeline/
+// de deur op de Duels-pagina (meetpunt timeline-door) of de nieuwsbalk; ligt er al een potje (ready), dan de schuif, anders het laadscherm
+// met de TI/ME-tegel tot de kaarten er liggen (worldGo). Het adres /timeline/ opent hem in init.
+function openTimeline(src) {
   if (src === "door") gcCount("timeline-door", "Timeline: opened via the door on Duels");
-  loadTl().then((TL) => kopSwap("in", () => { TL.open(tlHost()); })).catch(() => {});
+  return worldGo("t", loadTl, (TL) => TL.open(tlHost()), () => window.JaardleTimeline?.ready?.());
 }
 function duelNews() { try { return Number(localStorage.getItem("jaardle:duel-news")) || 0; } catch (e) { return 0; } }
 function duelKnown() {
@@ -15734,7 +15772,7 @@ function switchMode(mode) {
     const selected = t.dataset.mode === mode;
     t.setAttribute("aria-selected", String(selected));
   });
-  startGame(mode);
+  return startGame(mode);
 }
 
 async function init() {
@@ -15830,7 +15868,8 @@ async function init() {
     const w = nxWaiting(), r = nxRec();
     if (!r.used) nxSave({ ...r, used: 1 });
     gcCountNew(!w || !w.n ? "end-duel" : w.n > 1 ? "end-duel-many" : w.kind === "inv" ? "end-duel-inv" : "end-duel-turn", "End: duel");
-    loadDuel().then((D) => D.fromEnd(duelHost(), w)).catch(() => {});
+    if (w && w.n === 1) loadDuel().then((D) => D.fromEnd(duelHost(), w)).catch(() => {});
+    else goDuels();   // meer of niets: het Duels-scherm, net als via de deur (met het laadscherm als de lijst er nog niet is)
   });
   els.nextBtn.addEventListener("click", () => {
     if (state?.duel && state.done && window.Duel) { window.Duel.next(duelHost()); return; }   // volgende ronde, revanche, volgend duel of de daily
@@ -16235,11 +16274,15 @@ async function init() {
     els.tabs.forEach((t) => {
       t.setAttribute("aria-selected", String(t.dataset.mode === "free"));
     });
-    startGame("free", false, sharedHashes);
+    firstGameP = startGame("free", false, sharedHashes);
   } else {
-    switchMode("daily");
+    firstGameP = switchMode("daily");
   }
-  // Het ⚔️-laadscherm (head-script + style.css) haalt /duel.js weg; lukt het laden van duel.js niet, dan meteen, en na 10 s altijd.
+  firstGameP = firstGameP.catch(() => {}).then(() => { firstGameDone = true; });   // de daily laadt altijd, ook onder Duels en Timeline
+  // ⏳ Het laadscherm van het head-script (html[data-load]) gaat weg zodra dat spel er echt staat: de daily (of een gedeeld potje), de
+  // Duels-lijst of de eerste Timeline-kaarten; lukt het laden van de code niet, dan meteen, en na 10 s altijd (veilArm).
+  veilArm();
+  // Het ⚔️-laadscherm van een duel-seintje of -link (?duel=) haalt /duel.js weg; lukt het laden van duel.js niet, dan meteen, en na 10 s altijd.
   const uncoverDuel = () => document.documentElement.removeAttribute("data-duelload");
   if (duelCode) {
     setTimeout(uncoverDuel, 10000);
@@ -16247,17 +16290,13 @@ async function init() {
   }
   else if (duelsLand) {   // meetpunt duel-page: wie het adres zelf opent (bladwijzer, gedeeld, duels.jaardle.com)
     gcCount("duel-page", "Duel: Duels page opened by address");
-    setTimeout(uncoverDuel, 10000);
-    loadDuel().then((D) => D.openList(duelHost(), {})).catch(uncoverDuel);
+    loadDuel().then((D) => D.openList(duelHost(), {})).catch(() => {}).finally(veilOff);
   }
-  else if (tlLand) {   // het 🗓️-laadscherm (head-script) haalt /timeline.js weg; lukt laden niet, dan meteen, en na 10 s altijd
-    const uncoverTl = () => document.documentElement.removeAttribute("data-tlload");
-    setTimeout(uncoverTl, 10000);
-    loadTl().then((TL) => TL.open(tlHost())).catch(uncoverTl);
-  }
+  else if (tlLand) loadTl().then((TL) => TL.open(tlHost())).catch(() => {}).finally(veilOff);
   else if (duelInviteWaiting() && !duelInviteWaiting().later && !sharedHashes) setTimeout(() => loadDuel().then((D) => D.resumeInvite(duelHost())).catch(() => {}), 600);
   // Rode stip voor duels (jouw beurt, een nieuwe uitslag): alleen wie op dit toestel duels heeft vraagt het na, in een rustig moment.
   else if (duelKnown()) setTimeout(() => loadDuel().then((D) => D.checkNews(duelHost())).catch(() => {}), 2500);
+  if (!duelsLand && !tlLand) firstGameP.then(veilOff);   // Jaardle zelf: zodra de daily (of het gedeelde potje) er staat
   if (!duelCode && !duelsLand) uncoverDuel();
   if (koCode) loadKo().then((K) => K.open(duelHost(), koCode)).catch(() => {});
 

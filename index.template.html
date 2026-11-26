@@ -107,19 +107,18 @@
       }
     } catch (e) { /* private mode zonder localStorage → donker */ }
   })();
-  // ⚔️ Een duel-seintje of -link (?duel=), of de Duels-pagina (/duels/): meteen het ⚔️-laadscherm (style.css) in plaats van eerst
-  // de daily. /duel.js haalt het weg zodra de opening van de ronde begint of als het iets anders laat zien; game.js na 10 s, dit vangnet na 12 s.
-  try {
-    if (/[?&]duel=[A-Za-z0-9]/.test(location.search) || /\/duels\/?$/.test(location.pathname)) {
-      document.documentElement.setAttribute("data-duelload", "");
-      setTimeout(function () { document.documentElement.removeAttribute("data-duelload"); }, 12000);
-    }
-    // 🗓️ De Timeline-pagina (/timeline/, 22/11): hetzelfde, met 🗓️; /timeline.js haalt het weg zodra de pagina er staat.
-    else if (/\/timeline\/?$/.test(location.pathname)) {
-      document.documentElement.setAttribute("data-tlload", "");
-      setTimeout(function () { document.documentElement.removeAttribute("data-tlload"); }, 12000);
-    }
-  } catch (e) {}
+  // ⏳ Het laadscherm (style.css, html[data-load]; 26/11): meteen bij het openen, tot het spel er echt staat, in plaats van eerst
+  // "Laden…". De tegel van dat spel uit de deur: d = de Duels-pagina (/duels/), t = de Timeline-pagina (/timeline/), j = Jaardle.
+  // game.js haalt het weg (veilOff, na 10 s altijd), dit vangnet na 12 s. Een duel-seintje of -link (?duel=) krijgt de ⚔️
+  // (data-duelload): die loopt door in de opening van de ronde, en /duel.js haalt hem weg.
+  (function () {
+    try {
+      var root = document.documentElement, p = location.pathname;
+      if (/[?&]duel=[A-Za-z0-9]/.test(location.search)) root.setAttribute("data-duelload", "");
+      else root.setAttribute("data-load", /\/duels\/?$/.test(p) ? "d" : /\/timeline\/?$/.test(p) ? "t" : "j");
+      setTimeout(function () { root.removeAttribute("data-duelload"); root.removeAttribute("data-load"); root.removeAttribute("data-load-fx"); }, 12000);
+    } catch (e) {}
+  })();
   // Emoji-font voorladen, en alleen het bestand dat deze browser ook gebruikt:
   // de @font-face in style.css kiest met tech() tussen COLRv1 (Chromium, Firefox)
   // en OpenType-SVG (Safari/iOS). Het SVG-font is zwaarder en krijgt lage
@@ -172,7 +171,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=260">
+<link rel="stylesheet" href="/style.css?v=261">
 </head>
 <body>
   <main>
@@ -590,7 +589,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=516"></script>
+  <script src="/game.js?v=517"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

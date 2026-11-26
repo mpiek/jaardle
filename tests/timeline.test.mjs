@@ -113,14 +113,16 @@ test("timeline.js — lui geladen door game.js, een pagina zoals /duels/ (één 
   assert.match(GAME, /const loadTl = fxLoader\("\/timeline\.js", "JaardleTimeline"\);/);
   assert.match(GAME, /const TL_PAGE = "modal-tl", APP_PAGES = \[DUELS_PAGE, TL_PAGE\];/);
   assert.match(GAME, /function onTlPath\(\) \{ return \/\\\/timeline\\\/\?\$\/\.test\(location\.pathname\); \}/);
-  assert.match(GAME, /loadTl\(\)\.then\(\(TL\) => TL\.open\(tlHost\(\)\)\)\.catch\(uncoverTl\);/, "het adres /timeline/ opent de pagina");
+  assert.match(GAME, /else if \(tlLand\) loadTl\(\)\.then\(\(TL\) => TL\.open\(tlHost\(\)\)\)\.catch\(\(\) => \{\}\)\.finally\(veilOff\);/, "het adres /timeline/ opent de pagina");
   assert.match(GAME, /for \(const other of APP_PAGES\) \{   \/\/ één pagina tegelijk/);
   assert.match(GAME, /const page = \{ d: "duels", t: "timeline" \}\[worldNow\(\)\] \|\| "";/, "🌐 houdt de pagina");
   assert.match(GAME, /if \(page === "timeline"\) window\.JaardleTimeline\?\.setLang\?\.\(lang\);/);
-  // het laadscherm: head-script voor het pad, CSS met 🗓️, timeline.js haalt het weg
-  assert.match(TPL, /else if \(\/\\\/timeline\\\/\?\$\/\.test\(location\.pathname\)\) \{\s*document\.documentElement\.setAttribute\("data-tlload", ""\);/);
-  assert.match(readFileSync(join(ROOT, "style.css"), "utf8"), /html\[data-tlload\]::after \{ content: "🗓️"; \}/);
-  assert.match(SRC, /document\.documentElement\.removeAttribute\("data-tlload"\)/);
+  // het laadscherm: head-script voor het pad (sinds 26/11 de TI/ME-tegel, data-load="t"); open() geeft een promise die afloopt zodra de
+  // kaarten er liggen, game.js haalt het dan weg (veilOff; ook het 🗓️ van een oude pagina uit de cache, data-tlload)
+  assert.match(TPL, /\/\\\/timeline\\\/\?\$\/\.test\(p\) \? "t" : "j"/);
+  assert.match(GAME, /r\.removeAttribute\("data-tlload"\);/);
+  assert.match(SRC, /return loading \? new Promise\(\(r\) => loadWait\.push\(r\)\) : Promise\.resolve\(\);/);
+  assert.match(SRC, /loading = false;\n\s+loadWait\.splice\(0\)\.forEach\(\(f\) => f\(\)\);/);
   // het scherm in <main>, de kop (logo + 🔈) in #mode-tabs; de CSS verbergt het spel en de tabs zolang
   assert.match(SRC, /root\.id = PAGE_ID; root\.className = "modal tl-page tl"; root\.hidden = true;/);
   assert.match(SRC, /k\.id = "kop-tl"; k\.className = "kop-tl";\n\s+nav\.appendChild\(k\);/);
@@ -135,7 +137,7 @@ test("de deur naast 🌐 gaat rond: Jaardle → Duels → Timeline → Jaardle; 
   const GAME = readFileSync(join(ROOT, "game.js"), "utf8"), CSS = readFileSync(join(ROOT, "style.css"), "utf8");
   const TPL = readFileSync(join(ROOT, "index.template.html"), "utf8");
   assert.match(GAME, /const DOOR_NEXT = \{ j: "duels", d: "timeline", t: "" \};/);
-  assert.match(GAME, /if \(at === "j"\) \{ newsSeen\("duels"\); openDuels\("door"\); \}\n\s+else if \(at === "d"\) openTimeline\("door"\);\n\s+else kopSwap\("in", \(\) => closeModal\(TL_PAGE\)\);/);
+  assert.match(GAME, /if \(at === "j"\) \{ newsSeen\("duels"\); openDuels\("door"\); \}\n\s+else if \(at === "d"\) openTimeline\("door"\);\n\s+else worldGo\("j", \(\) => Promise\.resolve\(null\), \(\) => \{ closeModal\(TL_PAGE\); return firstGameP; \}, \(\) => firstGameDone\);/);
   assert.match(GAME, /function worldNow\(\) \{ const b = document\.body; return b\.hasAttribute\("data-tlhome"\) \? "t" : b\.hasAttribute\("data-duelshome"\) \? "d" : "j"; \}/);
   assert.match(GAME, /function appPageSet\(id, on\) \{[^]*?syncDoor\(\);\n\}/, "elke wissel van pagina zet de deur goed");
   // de drie tegels in de deur; per plek de eigen tegel voor (22/11 avond, zijn "logo verwacht van waar je nu bent") en het eigen stipje aan
