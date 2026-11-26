@@ -428,7 +428,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
 /* en op een smalle telefoon (360) iets kleinere hartjes en kortere tussenruimtes, anders valt het getal uit het chipje */
 @container tl-hud (max-width: 20.5rem) { .tl-heart { width: 1.9rem; height: 1.9rem; font-size: 1.55rem; } .tl-heart img { width: 2.2rem; height: 2.2rem; }
   .tl-hl { gap: 0.3rem; } .tl-stand { gap: 0.45rem; } }
-.tl-next-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--muted); }
+.tl-next-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--muted);
+  line-height: 1.3; }   /* met de 1 van .tl-next knipte overflow de staartjes af: "jij" las als "ııı" (26/11) */
 .tl-next b { flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
 /* twee (of meer) op hetzelfde getal: de flairs schuiven over elkaar */
 .tl-next-f + .tl-next-f { margin-left: -0.55rem; }
@@ -475,6 +476,41 @@ body[data-tlhome] #mode-tabs { display: flex; }
   .tl-float.hot b { color: var(--st); background: none; }
   .tl-fxl, .tl-pulse { display: none; }
 }
+
+/* 📱 Dwars (26/11, zijn "laten we de app ook goed maken voor landscape modus, vooral bij timelines vinden mensen dat fijn"; mockup
+   https://claude.ai/artifact/E2vXQtRXkj2D6WPAEZqtjw, zijn keuze "balk naast de kop"). Rechtop begon de tafel op een telefoon dwars pas op
+   394 px (scherm 350): je zag je kaart, maar niet waar hij heen moest. Nu: de balk (hartjes, ↻, stand) naast de kop, je hand links, de
+   tafel rechts, alles in één scherm; je sleept naar rechts (pick() opent pas een gat als je vinger boven de tafel is).
+   #modal-tl en .tl-game doen niet mee (display: contents), zodat kop, balk, hand en tafel één raster van <main> zijn. Algemene regels
+   (breder <main>, geen "Inloggen" naast het poppetje) staan in style.css. */
+@media (orientation: landscape) and (max-height: 540px) {
+  :root { --tl-ch: clamp(8.5rem, 100dvh - 8.2rem, 13.5rem); --tl-hh: clamp(9rem, 100dvh - 5.4rem, 16rem); }
+  [data-tlhome] main { display: grid; grid-template-columns: 17.2rem minmax(0, 1fr) 20rem; grid-template-rows: auto 1fr;
+    grid-template-areas: "kop kop hud" "hand table table"; column-gap: 0.9rem; align-items: start; min-height: 100dvh; box-sizing: border-box; }
+  [data-tlhome] main > #mode-tabs { grid-area: kop; align-self: center; margin-bottom: 0.35rem; }
+  #modal-tl.tl-page, .tl-game { display: contents; }
+  .tl-hud { grid-area: hud; align-self: center; margin-bottom: 0.35rem; }
+  .tl-hand { grid-area: hand; padding: 0.25rem 1.45rem 0.45rem 0; justify-items: end; }
+  .tl-handin { width: 13.4rem; }
+  .tl-end { grid-area: hand; margin-top: 0.1rem; }
+  .tl-tablewrap { grid-area: table; margin: 0 -1rem 0 0; }
+  .tl-msg { grid-column: 1 / -1; }
+  /* het zinnetje bij je eerste kaart: rechtsonder in de (dan nog lege) tafel, niet onder je hand */
+  .tl-cue { grid-area: table; z-index: 3; align-self: end; justify-self: end; max-width: 15rem; margin: 0 0 1.6rem; text-align: right; line-height: 1.3;
+    text-wrap: balance; }
+  .tl-cue.gone { display: none; }
+  /* de tafel begint midden in het scherm: kaarten die er links half af vallen, vervagen in plaats van af te breken */
+  .tl-row { -webkit-mask-image: linear-gradient(90deg, transparent, #000 1.4rem); mask-image: linear-gradient(90deg, transparent, #000 1.4rem); }
+  .tl-ends { padding-left: 0.6rem; }
+  /* klaar, in de smalle kolom: eerst het getal en de knoppen, dan het bord (dat mag onder de vouw) */
+  .tl-end-acts { order: 1; margin-top: 0.55rem; flex-wrap: nowrap; }
+  .tl-end .tl-tb { order: 2; }
+  .tl-end-acts .tl-share { flex: none; }
+  .tl-end-acts .tl-again { flex: 1 1 auto; min-width: 0; white-space: nowrap; }
+}
+/* een lage tafel: minder regels, zodat er geen halve regel onderaan blijft hangen (8 regels + "v.Chr." vragen ±193 px kaart = 324 px scherm) */
+@media (orientation: landscape) and (max-height: 330px) { .tl-c .tl-t { -webkit-line-clamp: 7; } }
+@media (orientation: landscape) and (max-height: 305px) { .tl-c .tl-t { -webkit-line-clamp: 6; } }
 `;
 
   window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN, chaseMarks, chaseNext };
@@ -1096,7 +1132,12 @@ body[data-tlhome] #mode-tabs { display: flex; }
   function pick() {
     const row = root.querySelector(".tl-row");
     if (!row) return;
-    const rr = row.getBoundingClientRect(), near = drag.py > rr.top - 90 && drag.py < rr.bottom + 40;
+    // dwars (26/11) staat je hand links náást de tafel: pas een gat openen als je vinger boven de tafel is (anders legde een klein
+    // schuifje de kaart helemaal links), en pas naar links scrollen als je al op de tafel was (anders schoof hij weg terwijl je
+    // er vanaf links op kwam). Rechtop begint je vinger midden boven de tafel, dus daar verandert niets.
+    const rr = row.getBoundingClientRect(), near = drag.py > rr.top - 90 && drag.py < rr.bottom + 40 && drag.px > rr.left - 24;
+    if (drag.onRow == null) drag.onRow = drag.x0 > rr.left - 24;   // rechtop begin je altijd boven de tafel
+    if (!drag.onRow && drag.px > rr.left + 60) drag.onRow = true;
     let best = -1, bd = 1e9;
     if (near) root.querySelectorAll(".tl-slot").forEach((s) => { const r = s.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - drag.px); if (d < bd) { bd = d; best = +s.dataset.i; } });
     if (near && drag.slot >= 0 && best !== drag.slot) {   // niet heen en weer springen terwijl het gat opengaat
@@ -1109,7 +1150,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       if (s) s.classList.add("tl-open");
       drag.slot = best;
     }
-    if (near) { if (drag.px < rr.left + 44) row.scrollLeft -= 9; else if (drag.px > rr.right - 44) row.scrollLeft += 9; }
+    if (near) { if (drag.px < rr.left + 44) { if (drag.onRow) row.scrollLeft -= 9; } else if (drag.px > rr.right - 44) row.scrollLeft += 9; }
   }
   const loop = () => { if (!drag) return; pick(); drag.raf = requestAnimationFrame(loop); };
   const endDrag = (e) => {

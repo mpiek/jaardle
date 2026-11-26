@@ -2423,6 +2423,43 @@ html[data-theme="light"] #footer-socials a[data-social="tiktok"]:hover, html[dat
   .key-wide { padding: 0.6rem 0; }
 }
 
+/* 📱 Dwars (26/11, zijn "laten we de app ook goed maken voor landscape modus, vooral bij timelines"; mockup
+   https://claude.ai/artifact/E2vXQtRXkj2D6WPAEZqtjw). Een telefoon dwars is breed, maar slechts 320–390 px hoog: de Gok-knop stond daar
+   op ±700 px. Alleen breed én laag (≤ 540 px): rechtop, tablets en PC blijven zoals ze waren.
+   - overal: <main> mag breder (de kop loopt mee) en naast het poppetje valt "Inloggen" weg, zoals op een smalle telefoon (anders botst
+     het logo op 740 px met de deur);
+   - de Duels-lijst blijft één kolom in het midden;
+   - daily, vrij spel, duelronde en knock-out: links de vraag en je gokken, rechts de punten en het toetsenbord plat (1–5, 6–0, − ⌫ Gok);
+     na afloop staat daar de uitslag (het toetsenbord klapt dicht) en worden de kolommen even breed;
+   - Timeline: zie het eind van de CSS in /timeline.js (je hand links, de tafel rechts, de balk naast de kop). */
+@media (orientation: landscape) and (max-height: 540px) {
+  main { max-width: 1040px; padding-top: 0.45rem; }
+  #mode-tabs { margin-bottom: 0.4rem; }
+  #menu-btn .menu-label { display: none; }
+  body[data-duelshome] main > :not(#mode-tabs) { max-width: 528px; margin-inline: auto; }
+  /* het spel als raster: de kop (Jaardle, of in een duel #duel-top) over de hele breedte, alles daaronder links, behalve het toetsenbord
+     en de uitslag. Die twee staan rechts over alle rijen; de laatste rij (1fr) vangt hun hoogte op, zodat de rijen links niet uit elkaar
+     schuiven. */
+  body:not([data-tlhome]):not([data-duelshome]) main { display: grid; grid-template-columns: minmax(0, 1fr) 19rem; column-gap: 1rem;
+    grid-template-rows: auto repeat(12, auto) 1fr; align-items: start; }
+  body:not([data-tlhome]):not([data-duelshome]) main:has(> #result:not([hidden])) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  body:not([data-tlhome]):not([data-duelshome]) main > * { grid-column: 1; }
+  body:not([data-tlhome]):not([data-duelshome]) main > :is(#mode-tabs, #duel-top) { grid-column: 1 / -1; }
+  body:not([data-tlhome]):not([data-duelshome]) main > :is(#play-bar, #result) { grid-column: 2; grid-row: 2 / -1; }
+  body:not([data-tlhome]):not([data-duelshome]) main > #result { margin-top: 0; }
+  #keypad { grid-template-columns: repeat(5, 1fr); gap: 0.3rem; margin-bottom: 0.3rem; }
+  #keypad .key { padding: 0.5rem 0; font-size: 1.15rem; }
+  #keypad :is(#sign-btn, #backspace-btn, #guess-btn) { order: 1; }
+  #keypad #guess-btn { grid-column: span 3; }
+  #year-input { min-height: 2.3rem; padding-top: 0.25rem; padding-bottom: 0.25rem; font-size: 1.6rem; }
+  #input-row { margin-bottom: 0.35rem; }
+  /* zo compact als een telefoon rechtop (de regel hierboven), de gokken nog iets lager */
+  #event-card { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  #event-text { font-size: 1rem; }
+  #guesses { gap: 0.25rem; margin-bottom: 0.4rem; }
+  .guess-row { min-height: 1.6rem; padding-top: 0.12rem; padding-bottom: 0.12rem; }
+}
+
 
 /* ⚔️ Laadscherm voor een duel-seintje of -link (?duel=, head-script): geen daily ertussen. Eén vlak in de achtergrondkleur
    (de schaduw van het ⚔️-vakje vult het scherm) met een rustig ademende ⚔️. /duel.js haalt het weg zodra de opening van de ronde
