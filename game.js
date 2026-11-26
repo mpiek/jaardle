@@ -382,7 +382,7 @@ const I18N = {
     rewards_locked_hint: "Meer te verdienen — bekijk 🏅 Prestaties",
     reward_pop_eyebrow: "Beloning vrijgespeeld", reward_cta_vault: "Bekijk in kluis", reward_equip: "Draag nu", reward_activate: "Zet aan",
     reward_sub_flair: "Een nieuwe flair voor op het leaderboard.", reward_sub_effect: "Een nieuw eindscherm-effect.", reward_sub_theme: "Kies je palet in de 🪎-kluis.",
-    rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel", fxn_ember: "🌶️ Vonken", fxn_glow: "🔥 Gloed", fxn_vizier: "🎯 Vizier", fxn_sweat: "💧 Zweetdruppel", fxn_ripple: "🌊 Rimpel", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Nippertje", fxn_pendulum: "🕰️ Slinger", fxn_lives: "❤️ Volle levens",
+    rewards_sect_flairfx: "Flair-effect", flairfx_none: "Geen effect", flairfx_need_flair: "Draag eerst een flair om je effect te zien.", reward_sub_flairfx: "Een effect rond je flair, zichtbaar op elk bord.", fxn_sparkle: "✨ Sprankel", fxn_ember: "🌶️ Vonken", fxn_glow: "🏮 Gloed", fxn_vizier: "🏹 Vizier", fxn_sweat: "💧 Zweetdruppel", fxn_ripple: "🌊 Rimpel", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Nippertje", fxn_pendulum: "🕰️ Slinger", fxn_lives: "❤️ Volle levens",
     fxn_eclipse: "\u{1F311} Eclips", fxn_shard: "🗡️ Scherven", fxn_aura: "🔮 Aura", obx_replay: "Bekijk de onthulling opnieuw",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Spinnenweb", fxn_lights: "\u{1F387} Lichtjes", fxn_snow: "\u2744\uFE0F Sneeuw", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Viering", rewards_tab_look: "🎨 Uiterlijk", rewards_sect_frame: "Sierrand", frame_none: "Uit", frame_a: "Certificaat", frame_b: "Holo-foil", frame_d: "Art deco", rewards_flair_preview: "Zo zien anderen je op het bord",
@@ -409,9 +409,9 @@ const I18N = {
     achv_t_saver: "Reddingsactie", achv_t_saver_sub: "red een streak met de inhaal-daily",
     achv_t_eras: "Tijdreiziger", achv_t_eras_sub: "win in elk van de 6 tijdperken",
     // Het getal in _sub moet gelijklopen met OBSIDIAN_AT en award_titles() in db/43.
-    achv_t_obsidian: "Obsidiaan", achv_t_obsidian_sub: "bereik ooit een rating van 1925",
+    achv_t_obsidian: "Jaardle Master", achv_t_obsidian_sub: "bereik ooit een rating van 1925",
     // Getal in _sub moet gelijklopen met GM_AT en award_titles() in db/59.
-    achv_t_legend: "Legende", achv_t_legend_sub: "bereik ooit een rating van 2000",
+    achv_t_legend: "Grootmeester", achv_t_legend_sub: "bereik ooit een rating van 2000",
     achv_title_wear: (code) => `${code} dragen`,
     title_gm_note: "Grootmeester",
     title_jm_note: "Jaardle Master",
@@ -748,7 +748,7 @@ const I18N = {
     rewards_locked_hint: "More to earn — see 🏅 Achievements",
     reward_pop_eyebrow: "Reward unlocked", reward_cta_vault: "Open the vault", reward_equip: "Wear it now", reward_activate: "Turn it on",
     reward_sub_flair: "A new flair for the leaderboard.", reward_sub_effect: "A new end-screen effect.", reward_sub_theme: "Pick your palette in the 🪎 vault.",
-    rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle", fxn_ember: "🌶️ Embers", fxn_glow: "🔥 Glow", fxn_vizier: "🎯 Crosshair", fxn_sweat: "💧 Sweat drop", fxn_ripple: "🌊 Ripple", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Close call", fxn_pendulum: "🕰️ Pendulum", fxn_lives: "❤️ Full lives",
+    rewards_sect_flairfx: "Flair effect", flairfx_none: "No effect", flairfx_need_flair: "Wear a flair first to see your effect.", reward_sub_flairfx: "An effect around your flair, visible on every board.", fxn_sparkle: "✨ Sparkle", fxn_ember: "🌶️ Embers", fxn_glow: "🏮 Glow", fxn_vizier: "🏹 Crosshair", fxn_sweat: "💧 Sweat drop", fxn_ripple: "🌊 Ripple", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Close call", fxn_pendulum: "🕰️ Pendulum", fxn_lives: "❤️ Full lives",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Shards", fxn_aura: "🔮 Aura", obx_replay: "Watch the reveal again",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Cobweb", fxn_lights: "\u{1F387} Fairy lights", fxn_snow: "\u2744\uFE0F Snowfall", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Party", rewards_tab_look: "🎨 Looks", rewards_sect_frame: "Frame", frame_none: "Off", frame_a: "Certificate", frame_b: "Holo foil", frame_d: "Art deco", rewards_flair_preview: "How others see you on the board",
@@ -774,8 +774,8 @@ const I18N = {
     achv_t_flawless: "Flawless", achv_t_flawless_sub: "5 perfect 100s in a row",
     achv_t_saver: "Rescue mission", achv_t_saver_sub: "save a streak with the make-up daily",
     achv_t_eras: "Time traveller", achv_t_eras_sub: "win in each of the 6 eras",
-    achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "reach a rating of 1925",
-    achv_t_legend: "Legend", achv_t_legend_sub: "reach a rating of 2000",
+    achv_t_obsidian: "Jaardle Master", achv_t_obsidian_sub: "reach a rating of 1925",
+    achv_t_legend: "Grandmaster", achv_t_legend_sub: "reach a rating of 2000",
     achv_title_wear: (code) => `Wear ${code}`,
     title_gm_note: "Grandmaster",
     title_jm_note: "Jaardle Master",
@@ -1107,7 +1107,7 @@ const I18N = {
     rewards_locked_hint: "Mehr zu verdienen — siehe 🏅 Erfolge",
     reward_pop_eyebrow: "Belohnung freigeschaltet", reward_cta_vault: "Zur Truhe", reward_equip: "Jetzt tragen", reward_activate: "Einschalten",
     reward_sub_flair: "Ein neues Flair für die Bestenliste.", reward_sub_effect: "Ein neuer Endbildschirm-Effekt.", reward_sub_theme: "Wähl dein Design in der 🪎-Truhe.",
-    rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln", fxn_ember: "🌶️ Glut", fxn_glow: "🔥 Glühen", fxn_vizier: "🎯 Fadenkreuz", fxn_sweat: "💧 Schweißtropfen", fxn_ripple: "🌊 Wellen", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Knapp geschafft", fxn_pendulum: "🕰️ Pendel", fxn_lives: "❤️ Volle Leben",
+    rewards_sect_flairfx: "Flair-Effekt", flairfx_none: "Kein Effekt", flairfx_need_flair: "Trag zuerst ein Flair, um deinen Effekt zu sehen.", reward_sub_flairfx: "Ein Effekt um dein Flair, sichtbar auf jeder Bestenliste.", fxn_sparkle: "✨ Funkeln", fxn_ember: "🌶️ Glut", fxn_glow: "🏮 Glühen", fxn_vizier: "🏹 Fadenkreuz", fxn_sweat: "💧 Schweißtropfen", fxn_ripple: "🌊 Wellen", fxn_lotus: "🪷 Lotus", fxn_timer: "⏱️ Knapp geschafft", fxn_pendulum: "🕰️ Pendel", fxn_lives: "❤️ Volle Leben",
     fxn_eclipse: "\u{1F311} Finsternis", fxn_shard: "🗡️ Scherben", fxn_aura: "🔮 Aura", obx_replay: "Enthüllung noch einmal ansehen",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Spinnennetz", fxn_lights: "\u{1F387} Lichterkette", fxn_snow: "\u2744\uFE0F Schneefall", rewards_tab_events: "Events",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Flair", rewards_tab_vier: "🎉 Feier", rewards_tab_look: "🎨 Aussehen", rewards_sect_frame: "Zierrand", frame_none: "Aus", frame_a: "Urkunde", frame_b: "Holo-Folie", frame_d: "Art déco", rewards_flair_preview: "So sehen dich andere in der Bestenliste",
@@ -1133,8 +1133,8 @@ const I18N = {
     achv_t_flawless: "Makellos", achv_t_flawless_sub: "5 perfekte 100er in Folge",
     achv_t_saver: "Rettungsaktion", achv_t_saver_sub: "rette eine Serie mit dem Nachhol-Rätsel",
     achv_t_eras: "Zeitreisender", achv_t_eras_sub: "gewinne in allen 6 Epochen",
-    achv_t_obsidian: "Obsidian", achv_t_obsidian_sub: "erreiche eine Wertung von 1925",
-    achv_t_legend: "Legende", achv_t_legend_sub: "erreiche eine Wertung von 2000",
+    achv_t_obsidian: "Jaardle Master", achv_t_obsidian_sub: "erreiche eine Wertung von 1925",
+    achv_t_legend: "Großmeister", achv_t_legend_sub: "erreiche eine Wertung von 2000",
     achv_title_wear: (code) => `${code} tragen`,
     title_gm_note: "Großmeister",
     title_jm_note: "Jaardle Master",
@@ -1470,7 +1470,7 @@ const I18N = {
     rewards_locked_hint: "Más por conseguir — mira 🏅 Logros",
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver en la caja", reward_equip: "Usar ahora", reward_activate: "Activar",
     reward_sub_flair: "Un nuevo distintivo para la clasificación.", reward_sub_effect: "Un nuevo efecto de pantalla final.", reward_sub_theme: "Elige tu paleta en la caja 🪎.",
-    rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Resplandor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de sudor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Loto", fxn_timer: "⏱️ Por los pelos", fxn_pendulum: "🕰️ Péndulo", fxn_lives: "❤️ Vidas llenas",
+    rewards_sect_flairfx: "Efecto del distintivo", flairfx_none: "Sin efecto", flairfx_need_flair: "Lleva primero un distintivo para ver tu efecto.", reward_sub_flairfx: "Un efecto alrededor de tu distintivo, visible en cada clasificación.", fxn_sparkle: "✨ Destello", fxn_ember: "🌶️ Brasas", fxn_glow: "🏮 Resplandor", fxn_vizier: "🏹 Mira", fxn_sweat: "💧 Gota de sudor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Loto", fxn_timer: "⏱️ Por los pelos", fxn_pendulum: "🕰️ Péndulo", fxn_lives: "❤️ Vidas llenas",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Esquirlas", fxn_aura: "🔮 Aura", obx_replay: "Ver la revelación otra vez",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Telaraña", fxn_lights: "\u{1F387} Lucecitas", fxn_snow: "\u2744\uFE0F Nevada", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Fiesta", rewards_tab_look: "🎨 Aspecto", rewards_sect_frame: "Marco", frame_none: "Apagado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Así te ven los demás en la clasificación",
@@ -1496,8 +1496,8 @@ const I18N = {
     achv_t_flawless: "Impecable", achv_t_flawless_sub: "5 puntuaciones perfectas seguidas",
     achv_t_saver: "Rescate", achv_t_saver_sub: "salva una racha con el puzle de recuperación",
     achv_t_eras: "Viajero del tiempo", achv_t_eras_sub: "gana en cada una de las 6 épocas",
-    achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcanza una puntuación de 1925",
-    achv_t_legend: "Leyenda", achv_t_legend_sub: "alcanza una puntuación de 2000",
+    achv_t_obsidian: "Jaardle Master", achv_t_obsidian_sub: "alcanza una puntuación de 1925",
+    achv_t_legend: "Gran Maestro", achv_t_legend_sub: "alcanza una puntuación de 2000",
     achv_title_wear: (code) => `Llevar ${code}`,
     title_gm_note: "Gran Maestro",
     title_jm_note: "Jaardle Master",
@@ -1833,7 +1833,7 @@ const I18N = {
     rewards_locked_hint: "Mais a conquistar — veja 🏅 Conquistas",
     reward_pop_eyebrow: "Recompensa desbloqueada", reward_cta_vault: "Ver no cofre", reward_equip: "Usar agora", reward_activate: "Ativar",
     reward_sub_flair: "Um novo emblema para o placar.", reward_sub_effect: "Um novo efeito de tela final.", reward_sub_theme: "Escolha sua paleta no cofre 🪎.",
-    rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho", fxn_ember: "🌶️ Brasas", fxn_glow: "🔥 Fulgor", fxn_vizier: "🎯 Mira", fxn_sweat: "💧 Gota de suor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Lótus", fxn_timer: "⏱️ Por um triz", fxn_pendulum: "🕰️ Pêndulo", fxn_lives: "❤️ Vidas cheias",
+    rewards_sect_flairfx: "Efeito do distintivo", flairfx_none: "Sem efeito", flairfx_need_flair: "Use primeiro um distintivo para ver seu efeito.", reward_sub_flairfx: "Um efeito em volta do seu distintivo, visível em todo placar.", fxn_sparkle: "✨ Brilho", fxn_ember: "🌶️ Brasas", fxn_glow: "🏮 Fulgor", fxn_vizier: "🏹 Mira", fxn_sweat: "💧 Gota de suor", fxn_ripple: "🌊 Ondas", fxn_lotus: "🪷 Lótus", fxn_timer: "⏱️ Por um triz", fxn_pendulum: "🕰️ Pêndulo", fxn_lives: "❤️ Vidas cheias",
     fxn_eclipse: "\u{1F311} Eclipse", fxn_shard: "🗡️ Estilhaços", fxn_aura: "🔮 Aura", obx_replay: "Ver a revelação de novo",   // obsidiaan: de effecten (Eclips/Scherven/Aura) en de herhaal-knop in de kluis; de show zelf heeft z'n teksten in obsidian-fx.js
     fxn_web: "\u{1F578}\uFE0F Teia de aranha", fxn_lights: "\u{1F387} Pisca-pisca", fxn_snow: "\u2744\uFE0F Neve", rewards_tab_events: "Eventos",   // Spooktober: het effect Spinnenweb (event-beloning) en het label van de Events-tab (het icoon van het event komt ervoor)
     rewards_tab_flair: "🙂 Distintivo", rewards_tab_vier: "🎉 Festa", rewards_tab_look: "🎨 Aparência", rewards_sect_frame: "Moldura", frame_none: "Desligado", frame_a: "Certificado", frame_b: "Holo-foil", frame_d: "Art déco", rewards_flair_preview: "Assim os outros te veem no placar",
@@ -1859,8 +1859,8 @@ const I18N = {
     achv_t_flawless: "Impecável", achv_t_flawless_sub: "5 pontuações perfeitas seguidas",
     achv_t_saver: "Resgate", achv_t_saver_sub: "salve uma sequência com o desafio de recuperação",
     achv_t_eras: "Viajante do tempo", achv_t_eras_sub: "vença em cada uma das 6 eras",
-    achv_t_obsidian: "Obsidiana", achv_t_obsidian_sub: "alcance um rating de 1925",
-    achv_t_legend: "Lenda", achv_t_legend_sub: "alcance um rating de 2000",
+    achv_t_obsidian: "Jaardle Master", achv_t_obsidian_sub: "alcance um rating de 1925",
+    achv_t_legend: "Grande Mestre", achv_t_legend_sub: "alcance um rating de 2000",
     achv_title_wear: (code) => `Usar ${code}`,
     title_gm_note: "Grande Mestre",
     title_jm_note: "Jaardle Master",
@@ -6588,8 +6588,10 @@ const FLAIR_FX_SEP = "~";
 const FLAIR_FX = {
   sparkle:  { emoji: "✨",  reward: "fx_sparkle",  key: "flawless",  min: 1 },     // Vlekkeloos: 5 perfecte 100's op rij
   ember:    { emoji: "🌶️", reward: "fx_ember",    key: "spicy",     min: 25 },    // Vuurproef, trede 4 (platina): 25 hardste dagen gewonnen
-  glow:     { emoji: "🔥",  reward: "fx_glow",     key: "streak",    min: 180 },   // streak, trede 5
-  vizier:   { emoji: "🎯",  reward: "fx_vizier",   key: "first_try", min: 80 },    // Voltreffer, trede 4
+  // Het icoon van een effect is alleen het getoonde teken (pins, kluis, pop-ups): het id (glow/vizier) is wat in profiles.flair staat ("🔥~glow", het teken vóór de ~ is de gedragen flair,
+  // nooit het effect-icoon), dus een ander icoon breekt geen opgeslagen flair. 26/11/2026 (zijn "rapport 2: 5 ok"): 🔥 en 🎯 stonden elk ook op iets anders (Streak-30-flair; viering In de roos + trofee Voltreffer).
+  glow:     { emoji: "🏮",  reward: "fx_glow",     key: "streak",    min: 180 },   // streak, trede 5 · 🏮 (was 🔥, de Streak-30-flair): een gloeiende rand
+  vizier:   { emoji: "🏹",  reward: "fx_vizier",   key: "first_try", min: 80 },    // Voltreffer, trede 4 · 🏹 (was 🎯, de roos-viering en de trofee): het vizier dat zich sluit
   sweat:    { emoji: "💧",  reward: "fx_sweat",    key: "nailbiter", min: 18 },    // Nagelbijter, trede 3
   ripple:   { emoji: "🌊",  reward: "fx_ripple",   key: "pure",      min: 100 },   // Puurspeler, trede 4
   lotus:    { emoji: "🪷",  reward: "fx_lotus",    key: "pure",      min: 250 },   // Puurspeler, trede 5
@@ -10465,12 +10467,15 @@ const CAL_FX = { key: "dailies", at: 3, emoji: "📆", optIn: true, note: "achv_
 const VT_ROOS_FX = { key: "perfect", at: 5, emoji: "🎯", note: "achv_fx_note_vt", earned: "achv_fx_vt_earned" };
 const ACHV_SERIES = [
   { key: "dailies", art: "cal",        steps: [7, 30, 60, 120, 200, 365], flairs: [{ emoji: "🌟", at: 2 }], fx: CAL_FX },   // 🌟 = 60 (db/91) · ladders staan bovenaan in Reeksen (geen daily-vlag); alleen de daily-TROFEEËN gaan naar de "Dagelijks"-sectie
-  { key: "streak",  art: "flame",      steps: [7, 30, 60, 100, 180, 250], flairs: [{ emoji: "🔥", at: 1 }, { emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // 🔥 = 30 (db/91) · ⏳ = 100 (was 90, db/96) · 🔥 Gloed = 180 (db/79) · top 365 → 250 (12/10/2026, db/92: obsidiaan-poort) · platina 90 → 100 (13/10/2026)
+  { key: "streak",  art: "flame",      steps: [7, 30, 60, 100, 180, 250], flairs: [{ emoji: "🔥", at: 1 }, { emoji: "⏳", at: 3 }], flairFxs: [{ id: "glow", at: 4 }] },   // 🔥 = 30 (db/91) · ⏳ = 100 (was 90, db/96) · 🏮 Gloed = 180 (db/79; icoon was 🔥, 26/11/2026) · top 365 → 250 (12/10/2026, db/92: obsidiaan-poort) · platina 90 → 100 (13/10/2026)
   { key: "games",   art: "dice",       steps: [10, 100, 250, 750, 1500, 3000], flairs: [{ emoji: "🎲", at: 2 }], fx: BEER_FX },   // 🎲 = 250 (db/91) · top-2 verlaagd 8/10/2026 (Matthijs: 2000/5000 → 1500/3000)
   { key: "perfect", art: "100",        steps: [1, 10, 25, 50, 100, 250],  flairs: [{ emoji: "💯", at: 3 }], fx: VT_ROOS_FX },   // 💯 = 50 (db/41) · 🎯 In de roos = 250 (db/94)
   { key: "pure",    art: "zen",        steps: [5, 25, 50, 100, 250, 500], flairs: [{ emoji: "🧠", at: 2 }], flairFxs: [{ id: "ripple", at: 3 }, { id: "lotus", at: 4 }] },   // 🧠 = 50 (db/91) · 🌊 Rimpel = 100 · 🪷 Lotus = 250 (db/79)
   { key: "rating",  art: "bolt",       steps: [1600, 1700, 1740, 1780, 1815, 1900], floor: 1500, authOnly: true,
-    flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }, { emoji: "👑", at: 5 }] },   // 🥇 = 1815, 👑 = 1900 (db/91; was 1850/1850)
+    flairs: [{ emoji: "🥉", at: 0 }, { emoji: "🥈", at: 1 }, { emoji: "🥇", at: 4 }, { emoji: "👑", at: 5 }],   // 🥇 = 1815, 👑 = 1900 (db/91; was 1850/1850)
+    // 26/11/2026 (zijn "rapport 2: 6 sure"): JM en GM staan na de laatste trede als verlengstuk van de ladder (titel-pillen, drempels uit TITLE_AT). Geen trede
+    // erbij (de rail en de capstone blijven op 6): de titels komen uit player_titles, niet uit de rating-trede.
+    titles: ["JM", "GM"] },
   { key: "years",   art: "albumcover", steps: [4, 10, 16, 22, 28, 38], flairs: [{ emoji: "🗿", at: 4 }], album: true },   // 🗿 = 28 (db/41)
   // ⚔️ Duellist (db/224, 22/11/2026): uitgespeelde duels tegen mensen (om de beurt + live knock-out, geen bots). Eigen sectie "Duels"
   // (duel: true), alleen ingelogd: de server telt uit duels/ko_games. ⚔️ op diamant = 300 = de gate in set_my_flair ("wil dat mensen
@@ -10517,20 +10522,20 @@ const ACHV_TROPHIES = [
   { key: "comeback",  i18n: "achv_t_comeback", art: "comeback", repeatable: true, authOnly: true, duel: true, tiers: [1, 3, 6, 12, 25, 50], flair: { emoji: "🐦‍🔥", at: 2 } },   // Remontada: gewonnen na 0–2
   { key: "unscathed", i18n: "achv_t_unscathed",art: "shield",   repeatable: true, authOnly: true, duel: true, tiers: [1, 5, 15, 35, 75, 150], flairFx: "lives", flairFxAt: 3 },   // Ongeschonden: geen ronde verloren (knock-out: geen leven kwijt)
   { key: "david",     i18n: "achv_t_david",    art: "sling",    repeatable: true, authOnly: true, duel: true, tiers: [1, 5, 15, 35, 75, 150], flair: { emoji: "💪", at: 4 } },   // David: gewonnen van iemand met 200+ hogere rating
-  // Obsidiaan: de enige verborgen trofee. Hij bestaat niet op het bord tot je
-  // piek-rating ooit OBSIDIAN_REVEAL was (= de diamant-trede), en is verdiend bij
-  // OBSIDIAN_AT. Bewust géén 6e trede op de rating-ladder (ook niet sinds de
-  // 6e trede op de grind-ladders): een verborgen trede op een zichtbare ladder is
-  // een gat waar iedereen naar staart.
+  // Obsidiaan, sinds 26/11/2026 "Jaardle Master" (JM): de enige verborgen trofee. Hij is verdiend bij OBSIDIAN_AT. Bewust géén 6e trede op de
+  // rating-ladder (ook niet sinds de 6e trede op de grind-ladders): een verborgen trede op een zichtbare ladder is een gat waar iedereen naar staart.
+  // 26/11/2026 (zijn "rapport 2: 6 sure", want "obsidiaan" betekende drie dingen: capstone-trede 6, rating 1900 en deze titel): JM en GM staan nu
+  // zichtbaar ná de laatste trede van de rating-ladder (`titles` op de reeks, achvDetailHtml) en dragen hun titelnaam. De trofee-entry blijft bestaan
+  // voor de kroning (coronation), de snapshot-diff en `a.obsidian`/`a.legend`, maar krijgt geen eigen tegel meer in het trofeeënrooster (`ladder`):
+  // het zou dezelfde titel twee keer laten zien. Niemand raakt iets kwijt: de titel blijft gepind in player_titles en staat op de ladder + de borden.
   // weight 10 > alles (obsidiaan-trede = 8, zegel = 4): de zeldzaamste prestatie van het
   // spel mag nooit door een toevallig jaar-zegel van de unlock-kaart geduwd worden.
   { key: "obsidian",  i18n: "achv_t_obsidian", art: "chest", lockedArt: "chest-closed",
-    authOnly: true, weight: 10, titleCode: "JM", coronation: true,
+    authOnly: true, weight: 10, titleCode: "JM", coronation: true, ladder: "rating",
     reveal: (a) => (a.rating || 0) >= OBSIDIAN_REVEAL },
-  // Legende: nóg zeldzamer, en verborgen tot je JM-terrein (≥1925) hebt aangetikt.
-  // Piek ≥ 2000 is bewust ~onhaalbaar (db/48/59): een "nog nooit"-trede. Reward = GM.
+  // Legende, sinds 26/11/2026 "Grootmeester" (GM): nóg zeldzamer. Piek ≥ 2000 is bewust ~onhaalbaar (db/48/59): een "nog nooit"-trede. Reward = GM.
   { key: "legend",    i18n: "achv_t_legend", art: "chest", lockedArt: "chest-closed",
-    authOnly: true, weight: 11, titleCode: "GM", coronation: true,
+    authOnly: true, weight: 11, titleCode: "GM", coronation: true, ladder: "rating",
     reveal: (a) => (a.rating || 0) >= LEGEND_REVEAL },
 ];
 // 1900 → 1925 (db/48): de rating-verruimingen van 30-07 tilden het haalbare plafond tot
@@ -10547,6 +10552,7 @@ const LEGEND_REVEAL   = 1925;   // Legende-trofee verschijnt pas als je JM-terre
 // zou de trofee weer verdwijnen bij wie hem al kon zien. Sinds 12/10/2026 is dit een los
 // getal (rating-obsidiaan schoof naar 1900): wie ooit 1850 haalde, ziet de kist.
 const OBSIDIAN_REVEAL = 1850;
+const TITLE_AT = { JM: OBSIDIAN_AT, GM: GM_AT };   // de titel-pillen op de rating-ladder (achvDetailHtml); dezelfde getallen als award_titles()
 const ACHV_REPEAT_KEYS = ACHV_TROPHIES.filter((tr) => tr.repeatable).map((tr) => tr.key);
 
 // Getierde herhaalbare trofeeën: een eigen 6-trede-schaal (brons→diamant +
@@ -12146,7 +12152,7 @@ async function checkAchievements() {
     if (curv > prev) {
       // JM/GM (coronation) krijgen GEEN eindscherm-kaartje maar de schermvullende
       // kroning-pop-up (server-gegated). Rode stip blijft wel als spoor.
-      if (tr.coronation) { coronationHit = true; newIds.push(`t:${tr.key}`); continue; }
+      if (tr.coronation) { coronationHit = true; newIds.push(tr.ladder ? `s:${tr.ladder}:${tr.titleCode}` : `t:${tr.key}`); continue; }
       // Getierd → kaart toont de nieuwe trede (+ ×N); ongetierd → gewone trofee.
       items.push(achvTrophyItem(tr, a[tr.key] || 0, tr.tiers ? curv : 0, a, prev));
       // Rood bolletje bij élke MIJLPAAL: een tier-up (incl. de eerste keer = brons)
@@ -12298,11 +12304,17 @@ function achvDetailHtml(a, s) {
     : "") + flairFxs.map((f) =>
       `<p class="achv-flairnote">${escHtml(t("achv_flairfx_note")(t("fxn_" + f.id), achvTierName(f.at)))}</p>`).join("") +
     (s.cards && auth.user ? `<p class="achv-flairnote">${escHtml(t("achv_cards_note")(achvTierName(s.cards.at)))}</p>` : "");
+  // Titels (JM/GM) als verlengstuk van de rating-ladder: de bestaande titel-pil + het getal, gedimd tot je de titel hebt (a.obsidian / a.legend =
+  // gepind in player_titles). Aantikken geeft de uitleg-bubbel van de pil. De rail zelf eindigt gewoon op de laatste trede.
+  const titleRow = !auth.user || !s.titles ? "" : `<div class="achv-titlerow">${s.titles.map((code) => {
+    const tr = ACHV_TROPHIES.find((x) => x.titleCode === code);
+    return `<span class="achv-ttl${a[tr.key] ? " done" : ""}">${titleBadgeHtml(code)}<b>${fmtN(TITLE_AT[code])}</b></span>`;
+  }).join("")}</div>`;
   return `<div class="achv-detail" hidden>
       <div class="achv-pinrow">${pins}</div>
       <div class="achv-rail"><i style="width:${achvRailPct(n, s).toFixed(1)}%"></i>${ticks}</div>
       <div class="achv-ticklabels">${labels}</div>
-      ${note}${fxNote}</div>`;
+      ${titleRow}${note}${fxNote}</div>`;
 }
 
 // NIEUW-markering: alles wat nog in de achvNew-lijst staat. Wat we hier tónen
@@ -12381,7 +12393,9 @@ function achvRowHtml(a, s, goal, lag) {
   const prevStep = target === 0 ? (s.floor || 0) : s.steps[target - 1];
   const barPct = target >= s.steps.length || n >= s.steps[target] ? 100
     : Math.max(0, Math.min(100, ((n - prevStep) / (s.steps[target] - prevStep)) * 100));
-  const chip = tier > 0 ? `<span class="achv-chip">${escHtml(achvTierName(tier - 1))}</span>` : "";
+  // Wie JM/GM heeft ziet de titel in plaats van "obsidiaan" (26/11/2026): de trofee-tegel is naar de rating-ladder verhuisd.
+  const heldTitle = auth.user && s.titles ? (a.legend ? "GM" : a.obsidian ? "JM" : "") : "";
+  const chip = tier > 0 ? `<span class="achv-chip">${escHtml(heldTitle || achvTierName(tier - 1))}</span>` : "";
   const chev = s.album ? `${achvNewDot("y:")}<span class="achv-chev">›</span>` : "";
   return `<div class="achv-row achv-t${tier}${lag ? " achv-lag" : ""}" data-key="${s.key}">
     <button class="achv-rowbtn" type="button" aria-expanded="false">
@@ -13003,6 +13017,10 @@ function fillCardPreviews(root) {
   }).catch(() => {});
 }
 function renderAchvBoard(body, a) {
+  // 26/11/2026: de JM/GM-tegels zijn naar de rating-ladder verhuisd (ACHV_TROPHIES.ladder). Een NIEUW-spoor dat nog onder de oude tegel hing
+  // (t:obsidian, t:legend) hangt nu aan de rating-rij, anders bleef het rode stipje staan zonder tegel om het te wissen.
+  const staleTitleIds = achvNewLoad().filter((id) => id === "t:obsidian" || id === "t:legend");
+  if (staleTitleIds.length) { achvNewDrop(new Set(staleTitleIds)); achvNewAdd(staleTitleIds.map((id) => (id === "t:obsidian" ? "s:rating:JM" : "s:rating:GM"))); }
   const visSeries = ACHV_SERIES.filter((s) => !s.authOnly || auth.user);
   // Daily-only prestaties staan bij elkaar in een eigen "Dagelijks"-sectie: de
   // ladders (dailies/streak) én de daily-trofeeën. De capstone leest de ladders
@@ -13017,7 +13035,7 @@ function renderAchvBoard(body, a) {
     <h3 class="stats-heading">${escHtml(t("achv_sect_other"))}</h3><div class="achv-rows">${notDaily.filter((s) => !CAPSTONE_KEYS.includes(s.key)).map((s) => achvRowHtml(a, s)).join("")}${findsRowHtml(a)}</div>`;
   // Een verborgen trofee (reveal) bestaat pas op het bord als de poort open staat,
   // of als je 'm al hebt — anders zou een lege plek verraden dát er iets is.
-  const shown = ACHV_TROPHIES.filter((tr) =>
+  const shown = ACHV_TROPHIES.filter((tr) => !tr.ladder &&
     (!tr.authOnly || auth.user) && (!tr.reveal || tr.reveal(a) || achvTrophyDone(a, tr)));
   const dailyTrophies = shown.filter((tr) => tr.daily).map((tr) => achvTrophyHtml(a, tr)).join("");
   const rest = shown.filter((tr) => !tr.daily && !tr.duel);

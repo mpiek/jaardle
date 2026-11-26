@@ -69,7 +69,7 @@ src += `
   setState: (s) => { state = s; },
   refreshWeekPodiumResult, soloPathOk, fetchMyPools, popupSteps, withTimeout, teamAfterLoginPark, getPendingTeam: () => pendingTeamAfterLogin, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
   fmtDailyDate, fmtHistoryDate,
-  achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml, achvTipShow, achvTipClose, trophyTierOf, trophyFlairEarned, flairPreviewHtml, FLAIR_SVG,
+  achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvRowHtml, achvNewLoad, titleBadgeHtml, TITLE_AT, achvTrophyHtml, achvTipShow, achvTipClose, trophyTierOf, trophyFlairEarned, flairPreviewHtml, FLAIR_SVG,
   streakFlameTier, streakFlameHtml, withAnimEmoji,
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
@@ -6000,4 +6000,85 @@ test("🏅 Weekprijs ×N (db/242): herhaalbare dagelijkse trofee, alleen ingelog
   const GAME = readFileSync(join(dir, "..", "game.js"), "utf8");
   assert.match(GAME, /g id=\\"achv-art-podium\\"/, "de munt bestaat");
   for (const l of ["nl", "en", "de", "es", "pt"]) assert.equal(typeof globalThis.__T.I18N[l].achv_t_weekprize, "string", l);
+// ── 26/11/2026 ("rapport 2: 5 ok, 6 sure"): eigen iconen voor Vizier en Gloed; JM en GM bij de rating-ladder ──────────────────────
+test("flair-effecten — Vizier en Gloed hebben een eigen icoon (🎯 en 🔥 stonden ook op iets anders); de id's en opgeslagen flairs blijven kloppen", () => {
+  assert.equal(T.FLAIR_FX.vizier.emoji, "🏹");
+  assert.equal(T.FLAIR_FX.glow.emoji, "🏮");
+  // geen enkel effect-icoon is ook een flair (vrij, prestatie, event) of de viering/het bier van een ladder
+  const flairs = new Set([...T.FLAIR_OPTIONS, ...T.CAPSTONE_FLAIRS.map((c) => c.emoji),
+    ...T.ACHV_SERIES.flatMap((s) => (s.flairs || []).map((f) => f.emoji).concat(s.fx ? [s.fx.emoji] : [])),
+    ...T.ACHV_TROPHIES.filter((tr) => tr.flair).map((tr) => tr.flair.emoji)]);
+  const seen = new Map();
+  for (const [id, f] of Object.entries(T.FLAIR_FX)) {
+    if (id === "glow" || id === "vizier") assert.ok(!flairs.has(f.emoji), `${id}: ${f.emoji} is ook een flair of viering`);   // (Vonken 🌶️ deelt zijn icoon bewust met de Vuurproef-flair: zijn tekening)
+    assert.ok(!seen.has(f.emoji), `${id}: ${f.emoji} staat ook op ${seen.get(f.emoji)}`);
+    seen.set(f.emoji, id);
+  }
+  // opgeslagen flairs: het teken vóór de ~ is de gedragen flair, nooit het effect-icoon
+  assert.deepEqual({ ...T.parseFlair("🔥~glow") }, { emoji: "🔥", fx: "glow" });
+  assert.deepEqual({ ...T.parseFlair("🎯~vizier") }, { emoji: "🎯", fx: "vizier" });
+  assert.equal(T.joinFlair("🔥", "glow"), "🔥~glow");
+  assert.equal(T.joinFlair("🎯", "vizier"), "🎯~vizier");
+  // het nieuwe icoon staat in het emoji-font (unicode-range ↔ de bron die build-emoji-font.py scant)
+  const css = readFileSync(join(dir, "..", "style.css"), "utf8");
+  const range = css.match(/unicode-range:\s*([^;]+);/)[1].split(",").map((x) => x.trim());
+  const inRange = (cp) => range.some((r) => { const [a, b = a] = r.slice(2).split("-").map((h) => parseInt(h, 16)); return cp >= a && cp <= b; });
+  assert.ok(inRange(0x1F3F9) && inRange(0x1F3EE), "🏹 en 🏮 in de emoji-subset");
+  // de naam in alle talen begint met het nieuwe icoon (de pop-up en de kluis tonen die naam)
+  for (const l of Object.keys(T.I18N)) {
+    assert.ok(T.I18N[l].fxn_glow.startsWith("🏮") && T.I18N[l].fxn_vizier.startsWith("🏹"), l);
+  }
+});
+
+test("JM en GM — de trofeeën heten naar hun titel (5 talen) en staan als verlengstuk van de rating-ladder", () => {
+  for (const l of Object.keys(T.I18N)) {
+    assert.equal(T.I18N[l].achv_t_obsidian, T.I18N[l].title_jm_note, `${l}: JM-trofee = titelnaam`);
+    assert.equal(T.I18N[l].achv_t_legend, T.I18N[l].title_gm_note, `${l}: GM-trofee = titelnaam`);
+  }
+  assert.deepEqual(Object.keys(T.I18N).sort(), ["de", "en", "es", "nl", "pt"]);
+  assert.equal(T.TITLE_AT.JM, 1925); assert.equal(T.TITLE_AT.GM, 2000);
+  const rating = T.ACHV_SERIES.find((s) => s.key === "rating");
+  assert.deepEqual(rating.titles, ["JM", "GM"]);
+  assert.equal(rating.steps.length, 6, "de rail en de capstone-logica blijven op zes treden");
+  assert.equal(rating.steps[5], 1900);
+  // de machinerie blijft: kroning, snapshot, drempels
+  for (const [key, code] of [["obsidian", "JM"], ["legend", "GM"]]) {
+    const tr = T.ACHV_TROPHIES.find((x) => x.key === key);
+    assert.ok(tr && tr.titleCode === code && tr.coronation && tr.ladder === "rating", key);
+    assert.equal(T.achvSnapshot(T.achvNormalize({ [key]: true }))[key], 1, `${key}: de snapshot-diff ziet hem nog`);
+  }
+  const was = T.auth.user;
+  const A = (o) => ({ games: 0, dailies: 0, streak: 0, perfect: 0, pure: 0, rating: 1950, years: [], ...o });
+  try {
+    T.auth.user = { uid: "u" };
+    const none = T.achvDetailHtml(A({}), rating), jm = T.achvDetailHtml(A({ obsidian: true }), rating), gm = T.achvDetailHtml(A({ obsidian: true, legend: true }), rating);
+    for (const h of [none, jm, gm]) assert.ok(h.includes("lb-title-jm") && h.includes("lb-title-gm") && /1\.?925/.test(h) && /2\.?000/.test(h), "twee pillen met hun getal");
+    assert.equal((none.match(/achv-ttl done/g) || []).length, 0, "nog geen titel: beide gedimd");
+    assert.equal((jm.match(/achv-ttl done/g) || []).length, 1, "JM gehaald");
+    assert.equal((gm.match(/achv-ttl done/g) || []).length, 2, "GM gehaald");
+    assert.ok(jm.indexOf("achv-titlerow") > jm.indexOf("achv-ticklabels"), "de titels staan ná de rail");
+    assert.ok(!T.achvDetailHtml(A({}), T.ACHV_SERIES.find((s) => s.key === "streak")).includes("achv-titlerow"), "alleen de rating-ladder");
+    T.auth.user = null;
+    assert.ok(!T.achvDetailHtml(A({}), rating).includes("achv-titlerow"), "anoniem: geen rating-ladder, geen titels");
+  } finally { T.auth.user = was; }
+});
+
+test("JM en GM — het bord: geen losse tegel meer, de rating-rij toont de titel i.p.v. 'obsidiaan', en een oud NIEUW-spoor verhuist naar die rij", () => {
+  const was = T.auth.user, body = { innerHTML: "", querySelectorAll: () => [] };
+  T.setLang("nl");
+  try {
+    T.auth.user = { uid: "titel-test" };
+    const render = (o) => { T.renderAchvBoard(body, T.achvNormalize({ rating: 1950, ...o })); return body.innerHTML; };
+    const ratingRow = (h) => { const i = h.indexOf('data-key="rating"'); return h.slice(i, h.indexOf("achv-detail", i)); };
+    const h = render({ obsidian: true });
+    assert.ok(!/data-tkey="(obsidian|legend)"/.test(h), "geen tegel in het trofeeënrooster, ook niet voor wie de titel heeft");
+    assert.match(ratingRow(h), /achv-chip">JM</, "JM-houder: de chip noemt de titel");
+    assert.match(ratingRow(render({ obsidian: true, legend: true })), /achv-chip">GM</);
+    assert.match(ratingRow(render({})), /achv-chip">obsidiaan</i, "zonder titel blijft het de rating-trede");
+    // een rood stipje van vóór deze wijziging hing aan de tegel (t:obsidian): nu aan de rating-rij, zodat het te wissen blijft
+    localStorage.setItem("jaardle:achvNew:titel-test", JSON.stringify(["t:obsidian", "t:legend", "t:saver"]));
+    render({ obsidian: true });
+    assert.deepEqual(T.achvNewLoad().sort(), ["s:rating:GM", "s:rating:JM", "t:saver"]);
+    localStorage.removeItem("jaardle:achvNew:titel-test");
+  } finally { T.auth.user = was; }
 });
