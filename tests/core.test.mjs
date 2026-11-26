@@ -69,7 +69,7 @@ src += `
   setState: (s) => { state = s; },
   refreshWeekPodiumResult, soloPathOk, fetchMyPools, popupSteps, withTimeout, teamAfterLoginPark, getPendingTeam: () => pendingTeamAfterLogin, setMyPool: (p) => { myPool = p; }, getWeekPodiumResult: () => weekPodiumResult, resetPodiumReq: () => { podiumPendingReq = null; },
   fmtDailyDate, fmtHistoryDate,
-  achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml, trophyTierOf, trophyFlairEarned, flairPreviewHtml, FLAIR_SVG,
+  achvSnapshot, achvSeriesItem, achvTrophyItem, trophyFxCrossing, achvDetailHtml, achvTrophyHtml, achvTipShow, achvTipClose, trophyTierOf, trophyFlairEarned, flairPreviewHtml, FLAIR_SVG,
   streakFlameTier, streakFlameHtml, withAnimEmoji,
   perfectWeekKeys, weekMondayKey, perfectWeeks, renderHistoryList,
   calendarLabels, weekLetters, perfectWeekJustCompleted, calendarFxUnlocked, calendarFxActive, setCalendarFx, setBeerFx, setGoldYearsFx, setFlairConfetti,
@@ -2132,6 +2132,71 @@ test("prestatiebord: pins en tooltips noemen de effecten alleen voor ingelogde s
     assert.ok(!T.achvDetailHtml(A({ pure: 30 }), pure).includes("🪷"), "anoniem: geen belofte van een effect dat je niet kunt dragen");
     assert.ok(!T.achvTrophyHtml(A({ first_try: 5 }), T.ACHV_TROPHIES.find((x) => x.key === "first_try")).includes("Vizier"));
   } finally { T.auth.user = was; }
+});
+
+test("prestatiebord: een trofee met beloning toont dezelfde pins als de ladder-rail en geeft de tooltip-tekst ook aan schermlezers (26/11)", () => {
+  const was = T.auth.user;
+  T.setLang("nl");
+  const A = (o) => ({ games: 0, dailies: 0, streak: 0, perfect: 0, pure: 0, rating: 0, years: [], ...o });
+  const tro = (k) => T.ACHV_TROPHIES.find((x) => x.key === k);
+  try {
+    T.auth.user = { uid: "u" };
+    // 🌶️ Vuurproef: flair (gewoon teken) + effect (.achv-fxpin met het icoon van het effect), net als op de rail
+    const sp = T.achvTrophyHtml(A({ spicy: 3 }), tro("spicy"));
+    assert.match(sp, /<span class="achv-tpins" aria-hidden="true"><span class="achv-flairpin">🌶️<\/span><span class="achv-flairpin achv-fxpin">/);
+    assert.ok(sp.includes(`achv-fxpin">${T.FLAIR_FX.ember.emoji}</span>`), "het icoon van het effect");
+    // de tekst: dezelfde regels als de title, per regel een span in een sr-only-blok (schermlezers + de bubbel bij een tik)
+    const title = sp.match(/title="([^"]*)"/)[1];
+    const lines = [...sp.match(/<span class="sr-only achv-tnote">([\s\S]*?)<\/div>/)[1].matchAll(/<span>([^<]*)<\/span>/g)].map((m) => m[1]);
+    assert.equal(lines.length, 3, "flair · effect · nog X tot");
+    assert.equal(lines.join(" · "), title);
+    // alleen een flair → één pin; alleen een effect → één effect-pin
+    assert.equal((T.achvTrophyHtml(A({ fun: 1 }), tro("fun")).match(/achv-flairpin/g) || []).length, 1);
+    assert.ok(!T.achvTrophyHtml(A({ fun: 1 }), tro("fun")).includes("achv-fxpin"));
+    assert.equal((T.achvTrophyHtml(A({ first_try: 1 }), tro("first_try")).match(/achv-fxpin/g) || []).length, 1);
+    // een trofee zonder beloning en zonder trede (Redder): geen pins, geen tekstblok, geen title
+    const sv = T.achvTrophyHtml(A({}), tro("saver"));
+    assert.ok(!sv.includes("achv-tpins") && !sv.includes("achv-tnote") && !sv.includes("title="));
+    // blijft tikbaar zoals altijd (munt, nee-schudje, NIEUW)
+    assert.match(sp, /data-tkey="spicy"/);
+    // anoniem: geen effect-pin en geen effect-tekst (een belofte die de poort nooit inlost), de flair-pin wel
+    T.auth.user = null;
+    const anon = T.achvTrophyHtml(A({ spicy: 3 }), tro("spicy"));
+    assert.ok(!anon.includes("achv-fxpin") && anon.includes("achv-flairpin"));
+    assert.ok(!T.achvTrophyHtml(A({ first_try: 5 }), tro("first_try")).includes("achv-tpins"), "alleen-effect-trofee, anoniem: geen pin");
+    assert.ok(!T.achvTrophyHtml(A({ flawless: true }), tro("flawless")).includes("achv-tnote"), "geen effect, geen trede: geen tekst");
+  } finally { T.auth.user = was; }
+});
+
+test("achvTipShow — de tik toont de tooltip-tekst als bubbel (aria-hidden), de volgende tik of achvTipClose haalt hem weg", () => {
+  const doc = globalThis.document, made = [];
+  const mkTile = (left, srcKids) => {
+    const cls = new Set(), kids = [];
+    const tile = { classList: { add: (c) => cls.add(c), remove: (c) => cls.delete(c), has: (c) => cls.has(c) }, kids, cls,
+      parentElement: { getBoundingClientRect: () => ({ left: 0, width: 300 }) },
+      getBoundingClientRect: () => ({ left, width: 145 }),
+      querySelector: (q) => (q === ".achv-tnote" && srcKids ? { children: srcKids.map((h) => ({ innerHTML: h })) } : null),
+      appendChild: (n) => { kids.push(n); made.push(n); n.remove = () => { kids.splice(kids.indexOf(n), 1); made.splice(made.indexOf(n), 1); }; } };
+    return tile;
+  };
+  globalThis.document = { ...doc,
+    createElement: () => { const c = new Set(); return { classList: { add: (x) => c.add(x), has: (x) => c.has(x) }, c, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; } }; },
+    querySelectorAll: (q) => (q === ".achv-tipnote" ? [...made] : []) };
+  try {
+    const left = mkTile(0, ["bij goud verdien je de 🌶️-flair", "nog 2 tot zilver"]), right = mkTile(150, ["a"]), bare = mkTile(0, null);
+    T.achvTipShow(left);
+    assert.equal(made.length, 1);
+    assert.equal(made[0].attrs["aria-hidden"], "true", "de tekst staat al in .achv-tnote voor schermlezers");
+    assert.equal(made[0].innerHTML, "<span>bij goud verdien je de 🌶️-flair</span><span>nog 2 tot zilver</span>");
+    assert.ok(!made[0].c.has("r") && left.cls.has("achv-tipping"));
+    T.achvTipShow(right);
+    assert.equal(made.length, 1, "de volgende tik haalt de vorige bubbel weg");
+    assert.ok(made[0].c.has("r"), "rechterkolom: naar links uitklappen");
+    T.achvTipShow(bare);
+    assert.equal(made.length, 0, "een tegel zonder tekst (of op slot zonder beloning): geen bubbel, wel opgeruimd");
+    T.achvTipShow(left); T.achvTipClose();
+    assert.equal(made.length, 0);
+  } finally { T.achvTipClose(); globalThis.document = doc; }
 });
 
 // ── De vlam groeit mee met de streak ──

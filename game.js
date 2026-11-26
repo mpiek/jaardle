@@ -12321,10 +12321,35 @@ function achvNewMark(prefix) {
 function achvNewDot(prefix) {
   return achvNewHits(prefix).length ? `<span class="achv-newdot" aria-hidden="true"></span>` : "";
 }
+// Bij een tik op een trofee met beloning: de tekst van de tooltip als kleine bubbel onder de tegel (26/11/2026: een telefoon heeft geen
+// tooltip). Hij is aria-hidden, want dezelfde tekst staat voor schermlezers al in de tegel (.achv-tnote). Weg na een paar seconden of bij
+// de volgende tik (ook op een ander prestatie-onderdeel). Geen tekst → alleen het oude opruimen. De bubbel is absoluut gepositioneerd
+// (geen verspringend grid) en spant beide kolommen; hij hangt aan de kant van de tegel, zodat hij niet buiten het scherm valt.
+let achvTipTimer = 0;
+function achvTipClose() {
+  clearTimeout(achvTipTimer);
+  document.querySelectorAll(".achv-tipnote").forEach((n) => n.remove());
+  document.querySelectorAll(".achv-tipping").forEach((n) => n.classList.remove("achv-tipping"));
+}
+function achvTipShow(tile) {
+  achvTipClose();
+  const src = tile.querySelector(".achv-tnote");
+  if (!src) return;
+  const bub = document.createElement("div");
+  bub.className = "achv-tipnote";
+  bub.setAttribute("aria-hidden", "true");
+  bub.innerHTML = [...src.children].map((c) => `<span>${c.innerHTML}</span>`).join("");
+  const r = tile.getBoundingClientRect(), g = (tile.parentElement || tile).getBoundingClientRect();
+  if (r.left - g.left > g.width / 4) bub.classList.add("r");   // rechterkolom: naar links uitklappen
+  tile.classList.add("achv-tipping");
+  tile.appendChild(bub);
+  achvTipTimer = setTimeout(achvTipClose, 5000);
+}
 // Tik op een prestatie: de munt draait één keer om (op slot: een klein "nee"-schudje), en een NIEUW-label erop is
 // meteen gezien: het springt eraf in plaats van te wachten tot je het scherm sluit. Elke tik speelt opnieuw af.
 // "kan klein zijn een spin of iets anders" (12/11): een omdraaiende munt, want de badges zijn munten.
 function achvTap(tile, prefix) {
+  achvTipShow(tile);
   const art = tile.querySelector(".achv-tring > .achv-art, .achv-ring > .achv-art");
   if (art) {
     art.classList.remove("achv-flip", "achv-nope");
@@ -12372,23 +12397,43 @@ function achvRowHtml(a, s, goal, lag) {
   </div>`;
 }
 
-function achvTrophyHtml(a, tr) {
-  const done = achvTrophyDone(a, tr);
+// De beloning-tekst(en) van een trofee: flair, flair-effect, "nog X tot …". Voorheen alleen een title-tooltip (desktop); sinds
+// 26/11/2026 ook voor schermlezers (.achv-tnote) en als bubbel bij een tik (achvTipShow), want een telefoon heeft geen tooltip.
+function achvTrophyTips(a, tr) {
   const count = achvTrophyCount(a, tr);
   const tier = trophyTierOf(a, tr);   // 0 = ongetierd of nog geen trede
-  const badge = count > 0 ? `<span class="achv-tcount">×${fmtN(count)}</span>` : "";
-  const tierChip = tier > 0 ? ` <span class="achv-ttier">${escHtml(trophyTierName(tier))}</span>` : "";
-  // Voortgang naar de volgende trede als tooltip (één title per element, dus een
-  // flair-tooltip gaat vóór). Verder bewust géén tussenstand in de tegel zelf —
-  // het 2-koloms grid blijft strak (zie repeatable-achievements-design).
+  // Voortgang naar de volgende trede (de tekst; verder bewust géén tussenstand in de tegel zelf, zodat het 2-koloms grid strak blijft,
+  // zie repeatable-achievements-design).
   const nextTip = tr.tiers && tier < 6 ? t("achv_next")(fmtN(tr.tiers[tier] - count), trophyTierName(tier + 1)) : "";
   // Eenmalig (Vlekkeloos) → "hiermee verdien je het effect"; getierd/teller → "bij <trede> …", plus de voortgang.
   const fxTip = !tr.flairFx || !auth.user ? ""
     : !tr.repeatable ? t("achv_flairfx_note_flat")(t("fxn_" + tr.flairFx))
     : t("achv_flairfx_note")(t("fxn_" + tr.flairFx), tr.tiers ? trophyTierName(tr.flairFxAt + 1) : `×${fmtN(FLAIR_FX[tr.flairFx].min)}`);
   const flairTip = !tr.flair ? "" : tr.flair.at == null ? t("achv_flair_note_flat")(tr.flair.emoji) : t("achv_flair_note")(tr.flair.emoji, trophyTierName(tr.flair.at + 1));
-  const tips = [flairTip, fxTip, nextTip].filter(Boolean);
+  return [flairTip, fxTip, nextTip].filter(Boolean);
+}
+
+// Het stille teken van de beloning op de tegel (26/11/2026, zijn "rapport 2: 1 ok"): dezelfde pins als op de rail van een ladder
+// (achvDetailHtml): de flair als gewoon teken, het effect als .achv-fxpin met het icoon van het effect en dezelfde amber gloed. Het effect
+// alleen voor ingelogden, net als daar (anders een belofte die de poort nooit inlost). Een pin hangt ook op een tegel op slot: zo zie je
+// wat er te verdienen valt. Decoratief (aria-hidden): de tekst staat voor schermlezers in .achv-tnote.
+function achvTrophyPinsHtml(tr) {
+  const pins = [...(tr.flair ? [`<span class="achv-flairpin">${tr.flair.emoji}</span>`] : []),
+    ...(tr.flairFx && auth.user ? [`<span class="achv-flairpin achv-fxpin">${FLAIR_FX[tr.flairFx].emoji}</span>`] : [])];
+  return pins.length ? `<span class="achv-tpins" aria-hidden="true">${pins.join("")}</span>` : "";
+}
+
+function achvTrophyHtml(a, tr) {
+  const done = achvTrophyDone(a, tr);
+  const count = achvTrophyCount(a, tr);
+  const tier = trophyTierOf(a, tr);   // 0 = ongetierd of nog geen trede
+  const badge = count > 0 ? `<span class="achv-tcount">×${fmtN(count)}</span>` : "";
+  const tierChip = tier > 0 ? ` <span class="achv-ttier">${escHtml(trophyTierName(tier))}</span>` : "";
+  // Eén title per element en met " · " aan elkaar: de tooltip voor desktop. Dezelfde tekst staat als losse regels in .achv-tnote
+  // (schermlezers + de bubbel bij een tik, achvTap), want een telefoon heeft geen tooltip.
+  const tips = achvTrophyTips(a, tr);
   const titleAttr = tips.length ? ` title="${escHtml(tips.join(" · "))}"` : "";
+  const tnote = tips.length ? `<span class="sr-only achv-tnote">${tips.map((x) => `<span>${escHtml(x)}</span>`).join(" · ")}</span>` : "";
   // Een titel (JM/GM) is niet-aflegbaar: je hébt 'm of niet (zoals GM bij een
   // schaakmeester). Geen draag-schakelaar meer — gewoon een tegel (v239).
   const art = !done && tr.lockedArt ? tr.lockedArt : tr.art;
@@ -12396,7 +12441,7 @@ function achvTrophyHtml(a, tr) {
   return `<div class="achv-trophy${done ? "" : " locked"}${tierCls}" data-tkey="${escHtml(tr.key)}"${titleAttr}>
       <span class="achv-tring${tier > 0 ? " tiered" : ""}">${achvBadgeHtml(art)}${badge}${done ? achvNewMark(`t:${tr.key}`) : ""}</span>
       <span class="achv-tname">${escHtml(t(tr.i18n))}${tierChip}</span>
-      <span class="achv-tsub">${escHtml(t(`${tr.i18n}_sub`))}</span>
+      <span class="achv-tsub">${escHtml(t(`${tr.i18n}_sub`))}</span>${achvTrophyPinsHtml(tr)}${tnote}
     </div>`;
 }
 
