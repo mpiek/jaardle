@@ -228,7 +228,7 @@ const I18N = {
     fact_prev: "Vorig feit", fact_next: "Volgend feit",
     free_tag: "(vrij)", lost_share: "💀 Niet gekraakt",
     next_daily: "⏳ Volgende daily over", daily_ready: "✨ De nieuwe daily staat klaar!",
-    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_strict_guard: "🎯 Strenge check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", menu_duel_sfx: "⚔️ Duel-geluid", menu_duel_music: "🎵 Duel-muziek", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
+    remind_chip: "Herinner me", remind_on: (time) => `Seintje om ${time}`, menu_strict_guard: "🎯 Strenge check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel-seintjes", menu_duel_sfx: "⚔️ Duel-geluid", menu_duel_music: "🎵 Duel-muziek", menu_tl_sound: "🗓️ Timeline-geluid", later_check_aria: (w) => `⏩ ${w} jaar later: zeker? Tik nog eens om te gokken.`, menu_remind: "\u{1F514} Dagelijks seintje", menu_install: "\u{1F4F2} Zet op beginscherm", menu_install_app: "\u{1F4BB} Installeer als app",
     free_again: "🎲 Nog een potje?", free_revenge: "🎲 Pak je revanche",
     nx_duel: "Duel", nx_turn: (n) => `Jouw beurt tegen ${n}`, nx_many: (k) => `Jouw beurt in ${k} duels`, nx_inv: (n) => `${n} daagt je uit`, nx_aria: "Daag een vriend uit",
     fun_q: "Leuk potje?", fun_up: "Leuk", fun_down: "Niet leuk", fun_thanks: "Bedankt!", fun_why: "Wat kon beter?",
@@ -397,7 +397,7 @@ const I18N = {
     achv_next: (k, tier) => `nog ${k} tot ${tier}`,
     achv_maxed: "hoogste trede behaald",
     achv_games: "Veelspeler", achv_games_n: (n) => `${n} ${n === 1 ? "potje" : "potjes"}`,
-    achv_dailies: "Dagelijkse gast", achv_dailies_n: (n) => `${n} dailies`,
+    achv_dailies: "Dagelijkse gast", achv_dailies_n: (n) => `${n} ${n === 1 ? "dag" : "dagen"}`,
     achv_streak: "Streak", achv_streak_n: (n) => `beste reeks ${n} ${n === 1 ? "dag" : "dagen"}`,
     achv_perfect: "Perfectionist", achv_perfect_n: (n) => `${n} perfecte scores`,
     achv_pure: "Puurspeler", achv_pure_n: (n) => `${n} wins zonder hint`,
@@ -594,7 +594,7 @@ const I18N = {
     fact_prev: "Previous fact", fact_next: "Next fact",
     free_tag: "(free)", lost_share: "💀 Not cracked",
     next_daily: "⏳ Next daily in", daily_ready: "✨ The new daily is ready!",
-    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_strict_guard: "🎯 Strict check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", menu_duel_sfx: "⚔️ Duel sounds", menu_duel_music: "🎵 Duel music", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
+    remind_chip: "Remind me", remind_on: (time) => `Reminder at ${time}`, menu_strict_guard: "🎯 Strict check", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duel notifications", menu_duel_sfx: "⚔️ Duel sounds", menu_duel_music: "🎵 Duel music", menu_tl_sound: "🗓️ Timeline sounds", later_check_aria: (w) => `⏩ ${w} years later: sure? Tap again to guess.`, menu_remind: "\u{1F514} Daily reminder", menu_install: "\u{1F4F2} Add to home screen", menu_install_app: "\u{1F4BB} Install as app",
     free_again: "🎲 One more round?", free_revenge: "🎲 Take your revenge",
     nx_duel: "Duel", nx_turn: (n) => `Your turn vs ${n}`, nx_many: (k) => `Your turn in ${k} duels`, nx_inv: (n) => `${n} challenges you`, nx_aria: "Challenge a friend",
     fun_q: "Fun round?", fun_up: "Fun", fun_down: "Not fun", fun_thanks: "Thanks!", fun_why: "What could be better?",
@@ -763,7 +763,7 @@ const I18N = {
     achv_next: (k, tier) => `${k} to go until ${tier}`,
     achv_maxed: "highest tier reached",
     achv_games: "Frequent player", achv_games_n: (n) => `${n} ${n === 1 ? "game" : "games"}`,
-    achv_dailies: "Daily regular", achv_dailies_n: (n) => `${n} dailies`,
+    achv_dailies: "Daily regular", achv_dailies_n: (n) => `${n} ${n === 1 ? "day" : "days"}`,
     achv_streak: "Streak", achv_streak_n: (n) => `best run ${n} ${n === 1 ? "day" : "days"}`,
     achv_perfect: "Perfectionist", achv_perfect_n: (n) => `${n} perfect scores`,
     achv_pure: "Purist", achv_pure_n: (n) => `${n} wins without hints`,
@@ -953,7 +953,7 @@ const I18N = {
     fact_prev: "Vorheriger Fakt", fact_next: "Nächster Fakt",
     free_tag: "(frei)", lost_share: "💀 Nicht geknackt",
     next_daily: "⏳ Nächstes Daily in", daily_ready: "✨ Das neue Daily ist da!",
-    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_strict_guard: "🎯 Strenge Prüfung", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", menu_duel_sfx: "⚔️ Duell-Sounds", menu_duel_music: "🎵 Duell-Musik", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
+    remind_chip: "Erinnern", remind_on: (time) => `Erinnerung um ${time}`, menu_strict_guard: "🎯 Strenge Prüfung", menu_later_check: "⏩ Check", menu_duel_push: "⚔️ Duell-Benachrichtigungen", menu_duel_sfx: "⚔️ Duell-Sounds", menu_duel_music: "🎵 Duell-Musik", menu_tl_sound: "🗓️ Timeline-Sounds", later_check_aria: (w) => `⏩ ${w} Jahre später: sicher? Tippe noch einmal, um zu raten.`, menu_remind: "\u{1F514} Tägliche Erinnerung", menu_install: "\u{1F4F2} Zum Home-Bildschirm", menu_install_app: "\u{1F4BB} Als App installieren",
     free_again: "🎲 Noch eine Runde?", free_revenge: "🎲 Hol dir die Revanche",
     nx_duel: "Duell", nx_turn: (n) => `Du bist dran gegen ${n}`, nx_many: (k) => `Du bist dran: ${k} Duelle`, nx_inv: (n) => `${n} fordert dich heraus`, nx_aria: "Fordere jemanden heraus",
     fun_q: "Hat's Spaß gemacht?", fun_up: "Spaß", fun_down: "Kein Spaß", fun_thanks: "Danke!", fun_why: "Was könnte besser sein?",
@@ -1122,7 +1122,7 @@ const I18N = {
     achv_next: (k, tier) => `noch ${k} bis ${tier}`,
     achv_maxed: "höchste Stufe erreicht",
     achv_games: "Vielspieler", achv_games_n: (n) => `${n} ${n === 1 ? "Partie" : "Partien"}`,
-    achv_dailies: "Stammgast", achv_dailies_n: (n) => `${n} tägliche Rätsel`,
+    achv_dailies: "Stammgast", achv_dailies_n: (n) => `${n} ${n === 1 ? "Tag" : "Tage"}`,
     achv_streak: "Serie", achv_streak_n: (n) => `beste Serie ${n} ${n === 1 ? "Tag" : "Tage"}`,
     achv_perfect: "Perfektionist", achv_perfect_n: (n) => `${n} perfekte Ergebnisse`,
     achv_pure: "Purist", achv_pure_n: (n) => `${n} Siege ohne Hinweis`,
@@ -1316,7 +1316,7 @@ const I18N = {
     fact_prev: "Dato anterior", fact_next: "Dato siguiente",
     free_tag: "(libre)", lost_share: "💀 No resuelto",
     next_daily: "⏳ Próximo diario en", daily_ready: "✨ ¡El nuevo diario ya está aquí!",
-    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_strict_guard: "🎯 Control estricto", menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sonidos de duelos", menu_duel_music: "🎵 Música de duelos", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Recuérdamelo", remind_on: (time) => `Recordatorio a las ${time}`, menu_strict_guard: "🎯 Control estricto", menu_later_check: "⏩ Comprobar", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sonidos de duelos", menu_duel_music: "🎵 Música de duelos", menu_tl_sound: "🗓️ Sonidos de Timeline", later_check_aria: (w) => `⏩ ${w} años después: ¿seguro? Toca otra vez para adivinar.`, menu_remind: "\u{1F514} Recordatorio diario", menu_install: "\u{1F4F2} Añadir a la pantalla de inicio", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 ¿Otra ronda?", free_revenge: "🎲 Tómate la revancha",
     nx_duel: "Duelo", nx_turn: (n) => `Tu turno contra ${n}`, nx_many: (k) => `Tu turno en ${k} duelos`, nx_inv: (n) => `${n} te reta`, nx_aria: "Reta a un amigo",
     fun_q: "¿Ronda divertida?", fun_up: "Divertida", fun_down: "Poco divertida", fun_thanks: "¡Gracias!", fun_why: "¿Qué podría mejorar?",
@@ -1485,7 +1485,7 @@ const I18N = {
     achv_next: (k, tier) => `faltan ${k} para ${tier}`,
     achv_maxed: "nivel máximo alcanzado",
     achv_games: "Jugador asiduo", achv_games_n: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
-    achv_dailies: "Habitual del diario", achv_dailies_n: (n) => `${n} puzles diarios`,
+    achv_dailies: "Habitual del diario", achv_dailies_n: (n) => `${n} ${n === 1 ? "día" : "días"}`,
     achv_streak: "Racha", achv_streak_n: (n) => `mejor racha ${n} ${n === 1 ? "día" : "días"}`,
     achv_perfect: "Perfeccionista", achv_perfect_n: (n) => `${n} puntuaciones perfectas`,
     achv_pure: "Purista", achv_pure_n: (n) => `${n} victorias sin pistas`,
@@ -1679,7 +1679,7 @@ const I18N = {
     fact_prev: "Fato anterior", fact_next: "Próximo fato",
     free_tag: "(livre)", lost_share: "💀 Não resolvido",
     next_daily: "⏳ Próximo diário em", daily_ready: "✨ O novo diário já chegou!",
-    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_strict_guard: "🎯 Checagem rigorosa", menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sons dos duelos", menu_duel_music: "🎵 Música dos duelos", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
+    remind_chip: "Lembrar-me", remind_on: (time) => `Lembrete às ${time}`, menu_strict_guard: "🎯 Checagem rigorosa", menu_later_check: "⏩ Conferir", menu_duel_push: "⚔️ Avisos de duelos", menu_duel_sfx: "⚔️ Sons dos duelos", menu_duel_music: "🎵 Música dos duelos", menu_tl_sound: "🗓️ Sons da Timeline", later_check_aria: (w) => `⏩ ${w} anos depois: certeza? Toque de novo para palpitar.`, menu_remind: "\u{1F514} Lembrete diário", menu_install: "\u{1F4F2} Adicionar à tela de início", menu_install_app: "\u{1F4BB} Instalar como app",
     free_again: "🎲 Mais uma rodada?", free_revenge: "🎲 Dê o troco",
     nx_duel: "Duelo", nx_turn: (n) => `Sua vez contra ${n}`, nx_many: (k) => `Sua vez em ${k} duelos`, nx_inv: (n) => `${n} desafia você`, nx_aria: "Desafie um amigo",
     fun_q: "Rodada divertida?", fun_up: "Divertida", fun_down: "Pouco divertida", fun_thanks: "Obrigado!", fun_why: "O que poderia melhorar?",
@@ -1848,7 +1848,7 @@ const I18N = {
     achv_next: (k, tier) => `faltam ${k} para ${tier}`,
     achv_maxed: "nível máximo alcançado",
     achv_games: "Jogador assíduo", achv_games_n: (n) => `${n} ${n === 1 ? "partida" : "partidas"}`,
-    achv_dailies: "Frequentador do diário", achv_dailies_n: (n) => `${n} desafios diários`,
+    achv_dailies: "Frequentador do diário", achv_dailies_n: (n) => `${n} ${n === 1 ? "dia" : "dias"}`,
     achv_streak: "Sequência", achv_streak_n: (n) => `melhor sequência ${n} ${n === 1 ? "dia" : "dias"}`,
     achv_perfect: "Perfeccionista", achv_perfect_n: (n) => `${n} pontuações perfeitas`,
     achv_pure: "Purista", achv_pure_n: (n) => `${n} vitórias sem dicas`,
@@ -5362,7 +5362,16 @@ function tlHost() {
     // db/238 Wie haal je in?: de flair op het chipje (stil teken, ook een eigen tekening) en jij in de pop-up als je deze week nog niet speelde
     flairGlyph: (raw) => { const p = parseFlair(raw); return p.emoji ? flairGlyphHtml(p.emoji) : ""; }, myName: () => myUsername, myFlair: () => myFlair,
     // 🃏 db/240: de kaartstijl (alleen ingelogd en verdiend), het lui geladen tekenbestand, en het prestatie-kaartje op het eindscherm van een run
-    cards: cardStyleActive, cardsFx: loadCardsFx, tlAchv: (box) => checkTimelineAchievements(box) };
+    cards: cardStyleActive, cardsFx: loadCardsFx, tlAchv: (box) => checkTimelineAchievements(box),
+    // 📅 db/241: je streak onder je uitslag van de daily (één streak voor beide dailies); fresh = de server weet net van deze dag
+    tlStreak: tlStreakHtml };
+}
+// 📅 de streak-regel van het Jaardle-eindscherm, voor het eindscherm van de Timeline-daily: dezelfde zin, dezelfde vlam
+async function tlStreakHtml(fresh) {
+  if (fresh) invalidateStreakExtras();
+  const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
+  if (s.currentStreak < 1) return "";
+  return `<div class="streak-line">${withAnimEmoji(t("streak_won")(s.currentStreak), streakFlameHtml(s.currentStreak))}</div>`;
 }
 // de deur op de Duels-pagina (meetpunt timeline-door) of de nieuwsbalk; ligt er al een potje (ready), dan de schuif, anders het laadscherm
 // met de TI/ME-tegel tot de kaarten er liggen (worldGo). Het adres /timeline/ opent hem in init.
@@ -5586,6 +5595,27 @@ function syncDuelPushUi() {
   let set = false; try { set = localStorage.getItem(DUEL_PUSH_KEY) != null; } catch (e) {}
   item.hidden = remindSupport() !== "push" || !(duelKnown() || set);
   item.setAttribute("aria-checked", String(duelPushOn()));
+}
+// 🗓️ Timeline-geluid (26/11/2026): de tik, de bam en de toontjes van Timeline aan/uit. Stond als 🔈 in de Timeline-kop; daar staat nu het
+// schuifje 📅 | 🎲 (de daily, db/241), zoals bij Jaardle. Alleen op dit toestel (jaardle:timeline:snd, leest /timeline.js), standaard aan.
+// Zichtbaar voor wie Timeline kent (een record, een daily, of hem al eens zette) en op de Timeline-pagina.
+const TL_SND_KEY = "jaardle:timeline:snd";
+function tlSoundOn() { try { return localStorage.getItem(TL_SND_KEY) !== "0"; } catch (e) { return true; } }
+function tlKnown() {
+  try { return document.body.hasAttribute("data-tlhome") || localStorage.getItem("jaardle:timeline:rec") != null || localStorage.getItem(TL_SND_KEY) != null || tlDaysForMe(null).length > 0; }
+  catch (e) { return false; }
+}
+function setTlSound(on) {
+  try { localStorage.setItem(TL_SND_KEY, on ? "1" : "0"); } catch (e) {}
+  window.JaardleTimeline?.setSound?.(on);
+  gcCount(on ? "timeline-snd-on" : "timeline-snd-off", on ? "Timeline sounds on" : "Timeline sounds off");
+  syncTlSoundUi();
+}
+function syncTlSoundUi() {
+  const item = document.querySelector('#menu-pop [data-action="tl-sound"]');
+  if (!item) return;
+  item.hidden = !tlKnown();
+  item.setAttribute("aria-checked", String(tlSoundOn()));
 }
 // ⚔️ Duel-geluid (19/11/2026, zijn vraag: "sfx voor duels, vinkje onder instellingen"): geluid bij de opening van een duelronde en de
 // band tussen rondes (/duel.js maakt en speelt het). Sinds 21/11 standaard AAN (zijn "zonder geluid is het lastiger te spelen"); wie hem
@@ -5922,6 +5952,9 @@ async function makeupRepairInfo() {
     extras = await getStreakExtras();
   } catch (e) { return { eligible: false, days: [] }; }
   const played = new Set(hist.map((e) => e.date));
+  // 📅 db/241: een dag met de Timeline-daily is voor de streak geen gat (één streak voor beide dailies). De Jaardle-daily van die dag mag je
+  // nog steeds inhalen (album, rating), maar die dag staat dan nooit in het reddingsverhaal.
+  const tl = new Set(extras.tl || []);
   const bridged = (d) => (extras.bridges || []).some((b) => d >= b.from && d <= b.to);
   // Een dag telt alleen als "gemist" als je toen al speler was: vóór je
   // allereerste pot valt er niets in te halen. Anders krijgt een verse speler
@@ -5937,10 +5970,12 @@ async function makeupRepairInfo() {
   }
   if (!days.length) return { eligible: false, days: [] };
   days.sort();                                      // oud → nieuw
-  const before = shiftDay(days[0], -1);             // dag vóór de oudste gemiste dag
-  const closed = before < EPOCH_KEY || played.has(before) || bridged(before);
+  const gap = days.filter((d) => !tl.has(d));       // de dagen die je streak echt missen
+  if (!gap.length) return { eligible: true, days, gap, rescuable: false, streak: 0 };
+  const before = shiftDay(gap[0], -1);              // dag vóór de oudste gemiste dag
+  const closed = before < EPOCH_KEY || played.has(before) || tl.has(before) || bridged(before);
   const streak = computeStats(hist, extras, before).currentStreak;
-  return { eligible: true, days, rescuable: closed && streak >= 1, streak };
+  return { eligible: true, days, gap, rescuable: closed && streak >= 1, streak };
 }
 
 // De inhaal-stand zoals de oppervlakken hem nodig hebben: `days` zónder de pot
@@ -5954,7 +5989,8 @@ async function catchupPending() {
   try { info = await makeupRepairInfo(); } catch (e) { info = { eligible: false, days: [] }; }
   const cur = state && state.done ? state.puzzleDate : null;
   const days = (info.days || []).filter((d) => d !== cur);
-  return { ...info, days, closed: days.length === 0 };
+  // 📅 db/241: dicht = geen dag meer die je streak mist (een dag met de Timeline-daily telt al)
+  return { ...info, days, closed: (info.gap || days).filter((d) => d !== cur).length === 0 };
 }
 
 // Start (of spring naar) de inhaalpot van een specifieke dag. Het daily-tabblad
@@ -10958,7 +10994,8 @@ function recordAchvLocal() {
 // nooit mínder toont dan de stats-modal (die merget lokale dagen ook al).
 async function fetchAchievements() {
   const hist = await dailyHistoryForDisplay();
-  const s = computeStats(hist, await getStreakExtras());
+  const ex = await getStreakExtras();
+  const s = computeStats(hist, ex);
   let a = null;
   if (auth.user) {
     try { const r = await rpc("get_my_achievements", {}); if (r) a = achvNormalize(r); } catch (e) {}
@@ -10975,7 +11012,8 @@ async function fetchAchievements() {
       zigzag: l.zigzag, nailbiter: l.nailbiter, spicy: l.spicy, fun: l.fun,
     });
   }
-  a.dailies = Math.max(a.dailies, hist.length);
+  // 📅 db/241: Dagelijkse gast telt dagen met de Jaardle-daily óf de Timeline-daily (een dag één keer), zoals compute_achievements
+  a.dailies = Math.max(a.dailies, new Set([...hist.map((e) => e.date), ...(ex.tl || [])]).size);
   a.streak = Math.max(a.streak, s.bestStreak);
   const histPerfect = hist.filter((e) => e.won && e.score === 100).length;
   a.perfect = Math.max(a.perfect, histPerfect);
@@ -13118,13 +13156,25 @@ let streakExtrasCache = null;
 let streakExtrasPromise = null;
 const NO_EXTRAS = { bridges: [], repair: null, lives: false };
 
+// 📅 db/241: één streak voor beide dailies. Je Timeline-daily-dagen (extras.tl) = die de server kent (get_my_streak_state.tl_days, ingelogd)
+// plus die op dit toestel (timeline.js schrijft jaardle:tl:days): van jou, of van niemand (anoniem gespeeld), zoals localHistoryForMe.
+const TL_DAYS_KEY = "jaardle:tl:days";
+function tlDaysForMe(uid = auth.user?.uid) {
+  try {
+    const a = JSON.parse(localStorage.getItem(TL_DAYS_KEY) || "[]");
+    if (!Array.isArray(a)) return [];
+    return a.filter((e) => e && typeof e.date === "string" && /^[01]{7}$/.test(e.m || "") && (!uid || e.uid == null || e.uid === uid)).map((e) => e.date);
+  } catch (e) { return []; }
+}
+const withTlDays = (x) => ({ ...x, tl: [...new Set([...(x.tlServer || []), ...tlDaysForMe()])].sort() });
+
 function getStreakExtras() {
-  if (!auth.user) return Promise.resolve(NO_EXTRAS);
-  if (streakExtrasCache) return Promise.resolve(streakExtrasCache);
+  if (!auth.user) return Promise.resolve(withTlDays(NO_EXTRAS));
+  if (streakExtrasCache) return Promise.resolve(withTlDays(streakExtrasCache));
   if (!streakExtrasPromise) {
     streakExtrasPromise = rpc("get_my_streak_state", {}).then((r) => {
       streakExtrasCache = r && Array.isArray(r.bridges)
-        ? { bridges: r.bridges, repair: r.repair || null, lives: true }
+        ? { bridges: r.bridges, repair: r.repair || null, lives: true, tlServer: Array.isArray(r.tl_days) ? r.tl_days.filter((d) => typeof d === "string") : [] }
         : { ...NO_EXTRAS, lives: true };
       streakExtrasPromise = null;
       return streakExtrasCache;
@@ -13135,7 +13185,7 @@ function getStreakExtras() {
       return { ...NO_EXTRAS, lives: true };
     });
   }
-  return streakExtrasPromise;
+  return streakExtrasPromise.then(withTlDays);
 }
 
 function invalidateStreakExtras() {
@@ -13168,7 +13218,10 @@ async function dailyHistoryForDisplay() {
 // genag over iets waar je niets meer aan kunt doen.
 // Geeft de regel én de streak waarvoor de vlam groeit (n; 0 = de regel heeft geen vlam).
 async function streakLineInfo(won) {
-  const s = computeStats(await dailyHistoryForDisplay(), await getStreakExtras());
+  const ex = await getStreakExtras();
+  const s = computeStats(await dailyHistoryForDisplay(), ex);
+  // 📅 db/241: speelde je vandaag de Timeline-daily al, dan telt de dag ook na een verlies (geen schild, geen gebroken streak)
+  if (!won && (ex.tl || []).includes((state && state.puzzleDate) || todayKey())) won = true;
   if (won) return s.currentStreak >= 1 ? { line: t("streak_won")(s.currentStreak), n: s.currentStreak } : { line: "", n: 0 };
   if (s.currentStreak >= 1) return { line: t("streak_shield")(s.currentStreak, s.livesLeft), n: 0 };
   return { line: s.yesterdayStreak > 0 ? t("streak_lost")(s.yesterdayStreak) : "", n: 0 };
@@ -13537,7 +13590,9 @@ function recordDailyResult(won) {
 //    extras) breekt élk verlies, zoals vanouds;
 //  * gemiste dag   → breekt direct, tenzij overbrugd door een voltooide
 //    5-potjes-reparatie (extras.bridges, db/50);
-//  * vandaag nog niet gespeeld is geen breuk; een onoverbrugd gat t/m gisteren wél.
+//  * vandaag nog niet gespeeld is geen breuk; een onoverbrugd gat t/m gisteren wél;
+//  * 📅 een dag met de Timeline-daily (extras.tl, db/241) telt als een gewonnen dag: één streak voor beide dailies, een dag telt één
+//    keer, en een verloren Jaardle-daily op zo'n dag kost geen leven. De rest van de stats (gespeeld, winst%, gem.) blijft Jaardle.
 // `asof` beperkt de walk tot dagen t/m die datum (de inhaal-banner meet er de
 // streak mee die vlak vóór het gat stond).
 function computeStats(history, extras, asof) {
@@ -13553,7 +13608,8 @@ function computeStats(history, extras, asof) {
   const bridges = extras?.bridges || [];
   const bridged = (d) => bridges.some((b) => d >= b.from && d <= b.to);
   const byDate = new Map(history.filter((e) => e.date <= today).map((e) => [e.date, e]));
-  const days = [...byDate.keys()].sort();
+  const tlDays = new Set((extras?.tl || []).filter((d) => typeof d === "string" && d <= today));
+  const days = [...new Set([...byDate.keys(), ...tlDays])].sort();
   let run = 0, best = 0, losses = [], prev = null;
   const breakRun = () => { run = 0; losses = []; };
   // Dagen strikt tussen `fromEx` en `toEx`: één onoverbrugde gemiste dag breekt.
@@ -13569,7 +13625,7 @@ function computeStats(history, extras, asof) {
     if (prev !== null) closeGap(prev, d);
     if (d === today) { yday = run; snapped = true; }
     const e = byDate.get(d);
-    if (e.won) {
+    if (tlDays.has(d) || (e && e.won)) {
       run += 1;
       if (run > best) best = run;
     } else {
@@ -13650,7 +13706,7 @@ async function renderStats() {
       <div class="stat"><div class="num">${s.won}</div><div class="lbl">${t("stat_won")}</div></div>
     </div>
   `;
-    dailyPane.appendChild(renderCalendar(history, streakExtras.bridges));
+    dailyPane.appendChild(renderCalendar(history, streakExtras.bridges, streakExtras.tl));
   }
 
   const freePane = body.querySelector('[data-pane="free"]');
@@ -13986,7 +14042,9 @@ async function renderFreeStats(pane, req) {
 
 // Redactle-achtige bijdrage-grid: kolommen = weken, rijen = ma..zo. Gekleurd op
 // gewonnen / verloren / niet gespeeld. Puur uit de lokale history — geen DB.
-function renderCalendar(history, bridges) {
+// 📅 db/241: een dag met alleen de Timeline-daily krijgt het blauw van Timeline (die dag telt mee voor je streak).
+function renderCalendar(history, bridges, tlDays) {
+  const tl = new Set(tlDays || []);
   const WEEKS = 17;
   const map = new Map(history.map((e) => [e.date, e]));
   // Overbrugde dagen (5-potjes-reparatie, db/50): geen winst, geen verlies —
@@ -14002,11 +14060,11 @@ function renderCalendar(history, bridges) {
   while (cur <= today) {
     const e = map.get(cur);
     const cell = document.createElement("div");
-    const bridge = !e && bridged(cur);
-    cell.className = "cal-cell " + (e ? (e.won ? "win" : "loss") : bridge ? "bridged" : "none");
+    const tlOnly = !e && tl.has(cur), bridge = !e && !tlOnly && bridged(cur);
+    cell.className = "cal-cell " + (e ? (e.won ? "win" : "loss") : tlOnly ? "tlday" : bridge ? "bridged" : "none");
     const solved = t("cal_solved")(e?.guesses, MAX_GUESSES);
     cell.title = e ? `${cur} — ${e.won ? solved : t("cal_notsolved")}`
-               : bridge ? `${cur} — ${t("cal_bridged")}` : cur;
+               : tlOnly ? `${cur} — Timeline` : bridge ? `${cur} — ${t("cal_bridged")}` : cur;
     grid.appendChild(cell);
     cur = shiftDay(cur, 1);
   }
@@ -14546,6 +14604,7 @@ function renderMenu() {
   syncLaterCheckUi();   // ⏩ Check: alleen ingelogd (staat op de server)
   syncStrictGuardUi();  // 🎯 Strenge check: voor iedereen; zonder eigen keuze aan met een account
   syncDuelSfxUi();      // ⚔️ Duel-geluid: voor wie ooit duelleerde; standaard uit
+  syncTlSoundUi();      // 🗓️ Timeline-geluid: voor wie Timeline kent; standaard aan
   // Verwijder de dynamische Inloggen-regel maar laat statische knoppen (stats) staan;
   // Uitloggen zit in de kop (renderMenuAccount).
   items.querySelectorAll('.menu-item[data-action="login"]').forEach((b) => b.remove());
@@ -15938,7 +15997,7 @@ async function init() {
     // ⚙️ Instellingen en ‹ terug wisselen van laag; het menu blijft open.
     if (action === "settings" || action === "settings-back") {
       showMenuPane(action === "settings" ? "settings" : "main", true);
-      if (action === "settings") { syncPrefs("visit"); syncDuelSfxUi(); }   // de schakelaars kloppen zodra de server antwoordt; ⚔️ Duel-geluid ook als je net voor het eerst duelleerde
+      if (action === "settings") { syncPrefs("visit"); syncDuelSfxUi(); syncTlSoundUi(); }   // de schakelaars kloppen zodra de server antwoordt; ⚔️ Duel-geluid ook als je net voor het eerst duelleerde
       return;
     }
     if (action === "duel-push") {   // db/189: in-place, het menu blijft open; aanzetten vraagt (pas nu) om toestemming
@@ -15950,6 +16009,10 @@ async function init() {
       setDuelSfx(on);
       if (on) { if (window.Duel) window.Duel.sfxTest?.(); else loadDuel().then((D) => D.sfxTest?.()).catch(() => {}); }
       window.Duel?.musicKick?.();
+      return;
+    }
+    if (action === "tl-sound") {   // 🗓️ Timeline-geluid (26/11): in-place; het stond als 🔈 in de Timeline-kop, daar staat nu het schuifje 📅 | 🎲
+      setTlSound(!tlSoundOn());
       return;
     }
     if (action === "duel-music") {   // 🎵 Duel-muziek: in-place; aan = de stand "alles" (de effecten gaan dan ook aan) en de drie noten

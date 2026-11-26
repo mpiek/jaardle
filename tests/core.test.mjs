@@ -57,7 +57,7 @@ src += `
   dagzegeApplies, forecastWins, forecastPlaces, oddsLimits, oddsShareAfter, oddsHamilton, oddsView, oddsBuild, oddsHash, oddsPct, oddsVfSvg, DAGZEGE_ALONE_FROM, ODDS_FOLD, ODDS_MIN_PLAYERS, ODDS_MIN_WEEK_ROWS, ODDS_PLACES_MIN,
   recapArrowKey, setRecapArrow: (r) => { recapArrow = r; },
   ACHV_SERIES, ACHV_TIER_KEYS, ACHV_YEARS, CAPSTONE_KEYS, CAPSTONE_MAX, FLAIR_OPTIONS, capstoneProgress, BEER_FX, achvTier, capstoneTier, achvTickPos, achvRailPct, achvTierName,
-  ratingDeltaBadge, toEvent,
+  ratingDeltaBadge, toEvent, computeStats, tlDaysForMe, TL_DAYS_KEY,
   parseFlair, joinFlair, flairBadgeHtml, flairStaticHtml, onFlairAnimReady, flairFxEarned, FLAIR_FX, REWARDS, REWARD_ORDER, ACHV_TROPHIES, auth,
   resultFrameStyle, setResultFrame, frameOverlayHtml, frameLabelHtml, rewardsTabsAvailable, platinaFrameUnlocked, FRAME_STYLES, RW_SECT_TAB,
   TL_CARDS_AT, CARD_STYLES, CARDS_KEY, cardsUnlocked, cardStyle, cardStyleActive, setCardStyle, TL_ACHV_KEYS, rewardsCardsHtml, achvCardStylesHtml, activateReward,
@@ -5848,4 +5848,54 @@ test("bots — de kaart boven de stand alleen met /duel.js, bots en minder dan 3
   assert.equal(T.DAILY_BOTS_DUELS, 3);
   assert.equal(T.recapBotCardHtml(null), "");
   assert.equal(T.recapBotCardHtml(DB({}, 0)), "", "zonder /duel.js geen kaart (niets halfs)");
+});
+
+
+// ── 📅 db/241: één streak voor beide dailies ─────────────────────────────────────────────────────────────────────────
+test("computeStats — een dag met de Timeline-daily (extras.tl) telt als gewonnen dag; de rest van de stats blijft Jaardle", () => {
+  const { computeStats } = globalThis.__T;
+  const W = (date) => ({ date, won: true, score: 80, guesses: 2 }), Lo = (date) => ({ date, won: false, score: 0, guesses: 6 });
+  const hist = [W("2026-11-20"), W("2026-11-22")];
+  // zonder Timeline breekt het gat op de 21e
+  assert.equal(computeStats(hist, { bridges: [], lives: true }, "2026-11-22").currentStreak, 1);
+  // met de Timeline-daily op de 21e: geen gat, 3 op rij
+  const s = computeStats(hist, { bridges: [], lives: true, tl: ["2026-11-21"] }, "2026-11-22");
+  assert.equal(s.currentStreak, 3);
+  assert.equal(s.bestStreak, 3);
+  assert.equal(s.total, 2, "gespeeld = alleen Jaardle");
+  assert.equal(s.winRate, 100);
+  // alleen Timeline, ook zonder account (geen levens): elke dag telt
+  assert.equal(computeStats([], { bridges: [], lives: false, tl: ["2026-11-20", "2026-11-21", "2026-11-22"] }, "2026-11-22").currentStreak, 3);
+  // vandaag nog niets: geen breuk; gisteren Timeline telt nog
+  assert.equal(computeStats([], { bridges: [], tl: ["2026-11-21"] }, "2026-11-22").currentStreak, 1);
+});
+
+test("computeStats — het vangnet: een verloren Jaardle-daily met de Timeline-daily op dezelfde dag kost geen leven en telt mee", () => {
+  const { computeStats } = globalThis.__T;
+  const W = (date) => ({ date, won: true, score: 80, guesses: 2 }), Lo = (date) => ({ date, won: false, score: 0, guesses: 6 });
+  const hist = [W("2026-11-20"), Lo("2026-11-21"), W("2026-11-22")];
+  const zonder = computeStats(hist, { bridges: [], lives: true }, "2026-11-22");
+  assert.equal(zonder.currentStreak, 2, "verlies = de streak staat stil");
+  assert.equal(zonder.livesLeft, 2);
+  const met = computeStats(hist, { bridges: [], lives: true, tl: ["2026-11-21"] }, "2026-11-22");
+  assert.equal(met.currentStreak, 3, "de dag telt via Timeline");
+  assert.equal(met.livesLeft, 3, "geen leven kwijt");
+  // zonder account brak een verlies altijd; met de Timeline-daily die dag niet
+  assert.equal(computeStats(hist, { bridges: [], lives: false }, "2026-11-22").currentStreak, 1);
+  assert.equal(computeStats(hist, { bridges: [], lives: false, tl: ["2026-11-21"] }, "2026-11-22").currentStreak, 3);
+  // een dag telt één keer: Jaardle gewonnen én Timeline op dezelfde dag = +1
+  assert.equal(computeStats([W("2026-11-22")], { bridges: [], tl: ["2026-11-22"] }, "2026-11-22").currentStreak, 1);
+});
+
+test("tlDaysForMe — de Timeline-dagen op dit toestel: van jou of van niemand; alleen afgemaakte dagen", () => {
+  const { tlDaysForMe, TL_DAYS_KEY } = globalThis.__T;
+  localStorage.setItem(TL_DAYS_KEY, JSON.stringify([
+    { date: "2026-11-20", m: "1101011", uid: null }, { date: "2026-11-21", m: "1111111", uid: "u1" },
+    { date: "2026-11-22", m: "1111111", uid: "u2" }, { date: "2026-11-23", m: "11", uid: null }, { nope: 1 },
+  ]));
+  assert.deepEqual(tlDaysForMe("u1"), ["2026-11-20", "2026-11-21"]);
+  assert.deepEqual(tlDaysForMe(undefined), ["2026-11-20", "2026-11-21", "2026-11-22"], "anoniem: alles, zoals de lokale historie");
+  localStorage.setItem(TL_DAYS_KEY, "{kapot");
+  assert.deepEqual(tlDaysForMe("u1"), []);
+  localStorage.removeItem(TL_DAYS_KEY);
 });

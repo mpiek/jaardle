@@ -15,6 +15,12 @@
 // timeline-deck-op, timeline-board-team / timeline-board-bots (het bord op het eindscherm), timeline-chase-tap / timeline-chase-top.
 // Wie haal je in? (db/238, 24/11; mockup https://claude.ai/artifact/NpQmmWBiJ4qNhZ2kut55r1): tijdens een run staat naast je score een
 // chipje met wie je hierna inhaalt. Het bord komt mee met de stapel (get_timeline_deck2), dus geen extra aanroep; tik = de stand als pop-up.
+// 📅 Timeline van de dag (db/241, 26/11; mockup https://claude.ai/artifact/43V5YmSTLSKMFu29VZXheg; zijn "bouw maar"): elke dag dezelfde 8
+// kaarten voor iedereen, één op tafel en 7 in je hand. Geen levens: je legt ze alle 7, een fout wordt een rood vakje. Eén poging; halverwege
+// weg = later verder waar je was. In de kop het schuifje van Jaardle (📅 daily | 🎲 nieuw spel); 🔈 staat sinds 26/11 in ⚙️ (Timeline-geluid).
+// De daily komt mee met de stapel; aan het eind één aanroep (record_timeline_daily: de server telt na en geeft het bord van vandaag).
+// Eén streak voor beide dailies: een gespeelde Timeline-daily telt als een gehaalde dag (game.js computeStats ≡ streak_state). Je dagen
+// staan ook lokaal (jaardle:tl:days), voor de streak zonder account en om te weten dat je vandaag al speelde.
 (() => {
   "use strict";
   const SB = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -114,6 +120,20 @@
     pt: { restart: "Começar de novo", rstQ: "Começar de novo?", rstSub: (n) => `Esta partida termina com ${n}.`, rstYes: "Reiniciar", rstNo: "Continuar" },
   };
   for (const c in T4) Object.assign(T[c], T4[c]);
+  // 📅 de daily (db/241): de twee vakken van het schuifje heten zoals bij Jaardle (tab_daily / tab_free); verder zo min mogelijk tekst
+  const T5 = {
+    nl: { daily: "Daily", free: "Nieuw spel", dayAria: (n, k) => `${n} van ${k} goed`, dayLeft: (h) => `vandaag · nog ${h} u`,
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+    en: { daily: "Daily", free: "New game", dayAria: (n, k) => `${n} of ${k} correct`, dayLeft: (h) => `today · ${h}h left`,
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+    de: { daily: "Täglich", free: "Neues Spiel", dayAria: (n, k) => `${n} von ${k} richtig`, dayLeft: (h) => `heute · noch ${h} Std.`,
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+    es: { daily: "Diario", free: "Partida nueva", dayAria: (n, k) => `${n} de ${k} aciertos`, dayLeft: (h) => `hoy · quedan ${h} h`,
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+    pt: { daily: "Diário", free: "Jogo novo", dayAria: (n, k) => `${n} de ${k} acertos`, dayLeft: (h) => `hoje · faltam ${h} h`,
+      shareDay: (num, n) => `Jaardle Timeline #${num}: 🗓️ ${n}/7` },
+  };
+  for (const c in T5) Object.assign(T[c], T5[c]);
 
   // De reeks in treden (23/11): dezelfde zes als de streak-vlam van de daily (brons · zilver · goud · platina · diamant · obsidiaan), op
   // 3 · 5 · 10 · 15 · 20 · 30 op rij. Het getal goed kleurt naar zijn eigen trede. Na 30 blijft het obsidiaan; elke 5 stijgen er emoji op
@@ -146,6 +166,21 @@
   const rightIdx = (line, c) => line.filter((x) => x.y <= c.y).length;
   const shareText = (L, n, marks, isRec) => `${L.shareHead(n, isRec)}\n📊 ${marks.map((m) => (m ? "🟩" : "🟥")).join("")}\njaardle.com/timeline`;
   const endBand = (n) => (n < 5 ? "0-4" : n < 10 ? "5-9" : n < 20 ? "10-19" : "20+");
+  // 📅 de daily (db/241): je rijtje uit je zetten, precies zoals de server (_timeline_daily_replay): 8 kaarten (de eerste ligt op tafel),
+  // 7 zetten (het gat, 0 = vooraan); geen levens, een fout schuift naar waar hij hoort. Geeft "1101011" of null.
+  function dayReplay(ys, moves) {
+    if (!Array.isArray(ys) || ys.length !== 8 || !Array.isArray(moves) || moves.length !== 7) return null;
+    const line = [{ y: ys[0] }];
+    let m = "";
+    for (let k = 0; k < 7; k++) {
+      const c = { y: ys[k + 1] }, i = moves[k];
+      if (Number.isInteger(i) && i >= 0 && i <= line.length && fits(line, i, c)) { m += "1"; line.splice(i, 0, c); }
+      else { m += "0"; line.splice(rightIdx(line, c), 0, c); }
+    }
+    return m;
+  }
+  const isDayMarks = (m) => typeof m === "string" && /^[01]{7}$/.test(m);
+  const dayShareText = (L, num, m) => `${L.shareDay(num, [...m].filter((x) => x === "1").length)}\n📊 ${[...m].map((x) => (x === "1" ? "🟩" : "🟥")).join("")}\njaardle.com/timeline`;
 
   const CSS = String.raw`/* ═══ 🗓️ Timeline (/timeline.js) ═══ */
 :root { --tl: #1976d2; --tl-back: #1976d2; --tl-back-2: #1565c0; --tl-ch: clamp(10rem, 100dvh - 30rem, 13.5rem);
@@ -510,11 +545,38 @@ body[data-tlhome] #mode-tabs { display: flex; }
 /* een lage tafel: minder regels, zodat er geen halve regel onderaan blijft hangen (8 regels + "v.Chr." vragen ±193 px kaart = 324 px scherm) */
 @media (orientation: landscape) and (max-height: 330px) { .tl-c .tl-t { -webkit-line-clamp: 7; } }
 @media (orientation: landscape) and (max-height: 305px) { .tl-c .tl-t { -webkit-line-clamp: 6; } }
+
+/* ═══ 📅 Timeline van de dag (db/241, 26/11; mockup https://claude.ai/artifact/43V5YmSTLSKMFu29VZXheg) ═══
+   De kop wordt die van Jaardle: het schuifje (📅 | 🎲, .mode-seg + .tab uit style.css) rechts in #kop-tl, op de plek van 🔈 (die staat nu in
+   ⚙️). Eigen data-tlmode, zodat game.js (els.tabs, de klik naar switchMode) er niets mee doet. In de daily staan in de balk 7 vakjes in
+   plaats van hartjes: dezelfde 🟩🟥 als in je deelbericht. */
+.tl-seg:has(.tab[data-tlmode="free"][aria-selected="true"])::before { transform: translateX(36px); }
+.tl-pips { display: flex; gap: 0.22rem; }
+.tl-pip { display: block; width: 1.05rem; height: 1.05rem; box-sizing: border-box; border-radius: 4px; border: 2px solid var(--border); }
+.tl-pip.cur { border-color: var(--tl); box-shadow: 0 0 0 2px color-mix(in srgb, var(--tl) 28%, transparent); }
+.tl-pip.ok { background: var(--green); border-color: var(--green); }
+.tl-pip.bad { background: var(--red); border-color: var(--red); }
+.tl-pip.pop { animation: tl-pip 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
+@keyframes tl-pip { from { transform: scale(0.4); } to { transform: none; } }
+/* klaar: 5/7 met je rijtje ernaast (7/7 in goud), je streak, het bord van vandaag (ieders rijtje), Deel en 🎲 Nieuw spel */
+.tl-end-n small { font-size: 0.42em; font-weight: 700; color: var(--muted); letter-spacing: 0.02em; }
+.tl-end-n.tl-perfect { color: var(--achv-gold); }
+.tl-end .tl-pips { margin-top: 0.35rem; }
+.tl-end .tl-pip { width: 1.2rem; height: 1.2rem; border-radius: 5px; }
+.tl-end-streak { margin-top: 0.5rem; }
+.tl-end-streak .streak-line { margin: 0; }
+.tl-mini { display: inline-flex; gap: 2px; margin-right: 0.5rem; }
+.tl-mini i { display: block; width: 7px; height: 7px; border-radius: 2px; background: var(--red); }
+.tl-mini i.ok { background: var(--green); }
+.tl-tofree > span { margin-right: 0.1rem; }
+@media (prefers-reduced-motion: reduce) { .tl-pip.pop { animation: none; } }
 `;
 
   window.JaardleTimeline = { T, fits, rightIdx, shareText, endBand, SUIT, CSS, open, setLang, tierOf, isStep, bubOf, bubN, chaseMarks, chaseNext,
+    dayReplay, dayShareText, isDayMarks,
     ready: () => !!G,   // er ligt al een potje: de deur schuift er meteen heen, zonder laadscherm (game.js worldGo)
-    restyle: () => { if (root && G) draw({}); } };   // 🃏 db/240: een andere kaartstijl gekozen (game.js setCardStyle)
+    restyle: () => { if (root && G) draw({}); },   // 🃏 db/240: een andere kaartstijl gekozen (game.js setCardStyle)
+    setSound: (on) => { snd = !!on; } };   // 🔈 in ⚙️ (26/11): game.js zet jaardle:timeline:snd en zegt het hier
 
   // ── de staat: H = wat game.js meegeeft (taal, openModal/closeModal, meetpunten); root = het scherm (#modal-tl) ──
   let H = null, root = null, LANG = "en", L = T.en;
@@ -522,6 +584,24 @@ body[data-tlhome] #mode-tabs { display: flex; }
   const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, String(v)); } catch (e) {} return null; };
   let snd = ls(SND_KEY) !== "0";
   let REC = Number(ls(REC_KEY)) || 0;
+  // 📅 de daily op dit toestel: je gespeelde dagen (jaardle:tl:days, [{date, m, uid, mv}], ook voor de streak in game.js) en een lopende daily
+  // (jaardle:tl:daily, {day, moves}): halverwege weg = later verder waar je was
+  const TLD_DAYS = "jaardle:tl:days", TLD_PROG = "jaardle:tl:daily";
+  const myUid = () => (H && H.user && H.user() && H.user().uid) || null;
+  function tlDays() { try { const a = JSON.parse(ls(TLD_DAYS) || "[]"); return Array.isArray(a) ? a.filter((x) => x && x.date) : []; } catch (e) { return []; } }
+  const mineDay = (x, uid) => x.uid == null || x.uid === uid;   // zoals localHistoryForMe in game.js: van jou, of van niemand (anoniem gespeeld)
+  function localDay(day) { const uid = myUid(); return tlDays().find((x) => x.date === day && mineDay(x, uid) && isDayMarks(x.m)) || null; }
+  function saveDay(day, m, mv) {
+    const uid = myUid(), a = tlDays().filter((x) => !(x.date === day && mineDay(x, uid)));
+    a.push({ date: day, m, uid, mv: Array.isArray(mv) && mv.length === 7 ? mv : undefined });
+    a.sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0));
+    ls(TLD_DAYS, JSON.stringify(a.slice(-800)));
+  }
+  function loadProg(day) {
+    try { const p = JSON.parse(ls(TLD_PROG) || "null"); return p && p.day === day && Array.isArray(p.moves) ? p.moves.filter(Number.isInteger).slice(0, 7) : null; } catch (e) { return null; }
+  }
+  const saveProg = (g) => ls(TLD_PROG, JSON.stringify({ day: g.day, moves: g.moves }));
+  const dropProg = () => { try { localStorage.removeItem(TLD_PROG); } catch (e) {} };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const yTxt = (y) => (y < 0 ? `${-y} ${L.bc}` : String(y));
   const yHtml = (y) => (y < 0 ? `${-y}<small>${L.bc}</small>` : String(y));
@@ -682,7 +762,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     return r.ok ? r.json() : null;
   }
   async function fetchDeck() {
-    let id = null, d = null, board = null, best = 0;
+    let id = null, d = null, board = null, best = 0, daily = null;
     const at = performance.now();
     if (DECK2 && DECK238) {
       let j = null;
@@ -690,6 +770,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
       if (j && Array.isArray(j.cards)) {
         id = j.id || null; d = j.cards; best = +j.best || 0;
         board = j.board && Array.isArray(j.board.rows) ? j.board : null;
+        // 📅 db/241: de daily van vandaag (8 kaarten, de eerste ligt op tafel), met je uitslag en het bord als je hem al speelde
+        const dy = j.daily;
+        if (dy && typeof dy.day === "string" && Array.isArray(dy.cards) && dy.cards.length === 8 && dy.cards.every((c) => c && Number.isFinite(c.y) && c.t)) daily = dy;
       }
     }
     if (DECK2 && !d) {
@@ -705,7 +788,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     }
     if (!Array.isArray(d) || d.length < 10) throw new Error("lege stapel");
     const cards = d.filter((c) => c && Number.isFinite(c.y) && c.t).map((c, k) => ({ y: c.y, t: String(c.t), c: c.c, k }));
-    return { id: cards.length === d.length ? id : null, cards, board, best, at };   // viel er een kaart af, dan klopt de volgorde niet meer met de server
+    return { id: cards.length === d.length ? id : null, cards, board, best, at, daily, wall: Date.now() };   // viel er een kaart af, dan klopt de volgorde niet meer met de server
   }
   // Het bord voor het chipje: het nieuwste dat we hebben. Een stapel die al onderweg was toen je vorige run werd opgeslagen, kan die run nog
   // missen; daarom telt bij een stapel het moment van vragen, en bij record_timeline_run (of een ander team) het moment van antwoord.
@@ -723,10 +806,39 @@ body[data-tlhome] #mode-tabs { display: flex; }
   // ↻: een pijl die rond gaat naar zichzelf, in de lijnen van 🔈
   const RST_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">` +
     `<path d="M20.2 12.6A8.2 8.2 0 1 1 18.2 6.6"/><path d="M18.1 2.5l.1 4.1-4.1-.7"/></g></svg>`;
-  // in de kop van game.js (#mode-tabs), achter profiel, 🌐 en de deur: het logo en 🔈
+  // in de kop van game.js (#mode-tabs), achter profiel, 🌐 en de deur: het logo en het schuifje 📅 | 🎲, net als bij Jaardle (26/11; 🔈 staat
+  // sindsdien in ⚙️). Het schuifje komt pas als de stapel een daily meebracht (een server van vóór db/241: alleen het logo, zoals vroeger).
+  // Het kalendertje toont de dag van de daily (tab-cal uit style.css, zoals #tab-cal in game.js init).
+  function calAttrs() {
+    const [y, m, d] = String(DY ? DY.day : "").split("-").map(Number);
+    if (!y || !m || !d) return "";
+    let mon = "";
+    try { mon = new Intl.DateTimeFormat(document.documentElement.lang || "en", { month: "short" }).format(new Date(y, m - 1, d)).replace(".", "").slice(0, 3); } catch (e) {}
+    return ` data-mon="${esc(mon)}" data-day="${d}"`;
+  }
+  const segHtml = () => (DY ? `<div class="mode-seg tl-seg" role="tablist" aria-label="Timeline">` +
+    `<button type="button" class="tab" data-tlmode="daily" role="tab" aria-selected="${MODE === "daily"}" aria-label="${esc(L.daily)}" title="${esc(L.daily)}">` +
+    `<span class="tab-icon tab-cal"${calAttrs()} aria-hidden="true"></span></button>` +
+    `<button type="button" class="tab" data-tlmode="free" role="tab" aria-selected="${MODE !== "daily"}" aria-label="${esc(L.free)}" title="${esc(L.free)}">` +
+    `<span class="tab-icon ms-dice" aria-hidden="true">🎲</span></button></div>` : "");
   const kopHtml = () => `<h2 class="tl-logo"><span class="tl-logo-in"><span class="tl-logo-txt">Timeline</span><span class="tl-logo-line" aria-hidden="true"><i></i><i></i><i></i></span></span>` +
-    `</h2><button type="button" class="tl-snd" aria-pressed="${snd}" aria-label="${esc(L.sound)}" title="${esc(L.sound)}">${SND_SVG}</button>`;
+    `</h2>${segHtml()}`;
+  // 📅 de 7 vakjes van de daily: leeg, aan de beurt (blauw), goed, fout; pop = het vakje dat net kleurde
+  function pipsHtml(s, pop) {
+    const k = s.marks.length, cur = s.done ? -1 : k;
+    return `<span class="tl-pips" role="img" aria-label="${esc(L.dayAria(s.n, k))}">` + Array.from({ length: 7 }, (_, i) =>
+      `<i class="tl-pip${i < k ? (s.marks[i] ? " ok" : " bad") : i === cur ? " cur" : ""}${pop === i ? " pop" : ""}"></i>`).join("") + `</span>`;
+  }
   function hudHtml(s, o) {
+    if (s.daily) {   // 📅 links de vakjes (geen hartjes, geen ↻: één poging), rechts je reeks en het getal goed
+      const t = tierOf(s.streak), st = tierOf(s.n);
+      const fire = o.fire ? `<img src="/emoji/fire.webp" alt="">` : t ? `<span class="flm-g">🔥</span>` : `<span class="tl-fl">🔥</span>`;
+      const streak = s.streak >= 2 ? `<span class="tl-streak${o.lvl ? " tl-lvl" : o.tick ? " tl-tick" : ""}" data-t="${t}">` +
+        `${t ? `<span class="flm s${t}">${fire}</span>` : fire}${s.streak}</span>` : "";
+      return `<div class="tl-hud"><span class="tl-hl">${pipsHtml(s, o.pip)}</span>` +
+        `<span class="tl-stand">${streak}<span class="tl-score"><b class="${o.bump ? "tl-bump" : ""}"${st ? ` data-t="${st}"` : ""}>${s.n}</b>` +
+        `<span>${esc(L.good)}</span></span></span></div>`;
+    }
     const hearts = [0, 1, 2].map((i) => {
       const br = o.breakIdx === i;
       return `<span class="tl-heart${i >= s.lives ? " lost" : ""}${br ? " breaking" : ""}"><span>❤️</span>${br ? `<img src="/emoji/heartbreak.webp" alt="">` : ""}</span>`;
@@ -812,6 +924,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
   // het eindscherm: getal (in de kleur van zijn trede) | wat het was, daaronder het bord, dan Deel en Nog een keer. Zolang de server je
   // run natelt (recWait) staan de recordregel en de plek van het bord al klaar, zodat er niets verspringt.
   const endHtml = (s) => {
+    if (s.daily) return dayEndHtml(s);
     const st = tierOf(s.n);
     const rec = s.recWait ? `<span class="tl-end-rec wait" aria-hidden="true">·</span>`
       : s.rec ? `<span class="tl-end-rec">${esc(L.record)}</span>` : `<span class="tl-end-rec old">${esc(L.yourRec(s.prevRec))}</span>`;
@@ -820,19 +933,29 @@ body[data-tlhome] #mode-tabs { display: flex; }
       boardHtml(s) +
       `<div class="tl-end-acts"><button type="button" class="tl-share">${SHARE_SVG}<span>${esc(L.share)}</span></button><button type="button" class="tl-again">${esc(L.again)}</button></div></div>`;
   };
+  // 📅 klaar met de daily: 5/7 met je rijtje ernaast, je streak (één voor beide dailies, game.js telt hem), het bord van vandaag (ieders
+  // rijtje), dan Deel en 🎲 Nieuw spel (naar een vrije run, zoals het schuifje)
+  const dayEndHtml = (s) => `<div class="tl-end" aria-live="polite"><div class="tl-end-top"><span class="tl-end-n${s.n === 7 ? " tl-perfect" : ""}">${s.n}<small>/7</small></span>` +
+    `<span><span class="tl-end-l">${esc(L.placed(s.n))}</span>${pipsHtml(s)}</span></div>` +
+    (s.streakHtml ? `<div class="tl-end-streak">${s.streakHtml}</div>` : "") + boardHtml(s) +
+    `<div class="tl-end-acts"><button type="button" class="tl-share">${SHARE_SVG}<span>${esc(L.share)}</span></button>` +
+    `<button type="button" class="tl-again tl-tofree"><span aria-hidden="true">🎲</span>${esc(L.free)}</button></div></div>`;
   // ── je team deze week (db/233): de rijen van het 🏆-bord (naamcel en medailles van game.js); groot team = de top 3, dan jij met je buren ──
   const MEDAL = ["🥇", "🥈", "🥉"];
   function boardRowHtml(r, rank, delta) {
     const nm = H && H.nameCell ? H.nameCell({ display_name: r.name || "", flair: r.flair || null, title: r.title || null, is_me: !!r.me }, rank)
       : esc(r.name || "") + (r.flair ? ` ${esc(r.flair)}` : "") + (r.me ? ` <span class="lb-tag">${esc(L.you)}</span>` : "");
+    // 📅 op het bord van de daily ieders rijtje (m = "1101011") naast zijn getal
+    const mini = isDayMarks(r.m) ? `<span class="tl-mini" aria-hidden="true">${[...r.m].map((x) => `<i${x === "1" ? ' class="ok"' : ""}></i>`).join("")}</span>` : "";
     return `<div class="lb-row${r.me ? " lb-me" : ""}${rank <= 3 ? " lb-top" + rank : ""}${delta > 0 ? " tl-up" : ""}"${delta > 0 ? ` data-d="${delta}"` : ""}>` +
       `<span class="lb-rank">${MEDAL[rank - 1] || rank}</span><span class="lb-name">${nm}${r.bot ? ` <span class="lb-tag lb-bot">${esc(L.bot)}</span>` : ""}</span>` +
-      `<span class="lb-val">${r.v}${delta > 0 ? `<span class="wk-delta up">▲${delta}</span>` : ""}${r.live ? `<i class="lb-live" aria-hidden="true"></i>` : ""}</span></div>`;
+      `<span class="lb-val">${mini}${+r.v || 0}${delta > 0 ? `<span class="wk-delta up">▲${delta}</span>` : ""}${r.live ? `<i class="lb-live" aria-hidden="true"></i>` : ""}</span></div>`;
   }
   function wkLeft(ends) {
     const ms = Date.parse(ends) - Date.now();
     return L.wk(Math.floor(ms / 864e5), Math.max(1, Math.ceil(ms / 36e5)));
   }
+  const dayLeft = (ends) => L.dayLeft(Math.max(1, Math.ceil((Date.parse(ends) - Date.now()) / 36e5)));
   function boardHtml(s) {
     if (s.recWait) return `<div class="tl-tb tl-tb-wait" aria-hidden="true"></div>`;
     const b = s.board, rows = b && b.rows;
@@ -849,7 +972,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       prev = i;
     }
     const head = b.team ? ((H && H.poolPickerHtml && H.poolPickerHtml()) || `<span class="tl-tb-team">${esc(b.team)}</span>`) : `<span class="tl-tb-team">${esc(L.vsBots)}</span>`;
-    return `<div class="tl-tb"><div class="tl-tb-head">${head}<span class="tl-tb-wk">${esc(wkLeft(b.ends))}</span></div><div class="lb-table">${html}</div>` +
+    return `<div class="tl-tb"><div class="tl-tb-head">${head}<span class="tl-tb-wk">${esc(s.daily ? dayLeft(b.ends) : wkLeft(b.ends))}</span></div><div class="lb-table">${html}</div>` +
       (b.team ? "" : `<p class="tl-tb-cap">${esc(L.botsCap)}</p>`) + `</div>`;
   }
   // jij stijgt: je rij begint op je oude plek en schuift omhoog; wie je inhaalt zakt één rij
@@ -883,12 +1006,58 @@ body[data-tlhome] #mode-tabs { display: flex; }
   const msgHtml = (text, retry) => `<div class="tl-game"><div class="tl-msg"><p>${esc(text)}</p>${retry ? `<button type="button" class="tl-retry">${esc(L.retry)}</button>` : ""}</div></div>`;
 
   // ── het spel ──
-  let G = null;
+  // G = het potje op het scherm. GF = je vrije run (🎲), GD = de daily van vandaag (📅, DY = zoals de server hem gaf), MODE = het vak van het
+  // schuifje. Allebei blijven liggen als je wisselt; wisselen kan alleen als er geen kaart onderweg is (place() rekent op G).
+  let G = null, GF = null, GD = null, DY = null, MODE = "free";
   function newGame(deck) {
     const pile = deck.cards.slice(), fi = pile.findIndex((c) => c.y > 1000 && c.y < 1950);   // een begin uit het midden: aan beide kanten ruimte
     const first = pile.splice(fi >= 0 ? fi : 0, 1)[0];
     return { pile, line: [first], cur: pile.shift(), lives: 3, n: 0, streak: 0, marks: [], done: false, deckDone: false, phase: "idle", rec: false, prevRec: REC,
-      deckId: deck.id, moves: [], fx: null, recWait: false, board: null, prevWk: null, chase: null, pass: null };
+      deckId: deck.id, moves: [], fx: null, recWait: false, board: null, prevWk: null, chase: null, pass: null, wall: deck.wall || Date.now(), seen: false };
+  }
+  // 📅 een kaart van de daily leggen zonder animatie (een gespeelde of half gespeelde daily opnieuw opbouwen): goed in gat i, fout waar hij hoort
+  function dayPlace(g, i, ok) {
+    const c = g.cur;
+    g.line.splice(ok ? i : rightIdx(g.line, c), 0, { ...c, ok });
+    g.marks.push(ok); g.moves.push(i);
+    if (ok) { g.n++; g.streak++; } else g.streak = 0;
+    g.cur = g.pile.shift() || null;
+  }
+  // 📅 de daily als potje: de eerste kaart ligt op tafel, de andere 7 in deze volgorde in je hand. Al gespeeld (de server weet het, of dit
+  // toestel): meteen het eindscherm met alles op tafel. Halverwege weggegaan: je zetten opnieuw, en verder waar je was.
+  function dailyGame(dy) {
+    const cards = dy.cards.map((c, k) => ({ y: c.y, t: String(c.t), c: c.c, k }));
+    const pile = cards.slice(1);
+    const g = { daily: true, day: dy.day, num: +dy.n || 1, pile, line: [cards[0]], cur: pile.shift(), lives: 3, n: 0, streak: 0, marks: [], done: false,
+      phase: "idle", moves: [], fx: null, recWait: false, board: dy.board && Array.isArray(dy.board.rows) ? dy.board : null, prevWk: null, chase: null,
+      pass: null, seen: false, streakHtml: "", resend: null };
+    const loc = localDay(dy.day), srv = dy.done && isDayMarks(dy.done.m) ? dy.done.m : null, m = srv || (loc && loc.m);
+    if (m) {
+      for (const x of m) dayPlace(g, rightIdx(g.line, g.cur), x === "1");
+      g.done = true;
+      if (!srv && loc && Array.isArray(loc.mv) && loc.mv.length === 7) g.resend = loc.mv;   // de server weet het nog niet (offline, of mislukt)
+      return g;
+    }
+    for (const i of loadProg(dy.day) || []) {
+      if (!g.cur) break;
+      dayPlace(g, i, Number.isInteger(i) && i >= 0 && i <= g.line.length && fits(g.line, i, g.cur));
+    }
+    if (!g.cur) { g.done = true; g.resend = g.moves.slice(); }   // alle 7 gelegd, maar het venster ging dicht voor de server het wist
+    return g;
+  }
+  // de daily uit een stapel. Een andere dag (of de eerste keer) = een nieuw potje; dezelfde dag = die van jou blijft liggen. Was je gisteren
+  // nog bezig, dan maak je die eerst af (de server neemt hem tot vanavond aan).
+  function takeDaily(deck) {
+    const dy = deck && deck.daily;
+    if (!dy) return;
+    if (GD && GD.day === dy.day) { DY = dy; if (!GD.board && dy.board && Array.isArray(dy.board.rows)) GD.board = dy.board; return; }
+    if (GD && !GD.done && (GD.moves.length || GD.phase !== "idle")) return;
+    const old = GD;
+    DY = dy; GD = dailyGame(dy);
+    if (GD.resend) finishDaily(GD, true);
+    else if (GD.done) { if (!GD.board) dayBoard(GD); dayStreak(GD); }
+    if (old && G === old) { G = GD; if (root) draw({}); }   // gisteren stond op het scherm: nu die van vandaag
+    if (root) ensureKop();   // het kalendertje in het schuifje
   }
   function draw(o = {}) {
     const row0 = root.querySelector(".tl-row"), left = row0 ? row0.scrollLeft : 0, game = root.querySelector(".tl-game");
@@ -908,7 +1077,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (o.el && m.line && el < 1200) pulse(root.querySelector(`.tl-c[data-k="${m.k}"]`), m.ct, m.line);
     if (G && G.done && G.board && G.board.team && H && H.wirePoolPicker) {   // het team wisselen = dezelfde kiezer als bij het teambord van de daily
       const g = G, tb = root.querySelector(".tl-tb");
-      if (tb) H.wirePoolPicker(tb, () => switchTeam(g));
+      if (tb) H.wirePoolPicker(tb, () => (g.daily ? dayBoard(g) : switchTeam(g)));
     }
     if (o.climb) climb();
   }
@@ -920,25 +1089,100 @@ body[data-tlhome] #mode-tabs { display: flex; }
   }
   let loading = false;
   const loadWait = [];   // open() wacht hierop zolang er een stapel onderweg is (het laadscherm van game.js)
-  async function start() {
-    G = null;
+  // een nieuwe stapel (die brengt ook de daily van vandaag mee). first = Timeline gaat open: dan begin je bij de daily als je die vandaag nog
+  // niet speelde, anders bij een vrije run. Anders = een nieuwe vrije run (🎲, Nog een keer, ↻, Opnieuw na een fout).
+  async function start(first) {
+    if (!first) { MODE = "free"; syncSeg(); }
+    G = null; GF = null;
     loading = true;
     draw();
     try {
       const deck = await (nextDeck || fetchDeck());
       nextDeck = null;
-      G = newGame(deck);
+      takeDaily(deck);
+      GF = newGame(deck);
       keepBoard(deck.board, deck.at);
       BEST = Math.max(BEST, deck.best || 0);
-      G.chase = chaseFor();
-      draw({ deal: true });
-      gc("timeline-start", "Timeline: run started");
+      GF.chase = chaseFor();
+      if (first) MODE = GD && !GD.done ? "daily" : "free";
+      if (MODE === "daily" && GD) G = GD; else { MODE = "free"; G = GF; }
+      ensureKop(); center();
+      draw({ deal: !G.done });
+      seen(G);
     } catch (e) {
       nextDeck = null;
-      draw({ error: true });
+      if (!G) draw({ error: true });
     }
     loading = false;
     loadWait.splice(0).forEach((f) => f());
+  }
+  // meetpunten: een potje telt als gestart zodra hij voor het eerst op het scherm staat
+  function seen(g) {
+    if (!g || g.seen) return;
+    g.seen = true;
+    if (!g.daily) gc("timeline-start", "Timeline: run started");
+    else if (!g.done) gc("timeline-daily-start", "Timeline: daily started");
+  }
+  const syncSeg = () => document.querySelectorAll("#kop-tl .tab[data-tlmode]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tlmode === MODE)));
+  // 📅 | 🎲 in de kop (en 🎲 Nieuw spel op het eindscherm van de daily). Niet terwijl je sleept of een kaart onderweg is.
+  function setMode(mode) {
+    if (drag || (G && G.phase !== "idle")) return;
+    if (mode === "daily") {
+      if (!GD || MODE === "daily") return;
+      MODE = "daily"; syncSeg(); G = GD;
+      draw({ deal: !GD.done && !GD.moves.length });
+      if (GD.done) { const row = root.querySelector(".tl-row"); if (row) row.scrollLeft = 0; }
+      seen(GD);
+      gc("timeline-tab-daily", "Timeline: daily tab");
+      return;
+    }
+    if (MODE === "free" && G && G === GF && !GF.done) return;
+    MODE = "free"; syncSeg();
+    gc("timeline-tab-free", "Timeline: new game tab");
+    // je vrije run ligt er nog: daar verder. Een stapel zonder zetten van meer dan 6 uur oud wordt vers (de server telt een run na 12 uur niet meer).
+    if (GF && !GF.done && !(GF.moves.length === 0 && Date.now() - (GF.wall || 0) > 6 * 36e5)) { G = GF; draw({ deal: !GF.moves.length }); seen(GF); return; }
+    if (loading) { G = null; draw(); return; }   // de stapel is onderweg: het laadscherm tot hij er is (start() zet hem neer)
+    start();
+  }
+  // 📅 het bord van vandaag zonder record (al gespeeld op dit toestel, of een ander team gekozen)
+  async function dayBoard(g) {
+    if (!H || !H.rpc) return;
+    try {
+      const pool = H.pool ? await H.pool() : null;
+      const b = await H.rpc("get_timeline_daily_board", { p_day: g.day, p_pool: (pool && pool.id) || null, p_client: (H.clientId && H.clientId()) || null });
+      if (b && Array.isArray(b.rows)) { g.board = b; if (G === g && root) draw({}); }
+    } catch (e) {}
+  }
+  // 📅 je streak onder je uitslag (één voor beide dailies; game.js telt hem, fresh = de server weet net van deze dag)
+  function dayStreak(g, fresh) {
+    if (!H || !H.tlStreak) return Promise.resolve();
+    return H.tlStreak(!!fresh).then((h) => { g.streakHtml = h || ""; if (G === g && root) draw({}); }).catch(() => {});
+  }
+  // 📅 klaar: je rijtje op dit toestel (voor de streak zonder account), dan één aanroep naar de server (natellen + het bord van vandaag), dan je
+  // streak. quiet = een daily die al klaar was maar die de server nog niet kende (opnieuw sturen bij het openen).
+  async function finishDaily(g, quiet) {
+    const m = g.marks.map((x) => (x ? "1" : "0")).join(""), mv = (g.resend || g.moves).slice(0, 7);
+    g.resend = null;
+    saveDay(g.day, m, mv); dropProg();
+    const live = !!(H && H.rpc && (myUid() || (H.clientId && H.clientId())));
+    g.recWait = live && !g.board;
+    if (!quiet && G === g && root) draw({});
+    let res = null;
+    if (live) {
+      try {
+        const pool = H.pool ? await H.pool() : null;
+        res = await Promise.race([
+          H.rpc("record_timeline_daily", { p_day: g.day, p_moves: mv, p_client: (H.clientId && H.clientId()) || null, p_pool: (pool && pool.id) || null }),
+          wait(8000).then(() => null),
+        ]);
+      } catch (e) { res = null; }
+    }
+    g.recWait = false;
+    if (res && isDayMarks(res.m) && res.m !== m) saveDay(g.day, res.m, mv);   // de server had al een rijtje van je (een ander toestel): dat telt
+    if (res && res.board && Array.isArray(res.board.rows)) g.board = res.board;
+    if (G === g && root) draw({});
+    await dayStreak(g, true);
+    if (g.board && !quiet) gc("timeline-daily-board-" + (g.board.team ? "team" : "bots"), "Timeline: daily board (" + (g.board.team ? "team" : "bots") + ")");
   }
   // de kaart vliegt van je hand naar het gat (een kloon; de echte kaart is dan al weg)
   async function fly(fromEl, from, slot) {
@@ -984,22 +1228,24 @@ body[data-tlhome] #mode-tabs { display: flex; }
       const f = step ? ["hot", L.streak(s)] : tight ? ["good", L.tight] : ["good", "+1"];
       const float = { k: c.k, cls: f[0], text: f[1], t };
       G.fx = { k: c.k, ct: t, float, lvl: step && t > 0, t0: performance.now(), line: 0 };
-      draw({ reveal: c.k, ct: t, bump: true, fire: s >= 2, lvl: step && t > 0, tick: !step && t > 0, float, show: c.k });
+      draw({ reveal: c.k, ct: t, bump: true, fire: s >= 2, lvl: step && t > 0, tick: !step && t > 0, float, show: c.k, pip: G.daily ? G.marks.length - 1 : -1 });
       G.fx.line = burst(root.querySelector(`.tl-c[data-k="${c.k}"]`), t, s);
       if (s >= 30) play("obsidian", s === 30 ? 3 : bubOf(s) ? 2 : 1);
       else play(step ? "streak" : "good", t);
       await wait(650);
     } else {
       G.fx = null;
-      G.lives--; G.streak = 0;
-      draw({ reveal: c.k, breakIdx: G.lives, float: { k: c.k, cls: "bad", text: j < i ? L.goesEarlier : L.goesLater }, show: c.k });
+      if (!G.daily) G.lives--;   // 📅 de daily heeft geen levens: een fout is een rood vakje, je speelt door
+      G.streak = 0;
+      const bi = G.daily ? -1 : G.lives;
+      draw({ reveal: c.k, breakIdx: bi, float: { k: c.k, cls: "bad", text: j < i ? L.goesEarlier : L.goesLater }, show: c.k, pip: G.daily ? G.marks.length - 1 : -1 });
       play("bam");
       await wait(1050);
       // de kaart schuift naar waar hij hoort
       const before = root.querySelector(`.tl-c[data-k="${c.k}"]`).getBoundingClientRect();
       G.line.splice(i, 1);
       G.line.splice(j, 0, { ...c, ok: false });
-      draw({ breakIdx: G.lives, show: c.k });
+      draw({ breakIdx: bi, show: c.k });
       const el = root.querySelector(`.tl-c[data-k="${c.k}"]`), after = el.getBoundingClientRect();
       if (!reduced()) {
         try {
@@ -1009,7 +1255,20 @@ body[data-tlhome] #mode-tabs { display: flex; }
       }
       await wait(250);
     }
-    if (G.lives <= 0 || !G.pile.length) {
+    if (G.daily) {   // 📅 je zetten op dit toestel: halverwege weg = later verder; na de 7e klaar (geen levens, dus altijd alle 7)
+      if (G.pile.length) saveProg(G);
+      else {
+        G.done = true; G.phase = "idle";
+        draw({});
+        const row = root.querySelector(".tl-row");
+        if (row) row.scrollLeft = 0;
+        if (G.n === 7) play("record");
+        gc("timeline-daily-end-" + G.n, `Timeline: daily ended with ${G.n}/7`);
+        finishDaily(G);
+        return;
+      }
+    }
+    else if (G.lives <= 0 || !G.pile.length) {
       G.done = true; G.deckDone = G.lives > 0; G.phase = "idle"; G.prevRec = REC;
       // met een stapel-id telt de server na en zegt hij of het een record is (ook van een ander toestel); anders alleen dit toestel
       const live = isLive(G);
@@ -1028,7 +1287,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     G.cur = G.pile.shift();
     G.phase = "idle";
     draw({ deal: true });
-    if (G.pile.length < 3) prefetch();
+    if (!G.daily && G.pile.length < 3) prefetch();
   }
 
   // ── de run naar de server (db/233): één verzoek aan het eind; geeft je record (prev_best) en het bord terug ──
@@ -1048,7 +1307,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     g.board = res && res.board && Array.isArray(res.board.rows) ? res.board : null;
     g.prevWk = res ? res.prev_wk : null;
     keepBoard(g.board, performance.now());
-    if (G && G !== g && !G.done && g.board) G.chase = chaseFor();   // al een nieuwe run: die jaagt voortaan op het verse bord
+    if (GF && GF !== g && !GF.done && g.board) GF.chase = chaseFor();   // al een nieuwe run: die jaagt voortaan op het verse bord (nooit de daily)
     if (G !== g) return;   // al een nieuw potje
     draw({ climb: true });
     if (g.rec) play("record");
@@ -1113,7 +1372,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
       const b = await H.rpc("get_timeline_board", { p_pool: (pool && pool.id) || null, p_client: (H.clientId && H.clientId()) || null });
       if (!b || !Array.isArray(b.rows)) return;
       keepBoard(b, performance.now());
-      if (G && !G.done) G.chase = chaseFor();
+      if (GF && !GF.done) GF.chase = chaseFor();
       if (!el.hidden) fillWeek(el);
       if (G && !G.done && G.phase === "idle") draw();
     } catch (e) {}
@@ -1241,13 +1500,16 @@ body[data-tlhome] #mode-tabs { display: flex; }
     root.addEventListener("click", async (e) => {
       const s = e.target.closest(".tl-slot");
       if (s) { place(+s.dataset.i); return; }
-      if (e.target.closest(".tl-again, .tl-retry")) { start(); return; }
+      if (e.target.closest(".tl-tofree")) { setMode("free"); return; }   // 📅 klaar met de daily: 🎲 Nieuw spel
+      if (e.target.closest(".tl-retry")) { start(!GF && !GD); return; }   // mislukte eerste stapel: opnieuw zoals bij het openen
+      if (e.target.closest(".tl-again")) { start(); return; }
       if (e.target.closest(".tl-rst")) { askRestart(); return; }
       if (e.target.closest(".tl-next")) { openWeek(); return; }
       const sh = e.target.closest(".tl-share");
       if (sh && G) {
-        const txt = shareText(L, G.n, G.marks, G.rec), lab = sh.querySelector("span"), was = lab.textContent;
-        gc("timeline-share", "Timeline: shared");
+        const txt = G.daily ? dayShareText(L, G.num, G.marks.map((x) => (x ? "1" : "0")).join("")) : shareText(L, G.n, G.marks, G.rec);
+        const lab = sh.querySelector("span"), was = lab.textContent;
+        gc(G.daily ? "timeline-daily-share" : "timeline-share", G.daily ? "Timeline: daily shared" : "Timeline: shared");
         if (isMobile() && navigator.share) { try { await navigator.share({ text: txt }); } catch (err) {} return; }
         const done = () => { lab.textContent = L.copied; setTimeout(() => { lab.textContent = was; }, 1600); };
         try { await navigator.clipboard.writeText(txt); } catch (err) {}
@@ -1281,9 +1543,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
       k = document.createElement("div");
       k.id = "kop-tl"; k.className = "kop-tl";
       nav.appendChild(k);
-      k.addEventListener("click", (e) => {
-        const b = e.target.closest(".tl-snd");
-        if (b) { snd = !snd; ls(SND_KEY, snd ? "1" : "0"); b.setAttribute("aria-pressed", String(snd)); }
+      k.addEventListener("click", (e) => {   // 📅 | 🎲
+        const b = e.target.closest(".tab[data-tlmode]");
+        if (b) setMode(b.dataset.tlmode);
       });
       if (window.ResizeObserver) { const ro = new ResizeObserver(() => center()); ro.observe(k); }
     }
@@ -1291,13 +1553,13 @@ body[data-tlhome] #mode-tabs { display: flex; }
     return k;
   }
   // het logo echt in het midden van de kop als er ruimte is, zoals bij Duels (centerLogo in duel.js): het woord zelf;
-  // nooit dichter dan 6 px bij de deur of 🔈
+  // nooit dichter dan 6 px bij de deur of het schuifje
   function center() {
     const k = document.getElementById("kop-tl"), nav = document.getElementById("mode-tabs"), lg = k && k.querySelector(".tl-logo");
     if (!k || !nav || !lg || !k.offsetParent) return;
     lg.style.setProperty("--kd-dx", "0px");
     const r = lg.getBoundingClientRect(), w = lg.querySelector(".tl-logo-in").getBoundingClientRect(), n = nav.getBoundingClientRect();
-    const door = document.getElementById("world-door"), snb = k.querySelector(".tl-snd");
+    const door = document.getElementById("world-door"), snb = k.querySelector(".tl-seg");
     const lo = (door && door.offsetParent ? door.getBoundingClientRect().right : r.left) + 6 - r.left;
     const hi = (snb ? snb.getBoundingClientRect().left : n.right) - 6 - r.right;
     const want = n.left + n.width / 2 - (w.left + w.width / 2);
@@ -1312,7 +1574,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     ensureCss(); ensurePage(); ensureKop();
     H.openModal(PAGE_ID);
     center();
-    if (G || loading) draw(); else start();
+    if (G || loading) draw(); else start(true);
     return loading ? new Promise((r) => loadWait.push(r)) : Promise.resolve();
   }
   // 🌐 op de Timeline-pagina: de teksten in de nieuwe taal; kaarten die al op tafel liggen blijven, de volgende stapel komt in de nieuwe taal

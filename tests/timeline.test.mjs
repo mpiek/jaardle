@@ -207,3 +207,63 @@ test("↻ naast de hartjes (24/11): halverwege een run eerst onze eigen pop-up, 
   assert.equal(T.nl.rstSub(12), "Deze run eindigt op 12.");
   for (const l of Object.keys(T)) assert.match(T[l].rstSub(7), /7/, `${l}: het getal staat in de vraag`);
 });
+
+
+// ── 📅 Timeline van de dag (db/241, 26/11) ──────────────────────────────────────────────────────────────────────────
+test("📅 dayReplay = _timeline_daily_replay (db/241): 8 kaarten, 7 zetten, geen levens, een fout schuift naar zijn plek", () => {
+  const { dayReplay } = core();
+  const ys = [1700, -300, 1400, 2000, 1850, 1930, 1750, 1960];
+  assert.equal(dayReplay(ys, [0, 1, 3, 3, 4, 3, 6]), "1111111");
+  // de eerste fout (achteraan i.p.v. vooraan) schuift naar voren; daarna rekent alles met de goede lijn verder
+  assert.equal(dayReplay(ys, [1, 1, 3, 3, 4, 3, 6]), "0111111");
+  // hetzelfde jaar telt aan beide kanten (zoals fits)
+  // (de tweede 1900 vooraan = goed; jaar 1 vooraan = goed; jaar 2 vóór jaar 1 = fout, enz.)
+  assert.equal(dayReplay([1900, 1900, 1, 2, 3, 4, 5, 6], [0, 0, 0, 0, 0, 0, 0]), "1100000");
+  // onzin-zetten = fout, nooit een crash; verkeerde lengtes = null (de server weigert ze ook)
+  assert.equal(dayReplay(ys, [99, -1, 1.5, null, "a", 99, 99]), "0000000");
+  assert.equal(dayReplay(ys, [0, 1, 3, 3, 4, 3]), null);
+  assert.equal(dayReplay(ys.slice(1), [0, 1, 3, 3, 4, 3, 6]), null);
+});
+
+test("📅 de deeltekst van de daily: nummer, uitslag, rijtje, adres; geen jaartal en geen kaart", () => {
+  const { dayShareText, T } = core();
+  assert.equal(dayShareText(T.nl, 12, "1101011"), "Jaardle Timeline #12: 🗓️ 5/7\n📊 🟩🟩🟥🟩🟥🟩🟩\njaardle.com/timeline");
+  for (const l of Object.keys(T)) {
+    const txt = dayShareText(T[l], 3, "1111111");
+    assert.match(txt, /#3/, l); assert.match(txt, /7\/7/, l); assert.ok(!/\b1[0-9]{3}\b/.test(txt), `${l}: geen jaartal`);
+  }
+});
+
+test("📅 de kop: het schuifje van Jaardle (📅 | 🎲) i.p.v. 🔈; 🔈 staat in ⚙️ (Timeline-geluid)", () => {
+  const GAME = readFileSync(join(ROOT, "game.js"), "utf8"), TPL = readFileSync(join(ROOT, "index.template.html"), "utf8");
+  // het schuifje: dezelfde klassen als Jaardle (style.css), eigen data-tlmode zodat game.js (els.tabs, switchMode) er niet aan komt
+  assert.match(SRC, /<div class="mode-seg tl-seg" role="tablist"/);
+  assert.match(SRC, /class="tab" data-tlmode="daily"/);
+  assert.match(SRC, /class="tab" data-tlmode="free"/);
+  assert.ok(!/data-mode="/.test(SRC), "geen data-mode in timeline.js");
+  assert.match(SRC, /\.tl-seg:has\(\.tab\[data-tlmode="free"\]\[aria-selected="true"\]\)::before \{ transform: translateX\(36px\); \}/);
+  assert.match(GAME, /tabs: Array\.from\(document\.querySelectorAll\("#mode-tabs \.tab"\)\)/, "els.tabs wordt bij het laden gevuld, vóór #kop-tl bestaat");
+  assert.ok(!/class="tl-snd"/.test(SRC), "geen 🔈 meer in de kop");
+  // ⚙️ Timeline-geluid: vinkje in de template, in alle talen, en timeline.js luistert
+  assert.match(TPL, /data-action="tl-sound" data-i18n="menu_tl_sound" hidden>\{\{i18n:menu_tl_sound\}\}<\/button>/);
+  assert.equal((GAME.match(/menu_tl_sound: "/g) || []).length, 5);
+  assert.match(GAME, /if \(action === "tl-sound"\) \{/);
+  assert.match(GAME, /window\.JaardleTimeline\?\.setSound\?\.\(on\);/);
+  assert.match(SRC, /setSound: \(on\) => \{ snd = !!on; \}/);
+});
+
+test("📅 de daily: alle 7 leggen (geen levens, geen ↻), halverwege bewaard, één aanroep aan het eind, de streak via game.js", () => {
+  const GAME = readFileSync(join(ROOT, "game.js"), "utf8");
+  assert.match(SRC, /if \(!G\.daily\) G\.lives--;/);
+  assert.match(SRC, /if \(G\.pile\.length\) saveProg\(G\);/);
+  assert.equal((SRC.match(/H\.rpc\("record_timeline_daily"/g) || []).length, 1);
+  assert.match(SRC, /'daily'|j\.daily/);
+  // de balk van de daily: vakjes, geen hartjes en geen ↻
+  const hud = SRC.slice(SRC.indexOf("function hudHtml("), SRC.indexOf("// db/238: wie je hierna inhaalt"));
+  assert.match(hud, /if \(s\.daily\) \{/);
+  assert.ok(!/tl-rst/.test(hud.slice(0, hud.indexOf("const hearts"))), "geen ↻ in de balk van de daily");
+  // game.js: de streak-regel voor het eindscherm, en de Timeline-dagen in de streak (getStreakExtras → computeStats)
+  assert.match(GAME, /tlStreak: tlStreakHtml/);
+  assert.match(GAME, /const withTlDays = \(x\) =>/);
+  assert.match(GAME, /tlServer: Array\.isArray\(r\.tl_days\)/);
+});

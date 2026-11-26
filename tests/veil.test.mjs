@@ -211,6 +211,6 @@ test("duel.js en timeline.js zeggen of ze al iets te laten zien hebben, en open(
   assert.match(DUEL, /listed: \(\) => !!listItems,/);
   assert.match(DUEL, /if \(!listItems\) \{ foot\.hidden = true; body\.innerHTML = `<p class="dl-msg">\$\{esc\(T\.loading\)\}<\/p>`; return; \}/, "zonder lijst: \"Even laden…\" (dat dekt het laadscherm nu)");
   assert.match(TL, /ready: \(\) => !!G,/);
-  assert.match(TL, /function open\(host\) \{[^]*?if \(G \|\| loading\) draw\(\); else start\(\);\n\s+return loading \? new Promise\(\(r\) => loadWait\.push\(r\)\) : Promise\.resolve\(\);\n\s+\}/);
+  assert.match(TL, /function open\(host\) \{[^]*?if \(G \|\| loading\) draw\(\); else start\(true\);\n\s+return loading \? new Promise\(\(r\) => loadWait\.push\(r\)\) : Promise\.resolve\(\);\n\s+\}/);
   assert.ok(!/removeAttribute\("data-tlload"\)/.test(TL), "game.js haalt het laadscherm weg, niet timeline.js");
 });

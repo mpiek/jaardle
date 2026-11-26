@@ -171,7 +171,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=261">
+<link rel="stylesheet" href="/style.css?v=262">
 </head>
 <body>
   <main>
@@ -210,6 +210,8 @@
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-sfx" data-i18n="menu_duel_sfx" hidden>{{i18n:menu_duel_sfx}}</button>
             <!-- 🎵 Duel-muziek (21/11): achtergrondmuziek tijdens een duelronde = de stand "alles" van de luidspreker; alleen op dit toestel. game.js (syncDuelSfxUi) toont en zet hem. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="duel-music" data-i18n="menu_duel_music" hidden>{{i18n:menu_duel_music}}</button>
+            <!-- 🗓️ Timeline-geluid (26/11): stond als 🔈 in de Timeline-kop; daar staat nu het schuifje 📅 | 🎲 (de daily, db/241). Alleen op dit toestel; game.js (syncTlSoundUi) toont en zet hem. -->
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="tl-sound" data-i18n="menu_tl_sound" hidden>{{i18n:menu_tl_sound}}</button>
             <button class="menu-item" role="menuitemcheckbox" aria-checked="true" data-action="season" data-i18n="menu_season_halloween" hidden>{{i18n:menu_season_halloween}}</button>
             <!-- De viering van een potjes-event (bv. Strooigoed) aan/uit: alleen zonder account (ingelogd kiest in 🪎) en alleen wie hem verdiende; game.js (renderEventFxToggle) vult en toont. -->
             <button class="menu-item" role="menuitemcheckbox" aria-checked="false" data-action="evfx" hidden></button>
@@ -589,7 +591,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=517"></script>
+  <script src="/game.js?v=518"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"
