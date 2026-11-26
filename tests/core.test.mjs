@@ -6000,6 +6000,8 @@ test("🏅 Weekprijs ×N (db/242): herhaalbare dagelijkse trofee, alleen ingelog
   const GAME = readFileSync(join(dir, "..", "game.js"), "utf8");
   assert.match(GAME, /g id=\\"achv-art-podium\\"/, "de munt bestaat");
   for (const l of ["nl", "en", "de", "es", "pt"]) assert.equal(typeof globalThis.__T.I18N[l].achv_t_weekprize, "string", l);
+});
+
 // ── 26/11/2026 ("rapport 2: 5 ok, 6 sure"): eigen iconen voor Vizier en Gloed; JM en GM bij de rating-ladder ──────────────────────
 test("flair-effecten — Vizier en Gloed hebben een eigen icoon (🎯 en 🔥 stonden ook op iets anders); de id's en opgeslagen flairs blijven kloppen", () => {
   assert.equal(T.FLAIR_FX.vizier.emoji, "🏹");
