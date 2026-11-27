@@ -3904,6 +3904,25 @@ html[data-theme="light"], html[data-theme="parchment"] {
 .lb-row.lb-pace { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
 .lb-row.lb-pace .lb-val { font-weight: 400; color: var(--muted); }
 .lb-row.lb-botrow.pf-open { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
+/* 🃏 Timeline-karton (27/11/2026, mockup https://claude.ai/artifact/MvKTu3PWmtKmY25ujWMRMh variant 3, zijn "ja zoals 3"): de gewone
+   kaarten lijken op echte kaarten, maar de indeling blijft zoals hij was. In de donkere thema's donker karton met een warme tint (niet feller
+   dan --card, ook 's nachts), in Licht en Perkament ivoor. Een fijne binnenlijn en een rug met ruitjes in een rand van hetzelfde karton.
+   Hier en niet in /timeline.js, omdat de kluis en de pop-up (/timeline-ill.js) dezelfde kaart en rug laten zien zonder timeline.js. */
+:root {
+  --tl-paper: color-mix(in srgb, var(--card) 80%, #6b5a3e);
+  --tl-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.06), transparent 55%);
+  --tl-line: color-mix(in srgb, var(--fg) 20%, transparent);   /* de binnenlijn */
+  --tl-edge: color-mix(in srgb, var(--fg) 9%, transparent);    /* de rand van de kaart */
+  --tl-bad: color-mix(in srgb, var(--red) 16%, var(--tl-paper));
+  --tl-badtxt: color-mix(in srgb, var(--red-text) 70%, #fff);  /* een fout jaartal op dat rood: lichter, anders minder dan 3:1 */
+  --tl-back: #173f70; --tl-bline: rgba(255, 255, 255, 0.28);
+  --tl-lattice: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 1.5px, transparent 1.5px 8px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.14) 0 1.5px, transparent 1.5px 8px);
+}
+html:is([data-theme="light"], [data-theme="parchment"]) {
+  --tl-paper: #f8f4ea; --tl-sheen: none; --tl-line: rgba(31, 27, 22, 0.22); --tl-edge: rgba(0, 0, 0, 0.18); --tl-badtxt: var(--red-text);
+  --tl-back: #1d5fae; --tl-bline: rgba(255, 255, 255, 0.6);
+}
 /* 🃏 Bot | Timeline boven de stand (26/11/2026, mockup v3 B "Kaarten", zijn "B is super leuk"; game.js playCardsHtml): twee kaarten die
    net gedeeld zijn, in de diepe kleuren van de duelband (.vb in /duel.js), vast in beide thema's. Links de bot die klaarstaat (--h = zijn
    faceHue), hij springt uit zijn kaart, met het groene stipje van "online"; rechts de kaartrug van Timeline (.tl-back in /timeline.js) met

@@ -393,10 +393,12 @@ html :is(.tl-c, .tl-card).tl-ill[data-jc="8"] { --fg: #1d1b17; --muted: #55524a;
 @keyframes jc-run-loop { 0% { opacity: 1; stroke-dashoffset: 8; } 26% { opacity: 1; stroke-dashoffset: -100; } 27%, 100% { opacity: 0; stroke-dashoffset: -100; } }
 @media (prefers-reduced-motion: reduce) { .tl-ill .jd-c-run { animation: none !important; } }
 /* buiten Timeline (de kluis, de pop-up): de basismaten van een kaart, zodat het voorbeeld niet van timeline.js afhangt; tekst = grijze balkjes */
-.jc-prev, .jc-hero { --tl-back: #1976d2; --tl-back-2: #1565c0; text-align: left; font-size: 16px; line-height: 1.5; }
+.jc-prev, .jc-hero { text-align: left; font-size: 16px; line-height: 1.5; }
 .jc-prev .tl-c { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 0.3rem; width: 8.1rem; height: 12.4rem; box-sizing: border-box;
   padding: 0.6rem 0.65rem; border: 1px solid; border-radius: 12px; box-shadow: 0 6px 14px -9px rgba(0, 0, 0, 0.55); }
-.jc-prev .tl-c:not(.tl-ill) { background: var(--card); color: var(--fg); border-color: var(--border); }
+/* de gewone kaart: het karton uit style.css ("Timeline-karton"), met zijn binnenlijn, zoals in /timeline.js */
+.jc-prev .tl-c:not(.tl-ill) { background: var(--tl-sheen), var(--tl-paper); color: var(--fg); border-color: var(--tl-edge); }
+.jc-prev .tl-c:not(.tl-ill)::after { content: ""; position: absolute; inset: 3px; border: 1px solid var(--tl-line); border-radius: 8px; pointer-events: none; }
 .jc-prev .tl-y { font-size: 1.45rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .jc-prev .tl-s { position: absolute; top: 0.45rem; right: 0.45rem; font-size: 1.05rem; line-height: 1; }
 .jc-prev .tl-t { display: block; font-size: 0.78rem; line-height: 1.3; }
@@ -404,9 +406,8 @@ html :is(.tl-c, .tl-card).tl-ill[data-jc="8"] { --fg: #1d1b17; --muted: #55524a;
 .jc-sk.s1 { width: 58%; } .jc-sk.s2 { width: 86%; } .jc-sk.s3 { width: 72%; } .jc-sk.s4 { width: 80%; } .jc-sk.s5 { width: 44%; }
 .jc-sk-cat { display: inline-block; width: 4.2em; height: 0.5em; margin: 0; vertical-align: middle; }
 .jc-hero .tl-handin { position: relative; width: 15rem; height: 13.4rem; isolation: isolate; }
-.jc-hero .tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; background-color: var(--tl-back);
-  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px);
-  box-shadow: inset 0 0 0 5px var(--tl-back-2), inset 0 0 0 6.5px rgba(255, 255, 255, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4); }
+.jc-hero .tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; border: 6px solid var(--tl-paper); background-color: var(--tl-back);
+  background-image: var(--tl-lattice); box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline), 0 0 0 1px var(--tl-edge), 0 8px 20px rgba(0, 0, 0, 0.4); }
 .jc-hero .tl-back.b1 { transform: translate(9px, 5px) rotate(4deg); }
 .jc-hero .tl-back.b2 { transform: translate(17px, 10px) rotate(8deg); }
 .jc-hero .tl-card { position: relative; display: flex; flex-direction: column; gap: 0.55rem; height: 100%; box-sizing: border-box; border: 1px solid; border-radius: 16px;

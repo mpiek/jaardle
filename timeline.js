@@ -183,7 +183,7 @@
   const dayShareText = (L, num, m) => `${L.shareDay(num, [...m].filter((x) => x === "1").length)}\n📊 ${[...m].map((x) => (x === "1" ? "🟩" : "🟥")).join("")}\njaardle.com/timeline`;
 
   const CSS = String.raw`/* ═══ 🗓️ Timeline (/timeline.js) ═══ */
-:root { --tl: #1976d2; --tl-back: #1976d2; --tl-back-2: #1565c0; --tl-ch: clamp(10rem, 100dvh - 30rem, 13.5rem);
+:root { --tl: #1976d2; --tl-ch: clamp(10rem, 100dvh - 30rem, 13.5rem);
   /* de kaart in je hand is altijd even hoog, hoe lang de tekst ook is (26/11: de tafel sprong mee met elke tekst); is het scherm hoog
      genoeg (de tafel staat al op zijn grootst), dan krijgt hij de ruimte die over is, tot 16rem */
   --tl-hh: clamp(12.2rem, 100dvh - 31.5rem, 16rem);
@@ -241,18 +241,21 @@ body[data-tlhome] #mode-tabs { display: flex; }
 /* je hand: de nieuwe kaart met de stapel erachter */
 .tl-hand { position: relative; z-index: 2; display: grid; place-items: center; padding: 0.35rem 0 1.9rem; }
 .tl-handin { position: relative; width: min(16.5rem, 80%); height: var(--tl-hh); isolation: isolate; }
-.tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; background-color: var(--tl-back);
-  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px);
-  box-shadow: inset 0 0 0 5px var(--tl-back-2), inset 0 0 0 6.5px rgba(255, 255, 255, 0.5), var(--shadow-pop); }
+/* 🃏 het karton (27/11, de kleuren staan in style.css bij "Timeline-karton"): de rug is ruitjes in een rand van hetzelfde karton als de voorkant */
+.tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; border: 6px solid var(--tl-paper); background-color: var(--tl-back);
+  background-image: var(--tl-lattice); box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline), 0 0 0 1px var(--tl-edge), var(--shadow-pop); }
 .tl-back.b1 { transform: translate(9px, 5px) rotate(4deg); }
 .tl-back.b2 { transform: translate(17px, 10px) rotate(8deg); }
 .tl-left { position: absolute; right: calc(100% + 0.8rem); top: 50%; transform: translateY(-50%); font-size: 0.72rem; font-weight: 700; line-height: 1.2;
   text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
 .tl-left b { display: block; font-size: 1rem; color: var(--fg); }
 .tl-card { position: relative; display: flex; flex-direction: column; gap: 0.55rem; height: 100%; padding: 0.8rem 1rem 0.95rem; color: var(--fg);
-  background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-pop); transform: rotate(-1.5deg);
+  background: var(--tl-sheen), var(--tl-paper); border: 1px solid var(--tl-edge); border-radius: 16px; box-shadow: var(--shadow-pop); transform: rotate(-1.5deg);
   touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
 .tl-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* de fijne binnenlijn van het karton (niet op de getekende kaarten: die hebben hun eigen rand) */
+.tl-card:not(.tl-ill)::after, .tl-c:not(.tl-ill)::after { content: ""; position: absolute; inset: 4px; border: 1px solid var(--tl-line); border-radius: 11px; pointer-events: none; }
+.tl-c:not(.tl-ill)::after { inset: 3px; border-radius: 8px; }
 .tl-suit { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .tl-suit i { font-style: normal; font-size: 1.3rem; letter-spacing: 0; }
 .tl-txt { flex: 1 1 0; min-height: 0; overflow: hidden; margin: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.32; overflow-wrap: anywhere; hyphens: auto; }
@@ -265,9 +268,9 @@ body[data-tlhome] #mode-tabs { display: flex; }
 /* 🃏 de volgende kaart wordt van de stapel gepakt (26/11, zijn "leuk als die van de stapel gepakt wordt"): de bovenste rug (b1) komt naar
    voren en draait om; ::before is de rugzijde tot de kaart op zijn kant staat. De ruggen eronder schuiven één plek op (tl-shift). */
 .tl-card.tl-deal { animation: tl-deal 0.44s cubic-bezier(0.3, 0.7, 0.3, 1) both; }
-.tl-card.tl-deal::before { content: ""; position: absolute; inset: -1px; z-index: 5; border-radius: inherit; pointer-events: none; background-color: var(--tl-back);
-  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px);
-  box-shadow: inset 0 0 0 5px var(--tl-back-2), inset 0 0 0 6.5px rgba(255, 255, 255, 0.5); animation: tl-deal-back 0.44s linear both; }
+.tl-card.tl-deal::before { content: ""; position: absolute; inset: -1px; z-index: 5; border-radius: inherit; pointer-events: none; border: 6px solid var(--tl-paper);
+  background-color: var(--tl-back); background-image: var(--tl-lattice); box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline);
+  animation: tl-deal-back 0.44s linear both; }
 @keyframes tl-deal { 0% { transform: perspective(800px) translate(9px, 5px) rotate(4deg) rotateY(180deg); }
   50% { transform: perspective(800px) translate(3px, -12px) rotate(1deg) rotateY(90deg); } 100% { transform: perspective(800px) rotate(-1.5deg) rotateY(0deg); } }
 @keyframes tl-deal-back { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
@@ -281,9 +284,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-sc { position: absolute; transform-style: preserve-3d; will-change: transform; }
 .tl-sc > div { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .tl-sf > * { width: 100% !important; height: 100% !important; margin: 0 !important; transform: none !important; animation: none !important; box-shadow: var(--shadow-pop); }
-.tl-sb { transform: rotateY(180deg); border-radius: 15px; background-color: var(--tl-back);
-  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 5px, transparent 5px 11px);
-  box-shadow: inset 0 0 0 5px var(--tl-back-2), inset 0 0 0 6.5px rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.35), 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
+.tl-sb { transform: rotateY(180deg); border-radius: 15px; border: 5px solid var(--tl-paper); background-color: var(--tl-back); background-image: var(--tl-lattice);
+  box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline), 0 0 0 1px var(--tl-edge), 0 1px 0 rgba(0, 0, 0, 0.35), 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
 .tl-sg { position: absolute; margin: 0 !important; }
 .tl-sf .tl-deal::before { display: none; }
 .tl-pre .tl-handin > *, .tl-pre .tl-cue, .tl-pre .tl-strip { visibility: hidden; }
@@ -308,7 +310,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-strip { position: relative; display: flex; align-items: center; width: max-content; padding: 0 1rem; }
 .tl-strip::before { content: ""; position: absolute; left: 1rem; right: 1rem; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 2px; background: var(--tl-era); opacity: 0.55; }
 .tl-c { position: relative; z-index: 1; flex: none; display: flex; flex-direction: column; gap: 0.35rem; width: 7.6rem; height: var(--tl-ch); padding: 0.6rem 0.65rem 0.65rem;
-  background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 6px 14px -9px rgba(0, 0, 0, 0.55); }
+  background: var(--tl-sheen), var(--tl-paper); border: 1px solid var(--tl-edge); border-radius: 12px; box-shadow: 0 6px 14px -9px rgba(0, 0, 0, 0.55); }
 .tl-c .tl-y { font-size: 1.45rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; padding-right: 1.3rem; }
 .tl-c .tl-y small { display: block; margin-top: 0.1rem; font-size: 0.66rem; font-weight: 700; color: var(--muted); }
 .tl-c .tl-s { position: absolute; top: 0.45rem; right: 0.45rem; font-size: 1.05rem; line-height: 1; }
@@ -316,6 +318,8 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-c .tl-t { font-size: 0.78rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden;
   overflow-wrap: anywhere; hyphens: auto; }
 .tl-c.tl-bad .tl-y { color: var(--red-text); }
+.tl-c.tl-bad:not(.tl-ill) { background: var(--tl-bad); }
+.tl-c.tl-bad:not(.tl-ill) .tl-y { color: var(--tl-badtxt); }
 .tl-c.tl-bad .tl-s { visibility: hidden; }
 .tl-c .tl-x, .tl-c .tl-v { position: absolute; top: 0.32rem; right: 0.32rem; z-index: 2; display: grid; place-items: center; width: 1.4rem; height: 1.4rem;
   border-radius: 50%; font-size: 0.78rem; font-weight: 900; color: #fff; }
