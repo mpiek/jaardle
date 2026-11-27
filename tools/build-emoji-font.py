@@ -41,10 +41,17 @@ download eenmalig van googlefonts/noto-emoji → fonts/Noto-COLRv1.ttf, niet gec
 Voor het SVG-font ook nanoemoji, in een eigen venv (zie NANO_BIN hieronder):
   python3 -m venv ~/.venvs/nanoemoji && ~/.venvs/nanoemoji/bin/pip install nanoemoji brotli opentype-sanitizer
 
+Voor het sbix-font (iPhone/iPad, zie build_sbix_font) ook Pillow, en Noto's
+PNG-font van dezelfde release als het COLRv1-bronfont (niet gecommit):
+  curl -sL -o fonts/Noto-CBDT.ttf https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf
+Alleen het sbix-font opnieuw (uit het bestaande COLRv1-font, zonder nanoemoji):
+  python3 tools/build-emoji-font.py --sbix-only
+
 Uitvoer:
   fonts/jaardle-emoji.woff2       — de gesubsette webfont, COLRv1 (wél committen)
   fonts/jaardle-emoji-svg.woff2   — dezelfde subset als OpenType-SVG (wél committen)
-  print naar stdout: de unicode-range voor de @font-face in style.css
+  fonts/jaardle-emoji-sbix.woff2  — dezelfde subset als sbix met Noto's PNG's (wél committen)
+  de unicode-range tussen de markers in style.css en emoji-sbix.css
 """
 import os
 import subprocess
@@ -55,7 +62,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC_FONT = ROOT / "fonts" / "Noto-COLRv1.ttf"       # bronfont (niet gecommit)
 OUT = ROOT / "fonts" / "jaardle-emoji.woff2"
-OUT_SVG = ROOT / "fonts" / "jaardle-emoji-svg.woff2"  # dezelfde subset voor Safari/iOS
+OUT_SVG = ROOT / "fonts" / "jaardle-emoji-svg.woff2"  # dezelfde subset voor Safari (macOS)
+OUT_SBIX = ROOT / "fonts" / "jaardle-emoji-sbix.woff2"  # dezelfde subset als PNG's (sbix) voor iPhone/iPad
+SRC_CBDT = ROOT / "fonts" / "Noto-CBDT.ttf"         # Noto's PNG-font (CBDT), zelfde release als SRC_FONT (niet gecommit)
+# Bestanden met een unicode-range tussen de EMOJI-RANGE-markers.
+RANGE_FILES = [ROOT / "style.css", ROOT / "emoji-sbix.css"]
 # Map met maximum_color, ninja en pyftsubset van nanoemoji (JAARDLE_NANOEMOJI_BIN
 # wijst een andere venv aan).
 NANO_BIN = Path(os.environ.get("JAARDLE_NANOEMOJI_BIN", Path.home() / ".venvs" / "nanoemoji" / "bin"))
@@ -197,7 +208,169 @@ def build_svg_font(unicodes: str, cps: set[int]) -> None:
     print(f"✓ {OUT_SVG.name}: {kb:.0f} KB, {len(cps)} codepoints, elke emoji getekend, maten gelijk, OTS akkoord", file=sys.stderr)
 
 
+def _ligatures(font) -> dict[tuple[str, ...], str]:
+    """GSUB-ligaturen (type 4, ook via extensie 7) als {(glyph, glyph, …): ligatuur}."""
+    out: dict[tuple[str, ...], str] = {}
+    if "GSUB" not in font:
+        return out
+    for lk in font["GSUB"].table.LookupList.Lookup:
+        for st in lk.SubTable:
+            kind = lk.LookupType
+            if kind == 7:
+                st, kind = st.ExtSubTable, st.ExtensionLookupType
+            if kind == 4:
+                for first, ligs in st.ligatures.items():
+                    for lig in ligs:
+                        out[(first, *lig.Component)] = lig.LigGlyph
+    return out
+
+
+def build_sbix_font() -> None:
+    """Dezelfde subset als sbix (Apple's eigen bitmap-formaat, waar ook Apple
+    Color Emoji in zit), alleen voor iPhone/iPad. iOS 27 tekent het OT-SVG-font
+    niet (lege plekken, zie style.css); sbix tekent elke iOS-versie.
+
+    Basis is het COLRv1-font dat hierboven gebouwd is (OUT): COLR en CPAL eruit,
+    opnieuw subsetten (weg met de laag-glyphs), dus precies dezelfde cmap, GSUB
+    en maten als de andere twee fonts, en de flair-tekeningen passen. De
+    tekeningen zijn de PNG's uit Noto's CBDT-font (SRC_CBDT, dezelfde Noto-release
+    als SRC_FONT; dat wordt gecontroleerd): losse emoji op glyphnaam, de
+    ZWJ-ligaturen op hun reeks (de subsetter hernoemt die). De PNG-bytes gaan er
+    ongewijzigd in: Noto's PNG's zijn al palet-PNG's met zopfli (opnieuw
+    persen met pngquant/zopfli scheelde 27/11 niets, kleiner schalen maakte ze
+    groter), en woff2 perst PNG's niet verder.
+
+    CoreText zet de onderkant van een sbix-plaatje niet tegen de basislijn maar
+    tegen de onderkant van de omtrek van de glyph (horizontaal wél vanaf de
+    oorsprong). Daarom krijgt elke emoji een rechthoek rond de inkt als omtrek
+    (niet getekend: sbix-vlag bit 1 = 0) en telt originOffsetY vanaf de
+    onderkant van de inkt. Zo gemeten en op een echte iPhone met iOS 27
+    nagekeken door wordplay (PR #1451, scripts/emoji/cbdt-to-sbix.py)."""
+    import io
+
+    from fontTools import subset
+    from fontTools.pens.ttGlyphPen import TTGlyphPen
+    from fontTools.ttLib import TTFont, newTable
+    from fontTools.ttLib.tables import sbixGlyph, sbixStrike
+    from PIL import Image
+
+    if not SRC_CBDT.exists():
+        sys.exit(
+            f"Bronfont ontbreekt: {SRC_CBDT}\n"
+            "Download eenmalig (niet committen), dezelfde release als Noto-COLRv1.ttf:\n"
+            "  curl -sL -o fonts/Noto-CBDT.ttf "
+            "https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf"
+        )
+    src = TTFont(SRC_CBDT)
+    ver = lambda f: f["name"].getDebugName(5)  # noqa: E731
+    if SRC_FONT.exists() and ver(src) != ver(TTFont(SRC_FONT, lazy=True)):
+        sys.exit(f"Noto-CBDT.ttf ({ver(src)}) is een andere release dan Noto-COLRv1.ttf ({ver(TTFont(SRC_FONT, lazy=True))}): de tekeningen zouden kunnen verschillen")
+
+    font = TTFont(OUT)
+    cps = set(font.getBestCmap())
+    del font["COLR"], font["CPAL"]
+    opts = subset.Options()
+    opts.layout_features = ["*"]
+    opts.hinting = False
+    opts.notdef_outline = True
+    opts.name_IDs = [0, 13, 14]
+    sub = subset.Subsetter(opts)
+    sub.populate(unicodes=cps)
+    sub.subset(font)
+
+    # Glyph in ons font → glyph in het CBDT-font.
+    cmap, src_cmap = font.getBestCmap(), src.getBestCmap()
+    pair = {g: src_cmap[c] for c, g in cmap.items()}
+    rev = {g: c for c, g in cmap.items()}
+    src_ligs = _ligatures(src)
+    for seq, lig in _ligatures(font).items():
+        src_seq = tuple(src_cmap[rev[g]] for g in seq)
+        if src_seq not in src_ligs:
+            sys.exit(f"ligatuur {seq} bestaat niet in Noto-CBDT.ttf")
+        pair[lig] = src_ligs[src_seq]
+
+    ppem = 109                                   # Noto's enige strike (136×128 px)
+    bitmaps = next(d for s, d in zip(src["CBLC"].strikes, src["CBDT"].strikeData) if s.bitmapSizeTable.ppemY == ppem)
+    upem = font["head"].unitsPerEm
+    scale = upem / ppem
+    strike = sbixStrike.Strike(ppem=ppem, resolution=72)
+    glyf = font["glyf"]
+    png_bytes = 0
+    for name in font.getGlyphOrder():
+        bm = bitmaps.get(pair.get(name, ""))
+        if bm is None:                           # .notdef, ZWJ, VS16: geen plaatje
+            strike.glyphs[name] = sbixGlyph.Glyph(glyphName=name)
+            continue
+        bm.decompile()
+        m = bm.metrics
+        box = Image.open(io.BytesIO(bm.imageData)).convert("RGBA").getchannel("A").getbbox()
+        if box is None:
+            strike.glyphs[name] = sbixGlyph.Glyph(glyphName=name)
+            continue
+        x0, y0, x1, y1 = box
+        pen = TTGlyphPen(None)
+        l, r = round((m.BearingX + x0) * scale), round((m.BearingX + x1) * scale)
+        t, b = round((m.BearingY - y0) * scale), round((m.BearingY - y1) * scale)
+        pen.moveTo((l, b)); pen.lineTo((l, t)); pen.lineTo((r, t)); pen.lineTo((r, b)); pen.closePath()
+        glyf[name] = pen.glyph()
+        png_bytes += len(bm.imageData)
+        strike.glyphs[name] = sbixGlyph.Glyph(
+            glyphName=name, graphicType="png ", imageData=bm.imageData,
+            originOffsetX=m.BearingX, originOffsetY=y1 - m.height,
+        )
+    sbix = newTable("sbix")
+    sbix.version = 1
+    sbix.flags = 1                               # bit 0 verplicht; bit 1 (omtrek ook tekenen) uit
+    sbix.strikes = {ppem: strike}
+    font["sbix"] = sbix
+    font.recalcBBoxes = True
+    font.flavor = "woff2"
+    font.save(OUT_SBIX)
+
+    # Controle: zelfde codepoints, breedtes en hoogtes als het COLRv1-font, en elke emoji heeft een plaatje.
+    a, b = TTFont(OUT), TTFont(OUT_SBIX)
+    ca, cb = a.getBestCmap(), b.getBestCmap()
+    assert set(ca) == set(cb), "codepoints verschillen: %s" % sorted(set(ca) ^ set(cb))
+    assert "COLR" not in b and "sbix" in b
+    pics = {g for g, gl in b["sbix"].strikes[ppem].glyphs.items() if gl.graphicType == "png "}
+    bare = [hex(c) for c, g in cb.items() if c not in (ZWJ, VS16) and g not in pics]
+    assert not bare, "zonder plaatje: %s" % bare
+    assert all(lg in pics for lg in _ligatures(b).values()), "een ligatuur zonder plaatje"
+    wrong = [hex(c) for c in ca if a["hmtx"][ca[c]][0] != b["hmtx"][cb[c]][0]]
+    assert not wrong, "andere breedte: %s" % wrong
+    assert (a["hhea"].ascent, a["hhea"].descent, a["head"].unitsPerEm) == (b["hhea"].ascent, b["hhea"].descent, b["head"].unitsPerEm)
+    kb = OUT_SBIX.stat().st_size / 1024
+    print(f"✓ {OUT_SBIX.name}: {kb:.0f} KB ({len(pics)} plaatjes, samen {png_bytes / 1024:.0f} KB PNG), maten gelijk", file=sys.stderr)
+
+
+def update_ranges(cps: set[int]) -> None:
+    """unicode-range automatisch bijwerken tussen de markers, in style.css en in
+    emoji-sbix.css, zodat de @font-face-ranges nooit uit de pas lopen met de
+    gesubsette fonts. De range komt op dezelfde inspringing als de START-marker
+    (in style.css staat de @font-face in een @supports-blok)."""
+    rng = fmt_unicode_range(cps)
+    start, end = "/* EMOJI-RANGE:START */", "/* EMOJI-RANGE:END */"
+    for css_path in RANGE_FILES:
+        css = css_path.read_text(encoding="utf-8")
+        if start in css and end in css:
+            pre = css.split(start)[0]
+            post = css.split(end, 1)[1]
+            ind = pre[pre.rfind("\n") + 1:]
+            css = f"{pre}{start}\n{ind}unicode-range: {rng};\n{ind}{end}{post}"
+            css_path.write_text(css, encoding="utf-8")
+            print(f"✓ {css_path.name} unicode-range bijgewerkt ({len(cps)} codepoints)", file=sys.stderr)
+        else:
+            print(f"\n! markers niet gevonden in {css_path.name} — plak de range handmatig:", file=sys.stderr)
+            print(f"  unicode-range: {rng};")
+
+
 def main() -> int:
+    if "--sbix-only" in sys.argv[1:]:
+        # Alleen het sbix-font opnieuw, uit het bestaande COLRv1-font (zonder nanoemoji).
+        from fontTools.ttLib import TTFont
+        build_sbix_font()
+        update_ranges(set(TTFont(OUT).getBestCmap()) | {VS16, ZWJ})   # zoals collect_codepoints: koppeltekens erbij
+        return 0
     if not SRC_FONT.exists():
         sys.exit(
             f"Bronfont ontbreekt: {SRC_FONT}\n"
@@ -220,25 +393,8 @@ def main() -> int:
     kb = OUT.stat().st_size / 1024
     print(f"✓ {OUT.name}: {kb:.0f} KB, {len(cps)} codepoints", file=sys.stderr)
     build_svg_font(unicodes, cps)
-
-    # unicode-range automatisch in style.css bijwerken (tussen de markers), zodat
-    # de @font-face-range nooit uit de pas loopt met het gesubsette font.
-    rng = fmt_unicode_range(cps)
-    css_path = ROOT / "style.css"
-    css = css_path.read_text(encoding="utf-8")
-    start, end = "/* EMOJI-RANGE:START */", "/* EMOJI-RANGE:END */"
-    if start in css and end in css:
-        pre = css.split(start)[0]
-        post = css.split(end, 1)[1]
-        # zelfde inspringing als de START-marker (de @font-face staat in een
-        # @supports-blok, zie style.css: geen emoji-font op iOS)
-        ind = pre[pre.rfind("\n") + 1:]
-        css = f"{pre}{start}\n{ind}unicode-range: {rng};\n{ind}{end}{post}"
-        css_path.write_text(css, encoding="utf-8")
-        print(f"✓ style.css unicode-range bijgewerkt ({len(cps)} codepoints)", file=sys.stderr)
-    else:
-        print("\n! markers niet gevonden in style.css — plak de range handmatig:", file=sys.stderr)
-        print(f"  unicode-range: {rng};")
+    build_sbix_font()
+    update_ranges(cps)
     return 0
 
 

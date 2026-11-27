@@ -4465,7 +4465,7 @@ test("emoji op Safari/iOS — het SVG-font staat als tweede bron naast het COLRv
   // (Apple-emoji); -webkit-touch-callout kent alleen WebKit op iOS, macOS-Safari/Chrome/Firefox houden de Noto-font.
   assert.match(css, /@supports not \(-webkit-touch-callout: none\) \{\s*@font-face \{\s*font-family: "JaardleEmoji";[^}]*\/\* EMOJI-RANGE:START \*\/\s*unicode-range: [^;]+;\s*\/\* EMOJI-RANGE:END \*\/\s*\}\s*\}/,
     "de @font-face (met de range-markers) staat binnen @supports not (-webkit-touch-callout: none): geen emoji-font op iOS");
-  assert.match(tpl, /if \(CSS\.supports\("-webkit-touch-callout", "none"\)\) return;\s*var colr = /, "op iOS niets voorladen, dezelfde test als de @supports in style.css");
+  assert.match(tpl, /if \(CSS\.supports\("-webkit-touch-callout", "none"\)\) \{[\s\S]*?\breturn;\s*\}\s*var colr = /, "op iOS nooit het COLRv1- of SVG-font voorladen, dezelfde test als de @supports in style.css (de sbix-proef: zie de test hieronder)");
   assert.match(tpl, /var colr = CSS\.supports\("font-tech\(color-COLRv1\)"\);\s*if \(!colr && !CSS\.supports\("font-tech\(color-SVG\)"\)\) return;/, "geen van beide formaten: niets voorladen");
   assert.match(tpl, /l\.href = colr \? "\/fonts\/jaardle-emoji\.woff2" : "\/fonts\/jaardle-emoji-svg\.woff2";\s*if \(!colr\) l\.fetchPriority = "low";/, "dezelfde keuze als de @font-face; het zware bestand met lage voorrang");
   assert.ok(!/emoji=svg/.test(tpl) && !/new FontFace\(/.test(tpl), "de proef-tak (?emoji=svg) is weg");
@@ -4473,6 +4473,42 @@ test("emoji op Safari/iOS — het SVG-font staat als tweede bron naast het COLRv
   assert.match(build, /build_svg_font\(unicodes, cps\)/, "het bouwscript maakt beide fonts in één run, uit dezelfde codepoints");
   assert.match(build, /--notdef-outline/, "zonder omtrek in .notdef is de glyf-tabel leeg en weigeren Firefox en Chrome het font");
   assert.match(readFileSync(join(root, "LICENSE"), "utf8"), /fonts\/jaardle-emoji\.woff2 and fonts\/jaardle-emoji-svg\.woff2/, "de OFL-vermelding noemt beide bestanden");
+});
+
+test("emoji op iOS — PROEF sbix: ?emoji=sbix laadt op iPhone/iPad emoji-sbix.css (Noto als PNG's) en onthoudt dat, ?emoji=off zet uit; elders verandert er niets", () => {
+  const root = join(dir, ".."), tpl = readFileSync(join(root, "index.template.html"), "utf8"), css = readFileSync(join(root, "style.css"), "utf8");
+  const sb = readFileSync(join(root, "emoji-sbix.css"), "utf8");
+  const range = (t) => t.match(/\/\* EMOJI-RANGE:START \*\/\s*unicode-range: ([^;]+);\s*\/\* EMOJI-RANGE:END \*\//)[1];
+  assert.equal(range(sb), range(css), "dezelfde unicode-range als de @font-face in style.css (het bouwscript werkt beide bij)");
+  assert.match(sb, /@font-face \{\s*font-family: "JaardleEmoji";\s*src: url\("\/fonts\/jaardle-emoji-sbix\.woff2"\) format\("woff2"\);/, "zelfde familie, dus alle stacks (ook canvas) pakken hem; geen tech(): iOS leest sbix altijd");
+  assert.ok(!/@supports/.test(sb.replace(/\/\*[\s\S]*?\*\//g, "")), "geen eigen @supports: alleen het head-script laadt dit bestand, en alleen op iOS");
+  const kb = statSync(join(root, "fonts", "jaardle-emoji-sbix.woff2")).size / 1024;
+  assert.ok(kb < 300, `het sbix-font blijft onder 300 KB (nu ${Math.round(kb)} KB): dat betaalt alleen iOS`);
+  const build = readFileSync(join(root, "tools", "build-emoji-font.py"), "utf8");
+  assert.match(build, /build_sbix_font\(\)\n\s*update_ranges\(cps\)/, "het bouwscript maakt het sbix-font in dezelfde run en werkt daarna de ranges bij");
+  assert.match(build, /RANGE_FILES = \[ROOT \/ "style\.css", ROOT \/ "emoji-sbix\.css"\]/, "beide ranges worden bijgewerkt");
+
+  const src = tpl.slice(tpl.indexOf("// Emoji-font voorladen"), tpl.indexOf("</script>", tpl.indexOf("// Emoji-font voorladen")));
+  const run = ({ ios, search = "", store = {}, broken = false }) => {
+    const added = [];
+    const ls = { getItem: (k) => { if (broken) throw new Error("x"); return k in store ? store[k] : null; },
+      setItem: (k, v) => { if (broken) throw new Error("x"); store[k] = String(v); }, removeItem: (k) => { if (broken) throw new Error("x"); delete store[k]; } };
+    const CSS = { supports: (a, b) => (a === "-webkit-touch-callout" && b === "none" ? ios : a === "font-tech(color-COLRv1)" ? !ios : a === "font-tech(color-SVG)") };
+    vm.runInNewContext(src, { CSS, location: { search }, localStorage: ls, document: { createElement: () => ({}), head: { appendChild: (l) => added.push(l) } } });
+    return { added: added.map((l) => `${l.rel} ${l.href}`), store };
+  };
+  assert.deepEqual(run({ ios: false }).added, ["preload /fonts/jaardle-emoji.woff2"], "Chrome/Firefox: zoals altijd het COLRv1-font");
+  assert.deepEqual(run({ ios: false, search: "?emoji=sbix" }).added, ["preload /fonts/jaardle-emoji.woff2"], "de proef doet buiten iOS niets");
+  assert.deepEqual(run({ ios: true }).added, [], "iOS zonder proef: niets (Apple-emoji)");
+  const on = run({ ios: true, search: "?emoji=sbix" });
+  assert.deepEqual(on.added, ["stylesheet /emoji-sbix.css?v=1", "preload /fonts/jaardle-emoji-sbix.woff2"]);
+  assert.equal(on.store["jaardle:emoji"], "sbix", "onthouden op dit toestel");
+  assert.deepEqual(run({ ios: true, store: { "jaardle:emoji": "sbix" } }).added.length, 2, "daarna ook zonder ?emoji=sbix");
+  const off = run({ ios: true, search: "?p=1&emoji=off", store: { "jaardle:emoji": "sbix" } });
+  assert.deepEqual(off.added, []);
+  assert.ok(!("jaardle:emoji" in off.store), "?emoji=off zet hem uit");
+  assert.equal(run({ ios: true, search: "?emoji=sbixx" }).added.length, 0, "alleen precies emoji=sbix");
+  assert.equal(run({ ios: true, search: "?emoji=sbix", broken: true }).added.length, 2, "zonder localStorage (privévenster) werkt de link zelf nog");
 });
 
 test("stille baseline bij de eerste keer — alles wat je al had telt als gezien, behalve de event-beloningen (die worden juist gevierd, ook na inloggen met anonieme dagen)", () => {

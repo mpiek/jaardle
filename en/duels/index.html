@@ -28,7 +28,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-vgrI/QFPB1IAgj150/LODs6z1Tdas12HBcBhdrgFmy4=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-2GU9T89Y9vVtFhGSofHLPzgqln1FwVltEt6wpGiyo5U=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
      synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=523 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
@@ -134,9 +134,27 @@
   // voorrang, zodat het de eerste paint niet ophoudt. iPhone/iPad krijgen geen
   // emoji-font (iOS 27 tekent OT-SVG niet, dus Apple-emoji; zie style.css) en
   // laden dus ook niets voor: dezelfde @supports-test als daar.
+  // PROEF (27/11): Noto als sbix (PNG's) op iOS, uit /emoji-sbix.css. ?emoji=sbix zet hem aan en
+  // onthoudt dat op dit toestel (jaardle:emoji), ?emoji=off zet hem weer uit. Werkt het op een echte
+  // iPhone, dan gaat de @font-face naar style.css en verdwijnt deze tak.
   (function () {
     try {
-      if (CSS.supports("-webkit-touch-callout", "none")) return;
+      if (CSS.supports("-webkit-touch-callout", "none")) {
+        var q = /[?&]emoji=(sbix|off)(?:&|$)/.exec(location.search), on = false;
+        try {
+          if (q) { if (q[1] === "sbix") localStorage.setItem("jaardle:emoji", "sbix"); else localStorage.removeItem("jaardle:emoji"); }
+          on = localStorage.getItem("jaardle:emoji") === "sbix";
+        } catch (e) { on = !!q && q[1] === "sbix"; }
+        if (!on) return;
+        var s = document.createElement("link");
+        s.rel = "stylesheet"; s.href = "/emoji-sbix.css?v=1";
+        document.head.appendChild(s);
+        var p = document.createElement("link");
+        p.rel = "preload"; p.as = "font"; p.type = "font/woff2"; p.crossOrigin = "anonymous";
+        p.href = "/fonts/jaardle-emoji-sbix.woff2"; p.fetchPriority = "low";
+        document.head.appendChild(p);
+        return;
+      }
       var colr = CSS.supports("font-tech(color-COLRv1)");
       if (!colr && !CSS.supports("font-tech(color-SVG)")) return;
       var l = document.createElement("link");

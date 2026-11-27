@@ -19,3 +19,4 @@ package-lock.json
 
 # COLRv1-bronfont voor de emoji-subset (build-emoji-font.py); niet committen — te groot
 fonts/Noto-COLRv1.ttf
+fonts/Noto-CBDT.ttf
