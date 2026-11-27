@@ -63,7 +63,7 @@ src += `
   TL_CARDS_AT, CARD_STYLES, CARD_TIER, cardAt, cardStyleUnlocked, CARDS_KEY, cardsUnlocked, cardStyle, cardStyleActive, setCardStyle, TL_ACHV_KEYS, rewardsCardsHtml, achvCardStylesHtml, activateReward,
   getAchvPage: () => achvPage, setAchvPage: (p) => { achvPage = p; },
   recapAccountHtml, recapCarouselHtml, recapEventPaneSpec, recapEvent, RECAP_EV_KEY, teamNudgeStage, teamTeaserHtml, TEAM_NUDGE_KEY, TEAM_NUDGE_FULL, TEAM_NUDGE_SLIM, todayKey,
-  botsOn, paceMerge, botRowHtml, botDayRowsHtml, botWeekRows, botBoardHtml, recapBetter, dailyTableHtml, lbNameCell, DAILY_BOTS_DUELS, playCardsHtml, recapPlayHtml, recapBotReady, tlDailyDone,
+  botsOn, paceMerge, botRowHtml, botDayRowsHtml, botWeekRows, botBoardHtml, recapBetter, dailyTableHtml, lbNameCell, playCardsHtml, recapPlayHtml, recapBotReady,
   setDailyBots: (v) => { dailyBots = v; },
   setPlayer: (n, f, ti) => { myUsername = n; myFlair = f; myTitle = ti; }, renderMenuAccount,
   setState: (s) => { state = s; },
@@ -5967,10 +5967,15 @@ test("bots — voorproefje met bots: de bots als stand, één gestippelde plek, 
   } finally { T.setPlayer(null, null, null); }
 });
 
-test("bots — de bot boven de stand alleen met /duel.js, bots en minder dan 3 uitgespeelde duels", () => {
-  assert.equal(T.DAILY_BOTS_DUELS, 3);
+test("bots — de bot boven de stand alleen met /duel.js en bots; het aantal uitgespeelde duels doet niet meer mee (27/11)", () => {
   assert.equal(T.recapBotReady(null), null);
   assert.equal(T.recapBotReady(DB({}, 0)), null, "zonder /duel.js geen bot (niets halfs)");
+  const D0 = globalThis.Duel;
+  try {
+    globalThis.Duel = { daily: { ready: (h, bots) => bots[0] } };
+    assert.equal(T.recapBotReady(DB({}, 0))?.key, "pip");
+    assert.equal(T.recapBotReady(DB({}, 7))?.key, "pip", "ook na 3+ duels");
+  } finally { globalThis.Duel = D0; }
 });
 
 // ── 🃏 bot | Timeline boven de stand (26/11, mockup v3 B "Kaarten") ─────────────────────────────────────────────────────────
@@ -6004,17 +6009,15 @@ test("playCardsHtml — ⚡ of ⚔️ achter de naam volgt de onthouden vorm uit
   } finally { localStorage.removeItem("jaardle:bot-mode"); }
 });
 
-test("tlDailyDone / recapPlayHtml — Timeline valt weg zodra je de Timeline-daily van vandaag speelde (dit toestel)", () => {
+test("recapPlayHtml — Timeline blijft staan, ook na je Timeline-daily van vandaag (27/11)", () => {
   const today = T.todayKey();
   try {
     localStorage.removeItem(T.TL_DAYS_KEY);
-    assert.equal(T.tlDailyDone(today), false);
     const fresh = T.recapPlayHtml(null);
     assert.match(fresh, /^<div class="ew solo">/, "geen bot (geen /duel.js): alleen Timeline");
     assert.ok(fresh.includes("ew-new"), "Timeline nooit geopend: Nieuw");
     localStorage.setItem(T.TL_DAYS_KEY, JSON.stringify([{ date: today, m: "1101011" }]));
-    assert.equal(T.tlDailyDone(today), true);
-    assert.equal(T.recapPlayHtml(null), "", "Timeline gedaan en geen bot: niets");
+    assert.match(T.recapPlayHtml(null), /<button type="button" class="ew-tl/, "Timeline-daily gedaan: de kaart blijft");
   } finally { localStorage.removeItem(T.TL_DAYS_KEY); }
 });
 

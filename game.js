@@ -10010,8 +10010,8 @@ for (const c in RT_I18N) Object.assign(I18N[c], RT_I18N[c]);
 //   (anders staat wie donderdag begint hopeloos achter). Dezelfde regels als een team: scores opgeteld + 25 per dagzege.
 // - In een team lopen ze als ijkpunt mee in Vandaag: op scorevolgorde, "·" in plaats van een plaats, geen vulling. Plaatsen,
 //   dagzege, weekpodium en weekprijzen blijven van de leden (de server telt de bots nergens mee); de Week-race blijft van mensen.
-// - Boven de stand de bot-kaart uit Duels (zelfde bot als daar), tot je DAILY_BOTS_DUELS duels uitspeelde ("wie Duels kent, heeft
-//   de reclame niet meer nodig"). Tik op een bot = dezelfde kaart zonder band (de rij is de kop), met zijn reactie op vandaag.
+// - Boven de stand de bot-kaart uit Duels (zelfde bot als daar), voor iedereen (27/11; tot 26/11 alleen tot je 3 duels uitspeelde).
+//   Tik op een bot = dezelfde kaart zonder band (de rij is de kop), met zijn reactie op vandaag.
 // Eén aanroep per eindscherm, parallel met de rest. Mislukt die, dan is het eindscherm zoals vóór 23/11.
 // Teksten apart (zoals RT_I18N): de taalblokken liggen ver uit elkaar en gzip kijkt maar 32 KB terug.
 const BOTS_I18N = {
@@ -10027,7 +10027,6 @@ const BOTS_I18N = {
         ew_dare: "te desafia", ew_bot_aria: (n) => `${n} te desafia`, ew_tl_aria: "Timeline do dia", ew_new: "Novo" },
 };
 for (const c in BOTS_I18N) Object.assign(I18N[c], BOTS_I18N[c]);
-const DAILY_BOTS_DUELS = 3;
 let dailyBots = null;   // { date, days: { "YYYY-MM-DD": [{ key, score, won, guess_blocks, …hints }] }, bots: [{ key, name, flair, elo, w, l, bw, bl }], duels }
 async function fetchDailyBots(date) {
   if (dailyBots && dailyBots.date === date) return dailyBots;
@@ -10040,7 +10039,7 @@ async function fetchDailyBots(date) {
 // Voor het eindscherm: de bots, en /duel.js erbij als de kaart erboven komt (dan staat hij er meteen, zonder verspringen).
 async function fetchDailyBotsForRecap(date) {
   const db = await fetchDailyBots(date);
-  if (db && db.bots.length && db.duels < DAILY_BOTS_DUELS) await withTimeout(loadDuel(), 3000).catch(() => null);
+  if (db && db.bots.length) await withTimeout(loadDuel(), 3000).catch(() => null);
   return db;
 }
 // De bots van één dag, met naam en flair erbij (in de volgorde van de server: Pip, Robo, Prof).
@@ -10118,21 +10117,18 @@ function soloBotsHtml(db = dailyBots) {
 // play bot of play timeline?"; na v2 "waarom is het zo lelijk op blauw … voelt als een downgrade … eerst diepere kleuren, ik ga dit nu
 // spelen!!" → "B is super leuk", mockup https://claude.ai/artifact/GLs8h6kJ5q3sjYH6DjhoNz v3 B "Kaarten"). Verving de bot-kaart uit
 // Duels (154 px; 7 tikken op 186 uitgespeelde dailies, 23–26/11). CSS bij .ew in style.css.
-// - Links de bot die klaarstaat (dezelfde keuze als in Duels), tot je DAILY_BOTS_DUELS duels uitspeelde en niet als de bots in je team
-//   uit staan. Zijn bandkleur (faceHue), hij springt uit zijn kaart; tik = spelen in de onthouden vorm (⚡/⚔️ achter zijn naam; kiezen
+// - Links de bot die klaarstaat (dezelfde keuze als in Duels), niet als de bots in je team uit staan. Zijn bandkleur (faceHue), hij springt uit zijn kaart; tik = spelen in de onthouden vorm (⚡/⚔️ achter zijn naam; kiezen
 //   doe je in Duels of op de kaart onder een botrij). Meetpunt daily-bot-card, zoals de oude kaart.
-// - Rechts de kaartrug van Timeline met de stapel erachter, zolang je de Timeline-daily van vandaag nog niet speelde; tik = Timeline (die
-//   opent zelf de daily). "Nieuw" zolang je Timeline nooit opende (tlKnown). Meetpunt end-tl (end-tl-new met "Nieuw").
-// - Valt er één weg, dan is de ander de hele rij (.solo, met een ›); allebei weg = niets. .go = het moment (armRecapPlay).
+// - Rechts de kaartrug van Timeline met de stapel erachter; tik = Timeline (die opent zelf de daily als je die nog niet speelde, anders
+//   een vrije run). "Nieuw" zolang je Timeline nooit opende (tlKnown). Meetpunt end-tl (end-tl-new met "Nieuw").
+// - 27/11 (zijn "die 2 items altijd maken voor iedereen: 1 makkelijker 2 het blijft reclame ook al heb je timelines ooit gespeeld en
+//   duels"): beide kaarten altijd, ook na 3 duels en na je Timeline-daily. Alleen zonder bot (bots uit in je team, of get_daily_bots /
+//   /duel.js mislukte) is Timeline de hele rij (.solo, met een ›). .go = het moment (armRecapPlay).
 const BOT_MODE_KEY = "jaardle:bot-mode";   // = BOTMODE_KEY in /duel.js ("b" = ⚔️ Best of 5, anders ⚡ knock-out); hier alleen lezen
 function recapBotReady(db = dailyBots) {
   const D = window.Duel;
-  if (teamBotsOff() || !D?.daily || !db || !db.bots.length || db.duels >= DAILY_BOTS_DUELS) return null;
+  if (teamBotsOff() || !D?.daily || !db || !db.bots.length) return null;
   try { return D.daily.ready(duelHost(), db.bots) || null; } catch (e) { return null; }
-}
-// Je Timeline-daily van vandaag: op dit toestel (jaardle:tl:days) of bij de server (get_my_streak_state, die het eindscherm al ophaalde)
-function tlDailyDone(date = todayKey()) {
-  return tlDaysForMe().includes(date) || !!streakExtrasCache?.tlServer?.includes(date);
 }
 function playCardsHtml(bot, tl, fresh = false) {
   if (!bot && !tl) return "";
@@ -10148,8 +10144,7 @@ function playCardsHtml(bot, tl, fresh = false) {
     `${tl && fresh ? `<span class="ew-new" aria-hidden="true">${escHtml(t("ew_new"))}</span>` : ""}</div>`;
 }
 function recapPlayHtml(db = dailyBots) {
-  const tl = !tlDailyDone();
-  return playCardsHtml(recapBotReady(db), tl, tl && !tlKnown());
+  return playCardsHtml(recapBotReady(db), true, !tlKnown());
 }
 // opnieuw tekenen na ⚡/⚔️ of de schakelaar Bots (zonder het moment); de kaarten staan direct onder Delen
 function renderRecapPlay() {
