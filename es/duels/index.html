@@ -28,7 +28,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-8HagyFZmQxJNI2BRKafZlri752QmuYZ0vAUw8gwP1FI=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-vgrI/QFPB1IAgj150/LODs6z1Tdas12HBcBhdrgFmy4=' 'sha256-kz+du1vCBTkWhLMGhiUSPP+iGhPAT6ej0oI4YISTEuo=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
      synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=523 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
@@ -130,10 +130,13 @@
   })();
   // Emoji-font voorladen, en alleen het bestand dat deze browser ook gebruikt:
   // de @font-face in style.css kiest met tech() tussen COLRv1 (Chromium, Firefox)
-  // en OpenType-SVG (Safari/iOS). Het SVG-font is zwaarder en krijgt lage
-  // voorrang, zodat het de eerste paint niet ophoudt.
+  // en OpenType-SVG (Safari op macOS). Het SVG-font is zwaarder en krijgt lage
+  // voorrang, zodat het de eerste paint niet ophoudt. iPhone/iPad krijgen geen
+  // emoji-font (iOS 27 tekent OT-SVG niet, dus Apple-emoji; zie style.css) en
+  // laden dus ook niets voor: dezelfde @supports-test als daar.
   (function () {
     try {
+      if (CSS.supports("-webkit-touch-callout", "none")) return;
       var colr = CSS.supports("font-tech(color-COLRv1)");
       if (!colr && !CSS.supports("font-tech(color-SVG)")) return;
       var l = document.createElement("link");
@@ -180,7 +183,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=265">
+<link rel="stylesheet" href="/style.css?v=266">
 </head>
 <body>
   <main>

@@ -121,10 +121,13 @@
   })();
   // Emoji-font voorladen, en alleen het bestand dat deze browser ook gebruikt:
   // de @font-face in style.css kiest met tech() tussen COLRv1 (Chromium, Firefox)
-  // en OpenType-SVG (Safari/iOS). Het SVG-font is zwaarder en krijgt lage
-  // voorrang, zodat het de eerste paint niet ophoudt.
+  // en OpenType-SVG (Safari op macOS). Het SVG-font is zwaarder en krijgt lage
+  // voorrang, zodat het de eerste paint niet ophoudt. iPhone/iPad krijgen geen
+  // emoji-font (iOS 27 tekent OT-SVG niet, dus Apple-emoji; zie style.css) en
+  // laden dus ook niets voor: dezelfde @supports-test als daar.
   (function () {
     try {
+      if (CSS.supports("-webkit-touch-callout", "none")) return;
       var colr = CSS.supports("font-tech(color-COLRv1)");
       if (!colr && !CSS.supports("font-tech(color-SVG)")) return;
       var l = document.createElement("link");
@@ -171,7 +174,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=265">
+<link rel="stylesheet" href="/style.css?v=266">
 </head>
 <body>
   <main>

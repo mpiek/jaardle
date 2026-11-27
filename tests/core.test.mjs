@@ -4461,6 +4461,11 @@ test("emoji op Safari/iOS — het SVG-font staat als tweede bron naast het COLRv
   assert.deepEqual(face, ['url("/fonts/jaardle-emoji.woff2") format("woff2") tech(color-COLRv1)', 'url("/fonts/jaardle-emoji-svg.woff2") format("woff2") tech(color-SVG)'],
     "COLRv1 eerst (Firefox leest beide en moet de lichte pakken); elke bron achter tech(), want de basisglyphs zijn leeg en een browser die het formaat niet leest zou niets tekenen");
   assert.equal((css.match(/font-family: "JaardleEmoji";/g) || []).length, 1, "één @font-face, dus één unicode-range voor beide bestanden");
+  // iOS 27 zegt ja op tech(color-SVG) maar tekent geen OT-SVG-glyph: lege plekken (27/11). iPhone/iPad krijgen dus géén emoji-font
+  // (Apple-emoji); -webkit-touch-callout kent alleen WebKit op iOS, macOS-Safari/Chrome/Firefox houden de Noto-font.
+  assert.match(css, /@supports not \(-webkit-touch-callout: none\) \{\s*@font-face \{\s*font-family: "JaardleEmoji";[^}]*\/\* EMOJI-RANGE:START \*\/\s*unicode-range: [^;]+;\s*\/\* EMOJI-RANGE:END \*\/\s*\}\s*\}/,
+    "de @font-face (met de range-markers) staat binnen @supports not (-webkit-touch-callout: none): geen emoji-font op iOS");
+  assert.match(tpl, /if \(CSS\.supports\("-webkit-touch-callout", "none"\)\) return;\s*var colr = /, "op iOS niets voorladen, dezelfde test als de @supports in style.css");
   assert.match(tpl, /var colr = CSS\.supports\("font-tech\(color-COLRv1\)"\);\s*if \(!colr && !CSS\.supports\("font-tech\(color-SVG\)"\)\) return;/, "geen van beide formaten: niets voorladen");
   assert.match(tpl, /l\.href = colr \? "\/fonts\/jaardle-emoji\.woff2" : "\/fonts\/jaardle-emoji-svg\.woff2";\s*if \(!colr\) l\.fetchPriority = "low";/, "dezelfde keuze als de @font-face; het zware bestand met lage voorrang");
   assert.ok(!/emoji=svg/.test(tpl) && !/new FontFace\(/.test(tpl), "de proef-tak (?emoji=svg) is weg");

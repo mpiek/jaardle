@@ -30,6 +30,12 @@ laadt alleen het bestand voor dat de browser gaat gebruiken. Op 14/11/2026 als
 proef achter ?emoji=svg in echte Safari bekeken (Sauce Labs), daarna voor
 iedereen aangezet.
 
+iPhone/iPad krijgen sinds 27/11/2026 géén van beide: iOS 27 zegt ja op
+tech(color-SVG) maar tekent geen glyph uit een OT-SVG-font (lege plekken). De
+@font-face staat daarom in @supports not (-webkit-touch-callout: none) (alleen
+WebKit op iOS kent die eigenschap) en iOS valt terug op Apple-emoji. De markers
+staan dus ingesprongen; de range wordt op dezelfde inspringing teruggezet.
+
 Vereist: fontTools + brotli (pip), en het COLRv1-bronfont (zie SRC_FONT hieronder;
 download eenmalig van googlefonts/noto-emoji → fonts/Noto-COLRv1.ttf, niet gecommit).
 Voor het SVG-font ook nanoemoji, in een eigen venv (zie NANO_BIN hieronder):
@@ -224,7 +230,10 @@ def main() -> int:
     if start in css and end in css:
         pre = css.split(start)[0]
         post = css.split(end, 1)[1]
-        css = f"{pre}{start}\n  unicode-range: {rng};\n  {end}{post}"
+        # zelfde inspringing als de START-marker (de @font-face staat in een
+        # @supports-blok, zie style.css: geen emoji-font op iOS)
+        ind = pre[pre.rfind("\n") + 1:]
+        css = f"{pre}{start}\n{ind}unicode-range: {rng};\n{ind}{end}{post}"
         css_path.write_text(css, encoding="utf-8")
         print(f"✓ style.css unicode-range bijgewerkt ({len(cps)} codepoints)", file=sys.stderr)
     else:
