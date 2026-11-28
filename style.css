@@ -3981,6 +3981,11 @@ html:is([data-theme="light"], [data-theme="parchment"]) {
 .ew-logo-line i:nth-child(1) { left: 6%; background: var(--purple); }
 .ew-logo-line i:nth-child(2) { left: 50%; background: var(--green); }
 .ew-logo-line i:nth-child(3) { left: 94%; background: var(--orange); }
+/* 🟩 28/11: rechts Jaardle, op het eindscherm van de Timeline-daily (bot | Jaardle, /timeline.js): een diepgroene kaart zoals de bot-kaart,
+   met alleen het woord (de blokjes uit de jaren-ernaast eronder waren "niet echt Jaardle"). */
+.ew .ew-jl { justify-content: center; transform: rotate(2deg);
+  background: var(--ew-stripe), linear-gradient(135deg, #3d9441 0%, #164a1c 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.32), 0 9px 16px -10px rgba(0, 0, 0, 0.8); }
 .ew-new { position: absolute; z-index: 4; top: 0.2rem; right: 0.15rem; padding: 0.14rem 0.36rem 0.12rem; border-radius: 999px; font-size: 0.56rem; font-weight: 900;
   letter-spacing: 0.1em; line-height: 1.15; text-transform: uppercase; color: var(--ew-tl-edge); background: #fff; transform: rotate(6deg);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); pointer-events: none; }
@@ -3990,6 +3995,7 @@ html:is([data-theme="light"], [data-theme="parchment"]) {
 .ew.solo .ew-tl { transform: rotate(1deg); justify-content: flex-start; padding-left: 1rem; }
 .ew.solo .ew-tl::before { transform: translate(5px, -4px) rotate(1.2deg); }   /* een brede kaart draait verder uit: de waaier kleiner */
 .ew.solo .ew-tl::after { transform: translate(9px, -7px) rotate(2.4deg); }
+.ew.solo .ew-jl { transform: rotate(1deg); justify-content: flex-start; padding-left: 1rem; }
 @media (max-width: 380px) {   /* 360 px: de kaarten iets dichter op elkaar, zodat "daagt je uit" heel blijft */
   .ew { gap: 0.6rem; padding-right: 0.55rem; }
   .ew > button { padding-right: 0.45rem; }
@@ -4006,6 +4012,7 @@ html:is([data-theme="light"], [data-theme="parchment"]) {
   .ew.go .ew-logo-line i:nth-child(2) { animation-delay: 0.72s; }
   .ew.go .ew-logo-line i:nth-child(3) { animation-delay: 0.84s; }
   .ew.go .ew-new { animation: ew-pop 0.4s 0.95s cubic-bezier(0.2, 0.9, 0.3, 1.6) backwards; }
+  .ew.go .ew-jl { animation: ew-deal-r 0.55s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
 }
 @keyframes ew-deal-l { from { transform: translate(-14px, 18px) rotate(-12deg); opacity: 0; } }
 @keyframes ew-deal-r { from { transform: translate(14px, 18px) rotate(12deg); opacity: 0; } }

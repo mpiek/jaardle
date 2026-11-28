@@ -137,7 +137,8 @@ test("de deur naast 🌐 gaat rond: Jaardle → Duels → Timeline → Jaardle; 
   const GAME = readFileSync(join(ROOT, "game.js"), "utf8"), CSS = readFileSync(join(ROOT, "style.css"), "utf8");
   const TPL = readFileSync(join(ROOT, "index.template.html"), "utf8");
   assert.match(GAME, /const DOOR_NEXT = \{ j: "duels", d: "timeline", t: "" \};/);
-  assert.match(GAME, /if \(at === "j"\) \{ newsSeen\("duels"\); openDuels\("door"\); \}\n\s+else if \(at === "d"\) openTimeline\("door"\);\n\s+else worldGo\("j", \(\) => Promise\.resolve\(null\), \(\) => \{ closeModal\(TL_PAGE\); return firstGameP; \}, \(\) => firstGameDone\);/);
+  assert.match(GAME, /if \(at === "j"\) \{ newsSeen\("duels"\); openDuels\("door"\); \}\n\s+else if \(at === "d"\) openTimeline\("door"\);\n\s+else goJaardle\(\);/);
+  assert.match(GAME, /function goJaardle\(\) \{ return worldGo\("j", \(\) => Promise\.resolve\(null\), \(\) => \{ closeModal\(TL_PAGE\); return firstGameP; \}, \(\) => firstGameDone\); \}/, "Timeline → Jaardle (de deur en de Jaardle-kaart op het eindscherm van de daily)");
   assert.match(GAME, /function worldNow\(\) \{ const b = document\.body; return b\.hasAttribute\("data-tlhome"\) \? "t" : b\.hasAttribute\("data-duelshome"\) \? "d" : "j"; \}/);
   assert.match(GAME, /function appPageSet\(id, on\) \{[^]*?syncDoor\(\);\n\}/, "elke wissel van pagina zet de deur goed");
   // de drie tegels in de deur; per plek de eigen tegel voor (22/11 avond, zijn "logo verwacht van waar je nu bent") en het eigen stipje aan

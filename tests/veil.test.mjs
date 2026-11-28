@@ -191,7 +191,7 @@ test("game.js: elke weg naar een spel gaat via worldGo, en elk geopend adres haa
   assert.match(GAME, /function goDuels\(\) \{ return worldGo\("d", loadDuel, \(D\) => D\.openList\(duelHost\(\), \{\}\), \(\) => window\.Duel\?\.listed\?\.\(\)\); \}/);
   assert.match(GAME, /function openDuels\(src = "menu"\) \{[^}]*gcCount\("duel-list"[^}]*\);\n  goDuels\(\);\n\}/, "de deur, de nieuwsbalk");
   assert.match(GAME, /return worldGo\("t", loadTl, \(TL\) => TL\.open\(tlHost\(\)\), \(\) => window\.JaardleTimeline\?\.ready\?\.\(\)\);/);
-  assert.match(GAME, /else worldGo\("j", \(\) => Promise\.resolve\(null\), \(\) => \{ closeModal\(TL_PAGE\); return firstGameP; \}, \(\) => firstGameDone\);/, "Timeline → Jaardle");
+  assert.match(GAME, /function goJaardle\(\) \{ return worldGo\("j", \(\) => Promise\.resolve\(null\), \(\) => \{ closeModal\(TL_PAGE\); return firstGameP; \}, \(\) => firstGameDone\); \}/, "Timeline → Jaardle");
   assert.match(GAME, /if \(w && w\.n === 1\) loadDuel\(\)\.then\(\(D\) => D\.fromEnd\(duelHost\(\), w\)\)\.catch\(\(\) => \{\}\);\n\s+else goDuels\(\);/, "het ⚔️-stuk op het eindscherm: meer of niets = het Duels-scherm");
   assert.ok(!/kopSwap\("in", \(\) => \{ (D\.openList|TL\.open)/.test(GAME), "geen schuif meer langs worldGo heen");
   // init: de daily laadt altijd; Jaardle staat er pas als dat potje er staat

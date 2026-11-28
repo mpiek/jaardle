@@ -6032,6 +6032,17 @@ test("playCardsHtml — twee kaarten; valt er één weg, dan is de ander de hele
   assert.ok(!tl.includes("ew-bot"));
 });
 
+test("playCardsHtml — op het eindscherm van de Timeline-daily bot | Jaardle (28/11); zonder bot alleen Jaardle", () => {
+  const both = T.playCardsHtml(BOTS_META[0], false, false, true);
+  assert.match(both, /^<div class="ew" style="--h:\d+">/, "twee kaarten, met de bandkleur van de bot");
+  assert.match(both, /<button type="button" class="ew-bot" data-bot="pip"[^]*<button type="button" class="ew-jl" aria-label="Jaardle">/, "bot links, Jaardle rechts");
+  assert.ok(!both.includes("ew-tl") && !both.includes("ew-new"), "geen Timeline-kaart en geen Nieuw");
+  const jl = T.playCardsHtml(null, false, false, true);
+  assert.match(jl, /^<div class="ew solo">/);
+  assert.ok(jl.includes('<span class="ew-logo-txt">Jaardle</span></span>') && !jl.includes("<i>"), "alleen het woord, geen blokjes");
+  assert.ok(!jl.includes("ew-bot"));
+});
+
 test("playCardsHtml — ⚡ of ⚔️ achter de naam volgt de onthouden vorm uit /duel.js; de naam wordt ge-escaped", () => {
   try {
     localStorage.removeItem("jaardle:bot-mode");

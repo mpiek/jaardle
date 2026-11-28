@@ -5259,8 +5259,10 @@ function doorTap() {
   const at = worldNow();
   if (at === "j") { newsSeen("duels"); openDuels("door"); }
   else if (at === "d") openTimeline("door");
-  else worldGo("j", () => Promise.resolve(null), () => { closeModal(TL_PAGE); return firstGameP; }, () => firstGameDone);   // Timeline → Jaardle (de daily laadt altijd mee)
+  else goJaardle();
 }
+// Timeline → Jaardle (de deur, en sinds 28/11 de Jaardle-kaart op het eindscherm van de Timeline-daily); de daily laadt altijd mee
+function goJaardle() { return worldGo("j", () => Promise.resolve(null), () => { closeModal(TL_PAGE); return firstGameP; }, () => firstGameDone); }
 // Het JAARDLE-logo echt in het midden van de kop als er ruimte is (23/11/2026), zoals DUELS (centerLogo in /duel.js) en TIMELINE: de flex
 // zet het tussen de deur en de schakelaar 📅|🎲, dit schuift het naar het midden van de hele kop, maar nooit dichter dan 6 px bij die
 // twee. Opnieuw bij elke maatwissel (ResizeObserver in init: de kop, de menuknop met je naam, het logo dat terugkomt na Duels/Timeline).
@@ -5366,7 +5368,9 @@ function tlHost() {
     // 🃏 db/240: de kaartstijl (alleen ingelogd en verdiend), het lui geladen tekenbestand, en het prestatie-kaartje op het eindscherm van een run
     cards: cardStyleActive, cardsFx: loadCardsFx, tlAchv: (box) => checkTimelineAchievements(box),
     // 📅 db/241: je streak onder je uitslag van de daily (één streak voor beide dailies); fresh = de server weet net van deze dag
-    tlStreak: tlStreakHtml, celebrate: tlCelebrate };
+    tlStreak: tlStreakHtml, celebrate: tlCelebrate,
+    // 🃏 28/11: bot | Jaardle onder je uitslag van de daily (de rij van het Jaardle-eindscherm) en het moment waarop die gedeeld wordt
+    playCards: tlPlayCards, armPlay };
 }
 // 📅 Een foutloze Timeline-daily (7/7) krijgt je viering, zoals een gewonnen Jaardle-daily (26/11, rapport 2 #7, zijn "7prima"). Dezelfde
 // volgorde als bij een winst: feestdag, je event-viering, de scheurkalender, gouden jaartallen, bier, anders confetti. De gouden jaartallen
@@ -10126,14 +10130,18 @@ function soloBotsHtml(db = dailyBots) {
 // - 27/11 (zijn "die 2 items altijd maken voor iedereen: 1 makkelijker 2 het blijft reclame ook al heb je timelines ooit gespeeld en
 //   duels"): beide kaarten altijd, ook na 3 duels en na je Timeline-daily. Alleen zonder bot (bots uit in je team, of get_daily_bots /
 //   /duel.js mislukte) is Timeline de hele rij (.solo, met een ›). .go = het moment (armRecapPlay).
+// - 28/11 (zijn "kan je bij timeline na daily ook die 2 icons toevoegen van robot daagt je uit en nog een voor de jaardle zelf"): dezelfde
+//   rij op het eindscherm van de Timeline-daily, met rechts Jaardle (jl) in plaats van Timeline: een groene kaart met alleen het woord
+//   (eerst ook vijf blokjes uit de jaren-ernaast: "da's niet echt Jaardle"). /timeline.js haalt hem via tlHost().playCards (tlPlayCards);
+//   de klikken staan hieronder bij de rest.
 const BOT_MODE_KEY = "jaardle:bot-mode";   // = BOTMODE_KEY in /duel.js ("b" = ⚔️ Best of 5, anders ⚡ knock-out); hier alleen lezen
 function recapBotReady(db = dailyBots) {
   const D = window.Duel;
   if (teamBotsOff() || !D?.daily || !db || !db.bots.length) return null;
   try { return D.daily.ready(duelHost(), db.bots) || null; } catch (e) { return null; }
 }
-function playCardsHtml(bot, tl, fresh = false) {
-  if (!bot && !tl) return "";
+function playCardsHtml(bot, tl, fresh = false, jl = false) {
+  if (!bot && !tl && !jl) return "";
   let mode = "k";
   try { mode = localStorage.getItem(BOT_MODE_KEY) === "b" ? "b" : "k"; } catch (e) {}
   const b = bot ? `<button type="button" class="ew-bot" data-bot="${escHtml(bot.key)}" aria-label="${escHtml(t("ew_bot_aria")(bot.name))}">` +
@@ -10142,8 +10150,17 @@ function playCardsHtml(bot, tl, fresh = false) {
   const tlB = tl ? `<button type="button" class="ew-tl${fresh ? " ew-fresh" : ""}" aria-label="${escHtml(t("ew_tl_aria"))}"><span class="ew-face" aria-hidden="true"></span>` +
     `<span class="ew-logo" aria-hidden="true"><span class="ew-logo-txt">Timeline</span><span class="ew-logo-line"><i></i><i></i><i></i></span></span>` +
     `<span class="ew-go" aria-hidden="true">›</span></button>` : "";
-  return `<div class="ew${bot && tl ? "" : " solo"}"${bot ? ` style="--h:${faceHue(bot.name)}"` : ""}>${b}${tlB}` +
+  const jlB = jl ? `<button type="button" class="ew-jl" aria-label="Jaardle"><span class="ew-logo" aria-hidden="true"><span class="ew-logo-txt">Jaardle</span></span>` +
+    `<span class="ew-go" aria-hidden="true">›</span></button>` : "";
+  return `<div class="ew${bot && (tl || jl) ? "" : " solo"}"${bot ? ` style="--h:${faceHue(bot.name)}"` : ""}>${b}${tlB}${jlB}` +
     `${tl && fresh ? `<span class="ew-new" aria-hidden="true">${escHtml(t("ew_new"))}</span>` : ""}</div>`;
+}
+// 🃏 bot | Jaardle voor het eindscherm van de Timeline-daily: dezelfde bot als op het eindscherm van Jaardle (get_daily_bots van vandaag,
+// gedeeld met de recap), rechts Jaardle. Zonder bot (bots uit in je team, of ophalen mislukt) alleen Jaardle, over de hele breedte.
+async function tlPlayCards() {
+  await whenSbReady();
+  const db = teamBotsOff() ? null : await fetchDailyBotsForRecap(todayKey()).catch(() => null);
+  return playCardsHtml(recapBotReady(db), false, false, true);
 }
 function recapPlayHtml(db = dailyBots) {
   return playCardsHtml(recapBotReady(db), true, !tlKnown());
@@ -10157,14 +10174,17 @@ function renderRecapPlay() {
   if (html) body.querySelector(":scope > .recap-share")?.insertAdjacentHTML("afterend", html);
 }
 // het moment (de kaarten worden gedeeld) pas als ze in beeld komen; de recap kan langer zijn dan het scherm
-function armRecapPlay(root) {
-  const ew = root.querySelector(":scope > .ew");
+function armRecapPlay(root) { armPlay(root.querySelector(":scope > .ew")); }
+// settle (de rij op het eindscherm van de Timeline-daily, /timeline.js): .go er na afloop weer af. Daar verhuist de rij bij elke hertekening
+// mee onder de knoppen, en met .go zou hij dan opnieuw gedeeld worden. Zonder .go staat alles al waar de beweging eindigt.
+function armPlay(ew, settle = false) {
   if (!ew) return;
-  if (typeof IntersectionObserver !== "function") { ew.classList.add("go"); return; }
+  const go = () => { ew.classList.add("go"); if (settle) setTimeout(() => ew.classList.remove("go"), 1500); };
+  if (typeof IntersectionObserver !== "function") { go(); return; }
   const io = new IntersectionObserver((ents) => {
     if (!ents.some((x) => x.isIntersecting)) return;
     io.disconnect();
-    ew.classList.add("go");
+    go();
   }, { threshold: 0.6 });
   io.observe(ew);
 }
@@ -10265,6 +10285,21 @@ document.addEventListener("click", (e) => {
     gcCount(fresh ? "end-tl-new" : "end-tl", fresh ? "End screen: Timeline card (new)" : "End screen: Timeline card");
     closeAllModals();
     openTimeline("end");
+    return;
+  }
+  // 🃏 28/11: dezelfde rij op het eindscherm van de Timeline-daily, bot | Jaardle (tlPlayCards). De bot zoals hierboven: alles dicht (ook de
+  // Timeline-pagina), dan zijn potje. Jaardle = wat de deur op de Timeline-pagina doet.
+  if (e.target.closest("#modal-tl .ew-jl")) {
+    gcCount("timeline-daily-jl", "Timeline: Jaardle card on the daily end screen");
+    goJaardle();
+    return;
+  }
+  const tlBot = e.target.closest("#modal-tl .ew-bot");
+  if (tlBot) {
+    if (!window.Duel?.daily) return;
+    gcCount("timeline-daily-bot", "Timeline: bot card on the daily end screen");
+    closeAllModals();
+    window.Duel.daily.go(duelHost(), tlBot.dataset.bot);
     return;
   }
   const card = e.target.closest("#modal-recap .ew-bot, #modal-recap .dl-card.bc-in");

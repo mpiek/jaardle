@@ -573,6 +573,10 @@ body[data-tlhome] #mode-tabs { display: flex; }
   /* klaar, in de smalle kolom: eerst het getal en de knoppen, dan het bord (dat mag onder de vouw) */
   .tl-end-acts { order: 1; margin-top: 0.55rem; flex-wrap: nowrap; }
   .tl-end .tl-tb { order: 2; }
+  /* 🃏 bot | Jaardle (28/11): in de smalle kolom onder elkaar, onder het bord */
+  .tl-end > .ew { order: 3; grid-template-columns: minmax(0, 1fr); gap: 0.85rem; margin-top: 0.75rem; }
+  .tl-end > .ew .ew-bot:not(:hover) { transform: rotate(-1deg); }   /* een brede kaart draait verder uit: minder scheef */
+  .tl-end > .ew .ew-jl:not(:hover) { transform: rotate(1deg); }
   .tl-end-acts .tl-share { flex: none; }
   .tl-end-acts .tl-again { flex: 1 1 auto; min-width: 0; white-space: nowrap; }
 }
@@ -1101,7 +1105,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     const old = GD;
     DY = dy; GD = dailyGame(dy);
     if (GD.resend) finishDaily(GD, true);
-    else if (GD.done) { if (!GD.board) dayBoard(GD); dayStreak(GD); }
+    else if (GD.done) { if (!GD.board) dayBoard(GD); dayStreak(GD); dayPlay(GD); }
     if (old && G === old) { G = GD; if (root) draw({}); }   // gisteren stond op het scherm: nu die van vandaag
     if (root) ensureKop();   // het kalendertje in het schuifje
   }
@@ -1117,6 +1121,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     fitHand();
     if (LVC) CX.paint(root, keep);
     if (G && G.done && G.achvBox && !G.achvBox.isConnected) root.querySelector(".tl-end-top")?.after(G.achvBox);
+    if (G && G.done && G.play) placePlay(G);
     const row = root.querySelector(".tl-row");
     if (row) row.scrollLeft = left;
     if (o.show != null) ensureVisible(o.show);
@@ -1215,6 +1220,28 @@ body[data-tlhome] #mode-tabs { display: flex; }
     if (!H || !H.tlStreak) return Promise.resolve();
     return H.tlStreak(!!fresh).then((h) => { g.streakHtml = h || ""; if (G === g && root) draw({}); }).catch(() => {});
   }
+  // 📅 🃏 bot | Jaardle onder Deel en 🎲 (28/11, zijn "kan je bij timeline na daily ook die 2 icons toevoegen van robot daagt je uit en nog
+  // een voor de jaardle zelf"): de rij van het Jaardle-eindscherm (game.js playCardsHtml), rechts nu Jaardle; de klikken zitten in game.js.
+  // Eén element per daily (g.play) dat bij elke draw terug onder de knoppen gaat, zoals het prestatie-kaartje: zo wordt hij niet bij elke
+  // hertekening opnieuw gedeeld. Opnieuw opgehaald bij elk openen van Timeline (de bot die klaarstaat kan intussen een ander zijn).
+  function dayPlay(g) {
+    if (!H || !H.playCards) return;
+    H.playCards().then((html) => {
+      const tpl = document.createElement("template");
+      tpl.innerHTML = html || "";
+      if (g.play) g.play.remove();
+      g.play = tpl.content.firstElementChild || null;
+      if (G === g && root) placePlay(g);
+    }).catch(() => {});
+  }
+  function placePlay(g) {
+    const el = g.play, acts = root.querySelector(".tl-end-acts");
+    if (!el || !acts || !g.daily) return;
+    if (acts.nextElementSibling !== el) acts.after(el);
+    if (el.dataset.armed) return;
+    el.dataset.armed = "1";
+    if (H && H.armPlay) H.armPlay(el, true);
+  }
   // 📅 klaar: je rijtje op dit toestel (voor de streak zonder account), dan één aanroep naar de server (natellen + het bord van vandaag), dan je
   // streak. quiet = een daily die al klaar was maar die de server nog niet kende (opnieuw sturen bij het openen).
   async function finishDaily(g, quiet) {
@@ -1223,6 +1250,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     saveDay(g.day, m, mv); dropProg();
     const live = !!(H && H.rpc && (myUid() || (H.clientId && H.clientId())));
     g.recWait = live && !g.board;
+    dayPlay(g);   // tegelijk met het natellen
     if (!quiet && G === g && root) draw({});
     let res = null;
     if (live) {
@@ -1829,6 +1857,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
     ensureCss(); ensurePage(); ensureKop();
     H.openModal(PAGE_ID);
     center();
+    if (G && GD && GD.done) dayPlay(GD);   // 🃏 bot | Jaardle vers (een andere bot, of ⚡/⚔️ gewisseld in Duels)
     if (G || loading) draw(); else start(true);
     return loading ? new Promise((r) => loadWait.push(r)) : Promise.resolve();
   }
