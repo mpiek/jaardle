@@ -151,13 +151,14 @@ test("vroege puzzel — een fout (HTTP 500 of netwerk) geeft een afgewezen belof
 });
 
 // ── De bridge (onderaan) ───────────────────────────────────────────────────────────────────────────────────────────────
-function runBridge({ session = null, lib = true, early } = {}) {
-  const events = [], calls = [], created = [];
+function runBridge({ session = null, lib = true, early, sessions, store } = {}) {
+  const events = [], calls = [], created = [], opts = [];
   let authCb = null;
   const client = {
     rpc: async (fn, args) => { calls.push([fn, args]); return { data: { via: "client", fn }, error: null }; },
     auth: {
-      getSession: () => Promise.resolve({ data: { session } }),
+      // sessions: wat getSession achtereenvolgens teruggeeft (de laatste blijft); anders steeds `session`
+      getSession: () => Promise.resolve({ data: { session: sessions ? (sessions.length > 1 ? sessions.shift() : sessions[0]) : session } }),
       onAuthStateChange: (cb) => { authCb = cb; },
       signInWithPassword: async (x) => ({ data: x, error: null }), signUp: async (x) => ({ data: x, error: null }),
       signInWithOAuth: async (x) => ({ data: x, error: null }), resetPasswordForEmail: async () => ({ data: {}, error: null }),
@@ -165,17 +166,21 @@ function runBridge({ session = null, lib = true, early } = {}) {
     },
   };
   const sandbox = {
-    Promise, Error,
+    Promise, Error, setTimeout, clearTimeout,
     sbConfig: CFG, sbEarly: early,
     location: { origin: "https://jaardle.com", pathname: "/nl/" },
     Event: class { constructor(type) { this.type = type; } },
     CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init && init.detail; } },
     dispatchEvent: (e) => { events.push(e); return true; },
   };
-  if (lib) sandbox.supabase = { createClient: (url, key) => { created.push([url, key]); return client; } };
+  if (store) {
+    sandbox.localStorage = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: (k) => { delete store[k]; } };
+    sandbox.setTimeout = (f) => setTimeout(f, 0);   // de herkansingen (1,5 / 3 / 4,5 s) direct
+  }
+  if (lib) sandbox.supabase = { createClient: (url, key, o) => { created.push([url, key]); opts.push(o); return client; } };
   sandbox.window = sandbox;
   vm.runInNewContext(bridgeScript(), sandbox);
-  return { w: sandbox, events, calls, created, fireAuth: (ev, s) => authCb(ev, s) };
+  return { w: sandbox, events, calls, created, opts, client, fireAuth: (ev, s) => authCb(ev, s) };
 }
 const tick = () => new Promise((r) => setTimeout(r, 0));
 const SESSION = { user: { id: "u-1", email: "a@example.invalid", user_metadata: { avatar_url: "https://img/a.png", full_name: "Aussie Ann" } } };
@@ -230,6 +235,84 @@ test("bridge — rpc: de vroege get_daily wordt één keer hergebruikt (zelfde d
   assert.equal((await r.w.sb.rpc("get_x")).via, "client");
   assert.equal(r.calls[1][0], "get_x");
   assert.deepEqual({ ...r.calls[1][1] }, {}, "args default naar {}");
+});
+
+// 28/11/2026: op zijn telefoon (app op het startscherm + Chrome-tabblad, één opslag) zei supabase-js "geen sessie" terwijl er een in
+// de opslag stond, en verdween de sleutel zonder fout bij de server. Bridge: pas na herkansingen anoniem, en een logboek op het toestel.
+const KEY = "sb-" + CFG.url.replace(/^https?:\/\//, "").split(".")[0] + "-auth-token";
+const STORED = JSON.stringify({ access_token: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1LTEiLCJleHAiOjF9.c2lnbmF0dXJlLWhpZXI", refresh_token: "rt-abc", expires_at: 1 });
+const settled = () => new Promise((r) => setTimeout(r, 20));
+
+test("bridge — supabase-js zonder lock (standaard), met onze opslag-adapter en een debug-logger; de adapter is gewoon localStorage", () => {
+  const store = {};
+  const { opts } = runBridge({ store });
+  const auth = opts[0].auth;
+  assert.equal(auth.lock, undefined, "geen lock meegeven: 2.108 werkt standaard zonder; een lock zet de oude route weer aan");
+  assert.equal(typeof auth.debug, "function");
+  auth.storage.setItem("x", "1");
+  assert.equal(store.x, "1");
+  assert.equal(auth.storage.getItem("x"), "1");
+  auth.storage.removeItem("x");
+  assert.equal(store.x, undefined);
+  assert.equal(auth.storage.getItem("x"), null);
+});
+
+test("bridge — 'geen sessie' terwijl de opslag er een heeft: niet meteen anoniem; vindt een herkansing hem, dan ingelogd (auth-null + auth-healed)", async () => {
+  const store = { [KEY]: STORED };
+  const { w, events } = runBridge({ store, sessions: [null, SESSION] });
+  await settled();
+  const changed = events.filter((e) => e.type === "sb-auth-changed");
+  assert.equal(changed.length, 1, "één melding, pas na de herkansing");
+  assert.equal(changed[0].detail.uid, "u-1");
+  assert.deepEqual([...w.sbAuthNotes], ["null", "healed"]);
+  const log = JSON.parse(store["jaardle:authlog"]);
+  assert.deepEqual(log.map((x) => x.why), ["null", "healed"]);
+  assert.equal(store["jaardle:authseen"], "1");
+  assert.ok(!store["jaardle:authlog"].includes("eyJ") && !store["jaardle:authlog"].includes("rt-abc"), "geen tokens in het logboek");
+});
+
+test("bridge — blijft het 'geen sessie' (drie herkansingen), dan toch anoniem; zonder sessie in de opslag meteen anoniem en geen meetpunt", async () => {
+  const store = { [KEY]: STORED };
+  const r = runBridge({ store, sessions: [null] });
+  await settled();
+  const changed = r.events.filter((e) => e.type === "sb-auth-changed");
+  assert.equal(changed.length, 1);
+  assert.equal(changed[0].detail, null);
+  assert.deepEqual([...r.w.sbAuthNotes], ["null"], "één meetpunt per reeks herkansingen");
+
+  const anon = runBridge({ store: {}, sessions: [null] });
+  await tick();
+  assert.equal(anon.events.filter((e) => e.type === "sb-auth-changed").length, 1, "anoniem: meteen, zoals altijd");
+  assert.deepEqual([...anon.w.sbAuthNotes], []);
+});
+
+test("bridge — SIGNED_OUT zonder ⋮-menu = meetpunt auth-out; zelf uitloggen niet; sleutel weg tussen twee bezoeken = auth-lost", async () => {
+  const store = {};
+  const r = runBridge({ store, session: SESSION });
+  await tick();
+  r.fireAuth("SIGNED_OUT", null);
+  assert.deepEqual([...r.w.sbAuthNotes], ["out"]);
+  assert.equal(r.w.sbAuthState.user, null);
+  assert.equal(store["jaardle:authseen"], undefined, "uitgelogd gemeld: geen 'lost' bij het volgende bezoek");
+  await r.w.sbAuth.signOut();
+  r.fireAuth("SIGNED_OUT", null);
+  assert.deepEqual([...r.w.sbAuthNotes], ["out"], "zelf uitgelogd: geen afwijking");
+
+  const lost = runBridge({ store: { "jaardle:authseen": "1", "jaardle:authlog-last": JSON.stringify({ lines: ["vorig venster"] }) } });
+  assert.deepEqual([...lost.w.sbAuthNotes], ["lost"]);
+});
+
+test("bridge — de opslag-adapter schrijft op wie de sessie wist (aanroepers uit de stack), en ?authlog toont het logboek", () => {
+  const store = { [KEY]: STORED };
+  const r = runBridge({ store });
+  r.opts[0].auth.storage.removeItem(KEY);
+  assert.equal(store[KEY], undefined);
+  r.w.sbAuthNotes.length = 0;
+  r.fireAuth("SIGNED_OUT", null);   // supabase-js meldt dit na het wissen
+  const entry = JSON.parse(store["jaardle:authlog"]).at(-1);
+  assert.equal(entry.why, "out");
+  assert.ok(entry.lines.some((l) => / removeItem \S/.test(l)), "regel met removeItem + aanroepers");
+  assert.match(bridgeScript(), /\[\?&\]authlog\\b/, "?authlog opent het logboek");
 });
 
 test("bridge — bibliotheek niet geladen: geen eeuwig wachten; sb-ready komt, rpc weigert met de bekende melding en er is geen sbAuth", async () => {

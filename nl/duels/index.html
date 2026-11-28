@@ -28,11 +28,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-eRaV2FHVuC6rLgHcAKSdFXf7uu1OJ/mNMSywC2ALaL8=' 'sha256-8BRIjDWKCIo5PaxkrdtUz/o7BF/wLonVncP3hbevHJI=' 'sha256-8KpEKqVE0b/dNR9S87tEFE2/EDCM3v2Bs8MbnDFGWEM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://gc.zgo.at 'sha256-RSmbqXpWKV0L5gzX9dv6p8A4qv5PIjEcVZk35ISR4wU=' 'sha256-eRaV2FHVuC6rLgHcAKSdFXf7uu1OJ/mNMSywC2ALaL8=' 'sha256-8BRIjDWKCIo5PaxkrdtUz/o7BF/wLonVncP3hbevHJI=' 'sha256-sW1Y0Y9mm/369mkxwJaQr4OnZMZ12sSIpnOjjWjmVNw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://cdn.discordapp.com https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com; font-src 'self'; connect-src 'self' https://xyvvkxbhkijjwcvpojru.supabase.co wss://xyvvkxbhkijjwcvpojru.supabase.co https://jaardle.goatcounter.com https://jaardle-events.goatcounter.com">
 <!-- Laadroute (vanuit Australië kost elk retour 0,2–0,5 s): verbinding opwarmen, game.js alvast ophalen terwijl de parser bij het
-     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=528 = de src van de game.js-tag onderaan (build). -->
+     synchrone Supabase-script staat, en de dagpuzzel vroeg vragen. /game.js?v=529 = de src van de game.js-tag onderaan (build). -->
 <link rel="preconnect" href="https://xyvvkxbhkijjwcvpojru.supabase.co" crossorigin>
-<link rel="preload" as="script" href="/game.js?v=528">
+<link rel="preload" as="script" href="/game.js?v=529">
 <script>
   // Supabase-gegevens: één plek, ook voor de bridge onderaan (publieke sleutel; beveiliging = RLS + SECURITY DEFINER-RPC's).
   window.sbConfig = { url: "https://xyvvkxbhkijjwcvpojru.supabase.co", key: "sb_publishable_eWAfRlKW7HCpZgyaYaxbbg__0DWxFsa" };
@@ -561,8 +561,75 @@
         return;
       }
 
-      const client = window.supabase.createClient(window.sbConfig.url, window.sbConfig.key);
+      // Twee vensters tegelijk (28/11/2026, zijn telefoon: de app op het startscherm én een Chrome-tabblad; vier keer opnieuw inloggen
+      // op één dag). Ze delen dezelfde opslag. supabase-js 2.108 werkt zonder lock: een verversing die merkt dat het andere venster de
+      // opslag intussen veranderde, gooit zijn nieuwe tokens weg en meldt "geen sessie" (een 401-reeks op get_my_* om 13:56), terwijl
+      // de opslag nog een sessie kan hebben. Daarom "geen sessie" pas geloven als er ook niets meer in de opslag staat (settle, hieronder).
+      // De sleutel verdween ook zonder dat de server een fout of uitlog zag: de opslag-adapter schrijft bij elke removeItem de aanroepers op.
+      const SB_KEY = "sb-" + window.sbConfig.url.replace(/^https?:\/\//, "").split(".")[0] + "-auth-token";
+      // Logboek op het toestel (?authlog toont het): de laatste regels van supabase-js, bewaard zodra de sessie onverwacht wegvalt.
+      // Geen tokens: een sessie wordt "session(exp …)", lange reeksen worden "…".
+      const LOG_KEY = "jaardle:authlog", LAST_KEY = "jaardle:authlog-last", SEEN_KEY = "jaardle:authseen";
+      const lines = [];
+      const scrub = (a) => {
+        if (a == null || typeof a !== "object") return String(a).replace(/[\w-]{24,}/g, "…").slice(0, 400);
+        if (a.access_token) return "session(exp " + a.expires_at + ")";
+        if (a.name && "message" in a) return a.name + ": " + String(a.message).slice(0, 80);   // fouten
+        try { return JSON.stringify(a, (k, v) => /token|user|secret|password|verifier/i.test(k) ? "…" : v).replace(/[\w-]{24,}/g, "…").slice(0, 160); }
+        catch (e) { return "{…}"; }
+      };
+      // Ruis: elke RPC leest de sessie, en de verversings-tik loopt elke 30 s. De verversing zelf logt #_callRefreshToken.
+      const NOISE = /^#(_acquireLock|__loadSession|getSession|_useSession)|^#_autoRefreshTokenTick\(\) (begin|end|access token expires)/;
+      const note = (...a) => {
+        if (NOISE.test(String(a[0]) + " " + (typeof a[1] === "string" ? a[1] : ""))) return;
+        lines.push(new Date().toISOString().slice(11, 23) + " " + a.map(scrub).join(" "));
+        if (lines.length > 80) lines.shift();
+      };
+      const readJson = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
+      const stored = () => !!readJson(SB_KEY, null)?.refresh_token;
+      window.sbAuthNotes = [];   // game.js telt ze als meetpunt auth-<naam>
+      const keep = (why, extra) => {
+        note("bridge:", why);
+        try {
+          const all = readJson(LOG_KEY, []);
+          all.push({ at: new Date().toISOString(), why, page: location.pathname, lines: lines.slice(-40), ...extra });
+          localStorage.setItem(LOG_KEY, JSON.stringify(all.slice(-6)));
+        } catch (e) {}
+        window.sbAuthNotes.push(why);
+        window.dispatchEvent(new Event("sb-auth-note"));
+      };
+      const saveLast = () => { try { if (lines.length) localStorage.setItem(LAST_KEY, JSON.stringify({ at: new Date().toISOString(), page: location.pathname, lines: lines.slice(-30) })); } catch (e) {} };
+      // Was je ingelogd en is de sleutel er nu niet meer, zonder dat een venster hier "uitgelogd" meldde? Bewaar de laatste regels van het vorige venster.
+      if (readJson(SEEN_KEY, null) && !stored()) keep("lost", { prev: readJson(LAST_KEY, null) });
+      if (typeof document === "object") {
+        document.addEventListener("visibilitychange", () => { note("bridge: visibility", document.visibilityState); if (document.visibilityState === "hidden") saveLast(); });
+        if (/[?&]authlog\b/.test(location.search)) window.addEventListener("load", () => {
+          const pre = document.createElement("pre");
+          pre.textContent = JSON.stringify({ log: readJson(LOG_KEY, []), last: readJson(LAST_KEY, null), now: lines }, null, 1);
+          Object.assign(pre.style, { position: "fixed", inset: "0", zIndex: "99999", margin: "0", padding: "12px", overflow: "auto",
+            background: "#111", color: "#eee", font: "11px/1.35 monospace", whiteSpace: "pre-wrap" });
+          pre.onclick = () => { navigator.clipboard?.writeText(pre.textContent).catch(() => {}); pre.remove(); };   // tik = kopiëren + dicht
+          document.body.appendChild(pre);
+        });
+      }
 
+      // Dezelfde localStorage als de standaard van supabase-js (met geheugen als terugval, zoals hij in privé-modus doet), plus: wie wist de sessie?
+      const mem = {};
+      const storage = {
+        getItem: (k) => { if (k in mem) return mem[k]; try { return localStorage.getItem(k); } catch (e) { return null; } },
+        setItem: (k, v) => { try { localStorage.setItem(k, v); delete mem[k]; } catch (e) { mem[k] = v; } },
+        removeItem: (k) => {
+          if (k === SB_KEY) note("removeItem", String(new Error().stack || "").split("\n").slice(2, 8)
+            .map((s) => s.trim().replace(/^at /, "").replace(/\(?\S*\/([^/\s)]+)\)?$/, "$1")).join(" < "));
+          delete mem[k];
+          try { localStorage.removeItem(k); } catch (e) {}
+        },
+      };
+      const client = window.supabase.createClient(window.sbConfig.url, window.sbConfig.key, {
+        auth: { storage, debug: (prefix, ...a) => note(...a) },
+      });
+
+      let byUser = false;   // zelf uitgelogd (⋮-menu): dan is SIGNED_OUT geen afwijking
       window.sbAuth = {
         signIn:  (email, password) => unwrap(client.auth.signInWithPassword({ email, password })),
         signUp:  (email, password) => unwrap(client.auth.signUp({ email, password })),
@@ -577,7 +644,7 @@
           redirectTo: location.origin + location.pathname + "?auth=recovery",
         })),
         updatePassword: (password) => unwrap(client.auth.updateUser({ password })),
-        signOut: () => unwrap(client.auth.signOut()),
+        signOut: () => { byUser = true; return unwrap(client.auth.signOut()); },
       };
 
       // Brug voor de game-RPC's (publieke leesfuncties + telemetrie via Postgres).
@@ -611,18 +678,40 @@
         // Draait vóór game.js: bewaar de laatste stand (null = anoniem) zodat game.js die kan afspelen als het event al vuurde.
         window.sbAuthState = { user };
         window.dispatchEvent(new CustomEvent("sb-auth-changed", { detail: user }));
+        try { if (user) localStorage.setItem(SEEN_KEY, "1"); else localStorage.removeItem(SEEN_KEY); } catch (e) {}
+      };
+      // "Geen sessie" terwijl de opslag er nog een heeft (verversing mislukt of weggegooid, het andere venster was bezig): niet meteen
+      // uitgelogd tonen maar het na 1,5 / 3 / 4,5 s opnieuw vragen. Pas als het dan nog niets oplevert: anoniem.
+      let retries = 0, retryT = 0;
+      const settle = (session, why) => {
+        clearTimeout(retryT);
+        if (!session && retries < 3 && stored()) {
+          if (!retries) keep(why);
+          retries++;
+          retryT = setTimeout(() => client.auth.getSession().then(({ data }) => settle(data.session, why), () => settle(null, why)), 1500 * retries);
+          return;
+        }
+        if (session && retries) keep("healed");
+        retries = 0;
+        emit(session);
       };
       // Sessie herstellen bij page-load (ook na Google OAuth-redirect).
-      client.auth.getSession().then(({ data }) => emit(data.session));
+      client.auth.getSession().then(({ data }) => settle(data.session, "null"), () => settle(null, "null"));
       client.auth.onAuthStateChange((event, session) => {
+        note("bridge: event", event, session ? "session" : "null");
         // Recovery-link geklikt: laat game.js het "nieuw wachtwoord"-scherm openen.
         if (event === "PASSWORD_RECOVERY") window.dispatchEvent(new Event("sb-recovery"));
-        emit(session);
+        if (event === "SIGNED_OUT") {   // de sleutel is dan al weg (hier of in het andere venster)
+          if (!byUser) keep("out");
+          byUser = false; retries = 0; clearTimeout(retryT);
+          return emit(null);
+        }
+        settle(session, "null");
       });
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=528"></script>
+  <script src="/game.js?v=529"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

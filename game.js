@@ -16403,6 +16403,18 @@ async function init() {
     refreshStreakBanners();
   };
   window.addEventListener("sb-auth-changed", onAuthChanged);
+  // Afwijkingen die de bridge zag (28/11/2026: sessie weg op een telefoon met de app én een Chrome-tabblad): meetpunten auth-null
+  // (supabase-js zei "geen sessie" terwijl de opslag er een had), auth-healed (die bleek bij nogmaals vragen te bestaan: dat was een nep-uitlog),
+  // auth-out (uitgelogd zonder ⋮-menu), auth-lost (sleutel weg tussen twee bezoeken). GoatCounter laadt async: wacht tot hij er is.
+  let authNoteWaits = 0;   // GoatCounter geblokt (adblocker): na een halve minuut opgeven
+  const flushAuthNotes = () => {
+    const q = window.sbAuthNotes;
+    if (!q?.length) return;
+    if (!window.goatcounter?.url) { if (authNoteWaits++ < 10) setTimeout(flushAuthNotes, 3000); return; }
+    while (q.length) gcCount("auth-" + q.shift());
+  };
+  window.addEventListener("sb-auth-note", flushAuthNotes);
+  flushAuthNotes();
   // De bridge draait vóór game.js, dus het eerste sessie-event kan al gevuurd hebben voordat deze luisteraar bestond: dat ging
   // verloren en je leek uitgelogd. Speel daarom de laatst bekende stand (ook null = anoniem) af, net als een echt event: iets later,
   // na het synchrone deel van init(), zoals het event vroeger ook binnenkwam.
