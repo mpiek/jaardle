@@ -5185,10 +5185,8 @@ function syncDoor() {
   d.dataset.at = at;
   d.setAttribute("href", langHref(DOOR_NEXT[at]));
   d.setAttribute("aria-label", label); d.title = label;
-  // het Jaardle-icoontje van de skin (de template heeft het gewone). Uit data-season en niet uit het favicon: Duels en Timeline
-  // hebben sinds 28/11 een eigen favicon. Zelfde naam als de laadtegel in style.css (/favicon-<skin>.svg?v=2).
-  const sk = document.documentElement.dataset.season, jt = d.querySelector('.kw-tile[data-w="j"] img');
-  const ic = sk && SEASONS[sk]?.icon ? `${SEASONS[sk].icon}.svg?v=2` : "/favicon.svg?v=2";
+  // het Jaardle-icoontje van de skin (de template heeft het gewone; jlIconSrc)
+  const jt = d.querySelector('.kw-tile[data-w="j"] img'), ic = jlIconSrc();
   if (jt && ic && jt.getAttribute("src") !== ic) jt.setAttribute("src", ic);
   if (ic) document.querySelectorAll(".acct-promise-logo").forEach((im) => { if (im.getAttribute("src") !== ic) im.setAttribute("src", ic); });   // "Gratis, voor altijd"
 }
@@ -5260,6 +5258,12 @@ function doorTap() {
   if (at === "j") { newsSeen("duels"); openDuels("door"); }
   else if (at === "d") openTimeline("door");
   else goJaardle();
+}
+// Het JA/AR-icoontje van de skin (de deur, en de Jaardle-kaart op het eindscherm van de Timeline-daily). Uit data-season en niet uit het
+// favicon: Duels en Timeline hebben sinds 28/11 een eigen favicon. Zelfde naam als de laadtegel in style.css (/favicon-<skin>.svg?v=2).
+function jlIconSrc() {
+  const sk = document.documentElement?.dataset?.season;
+  return sk && SEASONS[sk]?.icon ? `${SEASONS[sk].icon}.svg?v=2` : "/favicon.svg?v=2";
 }
 // Timeline → Jaardle (de deur, en sinds 28/11 de Jaardle-kaart op het eindscherm van de Timeline-daily); de daily laadt altijd mee
 function goJaardle() { return worldGo("j", () => Promise.resolve(null), () => { closeModal(TL_PAGE); return firstGameP; }, () => firstGameDone); }
@@ -10022,15 +10026,15 @@ for (const c in RT_I18N) Object.assign(I18N[c], RT_I18N[c]);
 // Teksten apart (zoals RT_I18N): de taalblokken liggen ver uit elkaar en gzip kijkt maar 32 KB terug.
 const BOTS_I18N = {
   nl: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In een team speel je tegen vrienden in plaats van bots.",
-        ew_dare: "daagt je uit", ew_bot_aria: (n) => `${n} daagt je uit`, ew_tl_aria: "Timeline van de dag", ew_new: "Nieuw" },
+        ew_dare: "daagt je uit", ew_bot_aria: (n) => `${n} daagt je uit`, ew_tl_aria: "Timeline van de dag", ew_new: "Nieuw", ew_jl: "raad het jaar" },
   en: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In a team you play against friends instead of bots.",
-        ew_dare: "dares you", ew_bot_aria: (n) => `${n} challenges you`, ew_tl_aria: "Today's Timeline", ew_new: "New" },
+        ew_dare: "dares you", ew_bot_aria: (n) => `${n} challenges you`, ew_tl_aria: "Today's Timeline", ew_new: "New", ew_jl: "guess the year" },
   de: { lb_bot: "Bot", lb_bots_sw: "Bots", recap_team_cap_bots: "In einem Team spielst du gegen Freunde statt gegen Bots.",
-        ew_dare: "will spielen", ew_bot_aria: (n) => `${n} fordert dich heraus`, ew_tl_aria: "Timeline des Tages", ew_new: "Neu" },
+        ew_dare: "will spielen", ew_bot_aria: (n) => `${n} fordert dich heraus`, ew_tl_aria: "Timeline des Tages", ew_new: "Neu", ew_jl: "errate das Jahr" },
   es: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "En un equipo juegas contra amigos en lugar de bots.",
-        ew_dare: "te reta", ew_bot_aria: (n) => `${n} te reta`, ew_tl_aria: "Timeline del día", ew_new: "Nuevo" },
+        ew_dare: "te reta", ew_bot_aria: (n) => `${n} te reta`, ew_tl_aria: "Timeline del día", ew_new: "Nuevo", ew_jl: "adivina el año" },
   pt: { lb_bot: "bot", lb_bots_sw: "Bots", recap_team_cap_bots: "Em uma equipe você joga contra amigos em vez de bots.",
-        ew_dare: "te desafia", ew_bot_aria: (n) => `${n} te desafia`, ew_tl_aria: "Timeline do dia", ew_new: "Novo" },
+        ew_dare: "te desafia", ew_bot_aria: (n) => `${n} te desafia`, ew_tl_aria: "Timeline do dia", ew_new: "Novo", ew_jl: "adivinhe o ano" },
 };
 for (const c in BOTS_I18N) Object.assign(I18N[c], BOTS_I18N[c]);
 let dailyBots = null;   // { date, days: { "YYYY-MM-DD": [{ key, score, won, guess_blocks, …hints }] }, bots: [{ key, name, flair, elo, w, l, bw, bl }], duels }
@@ -10131,9 +10135,11 @@ function soloBotsHtml(db = dailyBots) {
 //   duels"): beide kaarten altijd, ook na 3 duels en na je Timeline-daily. Alleen zonder bot (bots uit in je team, of get_daily_bots /
 //   /duel.js mislukte) is Timeline de hele rij (.solo, met een ›). .go = het moment (armRecapPlay).
 // - 28/11 (zijn "kan je bij timeline na daily ook die 2 icons toevoegen van robot daagt je uit en nog een voor de jaardle zelf"): dezelfde
-//   rij op het eindscherm van de Timeline-daily, met rechts Jaardle (jl) in plaats van Timeline: een groene kaart met alleen het woord
-//   (eerst ook vijf blokjes uit de jaren-ernaast: "da's niet echt Jaardle"). /timeline.js haalt hem via tlHost().playCards (tlPlayCards);
-//   de klikken staan hieronder bij de rest.
+//   rij op het eindscherm van de Timeline-daily, met rechts Jaardle (jl) in plaats van Timeline: een groene kaart in de vorm van de
+//   bot-kaart, met het JA/AR-blokje (het icoon van de skin) dat eruit springt en "Jaardle · raad het jaar" ernaast (eerst het woord groot
+//   met vijf blokjes uit de jaren-ernaast: "da's niet echt Jaardle", dan alleen het woord: "doe maar een klein blokje, dat grote ziet er
+//   niet uit … misschien ook Jaardle - guess the year eronder"). /timeline.js haalt hem via tlHost().playCards (tlPlayCards); de klikken
+//   staan hieronder bij de rest.
 const BOT_MODE_KEY = "jaardle:bot-mode";   // = BOTMODE_KEY in /duel.js ("b" = ⚔️ Best of 5, anders ⚡ knock-out); hier alleen lezen
 function recapBotReady(db = dailyBots) {
   const D = window.Duel;
@@ -10150,8 +10156,8 @@ function playCardsHtml(bot, tl, fresh = false, jl = false) {
   const tlB = tl ? `<button type="button" class="ew-tl${fresh ? " ew-fresh" : ""}" aria-label="${escHtml(t("ew_tl_aria"))}"><span class="ew-face" aria-hidden="true"></span>` +
     `<span class="ew-logo" aria-hidden="true"><span class="ew-logo-txt">Timeline</span><span class="ew-logo-line"><i></i><i></i><i></i></span></span>` +
     `<span class="ew-go" aria-hidden="true">›</span></button>` : "";
-  const jlB = jl ? `<button type="button" class="ew-jl" aria-label="Jaardle"><span class="ew-logo" aria-hidden="true"><span class="ew-logo-txt">Jaardle</span></span>` +
-    `<span class="ew-go" aria-hidden="true">›</span></button>` : "";
+  const jlB = jl ? `<button type="button" class="ew-jl" aria-label="Jaardle"><span class="ew-av" aria-hidden="true"><img src="${jlIconSrc()}" alt=""></span>` +
+    `<span class="ew-t"><b>Jaardle</b><small>${escHtml(t("ew_jl"))}</small></span><span class="ew-go" aria-hidden="true">›</span></button>` : "";
   return `<div class="ew${bot && (tl || jl) ? "" : " solo"}"${bot ? ` style="--h:${faceHue(bot.name)}"` : ""}>${b}${tlB}${jlB}` +
     `${tl && fresh ? `<span class="ew-new" aria-hidden="true">${escHtml(t("ew_new"))}</span>` : ""}</div>`;
 }

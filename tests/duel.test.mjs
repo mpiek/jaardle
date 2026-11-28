@@ -1679,7 +1679,8 @@ test("Eigen favicon voor Duels en Timeline — de <link>-regels per pagina, de J
   // de skins zetten alleen het Jaardle-icoon om; de thuisknop en de JA/AR-tegel komen uit data-season, niet uit het favicon
   assert.match(TPL, /n = h\.replace\(\/\^\\\/favicon\(\?=\\\.svg\|-\\d\)\/, s\.icon\);/);
   assert.match(GAME, /n = on \? h\.replace\(\/\^\\\/favicon\(\?=\\\.svg\|-\\d\)\/, icon\) : h\.replace\(icon, "\/favicon"\);/);
-  assert.match(GAME, /const ic = sk && SEASONS\[sk\]\?\.icon \? `\$\{SEASONS\[sk\]\.icon\}\.svg\?v=2` : "\/favicon\.svg\?v=2";/);
+  assert.match(GAME, /const sk = document\.documentElement\?\.dataset\?\.season;\n\s+return sk && SEASONS\[sk\]\?\.icon \? `\$\{SEASONS\[sk\]\.icon\}\.svg\?v=2` : "\/favicon\.svg\?v=2";/, "jlIconSrc");
+  assert.match(GAME, /const jt = d\.querySelector\('\.kw-tile\[data-w="j"\] img'\), ic = jlIconSrc\(\);/, "de JA/AR-tegel in de deur (en de Jaardle-kaart op het eindscherm van de Timeline-daily)");
   // zo gedraagt het season-script zich op /timeline/ met de kerst-skin: Jaardle-iconen worden kerst, het Timeline-icoon blijft
   const swap = (h, icon) => h.replace(/^\/favicon(?=\.svg|-\d)/, icon);
   assert.equal(swap("/favicon-96.png?v=2", "/favicon-kerst"), "/favicon-kerst-96.png?v=2");

@@ -6039,7 +6039,9 @@ test("playCardsHtml — op het eindscherm van de Timeline-daily bot | Jaardle (2
   assert.ok(!both.includes("ew-tl") && !both.includes("ew-new"), "geen Timeline-kaart en geen Nieuw");
   const jl = T.playCardsHtml(null, false, false, true);
   assert.match(jl, /^<div class="ew solo">/);
-  assert.ok(jl.includes('<span class="ew-logo-txt">Jaardle</span></span>') && !jl.includes("<i>"), "alleen het woord, geen blokjes");
+  assert.match(jl, /<span class="ew-av" aria-hidden="true"><img src="\/favicon\.svg\?v=2" alt=""><\/span>/, "het JA/AR-blokje op de plek van het gezicht");
+  assert.ok(jl.includes(`<span class="ew-t"><b>Jaardle</b><small>${T.t("ew_jl")}</small></span>`), "Jaardle · raad het jaar");
+  assert.ok(!jl.includes("ew-logo"), "niet meer het woord groot in het midden");
   assert.ok(!jl.includes("ew-bot"));
 });
 
