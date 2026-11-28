@@ -2581,7 +2581,8 @@ html[data-theme="light"] .jr-v .op { color: hsl(var(--h, 30) 62% 38%); }
   }
 
   // Het Jaardle-icoontje (dat van de skin als er een is: het favicon in de <head>): de reserve voor de terugknop in een ronde hieronder.
-  const homeIcon = () => document.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute("href") || "/favicon.svg?v=2";   // het Jaardle-icoontje van de skin
+  // het Jaardle-icoontje van de skin. Uit data-season en niet uit het favicon: /duels/ heeft sinds 28/11 een eigen favicon (DU/EL)
+  const homeIcon = () => { const s = document.documentElement.dataset.season; return s ? `/favicon-${s}.svg?v=2` : "/favicon.svg?v=2"; };
   // De terugknop in een ronde (Best of 5 en knock-out): ‹ + het DU/EL-icoon, naar Duels (22/11/2026, zijn "nu is terugknop naar JAAR ipv
   // DUEL, dat is natuurlijk raar, je doet duel"). Het icoon is dat van de deur in de kop (#duels-door); Jaardle via de Duels-pagina. Een
   // knock-out die loopt staat daar bovenaan (tik = terug in het spel), een ronde om de beurt bij Jouw beurt. Ook met de draaiende deur

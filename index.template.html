@@ -164,8 +164,10 @@
       document.head.appendChild(css);
       var meta = document.querySelector('meta[name="theme-color"]'), th = root.dataset.theme;
       if (meta && (!th || th === "light")) meta.content = s.bar[th ? 1 : 0];
+      // alleen het Jaardle-icoon (/favicon.svg, -96, -192); het eigen icoon van Duels en Timeline (/favicon-timeline…) blijft
       if (s.icon) document.querySelectorAll('link[rel="icon"]').forEach(function (l) {
-        l.href = l.getAttribute("href").replace("/favicon", s.icon);
+        var h = l.getAttribute("href"), n = h.replace(/^\/favicon(?=\.svg|-\d)/, s.icon);
+        if (n !== h) l.href = n;
       });
     } catch (e) { /* geen localStorage of DOM-fout → gewoon geen skin */ }
   })();
@@ -594,7 +596,7 @@
       window.dispatchEvent(new Event("sb-ready"));
     })();
   </script>
-  <script src="/game.js?v=525"></script>
+  <script src="/game.js?v=526"></script>
   <!-- Bezoeken → jaardle, meetpunten (gcCount in game.js) → jaardle-events: zo blijft de herkomstlijst van de hoofdsite schoon. -->
   <script data-goatcounter="https://jaardle.goatcounter.com/count"
           data-goatcounter-events="https://jaardle-events.goatcounter.com/count"

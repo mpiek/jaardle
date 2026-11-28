@@ -5185,8 +5185,10 @@ function syncDoor() {
   d.dataset.at = at;
   d.setAttribute("href", langHref(DOOR_NEXT[at]));
   d.setAttribute("aria-label", label); d.title = label;
-  // het Jaardle-icoontje van de skin (de head zet de favicon om; de template heeft het gewone)
-  const jt = d.querySelector('.kw-tile[data-w="j"] img'), ic = document.querySelector('link[rel="icon"][type="image/svg+xml"]')?.getAttribute("href");
+  // het Jaardle-icoontje van de skin (de template heeft het gewone). Uit data-season en niet uit het favicon: Duels en Timeline
+  // hebben sinds 28/11 een eigen favicon. Zelfde naam als de laadtegel in style.css (/favicon-<skin>.svg?v=2).
+  const sk = document.documentElement.dataset.season, jt = d.querySelector('.kw-tile[data-w="j"] img');
+  const ic = sk && SEASONS[sk]?.icon ? `${SEASONS[sk].icon}.svg?v=2` : "/favicon.svg?v=2";
   if (jt && ic && jt.getAttribute("src") !== ic) jt.setAttribute("src", ic);
   if (ic) document.querySelectorAll(".acct-promise-logo").forEach((im) => { if (im.getAttribute("src") !== ic) im.setAttribute("src", ic); });   // "Gratis, voor altijd"
 }
@@ -14331,9 +14333,10 @@ function setSeason(on) {
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = themeBarColor(currentThemeName());
   const icon = SEASONS[id].icon;
+  // alleen het Jaardle-icoon, zoals het season-script in de head; het eigen icoon van Duels en Timeline blijft staan
   if (icon) document.querySelectorAll('link[rel="icon"]').forEach((l) => {
-    const h = l.getAttribute("href") || "";
-    if (on) { if (!h.includes(icon)) l.href = h.replace("/favicon", icon); } else l.href = h.replace(icon, "/favicon");
+    const h = l.getAttribute("href") || "", n = on ? h.replace(/^\/favicon(?=\.svg|-\d)/, icon) : h.replace(icon, "/favicon");
+    if (n !== h) l.href = n;
   });
   syncSeasonCheck();
   syncSeasonCat();

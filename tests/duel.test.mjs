@@ -765,7 +765,8 @@ test("Duels-pagina — /duels/ opent het scherm, het adres volgt open/dicht, de 
   // de kop: logo (de ⚔️ áchter het woord), thuisknop = ‹ + het Jaardle-icoontje (van de skin), "?" = een pop-up boven de pagina
   assert.match(SRC, /<span class="dl-logo-sw" aria-hidden="true">\$\{ICON\}<\/span><span class="dl-logo-txt">\$\{esc\(T\.title\)\}<\/span>/);
   assert.match(SRC, /\.dl-logo > \* \{ grid-area: 1 \/ 1; \}/, "zwaarden en woord op dezelfde plek: het woord ligt erover");
-  assert.match(SRC, /link\[rel="icon"\]\[type="image\/svg\+xml"\][^\n]*\|\| "\/favicon\.svg\?v=2"/, "het icoontje van de skin als die er is");
+  assert.match(SRC, /const homeIcon = \(\) => \{ const s = document\.documentElement\.dataset\.season; return s \? `\/favicon-\$\{s\}\.svg\?v=2` : "\/favicon\.svg\?v=2"; \};/,
+    "het icoontje van de skin als die er is, uit data-season: /duels/ heeft een eigen favicon");
   assert.ok(!/‹ \$\{esc\(T\.exit\)\}/.test(SRC), "geen \"‹ Jaardle\"-pil meer (pagina en ronde)");
   assert.match(SRC, /if \(act === "help"\) \{ gc\("duel-help", "Duel: how it works"\); return openHowto\(T\); \}/);
   assert.match(SRC, /H\.openModal\(HOWTO_ID, \{ over: true \}\)/, "de uitleg ligt bóven de pagina; dicht = terug op de pagina");
@@ -1655,4 +1656,34 @@ test("duel.js — 🤖 db/232 de bot-kaart op het eindscherm van de daily: zelfd
   assert.equal(D.daily.mode("b"), true);
   assert.match(D.daily.card(h, bots[2], { band: false }), /data-bmode="b" aria-checked="true"/);
   D.daily.mode("k");
+});
+
+// 28/11/2026: listdle.com (en Google's favicon-dienst) nemen het favicon van een pagina, geen og:image. /timeline/ en /duels/ hebben
+// daarom hun eigen favicon (de tegel uit de deur), zonder een groot deelplaatje bij een gedeelde uitslag.
+test("Eigen favicon voor Duels en Timeline — de <link>-regels per pagina, de JA/AR-tegel en de skins blijven Jaardle", () => {
+  const root = join(dir, "..");
+  const read = (f) => readFileSync(join(root, f), "utf8");
+  const links = (h) => [...h.matchAll(/<link rel="(?:icon|apple-touch-icon)"[^>]*? href="([^"]+)"/g)].map((m) => m[1]);
+  const set = (b) => [`${b}.svg?v=2`, `${b}-96.png?v=2`, `${b}-192.png?v=2`, `${b}-192.png?v=2`];
+  for (const [f, base] of [["index.html", "/favicon"], ["nl/index.html", "/favicon"], ["timeline/index.html", "/favicon-timeline"],
+    ["de/timeline/index.html", "/favicon-timeline"], ["duels/index.html", "/favicon-duels"], ["pt/duels/index.html", "/favicon-duels"]]) {
+    const h = read(f);
+    assert.deepEqual(links(h), set(base), `${f}: svg, 96, 192 en apple-touch-icon`);
+    assert.match(h, /<span class="kw-tile" data-w="j"><img class="kd-logo" src="\/favicon\.svg\?v=2" alt="">/, `${f}: de JA/AR-tegel in de deur blijft Jaardle`);
+    assert.ok(!/og-timeline|<meta property="og:image"[^>]*timeline/.test(h), `${f}: geen deelplaatje voor Timeline`);
+  }
+  for (const b of ["favicon-timeline", "favicon-duels"]) for (const ext of [".svg", "-96.png", "-192.png"]) assert.ok(existsSync(join(root, b + ext)), `${b}${ext} staat in de repo`);
+  // het favicon is de tegel uit de deur (zelfde kleur)
+  assert.match(read("favicon-timeline.svg"), /<rect width="512" height="512" fill="#1e88e5"\/>/);
+  assert.match(read("favicon-duels.svg"), /<rect width="512" height="512" fill="#e8794a"\/>/);
+  // de skins zetten alleen het Jaardle-icoon om; de thuisknop en de JA/AR-tegel komen uit data-season, niet uit het favicon
+  assert.match(TPL, /n = h\.replace\(\/\^\\\/favicon\(\?=\\\.svg\|-\\d\)\/, s\.icon\);/);
+  assert.match(GAME, /n = on \? h\.replace\(\/\^\\\/favicon\(\?=\\\.svg\|-\\d\)\/, icon\) : h\.replace\(icon, "\/favicon"\);/);
+  assert.match(GAME, /const ic = sk && SEASONS\[sk\]\?\.icon \? `\$\{SEASONS\[sk\]\.icon\}\.svg\?v=2` : "\/favicon\.svg\?v=2";/);
+  // zo gedraagt het season-script zich op /timeline/ met de kerst-skin: Jaardle-iconen worden kerst, het Timeline-icoon blijft
+  const swap = (h, icon) => h.replace(/^\/favicon(?=\.svg|-\d)/, icon);
+  assert.equal(swap("/favicon-96.png?v=2", "/favicon-kerst"), "/favicon-kerst-96.png?v=2");
+  assert.equal(swap("/favicon.svg?v=2", "/favicon-kerst"), "/favicon-kerst.svg?v=2");
+  assert.equal(swap("/favicon-timeline-96.png?v=2", "/favicon-kerst"), "/favicon-timeline-96.png?v=2");
+  assert.equal(swap("/favicon-kerst.svg?v=2", "/favicon-kerst"), "/favicon-kerst.svg?v=2", "twee keer aan verdubbelt de naam niet");
 });
