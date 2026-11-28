@@ -121,36 +121,18 @@
   })();
   // Emoji-font voorladen, en alleen het bestand dat deze browser ook gebruikt:
   // de @font-face in style.css kiest met tech() tussen COLRv1 (Chromium, Firefox)
-  // en OpenType-SVG (Safari op macOS). Het SVG-font is zwaarder en krijgt lage
-  // voorrang, zodat het de eerste paint niet ophoudt. iPhone/iPad krijgen geen
-  // emoji-font (iOS 27 tekent OT-SVG niet, dus Apple-emoji; zie style.css) en
-  // laden dus ook niets voor: dezelfde @supports-test als daar.
-  // PROEF (27/11): Noto als sbix (PNG's) op iOS, uit /emoji-sbix.css. ?emoji=sbix zet hem aan en
-  // onthoudt dat op dit toestel (jaardle:emoji), ?emoji=off zet hem weer uit. Werkt het op een echte
-  // iPhone, dan gaat de @font-face naar style.css en verdwijnt deze tak.
+  // en OpenType-SVG (Safari op macOS); iPhone/iPad krijgen het sbix-font (Noto's
+  // PNG's, want iOS 27 tekent OT-SVG niet; zie style.css), met dezelfde
+  // @supports-test als daar. De twee zware bestanden krijgen lage voorrang,
+  // zodat ze de eerste paint niet ophouden.
   (function () {
     try {
-      if (CSS.supports("-webkit-touch-callout", "none")) {
-        var q = /[?&]emoji=(sbix|off)(?:&|$)/.exec(location.search), on = false;
-        try {
-          if (q) { if (q[1] === "sbix") localStorage.setItem("jaardle:emoji", "sbix"); else localStorage.removeItem("jaardle:emoji"); }
-          on = localStorage.getItem("jaardle:emoji") === "sbix";
-        } catch (e) { on = !!q && q[1] === "sbix"; }
-        if (!on) return;
-        var s = document.createElement("link");
-        s.rel = "stylesheet"; s.href = "/emoji-sbix.css?v=1";
-        document.head.appendChild(s);
-        var p = document.createElement("link");
-        p.rel = "preload"; p.as = "font"; p.type = "font/woff2"; p.crossOrigin = "anonymous";
-        p.href = "/fonts/jaardle-emoji-sbix.woff2"; p.fetchPriority = "low";
-        document.head.appendChild(p);
-        return;
-      }
-      var colr = CSS.supports("font-tech(color-COLRv1)");
-      if (!colr && !CSS.supports("font-tech(color-SVG)")) return;
+      var ios = CSS.supports("-webkit-touch-callout", "none");
+      var colr = !ios && CSS.supports("font-tech(color-COLRv1)");
+      if (!ios && !colr && !CSS.supports("font-tech(color-SVG)")) return;
       var l = document.createElement("link");
       l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
-      l.href = colr ? "/fonts/jaardle-emoji.woff2" : "/fonts/jaardle-emoji-svg.woff2";
+      l.href = ios ? "/fonts/jaardle-emoji-sbix.woff2" : colr ? "/fonts/jaardle-emoji.woff2" : "/fonts/jaardle-emoji-svg.woff2";
       if (!colr) l.fetchPriority = "low";
       document.head.appendChild(l);
     } catch (e) { /* geen CSS.supports → geen preload, font-display: swap vangt het op */ }
@@ -192,7 +174,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jaardle">
-<link rel="stylesheet" href="/style.css?v=267">
+<link rel="stylesheet" href="/style.css?v=268">
 </head>
 <body>
   <main>

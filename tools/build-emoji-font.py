@@ -30,11 +30,15 @@ laadt alleen het bestand voor dat de browser gaat gebruiken. Op 14/11/2026 als
 proef achter ?emoji=svg in echte Safari bekeken (Sauce Labs), daarna voor
 iedereen aangezet.
 
-iPhone/iPad krijgen sinds 27/11/2026 géén van beide: iOS 27 zegt ja op
-tech(color-SVG) maar tekent geen glyph uit een OT-SVG-font (lege plekken). De
-@font-face staat daarom in @supports not (-webkit-touch-callout: none) (alleen
-WebKit op iOS kent die eigenschap) en iOS valt terug op Apple-emoji. De markers
-staan dus ingesprongen; de range wordt op dezelfde inspringing teruggezet.
+iPhone/iPad krijgen geen van beide: iOS 27 zegt ja op tech(color-SVG) maar
+tekent geen glyph uit een OT-SVG-font (lege plekken). Die @font-face staat
+daarom in @supports not (-webkit-touch-callout: none) (alleen WebKit op iOS
+kent die eigenschap), en iOS krijgt in een tweede @font-face, in
+@supports (-webkit-touch-callout: none), een derde font: dezelfde subset als
+sbix met Noto's eigen PNG's (zie build_sbix_font). Sinds 28/11/2026 voor
+iedereen op iOS, na een proef achter ?emoji=sbix op een echte iPhone. style.css
+heeft dus twee paar markers, allebei ingesprongen; de range wordt op dezelfde
+inspringing teruggezet.
 
 Vereist: fontTools + brotli (pip), en het COLRv1-bronfont (zie SRC_FONT hieronder;
 download eenmalig van googlefonts/noto-emoji → fonts/Noto-COLRv1.ttf, niet gecommit).
@@ -51,7 +55,7 @@ Uitvoer:
   fonts/jaardle-emoji.woff2       — de gesubsette webfont, COLRv1 (wél committen)
   fonts/jaardle-emoji-svg.woff2   — dezelfde subset als OpenType-SVG (wél committen)
   fonts/jaardle-emoji-sbix.woff2  — dezelfde subset als sbix met Noto's PNG's (wél committen)
-  de unicode-range tussen de markers in style.css en emoji-sbix.css
+  de unicode-range tussen elk paar markers in style.css
 """
 import os
 import subprocess
@@ -65,8 +69,8 @@ OUT = ROOT / "fonts" / "jaardle-emoji.woff2"
 OUT_SVG = ROOT / "fonts" / "jaardle-emoji-svg.woff2"  # dezelfde subset voor Safari (macOS)
 OUT_SBIX = ROOT / "fonts" / "jaardle-emoji-sbix.woff2"  # dezelfde subset als PNG's (sbix) voor iPhone/iPad
 SRC_CBDT = ROOT / "fonts" / "Noto-CBDT.ttf"         # Noto's PNG-font (CBDT), zelfde release als SRC_FONT (niet gecommit)
-# Bestanden met een unicode-range tussen de EMOJI-RANGE-markers.
-RANGE_FILES = [ROOT / "style.css", ROOT / "emoji-sbix.css"]
+# Bestanden met een unicode-range tussen de EMOJI-RANGE-markers (elk paar wordt bijgewerkt).
+RANGE_FILES = [ROOT / "style.css"]
 # Map met maximum_color, ninja en pyftsubset van nanoemoji (JAARDLE_NANOEMOJI_BIN
 # wijst een andere venv aan).
 NANO_BIN = Path(os.environ.get("JAARDLE_NANOEMOJI_BIN", Path.home() / ".venvs" / "nanoemoji" / "bin"))
@@ -344,21 +348,19 @@ def build_sbix_font() -> None:
 
 
 def update_ranges(cps: set[int]) -> None:
-    """unicode-range automatisch bijwerken tussen de markers, in style.css en in
-    emoji-sbix.css, zodat de @font-face-ranges nooit uit de pas lopen met de
-    gesubsette fonts. De range komt op dezelfde inspringing als de START-marker
-    (in style.css staat de @font-face in een @supports-blok)."""
+    """unicode-range automatisch bijwerken tussen élk paar markers in style.css
+    (de @font-face voor iOS en die voor de rest), zodat de ranges nooit uit de
+    pas lopen met de gesubsette fonts. De range komt op dezelfde inspringing als
+    de START-marker (beide @font-faces staan in een @supports-blok)."""
+    import re
     rng = fmt_unicode_range(cps)
-    start, end = "/* EMOJI-RANGE:START */", "/* EMOJI-RANGE:END */"
+    pat = re.compile(r"^([ \t]*)/\* EMOJI-RANGE:START \*/\n.*?/\* EMOJI-RANGE:END \*/", re.S | re.M)
     for css_path in RANGE_FILES:
         css = css_path.read_text(encoding="utf-8")
-        if start in css and end in css:
-            pre = css.split(start)[0]
-            post = css.split(end, 1)[1]
-            ind = pre[pre.rfind("\n") + 1:]
-            css = f"{pre}{start}\n{ind}unicode-range: {rng};\n{ind}{end}{post}"
+        css, n = pat.subn(lambda m: f"{m[1]}/* EMOJI-RANGE:START */\n{m[1]}unicode-range: {rng};\n{m[1]}/* EMOJI-RANGE:END */", css)
+        if n:
             css_path.write_text(css, encoding="utf-8")
-            print(f"✓ {css_path.name} unicode-range bijgewerkt ({len(cps)} codepoints)", file=sys.stderr)
+            print(f"✓ {css_path.name} unicode-range bijgewerkt ({len(cps)} codepoints, {n}×)", file=sys.stderr)
         else:
             print(f"\n! markers niet gevonden in {css_path.name} — plak de range handmatig:", file=sys.stderr)
             print(f"  unicode-range: {rng};")
