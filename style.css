@@ -3930,6 +3930,7 @@ html[data-theme="light"], html[data-theme="parchment"] {
   --tl-bad: color-mix(in srgb, var(--red) 16%, var(--tl-paper));
   --tl-badtxt: color-mix(in srgb, var(--red-text) 70%, #fff);  /* een fout jaartal op dat rood: lichter, anders minder dan 3:1 */
   --tl-back: #173f70; --tl-bline: rgba(255, 255, 255, 0.28);
+  --tl-brim: #fff;   /* de rand van de rug: wit, zoals bij een echt kaartspel (28/11, zijn "de achterkant mag wel de border wit, voorkant niet") */
   --tl-lattice: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 1.5px, transparent 1.5px 8px),
     repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.14) 0 1.5px, transparent 1.5px 8px);
 }

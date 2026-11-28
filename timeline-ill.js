@@ -406,7 +406,7 @@ html :is(.tl-c, .tl-card).tl-ill[data-jc="8"] { --fg: #1d1b17; --muted: #55524a;
 .jc-sk.s1 { width: 58%; } .jc-sk.s2 { width: 86%; } .jc-sk.s3 { width: 72%; } .jc-sk.s4 { width: 80%; } .jc-sk.s5 { width: 44%; }
 .jc-sk-cat { display: inline-block; width: 4.2em; height: 0.5em; margin: 0; vertical-align: middle; }
 .jc-hero .tl-handin { position: relative; width: 15rem; height: 13.4rem; isolation: isolate; }
-.jc-hero .tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; border: 6px solid var(--tl-paper); background-color: var(--tl-back);
+.jc-hero .tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; border: 6px solid var(--tl-brim); background-color: var(--tl-back);
   background-image: var(--tl-lattice); box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline), 0 0 0 1px var(--tl-edge), 0 8px 20px rgba(0, 0, 0, 0.4); }
 .jc-hero .tl-back.b1 { transform: translate(9px, 5px) rotate(4deg); }
 .jc-hero .tl-back.b2 { transform: translate(17px, 10px) rotate(8deg); }

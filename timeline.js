@@ -242,7 +242,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-hand { position: relative; z-index: 2; display: grid; place-items: center; padding: 0.35rem 0 1.9rem; }
 .tl-handin { position: relative; width: min(16.5rem, 80%); height: var(--tl-hh); isolation: isolate; }
 /* 🃏 het karton (27/11, de kleuren staan in style.css bij "Timeline-karton"): de rug is ruitjes in een rand van hetzelfde karton als de voorkant */
-.tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; border: 6px solid var(--tl-paper); background-color: var(--tl-back);
+.tl-back { position: absolute; inset: 0; z-index: -1; border-radius: 16px; border: 6px solid var(--tl-brim); background-color: var(--tl-back);
   background-image: var(--tl-lattice); box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline), 0 0 0 1px var(--tl-edge), var(--shadow-pop); }
 .tl-back.b1 { transform: translate(9px, 5px) rotate(4deg); }
 .tl-back.b2 { transform: translate(17px, 10px) rotate(8deg); }
@@ -268,7 +268,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 /* 🃏 de volgende kaart wordt van de stapel gepakt (26/11, zijn "leuk als die van de stapel gepakt wordt"): de bovenste rug (b1) komt naar
    voren en draait om; ::before is de rugzijde tot de kaart op zijn kant staat. De ruggen eronder schuiven één plek op (tl-shift). */
 .tl-card.tl-deal { animation: tl-deal 0.44s cubic-bezier(0.3, 0.7, 0.3, 1) both; }
-.tl-card.tl-deal::before { content: ""; position: absolute; inset: -1px; z-index: 5; border-radius: inherit; pointer-events: none; border: 6px solid var(--tl-paper);
+.tl-card.tl-deal::before { content: ""; position: absolute; inset: -1px; z-index: 5; border-radius: inherit; pointer-events: none; border: 6px solid var(--tl-brim);
   background-color: var(--tl-back); background-image: var(--tl-lattice); box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline);
   animation: tl-deal-back 0.44s linear both; }
 @keyframes tl-deal { 0% { transform: perspective(800px) translate(9px, 5px) rotate(4deg) rotateY(180deg); }
@@ -284,7 +284,7 @@ body[data-tlhome] #mode-tabs { display: flex; }
 .tl-sc { position: absolute; transform-style: preserve-3d; will-change: transform; }
 .tl-sc > div { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .tl-sf > * { width: 100% !important; height: 100% !important; margin: 0 !important; transform: none !important; animation: none !important; box-shadow: var(--shadow-pop); }
-.tl-sb { transform: rotateY(180deg); border-radius: 15px; border: 5px solid var(--tl-paper); background-color: var(--tl-back); background-image: var(--tl-lattice);
+.tl-sb { transform: rotateY(180deg); border-radius: 15px; border: 5px solid var(--tl-brim); background-color: var(--tl-back); background-image: var(--tl-lattice);
   box-shadow: inset 0 0 0 3px var(--tl-back), inset 0 0 0 4px var(--tl-bline), 0 0 0 1px var(--tl-edge), 0 1px 0 rgba(0, 0, 0, 0.35), 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
 .tl-sg { position: absolute; margin: 0 !important; }
 .tl-sf .tl-deal::before { display: none; }
